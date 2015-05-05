@@ -32,7 +32,7 @@ public class TestCreatorNullValue extends BaseMapTest
         }
 
         @Override
-        public Contained<?> getNullValue() {
+        public Contained<?> getNullValue(DeserializationContext ctxt) {
             return NULL_CONTAINED;
         }
     }

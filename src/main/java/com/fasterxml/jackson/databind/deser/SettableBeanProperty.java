@@ -6,7 +6,6 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
-import com.fasterxml.jackson.databind.deser.impl.NullProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -72,13 +71,6 @@ public abstract class SettableBeanProperty
      * used to handle type resolution.
      */
     protected final TypeDeserializer _valueTypeDeserializer;
-    
-    /**
-     * Object used to figure out value to be used when 'null' literal is encountered in JSON.
-     * For most types simply Java null, but for primitive types must
-     * be a non-null value (like Integer.valueOf(0) for int).
-     */
-    protected final NullProvider _nullProvider;
 
     /**
      * Additional optional property metadata, such as whether
@@ -173,7 +165,6 @@ public abstract class SettableBeanProperty
         _metadata = metadata;
         _contextAnnotations = contextAnnotations;
         _viewMatcher = null;
-        _nullProvider = null;
 
         // 30-Jan-2012, tatu: Important: contextualize TypeDeserializer now...
         if (typeDeser != null) {
@@ -202,7 +193,6 @@ public abstract class SettableBeanProperty
         _metadata = metadata;
         _contextAnnotations = null;
         _viewMatcher = null;
-        _nullProvider = null;
         _valueTypeDeserializer = null;
         _valueDeserializer = valueDeser;
     }
@@ -219,7 +209,6 @@ public abstract class SettableBeanProperty
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
-        _nullProvider = src._nullProvider;
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
@@ -241,11 +230,8 @@ public abstract class SettableBeanProperty
         _propertyIndex = src._propertyIndex;
 
         if (deser == null) {
-            _nullProvider = null;
             _valueDeserializer = MISSING_VALUE_DESERIALIZER;
         } else {
-            Object nvl = deser.getNullValue();
-            _nullProvider = (nvl == null) ? null : new NullProvider(_type, nvl);
             _valueDeserializer = (JsonDeserializer<Object>) deser;
         }
         _viewMatcher = src._viewMatcher;
@@ -268,7 +254,6 @@ public abstract class SettableBeanProperty
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
-        _nullProvider = src._nullProvider;
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
@@ -515,7 +500,7 @@ public abstract class SettableBeanProperty
         JsonToken t = p.getCurrentToken();
         
         if (t == JsonToken.VALUE_NULL) {
-            return (_nullProvider == null) ? null : _nullProvider.nullValue(ctxt);
+            return _valueDeserializer.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
             return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);

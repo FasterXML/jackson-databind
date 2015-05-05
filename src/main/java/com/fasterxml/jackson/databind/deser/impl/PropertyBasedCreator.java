@@ -99,7 +99,7 @@ public final class PropertyBasedCreator
             // [JACKSON-372]: primitive types need extra care
             // [JACKSON-774]: as do non-default nulls...
             JsonDeserializer<?> deser = prop.getValueDeserializer();
-            Object nullValue = (deser == null) ? null : deser.getNullValue();
+            Object nullValue = (deser == null) ? null : deser.getNullValue(ctxt);
             if ((nullValue == null) && prop.getType().isPrimitive()) {
                 nullValue = ClassUtil.defaultValue(prop.getType().getRawClass());
             }

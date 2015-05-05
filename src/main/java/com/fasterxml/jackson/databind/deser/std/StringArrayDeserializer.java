@@ -106,7 +106,7 @@ public final class StringArrayDeserializer
                         break;
                     }
                     // Ok: no need to convert Strings, but must recognize nulls
-                    value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue() : deser.deserialize(jp, ctxt);
+                    value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue(ctxt) : deser.deserialize(jp, ctxt);
                 } else {
                     value = deser.deserialize(jp, ctxt);
                 }

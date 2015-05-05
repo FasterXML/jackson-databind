@@ -1415,7 +1415,7 @@ public class ObjectReader
         if (t == JsonToken.VALUE_NULL) {
             if (valueToUpdate == null) {
                 DeserializationContext ctxt = createDeserializationContext(jp, _config);
-                result = _findRootDeserializer(ctxt, _valueType).getNullValue();
+                result = _findRootDeserializer(ctxt, _valueType).getNullValue(ctxt);
             } else {
                 result = valueToUpdate;
             }
@@ -1448,7 +1448,7 @@ public class ObjectReader
             if (t == JsonToken.VALUE_NULL) {
                 if (valueToUpdate == null) {
                     DeserializationContext ctxt = createDeserializationContext(jp, _config);
-                    result = _findRootDeserializer(ctxt, _valueType).getNullValue();
+                    result = _findRootDeserializer(ctxt, _valueType).getNullValue(ctxt);
                 } else {
                     result = valueToUpdate;
                 }

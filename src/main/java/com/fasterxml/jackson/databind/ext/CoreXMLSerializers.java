@@ -66,21 +66,15 @@ public class CoreXMLSerializers extends Serializers.Base
             return _delegate;
         }
 
-        @Deprecated
-        @Override
-        public boolean isEmpty(XMLGregorianCalendar value) {
-            return _delegate.isEmpty(_convert(value));
-        }
-
         @Override
         public boolean isEmpty(SerializerProvider provider, XMLGregorianCalendar value) {
             return _delegate.isEmpty(provider, _convert(value));
         }
 
         @Override
-        public void serialize(XMLGregorianCalendar value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(XMLGregorianCalendar value, JsonGenerator gen, SerializerProvider provider)
                 throws IOException {
-            _delegate.serialize(_convert(value), jgen, provider);
+            _delegate.serialize(_convert(value), gen, provider);
         }
 
         @Override

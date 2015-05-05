@@ -765,7 +765,7 @@ public abstract class BeanSerializerBase
             }
 
         }
-        o.put("properties", propertiesNode);
+        o.set("properties", propertiesNode);
         return o;
     }
     

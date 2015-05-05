@@ -106,7 +106,7 @@ public final class InnerClassProperty
         JsonToken t = jp.getCurrentToken();
         Object value;
         if (t == JsonToken.VALUE_NULL) {
-            value = (_nullProvider == null) ? null : _nullProvider.nullValue(ctxt);
+            value = _valueDeserializer.getNullValue(ctxt);
         } else if (_valueTypeDeserializer != null) {
             value = _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
         } else  { // the usual case

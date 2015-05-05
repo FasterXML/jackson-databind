@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -125,18 +126,33 @@ public class NumberDeserializers
         private static final long serialVersionUID = 1L;
 
         protected final T _nullValue;
-        
+        protected final boolean _primitive;
+
         protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl) {
             super(vc);
             _nullValue = nvl;
+            _primitive = vc.isPrimitive();
         }
-        
+
         @Override
+        public final T getNullValue(DeserializationContext ctxt) throws JsonMappingException
+        {
+            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+                String msg = String.format(
+                        "Can not map JSON null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        handledType().toString());
+                throw ctxt.mappingException(msg);
+            }
+            return _nullValue;
+        }
+
+        @Override
+        @Deprecated // remove in 2.7
         public final T getNullValue() {
             return _nullValue;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Then primitive/wrapper types
@@ -149,29 +165,28 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.class, Boolean.FALSE);
-        final static BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.TYPE, null);
-        
+        final static BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.TYPE, Boolean.FALSE);
+        final static BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.class, null);
+
         public BooleanDeserializer(Class<Boolean> cls, Boolean nvl)
         {
             super(cls, nvl);
         }
         
         @Override
-        public Boolean deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public Boolean deserialize(JsonParser j, DeserializationContext ctxt) throws IOException
         {
-            return _parseBoolean(jp, ctxt);
+            return _parseBoolean(j, ctxt);
         }
 
         // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
         // (is it an error to even call this version?)
         @Override
-        public Boolean deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+        public Boolean deserializeWithType(JsonParser p, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
-            return _parseBoolean(jp, ctxt);
+            return _parseBoolean(p, ctxt);
         }
     }
 
@@ -190,10 +205,9 @@ public class NumberDeserializers
         }
 
         @Override
-        public Byte deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public Byte deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            return _parseByte(jp, ctxt);
+            return _parseByte(p, ctxt);
         }
     }
 
@@ -203,8 +217,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.class, Short.valueOf((short)0));
-        final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.TYPE, null);
+        final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.TYPE, Short.valueOf((short)0));
+        final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.class, null);
         
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
@@ -225,8 +239,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.class, '\0');
-        final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.TYPE, null);
+        final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.TYPE, '\0');
+        final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.class, null);
         
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
@@ -252,7 +266,7 @@ public class NumberDeserializers
                 }
                 // actually, empty should become null?
                 if (text.length() == 0) {
-                    return (Character) getEmptyValue();
+                    return (Character) getEmptyValue(ctxt);
                 }               
                 break;
             case JsonTokenId.ID_START_ARRAY:
@@ -277,8 +291,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.class, 0);
-        final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.TYPE, null);
+        final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, Integer.valueOf(0));
+        final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
         
         public IntegerDeserializer(Class<Integer> cls, Integer nvl) {
             super(cls, nvl);
@@ -315,8 +329,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static LongDeserializer primitiveInstance = new LongDeserializer(Long.class, Long.valueOf(0L));
-        final static LongDeserializer wrapperInstance = new LongDeserializer(Long.TYPE, null);
+        final static LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, Long.valueOf(0L));
+        final static LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
         
         public LongDeserializer(Class<Long> cls, Long nvl) {
             super(cls, nvl);
@@ -341,20 +355,17 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.class, 0.f);
-        final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.TYPE, null);
+        final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.TYPE, 0.f);
+        final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
         
         public FloatDeserializer(Class<Float> cls, Float nvl) {
             super(cls, nvl);
         }
 
         @Override
-        public Float deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public Float deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            /* 22-Jan-2009, tatu: Bounds/range checks would be tricky
-             *   here, so let's not bother even trying...
-             */
-            return _parseFloat(jp, ctxt);
+            return _parseFloat(p, ctxt);
         }
     }
 
@@ -364,8 +375,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.class, 0.d);
-        final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.TYPE, null);
+        final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.TYPE, 0.d);
+        final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
         
         public DoubleDeserializer(Class<Double> cls, Double nvl) {
             super(cls, nvl);
@@ -426,10 +437,10 @@ public class NumberDeserializers
                  */
                 String text = p.getText().trim();
                 if (text.length() == 0) {
-                    return getEmptyValue();
+                    return getEmptyValue(ctxt);
                 }
                 if (_hasTextualNull(text)) {
-                    return getNullValue();
+                    return getNullValue(ctxt);
                 }
                 if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;

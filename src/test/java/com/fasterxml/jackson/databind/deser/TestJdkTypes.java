@@ -45,7 +45,6 @@ public class TestJdkTypes extends BaseMapTest
         public Double doubleValue;
     }
 
-    
     static class ParamClassBean
     {
          public String name = "bar";

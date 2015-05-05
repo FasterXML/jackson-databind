@@ -45,6 +45,12 @@ public class JsonNodeDeserializer
      */
 
     @Override
+    public JsonNode getNullValue(DeserializationContext ctxt) {
+        return NullNode.getInstance();
+    }
+
+    @Override
+    @Deprecated // since 2.6, remove from 2.7
     public JsonNode getNullValue() {
         return NullNode.getInstance();
     }
@@ -55,15 +61,15 @@ public class JsonNodeDeserializer
      * Overridden by typed sub-classes for more thorough checking
      */
     @Override
-    public JsonNode deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public JsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (jp.getCurrentTokenId()) {
+        switch (p.getCurrentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
-            return deserializeObject(jp, ctxt, ctxt.getNodeFactory());
+            return deserializeObject(p, ctxt, ctxt.getNodeFactory());
         case JsonTokenId.ID_START_ARRAY:
-            return deserializeArray(jp, ctxt, ctxt.getNodeFactory());
+            return deserializeArray(p, ctxt, ctxt.getNodeFactory());
         default:
-            return deserializeAny(jp, ctxt, ctxt.getNodeFactory());
+            return deserializeAny(p, ctxt, ctxt.getNodeFactory());
         }
     }
 
@@ -162,19 +168,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     /**
-     * 
-     * @deprecated Since 2.3, use the overloaded variant
-     */
-    @Deprecated
-    protected void _handleDuplicateField(String fieldName, ObjectNode objectNode,
-                                         JsonNode oldValue, JsonNode newValue)
-        throws JsonProcessingException
-    {
-        // By default, we don't do anything
-        ;
-    }
-
-    /**
      * Method called when there is a duplicate value for a field.
      * By default we don't care, and the last value is used.
      * Can be overridden to provide alternate handling, such as throwing
@@ -197,8 +190,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
             _reportProblem(p, "Duplicate field '"+fieldName+"' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled");
         }
-        // Backwards-compatibility; call in case it's overloaded
-        _handleDuplicateField(fieldName, objectNode, oldValue, newValue);
     }
 
     /*

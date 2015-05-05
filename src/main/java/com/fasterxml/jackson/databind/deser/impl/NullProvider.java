@@ -6,12 +6,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
- * To support [JACKSON-420] we need bit more indirection; this is used to produce
- * artificial failure for primitives that don't accept JSON null as value.
- * 
  * @deprecated
  */
-@Deprecated // since 2.7, remove in 2.7
+@Deprecated // since 2.6, remove in 2.7
 public final class NullProvider
     implements java.io.Serializable
 {

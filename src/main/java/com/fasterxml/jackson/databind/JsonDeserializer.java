@@ -264,15 +264,15 @@ public abstract class JsonDeserializer<T>
      * Java null, but for some types (especially primitives) it may be
      * necessary to use non-null values.
      *<p>
-     * Note that deserializers are allowed to call this just once and
-     * then reuse returned value; that is, method is not guaranteed to
-     * be called once for each conversion.
+     * Since version 2.6 (in which the context argument was added), call is
+     * expected to be made each and every time a null token needs to
+     * be handled.
      *<p>
-     * Default implementation simply returns null
+     * Default implementation simply returns null.
      * 
      * @since 2.6 Added to replace earlier no-arguments variant
      */
-    public T getNullValue(DeserializationContext ctxt) {
+    public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         // Change the direction in 2.7
         return getNullValue();
     }
@@ -285,12 +285,15 @@ public abstract class JsonDeserializer<T>
      * for types. Or, if type should never be converted from empty
      * String, method can also throw an exception.
      *<p>
+     * Since version 2.6 (in which the context argument was added), call is
+     * expected to be made each and every time an empty value is needed.
+     *<p>
      * Default implementation simple calls {@link #getNullValue} and
      * returns value.
-     * 
+     *
      * @since 2.6 Added to replace earlier no-arguments variant
      */
-    public T getEmptyValue(DeserializationContext ctxt) {
+    public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         // Change the direction in 2.7
         return getEmptyValue();
     }

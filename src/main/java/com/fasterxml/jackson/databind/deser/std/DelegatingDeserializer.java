@@ -141,12 +141,12 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
-    public Object getNullValue(DeserializationContext ctxt) {
+    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         return _delegatee.getNullValue(ctxt);
     }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) {
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return _delegatee.getEmptyValue(ctxt);
     }
 

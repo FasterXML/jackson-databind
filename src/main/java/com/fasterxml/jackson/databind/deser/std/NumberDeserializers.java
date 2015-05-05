@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -134,13 +135,13 @@ public class NumberDeserializers
         }
 
         @Override
-        public final T getNullValue(DeserializationContext ctxt) {
+        public final T getNullValue(DeserializationContext ctxt) throws JsonMappingException
+        {
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 String msg = String.format(
                         "Can not map JSON null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
-//                throw ctxt.mappingException(msg);
-                throw new IllegalArgumentException(msg);
+                throw ctxt.mappingException(msg);
             }
             return _nullValue;
         }

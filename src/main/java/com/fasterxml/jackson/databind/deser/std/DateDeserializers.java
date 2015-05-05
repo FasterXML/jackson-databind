@@ -8,7 +8,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -142,15 +141,15 @@ public class DateDeserializers
         }
         
         @Override
-        protected java.util.Date _parseDate(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
+            throws IOException
         {
             if (_customFormat != null) {
-                JsonToken t = jp.getCurrentToken();
+                JsonToken t = p.getCurrentToken();
                 if (t == JsonToken.VALUE_STRING) {
-                    String str = jp.getText().trim();
+                    String str = p.getText().trim();
                     if (str.length() == 0) {
-                        return (Date) getEmptyValue();
+                        return (Date) getEmptyValue(ctxt);
                     }
                     synchronized (_customFormat) {
                         try {
@@ -163,17 +162,17 @@ public class DateDeserializers
                 }
                 // Issue#381
                 if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    jp.nextToken();
-                    final Date parsed = _parseDate(jp, ctxt);
-                    t = jp.nextToken();
+                    p.nextToken();
+                    final Date parsed = _parseDate(p, ctxt);
+                    t = p.nextToken();
                     if (t != JsonToken.END_ARRAY) {
-                        throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                                 "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
                     }            
                     return parsed;            
                 }
             }
-            return super._parseDate(jp, ctxt);
+            return super._parseDate(p, ctxt);
         }
     }
     

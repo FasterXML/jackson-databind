@@ -431,16 +431,12 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue();
+                    value = valueDes.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
-                /* !!! 23-Dec-2008, tatu: should there be an option to verify
-                 *   that there are no duplicate field names? (and/or what
-                 *   to do, keep-first or keep-last)
-                 */
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
@@ -494,7 +490,7 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue();
+                    value = valueDes.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
@@ -564,7 +560,7 @@ public class MapDeserializer
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue();
+                    value = valueDes.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {

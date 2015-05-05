@@ -182,10 +182,11 @@ public abstract class JsonDeserializer<T>
     public JsonDeserializer<?> replaceDelegatee(JsonDeserializer<?> delegatee) {
         throw new UnsupportedOperationException();
     }
-    
+
     /*
     /**********************************************************
-    /* Other accessors
+    /* Introspection methods for figuring out configuration/setup
+    /* of this deserializer instance and/or type it handles
     /**********************************************************
      */
 
@@ -202,51 +203,7 @@ public abstract class JsonDeserializer<T>
      * @since 2.3
      */
     public Class<?> handledType() { return null; }
-    
-    /**
-     * Method that can be called to determine value to be used for
-     * representing null values (values deserialized when JSON token
-     * is {@link JsonToken#VALUE_NULL}). Usually this is simply
-     * Java null, but for some types (especially primitives) it may be
-     * necessary to use non-null values.
-     *<p>
-     * Note that deserializers are allowed to call this just once and
-     * then reuse returned value; that is, method is not guaranteed to
-     * be called once for each conversion.
-     *<p>
-     * Default implementation simply returns null.
-     */
-    public T getNullValue() { return null; }
 
-    /**
-     * Method called to determine value to be used for "empty" values
-     * (most commonly when deserializing from empty JSON Strings).
-     * Usually this is same as {@link #getNullValue} (which in turn
-     * is usually simply Java null), but it can be overridden
-     * for types. Or, if type should never be converted from empty
-     * String, method can also throw an exception.
-     *<p>
-     * Default implementation simple calls {@link #getNullValue} and
-     * returns value.
-     */
-    public T getEmptyValue() { return getNullValue(); }
-
-    /**
-     * Method that will
-     * either return null to indicate that type being deserializers
-     * has no concept of properties; or a collection of identifiers
-     * for which <code>toString</code> will give external property
-     * name.
-     * This is only to be used for error reporting and diagnostics
-     * purposes (most commonly, to accompany "unknown property"
-     * exception).
-     * 
-     * @since 2.0
-     */
-    public Collection<Object> getKnownPropertyNames() {
-        return null;
-    }
-    
     /**
      * Method called to see if deserializer instance is cachable and
      * usable for other properties of same type (type for which instance
@@ -263,6 +220,81 @@ public abstract class JsonDeserializer<T>
      */
     public boolean isCachable() { return false; }
 
+    /**
+     * Accessor that can be used to determine if this deserializer uses
+     * another deserializer for actual deserialization, by delegating
+     * calls. If so, will return immediate delegate (which itself may
+     * delegate to further deserializers); otherwise will return null.
+     * 
+     * @return Deserializer this deserializer delegates calls to, if null;
+     *   null otherwise.
+     * 
+     * @since 2.1
+     */
+    public JsonDeserializer<?> getDelegatee() {
+        return null;
+    }
+
+    /**
+     * Method that will
+     * either return null to indicate that type being deserializers
+     * has no concept of properties; or a collection of identifiers
+     * for which <code>toString</code> will give external property
+     * name.
+     * This is only to be used for error reporting and diagnostics
+     * purposes (most commonly, to accompany "unknown property"
+     * exception).
+     * 
+     * @since 2.0
+     */
+    public Collection<Object> getKnownPropertyNames() {
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Other accessors
+    /**********************************************************
+     */
+    
+    /**
+     * Method that can be called to determine value to be used for
+     * representing null values (values deserialized when JSON token
+     * is {@link JsonToken#VALUE_NULL}). Usually this is simply
+     * Java null, but for some types (especially primitives) it may be
+     * necessary to use non-null values.
+     *<p>
+     * Note that deserializers are allowed to call this just once and
+     * then reuse returned value; that is, method is not guaranteed to
+     * be called once for each conversion.
+     *<p>
+     * Default implementation simply returns null
+     * 
+     * @since 2.6 Added to replace earlier no-arguments variant
+     */
+    public T getNullValue(DeserializationContext ctxt) {
+        // Change the direction in 2.7
+        return getNullValue();
+    }
+
+    /**
+     * Method called to determine value to be used for "empty" values
+     * (most commonly when deserializing from empty JSON Strings).
+     * Usually this is same as {@link #getNullValue} (which in turn
+     * is usually simply Java null), but it can be overridden
+     * for types. Or, if type should never be converted from empty
+     * String, method can also throw an exception.
+     *<p>
+     * Default implementation simple calls {@link #getNullValue} and
+     * returns value.
+     * 
+     * @since 2.6 Added to replace earlier no-arguments variant
+     */
+    public T getEmptyValue(DeserializationContext ctxt) {
+        // Change the direction in 2.7
+        return getEmptyValue();
+    }
+    
     /**
      * Accessor that can be used to check whether this deserializer
      * is expecting to possibly get an Object Identifier value instead of full value
@@ -284,22 +316,6 @@ public abstract class JsonDeserializer<T>
     public ObjectIdReader getObjectIdReader() { return null; }
 
     /**
-     * Accessor that can be used to determine if this deserializer uses
-     * another deserializer for actual deserialization, by delegating
-     * calls. If so, will return immediate delegate (which itself may
-     * delegate to further deserializers); otherwise will return null.
-     * 
-     * @return Deserializer this deserializer delegates calls to, if null;
-     *   null otherwise.
-     * 
-     * @since 2.1
-     */
-    public JsonDeserializer<?> getDelegatee() {
-        return null;
-    }
-
-    
-    /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
      * managed- and back-reference pairs.
      * 
@@ -310,6 +326,24 @@ public abstract class JsonDeserializer<T>
         throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
                 +"': type: value deserializer of type "+getClass().getName()+" does not support them");
     }
+
+    /*
+    /**********************************************************
+    /* Deprecated methods
+    /**********************************************************
+     */
+
+    /**
+     * @deprecated Since 2.6 Use overloaded variant that takes context argument
+     */
+    @Deprecated
+    public T getNullValue() { return null; }
+
+    /**
+     * @deprecated Since 2.6 Use overloaded variant that takes context argument
+     */
+    @Deprecated
+    public T getEmptyValue() { return getNullValue(); }
     
     /*
     /**********************************************************

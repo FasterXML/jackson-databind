@@ -244,7 +244,10 @@ public abstract class SettableBeanProperty
             _nullProvider = null;
             _valueDeserializer = MISSING_VALUE_DESERIALIZER;
         } else {
-            Object nvl = deser.getNullValue();
+            /* 04-May-2015, tatu: Ugh. This is nasty... 
+             * !!! To be fixed ASAP
+             */
+            Object nvl = deser.getNullValue(null);
             _nullProvider = (nvl == null) ? null : new NullProvider(_type, nvl);
             _valueDeserializer = (JsonDeserializer<Object>) deser;
         }

@@ -213,7 +213,7 @@ public final class StringCollectionDeserializer
                     break;
                 }
                 // Ok: no need to convert Strings, but must recognize nulls
-                value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue() : deser.deserialize(jp, ctxt);
+                value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue(ctxt) : deser.deserialize(jp, ctxt);
             } else {
                 value = deser.deserialize(jp, ctxt);
             }
@@ -246,7 +246,7 @@ public final class StringCollectionDeserializer
         String value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = (valueDes == null) ? null : valueDes.getNullValue();
+            value = (valueDes == null) ? null : valueDes.getNullValue(ctxt);
         } else {
             value = (valueDes == null) ? _parseString(jp, ctxt) : valueDes.deserialize(jp, ctxt);
         }

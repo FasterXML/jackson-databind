@@ -3335,7 +3335,7 @@ public class ObjectMapper
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 DeserializationContext ctxt = createDeserializationContext(jp, deserConfig);
-                result = _findRootDeserializer(ctxt, toValueType).getNullValue();
+                result = _findRootDeserializer(ctxt, toValueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else { // pointing to event other than null
@@ -3585,7 +3585,7 @@ public class ObjectMapper
         if (t == JsonToken.VALUE_NULL) {
             // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
             DeserializationContext ctxt = createDeserializationContext(jp, cfg);
-            result = _findRootDeserializer(ctxt, valueType).getNullValue();
+            result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
@@ -3613,7 +3613,7 @@ public class ObjectMapper
                 // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
                 DeserializationContext ctxt = createDeserializationContext(jp,
                         getDeserializationConfig());
-                result = _findRootDeserializer(ctxt, valueType).getNullValue();
+                result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {

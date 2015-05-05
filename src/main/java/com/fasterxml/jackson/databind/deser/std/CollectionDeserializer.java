@@ -240,7 +240,7 @@ public class CollectionDeserializer
             try {
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue();
+                    value = valueDes.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
@@ -295,7 +295,7 @@ public class CollectionDeserializer
 
         try {
             if (t == JsonToken.VALUE_NULL) {
-                value = valueDes.getNullValue();
+                value = valueDes.getNullValue(ctxt);
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {

@@ -130,8 +130,14 @@ public class NumberDeserializers
             super(vc);
             _nullValue = nvl;
         }
-        
+
         @Override
+        public final T getNullValue(DeserializationContext ctxt) {
+            return _nullValue;
+        }
+
+        @Override
+        @Deprecated // remove in 2.7
         public final T getNullValue() {
             return _nullValue;
         }
@@ -252,7 +258,7 @@ public class NumberDeserializers
                 }
                 // actually, empty should become null?
                 if (text.length() == 0) {
-                    return (Character) getEmptyValue();
+                    return (Character) getEmptyValue(ctxt);
                 }               
                 break;
             case JsonTokenId.ID_START_ARRAY:
@@ -426,10 +432,10 @@ public class NumberDeserializers
                  */
                 String text = p.getText().trim();
                 if (text.length() == 0) {
-                    return getEmptyValue();
+                    return getEmptyValue(ctxt);
                 }
                 if (_hasTextualNull(text)) {
-                    return getNullValue();
+                    return getNullValue(ctxt);
                 }
                 if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;

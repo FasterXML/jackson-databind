@@ -161,10 +161,10 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected final Boolean _parseBoolean(JsonParser jp, DeserializationContext ctxt)
+    protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_TRUE) {
             return Boolean.TRUE;
         }
@@ -174,17 +174,17 @@ public abstract class StdDeserializer<T>
         // [JACKSON-78]: should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
             // 11-Jan-2012, tatus: May be outside of int...
-            if (jp.getNumberType() == NumberType.INT) {
-                return (jp.getIntValue() == 0) ? Boolean.FALSE : Boolean.TRUE;
+            if (p.getNumberType() == NumberType.INT) {
+                return (p.getIntValue() == 0) ? Boolean.FALSE : Boolean.TRUE;
             }
-            return Boolean.valueOf(_parseBooleanFromNumber(jp, ctxt));
+            return Boolean.valueOf(_parseBooleanFromNumber(p, ctxt));
         }
         if (t == JsonToken.VALUE_NULL) {
-            return (Boolean) getNullValue();
+            return (Boolean) getNullValue(ctxt);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
-            String text = jp.getText().trim();
+            String text = p.getText().trim();
             // [#422]: Allow aliases
             if ("true".equals(text) || "True".equals(text)) {
                 return Boolean.TRUE;
@@ -193,20 +193,20 @@ public abstract class StdDeserializer<T>
                 return Boolean.FALSE;
             }
             if (text.length() == 0) {
-                return (Boolean) getEmptyValue();
+                return (Boolean) getEmptyValue(ctxt);
             }
             if (_hasTextualNull(text)) {
-                return (Boolean) getNullValue();
+                return (Boolean) getNullValue(ctxt);
             }
             throw ctxt.weirdStringException(text, _valueClass, "only \"true\" or \"false\" recognized");
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final Boolean parsed = _parseBoolean(jp, ctxt);
-            t = jp.nextToken();
+            p.nextToken();
+            final Boolean parsed = _parseBoolean(p, ctxt);
+            t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'Boolean' value but there was more than a single value in the array");
             }            
             return parsed;            
@@ -239,13 +239,13 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
             String text = p.getText().trim();
             if (_hasTextualNull(text)) {
-                return (Byte) getNullValue();
+                return (Byte) getNullValue(ctxt);
             }
             int value;
             try {
                 int len = text.length();
                 if (len == 0) {
-                    return (Byte) getEmptyValue();
+                    return (Byte) getEmptyValue(ctxt);
                 }
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
@@ -265,7 +265,7 @@ public abstract class StdDeserializer<T>
             return p.getByteValue();
         }
         if (t == JsonToken.VALUE_NULL) {
-            return (Byte) getNullValue();
+            return (Byte) getNullValue(ctxt);
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -294,10 +294,10 @@ public abstract class StdDeserializer<T>
             try {
                 int len = text.length();
                 if (len == 0) {
-                    return (Short) getEmptyValue();
+                    return (Short) getEmptyValue(ctxt);
                 }
                 if (_hasTextualNull(text)) {
-                    return (Short) getNullValue();
+                    return (Short) getNullValue(ctxt);
                 }
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
@@ -316,7 +316,7 @@ public abstract class StdDeserializer<T>
             return p.getShortValue();
         }
         if (t == JsonToken.VALUE_NULL) {
-            return (Short) getNullValue();
+            return (Short) getNullValue(ctxt);
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -414,7 +414,7 @@ public abstract class StdDeserializer<T>
             try {
                 int len = text.length();
                 if (_hasTextualNull(text)) {
-                    return (Integer) getNullValue();
+                    return (Integer) getNullValue(ctxt);
                 }
                 if (len > 9) {
                     long l = Long.parseLong(text);
@@ -425,14 +425,14 @@ public abstract class StdDeserializer<T>
                     return Integer.valueOf((int) l);
                 }
                 if (len == 0) {
-                    return (Integer) getEmptyValue();
+                    return (Integer) getEmptyValue(ctxt);
                 }
                 return Integer.valueOf(NumberInput.parseInt(text));
             } catch (IllegalArgumentException iae) {
                 throw ctxt.weirdStringException(text, _valueClass, "not a valid Integer value");
             }
         case JsonTokenId.ID_NULL:
-            return (Integer) getNullValue();
+            return (Integer) getNullValue(ctxt);
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -465,17 +465,17 @@ public abstract class StdDeserializer<T>
             // !!! 05-Jan-2009, tatu: Should we try to limit value space, JDK is too lenient?
             String text = p.getText().trim();
             if (text.length() == 0) {
-                return (Long) getEmptyValue();
+                return (Long) getEmptyValue(ctxt);
             }
             if (_hasTextualNull(text)) {
-                return (Long) getNullValue();
+                return (Long) getNullValue(ctxt);
             }
             try {
                 return Long.valueOf(NumberInput.parseLong(text));
             } catch (IllegalArgumentException iae) { }
             throw ctxt.weirdStringException(text, _valueClass, "not a valid Long value");
         case JsonTokenId.ID_NULL:
-            return (Long) getNullValue();
+            return (Long) getNullValue(ctxt);
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -544,10 +544,10 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
             if (text.length() == 0) {
-                return (Float) getEmptyValue();
+                return (Float) getEmptyValue(ctxt);
             }
             if (_hasTextualNull(text)) {
-                return (Float) getNullValue();
+                return (Float) getNullValue(ctxt);
             }
             switch (text.charAt(0)) {
             case 'I':
@@ -572,7 +572,7 @@ public abstract class StdDeserializer<T>
             throw ctxt.weirdStringException(text, _valueClass, "not a valid Float value");
         }
         if (t == JsonToken.VALUE_NULL) {
-            return (Float) getNullValue();
+            return (Float) getNullValue(ctxt);
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -651,10 +651,10 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
             if (text.length() == 0) {
-                return (Double) getEmptyValue();
+                return (Double) getEmptyValue(ctxt);
             }
             if (_hasTextualNull(text)) {
-                return (Double) getNullValue();
+                return (Double) getNullValue(ctxt);
             }
             switch (text.charAt(0)) {
             case 'I':
@@ -679,7 +679,7 @@ public abstract class StdDeserializer<T>
             throw ctxt.weirdStringException(text, _valueClass, "not a valid Double value");
         }
         if (t == JsonToken.VALUE_NULL) {
-            return (Double) getNullValue();
+            return (Double) getNullValue(ctxt);
         }
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             jp.nextToken();
@@ -758,7 +758,7 @@ public abstract class StdDeserializer<T>
             return new java.util.Date(jp.getLongValue());
         }
         if (t == JsonToken.VALUE_NULL) {
-            return (java.util.Date) getNullValue();
+            return (java.util.Date) getNullValue(ctxt);
         }
         if (t == JsonToken.VALUE_STRING) {
             String value = null;
@@ -766,10 +766,10 @@ public abstract class StdDeserializer<T>
                 // As per [JACKSON-203], take empty Strings to mean
                 value = jp.getText().trim();
                 if (value.length() == 0) {
-                    return (Date) getEmptyValue();
+                    return (Date) getEmptyValue(ctxt);
                 }
                 if (_hasTextualNull(value)) {
-                    return (java.util.Date) getNullValue();
+                    return (java.util.Date) getNullValue(ctxt);
                 }
                 return ctxt.parseDate(value);
             } catch (IllegalArgumentException iae) {

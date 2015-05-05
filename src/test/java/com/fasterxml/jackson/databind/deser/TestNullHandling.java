@@ -20,7 +20,7 @@ public class TestNullHandling extends BaseMapTest
         }
 
         @Override
-        public String getNullValue() { return "funny"; }
+        public String getNullValue(DeserializationContext ctxt) { return "funny"; }
     }
 
     /*

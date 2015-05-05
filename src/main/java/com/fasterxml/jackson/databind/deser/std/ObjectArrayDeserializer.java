@@ -151,7 +151,7 @@ public class ObjectArrayDeserializer
                 Object value;
                 
                 if (t == JsonToken.VALUE_NULL) {
-                    value = _elementDeserializer.getNullValue();
+                    value = _elementDeserializer.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = _elementDeserializer.deserialize(jp, ctxt);
                 } else {
@@ -235,7 +235,7 @@ public class ObjectArrayDeserializer
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = _elementDeserializer.getNullValue();
+            value = _elementDeserializer.getNullValue(ctxt);
         } else if (_elementTypeDeserializer == null) {
             value = _elementDeserializer.deserialize(jp, ctxt);
         } else {

@@ -42,13 +42,18 @@ public class AtomicReferenceDeserializer
     public AtomicReferenceDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
         return new AtomicReferenceDeserializer(_referencedType, typeDeser, valueDeser);
     }
-    
-    // Added in 2.3
+
+    @Override
+    public AtomicReference<?> getNullValue(DeserializationContext ctxt) {
+        return new AtomicReference<Object>();
+    }
+
+    @Deprecated // remove in 2.7
     @Override
     public AtomicReference<?> getNullValue() {
         return new AtomicReference<Object>();
     }
-
+    
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
     {

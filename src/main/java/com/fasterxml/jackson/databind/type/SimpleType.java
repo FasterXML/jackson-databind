@@ -77,7 +77,7 @@ public class SimpleType // note: until 2.6 was final
     }
 
     /**
-     * Pass-through constructor used by {@link ReferencedType}
+     * Pass-through constructor used by {@link ReferenceType}.
      * 
      * @since 2.6
      */

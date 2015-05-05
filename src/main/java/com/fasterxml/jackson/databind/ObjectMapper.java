@@ -33,10 +33,14 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
- * This mapper (or, data binder, or codec) provides functionality for
- * converting between Java objects (instances of JDK provided core classes,
- * beans), and matching JSON constructs. It offers configurability for
- * process, and also acts as a factory for more advanced {@link ObjectReader}
+ * ObjectMapper provides functionality for reading and writing JSON,
+ * either to and from basic POJOs (Plain Old Java Objects), or to and from
+ * a general-purpose JSON Tree Model ({@link JsonNode}), as well as
+ * related functionality for performing conversions.
+ * It is also highly customizable to work both with different styles of JSON
+ * content, and to support more advanced Object concepts such as
+ * polymorphism and Object identity.
+ * <code>ObjectMapper</code> also acts as a factory for more advanced {@link ObjectReader}
  * and {@link ObjectWriter} classes.
  * Mapper (and {@link ObjectReader}s, {@link ObjectWriter}s it constructs) will
  * use instances of {@link JsonParser} and {@link JsonGenerator}
@@ -47,22 +51,28 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * values is only available through {@link ObjectReader#readValues(InputStream)}
  * and {@link ObjectWriter#writeValues(OutputStream)}.
  *<p>
+Simplest usage is of form:
+<pre>
+  final ObjectMapper mapper = new ObjectMapper(); // can use static singleton, inject: just make sure to reuse!
+  MyValue value = new MyValue();
+  // ... and configure
+  File newState = new File("my-stuff.json");
+  mapper.writeValue(newState, value); // writes JSON serialization of MyValue instance
+  // or, read
+  MyValue older = mapper.readValue(new File("my-older-stuff.json"), MyValue.class);
+
+  // Or if you prefer JSON Tree representation:
+  JsonNode root = mapper.readTree(newState);
+  // and find values by, for example, using a {@link com.fasterxml.jackson.core.JsonPointer} expression:
+  int age = root.at("/personal/age").getValueAsInt(); 
+</pre>
+ *<p>
  * The main conversion API is defined in {@link ObjectCodec}, so that
  * implementation details of this class need not be exposed to
  * streaming parser and generator classes. Usage via {@link ObjectCodec} is,
  * however, usually only for cases where dependency to {@link ObjectMapper} is
  * either not possible (from Streaming API), or undesireable (when only relying
  * on Streaming API).
- *<p>
- * Note on caching: root-level deserializers are always cached, and accessed
- * using full (generics-aware) type information. This is different from
- * caching of referenced types, which is more limited and is done only
- * for a subset of all deserializer types. The main reason for difference
- * is that at root-level there is no incoming reference (and hence no
- * referencing property, no referral information or annotations to
- * produce differing deserializers), and that the performance impact
- * greatest at root level (since it'll essentially cache the full
- * graph of deserializers involved).
  *<p> 
  * Mapper instances are fully thread-safe provided that ALL configuration of the
  * instance occurs before ANY read or write calls. If configuration of a mapper
@@ -87,6 +97,16 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  *   if you intend to use them for multiple operations.
  *  </li>
  * </ul>
+ *<p>
+ * Note on caching: root-level deserializers are always cached, and accessed
+ * using full (generics-aware) type information. This is different from
+ * caching of referenced types, which is more limited and is done only
+ * for a subset of all deserializer types. The main reason for difference
+ * is that at root-level there is no incoming reference (and hence no
+ * referencing property, no referral information or annotations to
+ * produce differing deserializers), and that the performance impact
+ * greatest at root level (since it'll essentially cache the full
+ * graph of deserializers involved).
  */
 public class ObjectMapper
     extends ObjectCodec

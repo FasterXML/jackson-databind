@@ -1,11 +1,18 @@
 /**
-Contains basic mapper (conversion) functionality that
-allows for converting between regular streaming JSON content and
-Java objects (POJOs or Tree Model: support for both is via
+Basic data binding (mapping) functionality that
+allows for reading JSON content into Java Objects (POJOs)
+and JSON Trees ({@link com.fasterxml.jackson.databind.JsonNode}), as well as
+writing Java Objects and trees as JSON.
+Reading and writing (as well as related additional functionality) is accessed through
 {@link com.fasterxml.jackson.databind.ObjectMapper},
 {@link com.fasterxml.jackson.databind.ObjectReader} and
-{@link com.fasterxml.jackson.databind.ObjectWriter},
+{@link com.fasterxml.jackson.databind.ObjectWriter}
  classes.
+ In addition to reading and writing JSON content, it is also possible to use the
+ general databinding functionality for many other data formats, using
+ Jackson extension modules that provide such support: if so, you typically
+ simply construct an {@link com.fasterxml.jackson.databind.ObjectMapper} with
+ different underlying streaming parser, generator implementation.
 <p>
 The main starting point for operations is {@link com.fasterxml.jackson.databind.ObjectMapper},
 which can be used either directly (via multiple overloaded
@@ -30,6 +37,22 @@ of reading/writing, mapper contains additional functionality such as:
    callbacks, based on serializers registered)
   </li>
 </ul>
+<p>
+Simplest usage is of form:
+<pre>
+  final ObjectMapper mapper = new ObjectMapper(); // can use static singleton, inject: just make sure to reuse!
+  MyValue value = new MyValue();
+  // ... and configure
+  File newState = new File("my-stuff.json");
+  mapper.writeValue(newState, value); // writes JSON serialization of MyValue instance
+  // or, read
+  MyValue older = mapper.readValue(new File("my-older-stuff.json"), MyValue.class);
+
+  // Or if you prefer JSON Tree representation:
+  JsonNode root = mapper.readTree(newState);
+  // and find values by, for example, using a {@link com.fasterxml.jackson.core.JsonPointer} expression:
+  int age = root.at("/personal/age").getValueAsInt(); 
+</pre>
 <p>
 For more usage, refer to
 {@link com.fasterxml.jackson.databind.ObjectMapper},

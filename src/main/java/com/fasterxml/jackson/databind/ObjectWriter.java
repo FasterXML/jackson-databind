@@ -73,8 +73,8 @@ public class ObjectWriter
     protected final GeneratorSettings _generatorSettings;
 
     /**
-     * We may pre-fetch serializer if {@link #_rootType}
-     * is known, and if so, reuse it afterwards.
+     * We may pre-fetch serializer if root type
+     * is known (has been explicitly declared), and if so, reuse it afterwards.
      * This allows avoiding further serializer lookups and increases
      * performance a bit on cases where readers are reused.
      *
@@ -234,7 +234,7 @@ public class ObjectWriter
     }
 
     /**
-     * Overridable factory method called by {@link #createSequenceWriter(JsonGenerator)}
+     * Overridable factory method called by {@link #writeValues(OutputStream)}
      * method (and its various overrides), and initializes it as necessary.
      * 
      * @since 2.5

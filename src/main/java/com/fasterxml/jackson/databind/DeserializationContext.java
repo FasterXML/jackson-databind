@@ -131,7 +131,7 @@ public abstract class DeserializationContext
 
     /**
      * Type of {@link JsonDeserializer} (or, more specifically,
-     *   {@link ContextualizableDeserializer}) that is being
+     *   {@link ContextualDeserializer}) that is being
      *   contextualized currently.
      *
      * @since 2.5

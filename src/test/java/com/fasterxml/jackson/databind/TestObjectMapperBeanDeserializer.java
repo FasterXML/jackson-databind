@@ -317,7 +317,8 @@ public class TestObjectMapperBeanDeserializer
     public void testUnknownFields() throws Exception
     {
         try {
-            TestBean bean = MAPPER.readValue("{ \"foobar\" : 3 }", TestBean.class);
+            ObjectMapper mapper = MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+            TestBean bean = mapper.readValue("{ \"foobar\" : 3 }", TestBean.class);
             fail("Expected an exception, got bean: "+bean);
         } catch (JsonMappingException jse) {
             ;

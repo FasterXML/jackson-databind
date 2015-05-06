@@ -304,6 +304,7 @@ public class TestBeanDeserializer extends BaseMapTest
         
         // first, verify default settings which do not accept improper case
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
         assertFalse(mapper.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         
         try {

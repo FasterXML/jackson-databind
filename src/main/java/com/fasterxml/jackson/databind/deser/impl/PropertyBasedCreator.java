@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Object that is used to collect arguments for non-default creator
@@ -96,13 +95,8 @@ public final class PropertyBasedCreator
                 prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
             }
             creatorProps[i] = prop;
-            // [JACKSON-372]: primitive types need extra care
-            // [JACKSON-774]: as do non-default nulls...
             JsonDeserializer<?> deser = prop.getValueDeserializer();
             Object nullValue = (deser == null) ? null : deser.getNullValue(ctxt);
-            if ((nullValue == null) && prop.getType().isPrimitive()) {
-                nullValue = ClassUtil.defaultValue(prop.getType().getRawClass());
-            }
             if (nullValue != null) {
                 if (defaultValues == null) {
                     defaultValues = new Object[len];
@@ -112,11 +106,14 @@ public final class PropertyBasedCreator
         }
         return new PropertyBasedCreator(valueInstantiator, creatorProps, defaultValues);
     }
-    
+
+    // 05-May-2015, tatu: Does not seem to be used, commented out in 2.6
+    /*
     public void assignDeserializer(SettableBeanProperty prop, JsonDeserializer<Object> deser) {
         prop = prop.withValueDeserializer(deser);
         _properties.put(prop.getName(), prop);
     }
+    */
     
     /*
     /**********************************************************
@@ -152,10 +149,10 @@ public final class PropertyBasedCreator
      * 
      * @since 2.1 (added ObjectIdReader parameter -- existed in previous versions without)
      */
-    public PropertyValueBuffer startBuilding(JsonParser jp, DeserializationContext ctxt,
+    public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir)
     {
-        PropertyValueBuffer buffer = new PropertyValueBuffer(jp, ctxt, _propertyCount, oir);
+        PropertyValueBuffer buffer = new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
         if (_propertiesWithInjectables != null) {
             buffer.inject(_propertiesWithInjectables);
         }

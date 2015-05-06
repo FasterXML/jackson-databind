@@ -1,17 +1,11 @@
 package com.fasterxml.jackson.failing;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Reproduction of [https://github.com/FasterXML/jackson-databind/issues/676]
@@ -19,131 +13,112 @@ import java.util.Map;
  * Deserialization of class with generic collection inside
  * depends on how is was deserialized first time.
  */
-public class TestPolymorphicDeserialization676 extends BaseMapTest {
-	private static final int TIMESTAMP = 123456;
-	private final MapContainer originMap;
+public class TestPolymorphicDeserialization676 extends BaseMapTest
+{
+    private static final int TIMESTAMP = 123456;
 
-	public TestPolymorphicDeserialization676() {
-		Map<String, Object> localMap = new HashMap<String, Object>();
-		localMap.put("DateValue", new Date(TIMESTAMP));
-		originMap = new MapContainer(localMap);
-	}
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class MapContainer {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "@class")
+        public Map<String, Object> map;
 
-	/**
-	 * If the class was first deserialized as polymorphic field,
-	 * deserialization will fail at complex type.
-	 */
-	public void testDeSerFail() throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
+        public MapContainer() { }
 
-		MapContainer deserMapBad = createDeSerMapContainer(originMap, mapper);
+        public MapContainer(Map<String, Object> map) {
+            this.map = map;
+        }
 
-		// map is deserialized as list
-		List<Object> list = Arrays.asList(new Object[] {"java.util.Date", TIMESTAMP});
-		assertFalse(list.equals(deserMapBad.getMap().get("DateValue")));
-		assertTrue(originMap.equals(deserMapBad));
-		assertTrue(originMap.equals(mapper.readValue(mapper.writeValueAsString(originMap),
-				MapContainer.class)));
-	}
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) return true;
+            if (!(o instanceof MapContainer)) return false;
+            return map.equals(((MapContainer) o).map);
+        }
 
-	/**
-	 * If the class was first deserialized as is,
-	 * deserialization will work correctly.
-	 */
-	public void testDeSerCorrect() throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("1", 1);
-		// commenting out the following statement will fail the test
-		assertEquals(new MapContainer(map),
-				mapper.readValue(
-						mapper.writeValueAsString(new MapContainer(map)),
-						MapContainer.class));
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[MapContainer:");
+            for (Map.Entry<String,Object> entry : map.entrySet()) {
+                sb.append(" '").append(entry.getKey()).append("' : ");
+                Object value = entry.getValue();
+                if (value == null) {
+                    sb.append("null");
+                } else {
+                    sb.append("(").append(value.getClass().getName()).append(") ");
+                    sb.append(String.valueOf(value));
+                }
+            }
+            return sb.append(']').toString();
+        }
+    }
 
-		MapContainer deserMapGood = createDeSerMapContainer(originMap, mapper);
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class PolymorphicValueWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "@class")
+        public Object value;
+    }
 
-		assertEquals(originMap, deserMapGood);
-		assertEquals(new Date(TIMESTAMP), deserMapGood.getMap().get("DateValue"));
+    private final MapContainer originMap;
 
-		assertEquals(originMap, mapper.readValue(mapper.writeValueAsString(originMap), MapContainer.class));
-	}
+    public TestPolymorphicDeserialization676() {
+        Map<String, Object> localMap = new LinkedHashMap<String, Object>();
+        localMap.put("DateValue", new Date(TIMESTAMP));
+        originMap = new MapContainer(localMap);
+    }
 
-	private static MapContainer createDeSerMapContainer(MapContainer originMap, ObjectMapper mapper) throws IOException {
-		PolymorphicValueWrapper result = new PolymorphicValueWrapper();
-		result.setValue(originMap);
-		String json = mapper.writeValueAsString(result);
-		assertEquals("{\"value\":{\"@class\":"
-						+ "\"com.fasterxml.jackson.failing.TestPolymorphicDeserialization676$MapContainer\","
-						+ "\"map\":{\"DateValue\":[\"java.util.Date\",123456]}}}",
-				json);
-		PolymorphicValueWrapper deserializedResult = mapper.readValue(json, PolymorphicValueWrapper.class);
-		return (MapContainer) deserializedResult.getValue();
-	}
+    /**
+     * If the class was first deserialized as polymorphic field,
+     * deserialization will fail at complex type.
+     */
+    public void testDeSerFail() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
 
-	@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-	public static class MapContainer {
-		@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
-				include = JsonTypeInfo.As.PROPERTY,
-				property = "@class")
-		private Map<String, Object> map;
+        MapContainer deserMapBad = createDeSerMapContainer(originMap, mapper);
 
-		@SuppressWarnings("unused")
-		public MapContainer() {
-		}
+        // map is deserialized as list
+        List<Object> list = Arrays.asList(new Object[] {"java.util.Date", TIMESTAMP});
+        assertEquals(list, deserMapBad.map.get("DateValue"));
+        assertEquals(originMap, deserMapBad);
+        assertEquals(originMap,
+                mapper.readValue(mapper.writeValueAsString(originMap), MapContainer.class));
+    }
 
-		public MapContainer(Map<String, Object> map) {
-			this.map = map;
-		}
+    /**
+     * If the class was first deserialized as is,
+     * deserialization will work correctly.
+     */
+    public void testDeSerCorrect() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("1", 1);
+        // commenting out the following statement will fail the test
+        assertEquals(new MapContainer(map),
+                mapper.readValue(mapper.writeValueAsString(new MapContainer(map)),
+                        MapContainer.class));
 
-		public Map<String, Object> getMap() {
-			return map;
-		}
+        MapContainer deserMapGood = createDeSerMapContainer(originMap, mapper);
 
-		public void setMap(Map<String, Object> map) {
-			this.map = map;
-		}
+        assertEquals(originMap, deserMapGood);
+        assertEquals(new Date(TIMESTAMP), deserMapGood.map.get("DateValue"));
 
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
+        assertEquals(originMap, mapper.readValue(mapper.writeValueAsString(originMap), MapContainer.class));
+    }
 
-			MapContainer that = (MapContainer) o;
-
-			return !(map != null ? !map.equals(that.map) : that.map != null);
-		}
-
-		@Override
-		public int hashCode() {
-			return map != null ? map.hashCode() : 0;
-		}
-
-		@Override
-		public String toString() {
-			return "MapContainer{" +
-					"map=" + map +
-					'}';
-		}
-	}
-
-	@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-	public static class PolymorphicValueWrapper {
-		@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
-				include = JsonTypeInfo.As.PROPERTY,
-				property = "@class")
-		private Object value;
-
-		public Object getValue() {
-			return value;
-		}
-
-		public void setValue(Object value) {
-			this.value = value;
-		}
-	}
+    private static MapContainer createDeSerMapContainer(MapContainer originMap, ObjectMapper mapper) throws IOException {
+        PolymorphicValueWrapper result = new PolymorphicValueWrapper();
+        result.value = originMap;
+        String json = mapper.writeValueAsString(result);
+        assertEquals("{\"value\":{\"@class\":"
+                + "\"com.fasterxml.jackson.failing.TestPolymorphicDeserialization676$MapContainer\","
+                + "\"map\":{\"DateValue\":[\"java.util.Date\",123456]}}}",
+                json);
+        PolymorphicValueWrapper deserializedResult = mapper.readValue(json, PolymorphicValueWrapper.class);
+        return (MapContainer) deserializedResult.value;
+    }
 }

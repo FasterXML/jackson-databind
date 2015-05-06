@@ -205,11 +205,11 @@ public class TestPOJOPropertiesCollector
     /**********************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testSimple()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		Simple.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -223,7 +223,7 @@ public class TestPOJOPropertiesCollector
     public void testSimpleFieldVisibility()
     {
         // false -> deserialization
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		SimpleFieldDeser.class, false);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -236,7 +236,7 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleGetterVisibility()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		SimpleGetterVisibility.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -251,7 +251,7 @@ public class TestPOJOPropertiesCollector
     // whole property, unless explicit property marker exists
     public void testEmpty()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		Empty.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(0, props.size());
@@ -262,7 +262,7 @@ public class TestPOJOPropertiesCollector
     // only parts that are ignored are, well, ignored
     public void testPartialIgnore()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		IgnoredSetter.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -275,7 +275,7 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleRenamed()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		RenamedProperties.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -288,7 +288,7 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleRenamed2()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		RenamedProperties2.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -301,7 +301,7 @@ public class TestPOJOPropertiesCollector
 
     public void testMergeWithRename()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		MergedProperties.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -314,7 +314,7 @@ public class TestPOJOPropertiesCollector
     
     public void testSimpleIgnoreAndRename()
     {
-        POJOPropertiesCollector coll = collector(mapper,
+        POJOPropertiesCollector coll = collector(MAPPER,
         		IgnoredRenamedSetter.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -337,7 +337,7 @@ public class TestPOJOPropertiesCollector
 
     public void testCollectionOfIgnored()
     {
-        POJOPropertiesCollector coll = collector(mapper, ImplicitIgnores.class, false);
+        POJOPropertiesCollector coll = collector(MAPPER, ImplicitIgnores.class, false);
         // should be 1, due to ignorals
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -350,7 +350,7 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleOrderingForDeserialization()
     {
-        POJOPropertiesCollector coll = collector(mapper, SortedProperties.class, false);
+        POJOPropertiesCollector coll = collector(MAPPER, SortedProperties.class, false);
         List<BeanPropertyDefinition> props = coll.getProperties();
         assertEquals(4, props.size());
         assertEquals("a", props.get(0).getName());
@@ -362,7 +362,7 @@ public class TestPOJOPropertiesCollector
     public void testSimpleWithType()
     {
         // first for serialization; should base choice on getter
-        POJOPropertiesCollector coll = collector(mapper, TypeTestBean.class, true);
+        POJOPropertiesCollector coll = collector(MAPPER, TypeTestBean.class, true);
         List<BeanPropertyDefinition> props = coll.getProperties();
         assertEquals(1, props.size());
         assertEquals("value", props.get(0).getName());
@@ -371,7 +371,7 @@ public class TestPOJOPropertiesCollector
         assertEquals(Integer.class, m.getRawType());
 
         // then for deserialization; prefer ctor param
-        coll = collector(mapper, TypeTestBean.class, false);
+        coll = collector(MAPPER, TypeTestBean.class, false);
         props = coll.getProperties();
         assertEquals(1, props.size());
         assertEquals("value", props.get(0).getName());
@@ -385,10 +385,10 @@ public class TestPOJOPropertiesCollector
     {
         BasicBeanDescription beanDesc;
         // first with serialization
-        beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Issue701Bean.class));
+        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
         assertNotNull(beanDesc);
         // then with deserialization
-        beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(Issue701Bean.class));
+        beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(Issue701Bean.class));
         assertNotNull(beanDesc);
     }
 
@@ -407,7 +407,7 @@ public class TestPOJOPropertiesCollector
 
     public void testJackson744() throws Exception
     {
-        BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(Issue744Bean.class));
+        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(Issue744Bean.class));
         assertNotNull(beanDesc);
         AnnotatedMethod setter = beanDesc.findAnySetter();
         assertNotNull(setter);
@@ -417,19 +417,19 @@ public class TestPOJOPropertiesCollector
     public void testPropertyDesc() throws Exception
     {
         // start via deser
-        BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, true, false, "13");
         // and then via ser:
-        beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, true, false, "13");
     }
 
     // [#438]: Support @JsonProperty.index
     public void testPropertyIndex() throws Exception
     {
-        BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
-        beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
     }
 

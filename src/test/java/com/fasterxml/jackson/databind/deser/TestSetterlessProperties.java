@@ -66,6 +66,7 @@ public class TestSetterlessProperties
         throws Exception
     {
         ObjectMapper m = new ObjectMapper();
+        m = m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
         // by default, it should be enabled
         assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
         m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
@@ -100,6 +101,7 @@ public class TestSetterlessProperties
     {
         ObjectMapper m = new ObjectMapper();
         m.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
+        m = m.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
         // so this should fail now without a setter
         try {
             m.readValue

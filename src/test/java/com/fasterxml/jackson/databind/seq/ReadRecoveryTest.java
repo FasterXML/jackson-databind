@@ -25,7 +25,8 @@ public class ReadRecoveryTest extends BaseMapTest
     public void testRootBeans() throws Exception
     {
         final String JSON = aposToQuotes("{'a':3} {'b':5}");
-        MappingIterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
+        ObjectMapper mapper = MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        MappingIterator<Bean> it = mapper.reader(Bean.class).readValues(JSON);
         // First one should be fine
         assertTrue(it.hasNextValue());
         Bean bean = it.nextValue();

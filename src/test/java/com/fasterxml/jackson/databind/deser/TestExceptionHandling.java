@@ -31,7 +31,7 @@ public class TestExceptionHandling
     {
         UnrecognizedPropertyException exc = null;
         try {
-            new ObjectMapper().readValue("{\"bar\":3}", Bean.class);
+            new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true).readValue("{\"bar\":3}", Bean.class);
         } catch (UnrecognizedPropertyException e) {
             exc = e;
         }

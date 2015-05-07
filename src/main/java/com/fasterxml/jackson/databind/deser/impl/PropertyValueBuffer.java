@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
+import java.util.BitSet;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -14,38 +15,69 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
  * and hence need buffering before instance (that will have properties
  * to assign values to) is constructed.
  */
-public final class PropertyValueBuffer
+public class PropertyValueBuffer
 {
+    /*
+    /**********************************************************
+    /* Configuration
+    /**********************************************************
+     */
+
     protected final JsonParser _parser;
     protected final DeserializationContext _context;
-    
-    /**
-     * Buffer used for storing creator parameters for constructing
-     * instance
-     */
-    protected final Object[] _creatorParameters;
 
     protected final ObjectIdReader _objectIdReader;
     
-    /**
-     * Number of creator parameters we are still missing.
-     *<p>
-     * NOTE: assumes there are no duplicates, for now.
+    /*
+    /**********************************************************
+    /* Accumulated properties, other stuff
+    /**********************************************************
      */
-    private int _paramsNeeded;
+
+    /**
+     * Buffer used for storing creator parameters for constructing
+     * instance.
+     */
+    protected final Object[] _creatorParameters;
     
+    /**
+     * Number of creator parameters for which we have not yet received
+     * values.
+     */
+    protected int _paramsNeeded;
+
+    /**
+     * Bitflag used to track parameters found from incoming data
+     * when number of parameters is
+     * less than 32 (fits in int).
+     */
+    protected int _paramsSeen;
+
+    /**
+     * Bitflag used to track parameters found from incoming data
+     * when number of parameters is
+     * 32 or higher.
+     */
+    protected final BitSet _paramsSeenBig;
+
     /**
      * If we get non-creator parameters before or between
      * creator parameters, those need to be buffered. Buffer
      * is just a simple linked list
      */
-    private PropertyValue _buffered;
+    protected PropertyValue _buffered;
 
     /**
      * In case there is an Object Id property to handle, this is the value
      * we have for it.
      */
-    private Object _idValue;
+    protected Object _idValue;
+
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
     
     public PropertyValueBuffer(JsonParser jp, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir)
@@ -55,39 +87,88 @@ public final class PropertyValueBuffer
         _paramsNeeded = paramCount;
         _objectIdReader = oir;
         _creatorParameters = new Object[paramCount];
+        if (paramCount < 32) {
+            _paramsSeenBig = null;
+        } else {
+            _paramsSeenBig = new BitSet();
+        }
     }
 
-    public void inject(SettableBeanProperty[] injectableProperties)
+    /**
+     * Method called to do necessary post-processing such as injection of values
+     * and verification of values for required properties,
+     * after either {@link #assignParameter(SettableBeanProperty, Object)}
+     * returns <code>true</code> (to indicate all creator properties are found), or when
+     * then whole JSON Object has been processed,
+     *
+     * @param defaults If any of parameters requires nulls to be replaced with a non-null
+     *    object (usually primitive types), this is a non-null array that has such replacement
+     *    values (and nulls for cases where nulls are ok)
+     */
+    protected final Object[] getParameters(SettableBeanProperty[] injectableProperties)
     {
-        for (int i = 0, len = injectableProperties.length; i < len; ++i) {
-            SettableBeanProperty prop = injectableProperties[i];
+        // quick check to see if anything else is needed
+        if (_paramsNeeded > 0) {
+            if (_paramsSeenBig == null) {
+                _getParameters(injectableProperties);
+            } else {
+                _getParametersBig(injectableProperties);
+            }
+        }
+        /*
             if (prop != null) {
                 // null since there is no POJO yet
                 _creatorParameters[i] = _context.findInjectableValue(prop.getInjectableValueId(),
                         prop, null);
             }
-        }
+         */
+        return _creatorParameters;
     }
-    
-    /**
-     * @param defaults If any of parameters requires nulls to be replaced with a non-null
-     *    object (usually primitive types), this is a non-null array that has such replacement
-     *    values (and nulls for cases where nulls are ok)
-     */
-    protected final Object[] getParameters(Object[] defaults)
+
+    private void _getParametersBig(SettableBeanProperty[] injectableProperties)
     {
-        if (defaults != null) {
-            for (int i = 0, len = _creatorParameters.length; i < len; ++i) {
-                if (_creatorParameters[i] == null) {
-                    Object value = defaults[i];
-                    if (value != null) {
-                        _creatorParameters[i] = value;
-                    }
+        final boolean hasInjectables = (injectableProperties != null);
+        final int len = _creatorParameters.length;
+        for (int ix = 0; (ix = _paramsSeenBig.nextClearBit(ix)) < len; ++ix) {
+            if (hasInjectables) {
+                SettableBeanProperty prop = injectableProperties[ix];
+                if (prop != null) {
+                    Object val = _context.findInjectableValue(prop.getInjectableValueId(),
+                            prop, null);
+                    _creatorParameters[ix] = val;
+                    continue;
                 }
             }
         }
-        return _creatorParameters;
     }
+
+    private void _getParameters(SettableBeanProperty[] injectableProperties)
+    {
+        final boolean hasInjectables = (injectableProperties != null);
+        int mask = _paramsSeen;
+        // not optimal, could use `Integer.trailingZeroes()`, but for now should not
+        // really matter for common cases
+        for (int ix = 0, len = _creatorParameters.length; ix < len; ++ix, mask >>= 1) {
+            if ((mask & 1) != 0) {
+                continue;
+            }
+            if (hasInjectables) {
+                SettableBeanProperty prop = injectableProperties[ix];
+                if (prop != null) {
+                    Object val = _context.findInjectableValue(prop.getInjectableValueId(),
+                            prop, null);
+                    _creatorParameters[ix] = val;
+                    continue;
+                }
+            }
+        }
+    }
+    
+    /*
+    /**********************************************************
+    /* Other methods
+    /**********************************************************
+     */
 
 
     /**
@@ -137,20 +218,41 @@ public final class PropertyValueBuffer
      * 
      * @since 2.6
      */
-    public boolean assignParameter(SettableBeanProperty prop, Object value) {
-        _creatorParameters[prop.getCreatorIndex()] = value;
-        return --_paramsNeeded <= 0;
+    public boolean assignParameter(SettableBeanProperty prop, Object value)
+    {
+        final int ix = prop.getCreatorIndex();
+        _creatorParameters[ix] = value;
+
+System.out.println(" assign #"+ix+" -> "+value);        
+        
+        if (_paramsSeenBig == null) {
+            int old = _paramsSeen;
+            int newValue = (old & ~(1 << ix));
+            if (old != newValue) {
+                _paramsSeen = newValue;
+                if (--_paramsNeeded <= 0) {
+                    return true;
+                }
+            }
+        } else {
+            if (!_paramsSeenBig.get(ix)) {
+                if (--_paramsNeeded <= 0) {
+                    return true;
+                }
+                _paramsSeenBig.set(ix);
+            }
+        }
+        return false;
     }
     
     /**
-     * @return True if we have received all creator parameters
-     * 
      * @deprecated Since 2.6
      */
     @Deprecated
     public boolean assignParameter(int index, Object value) {
+        // !!! TODO: remove from 2.7
         _creatorParameters[index] = value;
-        return --_paramsNeeded <= 0;
+        return false;
     }
     
     public void bufferProperty(SettableBeanProperty prop, Object value) {

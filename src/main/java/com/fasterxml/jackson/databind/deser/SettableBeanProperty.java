@@ -374,7 +374,7 @@ public abstract class SettableBeanProperty
             objectVisitor.optionalProperty(this);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Accessors

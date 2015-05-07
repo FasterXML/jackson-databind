@@ -150,18 +150,19 @@ public final class PropertyBasedCreator
      * @since 2.1 (added ObjectIdReader parameter -- existed in previous versions without)
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
-            ObjectIdReader oir)
-    {
-        PropertyValueBuffer buffer = new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
-        if (_propertiesWithInjectables != null) {
-            buffer.inject(_propertiesWithInjectables);
-        }
-        return buffer;
+            ObjectIdReader oir) {
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
     {
-        Object bean = _valueInstantiator.createFromObjectWith(ctxt, buffer.getParameters(_defaultValues));
+        Object bean = _valueInstantiator.createFromObjectWith(ctxt,
+                buffer.getParameters(_propertiesWithInjectables));
+        /* Is this legal?
+        if (bean == null) {
+        }
+        */
+        
         // Object Id to handle?
         bean = buffer.handleIdValue(ctxt, bean);
         

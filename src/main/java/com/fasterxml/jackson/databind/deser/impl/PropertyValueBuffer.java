@@ -5,6 +5,7 @@ import java.util.BitSet;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
@@ -144,7 +145,10 @@ public class PropertyValueBuffer
             throw _context.mappingException(String.format("Missing required creator property '%s' (index %d)",
                     prop.getName(), prop.getCreatorIndex()));
         }
-        
+        if (_context.isEnabled(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)) {
+            throw _context.mappingException(String.format("Missing creator property '%s' (index %d); DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES enabled",
+                    prop.getName(), prop.getCreatorIndex()));
+        }
         // Third: default value
         JsonDeserializer<Object> deser = prop.getValueDeserializer();
         return deser.getNullValue(_context);

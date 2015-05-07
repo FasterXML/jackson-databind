@@ -189,6 +189,27 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_UNRESOLVED_OBJECT_IDS(true),
 
     /**
+     * Feature that determines what happens if one or more Creator properties (properties
+     * bound to parameters of Creator method (constructor or static factory method))
+     * are missing value to bind to from content.
+     * If enabled, such missing values result in a {@link JsonMappingException} being
+     * thrown with information on the first one (by index) of missing properties.
+     * If disabled, and if property is NOT marked as required,
+     * missing Creator properties are filled
+     * with <code>null values</code> provided by deserializer for the type of parameter
+     * (usually null for Object types, and default value for primitives; but redefinable
+     * via custom deserializers).
+     *<p>
+     * Note that having an injectable value counts as "not missing".
+     *<p>
+     * Feature is disabled by default, so that no exception is thrown for missing creator
+     * property values, unless they are explicitly marked as `required`.
+     * 
+     * @since 2.5
+     */
+    FAIL_ON_MISSING_CREATOR_PROPERTIES(false),
+    
+    /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about

@@ -35,6 +35,7 @@ Project: jackson-databind
 #765: `SimpleType.withStaticTyping()` impl incorrect
 #769: Fix `JacksonAnnotationIntrospector.findDeserializer` to return `Object` (as per
   `AnnotationIntrospector`); similarly for other `findXxx(De)Serializer(...)` methods
+#781: Support handling of `@JsonProperty.required` for Creator methods
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

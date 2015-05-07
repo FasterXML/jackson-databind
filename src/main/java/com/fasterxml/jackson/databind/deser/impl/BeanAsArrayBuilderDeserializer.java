@@ -308,8 +308,7 @@ public class BeanAsArrayBuilderDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                Object value = creatorProp.deserialize(p, ctxt);
-                if (buffer.assignParameter(creatorProp.getCreatorIndex(), value)) {
+                if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     try {
                         builder = creator.build(ctxt, buffer);
                     } catch (Exception e) {

@@ -197,7 +197,7 @@ public class ExternalTypeHandler
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _properties[i].getProperty();
             if (creator.findCreatorProperty(prop.getName()) != null) {
-                buffer.assignParameter(prop.getCreatorIndex(), values[i]);
+                buffer.assignParameter(prop, values[i]);
             }
         }
         Object bean = creator.build(ctxt, buffer);

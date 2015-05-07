@@ -332,8 +332,7 @@ public class BuilderBasedDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                Object value = creatorProp.deserialize(jp, ctxt);
-                if (buffer.assignParameter(creatorProp.getCreatorIndex(), value)) {
+                if (buffer.assignParameter(creatorProp, creatorProp.deserialize(jp, ctxt))) {
                     jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -550,27 +549,26 @@ public class BuilderBasedDeserializer
     }
 
     @SuppressWarnings("resource")
-    protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser jp,
+    protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser p,
     		DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        TokenBuffer tokens = new TokenBuffer(jp);
+        TokenBuffer tokens = new TokenBuffer(p);
         tokens.writeStartObject();
 
-        JsonToken t = jp.getCurrentToken();
-        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
-            String propName = jp.getCurrentName();
-            jp.nextToken(); // to point to value
+        JsonToken t = p.getCurrentToken();
+        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+            String propName = p.getCurrentName();
+            p.nextToken(); // to point to value
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                Object value = creatorProp.deserialize(jp, ctxt);
-                if (buffer.assignParameter(creatorProp.getCreatorIndex(), value)) {
-                    t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
+                if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
+                    t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
                         bean = creator.build(ctxt, buffer);
@@ -580,9 +578,9 @@ public class BuilderBasedDeserializer
                     }
                     // if so, need to copy all remaining tokens into buffer
                     while (t == JsonToken.FIELD_NAME) {
-                        jp.nextToken(); // to skip name
-                        tokens.copyCurrentStructure(jp);
-                        t = jp.nextToken();
+                        p.nextToken(); // to skip name
+                        tokens.copyCurrentStructure(p);
+                        t = p.nextToken();
                     }
                     tokens.writeEndObject();
                     if (bean.getClass() != _beanType.getRawClass()) {
@@ -590,7 +588,7 @@ public class BuilderBasedDeserializer
                         //   it's too complicated, so bail out
                         throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
                     }
-                    return _unwrappedPropertyHandler.processUnwrapped(jp, ctxt, bean, tokens);
+                    return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
                 }
                 continue;
             }
@@ -601,18 +599,18 @@ public class BuilderBasedDeserializer
             // regular property? needs buffering
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
-                buffer.bufferProperty(prop, prop.deserialize(jp, ctxt));
+                buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                handleIgnoredProperty(jp, ctxt, handledType(), propName);
+                handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
             tokens.writeFieldName(propName);
-            tokens.copyCurrentStructure(jp);
+            tokens.copyCurrentStructure(p);
             // "any property"?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(jp, ctxt));
+                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
             }
         }
 
@@ -625,7 +623,7 @@ public class BuilderBasedDeserializer
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here
         }
-        return _unwrappedPropertyHandler.processUnwrapped(jp, ctxt, bean, tokens);
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
     }
 
     /*

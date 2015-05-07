@@ -539,8 +539,7 @@ public class MapDeserializer
             SettableBeanProperty prop = creator.findCreatorProperty(key);
             if (prop != null) {
                 // Last property to set?
-                Object value = prop.deserialize(p, ctxt);
-                if (buffer.assignParameter(prop.getCreatorIndex(), value)) {
+                if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
                     p.nextToken();
                     Map<Object,Object> result;
                     try {

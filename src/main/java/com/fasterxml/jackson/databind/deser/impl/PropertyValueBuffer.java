@@ -131,10 +131,23 @@ public final class PropertyValueBuffer
     protected PropertyValue buffered() { return _buffered; }
 
     public boolean isComplete() { return _paramsNeeded <= 0; }
+
+    /**
+     * @return True if we have received all creator parameters
+     * 
+     * @since 2.6
+     */
+    public boolean assignParameter(SettableBeanProperty prop, Object value) {
+        _creatorParameters[prop.getCreatorIndex()] = value;
+        return --_paramsNeeded <= 0;
+    }
     
     /**
      * @return True if we have received all creator parameters
+     * 
+     * @deprecated Since 2.6
      */
+    @Deprecated
     public boolean assignParameter(int index, Object value) {
         _creatorParameters[index] = value;
         return --_paramsNeeded <= 0;

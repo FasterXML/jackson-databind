@@ -140,6 +140,11 @@ public class PropertyValueBuffer
                     prop, null);
         }
         // Second: required?
+        if (prop.isRequired()) {
+            throw _context.mappingException(String.format("Missing required creator property '%s' (index %d)",
+                    prop.getName(), prop.getCreatorIndex()));
+        }
+        
         // Third: default value
         JsonDeserializer<Object> deser = prop.getValueDeserializer();
         return deser.getNullValue(_context);

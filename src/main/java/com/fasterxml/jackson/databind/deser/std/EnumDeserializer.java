@@ -136,8 +136,9 @@ public class EnumDeserializer
     protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         JsonToken curr = p.getCurrentToken();
-        // Issue#381
-        if (curr == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+        // [databind#381]
+        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                && p.isExpectedStartArrayToken()) {
             p.nextToken();
             final Object parsed = deserialize(p, ctxt);
             curr = p.nextToken();

@@ -93,7 +93,7 @@ public class TestCreatorNullValue extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testUsesDeserializersNullValue() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new TestModule());

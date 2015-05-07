@@ -5,6 +5,8 @@ import java.util.BitSet;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
@@ -105,65 +107,44 @@ public class PropertyValueBuffer
      *    object (usually primitive types), this is a non-null array that has such replacement
      *    values (and nulls for cases where nulls are ok)
      */
-    protected final Object[] getParameters(SettableBeanProperty[] injectableProperties)
+    protected Object[] getParameters(SettableBeanProperty[] props)
+        throws JsonMappingException
     {
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
             if (_paramsSeenBig == null) {
-                _getParameters(injectableProperties);
+                int mask = _paramsSeen;
+                // not optimal, could use `Integer.trailingZeroes()`, but for now should not
+                // really matter for common cases
+                for (int ix = 0, len = _creatorParameters.length; ix < len; ++ix, mask >>= 1) {
+                    if ((mask & 1) == 0) {
+                        _creatorParameters[ix] = _findMissing(props[ix]);
+                    }
+                }
             } else {
-                _getParametersBig(injectableProperties);
+                final int len = _creatorParameters.length;
+                for (int ix = 0; (ix = _paramsSeenBig.nextClearBit(ix)) < len; ++ix) {
+                    _creatorParameters[ix] = _findMissing(props[ix]);
+                }
             }
         }
-        /*
-            if (prop != null) {
-                // null since there is no POJO yet
-                _creatorParameters[i] = _context.findInjectableValue(prop.getInjectableValueId(),
-                        prop, null);
-            }
-         */
         return _creatorParameters;
     }
 
-    private void _getParametersBig(SettableBeanProperty[] injectableProperties)
+    protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException
     {
-        final boolean hasInjectables = (injectableProperties != null);
-        final int len = _creatorParameters.length;
-        for (int ix = 0; (ix = _paramsSeenBig.nextClearBit(ix)) < len; ++ix) {
-            if (hasInjectables) {
-                SettableBeanProperty prop = injectableProperties[ix];
-                if (prop != null) {
-                    Object val = _context.findInjectableValue(prop.getInjectableValueId(),
-                            prop, null);
-                    _creatorParameters[ix] = val;
-                    continue;
-                }
-            }
+        // First: do we have injectable value?
+        Object injectableValueId = prop.getInjectableValueId();
+        if (injectableValueId != null) {
+            return _context.findInjectableValue(prop.getInjectableValueId(),
+                    prop, null);
         }
+        // Second: required?
+        // Third: default value
+        JsonDeserializer<Object> deser = prop.getValueDeserializer();
+        return deser.getNullValue(_context);
     }
 
-    private void _getParameters(SettableBeanProperty[] injectableProperties)
-    {
-        final boolean hasInjectables = (injectableProperties != null);
-        int mask = _paramsSeen;
-        // not optimal, could use `Integer.trailingZeroes()`, but for now should not
-        // really matter for common cases
-        for (int ix = 0, len = _creatorParameters.length; ix < len; ++ix, mask >>= 1) {
-            if ((mask & 1) != 0) {
-                continue;
-            }
-            if (hasInjectables) {
-                SettableBeanProperty prop = injectableProperties[ix];
-                if (prop != null) {
-                    Object val = _context.findInjectableValue(prop.getInjectableValueId(),
-                            prop, null);
-                    _creatorParameters[ix] = val;
-                    continue;
-                }
-            }
-        }
-    }
-    
     /*
     /**********************************************************
     /* Other methods

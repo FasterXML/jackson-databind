@@ -7,7 +7,6 @@ import java.util.HashMap;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -29,25 +28,19 @@ public final class PropertyBasedCreator
      * method (whichever one is null: one property for each
      * parameter for that one), keyed by logical property name
      */
-    protected final HashMap<String, SettableBeanProperty> _properties;
+    protected final HashMap<String, SettableBeanProperty> _propertyLookup;
 
     /**
-     * Number of properties: usually same as size of {@link #_properties},
+     * Number of properties: usually same as size of {@link #_propertyLookup},
      * but not necessarily, when we have unnamed injectable properties.
      */
     protected final int _propertyCount;
-    
-    /**
-     * If some property values must always have a non-null value (like
-     * primitive types do), this array contains such default values.
-     */
-    protected final Object[]  _defaultValues;
 
     /**
      * Array that contains properties that expect value to inject, if any;
      * null if no injectable values are expected.
      */
-    protected final SettableBeanProperty[] _propertiesWithInjectables;
+    protected final SettableBeanProperty[] _allProperties;
     
     /*
     /**********************************************************
@@ -56,26 +49,18 @@ public final class PropertyBasedCreator
      */
     
     protected PropertyBasedCreator(ValueInstantiator valueInstantiator,
-            SettableBeanProperty[] creatorProps, Object[] defaultValues)
+            SettableBeanProperty[] creatorProps)
     {
         _valueInstantiator = valueInstantiator;
-        _properties = new HashMap<String, SettableBeanProperty>();
-        SettableBeanProperty[] propertiesWithInjectables = null;
+        _propertyLookup = new HashMap<String, SettableBeanProperty>();
         final int len = creatorProps.length;
         _propertyCount = len;
+        _allProperties = new SettableBeanProperty[len];
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
-            _properties.put(prop.getName(), prop);
-            Object injectableValueId = prop.getInjectableValueId();
-            if (injectableValueId != null) {
-                if (propertiesWithInjectables == null) {
-                    propertiesWithInjectables = new SettableBeanProperty[len];
-                }
-                propertiesWithInjectables[i] = prop;
-            }
+            _allProperties[i] = prop;
+            _propertyLookup.put(prop.getName(), prop);
         }
-        _defaultValues = defaultValues;
-        _propertiesWithInjectables = propertiesWithInjectables;
     }
 
     /**
@@ -88,23 +73,14 @@ public final class PropertyBasedCreator
     {
         final int len = srcProps.length;
         SettableBeanProperty[] creatorProps = new SettableBeanProperty[len];
-        Object[] defaultValues = null;
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = srcProps[i];
             if (!prop.hasValueDeserializer()) {
                 prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
             }
             creatorProps[i] = prop;
-            JsonDeserializer<?> deser = prop.getValueDeserializer();
-            Object nullValue = (deser == null) ? null : deser.getNullValue(ctxt);
-            if (nullValue != null) {
-                if (defaultValues == null) {
-                    defaultValues = new Object[len];
-                }
-                defaultValues[i] = nullValue;
-            }
-        }
-        return new PropertyBasedCreator(valueInstantiator, creatorProps, defaultValues);
+        }        
+        return new PropertyBasedCreator(valueInstantiator, creatorProps);
     }
 
     // 05-May-2015, tatu: Does not seem to be used, commented out in 2.6
@@ -122,15 +98,15 @@ public final class PropertyBasedCreator
      */
     
     public Collection<SettableBeanProperty> properties() {
-        return _properties.values();
+        return _propertyLookup.values();
     }
 
     public SettableBeanProperty findCreatorProperty(String name) {
-        return _properties.get(name);
+        return _propertyLookup.get(name);
     }
 
     public SettableBeanProperty findCreatorProperty(int propertyIndex) {
-        for (SettableBeanProperty prop : _properties.values()) {
+        for (SettableBeanProperty prop : _propertyLookup.values()) {
             if (prop.getPropertyIndex() == propertyIndex) {
                 return prop;
             }
@@ -157,7 +133,7 @@ public final class PropertyBasedCreator
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt,
-                buffer.getParameters(_propertiesWithInjectables));
+                buffer.getParameters(_allProperties));
         // returning null isn't quite legal, but let's let caller deal with that
         if (bean != null) {
             // Object Id to handle?

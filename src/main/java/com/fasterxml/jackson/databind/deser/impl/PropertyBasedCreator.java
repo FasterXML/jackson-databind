@@ -158,17 +158,15 @@ public final class PropertyBasedCreator
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt,
                 buffer.getParameters(_propertiesWithInjectables));
-        /* Is this legal?
-        if (bean == null) {
-        }
-        */
-        
-        // Object Id to handle?
-        bean = buffer.handleIdValue(ctxt, bean);
-        
-        // Anything buffered?
-        for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
-            pv.assign(bean);
+        // returning null isn't quite legal, but let's let caller deal with that
+        if (bean != null) {
+            // Object Id to handle?
+            bean = buffer.handleIdValue(ctxt, bean);
+            
+            // Anything buffered?
+            for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
+                pv.assign(bean);
+            }
         }
         return bean;
     }

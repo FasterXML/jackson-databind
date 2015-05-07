@@ -223,11 +223,9 @@ public class PropertyValueBuffer
         final int ix = prop.getCreatorIndex();
         _creatorParameters[ix] = value;
 
-System.out.println(" assign #"+ix+" -> "+value);        
-        
         if (_paramsSeenBig == null) {
             int old = _paramsSeen;
-            int newValue = (old & ~(1 << ix));
+            int newValue = (old | (1 << ix));
             if (old != newValue) {
                 _paramsSeen = newValue;
                 if (--_paramsNeeded <= 0) {

@@ -176,7 +176,12 @@ Project: jackson-databind
 - Added new overload for `JsonSerializer.isEmpty()`, to eventually solve #588
 - Improve error messaging (related to [jaxb-annotations#38]) to include known subtype ids.
 
-2.4.6 (not yet released)
+2.4.7 (not yet released)
+
+#676: Deserialization of class with generic collection inside depends on
+  how is was deserialized first time
+
+2.4.6 (23-Apr-2015)
 
 #735: (complete fix) @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
  (reported by blackfyre512@github) (regression due to #604)

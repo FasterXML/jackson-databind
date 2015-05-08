@@ -557,7 +557,9 @@ public final class DeserializerCache
     private boolean _hasCustomValueHandler(JavaType t) {
         if (t.isContainerType()) {
             JavaType ct = t.getContentType();
-            return (ct != null) && (ct.getValueHandler() != null);
+            if (ct != null) {
+                return (ct.getValueHandler() != null) || (ct.getTypeHandler() != null);
+            }
         }
         return false;
     }

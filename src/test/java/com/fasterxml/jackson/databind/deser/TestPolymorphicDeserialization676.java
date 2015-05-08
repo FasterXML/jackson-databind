@@ -79,8 +79,6 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
 
         MapContainer deserMapBad = createDeSerMapContainer(originMap, mapper);
-        List<Object> list = Arrays.asList(new Object[] {"java.util.Date", TIMESTAMP});
-        assertEquals(list, deserMapBad.map.get("DateValue"));
         assertEquals(originMap, deserMapBad);
         assertEquals(originMap,
                 mapper.readValue(mapper.writeValueAsString(originMap), MapContainer.class));
@@ -104,12 +102,12 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
         assertEquals(originMap, mapper.readValue(mapper.writeValueAsString(originMap), MapContainer.class));
     }
 
-    private static MapContainer createDeSerMapContainer(MapContainer originMap, ObjectMapper mapper) throws IOException {
+    private MapContainer createDeSerMapContainer(MapContainer src, ObjectMapper mapper) throws IOException {
         PolymorphicValueWrapper result = new PolymorphicValueWrapper();
-        result.value = originMap;
+        result.value = src;
         String json = mapper.writeValueAsString(result);
         assertEquals("{\"value\":{\"@class\":"
-                + "\"com.fasterxml.jackson.failing.TestPolymorphicDeserialization676$MapContainer\","
+                + "\""+getClass().getName()+"$MapContainer\","
                 + "\"map\":{\"DateValue\":[\"java.util.Date\",123456]}}}",
                 json);
         PolymorphicValueWrapper deserializedResult = mapper.readValue(json, PolymorphicValueWrapper.class);

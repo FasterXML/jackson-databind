@@ -13,6 +13,8 @@ Project: jackson-databind
  (reported by Andrew D)
 #774: NPE from SqlDateSerializer as _useTimestamp is not checked for being null
  (reported by mrowkow@github)
+#785: Add handlings for classes which are available in `Thread.currentThread().getContextClassLoader()`
+ (contributed by Charles A)
 - Fix handling of Enums wrt JSON Schema, when 'toString()' used for serialization
 
 2.5.3 (24-Apr-2015)

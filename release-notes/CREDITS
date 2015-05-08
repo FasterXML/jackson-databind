@@ -245,3 +245,8 @@ Andrew Duckett (andrewduckett@github)
   * Reported #771: Annotation bundles ignored when added to Mixin
    (2.5.4)
 
+Charles Allen:
+  * Contributed #785: Add handlings for classes which are available in
+    `Thread.currentThread().getContextClassLoader()`
+   (2.5.4)
+

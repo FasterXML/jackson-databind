@@ -378,7 +378,30 @@ public final class AnnotatedClass
         List<AnnotatedMethod> creatorMethods = null;
         
         // Then static methods which are potential factory methods
-        for (Method m : _class.getDeclaredMethods()) {
+
+        Method[] classMethods;
+        try{
+            classMethods = _class.getDeclaredMethods();
+        }catch(final NoClassDefFoundError ex){
+            // One of the methods had a class that was not found in the cls.getClassLoader.
+            // Maybe the developer was nice and has a different class loader for this context.
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if(loader == null){
+                // Nope... this is going to end poorly
+                throw ex;
+            }
+            final Class<?> contextClass;
+            try {
+                contextClass = loader.loadClass(_class.getName());
+            }
+            catch (ClassNotFoundException e) {
+                //ex.addSuppressed(e); Not until 1.7
+                throw ex;
+            }
+            classMethods = contextClass.getDeclaredMethods(); // Cross fingers
+        }
+
+        for (Method m : classMethods) {
             if (!Modifier.isStatic(m.getModifiers())) {
                 continue;
             }
@@ -596,9 +619,29 @@ public final class AnnotatedClass
         if (cls == null) { // just so caller need not check when passing super-class
             return;
         }
-
+        Method[] classMethods;
+        try{
+            classMethods = cls.getDeclaredMethods();
+        }catch(final NoClassDefFoundError ex){
+            // One of the methods had a class that was not found in the cls.getClassLoader.
+            // Maybe the developer was nice and has a different class loader for this context.
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if (loader == null) {
+                // Nope... this is going to end poorly
+                throw ex;
+            }
+            final Class<?> contextClass;
+            try {
+                contextClass = loader.loadClass(cls.getName());
+            }
+            catch (ClassNotFoundException e) {
+                //ex.addSuppressed(e); Not until 1.7
+                throw ex;
+            }
+            classMethods = contextClass.getDeclaredMethods(); // Cross fingers
+        }
         // then methods from the class itself
-        for (Method m : cls.getDeclaredMethods()) {
+        for (Method m : classMethods) {
             if (!_isIncludableMemberMethod(m)) {
                 continue;
             }

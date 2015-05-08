@@ -4,10 +4,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.4.7 (not yet released)
+2.4.6.1 (not yet released)
 
 #676: Deserialization of class with generic collection inside depends on
   how is was deserialized first time
+#785: Add handlings for classes which are available in `Thread.currentThread().getContextClassLoader()`
+ (contributed by Charles A)
 
 2.4.6 (23-Apr-2015)
 

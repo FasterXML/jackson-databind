@@ -157,3 +157,8 @@ Eugene Lukash
 Fernando Otero (zeitos@github)
   * Contributed fix for #610: Problem with forward reference in hierarchies
    (2.4.4)
+
+Charles Allen:
+  * Contributed #785: Add handlings for classes which are available in
+    `Thread.currentThread().getContextClassLoader()`
+   (2.5.4)

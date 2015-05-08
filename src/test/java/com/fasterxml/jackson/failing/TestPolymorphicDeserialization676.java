@@ -79,8 +79,6 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
 
         MapContainer deserMapBad = createDeSerMapContainer(originMap, mapper);
-
-        // map is deserialized as list
         List<Object> list = Arrays.asList(new Object[] {"java.util.Date", TIMESTAMP});
         assertEquals(list, deserMapBad.map.get("DateValue"));
         assertEquals(originMap, deserMapBad);
@@ -88,10 +86,6 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
                 mapper.readValue(mapper.writeValueAsString(originMap), MapContainer.class));
     }
 
-    /**
-     * If the class was first deserialized as is,
-     * deserialization will work correctly.
-     */
     public void testDeSerCorrect() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);

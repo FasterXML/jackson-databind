@@ -205,7 +205,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default, so that no exception is thrown for missing creator
      * property values, unless they are explicitly marked as `required`.
      * 
-     * @since 2.5
+     * @since 2.6
      */
     FAIL_ON_MISSING_CREATOR_PROPERTIES(false),
     

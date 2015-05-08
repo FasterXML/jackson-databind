@@ -15,7 +15,7 @@ import org.junit.Test;
  * deserializer comes to different conclusion (using default implementation class),
  * resulting in a <code>ClassCastException</code>.
  * Whether this is wrong, and if so, can we fix it, is unknown at this point
- * (2.3): quite possibly this can not be changed.
+ * (2.6): quite possibly this can not be changed.
  */
 public class TestPolymorphicDeserialization283 extends BaseMapTest
 {

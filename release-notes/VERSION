@@ -40,6 +40,9 @@ Project: jackson-databind
 
 2.5.4 (not yet released)
 
+#676: Deserialization of class with generic collection inside depends on
+  how is was deserialized first time
+ (reported by lunaticare@github)
 #771: Annotation bundles ignored when added to Mixin
  (reported by Andrew D)
 #774: NPE from SqlDateSerializer as _useTimestamp is not checked for being null
@@ -175,11 +178,6 @@ Project: jackson-databind
   need to buffer values to know length)
 - Added new overload for `JsonSerializer.isEmpty()`, to eventually solve #588
 - Improve error messaging (related to [jaxb-annotations#38]) to include known subtype ids.
-
-2.4.7 (not yet released)
-
-#676: Deserialization of class with generic collection inside depends on
-  how is was deserialized first time
 
 2.4.6 (23-Apr-2015)
 

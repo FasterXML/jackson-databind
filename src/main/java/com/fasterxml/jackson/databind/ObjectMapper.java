@@ -1136,17 +1136,27 @@ public class ObjectMapper
     }
 
     /**
-     * Method for setting currently configured visibility checker;
+     * @deprecated Since 2.6 use {@link #setVisibility(VisibilityChecker)} instead.
+     */    
+    public void setVisibilityChecker(VisibilityChecker<?> vc) {
+        setVisibility(vc);
+    }
+
+    /**
+     * Method for setting currently configured {@link VisibilityChecker},
      * object used for determining whether given property element
      * (method, field, constructor) can be auto-detected or not.
      * This default checker is used if no per-class overrides
      * are defined.
-     */    
-    public void setVisibilityChecker(VisibilityChecker<?> vc) {
+     * 
+     * @since 2.6
+     */
+    public ObjectMapper setVisibility(VisibilityChecker<?> vc) {
         _deserializationConfig = _deserializationConfig.with(vc);
         _serializationConfig = _serializationConfig.with(vc);
+        return this;
     }
-
+    
     /**
      * Convenience method that allows changing configuration for
      * underlying {@link VisibilityChecker}s, to change details of what kinds of

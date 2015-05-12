@@ -75,7 +75,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         assertEquals("[1,null,3]", json);
 
         // and then that conversely deserializer does something similar
-        AsArrayWithView output = MAPPER.reader(AsArrayWithView.class).withView(ViewB.class)
+        AsArrayWithView output = MAPPER.readerFor(AsArrayWithView.class).withView(ViewB.class)
                 .readValue("[1,2,3]");
         // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
         assertEquals(3, output.c);

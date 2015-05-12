@@ -40,7 +40,7 @@ public class TestValueUpdate extends BaseMapTest
     public void testValueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");
-        new ObjectMapper().reader(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
+        new ObjectMapper().readerFor(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
         assertEquals("ghi", bean.getA());
         assertEquals("jkl", bean.getB());
     }

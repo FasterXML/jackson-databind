@@ -275,7 +275,7 @@ public class TestEnumDeserialization
         assertSame(TestEnum.RULES, value);
 
         // but can also be changed to errors:
-        ObjectReader r = MAPPER.reader(TestEnum.class)
+        ObjectReader r = MAPPER.readerFor(TestEnum.class)
                 .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
         try {
             value = r.readValue("1");

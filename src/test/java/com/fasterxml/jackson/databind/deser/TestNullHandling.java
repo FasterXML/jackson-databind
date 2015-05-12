@@ -43,7 +43,7 @@ public class TestNullHandling extends BaseMapTest
         assertEquals("funny", str);
         
         // as well as via ObjectReader
-        ObjectReader reader = mapper.reader(String.class);
+        ObjectReader reader = mapper.readerFor(String.class);
         str = reader.readValue("null");
         assertNotNull(str);
         assertEquals("funny", str);
@@ -67,7 +67,7 @@ public class TestNullHandling extends BaseMapTest
         assertEquals(list.get(0), deser.get(0));
 
         // as well as via ObjectReader
-        ObjectReader reader = mapper.reader(type);
+        ObjectReader reader = mapper.readerFor(type);
         deser = reader.readValue("[null]");
         assertNotNull(deser);
         assertEquals(1, deser.size());
@@ -90,7 +90,7 @@ public class TestNullHandling extends BaseMapTest
         assertEquals("funny", deser.get("key"));
 
         // as well as via ObjectReader
-        ObjectReader reader = mapper.reader(type);
+        ObjectReader reader = mapper.readerFor(type);
         deser = reader.readValue("{\"key\":null}");
         assertNotNull(deser);
         assertEquals(1, deser.size());

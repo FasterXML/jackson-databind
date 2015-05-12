@@ -39,7 +39,7 @@ public class TestUnknownProperty426 extends BaseMapTest
     public void testIssue426() throws Exception
     {
         final String JSON = aposToQuotes("{'userId': 9, 'firstName': 'Mike' }");
-        User result = MAPPER.reader(User.class).readValue(JSON);
+        User result = MAPPER.readerFor(User.class).readValue(JSON);
         assertNotNull(result);
         assertEquals("Mike", result.firstName);
     }

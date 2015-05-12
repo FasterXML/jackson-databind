@@ -18,7 +18,7 @@ public class RequiredCreatorTest extends BaseMapTest
         }
     }
 
-    private final ObjectReader POINT_READER = objectMapper().reader(FascistPoint.class);
+    private final ObjectReader POINT_READER = objectMapper().readerFor(FascistPoint.class);
     
     public void testRequiredAnnotatedParam() throws Exception
     {

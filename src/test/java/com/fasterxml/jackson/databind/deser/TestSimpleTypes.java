@@ -422,7 +422,7 @@ public class TestSimpleTypes
         Assert.assertArrayEquals(INPUT, MAPPER.readValue(
                 quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="),
                 byte[].class));
-        ObjectReader reader = MAPPER.reader(byte[].class);
+        ObjectReader reader = MAPPER.readerFor(byte[].class);
         Assert.assertArrayEquals(INPUT, (byte[]) reader.with(Base64Variants.MIME_NO_LINEFEEDS).readValue(
                 quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="
         )));

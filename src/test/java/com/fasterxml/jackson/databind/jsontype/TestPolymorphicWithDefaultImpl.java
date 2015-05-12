@@ -115,7 +115,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     public void testDeserializationWithObject() throws Exception
     {
-        Inter inter = MAPPER.reader(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
+        Inter inter = MAPPER.readerFor(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
         assertTrue(inter instanceof MyInter);
         assertFalse(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b", "c"), ((MyInter) inter).blah);
@@ -123,21 +123,21 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     public void testDeserializationWithString() throws Exception
     {
-        Inter inter = MAPPER.reader(Inter.class).readValue("\"a,b,c,d\"");
+        Inter inter = MAPPER.readerFor(Inter.class).readValue("\"a,b,c,d\"");
         assertTrue(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
     }
 
     public void testDeserializationWithArray() throws Exception
     {
-        Inter inter = MAPPER.reader(Inter.class).readValue("[\"a\", \"b\", \"c\", \"d\"]");
+        Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\", \"c\", \"d\"]");
         assertTrue(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
     }
 
     public void testDeserializationWithArrayOfSize2() throws Exception
     {
-        Inter inter = MAPPER.reader(Inter.class).readValue("[\"a\", \"b\"]");
+        Inter inter = MAPPER.readerFor(Inter.class).readValue("[\"a\", \"b\"]");
         assertTrue(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b"), ((MyInter) inter).blah);
     }
@@ -145,18 +145,18 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     // [Databind#148]
     public void testDefaultAsNoClass() throws Exception
     {
-        Object ob = MAPPER.reader(DefaultWithNoClass.class).readValue("{ }");
+        Object ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ }");
         assertNull(ob);
-        ob = MAPPER.reader(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
+        ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
         assertNull(ob);
     }
 
     // same, with 2.5 and Void.class
     public void testDefaultAsVoid() throws Exception
     {
-        Object ob = MAPPER.reader(DefaultWithVoidAsDefault.class).readValue("{ }");
+        Object ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ }");
         assertNull(ob);
-        ob = MAPPER.reader(DefaultWithVoidAsDefault.class).readValue("{ \"bogus\":3 }");
+        ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ \"bogus\":3 }");
         assertNull(ob);
     }
 

@@ -74,7 +74,7 @@ public class TestViewDeserialization extends BaseMapTest
         assertNull(bean.aa);
         assertEquals(0, bean.b);
         
-        bean = mapper.reader(Bean.class)
+        bean = mapper.readerFor(Bean.class)
                 .withView(ViewB.class)
                 .readValue("{\"a\":-3, \"aa\":\"y\", \"b\": 2 }");
         assertEquals(0, bean.a);

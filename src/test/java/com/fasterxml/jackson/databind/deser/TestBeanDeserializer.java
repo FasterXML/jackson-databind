@@ -269,7 +269,7 @@ public class TestBeanDeserializer extends BaseMapTest
             assertValidLocation(e.getLocation());
         }
         // should be ok to enable dynamically
-        ObjectReader r = MAPPER.reader(Bean.class)
+        ObjectReader r = MAPPER.readerFor(Bean.class)
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         Bean result = r.readValue(quote(""));
         assertNull(result);
@@ -291,7 +291,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
 
         // should be ok to enable dynamically:
-        ObjectReader r = MAPPER.reader(Bean.class)
+        ObjectReader r = MAPPER.readerFor(Bean.class)
                 .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
         Bean result = r.readValue(JSON);
         assertNull(result);
@@ -318,7 +318,7 @@ public class TestBeanDeserializer extends BaseMapTest
         // Definitely not OK to enable dynamically - the BeanPropertyMap (which is the consumer of this particular feature) gets cached.
         mapper = new ObjectMapper();
         mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-        ObjectReader r = mapper.reader(Issue476Bean.class);
+        ObjectReader r = mapper.readerFor(Issue476Bean.class);
         Issue476Bean result = r.readValue(JSON);
         assertEquals(result.value1.name, "fruit");
         assertEquals(result.value1.value, "apple");

@@ -76,7 +76,7 @@ public class TestJDKSerialization extends BaseMapTest
     
     public void testObjectReader() throws IOException
     {
-        ObjectReader origReader = MAPPER.reader(MyPojo.class);
+        ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
         final String JSON = "{\"x\":1,\"y\":2}";
         MyPojo p1 = origReader.readValue(JSON);
         assertEquals(2, p1.y);

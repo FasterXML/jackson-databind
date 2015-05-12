@@ -12,7 +12,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         final String JSON = "[ /* foo */ 7 ]";
         // default won't accept comments, let's change that:
-        ObjectReader reader = MAPPER.reader(int[].class)
+        ObjectReader reader = MAPPER.readerFor(int[].class)
                 .with(JsonParser.Feature.ALLOW_COMMENTS);
 
         int[] value = reader.readValue(JSON);

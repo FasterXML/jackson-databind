@@ -35,7 +35,7 @@ public class ReadValuesTest extends BaseMapTest
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
 
-        MappingIterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
+        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
 
         assertNotNull(it.getCurrentLocation());
         assertTrue(it.hasNext());
@@ -48,12 +48,12 @@ public class ReadValuesTest extends BaseMapTest
         it.close();
 
         // Also, test 'readAll()'
-        it = MAPPER.reader(Bean.class).readValues(JSON);
+        it = MAPPER.readerFor(Bean.class).readValues(JSON);
         List<Bean> all = it.readAll();
         assertEquals(2, all.size());
         it.close();
 
-        it = MAPPER.reader(Bean.class).readValues("{\"a\":3}{\"a\":3}");
+        it = MAPPER.readerFor(Bean.class).readValues("{\"a\":3}{\"a\":3}");
         Set<Bean> set = it.readAll(new HashSet<Bean>());
         assertEquals(HashSet.class, set.getClass());
         assertEquals(1, set.size());
@@ -64,7 +64,7 @@ public class ReadValuesTest extends BaseMapTest
     {
         final String JSON = "[{\"a\":6}, {\"a\":-7}]";
 
-        MappingIterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
+        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
 
         assertNotNull(it.getCurrentLocation());
         assertTrue(it.hasNext());
@@ -77,12 +77,12 @@ public class ReadValuesTest extends BaseMapTest
         it.close();
 
         // Also, test 'readAll()'
-        it = MAPPER.reader(Bean.class).readValues(JSON);
+        it = MAPPER.readerFor(Bean.class).readValues(JSON);
         List<Bean> all = it.readAll();
         assertEquals(2, all.size());
         it.close();
 
-        it = MAPPER.reader(Bean.class).readValues("[{\"a\":4},{\"a\":4}]");
+        it = MAPPER.readerFor(Bean.class).readValues("[{\"a\":4},{\"a\":4}]");
         Set<Bean> set = it.readAll(new HashSet<Bean>());
         assertEquals(HashSet.class, set.getClass());
         assertEquals(1, set.size());
@@ -92,7 +92,7 @@ public class ReadValuesTest extends BaseMapTest
     public void testRootMaps() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
-        Iterator<Map<?,?>> it = MAPPER.reader(Map.class).readValues(JSON);
+        Iterator<Map<?,?>> it = MAPPER.readerFor(Map.class).readValues(JSON);
 
         assertNotNull(((MappingIterator<?>) it).getCurrentLocation());
         assertTrue(it.hasNext());
@@ -138,7 +138,7 @@ public class ReadValuesTest extends BaseMapTest
         // use "managed" accessor, it would try to advance past START_ARRAY.
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         
-        Iterator<int[]> it = MAPPER.reader(int[].class).readValues(jp);
+        Iterator<int[]> it = MAPPER.readerFor(int[].class).readValues(jp);
         assertTrue(it.hasNext());
         int[] array = it.next();
         assertEquals(1, array.length);
@@ -159,7 +159,7 @@ public class ReadValuesTest extends BaseMapTest
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         jp.nextToken();
         
-        Iterator<Integer> it = MAPPER.reader(Integer.class).readValues(jp);
+        Iterator<Integer> it = MAPPER.readerFor(Integer.class).readValues(jp);
         assertTrue(it.hasNext());
         int value = it.next();
         assertEquals(1, value);
@@ -173,7 +173,7 @@ public class ReadValuesTest extends BaseMapTest
     public void testHasNextWithEndArrayManagedParser() throws Exception {
         final String JSON = "[1,3]";
 
-        Iterator<Integer> it = MAPPER.reader(Integer.class).readValues(JSON);
+        Iterator<Integer> it = MAPPER.readerFor(Integer.class).readValues(JSON);
         assertTrue(it.hasNext());
         int value = it.next();
         assertEquals(1, value);
@@ -202,7 +202,7 @@ public class ReadValuesTest extends BaseMapTest
         // the first element
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         
-        Iterator<Bean> it = MAPPER.reader(Bean.class).readValues(jp);
+        Iterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(jp);
 
         assertTrue(it.hasNext());
         Bean b = it.next();
@@ -225,7 +225,7 @@ public class ReadValuesTest extends BaseMapTest
         // the first element
         jp.clearCurrentToken();
         
-        Iterator<Map<?,?>> it = MAPPER.reader(Map.class).readValues(jp);
+        Iterator<Map<?,?>> it = MAPPER.readerFor(Map.class).readValues(jp);
 
         assertTrue(it.hasNext());
         Map<?,?> map = it.next();

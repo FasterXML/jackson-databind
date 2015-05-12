@@ -312,7 +312,7 @@ public class TestMapDeserialization
             verifyException(e, "START_ARRAY token");
         }
         // should be ok to enable dynamically:
-        ObjectReader r = MAPPER.reader(Map.class)
+        ObjectReader r = MAPPER.readerFor(Map.class)
                 .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
 
         Map<?,?> result = r.readValue(JSON);

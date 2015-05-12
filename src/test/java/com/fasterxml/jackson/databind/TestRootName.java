@@ -47,7 +47,7 @@ public class TestRootName extends BaseMapTest
         ObjectMapper mapper = rootMapper();
         String json = mapper.writer().writeValueAsString(new Bean());
         assertEquals("{\"rudy\":{\"a\":3}}", json);
-        Bean bean = mapper.reader(Bean.class).readValue(json);
+        Bean bean = mapper.readerFor(Bean.class).readValue(json);
         assertNotNull(bean);
     }
 
@@ -67,14 +67,14 @@ public class TestRootName extends BaseMapTest
         Bean result = mapper.readValue(jsonUnwrapped, Bean.class);
         assertNotNull(result);
         try { // must not have extra wrapping
-            result = mapper.reader(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)
+            result = mapper.readerFor(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)
                 .readValue(jsonUnwrapped);
             fail("Should have failed");
         } catch (JsonMappingException e) {
             verifyException(e, "Root name 'a'");
         }
         // except wrapping may be expected:
-        result = mapper.reader(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)
+        result = mapper.readerFor(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)
             .readValue(jsonWrapped);
         assertNotNull(result);
     }
@@ -87,7 +87,7 @@ public class TestRootName extends BaseMapTest
         String json = writer.writeValueAsString(new Bean());
         assertEquals("{\"wrapper\":{\"a\":3}}", json);
 
-        ObjectReader reader = mapper.reader(Bean.class).withRootName("wrapper");
+        ObjectReader reader = mapper.readerFor(Bean.class).withRootName("wrapper");
         Bean bean = reader.readValue(json);
         assertNotNull(bean);
 
@@ -102,16 +102,16 @@ public class TestRootName extends BaseMapTest
         json = wrapping.writer().withoutRootName().writeValueAsString(new Bean());
         assertEquals("{\"a\":3}", json);
 
-        bean = wrapping.reader(Bean.class).withRootName("").readValue(json);
+        bean = wrapping.readerFor(Bean.class).withRootName("").readValue(json);
         assertNotNull(bean);
         assertEquals(3, bean.a);
 
-        bean = wrapping.reader(Bean.class).withoutRootName().readValue("{\"a\":4}");
+        bean = wrapping.readerFor(Bean.class).withoutRootName().readValue("{\"a\":4}");
         assertNotNull(bean);
         assertEquals(4, bean.a);
 
         // and back to defaults
-        bean = wrapping.reader(Bean.class).readValue("{\"rudy\":{\"a\":7}}");
+        bean = wrapping.readerFor(Bean.class).readValue("{\"rudy\":{\"a\":7}}");
         assertNotNull(bean);
         assertEquals(7, bean.a);
     }

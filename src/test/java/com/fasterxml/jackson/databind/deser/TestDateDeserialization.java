@@ -390,7 +390,7 @@ public class TestDateDeserialization
 
         // 27-Mar-2014, tatu: Let's verify that changing Locale won't break it;
         //   either via context Locale
-        result = MAPPER.reader(DateAsStringBean.class)
+        result = MAPPER.readerFor(DateAsStringBean.class)
                 .with(Locale.GERMANY)
                 .readValue(INPUT);
         assertNotNull(result);
@@ -405,7 +405,7 @@ public class TestDateDeserialization
         assertEquals(25, c.get(Calendar.DAY_OF_MONTH));
 
         // or, via annotations
-        DateAsStringBeanGermany result2 = MAPPER.reader(DateAsStringBeanGermany.class).readValue(INPUT);
+        DateAsStringBeanGermany result2 = MAPPER.readerFor(DateAsStringBeanGermany.class).readValue(INPUT);
         assertNotNull(result2);
         assertNotNull(result2.date);
         l = result2.date.getTime();

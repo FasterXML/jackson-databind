@@ -172,10 +172,37 @@ As convenient as data-binding (to/from POJOs) can be; and as flexible as Tree mo
 It is the underlying processing model that data-binding and Tree Model both build upon, but it is also exposed to users who want ultimate performance and/or control over parsing or generation details.
 
 For in-depth explanation, look at [Jackson Core component](https://github.com/FasterXML/jackson-core).
-But let's look at a simple teaser to whet your appetite:
+But let's look at a simple teaser to whet your appetite.
 
-(TO BE COMPLETED)
+```java
+JsonFactory f = mapper.getFactory(); // may alternatively construct directly too
 
+// First: write simple JSON output
+File jsonFile = new JsonFile("test.json");
+JsonGenerator g = f.createGenerator(jsonFile);
+// write JSON: { "message" : "Hello world!" }
+g.writeStartObject();
+g.writeStringField("message", "Hello world!");
+g.writeEndObject();
+g.close();
+
+// Second: read file back
+JsonParser p = f.createParser(jsonFile);
+
+JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
+t = p.nextToken(); // JsonToken.FIELD_NAME
+if ((t != JsonToken.FIELD_NAME) || !"message".equals(p.getCurrentName())) {
+   // handle error
+}
+t = p.nextToken();
+if (t != JsonToken.VALUE_STRING) {
+   // similarly
+}
+String msg = p.getText();
+System.out.printf("My message to you is: %s!\n", msg);
+p.close();
+
+```
 
 ## 10 minute tutorial: configuration
 

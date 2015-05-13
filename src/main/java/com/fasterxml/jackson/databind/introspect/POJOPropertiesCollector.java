@@ -463,7 +463,7 @@ public class POJOPropertiesCollector
      */
     protected void _addCreatorParam(AnnotatedParameter param)
     {
-        // JDK 8, paranamer can give implicit name
+        // JDK 8, paranamer, Scala can give implicit name
         String impl = _annotationIntrospector.findImplicitPropertyName(param);
         if (impl == null) {
             impl = "";
@@ -488,17 +488,12 @@ public class POJOPropertiesCollector
         // shouldn't need to worry about @JsonIgnore, since creators only added
         // if so annotated
 
-        /* 14-Apr-2014, tatu: Not ideal, since we should not start with explicit name, ever;
-         *   but with current set up we also can not just use empty name.
-         *   This will cause failure for [#323] until we figure out a better way to handle
-         *   the problem; possibly by creating a placeholder container for "anonymous"
-         *   creator parameters.
+        /* 13-May-2015, tatu: We should try to start with implicit name, similar to how
+         *   fields and methods work; but unlike those, we don't necessarily have
+         *   implicit name to use (pre-Java8 at least). So:
          */
-        POJOPropertyBuilder prop = expl ?  _property(pn) : _property(impl);
-        // should use this (or similar) instead:
-//        POJOPropertyBuilder prop = _property(impl);
+        POJOPropertyBuilder prop = (expl && impl.isEmpty()) ?  _property(pn) : _property(impl);
         prop.addCtor(param, pn, expl, true, false);
-
         _creatorProperties.add(prop);
     }
     
@@ -745,6 +740,7 @@ public class POJOPropertiesCollector
             POJOPropertyBuilder prop = entry.getValue();
 
             Collection<PropertyName> l = prop.findExplicitNames();
+
             // no explicit names? Implicit one is fine as is
             if (l.isEmpty()) {
                 continue;

@@ -40,17 +40,34 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         public int getOther() { return 3; }
     }
 
+    static class Bean2
+    {
+        int x = 3;
+        
+        @JsonProperty("stuff")
+        private void setValue(int i) { x = i; }
+
+        public int getValue() { return x; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    public void testBindingOfImplicitNames() throws Exception
+    public void testBindingOfImplicitCreatorNames() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.setAnnotationIntrospector(new ConstructorNameAI());
         String json = m.writeValueAsString(new Issue792Bean("a", "b"));
         assertEquals(aposToQuotes("{'first':'a','other':3}"), json);
+    }
+
+    public void testImplicitWithSetterGetter() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        String json = m.writeValueAsString(new Bean2());
+        assertEquals(aposToQuotes("{'stuff':3}"), json);
     }
 }

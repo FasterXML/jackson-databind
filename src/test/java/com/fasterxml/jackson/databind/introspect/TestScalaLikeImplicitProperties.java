@@ -58,7 +58,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
             return (a instanceof AnnotatedConstructor);
         }
     }
-    
+
     static class ValProperty
     {
         private final String prop‿;
@@ -68,7 +68,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
             prop‿ = prop;
         }
     }
-
 
     static class ValWithBeanProperty
     {
@@ -81,7 +80,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         }
     }
 
-
     static class VarProperty
     {
         private String prop‿;
@@ -92,7 +90,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
             prop‿ = prop;
         }
     }
-
 
     static class VarWithBeanProperty
     {
@@ -119,13 +116,18 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         // getProp/setProp pairs.
     }
 
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
     public void testValProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
 
         assertEquals("{\"prop\":\"val\"}", m.writeValueAsString(new ValProperty("val")));
     }
-
 
     public void testValWithBeanProperty() throws Exception
     {
@@ -164,6 +166,12 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         assertEquals("read", result.prop());
     }
 
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+    
     private ObjectMapper manglingMapper()
     {
         ObjectMapper m = new ObjectMapper();

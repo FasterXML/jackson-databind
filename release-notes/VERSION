@@ -16,6 +16,7 @@ Project: jackson-databind
 #785: Add handlings for classes which are available in `Thread.currentThread().getContextClassLoader()`
  (contributed by Charles A)
 - Fix handling of Enums wrt JSON Schema, when 'toString()' used for serialization
+- Minor improvement to handling of implicit names for Creator parameters
 
 2.5.3 (24-Apr-2015)
 

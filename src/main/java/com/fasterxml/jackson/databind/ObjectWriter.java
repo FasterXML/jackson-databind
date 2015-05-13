@@ -120,8 +120,8 @@ public class ObjectWriter
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
 
-        _prefetch = Prefetch.empty;
         _generatorSettings = GeneratorSettings.empty;
+        _prefetch = Prefetch.empty;
     }
 
     /**
@@ -136,9 +136,9 @@ public class ObjectWriter
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
 
-        _prefetch = Prefetch.empty;
         _generatorSettings = (s == null) ? GeneratorSettings.empty
                 : new GeneratorSettings(null, s, null, null);
+        _prefetch = Prefetch.empty;
     }
     
     /**
@@ -167,6 +167,7 @@ public class ObjectWriter
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
+
         _generatorSettings = base._generatorSettings;
         _prefetch = base._prefetch;
     }
@@ -183,6 +184,7 @@ public class ObjectWriter
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
+
         _generatorSettings = base._generatorSettings;
         _prefetch = base._prefetch;
     }
@@ -371,7 +373,7 @@ public class ObjectWriter
      * pretty printer for serialization.
      */
     public ObjectWriter withDefaultPrettyPrinter() {
-        return with(new DefaultPrettyPrinter());
+        return with(_config.getDefaultPrettyPrinter());
     }
 
     /**
@@ -1237,8 +1239,6 @@ public class ObjectWriter
                 }
                 gen.setPrettyPrinter(pp);
             }
-        } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
-            gen.useDefaultPrettyPrinter();
         }
         CharacterEscapes esc = genSet.characterEscapes;
         if (esc != null) {

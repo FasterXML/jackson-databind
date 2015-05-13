@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
@@ -30,9 +30,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Note that instances are considered immutable and as such no copies
  * should need to be created for sharing; all copying is done with
  * "fluent factory" methods.
- * Note also that unlike with Jackson 1, these instances can not be
- * assigned to {@link ObjectMapper}; in fact, application code should
- * rarely interact directly with these instance (unlike core Jackson code)
  */
 public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
@@ -41,6 +38,9 @@ public final class SerializationConfig
     // since 2.5
     private static final long serialVersionUID = 1;
 
+    // since 2.6
+    protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
+    
     /**
      * Set of {@link SerializationFeature}s enabled.
      */
@@ -60,6 +60,14 @@ public final class SerializationConfig
      */
     protected final FilterProvider _filterProvider;
 
+    /**
+     * If "default pretty-printing" is enabled, it will create the instance
+     * from this blueprint object.
+     *
+     * @since 2.6
+     */
+    protected final PrettyPrinter _defaultPrettyPrinter;
+    
     /**
      * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.
      */
@@ -85,6 +93,7 @@ public final class SerializationConfig
         super(base, str, mixins);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
         _filterProvider = null;
+        _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
         _generatorFeatures = 0;
         _generatorFeaturesToChange = 0;
     }
@@ -95,6 +104,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -107,6 +117,7 @@ public final class SerializationConfig
         _serFeatures = serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = generatorFeatures;
         _generatorFeaturesToChange = generatorFeatureMask;
     }
@@ -117,6 +128,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -127,6 +139,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = filters;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -137,6 +150,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -147,6 +161,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = incl;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -157,6 +172,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -170,6 +186,7 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -183,6 +200,21 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+    }
+
+    /**
+     * @since 2.6
+     */
+    protected SerializationConfig(SerializationConfig src, PrettyPrinter defaultPP)
+    {
+        super(src);
+        _serFeatures = src._serFeatures;
+        _serializationInclusion = src._serializationInclusion;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = defaultPP;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
@@ -522,7 +554,7 @@ public final class SerializationConfig
     /* Factory methods, other
     /**********************************************************
      */
-    
+
     public SerializationConfig withFilters(FilterProvider filterProvider) {
         return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
     }
@@ -531,6 +563,27 @@ public final class SerializationConfig
         return (_serializationInclusion == incl) ? this:  new SerializationConfig(this, incl);
     }
 
+    /**
+     * @since 2.6
+     */
+    public SerializationConfig withDefaultPrettyPrinter(PrettyPrinter pp) {
+        return (_defaultPrettyPrinter == pp) ? this:  new SerializationConfig(this, pp);
+    }
+
+    /*
+    /**********************************************************
+    /* Factories for objects configured here
+    /**********************************************************
+     */
+
+    public PrettyPrinter constructDefaultPrettyPrinter() {
+        PrettyPrinter pp = _defaultPrettyPrinter;
+        if (pp instanceof Instantiatable<?>) {
+            pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
+        }
+        return pp;
+    }
+    
     /*
     /**********************************************************
     /* JsonParser initialization
@@ -547,7 +600,13 @@ public final class SerializationConfig
     public void initialize(JsonGenerator g)
     {
         if (SerializationFeature.INDENT_OUTPUT.enabledIn(_serFeatures)) {
-            g.useDefaultPrettyPrinter();
+            // but do not override an explicitly set one
+            if (g.getPrettyPrinter() == null) {
+                PrettyPrinter pp = constructDefaultPrettyPrinter();
+                if (pp != null) {
+                    g.setPrettyPrinter(pp);
+                }
+            }
         }
         @SuppressWarnings("deprecation")
         boolean useBigDec = SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_serFeatures);
@@ -679,6 +738,20 @@ public final class SerializationConfig
      */
     public FilterProvider getFilterProvider() {
         return _filterProvider;
+    }
+
+    /**
+     * Accessor for configured blueprint "default" {@link PrettyPrinter} to
+     * use, if default pretty-printing is enabled.
+     *<p>
+     * NOTE: returns the "blueprint" instance, and does NOT construct
+     * an instance ready to use; call {@link #constructDefaultPrettyPrinter()} if
+     * actually usable instance is desired.
+     *
+     * @since 2.6
+     */
+    public PrettyPrinter getDefaultPrettyPrinter() {
+        return _defaultPrettyPrinter;
     }
 
     /*

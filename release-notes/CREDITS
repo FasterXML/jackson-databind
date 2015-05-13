@@ -263,4 +263,6 @@ Laird Nelson (ljnelson@github)
     classes on demand
    (2.6.0)
 
-
+Derk Norton (derknorton@github)
+  * Suggested #689: Add `ObjectMapper.setDefaultPrettyPrinter(PrettyPrinter)`
+   (2.6.0)

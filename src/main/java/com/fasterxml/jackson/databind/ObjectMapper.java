@@ -258,8 +258,12 @@ public class ObjectMapper
 
     protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
 
+    /**
+     * @deprecated Since 2.6, do not use: will be removed in 2.7 or later
+     */
+    @Deprecated
     protected final static PrettyPrinter _defaultPrettyPrinter = new DefaultPrettyPrinter();
-    
+
     /**
      * Base settings contain defaults used for all {@link ObjectMapper}
      * instances.
@@ -309,7 +313,7 @@ public class ObjectMapper
      * Cache for root names used when root-wrapping is enabled.
      */
     protected final RootNameLookup _rootNames;
-    
+
     /*
     /**********************************************************
     /* Configuration settings: mix-in annotations
@@ -481,7 +485,7 @@ public class ObjectMapper
         // Default serializer factory is stateless, can just assign
         _serializerFactory = src._serializerFactory;
     }
-    
+
     /**
      * Constructs instance that uses specified {@link JsonFactory}
      * for constructing necessary {@link JsonParser}s and/or
@@ -548,7 +552,7 @@ public class ObjectMapper
     protected ClassIntrospector defaultClassIntrospector() {
         return new BasicClassIntrospector();
     }
-    
+
     /*
     /**********************************************************
     /* Methods sub-classes MUST override
@@ -1254,13 +1258,28 @@ public class ObjectMapper
     }
     
     /**
-     * Method for setting defalt POJO property inclusion strategy for serialization.
+     * Method for setting default POJO property inclusion strategy for serialization.
      */
     public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
         _serializationConfig = _serializationConfig.withSerializationInclusion(incl);
         return this;
     }
-    
+
+    /**
+     * Method for specifying {@link PrettyPrinter} to use when "default pretty-printing"
+     * is enabled (by enabling {@link SerializationFeature#INDENT_OUTPUT})
+     * 
+     * @param pp
+     * 
+     * @return This mapper, useful for call-chaining
+     * 
+     * @since 2.6
+     */
+    public ObjectMapper setDefaultPrettyPrinter(PrettyPrinter pp) {
+        _serializationConfig = _serializationConfig.withDefaultPrettyPrinter(pp);
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Type information configuration (1.5+)
@@ -2328,20 +2347,28 @@ public class ObjectMapper
      * JSON output, using provided {@link JsonGenerator}.
      */
     @Override
-    public void writeValue(JsonGenerator jgen, Object value)
+    public void writeValue(JsonGenerator g, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
         SerializationConfig config = getSerializationConfig();
+
+        /* 12-May-2015/2.6, tatu: Looks like we do NOT want to call the usual
+         *    'config.initialize(g)` here, since it is assumed that generator
+         *    has been configured by caller. But for some reason we don't
+         *    trust indentation settings...
+         */
         // 10-Aug-2012, tatu: as per [Issue#12], must handle indentation:
         if (config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
-            jgen.useDefaultPrettyPrinter();
+            if (g.getPrettyPrinter() == null) {
+                g.setPrettyPrinter(config.constructDefaultPrettyPrinter());
+            }
         }
         if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _writeCloseableValue(jgen, value, config);
+            _writeCloseableValue(g, value, config);
         } else {
-            _serializerProvider(config).serializeValue(jgen, value);
+            _serializerProvider(config).serializeValue(g, value);
             if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                jgen.flush();
+                g.flush();
             }
         }
     }
@@ -3032,8 +3059,9 @@ public class ObjectMapper
      * serialize objects using the default pretty printer for indentation
      */
     public ObjectWriter writerWithDefaultPrettyPrinter() {
-        return _newWriter(getSerializationConfig(),
-                /*root type*/ null, _defaultPrettyPrinter());
+        SerializationConfig config = getSerializationConfig();
+        return _newWriter(config,
+                /*root type*/ null, config.getDefaultPrettyPrinter());
     }
     
     /**
@@ -3465,32 +3493,31 @@ public class ObjectMapper
     }
     
     /**
-     * Helper method that should return default pretty-printer to
-     * use for generators constructed by this mapper, when instructed
-     * to use default pretty printer.
+     * @deprecated Since 2.6, use {@link SerializationConfig#constructDefaultPrettyPrinter()} directly
      */
+    @Deprecated
     protected PrettyPrinter _defaultPrettyPrinter() {
-        return _defaultPrettyPrinter;
+        return _serializationConfig.constructDefaultPrettyPrinter();
     }
-    
+
     /**
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(JsonGenerator jgen, Object value)
+    protected final void _configAndWriteValue(JsonGenerator g, Object value)
         throws IOException
     {
         SerializationConfig cfg = getSerializationConfig();
-        cfg.initialize(jgen); // since 2.5
+        cfg.initialize(g); // since 2.5
         if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _configAndWriteCloseable(jgen, value, cfg);
+            _configAndWriteCloseable(g, value, cfg);
             return;
         }
         boolean closed = false;
         try {
-            _serializerProvider(cfg).serializeValue(jgen, value);
+            _serializerProvider(cfg).serializeValue(g, value);
             closed = true;
-            jgen.close();
+            g.close();
         } finally {
             /* won't try to close twice; also, must catch exception (so it 
              * will not mask exception that is pending)
@@ -3499,37 +3526,37 @@ public class ObjectMapper
                 /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                  *    structures, which typically causes more damage.
                  */
-                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+                g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
-                    jgen.close();
+                    g.close();
                 } catch (IOException ioe) { }
             }
         }
     }
 
-    protected final void _configAndWriteValue(JsonGenerator jgen, Object value, Class<?> viewClass)
+    protected final void _configAndWriteValue(JsonGenerator g, Object value, Class<?> viewClass)
         throws IOException
     {
         SerializationConfig cfg = getSerializationConfig().withView(viewClass);
-        cfg.initialize(jgen); // since 2.5
+        cfg.initialize(g); // since 2.5
 
         // [JACKSON-282]: consider Closeable
         if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _configAndWriteCloseable(jgen, value, cfg);
+            _configAndWriteCloseable(g, value, cfg);
             return;
         }
         boolean closed = false;
         try {
-            _serializerProvider(cfg).serializeValue(jgen, value);
+            _serializerProvider(cfg).serializeValue(g, value);
             closed = true;
-            jgen.close();
+            g.close();
         } finally {
             if (!closed) {
                 // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                 //    structures, which typically causes more damage.
-                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+                g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
-                    jgen.close();
+                    g.close();
                 } catch (IOException ioe) { }
             }
         }
@@ -3539,15 +3566,15 @@ public class ObjectMapper
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _configAndWriteCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
+    private final void _configAndWriteCloseable(JsonGenerator g, Object value, SerializationConfig cfg)
         throws IOException, JsonGenerationException, JsonMappingException
     {
         Closeable toClose = (Closeable) value;
         try {
-            _serializerProvider(cfg).serializeValue(jgen, value);
-            JsonGenerator tmpJgen = jgen;
-            jgen = null;
-            tmpJgen.close();
+            _serializerProvider(cfg).serializeValue(g, value);
+            JsonGenerator tmpGen = g;
+            g = null;
+            tmpGen.close();
             Closeable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
@@ -3555,12 +3582,12 @@ public class ObjectMapper
             /* Need to close both generator and value, as long as they haven't yet
              * been closed
              */
-            if (jgen != null) {
+            if (g != null) {
                 // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                 //    structures, which typically causes more damage.
-                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+                g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
-                    jgen.close();
+                    g.close();
                 } catch (IOException ioe) { }
             }
             if (toClose != null) {
@@ -3575,14 +3602,14 @@ public class ObjectMapper
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseableValue(JsonGenerator jgen, Object value, SerializationConfig cfg)
+    private final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
         throws IOException, JsonGenerationException, JsonMappingException
     {
         Closeable toClose = (Closeable) value;
         try {
-            _serializerProvider(cfg).serializeValue(jgen, value);
+            _serializerProvider(cfg).serializeValue(g, value);
             if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                jgen.flush();
+                g.flush();
             }
             Closeable tmpToClose = toClose;
             toClose = null;

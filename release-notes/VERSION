@@ -16,6 +16,8 @@ Project: jackson-databind
 #679: Add `isEmpty()` implementation for `JsonNode` serializers
 #688: Provide a means for an ObjectMapper to discover mixin annotation classes on demand
  (requested by Laird N)
+#689: Add `ObjectMapper.setDefaultPrettyPrinter(PrettyPrinter)`
+ (requested by derknorton@github)
 #696: Copy constructor does not preserve `_injectableValues`
  (reported by Charles A)
 #698: Add support for referential types (ReferenceType)

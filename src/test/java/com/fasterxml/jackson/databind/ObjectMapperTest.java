@@ -3,8 +3,9 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -21,7 +22,7 @@ public class ObjectMapperTest extends BaseMapTest
 
     static class EmptyBean { }
     
-    // for [Issue#206]
+    // for [databind#206]
     @SuppressWarnings("serial")
     static class CustomMapper extends ObjectMapper {
         @Override
@@ -34,6 +35,20 @@ public class ObjectMapperTest extends BaseMapTest
     @SuppressWarnings("serial")
     static class MyAnnotationIntrospector extends JacksonAnnotationIntrospector { }
 
+    // for [databind#689]
+    @SuppressWarnings("serial")
+    static class FooPrettyPrinter extends MinimalPrettyPrinter {
+        public FooPrettyPrinter() {
+            super(" /*foo*/ ");
+        }
+
+        @Override
+        public void writeArrayValueSeparator(JsonGenerator g) throws IOException
+        {
+            g.writeRaw(" , ");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -194,6 +209,32 @@ public class ObjectMapperTest extends BaseMapTest
                 m2.getSerializationConfig().getAnnotationIntrospector().getClass());
     }
 
+    // For [databind#689]
+    public void testCustomDefaultPrettyPrinter() throws Exception
+    {
+        final ObjectMapper m = new ObjectMapper();
+        final int[] input = new int[] { 1, 2 };
+
+        // without anything else, compact:
+        assertEquals("[1,2]", m.writeValueAsString(input));
+
+        // or with default, get... defaults:
+        m.enable(SerializationFeature.INDENT_OUTPUT);
+        assertEquals("[ 1, 2 ]", m.writeValueAsString(input));
+        assertEquals("[ 1, 2 ]", m.writerWithDefaultPrettyPrinter().writeValueAsString(input));
+        assertEquals("[ 1, 2 ]", m.writer().withDefaultPrettyPrinter().writeValueAsString(input));
+
+        // but then with our custom thingy...
+        m.setDefaultPrettyPrinter(new FooPrettyPrinter());
+        assertEquals("[1 , 2]", m.writeValueAsString(input));
+        assertEquals("[1 , 2]", m.writerWithDefaultPrettyPrinter().writeValueAsString(input));
+        assertEquals("[1 , 2]", m.writer().withDefaultPrettyPrinter().writeValueAsString(input));
+
+        // and yet, can disable too
+        assertEquals("[1,2]", m.writer().without(SerializationFeature.INDENT_OUTPUT)
+                .writeValueAsString(input));
+    }
+    
     // For [databind#703]
     public void testNonSerializabilityOfObject()
     {

@@ -37,19 +37,12 @@ public enum SerializationFeature implements ConfigFeature
     /**
      * Feature that allows enabling (or disabling) indentation
      * for the underlying generator, using the default pretty
-     * printer (see
-     * {@link com.fasterxml.jackson.core.JsonGenerator#useDefaultPrettyPrinter}
-     * for details).
+     * printer configured for {@link ObjectMapper} (and
+     * {@link ObjectWriter}s created from mapper).
      *<p>
-     * Note that this only affects cases where
-     * {@link com.fasterxml.jackson.core.JsonGenerator}
-     * is constructed implicitly by ObjectMapper: if explicit
-     * generator is passed, its configuration is not changed.
-     *<p>
-     * Also note that if you want to configure details of indentation,
-     * you need to directly configure the generator: there is a
-     * method to use any <code>PrettyPrinter</code> instance.
-     * This feature will only allow using the default implementation.
+     * Note that the default pretty printer is only used if
+     * no explicit {@link com.fasterxml.jackson.core.PrettyPrinter} has been configured
+     * for the generator or {@link ObjectWriter}.
      *<p>
      * Feature is disabled by default.
      */

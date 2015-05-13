@@ -1137,7 +1137,8 @@ public class ObjectMapper
 
     /**
      * @deprecated Since 2.6 use {@link #setVisibility(VisibilityChecker)} instead.
-     */    
+     */
+    @Deprecated
     public void setVisibilityChecker(VisibilityChecker<?> vc) {
         setVisibility(vc);
     }

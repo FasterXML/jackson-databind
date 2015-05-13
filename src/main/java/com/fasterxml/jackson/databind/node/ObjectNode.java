@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -163,7 +164,31 @@ public class ObjectNode
         _children.put(propertyName, result);
         return result;
     }
-    
+
+    @Override
+    public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
+    {
+        if (!(o instanceof ObjectNode)) {
+            return false;
+        }
+        ObjectNode other = (ObjectNode) o;
+        Map<String, JsonNode> m1 = _children;
+        Map<String, JsonNode> m2 = other._children;
+
+        final int len = m1.size();
+        if (m2.size() != len) {
+            return false;
+        }
+
+        for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
+            JsonNode v2 = m2.get(entry.getKey());
+            if ((v2 == null) || comparator.compare(entry.getValue(), v2) != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /*
     /**********************************************************
     /* Public API, finding value nodes

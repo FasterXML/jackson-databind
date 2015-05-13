@@ -76,7 +76,7 @@ public class TestJsonFilter extends BaseMapTest
 
         // [JACKSON-504]: also verify it works via mapper
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setFilters(prov);
+        mapper.setFilterProvider(prov);
         assertEquals("{\"a\":\"a\"}", mapper.writeValueAsString(new Bean()));
     }
 
@@ -101,7 +101,7 @@ public class TestJsonFilter extends BaseMapTest
         // but when changing behavior, should work difference
         SimpleFilterProvider fp = new SimpleFilterProvider().setFailOnUnknownId(false);
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setFilters(fp);
+        mapper.setFilterProvider(fp);
         String json = mapper.writeValueAsString(new Bean());
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", json);
     }

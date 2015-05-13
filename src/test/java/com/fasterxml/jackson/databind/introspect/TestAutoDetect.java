@@ -35,7 +35,7 @@ public class TestAutoDetect
         // note: clumsy code, but needed for Eclipse/JDK1.5 compilation (not for 1.6)
         VisibilityChecker<?> vc = m.getVisibilityChecker();
         vc = vc.withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY);
-        m.setVisibilityChecker(vc);
+        m.setVisibility(vc);
         try {
             m.readValue("\"abc\"", PrivateBean.class);
             fail("Expected exception for missing constructor");

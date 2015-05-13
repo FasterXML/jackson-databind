@@ -38,6 +38,8 @@ Project: jackson-databind
 #781: Support handling of `@JsonProperty.required` for Creator methods
 #787: Add `ObjectMapper setFilterProvider(FilterProvider)` to allow chaining
  (suggested by rgoldberg@githin)
+#790: Add `JsonNode.equals(Comparator<JsonNode>, JsonNode)` to support
+  configurable/external equality comparison
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

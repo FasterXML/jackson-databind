@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.6.0 (not yet released)
 
+#95: Allow read-only properties with `@JsonIgnoreProperties(allowGetters=true)`
 #312: Support Type Id mappings where two ids map to same Class
 #348: ObjectMapper.valueToTree does not work with @JsonRawValue
  (reported by Chris P, pimlottc@github)

@@ -81,11 +81,31 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated // since 2.6, remove from 2.7 or later
     public String[] findPropertiesToIgnore(Annotated ac) {
         JsonIgnoreProperties ignore = _findAnnotation(ac, JsonIgnoreProperties.class);
         return (ignore == null) ? null : ignore.value();
     }
 
+    @Override // since 2.6
+    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
+        JsonIgnoreProperties ignore = _findAnnotation(ac, JsonIgnoreProperties.class);
+        if (ignore == null) {
+            return null;
+        }
+        // 13-May-2015, tatu: As per [databind#95], allow read-only/write-only props
+        if (forSerialization) {
+            if (ignore.allowGetters()) {
+                return null;
+            }
+        } else {
+            if (ignore.allowSetters()) {
+                return null;
+            }
+        }
+        return ignore.value();
+    }
+    
     @Override
     public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) {
         JsonIgnoreProperties ignore = _findAnnotation(ac, JsonIgnoreProperties.class);

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestIgnorePropsForSerialization
+public class IgnorePropsTest
     extends BaseMapTest
 {
     @JsonIgnoreProperties({"b", "c"})
@@ -63,7 +63,7 @@ public class TestIgnorePropsForSerialization
             value.put("b", 2);
         }
     }
-    
+
     /*
     /****************************************************************
     /* Unit tests

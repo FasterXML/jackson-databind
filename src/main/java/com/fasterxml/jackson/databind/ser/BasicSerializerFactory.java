@@ -761,7 +761,8 @@ public abstract class BasicSerializerFactory
             } else {
             */
             Object filterId = findFilterId(config, beanDesc);
-            MapSerializer mapSer = MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
+            AnnotationIntrospector ai = config.getAnnotationIntrospector();
+            MapSerializer mapSer = MapSerializer.construct(ai.findPropertiesToIgnore(beanDesc.getClassInfo(), true),
                     type, staticTyping, elementTypeSerializer,
                     keySerializer, elementValueSerializer, filterId);
             Object suppressableValue = findSuppressableContentValue(config,

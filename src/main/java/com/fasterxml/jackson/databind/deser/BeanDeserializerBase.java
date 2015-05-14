@@ -618,7 +618,7 @@ public abstract class BeanDeserializerBase
         }
         // And possibly add more properties to ignore
         if (accessor != null) {
-            String[] ignorals = intr.findPropertiesToIgnore(accessor);
+            String[] ignorals = intr.findPropertiesToIgnore(accessor, false);
             if (ignorals != null && ignorals.length != 0) {
                 HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
                 contextual = contextual.withIgnorableProperties(newIgnored);

@@ -113,11 +113,20 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public String[] findPropertiesToIgnore(Annotated ac)
-    {
+    @Deprecated // since 2.6
+    public String[] findPropertiesToIgnore(Annotated ac) {
         String[] result = _primary.findPropertiesToIgnore(ac);
         if (result == null) {
             result = _secondary.findPropertiesToIgnore(ac);
+        }
+        return result;            
+    }
+
+    @Override
+    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
+        String[] result = _primary.findPropertiesToIgnore(ac, forSerialization);
+        if (result == null) {
+            result = _secondary.findPropertiesToIgnore(ac, forSerialization);
         }
         return result;            
     }

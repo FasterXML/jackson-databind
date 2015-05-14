@@ -223,11 +223,23 @@ public abstract class AnnotationIntrospector
      * List of property names is applied
      * after other detection mechanisms, to filter out these specific
      * properties from being serialized and deserialized.
+     * 
+     * @param forSerialization True if requesting properties to ignore for serialization;
+     *   false if for deserialization
      */
+    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
+        // !!! Change direction in 2.7 or later
+        return findPropertiesToIgnore(ac);
+    }
+
+    /**
+     * @deprecated Since 2.6, use variant that takes second argument.
+     */
+    @Deprecated
     public String[] findPropertiesToIgnore(Annotated ac) {
         return null;
     }
-
+    
     /**
      * Method for checking whether an annotation indicates that all unknown properties
      */

@@ -587,7 +587,7 @@ public class BeanSerializerFactory
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedClass ac = beanDesc.getClassInfo();
-        String[] ignored = intr.findPropertiesToIgnore(ac);
+        String[] ignored = intr.findPropertiesToIgnore(ac, true);
         if (ignored != null && ignored.length > 0) {
             HashSet<String> ignoredSet = ArrayBuilders.arrayToSet(ignored);
             Iterator<BeanPropertyWriter> it = props.iterator();

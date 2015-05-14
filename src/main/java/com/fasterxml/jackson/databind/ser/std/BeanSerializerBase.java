@@ -420,7 +420,7 @@ public abstract class BeanSerializerBase
         
         // Then we may have an override for Object Id
         if (accessor != null) {
-            ignorals = intr.findPropertiesToIgnore(accessor);
+            ignorals = intr.findPropertiesToIgnore(accessor, true);
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo == null) {
                 // no ObjectId override, but maybe ObjectIdRef?

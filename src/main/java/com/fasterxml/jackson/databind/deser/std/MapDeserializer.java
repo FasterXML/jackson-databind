@@ -254,7 +254,7 @@ public class MapDeserializer
         if (intr != null && property != null) {
             AnnotatedMember member = property.getMember();
             if (member != null) {
-                String[] moreToIgnore = intr.findPropertiesToIgnore(member);
+                String[] moreToIgnore = intr.findPropertiesToIgnore(member, false);
                 if (moreToIgnore != null) {
                     ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
                     for (String str : moreToIgnore) {

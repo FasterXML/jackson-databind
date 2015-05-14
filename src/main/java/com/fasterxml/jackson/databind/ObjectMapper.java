@@ -3433,8 +3433,10 @@ public class ObjectMapper
      *
      * @param t The class to generate schema for
      * @return Constructed JSON schema.
+     * 
+     * @deprecated Since 2.6 use external JSON Schema generator (https://github.com/FasterXML/jackson-module-jsonSchema)
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> t)
             throws JsonMappingException {
         return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);

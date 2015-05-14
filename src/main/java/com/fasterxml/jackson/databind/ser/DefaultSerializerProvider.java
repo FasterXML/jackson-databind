@@ -333,13 +333,15 @@ public abstract class DefaultSerializerProvider
     }
 
     /**
-     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
+     * The method to be called by {@link ObjectMapper}
      * to generate <a href="http://json-schema.org/">JSON schema</a> for
      * given type.
      *
      * @param type The type for which to generate schema
+     * 
+     * @deprecated Should not be used any more
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated // since 2.6
     public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> type)
         throws JsonMappingException
     {

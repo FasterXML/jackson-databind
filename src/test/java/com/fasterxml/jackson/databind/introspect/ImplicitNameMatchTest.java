@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitNameMatch792Test extends BaseMapTest
+public class ImplicitNameMatchTest extends BaseMapTest
 {
     // Simple introspector that gives generated "ctorN" names for constructor
     // parameters
@@ -27,16 +27,16 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     @JsonPropertyOrder({ "first" ,"second", "other" })
     static class Issue792Bean
     {
-        // Should match implicit name of the first constructor parameter,
-        // and thus get renamed as "first" for serialization purposes
-        String ctor0;
+        String value;
 
         public Issue792Bean(@JsonProperty("first") String a,
                 @JsonProperty("second") String b) {
-            ctor0 = a;
+            value = a;
             // ignore second arg
         }
 
+        public String getCtor0() { return value; }
+        
         public int getOther() { return 3; }
     }
 

@@ -266,3 +266,8 @@ Laird Nelson (ljnelson@github)
 Derk Norton (derknorton@github)
   * Suggested #689: Add `ObjectMapper.setDefaultPrettyPrinter(PrettyPrinter)`
    (2.6.0)
+
+Michal Letynski (mletynski@github)
+  * Suggested #296: Serialization of transient fields with public getters (add
+    MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+   (2.6.0)

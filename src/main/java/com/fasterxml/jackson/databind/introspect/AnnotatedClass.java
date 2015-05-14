@@ -688,7 +688,7 @@ public final class AnnotatedClass
              */
             fields = _findFields(parent, fields);
             for (Field f : c.getDeclaredFields()) {
-                // static fields not included, nor transient
+                // static fields not included (transients are at this point, filtered out later)
                 if (!_isIncludableField(f)) {
                     continue;
                 }
@@ -869,9 +869,10 @@ public final class AnnotatedClass
         if (f.isSynthetic()) {
             return false;
         }
-        // Static fields are never included, nor transient
+        // Static fields are never included. Transient are (since 2.6), for
+        // purpose of propagating removal
         int mods = f.getModifiers();
-        if (Modifier.isStatic(mods) || Modifier.isTransient(mods)) {
+        if (Modifier.isStatic(mods)) {
             return false;
         }
         return true;

@@ -18,7 +18,7 @@ public enum MapperFeature implements ConfigFeature
 {
     /*
     /******************************************************
-    /*  Introspection features
+    /* Introspection features
     /******************************************************
      */
     
@@ -198,7 +198,18 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.2
      */
     ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
-    
+
+    /**
+     * Feature that determines for <code>transient</code> modifier for fields
+     * is handled: if disabled, it is only taken to mean exclusion of
+     *<p>
+     * Feature is disabled by default, meaning that existence of `transient`
+     * for a field does not necessarily lead to ignoral of getters or setters.
+     *
+     * @since 2.6
+     */
+    PROPAGATE_TRANSIENT_MARKER(false),
+
     /*
     /******************************************************
     /* Type-handling features

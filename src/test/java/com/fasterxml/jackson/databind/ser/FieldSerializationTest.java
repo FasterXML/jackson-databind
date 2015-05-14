@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * Unit tests for verifying that field-backed properties can also be serialized
  * (since version 1.1) as well as getter-accessible properties.
  */
-public class TestFieldSerialization
+public class FieldSerializationTest
     extends BaseMapTest
 {
     /*

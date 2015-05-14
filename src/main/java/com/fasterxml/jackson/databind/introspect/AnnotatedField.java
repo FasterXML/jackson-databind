@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -133,6 +134,11 @@ public final class AnnotatedField
 
     public int getAnnotationCount() { return _annotations.size(); }
 
+    /**
+     * @since 2.6
+     */
+    public boolean isTransient() { return Modifier.isTransient(getModifiers()); }
+    
     @Override
     public int hashCode() {
         return _field.getName().hashCode();

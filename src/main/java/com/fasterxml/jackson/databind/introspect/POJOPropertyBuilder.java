@@ -582,71 +582,6 @@ public class POJOPropertyBuilder
         return chain1.append(chain2);
     }
 
-    // // Deprecated variants that do not take 'explName': to be removed in a later version
-    // // (but are used at least by 2.3 and earlier versions of Scala module at least so
-    // // need to be careful with phasing out if before 3.0)
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addField(AnnotatedField a, String name, boolean visible, boolean ignored) {
-        addField(a, _propName(name), name != null, visible, ignored);
-    }
-
-    @Deprecated
-    public void addField(AnnotatedField a, String name, boolean explName, boolean visible, boolean ignored) {
-        addField(a, _propName(name), explName, visible, ignored);
-    }
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addCtor(AnnotatedParameter a, String name, boolean visible, boolean ignored) {
-        addCtor(a, _propName(name), name != null, visible, ignored);
-    }
-    @Deprecated
-    public void addCtor(AnnotatedParameter a, String name, boolean explName, boolean visible, boolean ignored) {
-        addCtor(a, _propName(name), explName, visible, ignored);
-    }
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addGetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        addGetter(a, _propName(name), name != null, visible, ignored);
-    }
-    @Deprecated
-    public void addGetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
-        addGetter(a, _propName(name), explName, visible, ignored);
-    }
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addSetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        addSetter(a, _propName(name), name != null, visible, ignored);
-    }
-    @Deprecated
-    public void addSetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
-        addSetter(a, _propName(name), explName, visible, ignored);
-    }
-
-    private PropertyName _propName(String simple) {
-        return PropertyName.construct(simple, null);
-    }
-    
     /*
     /**********************************************************
     /* Modifications
@@ -831,30 +766,6 @@ public class POJOPropertyBuilder
         return false;
     }
 
-    /**
-     * @since 2.4 Use {@link #findExplicitNames} instead
-     */
-    @Deprecated
-    public String findNewName()
-    {
-        Collection<PropertyName> l = findExplicitNames();
-        if (l == null) {
-            return null;
-        }
-        
-        // 13-Apr-2014, tatu: Start with code similar to existing conflict checks
-        if (l.size() > 1) {
-            throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
-                    +_name+"'): found more than one explicit name: "
-                    +l);
-        }
-        PropertyName first = l.iterator().next();
-        if (first.equals(_name)) {
-            return null;
-        }
-        return first.getSimpleName();
-    }
-    
     /**
      * Method called to find out set of explicit names for accessors
      * bound together due to implicit name.

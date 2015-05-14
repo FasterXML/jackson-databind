@@ -28,7 +28,7 @@ public class POJOPropertiesCollector
 
     /**
      * True if introspection is done for serialization (giving
-     *   precedence for serialization annotations), or not (false, deserialization)
+     * precedence for serialization annotations), or not (false, deserialization)
      */
     protected final boolean _forSerialization;
 
@@ -386,13 +386,14 @@ public class POJOPropertiesCollector
          *   (although, maybe surprisingly, JVM _can_ force setting of such fields!)
          */
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
+        final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
         
         for (AnnotatedField f : _classDef.fields()) {
             String implName = (ai == null) ? null : ai.findImplicitPropertyName(f);
             if (implName == null) {
                 implName = f.getName();
             }
-            
+
             PropertyName pn;
 
             if (ai == null) {
@@ -420,7 +421,15 @@ public class POJOPropertiesCollector
             }
             // and finally, may also have explicit ignoral
             boolean ignored = (ai != null) && ai.hasIgnoreMarker(f);
-            /* [Issue#190]: this is the place to prune final fields, if they are not
+
+            // 13-May-2015, tatu: Moved from earlier place (AnnotatedClass) in 2.6
+            if (f.isTransient()) {
+                visible = false;
+                if (transientAsIgnoral) {
+                    ignored = true;
+                }
+            }
+            /* [databind#190]: this is the place to prune final fields, if they are not
              *  to be used as mutators. Must verify they are not explicitly included.
              *  Also: if 'ignored' is set, need to included until a later point, to
              *  avoid losing ignoral information.

@@ -55,8 +55,8 @@ Project: jackson-databind
  (reported by mrowkow@github)
 #785: Add handlings for classes which are available in `Thread.currentThread().getContextClassLoader()`
  (contributed by Charles A)
+#792: Ensure Constructor Parameter annotations are linked with those of Field, Getter, or Setter
 - Fix handling of Enums wrt JSON Schema, when 'toString()' used for serialization
-- Minor improvement to handling of implicit names for Creator parameters
 
 2.5.3 (24-Apr-2015)
 

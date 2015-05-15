@@ -242,7 +242,7 @@ public abstract class JsonNode
      * @return This node to allow chaining or {@code value} if {@code ptr} is "/".
      * @throws IllegalArgumentException if the path is invalid (e.g. empty, contains a name instead of an index)
      * @throws UnsupportedOperationException if the targeted node does not support updates
-     * @since 2.4
+     * @since 2.6
      */
     public final JsonNode add(JsonPointer ptr, JsonNode value) {
         // In recursion we only match parent nodes, so this was an attempt to add to an empty pointer
@@ -272,7 +272,7 @@ public abstract class JsonNode
      * @return Node removed, if any; null if none
      * @throws IllegalArgumentException if the path is invalid
      * @throws UnsupportedOperationException if the targeted node does not support removal
-     * @since 2.4
+     * @since 2.6
      */
     public final JsonNode remove(JsonPointer ptr) {
         if (ptr.matches()) {

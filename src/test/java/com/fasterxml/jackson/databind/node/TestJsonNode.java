@@ -91,8 +91,6 @@ public class TestJsonNode extends NodeTestBase
         assertEquals("\"Aw==\"", n.toString());
 
         assertEquals("AAMD", new BinaryNode(data).asText());
-
-        // 1.6:
         assertNodeNumbersForNonNumeric(n);
     }
 
@@ -107,7 +105,6 @@ public class TestJsonNode extends NodeTestBase
 
         assertEquals(new POJONode(null), new POJONode(null));
 
-        // 1.6:
         // default; non-numeric
         assertNodeNumbersForNonNumeric(n);
         // but if wrapping actual number, use it
@@ -159,5 +156,21 @@ public class TestJsonNode extends NodeTestBase
         assertTrue(root2.equals(cmp, root1));
         assertTrue(root1.equals(cmp, root1));
         assertTrue(root2.equals(cmp, root2));
+    }
+
+    // [databind#793]
+    public void testArrayWithDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .enableDefaultTyping();
+
+        JsonNode array = mapper.readTree("[ 1, 2 ]");
+        assertTrue(array.isArray());
+        assertEquals(2, array.size());
+
+        JsonNode obj = mapper.readTree("{ \"a\" : 2 }");
+        assertTrue(obj.isObject());
+        assertEquals(1, obj.size());
+        assertEquals(2, obj.path("a").asInt());
     }
 }

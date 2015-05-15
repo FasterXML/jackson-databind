@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.*;
 
 public class TestInjectables extends BaseMapTest
@@ -85,7 +84,14 @@ public class TestInjectables extends BaseMapTest
         public void setMethodValue(String methodValue) {
             this.methodValue = methodValue;
         }
+    }
 
+    // [databind#77]
+    static class TransientBean {
+        @JacksonInject("transient")
+        transient Object injected;
+
+        public int value;
     }
     
     /*
@@ -94,6 +100,8 @@ public class TestInjectables extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -111,11 +119,10 @@ public class TestInjectables extends BaseMapTest
     
     public void testWithCtors() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-            .addValue(String.class, "Bubba")
-            );
-        CtorBean bean = mapper.readValue("{\"age\":55}", CtorBean.class);
+        CtorBean bean = MAPPER.readerFor(CtorBean.class)
+            .with(new InjectableValues.Std()
+                .addValue(String.class, "Bubba"))
+            .readValue("{\"age\":55}");
         assertEquals(55, bean.age);
         assertEquals("Bubba", bean.name);
     }
@@ -123,26 +130,24 @@ public class TestInjectables extends BaseMapTest
     // [Issue-13]
     public void testTwoInjectablesViaCreator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-            .addValue(String.class, "Bob")
-            .addValue("number", Integer.valueOf(13))
-            );
-        CtorBean2 bean = mapper.readValue("{ }", CtorBean2.class);
+        CtorBean2 bean = MAPPER.readerFor(CtorBean2.class)
+                .with(new InjectableValues.Std()
+                    .addValue(String.class, "Bob")
+                    .addValue("number", Integer.valueOf(13))
+                ).readValue("{ }");
         assertEquals(Integer.valueOf(13), bean.age);
         assertEquals("Bob", bean.name);
     }
-    
+
     public void testInvalidDup() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.readValue("{}", BadBean1.class);
+            MAPPER.readValue("{}", BadBean1.class);
         } catch (Exception e) {
             verifyException(e, "Duplicate injectable value");
         }
         try {
-            mapper.readValue("{}", BadBean2.class);
+            MAPPER.readValue("{}", BadBean2.class);
         } catch (Exception e) {
             verifyException(e, "Duplicate injectable value");
         }
@@ -174,5 +179,16 @@ public class TestInjectables extends BaseMapTest
         assertEquals("field", bean.fieldValue);
 
         assertEquals(13, bean.x);
+    }
+
+    // [databind#77]
+    public void testTransientField() throws Exception
+    {
+        TransientBean bean = MAPPER.readerFor(TransientBean.class)
+                .with(new InjectableValues.Std()
+                        .addValue("transient", "Injected!"))
+                .readValue("{\"value\":28}");
+        assertEquals(28, bean.value);
+        assertEquals("Injected!", bean.injected);
     }
 }

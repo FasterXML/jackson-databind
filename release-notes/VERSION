@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.6.0 (not yet released)
 
+#77: Allow injection of 'transient' fields
 #95: Allow read-only properties with `@JsonIgnoreProperties(allowGetters=true)`
 #296: Serialization of transient fields with public getters (add
     MapperFeature.PROPAGATE_TRANSIENT_MARKER)

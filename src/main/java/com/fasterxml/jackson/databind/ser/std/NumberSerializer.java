@@ -7,10 +7,10 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
 
 /**
@@ -19,16 +19,36 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor
  * like {@link BigInteger} and {@link BigDecimal}.
  */
 @JacksonStdImpl
-public final class NumberSerializer
+@SuppressWarnings("serial")
+public class NumberSerializer
     extends StdScalarSerializer<Number>
 {
-    public final static NumberSerializer instance = new NumberSerializer();
+    /**
+     * Static instance that is only to be used for {@link java.lang.Number}.
+     */
+    public final static NumberSerializer instance = new NumberSerializer(Number.class);
 
-    public NumberSerializer() { super(Number.class); }
+    protected final boolean _isInt;
+
+    @Deprecated // since 2.5
+    public NumberSerializer() {
+        super(Number.class);
+        _isInt = false;
+    }
+
+    /**
+     * @since 2.5
+     */
+    public NumberSerializer(Class<? extends Number> rawType) {
+        super(rawType, false);
+        // since this will NOT be constructed for Integer or Long, only case is:
+        _isInt = (rawType == BigInteger.class);
+    }
 
     @Override
     public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
+        // should mostly come in as one of these two:
         if (value instanceof BigDecimal) {
             jgen.writeNumber((BigDecimal) value);
         } else if (value instanceof BigInteger) {
@@ -55,17 +75,25 @@ public final class NumberSerializer
 
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("number", true);
+        return createSchemaNode(_isInt ? "integer" : "number", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-        // Hmmh. What should it be? Ideally should probably indicate BIG_DECIMAL
-        // to ensure no information is lost? But probably won't work that well...
-        JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
-        if (v2 != null) {
-            v2.numberType(JsonParser.NumberType.BIG_DECIMAL);
+        if (_isInt) {
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.BIG_INTEGER);
+            }
+        } else {
+            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
+            if (v2 != null) {
+                Class<?> h = handledType();
+                if (h == BigDecimal.class) {
+                    v2.numberType(JsonParser.NumberType.BIG_DECIMAL);
+                } // otherwise it's for Number... anything we could do there?
+            }
         }
     }
 }

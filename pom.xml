@@ -5,16 +5,16 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-parent</artifactId>
-    <version>2.4</version>
+    <version>2.5.1</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.4.2-SNAPSHOT</version>
+  <version>2.6.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
-  <url>http://wiki.fasterxml.com/JacksonHome</url>
+  <url>http://github.com/FasterXML/jackson</url>
 
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
@@ -69,49 +69,37 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.4.0</version>
+      <version>2.6.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.4.1</version>
+      <version>2.6.0-SNAPSHOT</version>
     </dependency>
 
     <!-- and for testing we need a few libraries
          libs for which we use reflection for code, but direct dep for testing
       -->
+
+    <!-- For testing TestNoClassDefFoundDeserializer -->
     <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib</artifactId>
-      <version>2.2.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy</artifactId>
-      <version>1.7.9</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency> <!--  from core we just test for repackaged cglib, not hibernate proper -->
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-cglib-repack</artifactId>
-      <version>2.1_3</version>
+      <groupId>javax.measure</groupId>
+      <artifactId>jsr-275</artifactId>
+      <version>0.9.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
      <plugins>
-       <plugin> <!-- parent uses 2.4.2 -->
-         <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5</version>
-       </plugin>
-     <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <version>${version.plugin.surefire}</version>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.version}</version>
         <configuration>
+          <classpathDependencyExcludes>
+            <exclude>javax.measure:jsr-275</exclude>
+          </classpathDependencyExcludes>
           <excludes>
             <exclude>com/fasterxml/jackson/failing/*.java</exclude>
           </excludes>
@@ -121,12 +109,12 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${javadoc.version}</version>
+        <version>${version.plugin.javadoc}</version>
         <configuration>
           <links>
             <link>http://docs.oracle.com/javase/6/docs/api/</link>
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.4/</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/2.4/</link>
+            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.5/</link>
+            <link>http://fasterxml.github.com/jackson-core/javadoc/2.5/</link>
           </links>
         </configuration>
       </plugin>

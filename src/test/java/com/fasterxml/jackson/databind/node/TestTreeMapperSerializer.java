@@ -6,14 +6,13 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.test.BaseTest;
 
 /**
  * This unit test suite tries to verify that the trees ObjectMapper
  * constructs can be serialized properly.
  */
 public class TestTreeMapperSerializer
-    extends BaseTest
+    extends BaseMapTest
 {
     final static String FIELD1 = "first";
     final static String FIELD2 = "Second?";

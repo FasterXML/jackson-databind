@@ -69,6 +69,22 @@ public class TestUnwrapped extends BaseMapTest
         public String first, last;
     }
 
+    // [databind#615]
+    static class Parent {
+        @JsonUnwrapped
+        public Child c1;
+
+        public Parent() { }
+        public Parent(String str) { c1 = new Child(str); }
+    }
+
+    static class Child {
+        public String field;
+
+        public Child() { }
+        public Child(String f) { field = f; }
+    }
+
     /*
     /**********************************************************
     /* Tests, serialization
@@ -142,13 +158,20 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals(2, loc.y);
     }
 
+    public void testIssue615() throws Exception
+    {
+        Parent input = new Parent("name");
+        String json = MAPPER.writeValueAsString(input);
+        Parent output = MAPPER.readValue(json, Parent.class);
+        assertEquals("name", output.c1.field);
+    }
+
     // 22-Apr-2013, tatu: Commented out as it can't be simply fixed; requires implementing
     //    deep-update/merge. But leaving here to help with that effort, if/when it proceeds.
-    
+
     /*
-    
     // [Issue#211]: Actually just variant of #160
-    
+
     static class Issue211Bean {
         public String test1;
 
@@ -161,7 +184,7 @@ public class TestUnwrapped extends BaseMapTest
         public String test3;
         public String test4;
     }
-    
+
     public void testIssue211() throws Exception
     {
          Issue211Bean bean = new Issue211Bean();
@@ -181,6 +204,6 @@ public class TestUnwrapped extends BaseMapTest
          assertNotNull(result.unwrapped);
          assertEquals("Field 3 merged", result.unwrapped.test3);
          assertEquals("Field 4", result.unwrapped.test4);
-    }  
+    }
     */
 }

@@ -38,7 +38,7 @@ public class JsonLocationInstantiator extends ValueInstantiator
     }
 
     private static CreatorProperty creatorProp(String name, JavaType type, int index) {
-        return new CreatorProperty(new PropertyName(name), type, null,
+        return new CreatorProperty(PropertyName.construct(name), type, null,
                 null, null, null, index, null, PropertyMetadata.STD_REQUIRED);
     }
     

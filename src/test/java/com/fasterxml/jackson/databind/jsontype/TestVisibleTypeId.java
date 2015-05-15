@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeId;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -48,13 +46,6 @@ public class TestVisibleTypeId extends BaseMapTest
         public void setType(String t) { type = t; }
     }
 
-    // as external id, bit trickier
-    static class ExternalIdWrapper {
-        @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY,
-                property="type", visible=true)
-        public ExternalIdBean bean = new ExternalIdBean();
-    }
-    
     @JsonTypeName("ExternalType")
     static class ExternalIdBean {
         public int a = 2;
@@ -133,6 +124,32 @@ public class TestVisibleTypeId extends BaseMapTest
         
         public int age = 41;
     }
+
+    // [databind#408]
+    static class ExternalBeanWithId
+    {
+        protected String _type;
+        
+        @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="type", visible=true)
+        public ValueBean bean;
+
+        public ExternalBeanWithId() { }
+        public ExternalBeanWithId(int v) {
+            bean = new ValueBean(v);
+        }
+
+        public void setType(String t) {
+            _type = t;
+        }
+    }
+
+    @JsonTypeName("vbean")
+    static class ValueBean {
+        public int value;
+        
+        public ValueBean() { }
+        public ValueBean(int v) { value = v; }
+    }
     
     /*
     /**********************************************************
@@ -177,17 +194,6 @@ public class TestVisibleTypeId extends BaseMapTest
         assertEquals("ObjectType", result.type);
     }
 
-    public void testVisibleWithExternalId() throws Exception
-    {
-        String json = MAPPER.writeValueAsString(new ExternalIdWrapper());
-        // but then expect to read it back
-        ExternalIdWrapper result = MAPPER.readValue(json, ExternalIdWrapper.class);
-        assertEquals("ExternalType", result.bean.type);
-        assertEquals(2, result.bean.a);
-    }
-
-    // [JACKSON-762]
-
     public void testTypeIdFromProperty() throws Exception
     {
         assertEquals("{\"type\":\"SomeType\",\"a\":3}",
@@ -223,6 +229,21 @@ public class TestVisibleTypeId extends BaseMapTest
         I263Base result = MAPPER.readValue("{\"age\":19,\"name\":\"bob\"}", I263Base.class);
         assertTrue(result instanceof I263Impl);
         assertEquals(19, ((I263Impl) result).age);
+    }
+
+    // [databind#408]
+    /* NOTE: Handling changed between 2.4 and 2.5; earlier, type id was 'injected'
+     *  inside POJO; but with 2.5 this was fixed so it would remain outside, similar
+     *  to how JSON structure is.
+     */
+    public void testVisibleTypeId408() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new ExternalBeanWithId(3));
+        ExternalBeanWithId result = MAPPER.readValue(json, ExternalBeanWithId.class);
+        assertNotNull(result);
+        assertNotNull(result.bean);
+        assertEquals(3, result.bean.value);
+        assertEquals("vbean", result._type);
     }
     
     /*

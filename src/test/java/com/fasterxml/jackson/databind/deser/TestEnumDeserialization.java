@@ -1,18 +1,21 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.EnumDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -48,7 +51,7 @@ public class TestEnumDeserialization
             return TestEnum.valueOf(jp.getText().toUpperCase());
         }
     }
-    
+
     protected enum EnumWithCreator {
         A, B;
 
@@ -56,6 +59,17 @@ public class TestEnumDeserialization
         public static EnumWithCreator fromEnum(String str) {
             if ("enumA".equals(str)) return A;
             if ("enumB".equals(str)) return B;
+            return null;
+        }
+    }
+
+    protected enum EnumWithBDCreator {
+        E5, E8;
+
+        @JsonCreator
+        public static EnumWithBDCreator create(BigDecimal bd) {
+            if (bd.longValue() == 5L) return E5;
+            if (bd.longValue() == 8L) return E8;
             return null;
         }
     }
@@ -112,7 +126,34 @@ public class TestEnumDeserialization
             throw new RuntimeException("Foobar!");
         }
     }
-    
+
+    // [Issue#745]
+    static class DelegatingDeserializers extends Deserializers.Base
+    {
+        @Override
+        public JsonDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc) throws JsonMappingException {
+            final Collection<AnnotatedMethod> factoryMethods = beanDesc.getFactoryMethods();
+            if (factoryMethods != null) {
+                for (AnnotatedMethod am : factoryMethods) {
+                    final JsonCreator creator = am.getAnnotation(JsonCreator.class);
+                    if (creator != null) {
+                        return EnumDeserializer.deserializerForCreator(config, type, am);
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    // [Issue#745]
+    static class DelegatingDeserializersModule extends SimpleModule
+    {
+        @Override
+        public void setupModule(final SetupContext context) {
+            context.addDeserializers(new DelegatingDeserializers());
+        }
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -194,10 +235,14 @@ public class TestEnumDeserialization
     }
 
     // [JACKSON-193]
-    public void testCreatorEnums() throws Exception
-    {
+    public void testCreatorEnums() throws Exception {
         EnumWithCreator value = MAPPER.readValue("\"enumA\"", EnumWithCreator.class);
         assertEquals(EnumWithCreator.A, value);
+    }
+
+    public void testCreatorEnumsFromBigDecimal() throws Exception {
+        EnumWithBDCreator value = MAPPER.readValue("\"8.0\"", EnumWithBDCreator.class);
+        assertEquals(EnumWithBDCreator.E8, value);
     }
     
     // [JACKSON-212]
@@ -230,10 +275,18 @@ public class TestEnumDeserialization
         assertSame(TestEnum.RULES, value);
 
         // but can also be changed to errors:
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true);
+        ObjectReader r = MAPPER.readerFor(TestEnum.class)
+                .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
         try {
-            value = m.readValue("1", TestEnum.class);
+            value = r.readValue("1");
+            fail("Expected an error");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Not allowed to deserialize Enum value out of JSON number");
+        }
+
+        // and [databind#684]
+        try {
+            value = r.readValue(quote("1"));
             fail("Expected an error");
         } catch (JsonMappingException e) {
             verifyException(e, "Not allowed to deserialize Enum value out of JSON number");
@@ -302,14 +355,14 @@ public class TestEnumDeserialization
     {
         // can not use shared mapper when changing configs...
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        assertNull(reader.withType(TestEnum.class).readValue("\"NO-SUCH-VALUE\""));
-        assertNull(reader.withType(TestEnum.class).readValue(" 4343 "));
+        assertNull(reader.forType(TestEnum.class).readValue("\"NO-SUCH-VALUE\""));
+        assertNull(reader.forType(TestEnum.class).readValue(" 4343 "));
     }
 
     public void testAllowUnknownEnumValuesForEnumSets() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        EnumSet<TestEnum> result = reader.withType(new TypeReference<EnumSet<TestEnum>>() { })
+        EnumSet<TestEnum> result = reader.forType(new TypeReference<EnumSet<TestEnum>>() { })
                 .readValue("[\"NO-SUCH-VALUE\"]");
         assertEquals(0, result.size());
     }
@@ -317,7 +370,7 @@ public class TestEnumDeserialization
     public void testAllowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        ClassWithEnumMapKey result = reader.withType(ClassWithEnumMapKey.class)
+        ClassWithEnumMapKey result = reader.forType(ClassWithEnumMapKey.class)
                 .readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}");
         assertTrue(result.map.containsKey(null));
     }
@@ -336,8 +389,9 @@ public class TestEnumDeserialization
     // [JACKSON-834]
     public void testEnumsFromInts() throws Exception
     {
-        TestEnumFor834 res = MAPPER.readValue("1 ", TestEnumFor834.class);
-        assertSame(TestEnumFor834.ENUM_A, res);
+        Object ob = MAPPER.readValue("1 ", TestEnumFor834.class);
+        assertEquals(TestEnumFor834.class, ob.getClass());
+        assertSame(TestEnumFor834.ENUM_A, ob);
     }
 
     // [Issue#141]: allow mapping of empty String into null
@@ -399,5 +453,15 @@ public class TestEnumDeserialization
         // but also with quoted Strings
         en = MAPPER.readValue(quote("1"), TestEnum.class);
         assertSame(TestEnum.values()[1], en);
+    }
+
+    // [Issue#745]
+    public void testDeserializerForCreatorWithEnumMaps() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new DelegatingDeserializersModule());
+        EnumMap<EnumWithCreator,String> value = mapper.readValue("{\"enumA\":\"value\"}",
+            new TypeReference<EnumMap<EnumWithCreator,String>>() {});
+        assertEquals("value", value.get(EnumWithCreator.A));
     }
 }

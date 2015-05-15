@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 public final class BooleanSerializer
     extends NonTypedScalarSerializerBase<Boolean>
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Whether type serialized is primitive (boolean) or wrapper
      * (java.lang.Boolean); if true, former, if false, latter.
@@ -35,7 +37,7 @@ public final class BooleanSerializer
     }
 
     @Override
-    public void serialize(Boolean value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+    public void serialize(Boolean value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeBoolean(value.booleanValue());
     }
 

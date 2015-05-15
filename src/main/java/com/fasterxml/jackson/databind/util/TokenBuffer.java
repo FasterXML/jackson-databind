@@ -249,8 +249,7 @@ public class TokenBuffer
      * @return This buffer
      */
     @SuppressWarnings("resource")
-    public TokenBuffer append(TokenBuffer other)
-        throws IOException, JsonGenerationException
+    public TokenBuffer append(TokenBuffer other) throws IOException
     {
         // Important? If source has native ids, need to store
         if (!_hasNativeTypeIds) {  
@@ -278,8 +277,7 @@ public class TokenBuffer
      * references (from core to mapper package); and as such we also
      * can not take second argument.
      */
-    public void serialize(JsonGenerator jgen)
-        throws IOException, JsonGenerationException
+    public void serialize(JsonGenerator gen) throws IOException
     {
         Segment segment = _first;
         int ptr = -1;
@@ -300,36 +298,36 @@ public class TokenBuffer
             if (hasIds) {
                 Object id = segment.findObjectId(ptr);
                 if (id != null) {
-                    jgen.writeObjectId(id);
+                    gen.writeObjectId(id);
                 }
                 id = segment.findTypeId(ptr);
                 if (id != null) {
-                    jgen.writeTypeId(id);
+                    gen.writeTypeId(id);
                 }
             }
             
             // Note: copied from 'copyCurrentEvent'...
             switch (t) {
             case START_OBJECT:
-                jgen.writeStartObject();
+                gen.writeStartObject();
                 break;
             case END_OBJECT:
-                jgen.writeEndObject();
+                gen.writeEndObject();
                 break;
             case START_ARRAY:
-                jgen.writeStartArray();
+                gen.writeStartArray();
                 break;
             case END_ARRAY:
-                jgen.writeEndArray();
+                gen.writeEndArray();
                 break;
             case FIELD_NAME:
             {
                 // 13-Dec-2010, tatu: Maybe we should start using different type tokens to reduce casting?
                 Object ob = segment.get(ptr);
                 if (ob instanceof SerializableString) {
-                    jgen.writeFieldName((SerializableString) ob);
+                    gen.writeFieldName((SerializableString) ob);
                 } else {
-                    jgen.writeFieldName((String) ob);
+                    gen.writeFieldName((String) ob);
                 }
             }
                 break;
@@ -337,9 +335,9 @@ public class TokenBuffer
                 {
                     Object ob = segment.get(ptr);
                     if (ob instanceof SerializableString) {
-                        jgen.writeString((SerializableString) ob);
+                        gen.writeString((SerializableString) ob);
                     } else {
-                        jgen.writeString((String) ob);
+                        gen.writeString((String) ob);
                     }
                 }
                 break;
@@ -347,15 +345,15 @@ public class TokenBuffer
                 {
                     Object n = segment.get(ptr);
                     if (n instanceof Integer) {
-                        jgen.writeNumber((Integer) n);
+                        gen.writeNumber((Integer) n);
                     } else if (n instanceof BigInteger) {
-                        jgen.writeNumber((BigInteger) n);
+                        gen.writeNumber((BigInteger) n);
                     } else if (n instanceof Long) {
-                        jgen.writeNumber((Long) n);
+                        gen.writeNumber((Long) n);
                     } else if (n instanceof Short) {
-                        jgen.writeNumber((Short) n);
+                        gen.writeNumber((Short) n);
                     } else {
-                        jgen.writeNumber(((Number) n).intValue());
+                        gen.writeNumber(((Number) n).intValue());
                     }
                 }
                 break;
@@ -363,31 +361,38 @@ public class TokenBuffer
                 {
                     Object n = segment.get(ptr);
                     if (n instanceof Double) {
-                        jgen.writeNumber(((Double) n).doubleValue());
+                        gen.writeNumber(((Double) n).doubleValue());
                     } else if (n instanceof BigDecimal) {
-                        jgen.writeNumber((BigDecimal) n);
+                        gen.writeNumber((BigDecimal) n);
                     } else if (n instanceof Float) {
-                        jgen.writeNumber(((Float) n).floatValue());
+                        gen.writeNumber(((Float) n).floatValue());
                     } else if (n == null) {
-                        jgen.writeNull();
+                        gen.writeNull();
                     } else if (n instanceof String) {
-                        jgen.writeNumber((String) n);
+                        gen.writeNumber((String) n);
                     } else {
                         throw new JsonGenerationException("Unrecognized value type for VALUE_NUMBER_FLOAT: "+n.getClass().getName()+", can not serialize");
                     }
                 }
                 break;
             case VALUE_TRUE:
-                jgen.writeBoolean(true);
+                gen.writeBoolean(true);
                 break;
             case VALUE_FALSE:
-                jgen.writeBoolean(false);
+                gen.writeBoolean(false);
                 break;
             case VALUE_NULL:
-                jgen.writeNull();
+                gen.writeNull();
                 break;
             case VALUE_EMBEDDED_OBJECT:
-                jgen.writeObject(segment.get(ptr));
+                {
+                    Object value = segment.get(ptr);
+                    if (value instanceof RawValue) {
+                        ((RawValue) value).serialize(gen);
+                    } else {
+                        gen.writeObject(value);
+                    }
+                }
                 break;
             default:
                 throw new RuntimeException("Internal error: should never end up through this code path");
@@ -400,10 +405,25 @@ public class TokenBuffer
      * 
      * @since 2.3
      */
-    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
-        copyCurrentStructure(jp);
+        if (jp.getCurrentTokenId() != JsonToken.FIELD_NAME.id()) {
+            copyCurrentStructure(jp);
+            return this;
+        }
+        /* 28-Oct-2014, tatu: As per #592, need to support a special case of starting from
+         *    FIELD_NAME, which is taken to mean that we are missing START_OBJECT, but need
+         *    to assume one did exist.
+         */
+        JsonToken t;
+        writeStartObject();
+        do {
+            copyCurrentStructure(jp);
+        } while ((t = jp.nextToken()) == JsonToken.FIELD_NAME);
+        if (t != JsonToken.END_OBJECT) {
+            throw ctxt.mappingException("Expected END_OBJECT after copying contents of a JsonParser into TokenBuffer, got "+t);
+        }
+        writeEndObject();
         return this;
     }
     
@@ -564,16 +584,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public final void writeStartArray()
-        throws IOException, JsonGenerationException
+    public final void writeStartArray() throws IOException
     {
         _append(JsonToken.START_ARRAY);
         _writeContext = _writeContext.createChildArrayContext();
     }
 
     @Override
-    public final void writeEndArray()
-        throws IOException, JsonGenerationException
+    public final void writeEndArray() throws IOException
     {
         _append(JsonToken.END_ARRAY);
         // Let's allow unbalanced tho... i.e. not run out of root level, ever
@@ -584,16 +602,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public final void writeStartObject()
-        throws IOException, JsonGenerationException
+    public final void writeStartObject() throws IOException
     {
         _append(JsonToken.START_OBJECT);
         _writeContext = _writeContext.createChildObjectContext();
     }
 
     @Override
-    public final void writeEndObject()
-        throws IOException, JsonGenerationException
+    public final void writeEndObject() throws IOException
     {
         _append(JsonToken.END_OBJECT);
         // Let's allow unbalanced tho... i.e. not run out of root level, ever
@@ -604,16 +620,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public final void writeFieldName(String name)
-        throws IOException, JsonGenerationException
+    public final void writeFieldName(String name) throws IOException
     {
         _append(JsonToken.FIELD_NAME, name);
         _writeContext.writeFieldName(name);
     }
 
     @Override
-    public void writeFieldName(SerializableString name)
-        throws IOException, JsonGenerationException
+    public void writeFieldName(SerializableString name) throws IOException
     {
         _append(JsonToken.FIELD_NAME, name);
         _writeContext.writeFieldName(name.getValue());
@@ -626,7 +640,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeString(String text) throws IOException,JsonGenerationException {
+    public void writeString(String text) throws IOException {
         if (text == null) {
             writeNull();
         } else {
@@ -635,12 +649,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len) throws IOException, JsonGenerationException {
+    public void writeString(char[] text, int offset, int len) throws IOException {
         writeString(new String(text, offset, len));
     }
 
     @Override
-    public void writeString(SerializableString text) throws IOException, JsonGenerationException {
+    public void writeString(SerializableString text) throws IOException {
         if (text == null) {
             writeNull();
         } else {
@@ -649,59 +663,60 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
     
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length)
-        throws IOException, JsonGenerationException
+    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
     {
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length)
-        throws IOException, JsonGenerationException
+    public void writeUTF8String(byte[] text, int offset, int length) throws IOException
     {
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(String text) throws IOException, JsonGenerationException {
+    public void writeRaw(String text) throws IOException {
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len) throws IOException, JsonGenerationException {
+    public void writeRaw(String text, int offset, int len) throws IOException {
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(SerializableString text) throws IOException, JsonGenerationException {
+    public void writeRaw(SerializableString text) throws IOException {
         _reportUnsupportedOperation();
     }
     
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws IOException, JsonGenerationException {
+    public void writeRaw(char[] text, int offset, int len) throws IOException {
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(char c) throws IOException, JsonGenerationException {
+    public void writeRaw(char c) throws IOException {
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRawValue(String text) throws IOException, JsonGenerationException {
-        _reportUnsupportedOperation();
+    public void writeRawValue(String text) throws IOException {
+        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
     }
 
     @Override
-    public void writeRawValue(String text, int offset, int len) throws IOException, JsonGenerationException {
-        _reportUnsupportedOperation();
+    public void writeRawValue(String text, int offset, int len) throws IOException {
+        if (offset > 0 || len != text.length()) {
+            text = text.substring(offset, offset+len);
+        }
+        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
     }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len) throws IOException, JsonGenerationException {
-        _reportUnsupportedOperation();
+    public void writeRawValue(char[] text, int offset, int len) throws IOException {
+        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new String(text, offset, len));
     }
 
     /*
@@ -711,32 +726,32 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeNumber(short i) throws IOException, JsonGenerationException {
+    public void writeNumber(short i) throws IOException {
         _append(JsonToken.VALUE_NUMBER_INT, Short.valueOf(i));
     }
 
     @Override
-    public void writeNumber(int i) throws IOException, JsonGenerationException {
+    public void writeNumber(int i) throws IOException {
         _append(JsonToken.VALUE_NUMBER_INT, Integer.valueOf(i));
     }
 
     @Override
-    public void writeNumber(long l) throws IOException, JsonGenerationException {
+    public void writeNumber(long l) throws IOException {
         _append(JsonToken.VALUE_NUMBER_INT, Long.valueOf(l));
     }
 
     @Override
-    public void writeNumber(double d) throws IOException,JsonGenerationException {
+    public void writeNumber(double d) throws IOException {
         _append(JsonToken.VALUE_NUMBER_FLOAT, Double.valueOf(d));
     }
 
     @Override
-    public void writeNumber(float f) throws IOException, JsonGenerationException {
+    public void writeNumber(float f) throws IOException {
         _append(JsonToken.VALUE_NUMBER_FLOAT, Float.valueOf(f));
     }
 
     @Override
-    public void writeNumber(BigDecimal dec) throws IOException,JsonGenerationException {
+    public void writeNumber(BigDecimal dec) throws IOException {
         if (dec == null) {
             writeNull();
         } else {
@@ -745,7 +760,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeNumber(BigInteger v) throws IOException, JsonGenerationException {
+    public void writeNumber(BigInteger v) throws IOException {
         if (v == null) {
             writeNull();
         } else {
@@ -754,7 +769,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeNumber(String encodedValue) throws IOException, JsonGenerationException {
+    public void writeNumber(String encodedValue) throws IOException {
         /* 03-Dec-2010, tatu: related to [JACKSON-423], should try to keep as numeric
          *   identity as long as possible
          */
@@ -762,12 +777,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeBoolean(boolean state) throws IOException,JsonGenerationException {
+    public void writeBoolean(boolean state) throws IOException {
         _append(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
     }
 
     @Override
-    public void writeNull() throws IOException, JsonGenerationException {
+    public void writeNull() throws IOException {
         _append(JsonToken.VALUE_NULL);
     }
 
@@ -785,10 +800,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return;
         }
         Class<?> raw = value.getClass();
-        if (raw == byte[].class) {
+        if (raw == byte[].class || (value instanceof RawValue)) {
             _append(JsonToken.VALUE_EMBEDDED_OBJECT, value);
             return;
-        } else if (_objectCodec == null) {
+        }
+        if (_objectCodec == null) {
             /* 28-May-2014, tatu: Tricky choice here; if no codec, should we
              *   err out, or just embed? For now, do latter.
              */
@@ -822,8 +838,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
-        throws IOException, JsonGenerationException
+    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException
     {
         /* 31-Dec-2009, tatu: can do this using multiple alternatives; but for
          *   now, let's try to limit number of conversions.
@@ -882,7 +897,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void copyCurrentEvent(JsonParser jp) throws IOException, JsonProcessingException
+    public void copyCurrentEvent(JsonParser jp) throws IOException
     {
         if (_mayHaveNativeIds) {
             _checkNativeIds(jp);
@@ -952,7 +967,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
     
     @Override
-    public void copyCurrentStructure(JsonParser jp) throws IOException, JsonProcessingException
+    public void copyCurrentStructure(JsonParser jp) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
 
@@ -991,7 +1006,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     
-    private final void _checkNativeIds(JsonParser jp) throws IOException, JsonProcessingException
+    private final void _checkNativeIds(JsonParser jp) throws IOException
     {
         if ((_typeId = jp.getTypeId()) != null) {
             _hasNativeId = true;
@@ -1114,14 +1129,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**********************************************************
          */
 
-        @Deprecated // since 2.3
-        protected Parser(Segment firstSeg, ObjectCodec codec) {
-            this(firstSeg, codec, false, false);
-        }
-
-        /**
-         * @since 2.3
-         */
         public Parser(Segment firstSeg, ObjectCodec codec,
                 boolean hasNativeTypeIds,
                 boolean hasNativeObjectIds)
@@ -1191,7 +1198,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          */
         
         @Override
-        public JsonToken nextToken() throws IOException, JsonParseException
+        public JsonToken nextToken() throws IOException
         {
             // If we are closed, nothing more to do
             if (_closed || (_segment == null)) return null;
@@ -1227,6 +1234,23 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
+        public String nextFieldName() throws IOException
+        {
+            // inlined common case from nextToken()
+            if (_closed || (_segment == null)) return null;
+
+            int ptr = _segmentPtr+1;
+            if (ptr < Segment.TOKENS_PER_SEGMENT && _segment.type(ptr) == JsonToken.FIELD_NAME) {
+                _segmentPtr = ptr;
+                Object ob = _segment.get(ptr); // inlined _currentObject();
+                String name = (ob instanceof String) ? ((String) ob) : ob.toString();
+                _parsingContext.setCurrentName(name);
+                return name;
+            }
+            return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        }
+
+        @Override
         public boolean isClosed() { return _closed; }
 
         /*
@@ -1234,7 +1258,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /* Public API, token accessors
         /**********************************************************
          */
-        
+
         @Override
         public JsonStreamContext getParsingContext() { return _parsingContext; }
 
@@ -1263,13 +1287,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 throw new RuntimeException(e);
             }
         }
-        
+
         /*
         /**********************************************************
         /* Public API, access to token information, text
         /**********************************************************
          */
-        
+
         @Override
         public String getText()
         {

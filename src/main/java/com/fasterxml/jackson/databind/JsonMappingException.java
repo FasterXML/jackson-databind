@@ -139,34 +139,16 @@ public class JsonMappingException
     /**********************************************************
      */
 
-    public JsonMappingException(String msg)
-    {
-        super(msg);
-    }
+    public JsonMappingException(String msg) { super(msg); }
+    public JsonMappingException(String msg, Throwable rootCause) { super(msg, rootCause); }
+    public JsonMappingException(String msg, JsonLocation loc) { super(msg, loc); }
+    public JsonMappingException(String msg, JsonLocation loc, Throwable rootCause) { super(msg, loc, rootCause); }
 
-    public JsonMappingException(String msg, Throwable rootCause)
-    {
-        super(msg, rootCause);
-    }
-
-    public JsonMappingException(String msg, JsonLocation loc)
-    {
-        super(msg, loc);
-    }
-
-    public JsonMappingException(String msg, JsonLocation loc, Throwable rootCause)
-    {
-        super(msg, loc, rootCause);
-    }
-
-    public static JsonMappingException from(JsonParser jp, String msg)
-    {
+    public static JsonMappingException from(JsonParser jp, String msg) {
         return new JsonMappingException(msg, ((jp == null) ? null : jp.getTokenLocation()));
     }
 
-    public static JsonMappingException from(JsonParser jp, String msg,
-            Throwable problem)
-    {
+    public static JsonMappingException from(JsonParser jp, String msg, Throwable problem) {
         return new JsonMappingException(msg, ((jp == null) ? null : jp.getTokenLocation()), problem);
     }
     
@@ -177,8 +159,7 @@ public class JsonMappingException
      * 
      * @since 2.1
      */
-    public static JsonMappingException fromUnexpectedIOE(IOException src)
-    {
+    public static JsonMappingException fromUnexpectedIOE(IOException src) {
         return new JsonMappingException("Unexpected IOException (of type "
                 +src.getClass().getName()+"): "+src.getMessage(), (JsonLocation)null, src);
     }
@@ -192,8 +173,7 @@ public class JsonMappingException
      * non-indexed object, such as a Map or POJO/bean.
      */
     public static JsonMappingException wrapWithPath(Throwable src, Object refFrom,
-                                                    String refFieldName)
-    {
+            String refFieldName) {
         return wrapWithPath(src, new Reference(refFrom, refFieldName));
     }
 
@@ -205,9 +185,7 @@ public class JsonMappingException
      * This version of method is called when the reference is through an
      * index, which happens with arrays and Collections.
      */
-    public static JsonMappingException wrapWithPath(Throwable src, Object refFrom,
-                                                    int index)
-    {
+    public static JsonMappingException wrapWithPath(Throwable src, Object refFrom, int index) {
         return wrapWithPath(src, new Reference(refFrom, index));
     }
 

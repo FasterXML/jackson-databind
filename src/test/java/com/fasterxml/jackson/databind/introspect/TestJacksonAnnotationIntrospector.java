@@ -29,11 +29,11 @@ public class TestJacksonAnnotationIntrospector
 
     public static class JacksonExample
     {
-        private String attributeProperty;
-        private String elementProperty;
-        private List<String> wrappedElementProperty;
-        private EnumExample enumProperty;
-        private QName qname;
+        protected String attributeProperty;
+        protected String elementProperty;
+        protected List<String> wrappedElementProperty;
+        protected EnumExample enumProperty;
+        protected QName qname;
 
         @JsonSerialize(using=QNameSerializer.class)
         public QName getQname()

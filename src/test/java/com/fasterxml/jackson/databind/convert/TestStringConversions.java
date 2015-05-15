@@ -6,11 +6,31 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.util.StdConverter;
 
 public class TestStringConversions
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
+    static class LCConverter extends StdConverter<String,String>
+    {
+        @Override public String convert(String value) {
+            return value.toLowerCase();
+        }
+    }
+
+    static class StringWrapperWithConvert
+    {
+        @JsonSerialize(converter=LCConverter.class)
+        @JsonDeserialize(converter=LCConverter.class)
+        public String value;
+
+        protected StringWrapperWithConvert() { }
+        public StringWrapperWithConvert(String v) { value = v; }
+    }
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSimple()
     {
@@ -57,5 +77,17 @@ public class TestStringConversions
         // then compare
         char[] actEncoded = MAPPER.convertValue(input, char[].class);
         assertArrayEquals(expEncoded, actEncoded);
+    }
+
+    public void testLowerCasingSerializer() throws Exception
+    {
+        assertEquals("{\"value\":\"abc\"}", MAPPER.writeValueAsString(new StringWrapperWithConvert("ABC")));
+    }
+
+    public void testLowerCasingDeserializer() throws Exception
+    {
+        StringWrapperWithConvert value = MAPPER.readValue("{\"value\":\"XyZ\"}", StringWrapperWithConvert.class);
+        assertNotNull(value);
+        assertEquals("xyz", value.value);
     }
 }

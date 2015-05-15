@@ -5,8 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
@@ -29,8 +28,16 @@ import com.fasterxml.jackson.databind.util.EmptyIterator;
  *<p>
  * Actual concrete sub-classes can be found from package
  * {@link com.fasterxml.jackson.databind.node}.
+ *<p>
+ * Note that it is possible to "read" from nodes, using
+ * method {@link TreeNode#traverse(ObjectCodec)}, which will result in
+ * a {@link JsonParser} being constructed. This can be used for (relatively)
+ * efficient conversations between different representations; and it is what
+ * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}
+ * and {@link ObjectMapper#treeAsTokens(TreeNode)}
  */
 public abstract class JsonNode
+    extends JsonSerializable.Base // i.e. implements JsonSerializable
     implements TreeNode, Iterable<JsonNode>
 {
     /*
@@ -66,11 +73,10 @@ public abstract class JsonNode
     /**********************************************************
      */
 
-//    public abstract JsonToken asToken();
-
-//    public abstract JsonParser.NumberType numberType();
-
-//    public abstract JsonParser traverse();
+//  public abstract JsonToken asToken();
+//  public abstract JsonToken traverse();
+//  public abstract JsonToken traverse(ObjectCodec codec);
+//  public abstract JsonParser.NumberType numberType();
 
     @Override
     public int size() { return 0; }
@@ -945,6 +951,34 @@ public abstract class JsonNode
                 +getClass().getName()+"), can not call withArray() on it");
     }
 
+    /*
+    /**********************************************************
+    /* Public API, comparison
+    /**********************************************************
+     */
+
+    /**
+     * Entry method for invoking customizable comparison, using passed-in
+     * {@link Comparator} object. Nodes will handle traversal of structured
+     * types (arrays, objects), but defer to comparator for scalar value
+     * comparisons. If a "natural" {@link Comparator} is passed -- one that
+     * simply calls <code>equals()</code> on one of arguments, passing the other
+     * -- implementation is the same as directly calling <code>equals()<code>
+     * on node.
+     *<p>
+     * Default implementation simply delegates to passed in <code>comparator</code>,
+     * with <code>this</code> as the first argument, and <code>other</code> as
+     * the second argument.
+     * 
+     * @param comparator Object called to compare two scalar {@link JsonNode} 
+     *   instances, and return either 0 (are equals) or non-zero (not equal)
+     *
+     * @since 2.6
+     */
+    public boolean equals(Comparator<JsonNode> comparator, JsonNode other) {
+        return comparator.compare(this, other) == 0;
+    }
+    
     /*
     /**********************************************************
     /* Overridden standard methods

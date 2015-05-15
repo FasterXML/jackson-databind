@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.PropertyName;
@@ -20,26 +22,36 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter;
  */
 public class MapProperty extends PropertyWriter
 {
-    protected TypeSerializer _typeSerializer;
-    
-    protected Object _key, _value;
+    protected final TypeSerializer _typeSerializer;
+
+    protected final BeanProperty _property;
+
+    protected Object _key;
 
     protected JsonSerializer<Object> _keySerializer, _valueSerializer;
 
-    public MapProperty(TypeSerializer typeSer)
-    {
-        _typeSerializer = typeSer;
+    /**
+     * @deprecated since 2.4
+     */
+    @Deprecated // since 2.4
+    public MapProperty(TypeSerializer typeSer) {
+        this(typeSer, null);
     }
     
+    public MapProperty(TypeSerializer typeSer, BeanProperty prop)
+    {
+        _typeSerializer = typeSer;
+        _property = prop;
+    }
+
     /**
      * Initialization method that needs to be called before passing
      * property to filter.
      */
-    public void reset(Object key, Object value,
+    public void reset(Object key,
             JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer)
     {
         _key = key;
-        _value = value;
         _keySerializer = keySer;
         _valueSerializer = valueSer;
     }
@@ -58,19 +70,29 @@ public class MapProperty extends PropertyWriter
     }
 
     @Override
-    public void serializeAsField(Object pojo, JsonGenerator jgen,
+    public <A extends Annotation> A getAnnotation(Class<A> acls) {
+        return (_property == null) ? null : _property.getAnnotation(acls);
+    }
+
+    @Override
+    public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
+        return (_property == null) ? null : _property.getContextAnnotation(acls);
+    }
+    
+    @Override
+    public void serializeAsField(Object value, JsonGenerator jgen,
             SerializerProvider provider) throws IOException
     {
         _keySerializer.serialize(_key, jgen, provider);
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(_value, jgen, provider);
+            _valueSerializer.serialize(value, jgen, provider);
         } else {
-            _valueSerializer.serializeWithType(_value, jgen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(value, jgen, provider, _typeSerializer);
         }
     }
 
     @Override
-    public void serializeAsOmittedField(Object pojo, JsonGenerator jgen,
+    public void serializeAsOmittedField(Object value, JsonGenerator jgen,
             SerializerProvider provider) throws Exception
     {
         if (!jgen.canOmitFields()) {
@@ -79,18 +101,18 @@ public class MapProperty extends PropertyWriter
     }
 
     @Override
-    public void serializeAsElement(Object pojo, JsonGenerator jgen,
+    public void serializeAsElement(Object value, JsonGenerator jgen,
             SerializerProvider provider) throws Exception
     {
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(_value, jgen, provider);
+            _valueSerializer.serialize(value, jgen, provider);
         } else {
-            _valueSerializer.serializeWithType(_value, jgen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(value, jgen, provider, _typeSerializer);
         }
     }
     
     @Override
-    public void serializeAsPlaceholder(Object pojo, JsonGenerator jgen,
+    public void serializeAsPlaceholder(Object value, JsonGenerator jgen,
             SerializerProvider provider) throws Exception
     {
         jgen.writeNull();

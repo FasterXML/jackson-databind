@@ -50,6 +50,8 @@ public abstract class PrimitiveArrayBuilder<T>
     /**********************************************************
      */
 
+    public int bufferedSize() { return _bufferedEntryCount; }
+    
     public T resetAndStart()
     {
         _reset();

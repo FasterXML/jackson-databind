@@ -85,5 +85,15 @@ public abstract class Annotated
      * not exposed to developers since instances are mutable.
      */
     protected abstract AnnotationMap getAllAnnotations();
-}
 
+    // Also: ensure we can use #equals, #hashCode
+    
+    @Override
+    public abstract boolean equals(Object o);
+
+    @Override
+    public abstract int hashCode();
+
+    @Override
+    public abstract String toString();
+}

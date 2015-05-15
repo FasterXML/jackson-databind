@@ -2,80 +2,173 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.util.*;
 
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ser.SerializerCache.TypeKey;
+import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
  * Optimized lookup table for accessing two types of serializers; typed
  * and non-typed. Only accessed from a single thread, so no synchronization
  * needed for accessors.
+ *<p>
+ * Note that before 2.6 this class was much smaller, and referred most
+ * operations to separate <code>JsonSerializerMap</code>, but in 2.6
+ * functions were combined.
  */
 public final class ReadOnlyClassToSerializerMap
 {
-    /**
-     * Actual mappings from type key to serializers
-     */
-    protected final JsonSerializerMap _map;
+    private final Bucket[] _buckets;
 
-    /**
-     * We'll reuse key class to avoid unnecessary instantiations; since
-     * this is not shared between threads, we can just reuse single
-     * instance.
-     */
-    protected TypeKey _cacheKey = null;
+    private final int _size;
+
+    private final int _mask;
+
+    public ReadOnlyClassToSerializerMap(Map<TypeKey,JsonSerializer<Object>> serializers)
+    {
+        int size = findSize(serializers.size());
+        _size = size;
+        _mask = (size-1);
+        Bucket[] buckets = new Bucket[size];
+        for (Map.Entry<TypeKey,JsonSerializer<Object>> entry : serializers.entrySet()) {
+            TypeKey key = entry.getKey();
+            int index = key.hashCode() & _mask;
+            buckets[index] = new Bucket(buckets[index], key, entry.getValue());
+        }
+        _buckets = buckets;
+    }
     
-    private ReadOnlyClassToSerializerMap(JsonSerializerMap map) {
-        _map = map;
-    }
-
-    public ReadOnlyClassToSerializerMap instance() {
-        return new ReadOnlyClassToSerializerMap(_map);
+    private final static int findSize(int size)
+    {
+        // For small enough results (64 or less), we'll require <= 50% fill rate; otherwise 80%
+        int needed = (size <= 64) ? (size + size) : (size + (size >> 2));
+        int result = 8;
+        while (result < needed) {
+            result += result;
+        }
+        return result;
     }
 
     /**
-     * Factory method for creating the "blueprint" lookup map. Such map
-     * can not be used as is but just shared: to get an actual usable
-     * instance, {@link #instance} has to be called first.
+     * Factory method for constructing an instance.
      */
     public static ReadOnlyClassToSerializerMap from(HashMap<TypeKey, JsonSerializer<Object>> src) {
-        return new ReadOnlyClassToSerializerMap(new JsonSerializerMap(src));
+        return new ReadOnlyClassToSerializerMap(src);
     }
 
-    public JsonSerializer<Object> typedValueSerializer(JavaType type) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(type, true);
-        } else {
-            _cacheKey.resetTyped(type);
+    /*
+    /**********************************************************
+    /* Public API
+    /**********************************************************
+     */
+
+    public int size() { return _size; }
+    
+    public JsonSerializer<Object> typedValueSerializer(JavaType type)
+    {
+        Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
+        if (bucket == null) {
+            return null;
         }
-        return _map.find(_cacheKey);
+        if (bucket.matchesTyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesTyped(type)) {
+                return bucket.value;
+            }
+        }
+        return null;
     }
 
-    public JsonSerializer<Object> typedValueSerializer(Class<?> cls) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(cls, true);
-        } else {
-            _cacheKey.resetTyped(cls);
+    public JsonSerializer<Object> typedValueSerializer(Class<?> type)
+    {
+        Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
+        if (bucket == null) {
+            return null;
         }
-        return _map.find(_cacheKey);
+        if (bucket.matchesTyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesTyped(type)) {
+                return bucket.value;
+            }
+        }
+        return null;
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(JavaType type) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(type, false);
-        } else {
-            _cacheKey.resetUntyped(type);
+    public JsonSerializer<Object> untypedValueSerializer(JavaType type)
+    {
+        Bucket bucket = _buckets[TypeKey.untypedHash(type) & _mask];
+        if (bucket == null) {
+            return null;
         }
-        return _map.find(_cacheKey);
+        if (bucket.matchesUntyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesUntyped(type)) {
+                return bucket.value;
+            }
+        }
+        return null;
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(Class<?> cls) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(cls, false);
-        } else {
-            _cacheKey.resetUntyped(cls);
+    public JsonSerializer<Object> untypedValueSerializer(Class<?> type)
+    {
+        Bucket bucket = _buckets[TypeKey.untypedHash(type) & _mask];
+        if (bucket == null) {
+            return null;
         }
-        return _map.find(_cacheKey);
+        if (bucket.matchesUntyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesUntyped(type)) {
+                return bucket.value;
+            }
+        }
+        return null;
+    }    
+    /*
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
+     */
+
+    private final static class Bucket
+    {
+        public final JsonSerializer<Object> value;
+        public final Bucket next;
+
+        protected final Class<?> _class;
+        protected final JavaType _type;
+
+        protected final boolean _isTyped;
+        
+        public Bucket(Bucket next, TypeKey key, JsonSerializer<Object> value)
+        {
+            this.next = next;
+            this.value = value;
+            _isTyped = key.isTyped();
+            _class = key.getRawType();
+            _type = key.getType();
+        }
+
+        public boolean matchesTyped(Class<?> key) {
+            return (_class == key) && _isTyped;
+        }
+
+        public boolean matchesUntyped(Class<?> key) {
+            return (_class == key) && !_isTyped;
+        }
+
+        public boolean matchesTyped(JavaType key) {
+            return _isTyped && key.equals(_type);
+        }
+
+        public boolean matchesUntyped(JavaType key) {
+            return !_isTyped && key.equals(_type);
+        }
     }
 }

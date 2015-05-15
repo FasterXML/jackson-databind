@@ -102,8 +102,8 @@ public class TestJsonSerialize
     }
 
     static class Bar294{
-        @JsonProperty private String id;
-        @JsonProperty private String name;
+        @JsonProperty protected String id;
+        @JsonProperty protected String name;
 
         public Bar294() { }
         public Bar294(String id) {

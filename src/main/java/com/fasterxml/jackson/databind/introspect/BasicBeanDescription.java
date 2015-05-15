@@ -163,6 +163,36 @@ public class BasicBeanDescription extends BeanDescription
         }
         return false;
     }
+
+    public boolean addProperty(BeanPropertyDefinition def)
+    {
+        // first: ensure we do not have such property
+        if (hasProperty(def.getFullName())) {
+            return false;
+        }
+        _properties.add(def);
+        return true;
+    }
+    
+    /**
+     * @since 2.6
+     */
+    public boolean hasProperty(PropertyName name) {
+        return findProperty(name) != null;
+    }
+    
+    /**
+     * @since 2.6
+     */
+    public BeanPropertyDefinition findProperty(PropertyName name)
+    {
+        for (BeanPropertyDefinition prop : _properties) {
+            if (prop.hasName(name)) {
+                return prop;
+            }
+        }
+        return null;
+    }
     
     /*
     /**********************************************************
@@ -175,7 +205,7 @@ public class BasicBeanDescription extends BeanDescription
 
     @Override
     public ObjectIdInfo getObjectIdInfo() { return  _objectIdInfo; }
-    
+
     @Override
     public List<BeanPropertyDefinition> findProperties() {
         return _properties;
@@ -193,7 +223,7 @@ public class BasicBeanDescription extends BeanDescription
         }
         return _ignoredPropertyNames;
     }
-    
+
     @Override
     public boolean hasKnownClassAnnotations() {
         return _classInfo.hasAnnotations();
@@ -330,12 +360,19 @@ public class BasicBeanDescription extends BeanDescription
      * and per-class annotation (highest priority).
      */
     @Override
-    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue)
-    {
+    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue) {
         if (_annotationIntrospector == null) {
             return defValue;
         }
         return _annotationIntrospector.findSerializationInclusion(_classInfo, defValue);
+    }
+
+    @Override
+    public JsonInclude.Include findSerializationInclusionForContent(JsonInclude.Include defValue) {
+        if (_annotationIntrospector == null) {
+            return defValue;
+        }
+        return _annotationIntrospector.findSerializationInclusionForContent(_classInfo, defValue);
     }
     
     /**
@@ -363,7 +400,20 @@ public class BasicBeanDescription extends BeanDescription
     public Map<String,AnnotatedMember> findBackReferenceProperties()
     {
         HashMap<String,AnnotatedMember> result = null;
+//        boolean hasIgnored = (_ignoredPropertyNames != null);
+
         for (BeanPropertyDefinition property : _properties) {
+            /* 23-Sep-2014, tatu: As per [Databind#426], we _should_ try to avoid
+             *   calling accessor, as it triggers exception from seeming conflict.
+             *   But the problem is that _ignoredPropertyNames here only contains
+             *   ones ignored on per-property annotations, but NOT class annotations...
+             *   so commented out part does not work, alas
+             */
+            /*
+            if (hasIgnored && _ignoredPropertyNames.contains(property.getName())) {
+                continue;
+            }
+            */
             AnnotatedMember am = property.getMutator();
             if (am == null) {
                 continue;
@@ -457,7 +507,7 @@ public class BasicBeanDescription extends BeanDescription
 
         /* Also: must be a recognized factory method, meaning:
          * (a) marked with @JsonCreator annotation, or
-         * (a) "valueOf" (at this point, need not be public)
+         * (b) "valueOf" (at this point, need not be public)
          */
         if (_annotationIntrospector.hasCreatorAnnotation(am)) {
             return true;
@@ -479,7 +529,7 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     /**
-     * @deprecated Since 2.4, use {@link #findCreatorParameterNames()} instead.
+     * @deprecated Since 2.4, use <code>findCreatorParameterNames()</code> instead.
      */
     @Deprecated
     public List<String> findCreatorPropertyNames()
@@ -496,16 +546,9 @@ public class BasicBeanDescription extends BeanDescription
     }
     
     /**
-     * Method for getting ordered list of named Creator properties.
-     * Returns an empty list is none found. If multiple Creator
-     * methods are defined, order between properties from different
-     * methods is undefined; however, properties for each such
-     * Creator are ordered properly relative to each other.
-     * For the usual case of just a single Creator, named properties are
-     * thus properly ordered.
-     * 
-     * @since 2.4
+     * @deprecated Since 2.5, does not seem to be used at all.
      */
+    @Deprecated
     public List<PropertyName> findCreatorParameterNames()
     {
         for (int i = 0; i < 2; ++i) {
@@ -532,26 +575,25 @@ public class BasicBeanDescription extends BeanDescription
 
     protected PropertyName _findCreatorPropertyName(AnnotatedParameter param)
     {
-    	PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
-    	if (name == null || name.isEmpty()) {
-    		String str = _annotationIntrospector.findImplicitPropertyName(param);
-    		if (str != null && !str.isEmpty()) {
-    			name = new PropertyName(str);
-    		}
-    	}
-    	return name;
+        PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
+        if (name == null || name.isEmpty()) {
+            String str = _annotationIntrospector.findImplicitPropertyName(param);
+            if (str != null && !str.isEmpty()) {
+                name = PropertyName.construct(str);
+            }
+        }
+        return name;
     }
-    
+
     /*
     /**********************************************************
     /* Introspection for deserialization, other
     /**********************************************************
      */
-    
+
     @Override
-    public Class<?> findPOJOBuilder()
-    {
-    	return (_annotationIntrospector == null) ?
+    public Class<?> findPOJOBuilder() {
+        return (_annotationIntrospector == null) ?
     			null : _annotationIntrospector.findPOJOBuilder(_classInfo);
     }
 

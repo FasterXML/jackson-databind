@@ -32,9 +32,10 @@ public final class AnnotatedMethod
     /*****************************************************
      */
 
-    public AnnotatedMethod(Method method, AnnotationMap classAnn, AnnotationMap[] paramAnnotations)
+    public AnnotatedMethod(AnnotatedClass ctxt, Method method,
+            AnnotationMap classAnn, AnnotationMap[] paramAnnotations)
     {
-        super(classAnn, paramAnnotations);
+        super(ctxt, classAnn, paramAnnotations);
         if (method == null) {
             throw new IllegalArgumentException("Can not construct AnnotatedMethod with null Method");
         }
@@ -47,7 +48,7 @@ public final class AnnotatedMethod
      */
     protected AnnotatedMethod(Serialization ser)
     {
-        super(null, null);
+        super(null, null, null);
         _method = null;
         _serialization = ser;
     }
@@ -56,14 +57,13 @@ public final class AnnotatedMethod
      * Method that constructs a new instance with settings (annotations, parameter annotations)
      * of this instance, but with different physical {@link Method}.
      */
-    public AnnotatedMethod withMethod(Method m)
-    {
-        return new AnnotatedMethod(m, _annotations, _paramAnnotations);
+    public AnnotatedMethod withMethod(Method m) {
+        return new AnnotatedMethod(_context, m, _annotations, _paramAnnotations);
     }
     
     @Override
     public AnnotatedMethod withAnnotations(AnnotationMap ann) {
-        return new AnnotatedMethod(_method, ann, _paramAnnotations);
+        return new AnnotatedMethod(_context, _method, ann, _paramAnnotations);
     }
 
     /*
@@ -138,8 +138,7 @@ public final class AnnotatedMethod
     public Method getMember() { return _method; }
 
     @Override
-    public void setValue(Object pojo, Object value)
-        throws IllegalArgumentException
+    public void setValue(Object pojo, Object value) throws IllegalArgumentException
     {
         try {
             _method.invoke(pojo, value);
@@ -235,11 +234,22 @@ public final class AnnotatedMethod
      */
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "[method "+getFullName()+"]";
     }
 
+    @Override
+    public int hashCode() {
+        return _method.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedMethod) o)._method == _method;
+    }
+    
     /*
     /**********************************************************
     /* JDK serialization handling
@@ -259,7 +269,7 @@ public final class AnnotatedMethod
             if (!m.isAccessible()) {
                 ClassUtil.checkAndFixAccess(m);
             }
-            return new AnnotatedMethod(m, null, null);
+            return new AnnotatedMethod(null, m, null, null);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not find method '"+_serialization.name
                         +"' from Class '"+clazz.getName());

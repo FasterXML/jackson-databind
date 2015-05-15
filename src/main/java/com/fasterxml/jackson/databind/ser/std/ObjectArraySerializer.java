@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Generic serializer for Object arrays (<code>Object[]</code>).
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class ObjectArraySerializer
     extends ArraySerializerBase<Object[]>
     implements ContextualSerializer
@@ -67,7 +68,7 @@ public class ObjectArraySerializer
         _elementType = elemType;
         _staticTyping = staticTyping;
         _valueTypeSerializer = vts;
-        _dynamicSerializers = PropertySerializerMap.emptyMap();
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _elementSerializer = elementSerializer;
     }
 
@@ -173,7 +174,7 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public boolean isEmpty(Object[] value) {
+    public boolean isEmpty(SerializerProvider prov, Object[] value) {
         return (value == null) || (value.length == 0);
     }
 
@@ -187,10 +188,22 @@ public class ObjectArraySerializer
     /* Actual serialization
     /**********************************************************
      */
+
+    @Override
+    public final void serialize(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    {
+    	final int len = value.length;
+        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
+        jgen.writeStartArray(len);
+        serializeContents(value, jgen, provider);
+        jgen.writeEndArray();
+    }
     
     @Override
-    public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
         final int len = value.length;
         if (len == 0) {
@@ -247,8 +260,7 @@ public class ObjectArraySerializer
     }
 
     public void serializeContentsUsing(Object[] value, JsonGenerator jgen, SerializerProvider provider,
-            JsonSerializer<Object> ser)
-        throws IOException, JsonGenerationException
+            JsonSerializer<Object> ser) throws IOException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -282,8 +294,7 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeTypedContents(Object[] value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeTypedContents(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -330,19 +341,19 @@ public class ObjectArraySerializer
                 Class<?> componentType = ((ArrayType) javaType).getContentType().getRawClass();
                 // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
                 if (componentType == Object.class) {
-                    o.put("items", com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode());
+                    o.set("items", com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode());
                 } else {
                     JsonSerializer<Object> ser = provider.findValueSerializer(componentType, _property);
                     JsonNode schemaNode = (ser instanceof SchemaAware) ?
                             ((SchemaAware) ser).getSchema(provider, null) :
                             	com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
-                    o.put("items", schemaNode);
+                    o.set("items", schemaNode);
                 }
             }
         }
         return o;
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
@@ -383,5 +394,4 @@ public class ObjectArraySerializer
         }
         return result.serializer;
     }
-
 }

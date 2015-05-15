@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * Can be used for custom bean serializers as well, although that
  * is not the primary design goal.
  */
+@SuppressWarnings("serial")
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
@@ -75,7 +76,7 @@ public abstract class BeanSerializerBase
      * reference to that member.
      */
     final protected AnnotatedMember _typeId;
-    
+
     /**
      * If this POJO can be alternatively serialized using just an object id
      * to denote a reference to previously serialized object,
@@ -87,7 +88,7 @@ public abstract class BeanSerializerBase
      * Requested shape from bean class annotations.
      */
     final protected JsonFormat.Shape _serializationShape;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -341,6 +342,7 @@ public abstract class BeanSerializerBase
 
         // also, any-getter may need to be resolved
         if (_anyGetterWriter != null) {
+            // 23-Feb-2015, tatu: Misleading, as this actually triggers call to contextualization...
             _anyGetterWriter.resolve(provider);
         }
     }
@@ -358,32 +360,67 @@ public abstract class BeanSerializerBase
     {
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null) {
-            Object convDef = intr.findSerializationConverter(prop.getMember());
-            if (convDef != null) {
-                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
-                JsonSerializer<?> ser = provider.findValueSerializer(delegateType, prop);
-                return new StdDelegatingSerializer(conv, delegateType, ser);
+            AnnotatedMember m = prop.getMember();
+            if (m != null) {
+                Object convDef = intr.findSerializationConverter(m);
+                if (convDef != null) {
+                    Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
+                    JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
+                    // [databind#731]: Should skip if nominally java.lang.Object
+                    JsonSerializer<?> ser = delegateType.isJavaLangObject() ? null
+                            : provider.findValueSerializer(delegateType, prop);
+                    return new StdDelegatingSerializer(conv, delegateType, ser);
+                }
             }
         }
         return null;
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException
     {
-        ObjectIdWriter oiw = _objectIdWriter;
-        String[] ignorals = null;
-        Object newFilterId = null;
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         final AnnotatedMember accessor = (property == null || intr == null)
                 ? null : property.getMember();
+        final SerializationConfig config = provider.getConfig();
         
-        // First: may have an override for Object Id:
+        // Let's start with one big transmutation: Enums that are annotated
+        // to serialize as Objects may want to revert
+        JsonFormat.Shape shape = null;
         if (accessor != null) {
-            ignorals = intr.findPropertiesToIgnore(accessor);
+            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
+
+            if (format != null) {
+                shape = format.getShape();
+                // or, alternatively, asked to revert "back to" other representations...
+                if (shape != _serializationShape) {
+                    if (_handledType.isEnum()) {
+                        switch (shape) {
+                        case STRING:
+                        case NUMBER:
+                        case NUMBER_INT:
+                            // 12-Oct-2014, tatu: May need to introspect full annotations... but
+                            //   for now, just do class ones
+                            BeanDescription desc = config.introspectClassAnnotations(_handledType);
+                            JsonSerializer<?> ser = EnumSerializer.construct(_handledType,
+                                    provider.getConfig(), desc, format);
+                            return provider.handlePrimaryContextualization(ser, property);
+                        }
+                    }
+                }
+            }
+        }
+
+        ObjectIdWriter oiw = _objectIdWriter;
+        String[] ignorals = null;
+        Object newFilterId = null;
+        
+        // Then we may have an override for Object Id
+        if (accessor != null) {
+            ignorals = intr.findPropertiesToIgnore(accessor, true);
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo == null) {
                 // no ObjectId override, but maybe ObjectIdRef?
@@ -467,21 +504,11 @@ public abstract class BeanSerializerBase
         if (newFilterId != null) {
             contextual = contextual.withFilterId(newFilterId);
         }
-        
-        // One more thing: are we asked to serialize POJO as array?
-        JsonFormat.Shape shape = null;
-        if (accessor != null) {
-            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
-
-            if (format != null) {
-                shape = format.getShape();
-            }
-        }
         if (shape == null) {
             shape = _serializationShape;
         }
         if (shape == JsonFormat.Shape.ARRAY) {
-            contextual = contextual.asArraySerializer();
+            return contextual.asArraySerializer();
         }
         return contextual;
     }
@@ -500,34 +527,34 @@ public abstract class BeanSerializerBase
     // Main serialization method left unimplemented
     @Override
     public abstract void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException;
+        throws IOException;
 
     // Type-info-augmented case implemented as it does not usually differ between impls
     @Override
-    public void serializeWithType(Object bean, JsonGenerator jgen,
+    public void serializeWithType(Object bean, JsonGenerator gen,
             SerializerProvider provider, TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, jgen, provider, typeSer);
+            _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
 
-        String typeStr = (_typeId == null) ? null :_customTypeId(bean);
+        String typeStr = (_typeId == null) ? null : _customTypeId(bean);
         if (typeStr == null) {
-            typeSer.writeTypePrefixForObject(bean, jgen);
+            typeSer.writeTypePrefixForObject(bean, gen);
         } else {
-            typeSer.writeCustomTypePrefixForObject(bean, jgen, typeStr);
+            typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
         }
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
+            serializeFieldsFiltered(bean, gen, provider);
         } else {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
         }
         if (typeStr == null) {
-            typeSer.writeTypeSuffixForObject(bean, jgen);
+            typeSer.writeTypeSuffixForObject(bean, gen);
         } else {
-            typeSer.writeCustomTypeSuffixForObject(bean, jgen, typeStr);
+            typeSer.writeCustomTypeSuffixForObject(bean, gen, typeStr);
         }
     }
 
@@ -607,7 +634,7 @@ public abstract class BeanSerializerBase
         }
     }
     
-    private final String _customTypeId(Object bean)
+    protected final String _customTypeId(Object bean)
     {
         final Object typeId = _typeId.getValue(bean);
         if (typeId == null) {
@@ -738,7 +765,7 @@ public abstract class BeanSerializerBase
             }
 
         }
-        o.put("properties", propertiesNode);
+        o.set("properties", propertiesNode);
         return o;
     }
     

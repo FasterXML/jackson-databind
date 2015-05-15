@@ -6,7 +6,6 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
-import com.fasterxml.jackson.databind.deser.impl.NullProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -72,13 +71,6 @@ public abstract class SettableBeanProperty
      * used to handle type resolution.
      */
     protected final TypeDeserializer _valueTypeDeserializer;
-    
-    /**
-     * Object used to figure out value to be used when 'null' literal is encountered in JSON.
-     * For most types simply Java null, but for primitive types must
-     * be a non-null value (like Integer.valueOf(0) for int).
-     */
-    protected final NullProvider _nullProvider;
 
     /**
      * Additional optional property metadata, such as whether
@@ -145,21 +137,13 @@ public abstract class SettableBeanProperty
                 contextAnnotations, propDef.getMetadata());
     }
 
-    @Deprecated // since 2.2
-    protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
-            TypeDeserializer typeDeser, Annotations contextAnnotations)
-    {
-        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations,
-                PropertyMetadata.STD_OPTIONAL);
-    }
-
     @Deprecated // since 2.3
     protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations,
             boolean isRequired)
     {
         this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations,
-                PropertyMetadata.construct(isRequired, null, null));
+                PropertyMetadata.construct(isRequired, null, null, null));
     }
     
     protected SettableBeanProperty(PropertyName propName, JavaType type, PropertyName wrapper,
@@ -181,7 +165,6 @@ public abstract class SettableBeanProperty
         _metadata = metadata;
         _contextAnnotations = contextAnnotations;
         _viewMatcher = null;
-        _nullProvider = null;
 
         // 30-Jan-2012, tatu: Important: contextualize TypeDeserializer now...
         if (typeDeser != null) {
@@ -210,7 +193,6 @@ public abstract class SettableBeanProperty
         _metadata = metadata;
         _contextAnnotations = null;
         _viewMatcher = null;
-        _nullProvider = null;
         _valueTypeDeserializer = null;
         _valueDeserializer = valueDeser;
     }
@@ -227,7 +209,6 @@ public abstract class SettableBeanProperty
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
-        _nullProvider = src._nullProvider;
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
@@ -249,11 +230,8 @@ public abstract class SettableBeanProperty
         _propertyIndex = src._propertyIndex;
 
         if (deser == null) {
-            _nullProvider = null;
             _valueDeserializer = MISSING_VALUE_DESERIALIZER;
         } else {
-            Object nvl = deser.getNullValue();
-            _nullProvider = (nvl == null) ? null : new NullProvider(_type, nvl);
             _valueDeserializer = (JsonDeserializer<Object>) deser;
         }
         _viewMatcher = src._viewMatcher;
@@ -276,7 +254,6 @@ public abstract class SettableBeanProperty
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
-        _nullProvider = src._nullProvider;
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
@@ -397,7 +374,7 @@ public abstract class SettableBeanProperty
             objectVisitor.optionalProperty(this);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Accessors
@@ -470,9 +447,8 @@ public abstract class SettableBeanProperty
      * that should be consumed to produce the value (the only value for
      * scalars, multiple for Objects and Arrays).
      */
-    public abstract void deserializeAndSet(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException;
+    public abstract void deserializeAndSet(JsonParser p,
+    		DeserializationContext ctxt, Object instance) throws IOException;
 
 	/**
 	 * Alternative to {@link #deserializeAndSet} that returns
@@ -482,9 +458,8 @@ public abstract class SettableBeanProperty
 	 *
 	 * @since 2.0
 	 */
-    public abstract Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException;
+    public abstract Object deserializeSetAndReturn(JsonParser p,
+    		DeserializationContext ctxt, Object instance) throws IOException;
 
     /**
      * Method called to assign given value to this property, on
@@ -494,8 +469,7 @@ public abstract class SettableBeanProperty
      * implementations, creator-backed properties for example do not
      * support this method.
      */
-    public abstract void set(Object instance, Object value)
-        throws IOException;
+    public abstract void set(Object instance, Object value) throws IOException;
 
     /**
      * Method called to assign given value to this property, on
@@ -505,11 +479,8 @@ public abstract class SettableBeanProperty
      * Note: this is an optional operation, not supported by all
      * implementations, creator-backed properties for example do not
      * support this method.
-     * 
-     * @since 2.0
      */
-    public abstract Object setAndReturn(Object instance, Object value)
-            throws IOException;
+    public abstract Object setAndReturn(Object instance, Object value) throws IOException;
     
     /**
      * This method is needed by some specialized bean deserializers,
@@ -524,18 +495,17 @@ public abstract class SettableBeanProperty
      * this method should also not be called directly unless you really know
      * what you are doing (and probably not even then).
      */
-    public final Object deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public final Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         
         if (t == JsonToken.VALUE_NULL) {
-            return (_nullProvider == null) ? null : _nullProvider.nullValue(ctxt);
+            return _valueDeserializer.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
-            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
+            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        return _valueDeserializer.deserialize(jp, ctxt);
+        return _valueDeserializer.deserialize(p, ctxt);
     }
     
     /*
@@ -548,8 +518,7 @@ public abstract class SettableBeanProperty
      * Method that takes in exception of any type, and casts or wraps it
      * to an IOException or its subclass.
      */
-    protected void _throwAsIOE(Exception e, Object value)
-        throws IOException
+    protected void _throwAsIOE(Exception e, Object value) throws IOException
     {
         if (e instanceof IllegalArgumentException) {
             String actType = (value == null) ? "[NULL]" : value.getClass().getName();
@@ -567,8 +536,7 @@ public abstract class SettableBeanProperty
         _throwAsIOE(e);
     }
 
-    protected IOException _throwAsIOE(Exception e)
-        throws IOException
+    protected IOException _throwAsIOE(Exception e) throws IOException
     {
         if (e instanceof IOException) {
             throw (IOException) e;

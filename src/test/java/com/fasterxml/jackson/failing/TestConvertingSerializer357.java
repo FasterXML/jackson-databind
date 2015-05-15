@@ -9,16 +9,16 @@ public class TestConvertingSerializer357
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     // [Issue#357]
-    static class A { }
+    static class Value { }
 
-    static class B {
-        @JsonSerialize(contentConverter = AToStringConverter.class)
-        public List<A> list = Arrays.asList(new A());
+    static class ListWrapper {
+        @JsonSerialize(contentConverter = ValueToStringListConverter.class)
+        public List<Value> list = Arrays.asList(new Value());
     }
 
-    static class AToStringConverter extends StdConverter<A, List<String>> {
+    static class ValueToStringListConverter extends StdConverter<Value, List<String>> {
         @Override
-        public List<String> convert(A value) {
+        public List<String> convert(Value value) {
             return Arrays.asList("Hello world!");
         }
     }
@@ -31,7 +31,7 @@ public class TestConvertingSerializer357
 
     // [Issue#357]
     public void testConverterForList357() throws Exception {
-        String json = objectWriter().writeValueAsString(new B());
+        String json = objectWriter().writeValueAsString(new ListWrapper());
         assertEquals("{\"list\":[[\"Hello world!\"]]}", json);
     }
 }

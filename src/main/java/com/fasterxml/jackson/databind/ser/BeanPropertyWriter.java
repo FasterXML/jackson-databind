@@ -6,10 +6,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -31,14 +33,15 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * code and this is to reduce likelihood of data corruption and
  * synchronization issues.
  */
+@JacksonStdImpl // since 2.6. NOTE: sub-classes typically are not
 public class BeanPropertyWriter extends PropertyWriter
     implements BeanProperty
 {
     /**
      * Marker object used to indicate "do not serialize if empty"
      */
-    public final static Object MARKER_FOR_EMPTY = new Object();
-    
+    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+
     /*
     /**********************************************************
     /* Settings for accessing property value to serialize
@@ -97,7 +100,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * under which value for the property is written.
      *<p>
      * NOTE: do NOT change name of this field; it is accessed by
-     * Afterburner module.
+     * Afterburner module (until 2.4; not directly from 2.5)
      * ALSO NOTE: ... and while it really ought to be `SerializableString`,
      * changing that is also binary-incompatible change. So nope.
      */
@@ -193,14 +196,17 @@ public class BeanPropertyWriter extends PropertyWriter
     {
         _member = member;
         _contextAnnotations = contextAnnotations;
+
         _name = new SerializedString(propDef.getName());
         _wrapperName = propDef.getWrapperName();
+        _metadata = propDef.getMetadata();
+        _includeInViews = propDef.findViews();
+
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
-        _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
+        _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyForProperties() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
-        _metadata = propDef.getMetadata();
 
         if (member instanceof AnnotatedField) {
             _accessorMethod = null;
@@ -209,13 +215,44 @@ public class BeanPropertyWriter extends PropertyWriter
             _accessorMethod = (Method) member.getMember();
             _field = null;
         } else {
-            throw new IllegalArgumentException("Can not pass member of type "+member.getClass().getName());
+            // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed for virtual props
+            _accessorMethod = null;
+            _field = null;
         }
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
-        _includeInViews = propDef.findViews();
 
         // this will be resolved later on, unless nulls are to be suppressed
+        _nullSerializer = null;
+    }
+
+    /**
+     * Constructor that may be of use to virtual properties, when there is need for
+     * the zero-arg ("default") constructor, and actual initialization is done
+     * after constructor call.
+     * 
+     * @since 2.5
+     */
+    protected BeanPropertyWriter() {
+        _member = null;
+        _contextAnnotations = null;
+
+        _name = null;
+        _wrapperName = null;
+        _metadata = null;
+        _includeInViews = null;
+
+        _declaredType = null;
+        _serializer = null;
+        _dynamicSerializers = null;
+        _typeSerializer = null;
+        _cfgSerializationType = null;
+
+        _accessorMethod = null;
+        _field = null;
+        _suppressNulls = false;
+        _suppressableValue = null;
+
         _nullSerializer = null;
     }
 
@@ -224,6 +261,40 @@ public class BeanPropertyWriter extends PropertyWriter
      */
     protected BeanPropertyWriter(BeanPropertyWriter base) {
         this(base, base._name);
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected BeanPropertyWriter(BeanPropertyWriter base, PropertyName name)
+    {
+        /* 02-Dec-2014, tatu: This is a big mess, alas, what with dependency
+         *   to MapperConfig to encode, and Afterburner having heartburn
+         *   for SerializableString (vs SerializedString).
+         *   Hope it can be resolved/reworker in 2.6 timeframe, if not for 2.5
+         */
+        _name = new SerializedString(name.getSimpleName());
+        _wrapperName = base._wrapperName;
+
+        _member = base._member;
+        _contextAnnotations = base._contextAnnotations;
+        _declaredType = base._declaredType;
+        _accessorMethod = base._accessorMethod;
+        _field = base._field;
+        _serializer = base._serializer;
+        _nullSerializer = base._nullSerializer;
+        // one more thing: copy internal settings, if any (since 1.7)
+        if (base._internalSettings != null) {
+            _internalSettings = new HashMap<Object,Object>(base._internalSettings);
+        }
+        _cfgSerializationType = base._cfgSerializationType;
+        _dynamicSerializers = base._dynamicSerializers;
+        _suppressNulls = base._suppressNulls;
+        _suppressableValue = base._suppressableValue;
+        _includeInViews = base._includeInViews;
+        _typeSerializer = base._typeSerializer;
+        _nonTrivialBaseType = base._nonTrivialBaseType;
+        _metadata = base._metadata;
     }
 
     protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name) {
@@ -256,9 +327,9 @@ public class BeanPropertyWriter extends PropertyWriter
         if (newName.equals(_name.toString())) {
             return this;
         }
-        return new BeanPropertyWriter(this, new SerializedString(newName));
+        return new BeanPropertyWriter(this, PropertyName.construct(newName));
     }
-    
+
     /**
      * Method called to assign value serializer for property
      * 
@@ -315,20 +386,22 @@ public class BeanPropertyWriter extends PropertyWriter
     @Override public PropertyName getFullName() { // !!! TODO: impl properly
         return new PropertyName(_name.getValue());
     }
-    
+
     @Override public JavaType getType() { return _declaredType; }
     @Override public PropertyName getWrapperName() { return _wrapperName; }
     @Override public boolean isRequired() { return _metadata.isRequired(); }
     @Override public PropertyMetadata getMetadata() { return _metadata; }
-    
+
+    // Note: also part of 'PropertyWriter'
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return _member.getAnnotation(acls);
+        return (_member == null) ? null : _member.getAnnotation(acls);
     }
 
+    // Note: also part of 'PropertyWriter'
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
-        return _contextAnnotations.get(acls);
+        return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
     }
 
     @Override public AnnotatedMember getMember() { return _member; }
@@ -337,6 +410,16 @@ public class BeanPropertyWriter extends PropertyWriter
     protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode) {
         propertiesNode.set(getName(), schemaNode);
     }
+
+    /**
+     * Note: will be defined in {@link BeanProperty}; as of now is not yet.
+     *<p>
+     * TODO: move to {@link BeanProperty} in near future, once all standard
+     * implementations define it.
+     * 
+     * @since 2.5
+     */
+    public boolean isVirtual() { return false; }
     
     /*
     /**********************************************************
@@ -429,25 +512,14 @@ public class BeanPropertyWriter extends PropertyWriter
         if (_accessorMethod != null) {
             return _accessorMethod.getGenericReturnType();
         }
-        return _field.getGenericType();
+        if (_field != null) {
+            return _field.getGenericType();
+        }
+        return null;
     }
 
     public Class<?>[] getViews() { return _includeInViews; }
 
-    /**
-     *<p>
-     * NOTE: due to introspection, this is a <b>slow</b> method to call
-     * and should never be called during actual serialization or filtering
-     * of the property. Rather it is needed for traversal needed for things
-     * like constructing JSON Schema instances.
-     * 
-     * @since 2.1
-     * 
-     * @deprecated since 2.2, use {@link #isRequired()} instead.
-     */
-    @Deprecated
-    protected boolean isRequired(AnnotationIntrospector intr) { return _metadata.isRequired(); }
-    
     /*
     /**********************************************************
     /* PropertyWriter methods (serialization)
@@ -460,7 +532,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * using appropriate serializer.
      */
     @Override
-    public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
+    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception
     {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
@@ -468,8 +540,8 @@ public class BeanPropertyWriter extends PropertyWriter
         // Null handling is bit different, check that first
         if (value == null) {
             if (_nullSerializer != null) {
-                jgen.writeFieldName(_name);
-                _nullSerializer.serialize(null, jgen, prov);
+                gen.writeFieldName(_name);
+                _nullSerializer.serialize(null, gen, prov);
             }
             return;
         }
@@ -486,7 +558,7 @@ public class BeanPropertyWriter extends PropertyWriter
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(value)) {
+                if (ser.isEmpty(prov, value)) {
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {
@@ -496,15 +568,15 @@ public class BeanPropertyWriter extends PropertyWriter
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
             // three choices: exception; handled by call; or pass-through
-            if (_handleSelfReference(bean, jgen, prov, ser)) {
+            if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
         }
-        jgen.writeFieldName(_name);
+        gen.writeFieldName(_name);
         if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+            ser.serializeWithType(value, gen, prov, _typeSerializer);
         }
     }
 
@@ -516,10 +588,10 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.3
      */
     @Override
-    public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
+    public void serializeAsOmittedField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception
     {
-        if (!jgen.canOmitFields()) {
-            jgen.writeOmittedField(_name.getValue());
+        if (!gen.canOmitFields()) {
+            gen.writeOmittedField(_name.getValue());
         }
     }
     
@@ -531,16 +603,16 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.3
      */
     @Override
-    public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
         throws Exception
     {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
-                _nullSerializer.serialize(null, jgen, prov);
+                _nullSerializer.serialize(null, gen, prov);
             } else { // can NOT suppress entries in tabular output
-                jgen.writeNull();
+                gen.writeNull();
             }
             return;
         }
@@ -557,25 +629,25 @@ public class BeanPropertyWriter extends PropertyWriter
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(value)) { // can NOT suppress entries in tabular output
-                    serializeAsPlaceholder(bean, jgen, prov);
+                if (ser.isEmpty(prov, value)) { // can NOT suppress entries in tabular output
+                    serializeAsPlaceholder(bean, gen, prov);
                     return;
                 }
             } else if (_suppressableValue.equals(value)) { // can NOT suppress entries in tabular output
-                serializeAsPlaceholder(bean, jgen, prov);
+                serializeAsPlaceholder(bean, gen, prov);
                 return;
             }
         }
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
-            if (_handleSelfReference(bean, jgen, prov, ser)) {
+            if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
         }
         if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+            ser.serializeWithType(value, gen, prov, _typeSerializer);
         }
     }
 
@@ -588,13 +660,13 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.1
      */
     @Override
-    public void serializeAsPlaceholder(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    public void serializeAsPlaceholder(Object bean, JsonGenerator gen, SerializerProvider prov)
         throws Exception
     {
         if (_nullSerializer != null) {
-            _nullSerializer.serialize(null, jgen, prov);
+            _nullSerializer.serialize(null, gen, prov);
         } else {
-            jgen.writeNull();
+            gen.writeNull();
         }
     }
     
@@ -640,11 +712,7 @@ public class BeanPropertyWriter extends PropertyWriter
         // Maybe it already has annotated/statically configured serializer?
         JsonSerializer<Object> ser = getSerializer();
         if (ser == null) { // nope
-            Class<?> serType = getRawSerializationType();
-            if (serType == null) {
-                serType = getPropertyType();
-            }
-            ser = provider.findValueSerializer(serType, this);
+            ser = provider.findValueSerializer(getType(), this);
         }
         boolean isOptional = !isRequired();
         if (ser instanceof SchemaAware) {
@@ -691,15 +759,6 @@ public class BeanPropertyWriter extends PropertyWriter
     }
 
     /**
-     * @deprecated Since 2.3 Use overloaded variants
-     */
-    @Deprecated
-    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser)
-        throws JsonMappingException {
-        _handleSelfReference(bean, null, null, ser);
-    }
-    
-    /**
      * Method called to handle a direct self-reference through this property.
      * Method can choose to indicate an error by throwing {@link JsonMappingException};
      * fully handle serialization (and return true); or indicate that it should be
@@ -712,7 +771,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * @return True if method fully handled self-referential value; false if not (caller
      *    is to handle it) or {@link JsonMappingException} if there is no way handle it
      */
-    protected boolean _handleSelfReference(Object bean, JsonGenerator jgen, SerializerProvider prov, JsonSerializer<?> ser)
+    protected boolean _handleSelfReference(Object bean, JsonGenerator gen, SerializerProvider prov, JsonSerializer<?> ser)
             throws JsonMappingException {
         if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)
                 && !ser.usesObjectId()) {
@@ -733,8 +792,10 @@ public class BeanPropertyWriter extends PropertyWriter
         sb.append("property '").append(getName()).append("' (");
         if (_accessorMethod != null) {
             sb.append("via method ").append(_accessorMethod.getDeclaringClass().getName()).append("#").append(_accessorMethod.getName());
-        } else {
+        } else if (_field != null) {
             sb.append("field \"").append(_field.getDeclaringClass().getName()).append("#").append(_field.getName());
+        } else {
+            sb.append("virtual");
         }
         if (_serializer == null) {
             sb.append(", no static serializer");

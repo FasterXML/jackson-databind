@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 
 /**
  * Value node that contains a wrapped POJO, to be serialized as
@@ -102,13 +102,14 @@ public class POJONode
      */
 
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException
     {
         if (_value == null) {
-            provider.defaultSerializeNull(jg);
+            serializers.defaultSerializeNull(gen);
+        } else if (_value instanceof JsonSerializable) {
+            ((JsonSerializable) _value).serialize(gen, serializers);
         } else {
-            jg.writeObject(_value);
+            gen.writeObject(_value);
         }
     }
 

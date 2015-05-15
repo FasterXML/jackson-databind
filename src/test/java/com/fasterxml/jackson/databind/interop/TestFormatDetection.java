@@ -26,7 +26,7 @@ public class TestFormatDetection extends BaseMapTest
     
     public void testSimpleWithJSON() throws Exception
     {
-        ObjectReader detecting = READER.withType(POJO.class);
+        ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);
         POJO pojo = detecting.readValue(utf8Bytes("{\"x\":1}"));
         assertNotNull(pojo);
@@ -35,7 +35,7 @@ public class TestFormatDetection extends BaseMapTest
 
     public void testInvalid() throws Exception
     {
-        ObjectReader detecting = READER.withType(POJO.class);
+        ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);
         try {
             detecting.readValue(utf8Bytes("<POJO><x>1</x></POJO>"));

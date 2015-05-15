@@ -4,8 +4,9 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 
 public class TestMixinSerForMethods
     extends BaseMapTest
@@ -17,9 +18,10 @@ public class TestMixinSerForMethods
      */
 
     // base class: just one visible property ('b')
+    @SuppressWarnings("unused")
     static class BaseClass
     {
-        @SuppressWarnings("unused") private String a;
+        private String a;
         private String b;
 
         protected BaseClass() { }
@@ -44,8 +46,8 @@ public class TestMixinSerForMethods
         @JsonProperty String a;
 
         @Override
-            @JsonProperty("b2")
-            public abstract String takeB();
+        @JsonProperty("b2")
+        public abstract String takeB();
 
         // also: just for fun; add a "red herring"... unmatched method
         @JsonProperty abstract String getFoobar();
@@ -115,7 +117,7 @@ public class TestMixinSerForMethods
 
         // then with leaf-level mix-in
         mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(BaseClass.class, MixIn.class);
+        mapper.addMixIn(BaseClass.class, MixIn.class);
         result = writeAndMap(mapper, bean);
         assertEquals(2, result.size());
         assertEquals("b2", result.get("b2"));
@@ -133,7 +135,7 @@ public class TestMixinSerForMethods
         Map<String,Object> result;
         LeafClass bean = new LeafClass("XXX", "b2");
 
-        mapper.addMixInAnnotations(BaseClass.class, MixIn.class);
+        mapper.addMixIn(BaseClass.class, MixIn.class);
         result = writeAndMap(mapper, bean);
         assertEquals(1, result.size());
         assertEquals("XXX", result.get("a"));
@@ -146,7 +148,7 @@ public class TestMixinSerForMethods
     public void testIntermediateMixin2() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(EmptyBean.class, MixInForSimple.class);
+        mapper.addMixIn(EmptyBean.class, MixInForSimple.class);
         Map<String,Object> result = writeAndMap(mapper, new SimpleBean());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(42), result.get("x"));
@@ -160,7 +162,7 @@ public class TestMixinSerForMethods
     public void testObjectMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(Object.class, ObjectMixIn.class);
+        mapper.addMixIn(Object.class, ObjectMixIn.class);
 
         // First, with our bean...
         Map<String,Object> result = writeAndMap(mapper, new BaseClass("a", "b"));
@@ -171,7 +173,7 @@ public class TestMixinSerForMethods
         assertNotNull(ob);
         assertEquals(Integer.class, ob.getClass());
 
-        /* 15-Oct-2010, tatu: Actually, we now block serialization (attemps) of plain Objects, by default
+        /* 15-Oct-2010, tatu: Actually, we now block serialization (attempts) of plain Objects, by default
          *    (since generally that makes no sense -- may need to revisit). As such, need to comment out
          *    this part of test
          */
@@ -179,13 +181,35 @@ public class TestMixinSerForMethods
          * get serialized (and can't really be blocked either).
          * Fine.
          */
-       /*
-        result = writeAndMap(mapper, new Object());
+        result = writeAndMap(mapper, new BaseClass("a", "b"));
         assertEquals(2, result.size());
         ob = result.get("hashCode");
         assertNotNull(ob);
         assertEquals(Integer.class, ob.getClass());
-        assertEquals("java.lang.Object", result.get("class"));
-        */
+    }
+
+    // [databind#688]
+    public void testCustomResolver() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setMixInResolver(new ClassIntrospector.MixInResolver() {
+            @Override
+            public Class<?> findMixInClassFor(Class<?> target) {
+                if (target == BaseClass.class) {
+                    return ObjectMixIn.class;
+                }
+                return null;
+            }
+
+            @Override
+            public MixInResolver copy() {
+                return this;
+            }
+        });
+        Map<String,Object> result = writeAndMap(mapper, new BaseClass("c", "d"));
+        assertEquals(2, result.size());
+        assertNotNull(result.get("hashCode"));
+        assertTrue(result.containsKey("b"));
+        assertFalse(result.containsKey("a"));
     }
 }

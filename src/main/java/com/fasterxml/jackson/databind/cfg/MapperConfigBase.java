@@ -12,19 +12,19 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+@SuppressWarnings("serial")
 public abstract class MapperConfigBase<CFG extends ConfigFeature,
     T extends MapperConfigBase<CFG,T>>
     extends MapperConfig<T>
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 6062961959359172474L;
-
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
@@ -36,8 +36,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Mix-in annotation mappings to use, if any: immutable,
      * can not be changed once defined.
+     * 
+     * @since 2.6
      */
-    protected final Map<ClassKey,Class<?>> _mixInAnnotations;
+    protected final SimpleMixInResolver _mixIns;
 
     /**
      * Registered concrete subtypes that can be used instead of (or
@@ -79,10 +81,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * that of creating fluent copies)
      */
     protected MapperConfigBase(BaseSettings base,
-            SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
+            SubtypeResolver str, SimpleMixInResolver mixins)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
-        _mixInAnnotations = mixins;
+        _mixIns = mixins;
         _subtypeResolver = str;
         _rootName = null;
         _view = null;
@@ -97,7 +99,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src)
     {
         super(src);
-        _mixInAnnotations = src._mixInAnnotations;
+        _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
@@ -107,7 +109,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
     {
         super(base, src._mapperFeatures);
-        _mixInAnnotations = src._mixInAnnotations;
+        _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
@@ -117,7 +119,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
     {
         super(src._base, mapperFeatures);
-        _mixInAnnotations = src._mixInAnnotations;
+        _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
@@ -126,7 +128,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
         super(src);
-        _mixInAnnotations = src._mixInAnnotations;
+        _mixIns = src._mixIns;
         _subtypeResolver = str;
         _rootName = src._rootName;
         _view = src._view;
@@ -135,7 +137,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, String rootName) {
         super(src);
-        _mixInAnnotations = src._mixInAnnotations;
+        _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootName = rootName;
         _view = src._view;
@@ -145,7 +147,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
     {
         super(src);
-        _mixInAnnotations = src._mixInAnnotations;
+        _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = view;
@@ -155,10 +157,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * @since 2.1
      */
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, Map<ClassKey,Class<?>> mixins)
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins)
     {
         super(src);
-        _mixInAnnotations = mixins;
+        _mixIns = mixins;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
@@ -171,7 +173,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
     {
         super(src);
-        _mixInAnnotations = src._mixInAnnotations;
+        _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
@@ -401,10 +403,20 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     @Override
     public final Class<?> findMixInClassFor(Class<?> cls) {
-        return (_mixInAnnotations == null) ? null : _mixInAnnotations.get(new ClassKey(cls));
+        return _mixIns.findMixInClassFor(cls);
     }
 
+    // Not really relevant here (should not get called)
+    @Override
+    public MixInResolver copy() {
+        throw new UnsupportedOperationException();
+    }
+    
+    /**
+     * Test-only method -- does not reflect possibly open-ended set that external
+     * mix-in resolver might provide.
+     */
     public final int mixInCount() {
-        return (_mixInAnnotations == null) ? 0 : _mixInAnnotations.size();
+        return _mixIns.localSize();
     }
 }

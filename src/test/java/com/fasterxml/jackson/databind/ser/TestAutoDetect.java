@@ -74,7 +74,7 @@ public class TestAutoDetect
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
         vc = vc.withFieldVisibility(JsonAutoDetect.Visibility.ANY);
-        m.setVisibilityChecker(vc);
+        m.setVisibility(vc);
         
         Map<String,Object> result = writeAndMap(m, new FieldBean());
         assertEquals(3, result.size());
@@ -85,7 +85,7 @@ public class TestAutoDetect
         m = new ObjectMapper();
         vc = m.getVisibilityChecker();
         vc = vc.withGetterVisibility(JsonAutoDetect.Visibility.ANY);
-        m.setVisibilityChecker(vc);
+        m.setVisibility(vc);
         result = writeAndMap(m, new MethodBean());
         assertEquals(3, result.size());
         assertEquals("a", result.get("a"));
@@ -99,7 +99,7 @@ public class TestAutoDetect
         ObjectMapper m = new ObjectMapper();
         VisibilityChecker<?> vc = m.getVisibilityChecker();
         vc = vc.with(JsonAutoDetect.Visibility.ANY);
-        m.setVisibilityChecker(vc);
+        m.setVisibility(vc);
 
         Map<String,Object> result = writeAndMap(m, new FieldBean());
         assertEquals(3, result.size());

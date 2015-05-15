@@ -82,6 +82,12 @@ public final class StringCollectionDeserializer
                 _valueInstantiator, delegateDeser, valueDeser);
     }
 
+    @Override // since 2.5
+    public boolean isCachable() {
+        // 26-Mar-2015, tatu: Important: prevent caching if custom deserializers are involved
+        return (_valueDeserializer == null) && (_delegateDeserializer == null);
+    }
+    
     /*
     /**********************************************************
     /* Validation, post-processing
@@ -101,15 +107,16 @@ public final class StringCollectionDeserializer
             }
         }
         JsonDeserializer<?> valueDeser = _valueDeserializer;
+        final JavaType valueType = _collectionType.getContentType();
         if (valueDeser == null) {
             // #125: May have a content converter
             valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
             if (valueDeser == null) {
             // And we may also need to get deserializer for String
-                valueDeser = ctxt.findContextualValueDeserializer( _collectionType.getContentType(), property);
+                valueDeser = ctxt.findContextualValueDeserializer(valueType, property);
             }
         } else { // if directly assigned, probably not yet contextual, so:
-            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, valueType);
         } 
         if (isDefaultDeserializer(valueDeser)) {
             valueDeser = null;
@@ -167,18 +174,25 @@ public final class StringCollectionDeserializer
         if (_valueDeserializer != null) {
             return deserializeUsingCustom(jp, ctxt, result, _valueDeserializer);
         }
-        JsonToken t;
-
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            String value;
-            if (t == JsonToken.VALUE_STRING) {
-                value = jp.getText();
-            } else if (t == JsonToken.VALUE_NULL) {
-                value = null;
-            } else {
-                value = _parseString(jp, ctxt);
+        try {
+            while (true) {
+                // First the common case:
+                String value = jp.nextTextValue();
+                if (value != null) {
+                    result.add(value);
+                    continue;
+                }
+                JsonToken t = jp.getCurrentToken();
+                if (t == JsonToken.END_ARRAY) {
+                    break;
+                }
+                if (t != JsonToken.VALUE_NULL) {
+                    value = _parseString(jp, ctxt);
+                }
+                result.add(value);
             }
-            result.add(value);
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, result, result.size());
         }
         return result;
     }
@@ -186,12 +200,20 @@ public final class StringCollectionDeserializer
     private Collection<String> deserializeUsingCustom(JsonParser jp, DeserializationContext ctxt,
             Collection<String> result, final JsonDeserializer<String> deser) throws IOException
     {
-        JsonToken t;
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+        while (true) {
+            /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
+             *   that suggest we are expecting a String; this helps with some formats,
+             *   notably XML. Note, however, that while we can get String, we can't
+             *   assume that's what we use due to custom deserializer
+             */
             String value;
-
-            if (t == JsonToken.VALUE_NULL) {
-                value = deser.getNullValue();
+            if (jp.nextTextValue() == null) {
+                JsonToken t = jp.getCurrentToken();
+                if (t == JsonToken.END_ARRAY) {
+                    break;
+                }
+                // Ok: no need to convert Strings, but must recognize nulls
+                value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue(ctxt) : deser.deserialize(jp, ctxt);
             } else {
                 value = deser.deserialize(jp, ctxt);
             }
@@ -207,7 +229,7 @@ public final class StringCollectionDeserializer
     }
 
     /**
-     * Helper method called when current token is no START_ARRAY. Will either
+     * Helper method called when current token is not START_ARRAY. Will either
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
@@ -224,7 +246,7 @@ public final class StringCollectionDeserializer
         String value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = (valueDes == null) ? null : valueDes.getNullValue();
+            value = (valueDes == null) ? null : valueDes.getNullValue(ctxt);
         } else {
             value = (valueDes == null) ? _parseString(jp, ctxt) : valueDes.deserialize(jp, ctxt);
         }

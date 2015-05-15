@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.contextual;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -11,7 +10,8 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 public class TestContextAttributeWithSer extends BaseMapTest
 {
     final static String KEY = "foobar";
-    
+
+    @SuppressWarnings("serial")
     static class PrefixStringSerializer extends StdScalarSerializer<String>
     {
         protected PrefixStringSerializer() {

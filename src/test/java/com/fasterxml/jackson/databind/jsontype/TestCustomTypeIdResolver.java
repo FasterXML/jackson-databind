@@ -6,11 +6,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestCustomTypeIdResolver extends BaseMapTest
@@ -63,7 +61,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         }
     }
 
-    static class CustomResolverBase implements TypeIdResolver
+    static class CustomResolverBase extends TypeIdResolverBase
     {
         protected final Class<?> superType;
         protected final Class<?> subType;
@@ -91,7 +89,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         public void init(JavaType baseType) { }
 
         @Override
-        public JavaType typeFromId(String id)
+        public JavaType typeFromId(DatabindContext context, String id)
         {
             if ("*".equals(id)) {
                 return TypeFactory.defaultInstance().constructType(subType);

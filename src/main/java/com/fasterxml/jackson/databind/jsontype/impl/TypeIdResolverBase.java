@@ -54,7 +54,9 @@ public abstract class TypeIdResolverBase
      */
     @Deprecated
     @Override
-    public abstract JavaType typeFromId(String id);
+    public JavaType typeFromId(String id) {
+        return typeFromId(null, id);
+    }
 
     /**
      * New method, replacement for {@link #typeFromId(String)}, which is given
@@ -65,7 +67,18 @@ public abstract class TypeIdResolverBase
      * 
      * @since 2.3
      */
+    @Override
     public JavaType typeFromId(DatabindContext context, String id) {
         return typeFromId(id);
+    }
+
+    /**
+     * Helper method used to get a simple description of all known type ids,
+     * for use in error messages.
+     *<p>
+     * TODO: demote down to be part of {@link TypeIdResolver} in 2.6 or 2.7
+     */
+    public String getDescForKnownTypeIds() {
+        return null;
     }
 }

@@ -28,13 +28,13 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 public class StdKeyDeserializers
     implements KeyDeserializers, java.io.Serializable
 {
-    private static final long serialVersionUID = 923268084968181479L;
+    private static final long serialVersionUID = 1L;
     
-    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver<?> enumResolver) {
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver) {
         return new StdKeyDeserializer.EnumKD(enumResolver, null);
     }
 
-    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver<?> enumResolver,
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
             AnnotatedMethod factory) {
         return new StdKeyDeserializer.EnumKD(enumResolver, factory);
     }

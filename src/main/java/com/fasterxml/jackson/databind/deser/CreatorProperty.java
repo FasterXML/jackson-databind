@@ -6,10 +6,7 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -58,7 +55,7 @@ public class CreatorProperty
      * @since 2.3
      */
     protected final SettableBeanProperty _fallbackSetter;
-    
+
     /**
      * @param name Name of the logical property
      * @param type Type of the property, used to find deserializer
@@ -86,18 +83,6 @@ public class CreatorProperty
         _fallbackSetter = null;
     }
 
-    @Deprecated // since 2.3
-    public CreatorProperty(String name, JavaType type, PropertyName wrapperName,
-            TypeDeserializer typeDeser,
-            Annotations contextAnnotations, AnnotatedParameter param,
-            int index, Object injectableValueId,
-            boolean isRequired)
-    {
-        this(new PropertyName(name), type, wrapperName, typeDeser,
-                contextAnnotations, param, index, injectableValueId,
-                PropertyMetadata.construct(isRequired, null, null));
-    }
-    
     /**
      * @since 2.3
      */
@@ -107,11 +92,6 @@ public class CreatorProperty
         _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
         _fallbackSetter = src._fallbackSetter;
-    }
-
-    @Deprecated // since 2.3
-    protected CreatorProperty(CreatorProperty src, String newName) {
-        this(src, new PropertyName(newName));
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser) {

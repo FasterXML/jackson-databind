@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -56,6 +53,25 @@ public abstract class DefaultDeserializationContext
         super(src, factory);
     }
 
+    /**
+     * @since 2.4.4
+     */
+    protected DefaultDeserializationContext(DefaultDeserializationContext src) {
+        super(src);
+    }
+    
+    /**
+     * Method needed to ensure that {@link ObjectMapper#copy} will work
+     * properly; specifically, that caches are cleared, but settings
+     * will otherwise remain identical; and that no sharing of state
+     * occurs.
+     * 
+     * @since 2.4.4
+     */
+    public DefaultDeserializationContext copy() {
+        throw new IllegalStateException("DefaultDeserializationContext sub-class not overriding copy()");
+    }
+
     /*
     /**********************************************************
     /* Abstract methods impls, Object Id
@@ -65,7 +81,15 @@ public abstract class DefaultDeserializationContext
     @Override
     public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen, ObjectIdResolver resolverType)
     {
+        /* 02-Apr-2015, tatu: As per [databind#742] should allow 'null', similar to how
+         *   missing id already works.
+         */
+        if (id == null) {
+            return null;
+        }
+
         final ObjectIdGenerator.IdKey key = gen.key(id);
+
         if (_objectIds == null) {
             _objectIds = new LinkedHashMap<ObjectIdGenerator.IdKey,ReadableObjectId>();
         } else {
@@ -91,12 +115,15 @@ public abstract class DefaultDeserializationContext
 
         if (resolver == null) {
             resolver = resolverType.newForDeserialization(this);
-            /* !!! 18-Jun-2014, pgelinas: Temporary fix for [#490] until real
-             *    fix (for jackson-annotations, SimpleObjectIdResolver) can be added.
-             */
-            if (resolverType instanceof SimpleObjectIdResolver) {
-               resolver = new SimpleObjectIdResolver();
+            // 19-Dec-2014, tatu: For final 2.5.0, remove temporary (2.4.x) work-around
+            //   needed to clear state between calls.
+            // !!! 18-Jun-2014, pgelinas: Temporary fix for [#490] until real
+            //    fix (for jackson-annotations, SimpleObjectIdResolver) can be added.
+            /*
+            if (resolverType.getClass() == SimpleObjectIdResolver.class) {
+                resolver = new SimpleObjectIdResolver();
             }
+            */
             _objectIdResolvers.add(resolver);
         }
 
@@ -118,7 +145,10 @@ public abstract class DefaultDeserializationContext
         if (_objectIds == null) {
             return;
         }
-
+        // 29-Dec-2014, tatu: As per [databind#299], may also just let unresolved refs be...
+        if (!isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
+            return;
+        }
         UnresolvedForwardReference exception = null;
         for (Entry<IdKey,ReadableObjectId> entry : _objectIds.entrySet()) {
             ReadableObjectId roid = entry.getValue();
@@ -126,7 +156,7 @@ public abstract class DefaultDeserializationContext
                 if (exception == null) {
                     exception = new UnresolvedForwardReference("Unresolved forward references for: ");
                 }
-                for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext();) {
+                for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext(); ) {
                     Referring referring = iterator.next();
                     exception.addUnresolvedId(roid.getKey().key, referring.getBeanType(), referring.getLocation());
                 }
@@ -270,8 +300,18 @@ public abstract class DefaultDeserializationContext
             super(src, config, jp, values);
         }
 
+        protected Impl(Impl src) { super(src); }
+        
         protected Impl(Impl src, DeserializerFactory factory) {
             super(src, factory);
+        }
+
+        @Override
+        public DefaultDeserializationContext copy() {
+            if (getClass() != Impl.class) {
+                return super.copy();
+            }
+           return new Impl(this);
         }
         
         @Override

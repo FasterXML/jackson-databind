@@ -13,11 +13,11 @@ public class PropertyMetadata
 {
     private static final long serialVersionUID = -1;
 
-    public final static PropertyMetadata STD_REQUIRED = new PropertyMetadata(Boolean.TRUE, null, null);
+    public final static PropertyMetadata STD_REQUIRED = new PropertyMetadata(Boolean.TRUE, null, null, null);
 
-    public final static PropertyMetadata STD_OPTIONAL = new PropertyMetadata(Boolean.FALSE, null, null);
+    public final static PropertyMetadata STD_OPTIONAL = new PropertyMetadata(Boolean.FALSE, null, null, null);
 
-    public final static PropertyMetadata STD_REQUIRED_OR_OPTIONAL = new PropertyMetadata(null, null, null);
+    public final static PropertyMetadata STD_REQUIRED_OR_OPTIONAL = new PropertyMetadata(null, null, null, null);
     
     /**
      * Three states: required, not required and unknown; unknown represented
@@ -36,6 +36,13 @@ public class PropertyMetadata
      * @since 2.4
      */
     protected final Integer _index;
+
+    /**
+     * Optional default value, as String, for property; not used cor
+     * any functionality by core databind, offered as metadata for
+     * extensions.
+     */
+    protected final String _defaultValue;
     
     /*
     /**********************************************************
@@ -44,32 +51,33 @@ public class PropertyMetadata
      */
     
     @Deprecated // since 2.4
-    protected PropertyMetadata(Boolean req, String desc) { this(req, desc, null); }
+    protected PropertyMetadata(Boolean req, String desc) { this(req, desc, null, null); }
 
-    protected PropertyMetadata(Boolean req, String desc, Integer index)
+    /**
+     * @since 2.5
+     */
+    protected PropertyMetadata(Boolean req, String desc, Integer index, String def)
     {
         _required = req;
         _description = desc;
         _index = index;
+        _defaultValue = (def == null || def.isEmpty()) ? null : def;
     }
 
     /**
-     * @since 2.4 Use variant that takes three arguments.
+     * @since 2.4 Use variant that takes more arguments.
      */
     @Deprecated
     public static PropertyMetadata construct(boolean req, String desc) {
-    	return construct(req, desc, null);
+        return construct(req, desc, null, null);
     }
-    
-    public static PropertyMetadata construct(boolean req, String desc, Integer index) {
-        PropertyMetadata md = req ? STD_REQUIRED : STD_OPTIONAL;
-        if (desc != null) {
-            md = md.withDescription(desc);
+
+    public static PropertyMetadata construct(boolean req, String desc, Integer index,
+            String defaultValue) {
+        if (desc != null || index != null || defaultValue != null) {
+            return new PropertyMetadata(req, desc, index, defaultValue);
         }
-        if (index != null) {
-        	md = md.withIndex(index);
-        }
-        return md;
+        return req ? STD_REQUIRED : STD_OPTIONAL;
     }
     
     /**
@@ -78,7 +86,7 @@ public class PropertyMetadata
      */
     protected Object readResolve()
     {
-        if (_description == null && _index == null) {
+        if (_description == null && _index == null && _defaultValue == null) {
             if (_required == null) {
                 return STD_REQUIRED_OR_OPTIONAL;
             }
@@ -88,11 +96,23 @@ public class PropertyMetadata
     }
 
     public PropertyMetadata withDescription(String desc) {
-        return new PropertyMetadata(_required, desc, _index);
+        return new PropertyMetadata(_required, desc, _index, _defaultValue);
     }
 
+    public PropertyMetadata withDefaultValue(String def) {
+        if ((def == null) || def.isEmpty()) {
+            if (_defaultValue == null) {
+                return this;
+            }
+            def = null;
+        } else if (_defaultValue.equals(def)) {
+            return this;
+        }
+        return new PropertyMetadata(_required, _description, _index, def);
+    }
+    
     public PropertyMetadata withIndex(Integer index) {
-        return new PropertyMetadata(_required, _description, index);
+        return new PropertyMetadata(_required, _description, index, _defaultValue);
     }
     
     public PropertyMetadata withRequired(Boolean b) {
@@ -105,7 +125,7 @@ public class PropertyMetadata
                 return this;
             }
         }
-        return new PropertyMetadata(b, _description, _index);
+        return new PropertyMetadata(b, _description, _index, _defaultValue);
     }
     
     /*
@@ -116,6 +136,25 @@ public class PropertyMetadata
 
     public String getDescription() { return _description; }
 
+    /**
+     * @since 2.5
+     */
+    public String getDefaultValue() { return _defaultValue; }
+
+    /**
+     * @deprecated Since 2.6: typo in name, use {@link #hasDefaultValue()} instead.
+     */
+    @Deprecated
+    public boolean hasDefuaultValue() { return hasDefaultValue(); }
+
+    /**
+     * Accessor for determining whether property has declared "default value",
+     * which may be used by extension modules.
+     *
+     * @since 2.6
+     */
+    public boolean hasDefaultValue() { return (_defaultValue != null); }
+    
     public boolean isRequired() { return (_required != null) && _required.booleanValue(); }
     
     public Boolean getRequired() { return _required; }

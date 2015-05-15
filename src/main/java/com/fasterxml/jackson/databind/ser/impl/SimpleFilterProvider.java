@@ -15,8 +15,8 @@ public class SimpleFilterProvider
     extends FilterProvider
     implements java.io.Serializable // since 2.1
 {
-    // for 2.3.0
-    private static final long serialVersionUID = -6305772546718366447L;
+    // for 2.5+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Mappings from ids to filters.

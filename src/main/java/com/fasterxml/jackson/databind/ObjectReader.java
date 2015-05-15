@@ -38,7 +38,7 @@ public class ObjectReader
     extends ObjectCodec
     implements Versioned, java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -4251443320039569153L;
+    private static final long serialVersionUID = 1L; // since 2.5
 
     private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
@@ -138,12 +138,14 @@ public class ObjectReader
      */
 
     /**
-     * Root-level cached deserializers
+     * Root-level cached deserializers.
+     * Passed by {@link ObjectMapper}, shared with it.
      */
     final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
 
     /**
      * Cache for root names used when root-wrapping is enabled.
+     * Passed by {@link ObjectMapper}, shared with it.
      */
     protected final RootNameLookup _rootNames;
     
@@ -156,8 +158,7 @@ public class ObjectReader
     /**
      * Constructor used by {@link ObjectMapper} for initial instantiation
      */
-    protected ObjectReader(ObjectMapper mapper, DeserializationConfig config)
-    {
+    protected ObjectReader(ObjectMapper mapper, DeserializationConfig config) {
         this(mapper, config, null, null, null, null);
     }
 
@@ -234,7 +235,7 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
         _dataFormatReaders = base._dataFormatReaders;
     }
-
+    
     protected ObjectReader(ObjectReader base, JsonFactory f)
     {
         // may need to override ordering, based on data format capabilities
@@ -266,21 +267,119 @@ public class ObjectReader
 
     /*
     /**********************************************************
-    /* Life-cycle, fluent factory methods
+    /* Methods sub-classes MUST override, used for constructing
+    /* reader instances, (re)configuring parser instances
+    /* Added in 2.5
     /**********************************************************
      */
 
-    public ObjectReader with(DeserializationConfig config) {
-        return _with(config);
-    }    
-    
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _new(ObjectReader base, JsonFactory f) {
+        return new ObjectReader(base, f);
+    }
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _new(ObjectReader base, DeserializationConfig config) {
+        return new ObjectReader(base, config);
+    }
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _new(ObjectReader base, DeserializationConfig config,
+            JavaType valueType, JsonDeserializer<Object> rootDeser, Object valueToUpdate,
+            FormatSchema schema, InjectableValues injectableValues,
+            DataFormatReaders dataFormatReaders) {
+        return new ObjectReader(base, config, valueType, rootDeser,  valueToUpdate,
+                 schema,  injectableValues, dataFormatReaders);
+    }
+
+    /**
+     * Factory method used to create {@link MappingIterator} instances;
+     * either default, or custom subtype.
+     * 
+     * @since 2.5
+     */
+    protected <T> MappingIterator<T> _newIterator(JavaType valueType,
+            JsonParser parser, DeserializationContext ctxt,
+            JsonDeserializer<?> deser, boolean parserManaged, Object valueToUpdate)
+    {
+            return new MappingIterator<T>(valueType, parser, ctxt,
+                    deser, parserManaged, valueToUpdate);
+    }
+
+    /*
+    /**********************************************************
+    /* Methods sub-classes may choose to override, if customized
+    /* initialization is needed.
+    /**********************************************************
+     */
+
+    /**
+     * NOTE: changed from static to non-static in 2.5; unfortunate but
+     * necessary change to support overridability
+     */
+    protected JsonToken _initForReading(JsonParser p) throws IOException
+    {
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+        _config.initialize(p); // since 2.5
+
+        /* First: must point to a token; if not pointing to one, advance.
+         * This occurs before first read from JsonParser, as well as
+         * after clearing of current token.
+         */
+        JsonToken t = p.getCurrentToken();
+        if (t == null) { // and then we must get something...
+            t = p.nextToken();
+            if (t == null) {
+                // Throw mapping exception, since it's failure to map, not an actual parsing problem
+                throw JsonMappingException.from(p, "No content to map due to end-of-input");
+            }
+        }
+        return t;
+    }
+
+    /**
+     * Alternative to {@link #_initForReading(JsonParser)} used in cases where reading
+     * of multiple values means that we may or may not want to advance the stream,
+     * but need to do other initialization.
+     *<p>
+     * Base implementation only sets configured {@link FormatSchema}, if any, on parser.
+     * 
+     * @since 2.5
+     */
+    protected void _initForMultiRead(JsonParser p) throws IOException {
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+        _config.initialize(p); // since 2.5
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factory methods for DeserializationFeatures
+    /**********************************************************
+     */
+
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
      */
     public ObjectReader with(DeserializationFeature feature) {
         return _with(_config.with(feature));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -299,22 +398,21 @@ public class ObjectReader
     public ObjectReader withFeatures(DeserializationFeature... features) {
         return _with(_config.withFeatures(features));
     }    
-    
+
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
     public ObjectReader without(DeserializationFeature feature) {
         return _with(_config.without(feature)); 
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
     public ObjectReader without(DeserializationFeature first,
-            DeserializationFeature... other)
-    {
+            DeserializationFeature... other) {
         return _with(_config.without(first, other));
     }    
 
@@ -325,7 +423,55 @@ public class ObjectReader
     public ObjectReader withoutFeatures(DeserializationFeature... features) {
         return _with(_config.withoutFeatures(features));
     }    
-    
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factory methods for JsonParser.Features
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature enabled.
+     */
+    public ObjectReader with(JsonParser.Feature feature) {
+        return _with(_config.with(feature));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectReader withFeatures(JsonParser.Feature... features) {
+        return _with(_config.withFeatures(features));
+    }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature disabled.
+     */
+    public ObjectReader without(JsonParser.Feature feature) {
+        return _with(_config.without(feature)); 
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features disabled.
+     */
+    public ObjectReader withoutFeatures(JsonParser.Feature... features) {
+        return _with(_config.withoutFeatures(features));
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factory methods, other
+    /**********************************************************
+     */
+
+    public ObjectReader with(DeserializationConfig config) {
+        return _with(config);
+    }    
+
     /**
      * Method for constructing a new instance with configuration that uses
      * passed {@link InjectableValues} to provide injectable values.
@@ -338,7 +484,7 @@ public class ObjectReader
         if (_injectableValues == injectableValues) {
             return this;
         }
-        return new ObjectReader(this, _config,
+        return _new(this, _config,
                 _valueType, _rootDeserializer, _valueToUpdate,
                 _schema, injectableValues, _dataFormatReaders);
     }
@@ -370,7 +516,7 @@ public class ObjectReader
         if (f == _parserFactory) {
             return this;
         }
-        ObjectReader r = new ObjectReader(this, f);
+        ObjectReader r = _new(this, f);
         // Also, try re-linking, if possible...
         if (f.getCodec() == null) {
             f.setCodec(r);
@@ -392,6 +538,20 @@ public class ObjectReader
     }
 
     /**
+     * Convenience method that is same as calling:
+     *<code>
+     *   withRootName("")
+     *</code>
+     * which will forcibly prevent use of root name wrapping when writing
+     * values with this {@link ObjectReader}.
+     * 
+     * @since 2.6
+     */
+    public ObjectReader withoutRootName() {
+        return _with(_config.withRootName(""));
+    }
+    
+    /**
      * Method for constructing a new instance with configuration that
      * passes specified {@link FormatSchema} to {@link JsonParser} that
      * is constructed for parsing content.
@@ -405,7 +565,7 @@ public class ObjectReader
             return this;
         }
         _verifySchemaType(schema);
-        return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
+        return _new(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
                 schema, _injectableValues, _dataFormatReaders);
     }
 
@@ -415,8 +575,10 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
+     * 
+     * @since 2.5
      */
-    public ObjectReader withType(JavaType valueType)
+    public ObjectReader forType(JavaType valueType)
     {
         if (valueType != null && valueType.equals(_valueType)) {
             return this;
@@ -427,7 +589,7 @@ public class ObjectReader
         if (det != null) {
             det = det.withType(valueType);
         }
-        return new ObjectReader(this, _config, valueType, rootDeser,
+        return _new(this, _config, valueType, rootDeser,
                 _valueToUpdate, _schema, _injectableValues, det);
     }    
 
@@ -437,31 +599,56 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
+     *
+     * @since 2.5
      */
+    public ObjectReader forType(Class<?> valueType) {
+        return forType(_config.constructType(valueType));
+    }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * to data bind into specified type.
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     *
+     * @since 2.5
+     */
+    public ObjectReader forType(TypeReference<?> valueTypeRef) {
+        return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
+    }    
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
+     */
+    @Deprecated
+    public ObjectReader withType(JavaType valueType) {
+        return forType(valueType);
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(Class)} instead
+     */
+    @Deprecated
     public ObjectReader withType(Class<?> valueType) {
-        return withType(_config.constructType(valueType));
+        return forType(_config.constructType(valueType));
     }    
 
     /**
-     * Method for constructing a new reader instance that is configured
-     * to data bind into specified type.
-     *<p>
-     * Note that the method does NOT change state of this reader, but
-     * rather construct and returns a newly configured instance.
+     * @deprecated since 2.5 Use {@link #forType(Class)} instead
      */
+    @Deprecated
     public ObjectReader withType(java.lang.reflect.Type valueType) {
-        return withType(_config.getTypeFactory().constructType(valueType));
-    }    
+        return forType(_config.getTypeFactory().constructType(valueType));
+    }
 
     /**
-     * Method for constructing a new reader instance that is configured
-     * to data bind into specified type.
-     *<p>
-     * Note that the method does NOT change state of this reader, but
-     * rather construct and returns a newly configured instance.
+     * @deprecated since 2.5 Use {@link #forType(TypeReference)} instead
      */
+    @Deprecated
     public ObjectReader withType(TypeReference<?> valueTypeRef) {
-        return withType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
+        return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
     }    
 
     /**
@@ -489,7 +676,7 @@ public class ObjectReader
         } else {
             t = _valueType;
         }
-        return new ObjectReader(this, _config, t, _rootDeserializer, value,
+        return _new(this, _config, t, _rootDeserializer, value,
                 _schema, _injectableValues, _dataFormatReaders);
     }
 
@@ -542,8 +729,7 @@ public class ObjectReader
      * 
      * @since 2.1
      */
-    public ObjectReader withFormatDetection(ObjectReader... readers)
-    {
+    public ObjectReader withFormatDetection(ObjectReader... readers) {
         return withFormatDetection(new DataFormatReaders(readers));
     }
 
@@ -562,9 +748,8 @@ public class ObjectReader
      * 
      * @since 2.1
      */
-    public ObjectReader withFormatDetection(DataFormatReaders readers)
-    {
-        return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
+    public ObjectReader withFormatDetection(DataFormatReaders readers) {
+        return _new(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
                 _schema, _injectableValues, readers);
     }
 
@@ -572,32 +757,45 @@ public class ObjectReader
      * @since 2.3
      */
     public ObjectReader with(ContextAttributes attrs) {
-        DeserializationConfig newConfig = _config.with(attrs);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+        return _with(_config.with(attrs));
     }
 
     /**
      * @since 2.3
      */
     public ObjectReader withAttributes(Map<Object,Object> attrs) {
-        DeserializationConfig newConfig = _config.withAttributes(attrs);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+        return _with(_config.withAttributes(attrs));
     }
 
     /**
      * @since 2.3
      */
     public ObjectReader withAttribute(Object key, Object value) {
-        DeserializationConfig newConfig = _config.withAttribute(key, value);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+        return _with( _config.withAttribute(key, value));
     }
 
     /**
      * @since 2.3
      */
     public ObjectReader withoutAttribute(Object key) {
-        DeserializationConfig newConfig = _config.withoutAttribute(key);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+        return _with(_config.withoutAttribute(key));
+    }
+
+    /*
+    /**********************************************************
+    /* Overridable factory methods may override
+    /**********************************************************
+     */
+    
+    protected ObjectReader _with(DeserializationConfig newConfig) {
+        if (newConfig == _config) {
+            return this;
+        }
+        ObjectReader r = _new(this, newConfig);
+        if (_dataFormatReaders != null) {
+            r  = r.withFormatDetection(_dataFormatReaders.with(newConfig));
+        }
+        return r;
     }
     
     /*
@@ -652,7 +850,14 @@ public class ObjectReader
     public ContextAttributes getAttributes() {
         return _config.getAttributes();
     }
-    
+
+    /**
+     * @since 2.6
+     */
+    public InjectableValues getInjectableValues() {
+        return _injectableValues;
+    }
+
     /*
     /**********************************************************
     /* Deserialization methods; basic ones to support ObjectCodec first
@@ -818,24 +1023,25 @@ public class ObjectReader
     public JsonParser treeAsTokens(TreeNode n) {
         return new TreeTraversingParser((JsonNode) n, this);
     }
-     /**
-      * Convenience method that binds content read using given parser, using
-      * configuration of this reader, except that content is bound as
-      * JSON tree instead of configured root value type.
-      *<p>
-      * Note: if an object was specified with {@link #withValueToUpdate}, it
-      * will be ignored.
-      *<p>
-      * NOTE: this method never tries to auto-detect format, since actual
-      * (data-format specific) parser is given.
-      */
-     @SuppressWarnings("unchecked")
-     @Override
-     public <T extends TreeNode> T readTree(JsonParser jp)
-         throws IOException, JsonProcessingException
-     {
-         return (T) _bindAsTree(jp);
-     }
+
+    /**
+     * Convenience method that binds content read using given parser, using
+     * configuration of this reader, except that content is bound as
+     * JSON tree instead of configured root value type.
+     *<p>
+     * Note: if an object was specified with {@link #withValueToUpdate}, it
+     * will be ignored.
+     *<p>
+     * NOTE: this method never tries to auto-detect format, since actual
+     * (data-format specific) parser is given.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends TreeNode> T readTree(JsonParser jp)
+            throws IOException, JsonProcessingException
+    {
+        return (T) _bindAsTree(jp);
+    }
      
     @Override
     public void writeTree(JsonGenerator jgen, TreeNode rootNode) {
@@ -1047,7 +1253,7 @@ public class ObjectReader
     {
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         // false -> do not close as caller gave parser instance
-        return new MappingIterator<T>(_valueType, jp, ctxt,
+        return _newIterator(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType),
                 false, _valueToUpdate);
     }
@@ -1091,13 +1297,11 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        JsonParser jp = _parserFactory.createParser(src);
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt,
+        JsonParser p = _parserFactory.createParser(src);
+        _initForMultiRead(p);
+        p.nextToken();
+        DeserializationContext ctxt = createDeserializationContext(p, _config);
+        return _newIterator(_valueType, p, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
     
@@ -1113,13 +1317,11 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        JsonParser jp = _parserFactory.createParser(json);
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt,
+        JsonParser p = _parserFactory.createParser(json);
+        _initForMultiRead(p);
+        p.nextToken();
+        DeserializationContext ctxt = createDeserializationContext(p, _config);
+        return _newIterator(_valueType, p, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
@@ -1178,8 +1380,7 @@ public class ObjectReader
      */
 
     @Override
-    public <T> T treeToValue(TreeNode n, Class<T> valueType)
-        throws JsonProcessingException
+    public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JsonProcessingException
     {
         try {
             return readValue(treeAsTokens(n), valueType);
@@ -1191,8 +1392,7 @@ public class ObjectReader
     }    
     
     @Override
-    public void writeValue(JsonGenerator jgen, Object value) throws IOException, JsonProcessingException
-    {
+    public void writeValue(JsonGenerator jgen, Object value) throws IOException, JsonProcessingException {
         throw new UnsupportedOperationException("Not implemented for ObjectReader");
     }
 
@@ -1205,8 +1405,7 @@ public class ObjectReader
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _bind(JsonParser jp, Object valueToUpdate)
-        throws IOException, JsonParseException, JsonMappingException
+    protected Object _bind(JsonParser jp, Object valueToUpdate) throws IOException
     {
         /* First: may need to read the next token, to initialize state (either
          * before first read from parser, or after previous token has been cleared)
@@ -1216,7 +1415,7 @@ public class ObjectReader
         if (t == JsonToken.VALUE_NULL) {
             if (valueToUpdate == null) {
                 DeserializationContext ctxt = createDeserializationContext(jp, _config);
-                result = _findRootDeserializer(ctxt, _valueType).getNullValue();
+                result = _findRootDeserializer(ctxt, _valueType).getNullValue(ctxt);
             } else {
                 result = valueToUpdate;
             }
@@ -1241,19 +1440,15 @@ public class ObjectReader
         return result;
     }
     
-    protected Object _bindAndClose(JsonParser jp, Object valueToUpdate)
-        throws IOException, JsonParseException, JsonMappingException
+    protected Object _bindAndClose(JsonParser jp, Object valueToUpdate) throws IOException
     {
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
         try {
             Object result;
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 if (valueToUpdate == null) {
                     DeserializationContext ctxt = createDeserializationContext(jp, _config);
-                    result = _findRootDeserializer(ctxt, _valueType).getNullValue();
+                    result = _findRootDeserializer(ctxt, _valueType).getNullValue(ctxt);
                 } else {
                     result = valueToUpdate;
                 }
@@ -1281,8 +1476,17 @@ public class ObjectReader
         }
     }
 
-    protected JsonNode _bindAsTree(JsonParser jp)
-        throws IOException, JsonParseException, JsonMappingException
+    protected JsonNode _bindAndCloseAsTree(JsonParser jp) throws IOException {
+        try {
+            return _bindAsTree(jp);
+        } finally {
+            try {
+                jp.close();
+            } catch (IOException ioe) { }
+        }
+    }
+    
+    protected JsonNode _bindAsTree(JsonParser jp) throws IOException
     {
         JsonNode result;
         JsonToken t = _initForReading(jp);
@@ -1290,7 +1494,7 @@ public class ObjectReader
             result = NullNode.instance;
         } else {
             DeserializationContext ctxt = createDeserializationContext(jp, _config);
-            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, JSON_NODE_TYPE);
+            JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
                 result = (JsonNode) _unwrapAndDeserialize(jp, ctxt, JSON_NODE_TYPE, deser);
             } else {
@@ -1302,121 +1506,20 @@ public class ObjectReader
         return result;
     }
     
-    protected JsonNode _bindAndCloseAsTree(JsonParser jp)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
-        try {
-            return _bindAsTree(jp);
-        } finally {
-            try {
-                jp.close();
-            } catch (IOException ioe) { }
-        }
-    }
-    
     /**
      * @since 2.1
      */
-    protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p,
-            Object valueToUpdate)
-        throws IOException, JsonProcessingException
+    protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p, Object valueToUpdate) throws IOException
     {
-        if (_schema != null) {
-            p.setSchema(_schema);
-        }
+        _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p, _config);
-        return new MappingIterator<T>(_valueType, p, ctxt, 
-                _findRootDeserializer(ctxt, _valueType),
-                true, _valueToUpdate);
-    }
-    
-    protected static JsonToken _initForReading(JsonParser jp)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        /* First: must point to a token; if not pointing to one, advance.
-         * This occurs before first read from JsonParser, as well as
-         * after clearing of current token.
-         */
-        JsonToken t = jp.getCurrentToken();
-        if (t == null) { // and then we must get something...
-            t = jp.nextToken();
-            if (t == null) {
-                /* [JACKSON-546] Throw mapping exception, since it's failure to map,
-                 *   not an actual parsing problem
-                 */
-                throw JsonMappingException.from(jp, "No content to map due to end-of-input");
-            }
-        }
-        return t;
+        return _newIterator(_valueType, p, ctxt, 
+                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
-    /**
-     * Method called to locate deserializer for the passed root-level value.
-     */
-    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
-            JavaType valueType)
-        throws JsonMappingException
-    {
-        if (_rootDeserializer != null) {
-            return _rootDeserializer;
-        }
-
-        // Sanity check: must have actual type...
-        if (valueType == null) {
-            throw new JsonMappingException("No value type configured for ObjectReader");
-        }
-        
-        // First: have we already seen it?
-        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
-        if (deser != null) {
-            return deser;
-        }
-        // Nope: need to ask provider to resolve it
-        deser = ctxt.findRootValueDeserializer(valueType);
-        if (deser == null) { // can this happen?
-            throw new JsonMappingException("Can not find a deserializer for type "+valueType);
-        }
-        _rootDeserializers.put(valueType, deser);
-        return deser;
-    }
-
-    /**
-     * Method called to locate deserializer ahead of time, if permitted
-     * by configuration. Method also is NOT to throw an exception if
-     * access fails.
-     */
-    protected JsonDeserializer<Object> _prefetchRootDeserializer(
-            DeserializationConfig config, JavaType valueType)
-    {
-        if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
-            return null;
-        }
-        // already cached?
-        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
-        if (deser == null) {
-            try {
-                // If not, need to resolve; for which we need a temporary context as well:
-                DeserializationContext ctxt = createDeserializationContext(null, _config);
-                deser = ctxt.findRootValueDeserializer(valueType);
-                if (deser != null) {
-                    _rootDeserializers.put(valueType, deser);
-                }
-                return deser;
-                
-            } catch (JsonProcessingException e) {
-                // need to swallow?
-            }
-        }
-        return deser;
-    }
-    
     protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,
-            JavaType rootType, JsonDeserializer<Object> deser)
-        throws IOException, JsonParseException, JsonMappingException
+            JavaType rootType, JsonDeserializer<Object> deser) throws IOException
     {
         String expName = _config.getRootName();
         if (expName == null) {
@@ -1451,6 +1554,89 @@ public class ObjectReader
                     +expName+"'), but "+jp.getCurrentToken());
         }
         return result;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, locating deserializers etc
+    /**********************************************************
+     */
+    
+    /**
+     * Method called to locate deserializer for the passed root-level value.
+     */
+    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
+            JavaType valueType)
+        throws JsonMappingException
+    {
+        if (_rootDeserializer != null) {
+            return _rootDeserializer;
+        }
+
+        // Sanity check: must have actual type...
+        if (valueType == null) {
+            throw new JsonMappingException("No value type configured for ObjectReader");
+        }
+        
+        // First: have we already seen it?
+        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
+        if (deser != null) {
+            return deser;
+        }
+        // Nope: need to ask provider to resolve it
+        deser = ctxt.findRootValueDeserializer(valueType);
+        if (deser == null) { // can this happen?
+            throw new JsonMappingException("Can not find a deserializer for type "+valueType);
+        }
+        _rootDeserializers.put(valueType, deser);
+        return deser;
+    }
+
+    /**
+     * @since 2.6
+     */
+    protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        JsonDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
+        if (deser == null) {
+            // Nope: need to ask provider to resolve it
+            deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
+            if (deser == null) { // can this happen?
+                throw new JsonMappingException("Can not find a deserializer for type "+JSON_NODE_TYPE);
+            }
+            _rootDeserializers.put(JSON_NODE_TYPE, deser);
+        }
+        return deser;
+    }
+
+    /**
+     * Method called to locate deserializer ahead of time, if permitted
+     * by configuration. Method also is NOT to throw an exception if
+     * access fails.
+     */
+    protected JsonDeserializer<Object> _prefetchRootDeserializer(DeserializationConfig config, JavaType valueType)
+    {
+        if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
+            return null;
+        }
+        // already cached?
+        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
+        if (deser == null) {
+            try {
+                // If not, need to resolve; for which we need a temporary context as well:
+                DeserializationContext ctxt = createDeserializationContext(null, _config);
+                deser = ctxt.findRootValueDeserializer(valueType);
+                if (deser != null) {
+                    _rootDeserializers.put(valueType, deser);
+                }
+                return deser;
+                
+            } catch (JsonProcessingException e) {
+                // need to swallow?
+            }
+        }
+        return deser;
     }
 
     /*
@@ -1555,17 +1741,6 @@ public class ObjectReader
             DeserializationConfig cfg) {
         // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
         return _context.createInstance(cfg, jp, _injectableValues);
-    }
-    
-    protected ObjectReader _with(DeserializationConfig newConfig) {
-        if (newConfig == _config) {
-            return this;
-        }
-        if (_dataFormatReaders != null) {
-            return new ObjectReader(this, newConfig)
-                .withFormatDetection(_dataFormatReaders.with(newConfig));
-        }
-        return new ObjectReader(this, newConfig);
     }
 
     protected void _reportUndetectableSource(Object src) throws JsonProcessingException

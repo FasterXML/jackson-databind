@@ -7,6 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 public class TestDateDeserialization
     extends BaseMapTest
@@ -145,6 +146,61 @@ public class TestDateDeserialization
         assertEquals(30, c.get(Calendar.DAY_OF_MONTH));
     }
 
+    // [Databind#570]
+    public void testISO8601PartialMilliseconds() throws Exception
+    {
+        String inputStr;
+        Date inputDate;
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        
+        inputStr = "2014-10-03T18:00:00.6-05:00";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(2014, c.get(Calendar.YEAR));
+        assertEquals(Calendar.OCTOBER, c.get(Calendar.MONTH));
+        assertEquals(3, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(600, c.get(Calendar.MILLISECOND));
+
+        inputStr = "2014-10-03T18:00:00.61-05:00";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(2014, c.get(Calendar.YEAR));
+        assertEquals(Calendar.OCTOBER, c.get(Calendar.MONTH));
+        assertEquals(3, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(18 + 5, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, c.get(Calendar.MINUTE));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(610, c.get(Calendar.MILLISECOND));
+
+        inputStr = "1997-07-16T19:20:30.45+01:00";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(1997, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(19 - 1, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(20, c.get(Calendar.MINUTE));
+        assertEquals(30, c.get(Calendar.SECOND));
+        assertEquals(450, c.get(Calendar.MILLISECOND));
+    }
+
+    public void testISO8601MissingSeconds() throws Exception
+    {
+        String inputStr;
+        Date inputDate;
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    
+        inputStr = "1997-07-16T19:20+01:00";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(1997, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(19 - 1, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(0, c.get(Calendar.MILLISECOND));
+}
+
     public void testDateUtilISO8601NoTimezone() throws Exception
     {
         // Timezone itself is optional as well... 
@@ -180,7 +236,7 @@ public class TestDateDeserialization
         assertEquals(0, c.get(Calendar.MILLISECOND));
 
         // 03-Nov-2013, tatu: This wouldn't work, and is the nominal reason
-        //    for #338 I thinl
+        //    for #338 I think
         /*
         inputDate =  ISO8601Utils.parse(INPUT_STR);
         c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -334,7 +390,7 @@ public class TestDateDeserialization
 
         // 27-Mar-2014, tatu: Let's verify that changing Locale won't break it;
         //   either via context Locale
-        result = MAPPER.reader(DateAsStringBean.class)
+        result = MAPPER.readerFor(DateAsStringBean.class)
                 .with(Locale.GERMANY)
                 .readValue(INPUT);
         assertNotNull(result);
@@ -349,7 +405,7 @@ public class TestDateDeserialization
         assertEquals(25, c.get(Calendar.DAY_OF_MONTH));
 
         // or, via annotations
-        DateAsStringBeanGermany result2 = MAPPER.reader(DateAsStringBeanGermany.class).readValue(INPUT);
+        DateAsStringBeanGermany result2 = MAPPER.readerFor(DateAsStringBeanGermany.class).readValue(INPUT);
         assertNotNull(result2);
         assertNotNull(result2.date);
         l = result2.date.getTime();
@@ -386,6 +442,19 @@ public class TestDateDeserialization
         assertEquals(Calendar.JANUARY, c.get(Calendar.MONTH));
         assertEquals(1, c.get(Calendar.DAY_OF_MONTH));
         assertEquals(9, c.get(Calendar.HOUR_OF_DAY));
+    }
+
+    // Based on an external report; was throwing an exception for second case here
+    public void testISO8601Directly() throws Exception
+    {
+        final String TIME_STR = "2015-01-21T08:56:13.533+0000";
+        Date d = MAPPER.readValue(quote(TIME_STR), Date.class);
+        assertNotNull(d);
+
+        ISO8601DateFormat f = new ISO8601DateFormat();
+        Date d2 = f.parse(TIME_STR);
+        assertNotNull(d2);
+        assertEquals(d.getTime(), d2.getTime());
     }
 
     /*

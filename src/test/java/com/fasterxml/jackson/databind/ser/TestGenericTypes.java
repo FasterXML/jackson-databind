@@ -2,18 +2,13 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestGenericTypes extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-    
     static class Account {
         private Long id;        
         private String name;
@@ -45,15 +40,15 @@ public class TestGenericTypes extends BaseMapTest
         public Person1(String name) { this.name = name; }
 
         public String getName() {
-                return name;
+            return name;
         }
 
         public Key<Account> getAccount() {
-                return account;
+            return account;
         }
 
         public Long getId() {
-                return id;
+            return id;
         }
 
         public void setAccount(Key<Account> account) {
@@ -90,12 +85,28 @@ public class TestGenericTypes extends BaseMapTest
             public Element(T v) { value = v; }
         }
     }
+
+    // For [databind#728]
+    static class Base727 {
+        public int a;
+    }
     
+    @JsonPropertyOrder(alphabetic=true)
+    static class Impl727 extends Base727 {
+        public int b;
+
+        public Impl727(int a, int b) {
+            this.a = a;
+            this.b = b;
+        }
+    }    
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
+
+    final ObjectMapper MAPPER = new ObjectMapper();
 
     @SuppressWarnings("unchecked")
     public void testIssue468a() throws Exception
@@ -104,11 +115,10 @@ public class TestGenericTypes extends BaseMapTest
         p1.setAccount(new Key<Account>(new Account("something", 42L)));
         
         // First: ensure we can serialize (pre 1.7 this failed)
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(p1);
+        String json = MAPPER.writeValueAsString(p1);
 
         // and then verify that results make sense
-        Map<String,Object> map = mapper.readValue(json, Map.class);
+        Map<String,Object> map = MAPPER.readValue(json, Map.class);
         assertEquals("John", map.get("name"));
         Object ob = map.get("account");
         assertNotNull(ob);
@@ -131,11 +141,10 @@ public class TestGenericTypes extends BaseMapTest
         p2.setAccounts(accounts);
 
         // serialize without error:
-        ObjectMapper mapper = new ObjectMapper();               
-        String json = mapper.writeValueAsString(p2);
+        String json = MAPPER.writeValueAsString(p2);
 
         // then verify output
-        Map<String,Object> map = mapper.readValue(json, Map.class);
+        Map<String,Object> map = MAPPER.readValue(json, Map.class);
         assertEquals("John", map.get("name"));
         Object ob = map.get("accounts");
         assertNotNull(ob);
@@ -145,14 +154,28 @@ public class TestGenericTypes extends BaseMapTest
     }
 
     /**
-     * Issue [JACKSON-572] is about unbound type variables, usually resulting
+     * Test related to unbound type variables, usually resulting
      * from inner classes of generic classes (like Sets).
      */
-    public void testUnboundIssue572() throws Exception
+    public void testUnboundTypes() throws Exception
     {
         GenericBogusWrapper<Integer> list = new GenericBogusWrapper<Integer>(Integer.valueOf(7));
-        String json = new ObjectMapper().writeValueAsString(list);
+        String json = MAPPER.writeValueAsString(list);
         assertEquals("{\"wrapped\":{\"value\":7}}", json);
     }
-}
 
+    public void testRootTypeForCollections727() throws Exception
+    {
+        List<Base727> input = new ArrayList<Base727>();
+        input.add(new Impl727(1, 2));
+
+        final String EXP = aposToQuotes("[{'a':1,'b':2}]");
+        // Without type enforcement, produces expected output:
+        assertEquals(EXP, MAPPER.writeValueAsString(input));
+        assertEquals(EXP, MAPPER.writer().writeValueAsString(input));
+
+        // but enforcing type will hinder:
+        TypeReference<?> typeRef = new TypeReference<List<Base727>>() { };
+        assertEquals(EXP, MAPPER.writer().forType(typeRef).writeValueAsString(input));
+    }
+}

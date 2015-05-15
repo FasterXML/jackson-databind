@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
+import java.util.Iterator;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**
@@ -24,9 +25,6 @@ public abstract class BeanPropertyDefinition
     /**********************************************************
      */
 
-    @Deprecated // since 2.3
-    public BeanPropertyDefinition withName(String newName) { return withSimpleName(newName); }
-    
     /**
      * Method that can be used to create a definition with
      * same settings as this one, but with different
@@ -44,7 +42,7 @@ public abstract class BeanPropertyDefinition
      * @since 2.3
      */
     public abstract BeanPropertyDefinition withSimpleName(String newSimpleName);
-    
+
     /*
     /**********************************************************
     /* Basic property information, name, type
@@ -58,6 +56,13 @@ public abstract class BeanPropertyDefinition
     public abstract String getName();
 
     public abstract PropertyName getFullName();
+
+    /**
+     * @since 2.6
+     */
+    public boolean hasName(PropertyName name) {
+        return getFullName().equals(name);
+    }
     
     /**
      * Accessor that can be used to determine implicit name from underlying
@@ -76,7 +81,7 @@ public abstract class BeanPropertyDefinition
 
     /**
      * Method for accessing additional metadata.
-     * NOTE: will never return null, so deferencing return value
+     * NOTE: will never return null, so de-referencing return value
      * is safe.
      * 
      * @since 2.3
@@ -135,6 +140,16 @@ public abstract class BeanPropertyDefinition
     public abstract AnnotatedParameter getConstructorParameter();
 
     /**
+     * Additional method that may be called instead of {@link #getConstructorParameter()}
+     * to get access to all constructor parameters, not just the highest priority one.
+     * 
+     * @since 2.5
+     */
+    public Iterator<AnnotatedParameter> getConstructorParameters() {
+        return EmptyIterator.instance();
+    }
+    
+    /**
      * Method used to find accessor (getter, field to access) to use for accessing
      * value of the property.
      * Null if no such member exists.
@@ -157,10 +172,12 @@ public abstract class BeanPropertyDefinition
      * Method used to find the property member (getter, setter, field) that has
      * the highest precedence in current context (getter method when serializing,
      * if available, and so forth), if any.
+     *<p>
+     * Note: abstract since 2.5
      * 
      * @since 2.1
      */
-    public AnnotatedMember getPrimaryMember() { return null; }
+    public abstract AnnotatedMember getPrimaryMember();
     
     /*
     /**********************************************************
@@ -202,8 +219,18 @@ public abstract class BeanPropertyDefinition
      * fail deserialization), or handled by other means (by providing default
      * value)
      */
-    public final boolean isRequired() {
+    public boolean isRequired() {
         PropertyMetadata md = getMetadata();
         return (md != null)  && md.isRequired();
+    }
+
+    /**
+     * Method used to check if this property has specific inclusion override
+     * associated with it or not.
+     * 
+     * @since 2.5
+     */
+    public JsonInclude.Include findInclusion() {
+        return null;
     }
 }

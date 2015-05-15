@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsontype;
 
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -65,6 +66,32 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     static class DefaultImpl505 extends SuperTypeWithoutDefault {
         public int a;
     }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type")
+    @JsonSubTypes({ @JsonSubTypes.Type(ImplX.class),
+          @JsonSubTypes.Type(ImplY.class) })
+    static abstract class BaseX { }
+
+    @JsonTypeName("x")
+    static class ImplX extends BaseX {
+        public int x;
+
+        public ImplX() { }
+        public ImplX(int x) { this.x = x; }
+    }
+
+    @JsonTypeName("y")
+    static class ImplY extends BaseX {
+        public int y;
+    }
+
+    // [databind#663]
+    static class AtomicWrapper {
+        public BaseX value;
+
+        public AtomicWrapper() { }
+        public AtomicWrapper(int x) { value = new ImplX(x); }
+    }
     
     /*
     /**********************************************************
@@ -72,6 +99,8 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     // JACKSON-510
     public void testPropertyWithSubtypes() throws Exception
     {
@@ -99,11 +128,10 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     {
         // serialization can detect type name ok without anything extra:
         SubB bean = new SubB();
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals("{\"@type\":\"TypeB\",\"b\":1}", mapper.writeValueAsString(bean));
+        assertEquals("{\"@type\":\"TypeB\",\"b\":1}", MAPPER.writeValueAsString(bean));
 
         // but we can override type name here too
-        mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(new NamedType(SubB.class, "typeB"));
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
 
@@ -162,22 +190,21 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testDefaultImpl() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // first, test with no type information
-        SuperTypeWithDefault bean = mapper.readValue("{\"a\":13}", SuperTypeWithDefault.class);
+        SuperTypeWithDefault bean = MAPPER.readValue("{\"a\":13}", SuperTypeWithDefault.class);
         assertEquals(DefaultImpl.class, bean.getClass());
         assertEquals(13, ((DefaultImpl) bean).a);
 
         // and then with unmapped info
-        bean = mapper.readValue("{\"a\":14,\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
+        bean = MAPPER.readValue("{\"a\":14,\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
         assertEquals(DefaultImpl.class, bean.getClass());
         assertEquals(14, ((DefaultImpl) bean).a);
 
-        bean = mapper.readValue("{\"#type\":\"foobar\",\"a\":15}", SuperTypeWithDefault.class);
+        bean = MAPPER.readValue("{\"#type\":\"foobar\",\"a\":15}", SuperTypeWithDefault.class);
         assertEquals(DefaultImpl.class, bean.getClass());
         assertEquals(15, ((DefaultImpl) bean).a);
 
-        bean = mapper.readValue("{\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
+        bean = MAPPER.readValue("{\"#type\":\"foobar\"}", SuperTypeWithDefault.class);
         assertEquals(DefaultImpl.class, bean.getClass());
         assertEquals(0, ((DefaultImpl) bean).a);
     }
@@ -188,16 +215,15 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         final String JSON = "{\"a\":123}";
         
         // first: without registration etc, epic fail:
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.readValue(JSON, SuperTypeWithoutDefault.class);
+            MAPPER.readValue(JSON, SuperTypeWithoutDefault.class);
             fail("Expected an exception");
         } catch (JsonMappingException e) {
             verifyException(e, "missing property");
         }
 
         // but then succeed when we register default impl
-        mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addAbstractTypeMapping(SuperTypeWithoutDefault.class, DefaultImpl505.class);
         mapper.registerModule(module);
@@ -211,5 +237,24 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(0, ((DefaultImpl505) bean).a);
     
     }
-}
 
+    public void testErrorMessage() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.readValue("{ \"type\": \"z\"}", BaseX.class);
+            fail("Should have failed");
+        } catch (JsonMappingException e) {
+            verifyException(e, "known type ids =");
+        }
+    }
+
+    public void testViaAtomic() throws Exception {
+        AtomicWrapper input = new AtomicWrapper(3);
+        String json = MAPPER.writeValueAsString(input);
+
+        AtomicWrapper output = MAPPER.readValue(json, AtomicWrapper.class);
+        assertNotNull(output);
+        assertEquals(ImplX.class, output.value.getClass());
+        assertEquals(3, ((ImplX) output.value).x);
+    }
+}

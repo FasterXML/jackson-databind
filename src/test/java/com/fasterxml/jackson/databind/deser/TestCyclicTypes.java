@@ -35,7 +35,7 @@ public class TestCyclicTypes
     }
 
     static class LinkB {
-        private LinkA a;
+        protected LinkA a;
 
         public void setA(LinkA a) { this.a = a; }
         public LinkA getA() { return a; }

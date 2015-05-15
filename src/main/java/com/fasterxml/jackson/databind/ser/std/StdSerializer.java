@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -25,8 +26,10 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements JsonFormatVisitable, SchemaAware
+    implements JsonFormatVisitable, SchemaAware, java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Nominal type supported, usually declared type of
      * property for which serializer is used.
@@ -72,8 +75,8 @@ public abstract class StdSerializer<T>
      */
     
     @Override
-    public abstract void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException;
+    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException;
 
     /*
     /**********************************************************
@@ -243,16 +246,24 @@ public abstract class StdSerializer<T>
             BeanProperty prop, JsonSerializer<?> existingSerializer)
         throws JsonMappingException
     {
+        /* 19-Oct-2014, tatu: As per [databind#357], need to avoid infinite loop
+         *   when applying contextual content converter; this is not ideal way,
+         *   but should work for most cases.
+         */
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null && prop != null) {
-            Object convDef = intr.findSerializationContentConverter(prop.getMember());
-            if (convDef != null) {
-                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
-                if (existingSerializer == null) {
-                    existingSerializer = provider.findValueSerializer(delegateType, prop);
+            AnnotatedMember m = prop.getMember();
+            if (m != null) {
+                Object convDef = intr.findSerializationContentConverter(m);
+                if (convDef != null) {
+                    Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
+                    JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
+                    // [databind#731]: Should skip if nominally java.lang.Object
+                    if (existingSerializer == null && !delegateType.hasRawClass(Object.class)) {
+                        existingSerializer = provider.findValueSerializer(delegateType);
+                    }
+                    return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
                 }
-                return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
             }
         }
         return existingSerializer;

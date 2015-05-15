@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
@@ -15,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
  * number of distinct read-only maps constructed, and number of
  * serializers constructed.
  *<p>
- * Since version 1.5 cache will actually contain three kinds of entries,
+ * Cache contains three kinds of entries,
  * based on combination of class pair key. First class in key is for the
  * type to serialize, and second one is type used for determining how
  * to resolve value type. One (but not both) of entries can be null.
@@ -28,12 +29,14 @@ public final class SerializerCache
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private HashMap<TypeKey, JsonSerializer<Object>> _sharedMap = new HashMap<TypeKey, JsonSerializer<Object>>(64);
+    private final HashMap<com.fasterxml.jackson.databind.util.TypeKey, JsonSerializer<Object>> _sharedMap
+        = new HashMap<com.fasterxml.jackson.databind.util.TypeKey, JsonSerializer<Object>>(64);
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
      */
-    private volatile ReadOnlyClassToSerializerMap _readOnlyMap = null;
+    private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap
+        = new AtomicReference<ReadOnlyClassToSerializerMap>();
 
     public SerializerCache() { }
 
@@ -43,16 +46,22 @@ public final class SerializerCache
      */
     public ReadOnlyClassToSerializerMap getReadOnlyLookupMap()
     {
-        ReadOnlyClassToSerializerMap m = _readOnlyMap;
-        if(m == null) {
-            synchronized (this) {
-                m = _readOnlyMap;
-                if (m == null) {
-                    _readOnlyMap = m = ReadOnlyClassToSerializerMap.from(_sharedMap);
-                }
-            }
+        ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
+        if (m != null) {
+            return m;
         }
-        return m.instance();
+        return _makeReadOnlyLookupMap();
+    }
+
+    private final synchronized ReadOnlyClassToSerializerMap _makeReadOnlyLookupMap() {
+        // double-locking; safe, but is it really needed? Not doing that is only a perf problem,
+        // not correctness
+        ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
+        if (m == null) {
+            m = ReadOnlyClassToSerializerMap.from(_sharedMap);
+            _readOnlyMap.set(m);
+        }
+        return m;
     }
 
     /*
@@ -64,7 +73,7 @@ public final class SerializerCache
     public synchronized int size() {
         return _sharedMap.size();
     }
-    
+
     /**
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
      * untyped serializer for given type.
@@ -113,7 +122,7 @@ public final class SerializerCache
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, true), ser) == null) {
                 // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
         }
     }
@@ -123,7 +132,7 @@ public final class SerializerCache
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(cls, true), ser) == null) {
                 // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
         }
     }
@@ -134,8 +143,7 @@ public final class SerializerCache
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
-                // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
             /* Finally: some serializers want to do post-processing, after
              * getting registered (to handle cyclic deps).
@@ -156,8 +164,7 @@ public final class SerializerCache
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
-                // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
             /* Finally: some serializers want to do post-processing, after
              * getting registered (to handle cyclic deps).
@@ -187,108 +194,17 @@ public final class SerializerCache
      */
 
     /**
-     * Key that offers two "modes"; one with raw class, as used for
-     * cases were raw class type is available (for example, when using
-     * runtime type); and one with full generics-including.
+     * @deprecated Since 2.6; replaced by {@link com.fasterxml.jackson.databind.util.TypeKey}
      */
-    public final static class TypeKey
+    @Deprecated
+    public final static class TypeKey extends com.fasterxml.jackson.databind.util.TypeKey
     {
-        protected int _hashCode;
-
-        protected Class<?> _class;
-
-        protected JavaType _type;
-
-        /**
-         * Indicator of whether serializer stored has a type serializer
-         * wrapper around it or not; if not, it is "untyped" serializer;
-         * if it has, it is "typed"
-         */
-        protected boolean _isTyped;
-        
         public TypeKey(Class<?> key, boolean typed) {
-            _class = key;
-            _type = null;
-            _isTyped = typed;
-            _hashCode = hash(key, typed);
+            super(key, typed);
         }
 
         public TypeKey(JavaType key, boolean typed) {
-            _type = key;
-            _class = null;
-            _isTyped = typed;
-            _hashCode = hash(key, typed);
+            super(key, typed);
         }
-
-        private final static int hash(Class<?> cls, boolean typed) {
-            int hash = cls.getName().hashCode();
-            if (typed) {
-                ++hash;
-            }
-            return hash;
-        }
-
-        private final static int hash(JavaType type, boolean typed) {
-            int hash = type.hashCode() - 1;
-            if (typed) {
-                --hash;
-            }
-            return hash;
-        }
-        
-        public void resetTyped(Class<?> cls) {
-            _type = null;
-            _class = cls;
-            _isTyped = true;
-            _hashCode = hash(cls, true);
-        }
-
-        public void resetUntyped(Class<?> cls) {
-            _type = null;
-            _class = cls;
-            _isTyped = false;
-            _hashCode = hash(cls, false);
-        }
-        
-        public void resetTyped(JavaType type) {
-            _type = type;
-            _class = null;
-            _isTyped = true;
-            _hashCode = hash(type, true);
-        }
-
-        public void resetUntyped(JavaType type) {
-            _type = type;
-            _class = null;
-            _isTyped = false;
-            _hashCode = hash(type, false);
-        }
-        
-        @Override public final int hashCode() { return _hashCode; }
-
-        @Override public final String toString() {
-            if (_class != null) {
-                return "{class: "+_class.getName()+", typed? "+_isTyped+"}";
-            }
-            return "{type: "+_type+", typed? "+_isTyped+"}";
-        }
-        
-        // note: we assume key is never used for anything other than as map key, so:
-        @Override public final boolean equals(Object o)
-        {
-            if (o == null) return false;
-            if (o == this) return true;
-            if (o.getClass() != getClass()) {
-                return false;
-            }
-            TypeKey other = (TypeKey) o;
-            if (other._isTyped == _isTyped) {
-                if (_class != null) {
-                    return other._class == _class;
-                }
-                return _type.equals(other._type);
-            }
-            return false;
-        } 
     }
 }

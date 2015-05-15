@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -42,7 +41,7 @@ public class UntypedObjectDeserializer
      * @deprecated Since 2.3, construct a new instance, needs to be resolved
      */
     @Deprecated
-    public final static UntypedObjectDeserializer instance = new UntypedObjectDeserializer();
+    public final static UntypedObjectDeserializer instance = new UntypedObjectDeserializer(null, null);
 
     /*
     /**********************************************************
@@ -57,9 +56,35 @@ public class UntypedObjectDeserializer
     protected JsonDeserializer<Object> _stringDeserializer;
 
     protected JsonDeserializer<Object> _numberDeserializer;
-    
+
+    /**
+     * If {@link java.util.List} has been mapped to non-default implementation,
+     * we'll store type here
+     *
+     * @since 2.6
+     */
+    protected JavaType _listType;
+
+    /**
+     * If {@link java.util.Map} has been mapped to non-default implementation,
+     * we'll store type here
+     *
+     * @since 2.6
+     */
+    protected JavaType _mapType;
+
+    /**
+     * @deprecated Since 2.6 use variant takes type arguments
+     */
+    @Deprecated
     public UntypedObjectDeserializer() {
+        this(null, null);
+    }
+
+    public UntypedObjectDeserializer(JavaType listType, JavaType mapType) {
         super(Object.class);
+        _listType = listType;
+        _mapType = mapType;
     }
 
     @SuppressWarnings("unchecked")
@@ -72,8 +97,10 @@ public class UntypedObjectDeserializer
         _listDeserializer = (JsonDeserializer<Object>) listDeser;
         _stringDeserializer = (JsonDeserializer<Object>) stringDeser;
         _numberDeserializer = (JsonDeserializer<Object>) numberDeser;
+        _listType = base._listType;
+        _mapType = base._mapType;
     }
-    
+
     /*
     /**********************************************************
     /* Initialization
@@ -85,30 +112,64 @@ public class UntypedObjectDeserializer
      * to: it can not be done earlier since delegated deserializers almost
      * certainly require access to this instance (at least "List" and "Map" ones)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
         JavaType obType = ctxt.constructType(Object.class);
         JavaType stringType = ctxt.constructType(String.class);
         TypeFactory tf = ctxt.getTypeFactory();
-        _mapDeserializer = _findCustomDeser(ctxt, tf.constructMapType(Map.class, stringType, obType));
-        _listDeserializer = _findCustomDeser(ctxt, tf.constructCollectionType(List.class, obType));
-        _stringDeserializer = _findCustomDeser(ctxt, stringType);
-        _numberDeserializer = _findCustomDeser(ctxt, tf.constructType(Number.class));
+
+        /* 26-Nov-2014, tatu: This is highly unusual, as in general contextualization
+         *    should always be called separately, from within "createContextual()".
+         *    But this is a very singular deserializer since it operates on `Object`
+         *    (and often for `?` type parameter), and as a result, easily and commonly
+         *    results in cycles, being value deserializer for various Maps and Collections.
+         *    Because of this, we must somehow break the cycles. This is done here by
+         *    forcing pseudo-contextualization with null property.
+         */
+
+        // So: first find possible custom instances
+        if (_listType == null) {
+            _listDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructCollectionType(List.class, obType)));
+        } else {
+            // NOTE: if non-default List type, always consider to be non-standard deser
+            _listDeserializer = _findCustomDeser(ctxt, _listType);
+        }
+        if (_mapType == null) {
+            _mapDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructMapType(Map.class, stringType, obType)));
+        } else {
+            // NOTE: if non-default Map type, always consider to be non-standard deser
+            _mapDeserializer = _findCustomDeser(ctxt, _mapType);
+        }
+        _stringDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, stringType));
+        _numberDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructType(Number.class)));
+
+        // and then do bogus contextualization, in case custom ones need to resolve dependencies of
+        // their own
+        JavaType unknown = TypeFactory.unknownType();
+        _mapDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_mapDeserializer, null, unknown);
+        _listDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_listDeserializer, null, unknown);
+        _stringDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_stringDeserializer, null, unknown);
+        _numberDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_numberDeserializer, null, unknown);
     }
 
-    @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
         throws JsonMappingException
     {
-        // NOTE: since we don't yet have the referring property, this should be fine:
-        JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(type);
-        if (ClassUtil.isJacksonStdImpl(deser)) {
-            return null;
-        }
-        return (JsonDeserializer<Object>) deser;
+        // Since we are calling from `resolve`, we should NOT try to contextualize yet;
+        // contextualization will only occur at a later point
+        return ctxt.findNonContextualValueDeserializer(type);
     }
-    
+
+    protected JsonDeserializer<Object> _clearIfStdImpl(JsonDeserializer<Object> deser) {
+        return ClassUtil.isJacksonStdImpl(deser) ? null : deser;
+    }
+
+    /**
+     * We only use contextualization for optimizing the case where no customization
+     * occurred; if so, can slip in a more streamlined version.
+     */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
@@ -119,32 +180,6 @@ public class UntypedObjectDeserializer
                 && (_mapDeserializer == null) && (_listDeserializer == null)
                 &&  getClass() == UntypedObjectDeserializer.class) {
             return Vanilla.std;
-        }
-        JsonDeserializer<?> mapDeserializer = _mapDeserializer;
-        if (mapDeserializer instanceof ContextualDeserializer) {
-            mapDeserializer = ((ContextualDeserializer)mapDeserializer).createContextual(ctxt, property);
-        }
-        JsonDeserializer<?> listDeserializer = _listDeserializer;
-        if (listDeserializer instanceof ContextualDeserializer) {
-            listDeserializer = ((ContextualDeserializer)listDeserializer).createContextual(ctxt, property);
-        }
-        JsonDeserializer<?> stringDeserializer = _stringDeserializer;
-        if (stringDeserializer instanceof ContextualDeserializer) {
-            stringDeserializer = ((ContextualDeserializer)stringDeserializer).createContextual(ctxt, property);
-        }
-        JsonDeserializer<?> numberDeserializer = _numberDeserializer;
-        if (numberDeserializer instanceof ContextualDeserializer) {
-            numberDeserializer = ((ContextualDeserializer)numberDeserializer).createContextual(ctxt, property);
-        }
-
-        // And if anything changed, we'll need to change too!
-        if ((mapDeserializer != _mapDeserializer)
-                || (listDeserializer != _listDeserializer)
-                || (stringDeserializer != _stringDeserializer)
-                || (numberDeserializer != _numberDeserializer)
-                ) {
-            return _withResolved(mapDeserializer, listDeserializer,
-                    stringDeserializer, numberDeserializer);
         }
         return this;
     }
@@ -161,131 +196,144 @@ public class UntypedObjectDeserializer
     /* Deserializer API
     /**********************************************************
      */
-    
+
+    /* 07-Nov-2014, tatu: When investigating [databind#604], realized that it makes
+     *   sense to also mark this is cachable, since lookup not exactly free, and
+     *   since it's not uncommon to "read anything"
+     */
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public boolean isCachable() {
+        /* 26-Mar-2015, tatu: With respect to [databind#735], there are concerns over
+         *   cachability. It seems like we SHOULD be safe here; but just in case there
+         *   are problems with false sharing, this may need to be revisited.
+         */
+        return true;
+    }
+
+    @Override
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (jp.getCurrentToken()) {
-        case FIELD_NAME:
-        case START_OBJECT:
+        switch (p.getCurrentTokenId()) {
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
             if (_mapDeserializer != null) {
-                return _mapDeserializer.deserialize(jp, ctxt);
+                return _mapDeserializer.deserialize(p, ctxt);
             }
-            return mapObject(jp, ctxt);
-        case START_ARRAY:
+            return mapObject(p, ctxt);
+        case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                return mapArrayToArray(jp, ctxt);
+                return mapArrayToArray(p, ctxt);
             }
             if (_listDeserializer != null) {
-                return _listDeserializer.deserialize(jp, ctxt);
+                return _listDeserializer.deserialize(p, ctxt);
             }
-            return mapArray(jp, ctxt);
-        case VALUE_EMBEDDED_OBJECT:
-            return jp.getEmbeddedObject();
-        case VALUE_STRING:
+            return mapArray(p, ctxt);
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
+            return p.getEmbeddedObject();
+        case JsonTokenId.ID_STRING:
             if (_stringDeserializer != null) {
-                return _stringDeserializer.deserialize(jp, ctxt);
+                return _stringDeserializer.deserialize(p, ctxt);
             }
-            return jp.getText();
+            return p.getText();
 
-        case VALUE_NUMBER_INT:
+        case JsonTokenId.ID_NUMBER_INT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             /* [JACKSON-100]: caller may want to get all integral values
              * returned as BigInteger, for consistency
              */
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                return jp.getBigIntegerValue(); // should be optimal, whatever it is
+                return p.getBigIntegerValue(); // should be optimal, whatever it is
             }
-            return jp.getNumberValue(); // should be optimal, whatever it is
+            return p.getNumberValue(); // should be optimal, whatever it is
 
-        case VALUE_NUMBER_FLOAT:
+        case JsonTokenId.ID_NUMBER_FLOAT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             /* [JACKSON-72]: need to allow overriding the behavior regarding
              *   which type to use
              */
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return jp.getDecimalValue();
+                return p.getDecimalValue();
             }
-            return Double.valueOf(jp.getDoubleValue());
+            return p.getDoubleValue();
 
-        case VALUE_TRUE:
+        case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
-        case VALUE_FALSE:
+        case JsonTokenId.ID_FALSE:
             return Boolean.FALSE;
 
-        case VALUE_NULL: // should not get this but...
+        case JsonTokenId.ID_NULL: // should not get this but...
             return null;
 
-        case END_ARRAY: // invalid
-        case END_OBJECT: // invalid
+//        case JsonTokenId.ID_END_ARRAY: // invalid
+//        case JsonTokenId.ID_END_OBJECT: // invalid
         default:
-            throw ctxt.mappingException(Object.class);
         }
+        throw ctxt.mappingException(Object.class);
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
-        switch (t) {
+        switch (p.getCurrentTokenId()) {
         // First: does it look like we had type id wrapping of some kind?
-        case START_ARRAY:
-        case START_OBJECT:
-        case FIELD_NAME:
+        case JsonTokenId.ID_START_ARRAY:
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
             /* Output can be as JSON Object, Array or scalar: no way to know
              * a this point:
              */
-            return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+            return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
+            return p.getEmbeddedObject();
+            
         /* Otherwise we probably got a "native" type (ones that map
          * naturally and thus do not need or use type ids)
          */
-        case VALUE_STRING:
+        case JsonTokenId.ID_STRING:
             if (_stringDeserializer != null) {
-                return _stringDeserializer.deserialize(jp, ctxt);
+                return _stringDeserializer.deserialize(p, ctxt);
             }
-            return jp.getText();
+            return p.getText();
 
-        case VALUE_NUMBER_INT:
+        case JsonTokenId.ID_NUMBER_INT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             // For [JACKSON-100], see above:
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                return jp.getBigIntegerValue();
+                return p.getBigIntegerValue();
             }
             /* and as per [JACKSON-839], allow "upgrade" to bigger types: out-of-range
              * entries can not be produced without type, so this should "just work",
              * even if it is bit unclean
              */
-            return jp.getNumberValue();
+            return p.getNumberValue();
 
-        case VALUE_NUMBER_FLOAT:
+        case JsonTokenId.ID_NUMBER_FLOAT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             // For [JACKSON-72], see above
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return jp.getDecimalValue();
+                return p.getDecimalValue();
             }
-            return Double.valueOf(jp.getDoubleValue());
+            return Double.valueOf(p.getDoubleValue());
 
-        case VALUE_TRUE:
+        case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
-        case VALUE_FALSE:
+        case JsonTokenId.ID_FALSE:
             return Boolean.FALSE;
-        case VALUE_EMBEDDED_OBJECT:
-            return jp.getEmbeddedObject();
 
-        case VALUE_NULL: // should not get this far really but...
+        case JsonTokenId.ID_NULL: // should not get this far really but...
             return null;
         default:
-            throw ctxt.mappingException(Object.class);
         }
+        throw ctxt.mappingException(Object.class);
     }
 
     /*
@@ -340,43 +388,60 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Object into a Java value.
      */
-    protected Object mapObject(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        String key1;
+
+        JsonToken t = p.getCurrentToken();
+        
         if (t == JsonToken.START_OBJECT) {
-            t = jp.nextToken();
+            key1 = p.nextFieldName();
+        } else if (t == JsonToken.FIELD_NAME) {
+            key1 = p.getCurrentName();
+        } else {
+            if (t != JsonToken.END_OBJECT) {
+                throw ctxt.mappingException(handledType(), p.getCurrentToken());
+            }
+            key1 = null;
         }
+
         // minor optimization; let's handle 1 and 2 entry cases separately
-        if (t == JsonToken.END_OBJECT) { // and empty one too
+        if (key1 == null) {
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<String,Object>(2);
         }
-        String field1 = jp.getCurrentName();
-        jp.nextToken();
-        Object value1 = deserialize(jp, ctxt);
-        if (jp.nextToken() == JsonToken.END_OBJECT) { // single entry; but we want modifiable
+        // 24-Mar-2015, tatu: Ideally, could use one of 'nextXxx()' methods, but for
+        //   that we'd need new method(s) in JsonDeserializer. So not quite yet.
+        p.nextToken();
+        Object value1 = deserialize(p, ctxt);
+
+        String key2 = p.nextFieldName();
+        if (key2 == null) { // has to be END_OBJECT, then
+            // single entry; but we want modifiable
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
-            result.put(field1, value1);
+            result.put(key1, value1);
             return result;
         }
-        String field2 = jp.getCurrentName();
-        jp.nextToken();
-        Object value2 = deserialize(jp, ctxt);
-        if (jp.nextToken() == JsonToken.END_OBJECT) {
+        p.nextToken();
+        Object value2 = deserialize(p, ctxt);
+
+        String key = p.nextFieldName();
+
+        if (key == null) {
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
-            result.put(field1, value1);
-            result.put(field2, value2);
+            result.put(key1, value1);
+            result.put(key2, value2);
             return result;
         }
         // And then the general case; default map size is 16
         LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
-        result.put(field1, value1);
-        result.put(field2, value2);
+        result.put(key1, value1);
+        result.put(key2, value2);
+
         do {
-            String fieldName = jp.getCurrentName();
-            jp.nextToken();
-            result.put(fieldName, deserialize(jp, ctxt));
-        } while (jp.nextToken() != JsonToken.END_OBJECT);
+            p.nextToken();
+            result.put(key, deserialize(p, ctxt));
+        } while ((key = p.nextFieldName()) != null);
         return result;
     }
 
@@ -556,35 +621,37 @@ public class UntypedObjectDeserializer
         /**
          * Method called to map a JSON Object into a Java value.
          */
-        protected Object mapObject(JsonParser jp, DeserializationContext ctxt) throws IOException
+        protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             // will point to FIELD_NAME at this point, guaranteed
-            String field1 = jp.getText();
-            jp.nextToken();
-            Object value1 = deserialize(jp, ctxt);
-            if (jp.nextToken() == JsonToken.END_OBJECT) { // single entry; but we want modifiable
+            String key1 = p.getText();
+            p.nextToken();
+            Object value1 = deserialize(p, ctxt);
+
+            String key2 = p.nextFieldName();
+            if (key2 == null) { // single entry; but we want modifiable
                 LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
-                result.put(field1, value1);
+                result.put(key1, value1);
                 return result;
             }
-            String field2 = jp.getText();
-            jp.nextToken();
-            Object value2 = deserialize(jp, ctxt);
-            if (jp.nextToken() == JsonToken.END_OBJECT) {
+            p.nextToken();
+            Object value2 = deserialize(p, ctxt);
+
+            String key = p.nextFieldName();
+            if (key == null) {
                 LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
-                result.put(field1, value1);
-                result.put(field2, value2);
+                result.put(key1, value1);
+                result.put(key2, value2);
                 return result;
             }
             // And then the general case; default map size is 16
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
-            result.put(field1, value1);
-            result.put(field2, value2);
+            result.put(key1, value1);
+            result.put(key2, value2);
             do {
-                String fieldName = jp.getText();
-                jp.nextToken();
-                result.put(fieldName, deserialize(jp, ctxt));
-            } while (jp.nextToken() != JsonToken.END_OBJECT);
+                p.nextToken();
+                result.put(key, deserialize(p, ctxt));
+            } while ((key = p.nextFieldName()) != null);
             return result;
         }
 

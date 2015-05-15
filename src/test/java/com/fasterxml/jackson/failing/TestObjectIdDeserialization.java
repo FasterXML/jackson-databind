@@ -7,7 +7,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
+import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
 
 /**
@@ -55,9 +55,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     /*****************************************************
      */
 
-
-    public void testForwardReferenceInArray()
-        throws Exception
+    public void testForwardReferenceInArray() throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
@@ -72,8 +70,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     // Do a specific test for ArrayBlockingQueue since it has its own deser.
-    public void testForwardReferenceInQueue()
-        throws Exception
+    public void testForwardReferenceInQueue() throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"

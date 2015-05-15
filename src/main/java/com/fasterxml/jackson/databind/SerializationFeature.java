@@ -20,7 +20,7 @@ public enum SerializationFeature implements ConfigFeature
     /* Generic output features
     /******************************************************
      */
-    
+
     /**
      * Feature that can be enabled to make root value (usually JSON
      * Object but can be any type) wrapped within a single property
@@ -37,30 +37,23 @@ public enum SerializationFeature implements ConfigFeature
     /**
      * Feature that allows enabling (or disabling) indentation
      * for the underlying generator, using the default pretty
-     * printer (see
-     * {@link com.fasterxml.jackson.core.JsonGenerator#useDefaultPrettyPrinter}
-     * for details).
+     * printer configured for {@link ObjectMapper} (and
+     * {@link ObjectWriter}s created from mapper).
      *<p>
-     * Note that this only affects cases where
-     * {@link com.fasterxml.jackson.core.JsonGenerator}
-     * is constructed implicitly by ObjectMapper: if explicit
-     * generator is passed, its configuration is not changed.
+     * Note that the default pretty printer is only used if
+     * no explicit {@link com.fasterxml.jackson.core.PrettyPrinter} has been configured
+     * for the generator or {@link ObjectWriter}.
      *<p>
-     * Also note that if you want to configure details of indentation,
-     * you need to directly configure the generator: there is a
-     * method to use any <code>PrettyPrinter</code> instance.
-     * This feature will only allow using the default implementation.
-     *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default.
      */
     INDENT_OUTPUT(false),
-    
+
     /*
     /******************************************************
     /* Error handling features
     /******************************************************
      */
-    
+
     /**
      * Feature that determines what happens when no accessors are
      * found for a type (and there are no annotations to indicate
@@ -89,7 +82,7 @@ public enum SerializationFeature implements ConfigFeature
      * @since 2.4
      */
     FAIL_ON_SELF_REFERENCES(true),
-    
+
     /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
@@ -128,12 +121,12 @@ public enum SerializationFeature implements ConfigFeature
     /* Output life cycle features
     /******************************************************
      */
-    
+
      /**
       * Feature that determines whether <code>close</code> method of
       * serialized <b>root level</b> objects (ones for which <code>ObjectMapper</code>'s
       * writeValue() (or equivalent) method is called)
-      * that implement {@link java.io.Closeable} 
+      * that implement {@link java.io.Closeable}
       * is called after serialization or not. If enabled, <b>close()</b> will
       * be called after serialization completes (whether succesfully, or
       * due to an error manifested by an exception being thrown). You can
@@ -160,7 +153,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     FLUSH_AFTER_WRITE_VALUE(true),
-     
+
     /*
     /******************************************************
     /* Datatype-specific serialization configuration
@@ -186,9 +179,27 @@ public enum SerializationFeature implements ConfigFeature
      * Note: whether {@link java.util.Map} keys are serialized as Strings
      * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default, so that date/time are by default
+     * serialized as timestamps.
      */
     WRITE_DATES_AS_TIMESTAMPS(true),
+
+    /**
+     * Feature that determines whether time values that represents time periods
+     * (durations, periods, ranges) are to be serialized by default using
+     * a numeric (true) or textual (false) representations. Note that numeric
+     * representation may mean either simple number, or an array of numbers,
+     * depending on type.
+     *<p>
+     * Note: whether {@link java.util.Map} keys are serialized as Strings
+     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
+     *<p>
+     * Feature is enabled by default, so that period/duration are by default
+     * serialized as timestamps.
+     * 
+     * @since 2.5
+     */
+    WRITE_DURATIONS_AS_TIMESTAMPS(true),
 
     /**
      * Feature that determines whether {@link java.util.Date}s
@@ -239,7 +250,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     WRITE_ENUMS_USING_INDEX(false),
-    
+
     /**
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).
@@ -262,7 +273,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     WRITE_EMPTY_JSON_ARRAYS(true),
-    
+
     /**
      * Feature added for interoperability, to work with oddities of
      * so-called "BadgerFish" convention.
@@ -298,9 +309,13 @@ public enum SerializationFeature implements ConfigFeature
      * support it.
      *<p>
      * Feature is disabled by default.
+     * 
+     * @deprecated Since 2.5: use {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} directly
+     *    (using {@link ObjectWriter#with(com.fasterxml.jackson.core.JsonGenerator.Feature)}).
      */
+    @Deprecated // since 2.5
     WRITE_BIGDECIMAL_AS_PLAIN(false),
-    
+
     /**
      * Feature that controls whether numeric timestamp values are
      * to be written using nanosecond timestamps (enabled) or not (disabled);
@@ -313,11 +328,11 @@ public enum SerializationFeature implements ConfigFeature
      * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
-     * 
+     *
      * @since 2.2
      */
-    WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(true),    
-    
+    WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
+
     /**
      * Feature that determines whether {@link java.util.Map} entries are first
      * sorted by key before serialization or not: if enabled, additional sorting
@@ -345,7 +360,7 @@ public enum SerializationFeature implements ConfigFeature
      * feature: only consider that if there are actual perceived problems.
      *<p>
      * Feature is enabled by default.
-     * 
+     *
      * @since 2.1
      */
     EAGER_SERIALIZER_FETCH(true),
@@ -358,21 +373,29 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default; meaning that strict identity is used, not
      * <code>equals()</code>
-     * 
+     *
      * @since 2.3
      */
     USE_EQUALITY_FOR_OBJECT_ID(false)
     ;
 
     private final boolean _defaultState;
+    private final int _mask;
     
     private SerializationFeature(boolean defaultState) {
         _defaultState = defaultState;
+        _mask = (1 << ordinal());
     }
 
     @Override
     public boolean enabledByDefault() { return _defaultState; }
 
+
     @Override
-    public int getMask() { return (1 << ordinal()); }
+    public int getMask() { return _mask; }
+
+    /**
+     * @since 2.5
+     */
+    public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 }

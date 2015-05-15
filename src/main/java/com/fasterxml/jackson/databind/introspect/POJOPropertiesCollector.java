@@ -20,7 +20,7 @@ public class POJOPropertiesCollector
     /* Configuration
     /**********************************************************
      */
-    
+
     /**
      * Configuration settings
      */
@@ -28,10 +28,15 @@ public class POJOPropertiesCollector
 
     /**
      * True if introspection is done for serialization (giving
-     *   precedence for serialization annotations), or not (false, deserialization)
+     * precedence for serialization annotations), or not (false, deserialization)
      */
     protected final boolean _forSerialization;
-    
+
+    /**
+     * @since 2.5
+     */
+    protected final boolean _stdBeanNaming;
+
     /**
      * Type of POJO for which properties are being collected.
      */
@@ -99,6 +104,7 @@ public class POJOPropertiesCollector
             JavaType type, AnnotatedClass classDef, String mutatorPrefix)
     {
         _config = config;
+        _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
@@ -380,13 +386,14 @@ public class POJOPropertiesCollector
          *   (although, maybe surprisingly, JVM _can_ force setting of such fields!)
          */
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
+        final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
         
         for (AnnotatedField f : _classDef.fields()) {
             String implName = (ai == null) ? null : ai.findImplicitPropertyName(f);
             if (implName == null) {
                 implName = f.getName();
             }
-            
+
             PropertyName pn;
 
             if (ai == null) {
@@ -414,7 +421,15 @@ public class POJOPropertiesCollector
             }
             // and finally, may also have explicit ignoral
             boolean ignored = (ai != null) && ai.hasIgnoreMarker(f);
-            /* [Issue#190]: this is the place to prune final fields, if they are not
+
+            // 13-May-2015, tatu: Moved from earlier place (AnnotatedClass) in 2.6
+            if (f.isTransient()) {
+                visible = false;
+                if (transientAsIgnoral) {
+                    ignored = true;
+                }
+            }
+            /* [databind#190]: this is the place to prune final fields, if they are not
              *  to be used as mutators. Must verify they are not explicitly included.
              *  Also: if 'ignored' is set, need to included until a later point, to
              *  avoid losing ignoral information.
@@ -457,7 +472,7 @@ public class POJOPropertiesCollector
      */
     protected void _addCreatorParam(AnnotatedParameter param)
     {
-        // JDK 8, paranamer can give implicit name
+        // JDK 8, paranamer, Scala can give implicit name
         String impl = _annotationIntrospector.findImplicitPropertyName(param);
         if (impl == null) {
             impl = "";
@@ -467,28 +482,27 @@ public class POJOPropertiesCollector
         if (!expl) {
             if (impl.isEmpty()) {
                 /* Important: if neither implicit nor explicit name, can not make use
-                 * of this creator paramter -- may or may not be a problem, verified
+                 * of this creator parameter -- may or may not be a problem, verified
                  * at a later point.
                  */
                 return;
             }
-            pn = new PropertyName(impl);
+            // Also: if this occurs, there MUST be explicit annotation on creator itself
+            if (!_annotationIntrospector.hasCreatorAnnotation(param.getOwner())) {
+                return;
+            }
+            pn = PropertyName.construct(impl);
         }
 
         // shouldn't need to worry about @JsonIgnore, since creators only added
         // if so annotated
 
-        /* 14-Apr-2014, tatu: Not ideal, since we should not start with explicit name, ever;
-         *   but with current set up we also can not just use empty name.
-         *   This will cause failure for [#323] until we figure out a better way to handle
-         *   the problem; possibly by creating a placeholder container for "anonymous"
-         *   creator parameters.
+        /* 13-May-2015, tatu: We should try to start with implicit name, similar to how
+         *   fields and methods work; but unlike those, we don't necessarily have
+         *   implicit name to use (pre-Java8 at least). So:
          */
-        POJOPropertyBuilder prop = expl ?  _property(pn) : _property(impl);
-        // should use this (or similar) instead:
-//        POJOPropertyBuilder prop = _property(impl);
+        POJOPropertyBuilder prop = (expl && impl.isEmpty()) ?  _property(pn) : _property(impl);
         prop.addCtor(param, pn, expl, true, false);
-
         _creatorProperties.add(prop);
     }
     
@@ -555,10 +569,10 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must consider implicit
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+                implName = BeanUtil.okNameForRegularGetter(m, m.getName(), _stdBeanNaming);
             }
             if (implName == null) { // if not, must skip
-                implName = BeanUtil.okNameForIsGetter(m, m.getName());
+                implName = BeanUtil.okNameForIsGetter(m, m.getName(), _stdBeanNaming);
                 if (implName == null) {
                     return;
                 }
@@ -570,7 +584,7 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForGetter(m);
+                implName = BeanUtil.okNameForGetter(m, _stdBeanNaming);
             }
             // if not regular getter name, use method name as is
             if (implName == null) {
@@ -596,7 +610,7 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix, _stdBeanNaming);
             }
             if (implName == null) { // if not, must skip
             	return;
@@ -606,7 +620,7 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix, _stdBeanNaming);
             }
             // if not regular getter name, use method name as is
             if (implName == null) {
@@ -735,6 +749,7 @@ public class POJOPropertiesCollector
             POJOPropertyBuilder prop = entry.getValue();
 
             Collection<PropertyName> l = prop.findExplicitNames();
+
             // no explicit names? Implicit one is fine as is
             if (l.isEmpty()) {
                 continue;
@@ -897,7 +912,7 @@ public class POJOPropertiesCollector
     {
         POJOPropertyBuilder prop = _properties.get(implName);
         if (prop == null) {
-            prop = new POJOPropertyBuilder(new PropertyName(implName),
+            prop = new POJOPropertyBuilder(PropertyName.construct(implName),
                     _annotationIntrospector, _forSerialization);
             _properties.put(implName, prop);
         }

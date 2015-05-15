@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  * Intermediate base class for Lists, Collections and Arrays
  * that contain static (non-dynamic) value types.
  */
+@SuppressWarnings("serial")
 public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
 {
@@ -18,8 +19,14 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         super(cls, false);
     }
 
+    @Deprecated // since 2.5
     @Override
     public boolean isEmpty(T value) {
+        return isEmpty(null, value);
+    }
+
+    @Override
+    public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null) || (value.size() == 0);
     }
     

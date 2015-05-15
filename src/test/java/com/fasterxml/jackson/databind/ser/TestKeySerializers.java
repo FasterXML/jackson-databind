@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class TestKeySerializers extends BaseMapTest
 {
@@ -31,6 +33,25 @@ public class TestKeySerializers extends BaseMapTest
         public Map<String,Integer> map = new HashMap<String,Integer>();
         {
             map.put("Not Karl", 1);
+        }
+    }
+
+    enum ABC {
+        A, B, C
+    }
+
+    static class ABCSerializer extends JsonSerializer<ABC> {
+        @Override
+        public void serialize(ABC value, JsonGenerator jgen,
+                SerializerProvider provider) throws IOException {
+            jgen.writeFieldName("xxx"+value);
+        }
+    }
+
+    static class ABCMapWrapper {
+        public Map<ABC,String> stuff = new HashMap<ABC,String>();
+        public ABCMapWrapper() {
+            stuff.put(ABC.B, "bar");
         }
     }
 
@@ -60,5 +81,17 @@ public class TestKeySerializers extends BaseMapTest
         assertEquals("{\"map\":{\"Not Karl\":1}}", value1);
         final String value2 = mapper.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", value2);
+    }
+
+    // Test custom key serializer for enum
+    public void testCustomForEnum() throws IOException
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        SimpleModule mod = new SimpleModule("test");
+        mod.addKeySerializer(ABC.class, new ABCSerializer());
+        mapper.registerModule(mod);
+
+        String json = mapper.writeValueAsString(new ABCMapWrapper());
+        assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
 }

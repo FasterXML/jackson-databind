@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.databind.JavaType;
  * implemented by {@link TypeBindings} class.
  */
 public class TestTypeBindings
-    extends com.fasterxml.jackson.test.BaseTest
+    extends BaseMapTest
 {    
     static class AbstractType<A,B> { }
     
@@ -44,8 +45,8 @@ public class TestTypeBindings
         TypeBindings b = new TypeBindings(tf, AbstractType.class);
         assertEquals(2, b.getBindingCount());
         JavaType obType = tf.constructType(Object.class);
-        assertEquals(obType, b.findType("A"));
-        assertEquals(obType, b.findType("B"));
+        assertEquals(obType, b.findType("A", true));
+        assertEquals(obType, b.findType("B", true));
     }
 
     public void testSimple() throws Exception
@@ -54,8 +55,8 @@ public class TestTypeBindings
         // concrete class does have bindings however
         TypeBindings b = new TypeBindings(tf, LongStringType.class);
         assertEquals(2, b.getBindingCount());
-        assertEquals(tf.constructType(Long.class), b.findType("A"));
-        assertEquals(tf.constructType(String.class), b.findType("B"));
+        assertEquals(tf.constructType(Long.class), b.findType("A", true));
+        assertEquals(tf.constructType(String.class), b.findType("B", true));
     }
 
 

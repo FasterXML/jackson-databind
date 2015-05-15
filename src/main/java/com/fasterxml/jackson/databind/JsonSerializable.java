@@ -15,9 +15,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * so -- if class is a bean, it can be serialized without
  * implementing this interface.
  *<p>
- * NOTE: Jackson 2.0 added another method (from former "JsonSerializableWithType"),
- * which is required for proper handling of case where additional type information
- * is needed.
+ * Note that while it is possible to just directly implement {@link JsonSerializable},
+ * actual implementations are strongly recommended to instead extend
+ * {@link JsonSerializable.Base}.
  */
 public interface JsonSerializable
 {
@@ -25,8 +25,7 @@ public interface JsonSerializable
      * Serialization method called when no additional type information is
      * to be included in serialization.
      */
-    public void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException;
+    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException;
 
     /**
      * Serialization method called when additional type information is
@@ -43,7 +42,25 @@ public interface JsonSerializable
      * Note that some types (most notably, "natural" types: String, Integer,
      * Double and Boolean) never include type information.
      */
-    public void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonProcessingException;
+    public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
+            TypeSerializer typeSer) throws IOException;
+
+    /**
+     * Base class with minimal implementation, as well as couple of extension methods
+     * that core Jackson databinding makes use of.
+     * Use of this base class is strongly recommended over directly implementing
+     * {@link JsonSerializable}.
+     *
+     * @since 2.6
+     */
+    public abstract static class Base implements JsonSerializable
+    {
+        /**
+         * Method that may be called on instance to determine if it is considered
+         * "empty" for purposes of serialization filtering or not.
+         */
+        public boolean isEmpty(SerializerProvider serializers) {
+            return false;
+        }
+    }
 }

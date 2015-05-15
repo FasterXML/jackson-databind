@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JavaType;
  */
 public class CollectionLikeType extends TypeBase
 {
-    private static final long serialVersionUID = 4611641304150899138L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Type of elements in collection
@@ -133,6 +133,13 @@ public class CollectionLikeType extends TypeBase
         return null;
     }
 
+    // TODO: should allow construction of instances that do refer
+    //  to parameterization, since it is NOT Collection
+    @Override
+    public Class<?> getParameterSource() {
+        return null;
+    }
+    
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);

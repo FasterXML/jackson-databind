@@ -45,7 +45,6 @@ public class TestJdkTypes extends BaseMapTest
         public Double doubleValue;
     }
 
-    
     static class ParamClassBean
     {
          public String name = "bar";
@@ -76,7 +75,7 @@ public class TestJdkTypes extends BaseMapTest
 
         @JsonProperty("Location")
         @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
-        private StackTraceElement location;    
+        protected StackTraceElement location;    
     }
 
     @SuppressWarnings("serial")
@@ -420,6 +419,12 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(0, result.remaining());
     }
 
+    public void testStringBuilder() throws Exception
+    {
+        StringBuilder sb = MAPPER.readValue(quote("abc"), StringBuilder.class);
+        assertEquals("abc", sb.toString());
+    }
+    
     // [Issue#429]
     public void testStackTraceElementWithCustom() throws Exception
     {

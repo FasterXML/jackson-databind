@@ -1,15 +1,16 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +59,17 @@ public class ObjectNode
             ret._children.put(entry.getKey(), entry.getValue().deepCopy());
 
         return ret;
+    }
+
+    /*
+    /**********************************************************
+    /* Overrides for JsonSerializable.Base
+    /**********************************************************
+     */
+
+    @Override
+    public boolean isEmpty(SerializerProvider serializers) {
+        return _children.isEmpty();
     }
 
     /*
@@ -172,7 +184,31 @@ public class ObjectNode
         _children.put(propertyName, result);
         return result;
     }
-    
+
+    @Override
+    public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
+    {
+        if (!(o instanceof ObjectNode)) {
+            return false;
+        }
+        ObjectNode other = (ObjectNode) o;
+        Map<String, JsonNode> m1 = _children;
+        Map<String, JsonNode> m2 = other._children;
+
+        final int len = m1.size();
+        if (m2.size() != len) {
+            return false;
+        }
+
+        for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
+            JsonNode v2 = m2.get(entry.getKey());
+            if ((v2 == null) || comparator.compare(entry.getValue(), v2) != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /*
     /**********************************************************
     /* Public API, finding value nodes
@@ -589,6 +625,13 @@ public class ObjectNode
     }
 
     /**
+     * @since 2.6
+     */
+    public ObjectNode putRawValue(String fieldName, RawValue raw) {
+        return _put(fieldName, rawValueNode(raw));
+    }
+    
+    /**
      * @return This node (to allow chaining)
      */
     public ObjectNode putNull(String fieldName)
@@ -619,6 +662,10 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified numeric value.
+     * The underlying {@link JsonNode} that will be added is constructed
+     * using {@link JsonNodeFactory#numberNode(int)}, and may be
+     *  "smaller" (like {@link ShortNode}) in cases where value fits within
+     *  range of a smaller integral numeric value.
      * 
      * @return This node (to allow chaining)
      */
@@ -639,6 +686,10 @@ public class ObjectNode
     
     /**
      * Method for setting value of a field to specified numeric value.
+     * The underlying {@link JsonNode} that will be added is constructed
+     * using {@link JsonNodeFactory#numberNode(long)}, and may be
+     *  "smaller" (like {@link IntNode}) in cases where value fits within
+     *  range of a smaller integral numeric value.
      * 
      * @return This node (to allow chaining)
      */
@@ -647,8 +698,14 @@ public class ObjectNode
     }
 
     /**
-     * Alternative method that we need to avoid bumping into NPE issues
-     * with auto-unboxing.
+     * Method for setting value of a field to specified numeric value.
+     * The underlying {@link JsonNode} that will be added is constructed
+     * using {@link JsonNodeFactory#numberNode(Long)}, and may be
+     *  "smaller" (like {@link IntNode}) in cases where value fits within
+     *  range of a smaller integral numeric value.
+     * <p>
+     * Note that this is alternative to {@link #put(String, long)} needed to avoid
+     * bumping into NPE issues with auto-unboxing.
      * 
      * @return This node (to allow chaining)
      */

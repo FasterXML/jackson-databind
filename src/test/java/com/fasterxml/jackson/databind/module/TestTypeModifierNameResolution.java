@@ -1,17 +1,16 @@
 package com.fasterxml.jackson.databind.module;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
-import com.fasterxml.jackson.test.BaseTest;
 
 import java.lang.reflect.Type;
 
-public class TestTypeModifierNameResolution extends BaseTest {
-
+public class TestTypeModifierNameResolution extends BaseMapTest
+{
 	interface MyType {
 		String getData();
 		void setData(String data);
@@ -49,7 +48,7 @@ public class TestTypeModifierNameResolution extends BaseTest {
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new CustomTypeModifier()));
-		mapper.addMixInAnnotations(MyType.class, Mixin.class);
+		mapper.addMixIn(MyType.class, Mixin.class);
 
 		MyType obj = new MyTypeImpl();
 		obj.setData("something");

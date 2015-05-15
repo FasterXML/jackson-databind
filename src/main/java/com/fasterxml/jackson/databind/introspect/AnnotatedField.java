@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -15,7 +16,7 @@ public final class AnnotatedField
     extends AnnotatedMember
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 7364428299211355871L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Actual {@link Field} used for access.
@@ -29,22 +30,22 @@ public final class AnnotatedField
      * Temporary field required for JDK serialization support
      */
     protected Serialization _serialization;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    public AnnotatedField(Field field, AnnotationMap annMap)
+    public AnnotatedField(AnnotatedClass contextClass, Field field, AnnotationMap annMap)
     {
-        super(annMap);
+        super(contextClass, annMap);
         _field = field;
     }
     
     @Override
     public AnnotatedField withAnnotations(AnnotationMap ann) {
-        return new AnnotatedField(_field, ann);
+        return new AnnotatedField(_context, _field, ann);
     }
 
     /**
@@ -52,7 +53,7 @@ public final class AnnotatedField
      */
     protected AnnotatedField(Serialization ser)
     {
-        super(null);
+        super(null, null);
         _field = null;
         _serialization = ser;
     }
@@ -73,8 +74,7 @@ public final class AnnotatedField
     public String getName() { return _field.getName(); }
 
     @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls)
-    {
+    public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return (_annotations == null) ? null : _annotations.get(acls);
     }
 
@@ -134,9 +134,25 @@ public final class AnnotatedField
 
     public int getAnnotationCount() { return _annotations.size(); }
 
+    /**
+     * @since 2.6
+     */
+    public boolean isTransient() { return Modifier.isTransient(getModifiers()); }
+    
     @Override
-    public String toString()
-    {
+    public int hashCode() {
+        return _field.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedField) o)._field == _field;
+    }
+
+    @Override
+    public String toString() {
         return "[field "+getFullName()+"]";
     }
 
@@ -158,7 +174,7 @@ public final class AnnotatedField
             if (!f.isAccessible()) {
                 ClassUtil.checkAndFixAccess(f);
             }
-            return new AnnotatedField(f, null);
+            return new AnnotatedField(null, f, null);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not find method '"+_serialization.name
                         +"' from Class '"+clazz.getName());

@@ -37,8 +37,7 @@ public final class SetterlessProperty
     protected final Method _getter;
 
     public SetterlessProperty(BeanPropertyDefinition propDef, JavaType type,
-            TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedMethod method)
-        {
+            TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedMethod method) {
         super(propDef, type, typeDeser, contextAnnotations);
         _annotated = method;
         _getter = method.getAnnotated();
@@ -98,6 +97,12 @@ public final class SetterlessProperty
             return;
         }
 
+        // For [#501] fix we need to implement this but:
+        if (_valueTypeDeserializer != null) {
+            throw new JsonMappingException("Problem deserializing 'setterless' property (\""+getName()+"\"): no way to handle typed deser with setterless yet");
+//            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
+        }
+        
         // Ok: then, need to fetch Collection/Map to modify:
         Object toModify;
         try {
@@ -119,25 +124,21 @@ public final class SetterlessProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    		DeserializationContext ctxt, Object instance) throws IOException, JsonProcessingException
     {
-    	deserializeAndSet(jp, ctxt, instance);
-    	return instance;
+        deserializeAndSet(jp, ctxt, instance);
+        return instance;
     }
     
     @Override
-    public final void set(Object instance, Object value)
-        throws IOException
-    {
+    public final void set(Object instance, Object value) throws IOException {
         throw new UnsupportedOperationException("Should never call 'set' on setterless property");
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-            throws IOException
+    public Object setAndReturn(Object instance, Object value) throws IOException
     {
-    	set(instance, value);
-    	return null;
+        set(instance, value);
+        return null;
     }
 }

@@ -40,7 +40,7 @@ public class RootNameLookup implements java.io.Serializable
         // No answer so far? Let's just default to using simple class name
         if (name == null || !name.hasSimpleName()) {
             // Should we strip out enclosing class tho? For now, nope:
-            name = new PropertyName(rootType.getSimpleName());
+            name = PropertyName.construct(rootType.getSimpleName());
         }
         _rootNames.put(key, name);
         return name;

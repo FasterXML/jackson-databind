@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -20,7 +19,7 @@ public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 3479455075597887177L;
+    private static final long serialVersionUID = 1L; // since 2.5
 
     protected final JavaType _enumType;
 
@@ -55,7 +54,13 @@ public class EnumSetDeserializer
      * let's cache instances by default.
      */
     @Override
-    public boolean isCachable() { return true; }
+    public boolean isCachable() {
+        // One caveat: content deserializer should prevent caching
+        if (_enumType.getValueHandler() != null) {
+            return false;
+        }
+        return true;
+    }
     
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
@@ -65,7 +70,7 @@ public class EnumSetDeserializer
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_enumType, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleSecondaryContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property, _enumType);
         }
         return withDeserializer(deser);
     }
@@ -88,22 +93,26 @@ public class EnumSetDeserializer
         EnumSet result = constructSet();
         JsonToken t;
 
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            /* What to do with nulls? Fail or ignore? Fail, for now
-             * (note: would fail if we passed it to EnumDeserializer, too,
-             * but in general nulls should never be passed to non-container
-             * deserializers)
-             */
-            if (t == JsonToken.VALUE_NULL) {
-                throw ctxt.mappingException(_enumClass);
+        try {
+            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+                /* What to do with nulls? Fail or ignore? Fail, for now
+                 * (note: would fail if we passed it to EnumDeserializer, too,
+                 * but in general nulls should never be passed to non-container
+                 * deserializers)
+                 */
+                if (t == JsonToken.VALUE_NULL) {
+                    throw ctxt.mappingException(_enumClass);
+                }
+                Enum<?> value = _enumDeserializer.deserialize(jp, ctxt);
+                /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
+                 *    but EnumSets don't allow nulls so need to skip.
+                 */
+                if (value != null) { 
+                    result.add(value);
+                }
             }
-            Enum<?> value = _enumDeserializer.deserialize(jp, ctxt);
-            /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
-             *    but EnumSets don't allow nulls so need to skip.
-             */
-            if (value != null) { 
-                result.add(value);
-            }
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, result, result.size());
         }
         return result;
     }

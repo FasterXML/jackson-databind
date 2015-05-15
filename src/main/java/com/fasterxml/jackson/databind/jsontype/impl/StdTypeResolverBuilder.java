@@ -66,7 +66,6 @@ public class StdTypeResolverBuilder
         return this;
     }
 
-    @SuppressWarnings("incomplete-switch")
     @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
@@ -84,11 +83,19 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeSerializer(idRes, null,
                     _typeProperty);
+        case EXISTING_PROPERTY:
+        	// as per [#528]
+        	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
 
-    @SuppressWarnings("incomplete-switch")
+    // as per [#368]
+    // removed when fix [#528]
+    //private IllegalArgumentException _noExisting() {
+    //    return new IllegalArgumentException("Inclusion type "+_includeAs+" not yet supported");
+    //}
+
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
@@ -103,8 +110,9 @@ public class StdTypeResolverBuilder
             return new AsArrayTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, _defaultImpl);
         case PROPERTY:
+        case EXISTING_PROPERTY: // as per [#528] same class as PROPERTY
             return new AsPropertyTypeDeserializer(baseType, idRes,
-                    _typeProperty, _typeIdVisible, _defaultImpl);
+                    _typeProperty, _typeIdVisible, _defaultImpl, _includeAs);
         case WRAPPER_OBJECT:
             return new AsWrapperTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, _defaultImpl);

@@ -29,6 +29,8 @@ public class BeanDeserializerBuilder
 
     final protected boolean _defaultViewInclusion;
     
+    final protected boolean _caseInsensitivePropertyComparison;
+    
     /*
     /**********************************************************
     /* Accumulated information about properties
@@ -99,6 +101,7 @@ public class BeanDeserializerBuilder
     { 
         _beanDesc = beanDesc;
         _defaultViewInclusion = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        _caseInsensitivePropertyComparison = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
     }
 
     /**
@@ -109,6 +112,7 @@ public class BeanDeserializerBuilder
     {
         _beanDesc = src._beanDesc;
         _defaultViewInclusion = src._defaultViewInclusion;
+        _caseInsensitivePropertyComparison = src._caseInsensitivePropertyComparison;
 
         // let's make copy of properties
         _properties.putAll(src._properties);
@@ -180,14 +184,6 @@ public class BeanDeserializerBuilder
         //   For now, won't add, since it is inferred, not explicit...
     }
 
-    @Deprecated // since 2.3
-    public void addInjectable(String propName, JavaType propType,
-            Annotations contextAnnotations, AnnotatedMember member,
-            Object valueId)
-    {
-        addInjectable(new PropertyName(propName), propType, contextAnnotations, member, valueId);
-    }
-    
     public void addInjectable(PropertyName propName, JavaType propType,
             Annotations contextAnnotations, AnnotatedMember member,
             Object valueId)
@@ -269,40 +265,16 @@ public class BeanDeserializerBuilder
         return _properties.values().iterator();
     }
 
-    /**
-     * @since 2.3
-     */
     public SettableBeanProperty findProperty(PropertyName propertyName) {
         return _properties.get(propertyName.getSimpleName());
     }
 
-    @Deprecated // since 2.3
-    public SettableBeanProperty findProperty(String propertyName) {
-        return _properties.get(propertyName);
-    }
-
-    /**
-     * @since 2.3
-     */
     public boolean hasProperty(PropertyName propertyName) {
         return findProperty(propertyName) != null;
     }
-    
-    @Deprecated // since 2.3
-    public boolean hasProperty(String propertyName) {
-        return findProperty(propertyName) != null;
-    }
 
-    /**
-     * @since 2.3
-     */
     public SettableBeanProperty removeProperty(PropertyName name) {
         return _properties.remove(name.getSimpleName());
-    }
-    
-    @Deprecated // since 2.3
-    public SettableBeanProperty removeProperty(String name) {
-        return _properties.remove(name);
     }
 
     public SettableAnyProperty getAnySetter() {
@@ -345,7 +317,7 @@ public class BeanDeserializerBuilder
     public JsonDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = new BeanPropertyMap(props);
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props, _caseInsensitivePropertyComparison);
         propertyMap.assignIndexes();
 
         // view processing must be enabled if:
@@ -384,8 +356,7 @@ public class BeanDeserializerBuilder
      * 
      * @since 2.0
      */
-    public AbstractDeserializer buildAbstract()
-    {
+    public AbstractDeserializer buildAbstract() {
         return new AbstractDeserializer(this, _beanDesc, _backRefProperties);
     }
     
@@ -403,14 +374,17 @@ public class BeanDeserializerBuilder
         }
         // also: type of the method must be compatible
         Class<?> rawBuildType = _buildMethod.getRawReturnType();
-        if (!valueType.getRawClass().isAssignableFrom(rawBuildType)) {
+        Class<?> rawValueType = valueType.getRawClass();
+        if ((rawBuildType != rawValueType)
+                && !rawBuildType.isAssignableFrom(rawValueType)
+                && !rawValueType.isAssignableFrom(rawBuildType)) {
             throw new IllegalArgumentException("Build method '"+_buildMethod.getFullName()
-        			+" has bad return type ("+rawBuildType.getName()
-        			+"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
+                    +" has bad return type ("+rawBuildType.getName()
+                    +"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
         }
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = new BeanPropertyMap(props);
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props, _caseInsensitivePropertyComparison);
         propertyMap.assignIndexes();
 
         boolean anyViews = !_defaultViewInclusion;

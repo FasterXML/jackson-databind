@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -13,7 +15,7 @@ public final class AnnotatedClass
     extends Annotated
 {
     private final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
-    
+
     /*
     /**********************************************************
     /* Configuration
@@ -378,7 +380,7 @@ public final class AnnotatedClass
         List<AnnotatedMethod> creatorMethods = null;
         
         // Then static methods which are potential factory methods
-        for (Method m : _class.getDeclaredMethods()) {
+        for (Method m : _findClassMethods(_class)) {
             if (!Modifier.isStatic(m.getModifiers())) {
                 continue;
             }
@@ -409,7 +411,7 @@ public final class AnnotatedClass
         }
         _creatorsResolved = true;
     }
-    
+
     /**
      * Method for resolving member method information: aggregating all non-static methods
      * and combining annotations (to implement method-annotation inheritance)
@@ -422,7 +424,7 @@ public final class AnnotatedClass
         AnnotatedMethodMap mixins = new AnnotatedMethodMap();
         // first: methods from the class itself
         _addMemberMethods(_class, _memberMethods, _primaryMixIn, mixins);
-
+        
         // and then augment these with annotations from super-types:
         for (Class<?> cls : _superTypes) {
             Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(cls);         
@@ -592,13 +594,12 @@ public final class AnnotatedClass
         // first, mixIns, since they have higher priority then class methods
         if (mixInCls != null) {
             _addMethodMixIns(cls, methods, mixInCls, mixIns);
-        }        
+        }
         if (cls == null) { // just so caller need not check when passing super-class
             return;
         }
-
         // then methods from the class itself
-        for (Method m : cls.getDeclaredMethods()) {
+        for (Method m : _findClassMethods(cls)) {
             if (!_isIncludableMemberMethod(m)) {
                 continue;
             }
@@ -654,7 +655,13 @@ public final class AnnotatedClass
                      * just placeholder, can't be called)
                      */
                 } else {
-                    mixIns.add(_constructMethod(m));
+                    // Well, or, as per [Issue#515], multi-level merge within mixins...
+                    am = mixIns.find(m);
+                    if (am != null) {
+                        _addMixUnders(m, am);
+                    } else {
+                        mixIns.add(_constructMethod(m));
+                    }
                 }
             }
         }
@@ -681,7 +688,7 @@ public final class AnnotatedClass
              */
             fields = _findFields(parent, fields);
             for (Field f : c.getDeclaredFields()) {
-                // static fields not included, nor transient
+                // static fields not included (transients are at this point, filtered out later)
                 if (!_isIncludableField(f)) {
                     continue;
                 }
@@ -746,18 +753,18 @@ public final class AnnotatedClass
          * -- at least not yet!
          */
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(m, _emptyAnnotationMap(), null);
+            return new AnnotatedMethod(this, m, _emptyAnnotationMap(), null);
         }
-        return new AnnotatedMethod(m, _collectRelevantAnnotations(m.getDeclaredAnnotations()), null);
+        return new AnnotatedMethod(this, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()), null);
     }
 
     protected AnnotatedConstructor _constructConstructor(Constructor<?> ctor, boolean defaultCtor)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedConstructor(ctor, _emptyAnnotationMap(), _emptyAnnotationMaps(ctor.getParameterTypes().length));
+            return new AnnotatedConstructor(this, ctor, _emptyAnnotationMap(), _emptyAnnotationMaps(ctor.getParameterTypes().length));
         }
         if (defaultCtor) {
-            return new AnnotatedConstructor(ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), null);
+            return new AnnotatedConstructor(this, ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), null);
         }
         Annotation[][] paramAnns = ctor.getParameterAnnotations();
         int paramCount = ctor.getParameterTypes().length;
@@ -795,25 +802,25 @@ public final class AnnotatedClass
         } else {
             resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
         }
-        return new AnnotatedConstructor(ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()),
-                resolvedAnnotations);
+        return new AnnotatedConstructor(this, ctor,
+                _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), resolvedAnnotations);
     }
 
     protected AnnotatedMethod _constructCreatorMethod(Method m)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(m, _emptyAnnotationMap(), _emptyAnnotationMaps(m.getParameterTypes().length));
+            return new AnnotatedMethod(this, m, _emptyAnnotationMap(), _emptyAnnotationMaps(m.getParameterTypes().length));
         }
-        return new AnnotatedMethod(m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
+        return new AnnotatedMethod(this, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
                                    _collectRelevantAnnotations(m.getParameterAnnotations()));
     }
 
     protected AnnotatedField _constructField(Field f)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedField(f, _emptyAnnotationMap());
+            return new AnnotatedField(this, f, _emptyAnnotationMap());
         }
-        return new AnnotatedField(f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
+        return new AnnotatedField(this, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
  
     private AnnotationMap _emptyAnnotationMap() {
@@ -862,9 +869,10 @@ public final class AnnotatedClass
         if (f.isSynthetic()) {
             return false;
         }
-        // Static fields are never included, nor transient
+        // Static fields are never included. Transient are (since 2.6), for
+        // purpose of propagating removal
         int mods = f.getModifiers();
-        if (Modifier.isStatic(mods) || Modifier.isTransient(mods)) {
+        if (Modifier.isStatic(mods)) {
             return false;
         }
         return true;
@@ -888,55 +896,58 @@ public final class AnnotatedClass
 
     protected AnnotationMap _collectRelevantAnnotations(Annotation[] anns)
     {
-        AnnotationMap annMap = new AnnotationMap();
-        _addAnnotationsIfNotPresent(annMap, anns);
-        return annMap;
+        return _addAnnotationsIfNotPresent(new AnnotationMap(), anns);
     }
     
     /* Helper method used to add all applicable annotations from given set.
      * Takes into account possible "annotation bundles" (meta-annotations to
      * include instead of main-level annotation)
      */
-    private void _addAnnotationsIfNotPresent(AnnotationMap result, Annotation[] anns)
+    private AnnotationMap _addAnnotationsIfNotPresent(AnnotationMap result, Annotation[] anns)
     {
         if (anns != null) {
-            List<Annotation[]> bundles = null;
+            List<Annotation> fromBundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (_isAnnotationBundle(ann)) {
-                    if (bundles == null) {
-                        bundles = new LinkedList<Annotation[]>();
-                    }
-                    bundles.add(ann.annotationType().getDeclaredAnnotations());
-                } else { // note: we will NOT filter out non-Jackson anns any more
-                    result.addIfNotPresent(ann);
+                // note: we will NOT filter out non-Jackson anns any more
+                boolean wasNotPresent = result.addIfNotPresent(ann);
+                if (wasNotPresent && _isAnnotationBundle(ann)) {
+                    fromBundles = _addFromBundle(ann, fromBundles);
                 }
             }
-            if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
-                for (Annotation[] annotations : bundles) {
-                    _addAnnotationsIfNotPresent(result, annotations);
-                }
+            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
+                _addAnnotationsIfNotPresent(result, fromBundles.toArray(new Annotation[fromBundles.size()]));
             }
         }
+        return result;
     }
 
+    private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
+    {
+        for (Annotation a : bundle.annotationType().getDeclaredAnnotations()) {
+            // minor optimization: by-pass 2 common JDK meta-annotations
+            if ((a instanceof Target) || (a instanceof Retention)) {
+                continue;
+            }
+            if (result == null) {
+                result = new ArrayList<Annotation>();
+            }
+            result.add(a);
+        }
+        return result;
+    }
+    
     private void _addAnnotationsIfNotPresent(AnnotatedMember target, Annotation[] anns)
     {
         if (anns != null) {
-            List<Annotation[]> bundles = null;
+            List<Annotation> fromBundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (_isAnnotationBundle(ann)) {
-                    if (bundles == null) {
-                        bundles = new LinkedList<Annotation[]>();
-                    }
-                    bundles.add(ann.annotationType().getDeclaredAnnotations());
-                } else { // note: we will NOT filter out non-Jackson anns any more
-                    target.addIfNotPresent(ann);
+                boolean wasNotPresent = target.addIfNotPresent(ann);
+                if (wasNotPresent && _isAnnotationBundle(ann)) {
+                    fromBundles = _addFromBundle(ann, fromBundles);
                 }
             }
-            if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
-                for (Annotation[] annotations : bundles) {
-                    _addAnnotationsIfNotPresent(target, annotations);
-                }
+            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
+                _addAnnotationsIfNotPresent(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
             }
         }
     }
@@ -944,21 +955,15 @@ public final class AnnotatedClass
     private void _addOrOverrideAnnotations(AnnotatedMember target, Annotation[] anns)
     {
         if (anns != null) {
-            List<Annotation[]> bundles = null;
+            List<Annotation> fromBundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (_isAnnotationBundle(ann)) {
-                    if (bundles == null) {
-                        bundles = new LinkedList<Annotation[]>();
-                    }
-                    bundles.add(ann.annotationType().getDeclaredAnnotations());
-                } else { // note: no filtering by jackson-annotations
-                    target.addOrOverride(ann);
+                boolean wasModified = target.addOrOverride(ann);
+                if (wasModified && _isAnnotationBundle(ann)) {
+                    fromBundles = _addFromBundle(ann, fromBundles);
                 }
             }
-            if (bundles != null) { // and then bundles, if any: important for precedence
-                for (Annotation[] annotations : bundles) {
-                    _addOrOverrideAnnotations(target, annotations);
-                }
+            if (fromBundles != null) { // and then bundles, if any: important for precedence
+                _addOrOverrideAnnotations(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
             }
         }
     }
@@ -1007,11 +1012,41 @@ public final class AnnotatedClass
         _addAnnotationsIfNotPresent(target, src.getDeclaredAnnotations());
     }
 
-   private final boolean _isAnnotationBundle(Annotation ann)
-   {
-       return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
-   }
-   
+    private final boolean _isAnnotationBundle(Annotation ann) {
+        return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
+    }
+
+    /**
+     * Helper method that gets methods declared in given class; usually a simple thing,
+     * but sometimes (as per [databind#785]) more complicated, depending on classloader
+     * setup.
+     *
+     * @since 2.4.7
+     */
+    protected Method[] _findClassMethods(Class<?> cls)
+    {
+        try {
+            return cls.getDeclaredMethods();
+        } catch (final NoClassDefFoundError ex) {
+            // One of the methods had a class that was not found in the cls.getClassLoader.
+            // Maybe the developer was nice and has a different class loader for this context.
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if(loader == null){
+                // Nope... this is going to end poorly
+                throw ex;
+            }
+            final Class<?> contextClass;
+            try {
+                contextClass = loader.loadClass(cls.getName());
+            } catch (ClassNotFoundException e) {
+                // !!! TODO: 08-May-2015, tatu: Chain appropriately once we have JDK7 as baseline
+                //ex.addSuppressed(e); Not until 1.7
+               throw ex;
+            }
+            return contextClass.getDeclaredMethods(); // Cross fingers
+        }
+    }
+
     /*
     /**********************************************************
     /* Other methods
@@ -1019,8 +1054,19 @@ public final class AnnotatedClass
      */
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "[AnnotedClass "+_class.getName()+"]";
+    }
+
+    @Override
+    public int hashCode() {
+        return _class.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedClass) o)._class == _class;
     }
 }

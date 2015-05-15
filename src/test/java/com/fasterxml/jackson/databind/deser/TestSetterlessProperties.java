@@ -15,12 +15,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestSetterlessProperties
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper beans
-    /**********************************************************
-     */
-
     static class CollectionBean
     {
         List<String> _values = new ArrayList<String>();

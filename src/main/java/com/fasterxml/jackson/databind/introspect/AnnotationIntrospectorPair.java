@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -111,11 +113,20 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public String[] findPropertiesToIgnore(Annotated ac)
-    {
+    @Deprecated // since 2.6
+    public String[] findPropertiesToIgnore(Annotated ac) {
         String[] result = _primary.findPropertiesToIgnore(ac);
         if (result == null) {
             result = _secondary.findPropertiesToIgnore(ac);
+        }
+        return result;            
+    }
+
+    @Override
+    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
+        String[] result = _primary.findPropertiesToIgnore(ac, forSerialization);
+        if (result == null) {
+            result = _secondary.findPropertiesToIgnore(ac, forSerialization);
         }
         return result;            
     }
@@ -315,16 +326,15 @@ public class AnnotationIntrospectorPair
     public JsonInclude.Include findSerializationInclusion(Annotated a,
             JsonInclude.Include defValue)
     {
-        /* This is bit trickier: need to combine results in a meaningful
-         * way. Seems like it should be a disjoint; that is, most
-         * restrictive value should be returned.
-         * For enumerations, comparison is done by indexes, which
-         * works: largest value is the last one, which is the most
-         * restrictive value as well.
-         */
-        /* 09-Mar-2010, tatu: Actually, as per [JACKSON-256], it is probably better to just
-         *    use strict overriding. Simpler, easier to understand.
-         */
+        // note: call secondary first, to give lower priority
+        defValue = _secondary.findSerializationInclusion(a, defValue);
+        defValue = _primary.findSerializationInclusion(a, defValue);
+        return defValue;
+    }
+
+    @Override
+    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
+    {
         // note: call secondary first, to give lower priority
         defValue = _secondary.findSerializationInclusion(a, defValue);
         defValue = _primary.findSerializationInclusion(a, defValue);
@@ -333,7 +343,7 @@ public class AnnotationIntrospectorPair
     
     @Override
     public Class<?> findSerializationType(Annotated a) {
-    	Class<?> r = _primary.findSerializationType(a);
+        Class<?> r = _primary.findSerializationType(a);
         return (r == null) ? _secondary.findSerializationType(a) : r;
     }
 
@@ -420,7 +430,13 @@ public class AnnotationIntrospectorPair
         }
         return name;
     }
-    
+
+    @Override
+    public String findPropertyDefaultValue(Annotated ann) {
+        String str = _primary.findPropertyDefaultValue(ann);
+        return (str == null || str.isEmpty()) ? _secondary.findPropertyDefaultValue(ann) : str;
+    }
+
     @Override
     public String findPropertyDescription(Annotated ann) {
         String r = _primary.findPropertyDescription(ann);
@@ -432,7 +448,7 @@ public class AnnotationIntrospectorPair
         Integer r = _primary.findPropertyIndex(ann);
         return (r == null) ? _secondary.findPropertyIndex(ann) : r;
     }
-    
+
     @Override
     public String findImplicitPropertyName(AnnotatedMember param) {
         String r = _primary.findImplicitPropertyName(param);
@@ -464,7 +480,15 @@ public class AnnotationIntrospectorPair
         Boolean r = _primary.findSerializationSortAlphabetically(ann);
         return (r == null) ? _secondary.findSerializationSortAlphabetically(ann) : r;
     }
-    
+
+    @Override
+    public void findAndAddVirtualProperties(MapperConfig<?> config, AnnotatedClass ac,
+            List<BeanPropertyWriter> properties) {
+        // first secondary, then primary, to give proper precedence
+        _primary.findAndAddVirtualProperties(config, ac, properties);
+        _secondary.findAndAddVirtualProperties(config, ac, properties);
+    }
+
     // // // Serialization: property annotations
     
     @Override
@@ -599,6 +623,15 @@ public class AnnotationIntrospectorPair
         return _primary.hasCreatorAnnotation(a) || _secondary.hasCreatorAnnotation(a);
     }
 
+    @Override
+    public JsonCreator.Mode findCreatorBinding(Annotated a) {
+        JsonCreator.Mode mode = _primary.findCreatorBinding(a);
+        if (mode != null) {
+            return mode;
+        }
+        return _secondary.findCreatorBinding(a);
+    }
+    
     protected boolean _isExplicitClassOrOb(Object maybeCls, Class<?> implicit) {
         if (maybeCls == null) {
             return false;

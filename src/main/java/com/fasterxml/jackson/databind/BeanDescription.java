@@ -99,30 +99,30 @@ public abstract class BeanDescription
     /* Basic API for finding properties
     /**********************************************************
      */
-    
+
     /**
      * @return Ordered Map with logical property name as key, and
      *    matching getter method as value.
      */
     public abstract List<BeanPropertyDefinition> findProperties();
-    
+
     /**
      * Method for locating all back-reference properties (setters, fields) bean has
      */
     public abstract Map<String,AnnotatedMember> findBackReferenceProperties();
 
     public abstract Set<String> getIgnoredPropertyNames();
-    
+
     /*
     /**********************************************************
     /* Basic API for finding creator members
     /**********************************************************
      */
-    
+
     public abstract List<AnnotatedConstructor> getConstructors();
-    
+
     public abstract List<AnnotatedMethod> getFactoryMethods();
-    
+
     /**
      * Method that will locate the no-arg constructor for this class,
      * if it has one, and that constructor has not been marked as
@@ -186,6 +186,11 @@ public abstract class BeanDescription
 
     public abstract JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue);
 
+    /**
+     * @since 2.5
+     */
+    public abstract JsonInclude.Include findSerializationInclusionForContent(JsonInclude.Include defValue);
+    
     /**
      * Method for checking what is the expected format for POJO, as
      * defined by defaults and possible annotations.

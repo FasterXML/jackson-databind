@@ -139,7 +139,135 @@ Chris Cleveland:
 Benson Margulies:
   * Reported #467: Unwanted POJO's embedded in tree via serialization to tree
    (2.4.0)
+  * Reported #601: ClassCastException for a custom serializer for enum key in `EnumMap`
+   (2.4.4)
 
 Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK
    (2.4.1)
+
+Ian Barfield: (tea-dragon@github)
+  * Reported #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
+   (2.4.4)
+
+Eugene Lukash
+  * Reported #592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`
+   (2.4.4)
+
+Fernando Otero (zeitos@github)
+  * Contributed fix for #610: Problem with forward reference in hierarchies
+   (2.4.4)
+
+Lovro Pandžić (lpandzic@github)
+  * Reported #421: @JsonCreator not used in case of multiple creators with parameter names
+   (2.5.0)
+
+Adam Stroud (adstro@github)
+  * Contributed	#576: Add fluent API for adding mixins
+   (2.5.0)
+
+David Fleeman (fleebytes@github)
+  * Contributed #528 implementation: Add support for `JsonType.As.EXISTING_PROPERTY`
+   (2.5.0)
+
+Aurélien Leboulanger (herau@github)
+  * Contributed improvement for #597: Improve error messaging for cases	where JSON Creator
+    returns null (which is illegal)
+   (2.5.0)
+
+Michael Spiegel (mspiegel@githib)
+  * Contributed #636: `ClassNotFoundException` for classes not (yet) needed during serialization
+   (2.5.0)
+
+Michael Ressler (mressler@github)
+  * Contributed #566: Add support for case-insensitive deserialization
+   (`MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`)
+   (2.5.0)
+
+Konstantin Labun (kulabun@github)
+  * Reported #647: Deserialization fails when @JsonUnwrapped property contains an object with same property name
+   (2.5.0)
+
+Christopher Smith (chrylis@github)
+  * Reported #594: `@JsonValue` on enum not used when enum value is a Map key
+   (2.5.0)
+
+Alexandre Santana Campelo (alexqi200@github):
+  * Contributed #671: Adding `java.util.Currency` deserialization support for maps
+   (2.5.1)
+
+Zoltan Farkas (zolyfarkas@github)
+  * Reported #674: Spring CGLIB proxies not handled as intended
+   (2.5.1)
+
+Ludevik@github:
+  * Reported #682: Class<?>-valued Map keys not serialized properly
+   (2.5.1)
+
+Antibrumm@github:
+  * Reported #691: Jackson 2.5.0. NullSerializer for MapProperty failing
+   (2.5.2)
+
+Shumpei Akai (flexfrank@github)
+  * Reported #703: Multiple calls to ObjectMapper#canSerialize(Object.class) returns different values
+   (2.5.2)
+
+Francisco A. Lozano (flozano@github)
+  * Contributed fix for #703 (see above)
+   (2.5.2)
+
+Dylan Scott (dylanscott@github)
+  * Reported #738: #738: @JsonTypeInfo non-deterministically ignored in 2.5.1 (concurrency
+    issue)
+   (2.5.2)
+
+Alain Gilbert (agilbert314@github)
+  * Reporter, contributed #766: Fix Infinite recursion (StackOverflowError) when
+    serializing a SOAP object
+   (2.5.3)
+
+Alexey Gavrilov (Alexey1Gavrilov@github)
+  * Reported, contributed fix for #761: Builder deserializer: in-compatible type exception
+    when return type is super type
+   (2.5.3)
+
+Dmitry Spikhalskiy (Spikhalskiy@github)
+  * Reported #731, suggested the way to fix it: XmlAdapter result marshaling error in
+    case of ValueType=Object
+   (2.5.3)
+
+John Meyer (jpmeyer@github)
+  * Reported, contributed fix for #745: EnumDeserializer.deserializerForCreator() fails
+    when used to deserialize a Map key
+   (2.5.3)
+
+Andrew Duckett (andrewduckett@github)
+  * Reported #771: Annotation bundles ignored when added to Mixin
+   (2.5.4)
+
+Charles Allen:
+  * Contributed #785: Add handlings for classes which are available in
+    `Thread.currentThread().getContextClassLoader()`
+   (2.5.4)
+
+Charles Allen (drcrallen@github):
+  * Reported #696: Copy constructor does not preserve `_injectableValues`
+   (2.6.0)
+
+Chris Pimlott (pimlottc@github):
+  * Suggested #348: ObjectMapper.valueToTree does not work with @JsonRawValue
+   (2.6.0)
+
+Laird Nelson (ljnelson@github)
+  * Suggested #688: Provide a means for an ObjectMapper to discover mixin annotation
+    classes on demand
+   (2.6.0)
+
+Derk Norton (derknorton@github)
+  * Suggested #689: Add `ObjectMapper.setDefaultPrettyPrinter(PrettyPrinter)`
+   (2.6.0)
+
+Michal Letynski (mletynski@github)
+  * Suggested #296: Serialization of transient fields with public getters (add
+    MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+   (2.6.0)

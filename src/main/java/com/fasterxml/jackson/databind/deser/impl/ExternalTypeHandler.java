@@ -55,7 +55,7 @@ public class ExternalTypeHandler
      */
     public boolean handleTypePropertyValue(JsonParser jp, DeserializationContext ctxt,
             String propName, Object bean)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         Integer I = _nameToPropertyIndex.get(propName);
         if (I == null) {
@@ -89,8 +89,7 @@ public class ExternalTypeHandler
      * @return True, if the given property was properly handled
      */
     public boolean handlePropertyValue(JsonParser jp, DeserializationContext ctxt,
-            String propName, Object bean)
-        throws IOException, JsonProcessingException
+            String propName, Object bean) throws IOException
     {
         Integer I = _nameToPropertyIndex.get(propName);
         if (I == null) {
@@ -125,7 +124,7 @@ public class ExternalTypeHandler
     
     @SuppressWarnings("resource")
     public Object complete(JsonParser jp, DeserializationContext ctxt, Object bean)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         for (int i = 0, len = _properties.length; i < len; ++i) {
             String typeId = _typeIds[i];
@@ -170,7 +169,7 @@ public class ExternalTypeHandler
      */
     public Object complete(JsonParser jp, DeserializationContext ctxt,
             PropertyValueBuffer buffer, PropertyBasedCreator creator)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // first things first: deserialize all data buffered:
         final int len = _properties.length;
@@ -198,7 +197,7 @@ public class ExternalTypeHandler
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _properties[i].getProperty();
             if (creator.findCreatorProperty(prop.getName()) != null) {
-                buffer.assignParameter(prop.getCreatorIndex(), values[i]);
+                buffer.assignParameter(prop, values[i]);
             }
         }
         Object bean = creator.build(ctxt, buffer);
@@ -214,8 +213,7 @@ public class ExternalTypeHandler
 
     @SuppressWarnings("resource")
     protected final Object _deserialize(JsonParser jp, DeserializationContext ctxt,
-            int index, String typeId)
-        throws IOException, JsonProcessingException
+            int index, String typeId) throws IOException
     {
         TokenBuffer merged = new TokenBuffer(jp);
         merged.writeStartArray();
@@ -233,8 +231,7 @@ public class ExternalTypeHandler
 
     @SuppressWarnings("resource")
     protected final void _deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-            Object bean, int index, String typeId)
-        throws IOException, JsonProcessingException
+            Object bean, int index, String typeId) throws IOException
     {
         /* Ok: time to mix type id, value; and we will actually use "wrapper-array"
          * style to ensure we can handle all kinds of JSON constructs.
@@ -246,7 +243,6 @@ public class ExternalTypeHandler
         p2.nextToken();
         merged.copyCurrentStructure(p2);
         merged.writeEndArray();
-        
         // needs to point to START_OBJECT (or whatever first token is)
         p2 = merged.asParser(jp);
         p2.nextToken();

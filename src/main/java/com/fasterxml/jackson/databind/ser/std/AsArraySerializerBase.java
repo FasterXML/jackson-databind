@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
@@ -15,13 +14,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Base class for serializers that will output contents as JSON
  * arrays; typically serializers used for {@link java.util.Collection}
  * and array types.
  */
+@SuppressWarnings("serial")
 public abstract class AsArraySerializerBase<T>
     extends ContainerSerializer<T>
     implements ContextualSerializer
@@ -50,7 +49,7 @@ public abstract class AsArraySerializerBase<T>
      * runtime type to serializer is handled using this object
      */
     protected PropertySerializerMap _dynamicSerializers;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -68,7 +67,7 @@ public abstract class AsArraySerializerBase<T>
         _valueTypeSerializer = vts;
         _property = property;
         _elementSerializer = elementSerializer;
-        _dynamicSerializers = PropertySerializerMap.emptyMap();
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     @SuppressWarnings("unchecked")
@@ -168,64 +167,47 @@ public abstract class AsArraySerializerBase<T>
     /* Serialization
     /**********************************************************
      */
-    
+
+    // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
+    // at least if they can provide access to actual size of value and use `writeStartArray()`
+    // variant that passes size of array to output, which is helpful with some data formats
     @Override
-    public final void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
-        // [JACKSON-805]
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(value)) {
-            serializeContents(value, jgen, provider);
+            serializeContents(value, gen, provider);
             return;
         }
-        jgen.writeStartArray();
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray();
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(value);
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
 
-    // Note: was 'final' modifier in 2.2 and before; no real need to be, removed
     @Override
-    public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
+            TypeSerializer typeSer) throws IOException
     {
         // note: let's NOT consider [JACKSON-805] here; gets too complicated, and probably just won't work
-        typeSer.writeTypePrefixForArray(value, jgen);
-        serializeContents(value, jgen, provider);
-        typeSer.writeTypeSuffixForArray(value, jgen);
+        typeSer.writeTypePrefixForArray(value, gen);
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(value);
+        serializeContents(value, gen, provider);
+        typeSer.writeTypeSuffixForArray(value, gen);
     }
 
-    protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException;
+    protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException;
 
     @SuppressWarnings("deprecation")
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
     {
-        /* 15-Jan-2010, tatu: This should probably be rewritten, given that
-         *    more information about content type is actually being explicitly
-         *    passed. So there should be less need to try to re-process that
-         *    information.
-         */
         ObjectNode o = createSchemaNode("array", true);
-        JavaType contentType = null;
-        if (typeHint != null) {
-            JavaType javaType = provider.constructType(typeHint);
-            contentType = javaType.getContentType();
-            if (contentType == null) { // could still be parametrized (Iterators)
-                if (typeHint instanceof ParameterizedType) {
-                    Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
-                    if (typeArgs.length == 1) {
-                        contentType = provider.constructType(typeArgs[0]);
-                    }
-                }
-            }
-        }
-        if (contentType == null && _elementType != null) {
-            contentType = _elementType;
-        }
+        JavaType contentType = _elementType;
         if (contentType != null) {
             JsonNode schemaNode = null;
             // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
@@ -238,7 +220,7 @@ public abstract class AsArraySerializerBase<T>
             if (schemaNode == null) {
                 schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
             }
-            o.put("items", schemaNode);
+            o.set("items", schemaNode);
         }
         return o;
     }
@@ -249,16 +231,16 @@ public abstract class AsArraySerializerBase<T>
     {
         JsonArrayFormatVisitor arrayVisitor = (visitor == null) ? null : visitor.expectArrayFormat(typeHint);
         if (arrayVisitor != null) {
-            TypeFactory tf = visitor.getProvider().getTypeFactory();
-            JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
-            if (contentType == null) {
-                throw new JsonMappingException("Could not resolve type");
-            }
+            /* 01-Sep-2014, tatu: Earlier was trying to make use of 'typeHint' for some
+             *   reason, causing NPE (as per https://github.com/FasterXML/jackson-module-jsonSchema/issues/34)
+             *   if coupled with `@JsonValue`. But I can't see much benefit of trying to rely
+             *   on TypeHint here so code is simplified like so:
+             */
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
-                valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
+                valueSer = visitor.getProvider().findValueSerializer(_elementType, _property);
             }
-            arrayVisitor.itemsFormat(valueSer, contentType);
+            arrayVisitor.itemsFormat(valueSer, _elementType);
         }
     }
 

@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.LRUMap;
+
 /**
  * Tests to verify that most core Jackson components can be serialized
  * using default JDK serialization: this feature is useful for some
@@ -16,7 +19,7 @@ public class TestJDKSerialization extends BaseMapTest
 {
     static class MyPojo {
         public int x;
-        private int y;
+        protected int y;
         
         public MyPojo() { }
         public MyPojo(int x0, int y0) {
@@ -73,7 +76,7 @@ public class TestJDKSerialization extends BaseMapTest
     
     public void testObjectReader() throws IOException
     {
-        ObjectReader origReader = MAPPER.reader(MyPojo.class);
+        ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
         final String JSON = "{\"x\":1,\"y\":2}";
         MyPojo p1 = origReader.readValue(JSON);
         assertEquals(2, p1.y);
@@ -96,7 +99,35 @@ public class TestJDKSerialization extends BaseMapTest
         assertEquals(p.x, p2.x);
         assertEquals(p.y, p2.y);
     }
-    
+
+    public void testTypeFactory() throws Exception
+    {
+        TypeFactory orig = TypeFactory.defaultInstance();
+        JavaType t = orig.constructType(JavaType.class);
+        assertNotNull(t);
+
+        byte[] bytes = jdkSerialize(orig);
+        TypeFactory result = jdkDeserialize(bytes);
+        assertNotNull(result);
+        t = orig.constructType(JavaType.class);
+        assertEquals(JavaType.class, t.getRawClass());
+    }
+
+    public void testLRUMap() throws Exception
+    {
+        LRUMap<String,Integer> map = new LRUMap<String,Integer>(32, 32);
+        map.put("a", 1);
+
+        byte[] bytes = jdkSerialize(map);
+        LRUMap<String,Integer> result = jdkDeserialize(bytes);
+        // transient implementation, will be read as empty
+        assertEquals(0, result.size());
+
+        // but should be possible to re-populate
+        result.put("a", 2);
+        assertEquals(1, result.size());
+    }
+
     /*
     /**********************************************************
     /* Helper methods

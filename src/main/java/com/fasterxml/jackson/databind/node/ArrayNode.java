@@ -2,13 +2,16 @@ package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,7 +31,7 @@ public class ArrayNode
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingIndex());
     }
-    
+
     // note: co-variant to allow caller-side type safety
     @SuppressWarnings("unchecked")
     @Override
@@ -42,6 +45,17 @@ public class ArrayNode
         return ret;
     }
 
+    /*
+    /**********************************************************
+    /* Overrides for JsonSerializable.Base
+    /**********************************************************
+     */
+
+    @Override
+    public boolean isEmpty(SerializerProvider serializers) {
+        return _children.isEmpty();
+    }
+    
     /*
     /**********************************************************
     /* Implementation of core JsonNode API
@@ -107,6 +121,27 @@ public class ArrayNode
         }
     }
 
+    @Override
+    public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
+    {
+        if (!(o instanceof ArrayNode)) {
+            return false;
+        }
+        ArrayNode other = (ArrayNode) o;
+        final int len = _children.size();
+        if (other.size() != len) {
+            return false;
+        }
+        List<JsonNode> l1 = _children;
+        List<JsonNode> l2 = other._children;
+        for (int i = 0; i < len; ++i) {
+            if (comparator.compare(l1.get(i), l2.get(i)) != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /*
     /**********************************************************
     /* Public API, serialization
@@ -114,23 +149,26 @@ public class ArrayNode
      */
 
     @Override
-    public void serialize(JsonGenerator jg, SerializerProvider provider) throws IOException, JsonProcessingException
+    public void serialize(JsonGenerator f, SerializerProvider provider) throws IOException
     {
-        jg.writeStartArray();
-        for (JsonNode n : _children) {
-            /* 17-Feb-2009, tatu: Can we trust that all nodes will always
-             *   extend BaseJsonNode? Or if not, at least implement
-             *   JsonSerializable? Let's start with former, change if
-             *   we must.
-             */
-            ((BaseJsonNode)n).serialize(jg, provider);
+        final List<JsonNode> c = _children;
+        final int size = c.size();
+        f.writeStartArray(size);
+        for (int i = 0; i < size; ++i) { // we'll typically have array list
+            // For now, assuming it's either BaseJsonNode, JsonSerializable
+            JsonNode n = c.get(i);
+            if (n instanceof BaseJsonNode) {
+                ((BaseJsonNode) n).serialize(f, provider);
+            } else {
+                ((JsonSerializable) n).serialize(f, provider);
+            }
         }
-        jg.writeEndArray();
+        f.writeEndArray();
     }
 
     @Override
     public void serializeWithType(JsonGenerator jg, SerializerProvider provider, TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         typeSer.writeTypePrefixForArray(this, jg);
         for (JsonNode n : _children) {
@@ -359,6 +397,20 @@ public class ArrayNode
         return this;
     }
 
+    /**
+     * @return This array node, to allow chaining
+     * 
+     * @since 2.6
+     */
+    public ArrayNode addRawValue(RawValue raw) {
+        if (raw == null) {
+            addNull();
+        } else {
+            _add(rawValueNode(raw));
+        }
+        return this;
+    }
+    
     /**
      * Method that will add a null value at the end of this array node.
      * 
@@ -750,12 +802,11 @@ public class ArrayNode
     protected boolean _childrenEqual(ArrayNode other) {
         return _children.equals(other._children);
     }
-    
+
     @Override
     public int hashCode() {
         return _children.hashCode();
     }
-
 
     @Override
     public String toString()

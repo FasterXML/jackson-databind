@@ -48,8 +48,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      */
     @Deprecated
     protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt,
-            JsonDeserializer<?> deser)
-    {
+            JsonDeserializer<?> deser) {
         this(type, jp, ctxt, deser, true, null);
     }
 
@@ -107,12 +106,12 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         try {
             return hasNextValue();
         } catch (JsonMappingException e) {
-            throw new RuntimeJsonMappingException(e.getMessage(), e);
+            return (Boolean) _handleMappingException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            return (Boolean) _handleIOException(e);
         }
     }
-
+    
     @Override
     public T next()
     {
@@ -132,7 +131,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     
     @Override
     public void close() throws IOException{
-        if(_parser != null) {
+        if (_parser != null) {
             _parser.close();
         }
     }
@@ -176,29 +175,34 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         // caller should always call 'hasNext[Value]' first; but let's ensure:
         if (!_hasNextChecked) {
             if (!hasNextValue()) {
-                throw new NoSuchElementException();
+                return _throwNoSuchElement();
             }
         }
         if (_parser == null) {
-            throw new NoSuchElementException();
+            return _throwNoSuchElement();
         }
         _hasNextChecked = false;
-        T result;
-        
-        if (_updatedValue == null) {
-            result = _deserializer.deserialize(_parser, _context);
-        } else{
-            _deserializer.deserialize(_parser, _context, _updatedValue);
-            result = _updatedValue;
+
+        try {
+            if (_updatedValue == null) {
+                return _deserializer.deserialize(_parser, _context);
+            } else{
+                _deserializer.deserialize(_parser, _context, _updatedValue);
+                return _updatedValue;
+            }
+        } finally {
+            /* 24-Mar-2015, tatu: As per [#733], need to mark token consumed no
+             *   matter what, to avoid infinite loop for certain failure cases.
+             *   For 2.6 need to improve further.
+             */
+            // Need to consume the token too
+            _parser.clearCurrentToken();
         }
-        // Need to consume the token too
-        _parser.clearCurrentToken();
-        return result;
     }
 
     /**
      * Convenience method for reading all entries accessible via
-     * this iterator
+     * this iterator; resulting container will be a {@link java.util.ArrayList}.
      * 
      * @return List of entries read
      * 
@@ -216,12 +220,26 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * 
      * @since 2.2
      */
-    public List<T> readAll(List<T> resultList) throws IOException
+    public <L extends List<? super T>> L readAll(L resultList) throws IOException
     {
         while (hasNextValue()) {
-    		    resultList.add(nextValue());
+            resultList.add(nextValue());
         }
         return resultList;
+    }
+
+    /**
+     * Convenience method for reading all entries accessible via
+     * this iterator
+     * 
+     * @since 2.5
+     */
+    public <C extends Collection<? super T>> C readAll(C results) throws IOException
+    {
+        while (hasNextValue()) {
+            results.add(nextValue());
+        }
+        return results;
     }
     
     /*
@@ -262,5 +280,23 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      */
     public JsonLocation getCurrentLocation() {
         return _parser.getCurrentLocation();
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    protected <R> R _throwNoSuchElement() {
+        throw new NoSuchElementException();
+    }
+    
+    protected <R> R _handleMappingException(JsonMappingException e) {
+        throw new RuntimeJsonMappingException(e.getMessage(), e);
+    }
+
+    protected <R> R _handleIOException(IOException e) {
+        throw new RuntimeException(e.getMessage(), e);
     }
 }

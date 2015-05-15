@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -21,11 +20,6 @@ public final class ObjectIdValueProperty
 
     protected final ObjectIdReader _objectIdReader;
 
-    @Deprecated // since 2.2
-    public ObjectIdValueProperty(ObjectIdReader objectIdReader) {
-        this(objectIdReader, PropertyMetadata.STD_REQUIRED);
-    }
-    
     public ObjectIdValueProperty(ObjectIdReader objectIdReader,
             PropertyMetadata metadata)
     {
@@ -40,15 +34,9 @@ public final class ObjectIdValueProperty
         _objectIdReader = src._objectIdReader;
     }
 
-    @Deprecated // since 2.3
     protected ObjectIdValueProperty(ObjectIdValueProperty src, PropertyName newName) {
         super(src, newName);
         _objectIdReader = src._objectIdReader;
-    }
-    
-    @Deprecated // since 2.3
-    protected ObjectIdValueProperty(ObjectIdValueProperty src, String newName) {
-        this(src, new PropertyName(newName));
     }
 
     @Override
@@ -77,20 +65,27 @@ public final class ObjectIdValueProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-            Object instance)
-        throws IOException, JsonProcessingException
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
+            Object instance) throws IOException
     {
-        deserializeSetAndReturn(jp, ctxt, instance);
+        deserializeSetAndReturn(p, ctxt, instance);
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    public Object deserializeSetAndReturn(JsonParser p,
+    		DeserializationContext ctxt, Object instance) throws IOException
     {
         // note: no null checks (unlike usually); deserializer should fail if one found
-        Object id = _valueDeserializer.deserialize(jp, ctxt);
+        Object id = _valueDeserializer.deserialize(p, ctxt);
+
+        /* 02-Apr-2015, tatu: Actually, as per [databind#742], let it be;
+         *  missing or null id is needed for some cases, such as cases where id
+         *  will be generated externally, at a later point, and is not available
+         *  quite yet. Typical use case is with DB inserts.
+         */
+        if (id == null) {
+            return null;
+        }
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         roid.bindItem(instance);
         // also: may need to set a property value as well
@@ -107,8 +102,7 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-        throws IOException
+    public Object setAndReturn(Object instance, Object value) throws IOException
     {
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp == null) {

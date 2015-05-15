@@ -2,10 +2,10 @@ package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.test.BaseTest;
 
-public class TestValueUpdate extends BaseTest
+import com.fasterxml.jackson.databind.*;
+
+public class TestValueUpdate extends BaseMapTest
 {
     static class Bean
     {
@@ -40,7 +40,7 @@ public class TestValueUpdate extends BaseTest
     public void testValueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");
-        new ObjectMapper().reader(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
+        new ObjectMapper().readerFor(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
         assertEquals("ghi", bean.getA());
         assertEquals("jkl", bean.getB());
     }

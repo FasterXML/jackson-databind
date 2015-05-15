@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -90,16 +89,23 @@ public class ObjectArrayDeserializer
         JsonDeserializer<?> deser = _elementDeserializer;
         // #125: May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
+        final JavaType vt = _arrayType.getContentType();
         if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(_arrayType.getContentType(), property);
+            deser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleSecondaryContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property, vt);
         }
         TypeDeserializer elemTypeDeser = _elementTypeDeserializer;
         if (elemTypeDeser != null) {
             elemTypeDeser = elemTypeDeser.forProperty(property);
         }
         return withDeserializer(elemTypeDeser, deser);
+    }
+
+    @Override // since 2.5
+    public boolean isCachable() {
+        // Important: do NOT cache if polymorphic values, or ones with custom deserializer
+        return (_elementDeserializer == null) && (_elementTypeDeserializer == null);
     }
     
     /*
@@ -139,22 +145,26 @@ public class ObjectArrayDeserializer
         JsonToken t;
         final TypeDeserializer typeDeser = _elementTypeDeserializer;
 
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            // Note: must handle null explicitly here; value deserializers won't
-            Object value;
-            
-            if (t == JsonToken.VALUE_NULL) {
-                value = _elementDeserializer.getNullValue();
-            } else if (typeDeser == null) {
-                value = _elementDeserializer.deserialize(jp, ctxt);
-            } else {
-                value = _elementDeserializer.deserializeWithType(jp, ctxt, typeDeser);
+        try {
+            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+                // Note: must handle null explicitly here; value deserializers won't
+                Object value;
+                
+                if (t == JsonToken.VALUE_NULL) {
+                    value = _elementDeserializer.getNullValue(ctxt);
+                } else if (typeDeser == null) {
+                    value = _elementDeserializer.deserialize(jp, ctxt);
+                } else {
+                    value = _elementDeserializer.deserializeWithType(jp, ctxt, typeDeser);
+                }
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                chunk[ix++] = value;
             }
-            if (ix >= chunk.length) {
-                chunk = buffer.appendCompletedChunk(chunk);
-                ix = 0;
-            }
-            chunk[ix++] = value;
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
         }
 
         Object[] result;
@@ -225,7 +235,7 @@ public class ObjectArrayDeserializer
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = _elementDeserializer.getNullValue();
+            value = _elementDeserializer.getNullValue(ctxt);
         } else if (_elementTypeDeserializer == null) {
             value = _elementDeserializer.deserialize(jp, ctxt);
         } else {

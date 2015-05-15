@@ -21,28 +21,48 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class CreatorCollector
 {
+    // Since 2.5
+    protected final static int C_DEFAULT = 0;
+    protected final static int C_STRING = 1;
+    protected final static int C_INT = 2;
+    protected final static int C_LONG = 3;
+    protected final static int C_DOUBLE = 4;
+    protected final static int C_BOOLEAN = 5;
+    protected final static int C_DELEGATE = 6;
+    protected final static int C_PROPS = 7;
+
+    protected final static String[] TYPE_DESCS = new String[] {
+        "default",
+        "String", "int", "long", "double", "boolean",
+        "delegate", "property-based"
+    };
+
     /// Type of bean being created
     final protected BeanDescription _beanDesc;
 
     final protected boolean _canFixAccess;
 
     /**
-     * Reference to the default creator (constructor or factory method).
-     *<p>
-     * Note: name is a misnomer, after resolving of [JACKSON-850], since this
-     * can also point to factory method.
+     * Set of creators we have collected so far
+     * 
+     * @since 2.5
      */
-    protected AnnotatedWithParams _defaultConstructor;
-    
-    protected AnnotatedWithParams _stringCreator, _intCreator, _longCreator;
-    protected AnnotatedWithParams _doubleCreator, _booleanCreator;
+    protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[8];
 
-    protected AnnotatedWithParams _delegateCreator;
+    /**
+     * Bitmask of creators that were explicitly marked as creators; false for auto-detected
+     * (ones included base on naming and/or visibility, not annotation)
+     * 
+     * @since 2.5
+     */
+    protected int _explicitCreators = 0;
+
+    protected boolean _hasNonDefaultCreator = false;
+
     // when there are injectable values along with delegate:
     protected CreatorProperty[] _delegateArgs;
-    
-    protected AnnotatedWithParams _propertyBasedCreator;
-    protected CreatorProperty[] _propertyBasedArgs = null;
+
+    protected CreatorProperty[] _propertyBasedArgs;
 
     protected AnnotatedParameter _incompleteParameter;
 
@@ -61,9 +81,9 @@ public class CreatorCollector
     public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
     {
         JavaType delegateType;
-        boolean maybeVanilla = _delegateCreator == null;
-        
-        if (maybeVanilla) {
+        boolean maybeVanilla = !_hasNonDefaultCreator;
+
+        if (maybeVanilla || (_creators[C_DELEGATE] == null)) {
             delegateType = null;
         } else {
             // need to find type...
@@ -77,20 +97,14 @@ public class CreatorCollector
                 }
             }
             TypeBindings bindings = _beanDesc.bindingsForBeanType();
-            delegateType = bindings.resolveType(_delegateCreator.getGenericParameterType(ix));
+            delegateType = bindings.resolveType(_creators[C_DELEGATE].getGenericParameterType(ix));
         }
 
         final JavaType type = _beanDesc.getType();
 
         // Any non-standard creator will prevent; with one exception: int-valued constructor
         // that standard containers have can be ignored
-        maybeVanilla &= (_propertyBasedCreator == null)
-                && (_delegateCreator == null)
-                && (_stringCreator == null)
-                && (_longCreator == null)
-                && (_doubleCreator == null)
-                && (_booleanCreator == null)
-                ;
+        maybeVanilla &= !_hasNonDefaultCreator;
 
         if (maybeVanilla) {
             /* 10-May-2014, tatu: If we have nothing special, and we are dealing with one
@@ -109,14 +123,14 @@ public class CreatorCollector
         }
         
         StdValueInstantiator inst = new StdValueInstantiator(config, type);
-        inst.configureFromObjectSettings(_defaultConstructor,
-                _delegateCreator, delegateType, _delegateArgs,
-                _propertyBasedCreator, _propertyBasedArgs);
-        inst.configureFromStringCreator(_stringCreator);
-        inst.configureFromIntCreator(_intCreator);
-        inst.configureFromLongCreator(_longCreator);
-        inst.configureFromDoubleCreator(_doubleCreator);
-        inst.configureFromBooleanCreator(_booleanCreator);
+        inst.configureFromObjectSettings(_creators[C_DEFAULT],
+                _creators[C_DELEGATE], delegateType, _delegateArgs,
+                _creators[C_PROPS], _propertyBasedArgs);
+        inst.configureFromStringCreator(_creators[C_STRING]);
+        inst.configureFromIntCreator(_creators[C_INT]);
+        inst.configureFromLongCreator(_creators[C_LONG]);
+        inst.configureFromDoubleCreator(_creators[C_DOUBLE]);
+        inst.configureFromBooleanCreator(_creators[C_BOOLEAN]);
         inst.configureIncompleteParameter(_incompleteParameter);
         return inst;
     }
@@ -137,35 +151,36 @@ public class CreatorCollector
      *   factory method.
      */
     public void setDefaultCreator(AnnotatedWithParams creator) {
-        _defaultConstructor = _fixAccess(creator);
+        _creators[C_DEFAULT] = _fixAccess(creator);
     }
     
-    public void addStringCreator(AnnotatedWithParams creator) {
-        _stringCreator = verifyNonDup(creator, _stringCreator, "String");
+    public void addStringCreator(AnnotatedWithParams creator, boolean explicit) {
+        verifyNonDup(creator, C_STRING, explicit);
     }
-    public void addIntCreator(AnnotatedWithParams creator) {
-        _intCreator = verifyNonDup(creator, _intCreator, "int");
+    public void addIntCreator(AnnotatedWithParams creator, boolean explicit) {
+        verifyNonDup(creator, C_INT, explicit);
     }
-    public void addLongCreator(AnnotatedWithParams creator) {
-        _longCreator = verifyNonDup(creator, _longCreator, "long");
+    public void addLongCreator(AnnotatedWithParams creator, boolean explicit) {
+        verifyNonDup(creator, C_LONG, explicit);
     }
-    public void addDoubleCreator(AnnotatedWithParams creator) {
-        _doubleCreator = verifyNonDup(creator, _doubleCreator, "double");
+    public void addDoubleCreator(AnnotatedWithParams creator, boolean explicit) {
+        verifyNonDup(creator, C_DOUBLE, explicit);
     }
-    public void addBooleanCreator(AnnotatedWithParams creator) {
-        _booleanCreator = verifyNonDup(creator, _booleanCreator, "boolean");
+    public void addBooleanCreator(AnnotatedWithParams creator, boolean explicit) {
+        verifyNonDup(creator, C_BOOLEAN, explicit);
     }
 
-    public void addDelegatingCreator(AnnotatedWithParams creator,
+    public void addDelegatingCreator(AnnotatedWithParams creator, boolean explicit,
             CreatorProperty[] injectables)
     {
-        _delegateCreator = verifyNonDup(creator, _delegateCreator, "delegate");
+        verifyNonDup(creator, C_DELEGATE, explicit);
         _delegateArgs = injectables;
     }
     
-    public void addPropertyCreator(AnnotatedWithParams creator, CreatorProperty[] properties)
+    public void addPropertyCreator(AnnotatedWithParams creator, boolean explicit,
+            CreatorProperty[] properties)
     {
-        _propertyBasedCreator = verifyNonDup(creator, _propertyBasedCreator, "property-based");
+        verifyNonDup(creator, C_PROPS, explicit);
         // [JACKSON-470] Better ensure we have no duplicate names either...
         if (properties.length > 1) {
             HashMap<String,Integer> names = new HashMap<String,Integer>();
@@ -192,6 +207,39 @@ public class CreatorCollector
         }
     }
 
+    // Bunch of methods deprecated in 2.5, to be removed from 2.6 or later
+    
+    @Deprecated // since 2.5
+    public void addStringCreator(AnnotatedWithParams creator) {
+        addStringCreator(creator, false);
+    }
+    @Deprecated // since 2.5
+    public void addIntCreator(AnnotatedWithParams creator) {
+        addBooleanCreator(creator, false);
+    }
+    @Deprecated // since 2.5
+    public void addLongCreator(AnnotatedWithParams creator) {
+        addBooleanCreator(creator, false);
+    }
+    @Deprecated // since 2.5
+    public void addDoubleCreator(AnnotatedWithParams creator) {
+        addBooleanCreator(creator, false);
+    }
+    @Deprecated // since 2.5
+    public void addBooleanCreator(AnnotatedWithParams creator) {
+        addBooleanCreator(creator, false);
+    }
+
+    @Deprecated // since 2.5
+    public void addDelegatingCreator(AnnotatedWithParams creator, CreatorProperty[] injectables) {
+        addDelegatingCreator(creator, false, injectables);
+    }
+
+    @Deprecated // since 2.5
+    public void addPropertyCreator(AnnotatedWithParams creator, CreatorProperty[] properties) {
+        addPropertyCreator(creator, false, properties);
+    }
+
     /*
     /**********************************************************
     /* Accessors
@@ -202,9 +250,23 @@ public class CreatorCollector
      * @since 2.1
      */
     public boolean hasDefaultCreator() {
-        return _defaultConstructor != null;
+        return _creators[C_DEFAULT] != null;
     }
 
+    /**
+     * @since 2.6
+     */
+    public boolean hasDelegatingCreator() {
+        return _creators[C_DELEGATE] != null;
+    }
+
+    /**
+     * @since 2.6
+     */
+    public boolean hasPropertyBasedCreator() {
+        return _creators[C_PROPS] != null;
+    }
+    
     /*
     /**********************************************************
     /* Helper methods
@@ -219,16 +281,49 @@ public class CreatorCollector
         return member;
     }
 
-    protected AnnotatedWithParams verifyNonDup(AnnotatedWithParams newOne, AnnotatedWithParams oldOne,
-            String type)
+    protected void verifyNonDup(AnnotatedWithParams newOne, int typeIndex, boolean explicit)
     {
+        final int mask = (1 << typeIndex);
+        _hasNonDefaultCreator = true;
+        AnnotatedWithParams oldOne = _creators[typeIndex];
+        // already had an explicitly marked one?
         if (oldOne != null) {
-            // important: ok to override factory with constructor; but not within same type, so:
-            if (oldOne.getClass() == newOne.getClass()) {
-                throw new IllegalArgumentException("Conflicting "+type+" creators: already had "+oldOne+", encountered "+newOne);
+            boolean verify;
+
+            if ((_explicitCreators & mask) != 0) { // already had explicitly annotated, leave as-is
+                // but skip, if new one not annotated
+                if (!explicit) {
+                    return;
+                }
+                // both explicit: verify
+                verify = true;
+            } else {
+                // otherwise only verify if neither explicitly annotated.
+                verify = !explicit;
+            }
+
+            // one more thing: ok to override in sub-class
+            if (verify && (oldOne.getClass() == newOne.getClass())) {
+                // [databind#667]: avoid one particular class of bogus problems
+                Class<?> oldType = oldOne.getRawParameterType(0);
+                Class<?> newType = newOne.getRawParameterType(0);
+
+                if (oldType == newType) {
+                    throw new IllegalArgumentException("Conflicting "+TYPE_DESCS[typeIndex]
+                            +" creators: already had explicitly marked "+oldOne+", encountered "+newOne);
+                }
+                // otherwise, which one to choose?
+                if (newType.isAssignableFrom(oldType)) {
+                    // new type more generic, use old
+                    return;
+                }
+                // new type more specific, use it
             }
         }
-        return _fixAccess(newOne);
+        if (explicit) {
+            _explicitCreators |= mask;
+        }
+        _creators[typeIndex] = _fixAccess(newOne);
     }
 
     /*

@@ -41,7 +41,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
     
     static class MethodWrapperBean
     {
-        private Object value;
+        protected Object value;
         
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_ARRAY)
         public Object getValue() { return value; }

@@ -18,7 +18,7 @@ public enum MapperFeature implements ConfigFeature
 {
     /*
     /******************************************************
-    /*  Introspection features
+    /* Introspection features
     /******************************************************
      */
     
@@ -64,7 +64,7 @@ public enum MapperFeature implements ConfigFeature
      AUTO_DETECT_FIELDS(true),
     
     /**
-     * Feature that determines whether regualr "getter" methods are
+     * Feature that determines whether regular "getter" methods are
      * automatically detected based on standard Bean naming convention
      * or not. If yes, then all public zero-argument methods that
      * start with prefix "get" 
@@ -151,6 +151,18 @@ public enum MapperFeature implements ConfigFeature
      * may be called to enable access to otherwise unaccessible
      * objects.
      *<p>
+     * Note that this setting usually has significant performance implications,
+     * since access override helps remove costly access checks on each
+     * and every Reflection access. If you are considering disabling
+     * this feature, be sure to verify performance consequences if usage
+     * is performance sensitive.
+     * Especially on standard JavaSE platforms difference is significant.
+     *<p>
+     * Conversely, on some platforms, it may be necessary to disable this feature
+     * as platform does not allow such calls. For example, when developing
+     * Applets (or other Java code that runs on tightly restricted sandbox),
+     * it may be necessary to disable the feature regardless of performance effects.
+     *<p>
      * Feature is enabled by default.
      */
     CAN_OVERRIDE_ACCESS_MODIFIERS(true),
@@ -182,9 +194,22 @@ public enum MapperFeature implements ConfigFeature
      * explicitly annotated for such use.
      *<p>
      * Feature is enabled by default, for backwards compatibility reasons.
+     * 
+     * @since 2.2
      */
     ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
-    
+
+    /**
+     * Feature that determines for <code>transient</code> modifier for fields
+     * is handled: if disabled, it is only taken to mean exclusion of
+     *<p>
+     * Feature is disabled by default, meaning that existence of `transient`
+     * for a field does not necessarily lead to ignoral of getters or setters.
+     *
+     * @since 2.6
+     */
+    PROPAGATE_TRANSIENT_MARKER(false),
+
     /*
     /******************************************************
     /* Type-handling features
@@ -248,7 +273,8 @@ public enum MapperFeature implements ConfigFeature
      * us, which may be declaration order, but is not guaranteed).
      *<p>
      * Note that this is just the default behavior, and can be overridden by
-     * explicit overrides in classes.
+     * explicit overrides in classes (for example with
+     * {@link com.fasterxml.jackson.annotation.JsonPropertyOrder} annotation)
      *<p>
      * Feature is disabled by default.
      */
@@ -259,7 +285,22 @@ public enum MapperFeature implements ConfigFeature
     /* Name-related features
     /******************************************************
      */
-
+    /**
+     * Feature that will allow for more forgiving deserialization of incoming JSON.
+     * If enabled, the bean properties will be matched using their lower-case equivalents,
+     * meaning that any case-combination (incoming and matching names are canonicalized
+     * by lower-casing) should work.
+     *<p>
+     * Note that there is additional performance overhead since incoming property
+     * names need to be lower-cased before comparison, for cases where there are upper-case
+     * letters. Overhead for names that are already lower-case should be negligible however.
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.5
+     */
+    ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
+    
     /**
      * Feature that can be enabled to make property names be
      * overridden by wrapper name (usually detected with annotations
@@ -272,18 +313,67 @@ public enum MapperFeature implements ConfigFeature
      * 
      * @since 2.1
      */
-    USE_WRAPPER_NAME_AS_PROPERTY_NAME(false)
+    USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
+
+    /**
+     * Feature that may be enabled to enforce strict compatibility with
+     * Bean name introspection, instead of slightly different mechanism
+     * Jackson defaults to.
+     * Specific difference is that Jackson always lower cases leading upper-case
+     * letters, so "getURL()" becomes "url" property; whereas standard Bean
+     * naming <b>only</b> lower-cases the first letter if it is NOT followed by
+     * another upper-case letter (so "getURL()" would result in "URL" property).
+     *<p>
+     * Feature is disabled by default for backwards compatibility purposes: earlier
+     * Jackson versions used Jackson's own mechanism.
+     *
+     * @since 2.5
+     */
+    USE_STD_BEAN_NAMING(false),
+
+    /*
+    /******************************************************
+    /* Other features
+    /******************************************************
+     */
+
+    /**
+     * Feature that determines whether multiple registrations of same module
+     * should be ignored or not; if enabled, only the first registration call
+     * results in module being called, and possible duplicate calls are silently
+     * ignored; if disabled, no checking is done and all registration calls are
+     * dispatched to module.
+     *<p>
+     * Definition of "same module" is based on using {@link Module#getTypeId()};
+     * modules with same non-null <code>type id</code> are considered same for
+     * purposes of duplicate registration. This also avoids having to keep track
+     * of actual module instances; only ids will be kept track of (and only if
+     * this feature is enabled).
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.5
+     */
+    IGNORE_DUPLICATE_MODULE_REGISTRATIONS(true)
+    
     ;
 
     private final boolean _defaultState;
+    private final int _mask;
     
     private MapperFeature(boolean defaultState) {
         _defaultState = defaultState;
+        _mask = (1 << ordinal());
     }
     
     @Override
     public boolean enabledByDefault() { return _defaultState; }
 
     @Override
-    public int getMask() { return (1 << ordinal()); }
+    public int getMask() { return _mask; }
+
+    /**
+     * @since 2.5
+     */
+    public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JavaType;
  */
 public final class MapType extends MapLikeType
 {
-    private static final long serialVersionUID = -811146779148281500L;
+    private static final long serialVersionUID = 1L;
 
     /*
     /**********************************************************
@@ -106,6 +106,17 @@ public final class MapType extends MapLikeType
                 _valueHandler, _typeHandler, true);
     }
 
+    /*
+    /**********************************************************
+    /* Overridden accessors
+    /**********************************************************
+     */
+    
+    @Override
+    public Class<?> getParameterSource() {
+        return java.util.Map.class;
+    }
+    
     /*
     /**********************************************************
     /* Extended API

@@ -17,6 +17,9 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
 
     protected StdScalarDeserializer(Class<?> vc) { super(vc); }
     protected StdScalarDeserializer(JavaType valueType) { super(valueType); }
+
+    // since 2.5
+    protected StdScalarDeserializer(StdScalarDeserializer<?> src) { super(src); }
     
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {

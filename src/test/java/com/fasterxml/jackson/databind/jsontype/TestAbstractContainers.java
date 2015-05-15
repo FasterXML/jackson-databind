@@ -51,28 +51,29 @@ public class TestAbstractContainers extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testAbstractLists() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         ListWrapper w = new ListWrapper();
         w.list.add("x");
 
-        String json = mapper.writeValueAsString(w);
-        Object o = mapper.readValue(json, ListWrapper.class);
+        String json = MAPPER.writeValueAsString(w);
+        Object o = MAPPER.readValue(json, ListWrapper.class);
         assertEquals(ListWrapper.class, o.getClass());
         ListWrapper out = (ListWrapper) o;
+        assertNotNull(out.list);
         assertEquals(1, out.list.size());
         assertEquals("x", out.list.get(0));
    }
     
     public void testAbstractMaps() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         MapWrapper w = new MapWrapper();
         w.map.put("key1", "name1");
 
-        String json = mapper.writeValueAsString(w);
-        Object o = mapper.readValue(json, MapWrapper.class);
+        String json = MAPPER.writeValueAsString(w);
+        Object o = MAPPER.readValue(json, MapWrapper.class);
         assertEquals(MapWrapper.class, o.getClass());
         MapWrapper out = (MapWrapper) o;
         assertEquals(1, out.map.size());

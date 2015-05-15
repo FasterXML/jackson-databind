@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -63,11 +64,19 @@ public interface TypeIdResolver
      * available for some reason.
      */
     public String idFromBaseType();
-    
+
+    /**
+     * @deprecated since 2.5; call {@link #typeFromId(DatabindContext, String)} instead
+     */
+    @Deprecated // since 2.4
+    public JavaType typeFromId(String id);
+
     /**
      * Method called to resolve type from given type identifier.
+     * 
+     * @since 2.5 -- but since 2.3 has existed in {@link com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase}
      */
-    public JavaType typeFromId(String id);
+    public JavaType typeFromId(DatabindContext context, String id);
 
     /*
     /**********************************************************

@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.struct;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
@@ -89,7 +89,33 @@ public class TestPOJOAsArray extends BaseMapTest
         public String bar = null;
         public String foo = "bar";
     }
-    
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class AsArrayWithMap
+    {
+        public Map<Integer,Integer> attrs;
+
+        public AsArrayWithMap() { }
+        public AsArrayWithMap(int x, int y) {
+            attrs = new HashMap<Integer,Integer>();
+            attrs.put(x, y);
+        }
+    }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    static class CreatorWithIndex {
+        protected int _a, _b;
+
+        @JsonCreator
+        public CreatorWithIndex(@JsonProperty(index=0, value="a") int a,
+                @JsonProperty(index=1, value="b") int b) {
+            this._a = a;
+            this._b = b;
+        }
+    }
+
+
     /*
     /*****************************************************
     /* Basic tests
@@ -164,7 +190,16 @@ public class TestPOJOAsArray extends BaseMapTest
         String json = mapper.writeValueAsString(new SingleBean());
         assertEquals("\"foo\"", json);
     }
-    
+
+    public void testBeanAsArrayUnwrapped() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        SingleBean result = mapper.readValue("[\"foobar\"]", SingleBean.class);
+        assertNotNull(result);
+        assertEquals("foobar", result.name);
+    }
+
     /*
     /*****************************************************
     /* Round-trip tests
@@ -180,5 +215,26 @@ public class TestPOJOAsArray extends BaseMapTest
         ObjectMapper mapper2 = new ObjectMapper();
         mapper2.setAnnotationIntrospector(new ForceArraysIntrospector());
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
+    }
+
+    public void testWithMaps() throws Exception
+    {
+        AsArrayWithMap input = new AsArrayWithMap(1, 2);
+        String json = MAPPER.writeValueAsString(input);
+        AsArrayWithMap output = MAPPER.readValue(json, AsArrayWithMap.class);
+        assertNotNull(output);
+        assertNotNull(output.attrs);
+        assertEquals(1, output.attrs.size());
+        assertEquals(Integer.valueOf(2), output.attrs.get(1));
+    }
+
+    public void testSimpleWithIndex() throws Exception
+    {
+        // as POJO:
+//        CreatorWithIndex value = MAPPER.readValue(aposToQuotes("{'b':1,'a':2}"),
+        CreatorWithIndex value = MAPPER.readValue(aposToQuotes("[2,1]"),
+                CreatorWithIndex.class);
+        assertEquals(2, value._a);
+        assertEquals(1, value._b);
     }
 }

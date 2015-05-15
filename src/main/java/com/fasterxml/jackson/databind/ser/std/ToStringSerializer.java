@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,6 +18,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * value.
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class ToStringSerializer
     extends StdSerializer<Object>
 {
@@ -37,21 +37,35 @@ public class ToStringSerializer
      */
     public ToStringSerializer() { super(Object.class); }
 
+    /**
+     * Sometimes it may actually make sense to retain actual handled type, so...
+     * 
+     * @since 2.5
+     */
+    public ToStringSerializer(Class<?> handledType) {
+        super(handledType, false);
+    }
+
     @Override
+    @Deprecated
     public boolean isEmpty(Object value) {
+        return isEmpty(null, value);
+    }
+
+    @Override
+    public boolean isEmpty(SerializerProvider prov, Object value) {
         if (value == null) {
             return true;
         }
         String str = value.toString();
-        // would use String.isEmpty(), but that's JDK 1.6
-        return (str == null) || (str.length() == 0);
+        return str.isEmpty();
     }
     
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
-        jgen.writeString(value.toString());
+        gen.writeString(value.toString());
     }
 
     /* 01-Mar-2011, tatu: We were serializing as "raw" String; but generally that
@@ -66,25 +80,22 @@ public class ToStringSerializer
      * change this behavior.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
-        typeSer.writeTypePrefixForScalar(value, jgen);
-        serialize(value, jgen, provider);
-        typeSer.writeTypeSuffixForScalar(value, jgen);
+        typeSer.writeTypePrefixForScalar(value, gen);
+        serialize(value, gen, provider);
+        typeSer.writeTypeSuffixForScalar(value, gen);
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("string", true);
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
         if (visitor != null) {
             visitor.expectStringFormat(typeHint);

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -18,13 +17,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 public class TestMapDeserialization
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Test classes, enums
-    /**********************************************************
-     */
-
-    enum Key {
+    static enum Key {
         KEY1, KEY2, WHATEVER;
     }
 
@@ -84,7 +77,7 @@ public class TestMapDeserialization
         ONE, TWO;
     }
 
-    
+    static class ClassStringMap extends HashMap<Class<?>,String> { }
     
     /*
     /**********************************************************
@@ -187,6 +180,7 @@ public class TestMapDeserialization
     public void testSpecialMap() throws IOException
     {
        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
+       assertNotNull(map);
        _doTestUntyped(map);
     }
 
@@ -200,13 +194,15 @@ public class TestMapDeserialization
     
     private void _doTestUntyped(final Map<String, ObjectWrapper> map)
     {
-       assertEquals(Double.valueOf(42), map.get("double").getObject());
-       assertEquals("string", map.get("string").getObject());
-       assertEquals(Boolean.TRUE, map.get("boolean").getObject());
-       assertEquals(Collections.singletonList("list0"), map.get("list").getObject());
-       assertTrue(map.containsKey("null"));
-       assertNull(map.get("null"));
-       assertEquals(5, map.size());
+        ObjectWrapper w = map.get("double");
+        assertNotNull(w);
+        assertEquals(Double.valueOf(42), w.getObject());
+        assertEquals("string", map.get("string").getObject());
+        assertEquals(Boolean.TRUE, map.get("boolean").getObject());
+        assertEquals(Collections.singletonList("list0"), map.get("list").getObject());
+        assertTrue(map.containsKey("null"));
+        assertNull(map.get("null"));
+        assertEquals(5, map.size());
     }
     
     // [JACKSON-620]: allow "" to mean 'null' for Maps
@@ -300,6 +296,31 @@ public class TestMapDeserialization
         assertEquals(Integer.valueOf(1), result.get("a"));
 
         assertNull(result.get(""));
+    }
+
+    // [Databind#540]
+    public void testMapFromEmptyArray() throws Exception
+    {
+        final String JSON = "  [\n]";
+        assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
+        // first, verify default settings which do not accept empty Array
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.readValue(JSON, Map.class);
+            fail("Should not accept Empty Array for Map by default");
+        } catch (JsonProcessingException e) {
+            verifyException(e, "START_ARRAY token");
+        }
+        // should be ok to enable dynamically:
+        ObjectReader r = MAPPER.readerFor(Map.class)
+                .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
+
+        Map<?,?> result = r.readValue(JSON);
+        assertNull(result);
+
+        EnumMap<?,?> result2 = r.forType(new TypeReference<EnumMap<Key,String>>() { })
+                .readValue(JSON);
+        assertNull(result2);
     }
 
     /*
@@ -445,6 +466,19 @@ public class TestMapDeserialization
         assertEquals(key, ob);
     }
 
+    public void testCurrencyKeyMap() throws Exception {
+        Currency key = Currency.getInstance("USD");
+        String JSON = "{ \"" + key + "\":4}";
+        Map<Currency, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Currency, Object>>() {
+        });
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Object ob = result.keySet().iterator().next();
+        assertNotNull(ob);
+        assertEquals(Currency.class, ob.getClass());
+        assertEquals(key, ob);
+    }
+
     // Test confirming that @JsonCreator may be used with Map Key types
     public void testKeyWithCreator() throws Exception
     {
@@ -457,6 +491,14 @@ public class TestMapDeserialization
         key = map.keySet().iterator().next();
         assertEquals("foo", key.value);
     }
+
+    public void testClassKeyMap() throws Exception {
+        ClassStringMap map = MAPPER.readValue(aposToQuotes("{'java.lang.String':'foo'}"),
+                ClassStringMap.class);
+        assertNotNull(map);
+        assertEquals(1, map.size());
+        assertEquals("foo", map.get(String.class));
+    }
     
     /*
     /**********************************************************
@@ -468,13 +510,54 @@ public class TestMapDeserialization
      * Simple test to ensure that @JsonDeserialize.using is
      * recognized
      */
-    public void testMapWithDeserializer() throws IOException
+    public void testMapWithDeserializer() throws Exception
     {
         CustomMap result = MAPPER.readValue(quote("xyz"), CustomMap.class);
         assertEquals(1, result.size());
         assertEquals("xyz", result.get("x"));
     }
 
+    /*
+    /**********************************************************
+    /* Test methods, annotated Map.Entry
+    /**********************************************************
+     */
+
+    public void testMapEntrySimpleTypes() throws Exception
+    {
+        List<Map.Entry<String,Long>> stuff = MAPPER.readValue(aposToQuotes("[{'a':15},{'b':42}]"),
+                new TypeReference<List<Map.Entry<String,Long>>>() { });
+        assertNotNull(stuff);
+        assertEquals(2, stuff.size());
+        assertNotNull(stuff.get(1));
+        assertEquals("b", stuff.get(1).getKey());
+        assertEquals(Long.valueOf(42), stuff.get(1).getValue());
+    }
+
+    public void testMapEntryWithStringBean() throws Exception
+    {
+        List<Map.Entry<Integer,StringWrapper>> stuff = MAPPER.readValue(aposToQuotes("[{'28':'Foo'},{'13':'Bar'}]"),
+                new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
+        assertNotNull(stuff);
+        assertEquals(2, stuff.size());
+        assertNotNull(stuff.get(1));
+        assertEquals(Integer.valueOf(13), stuff.get(1).getKey());
+        
+        StringWrapper sw = stuff.get(1).getValue();
+        assertEquals("Bar", sw.str);
+    }
+
+    public void testMapEntryFail() throws Exception
+    {
+        try {
+            /*List<Map.Entry<Integer,StringWrapper>> stuff =*/ MAPPER.readValue(aposToQuotes("[{'28':'Foo','13':'Bar'}]"),
+                    new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
+            fail("Should not have passed");
+        } catch (Exception e) {
+            verifyException(e, "more than one entry in JSON");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Error tests

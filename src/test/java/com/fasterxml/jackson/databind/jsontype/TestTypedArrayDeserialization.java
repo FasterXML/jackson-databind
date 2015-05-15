@@ -104,7 +104,7 @@ public class TestTypedArrayDeserialization
     {
         ObjectMapper m = new ObjectMapper();
         // use class name, WRAPPER_OBJECT
-        m.addMixInAnnotations(long[].class, WrapperMixIn.class);
+        m.addMixIn(long[].class, WrapperMixIn.class);
         String JSON = "{\""+long[].class.getName()+"\":[5, 6, 7]}";
         long[] value = m.readValue(JSON, long[].class);
         assertNotNull(value);

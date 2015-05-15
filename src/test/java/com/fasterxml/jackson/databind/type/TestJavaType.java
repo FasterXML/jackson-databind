@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -9,7 +11,7 @@ import com.fasterxml.jackson.databind.JavaType;
  * some degree
  */
 public class TestJavaType
-    extends com.fasterxml.jackson.test.BaseTest
+    extends BaseMapTest
 {
     static class BaseType { }
 
@@ -20,6 +22,31 @@ public class TestJavaType
         A(1), B(2);
         
         private MyEnum2(int value) { }
+    }
+
+    // [databind#728]
+    static class Issue728 {
+        public <C extends CharSequence> C method(C input) { return null; }
+    }
+    public void testLocalType728() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        Method m = Issue728.class.getMethod("method", CharSequence.class);
+        assertNotNull(m);
+
+        // Start with return type
+        // first type-erased
+        JavaType t = tf.constructType(m.getReturnType());
+        assertEquals(CharSequence.class, t.getRawClass());
+        // then generic
+        t = tf.constructType(m.getGenericReturnType());
+        assertEquals(CharSequence.class, t.getRawClass());
+
+        // then parameter type
+        t = tf.constructType(m.getParameterTypes()[0]);
+        assertEquals(CharSequence.class, t.getRawClass());
+        t = tf.constructType(m.getGenericParameterTypes()[0]);
+        assertEquals(CharSequence.class, t.getRawClass());
     }
 
     /*

@@ -11,12 +11,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestPolymorphicCreators
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper beans
-    /**********************************************************
-     */
-
     static class Animal
     {
         // All animals have names, for our demo purposes...
@@ -58,16 +52,16 @@ public class TestPolymorphicCreators
 
     abstract static class AbstractRoot
     {
-        private final String opt;
+        protected final String opt;
 
-        private AbstractRoot(String opt) {
+        protected AbstractRoot(String opt) {
             this.opt = opt;
         }
 
         @JsonCreator
         public static final AbstractRoot make(@JsonProperty("which") int which,
             @JsonProperty("opt") String opt) {
-            if(1 == which) {
+            if (1 == which) {
                 return new One(opt);
             }
             throw new RuntimeException("cannot instantiate " + which);
@@ -76,12 +70,12 @@ public class TestPolymorphicCreators
         abstract public int getWhich();
 
         public final String getOpt() {
-                return opt;
+            return opt;
         }
     }
 
     static final class One extends AbstractRoot {
-        private One(String opt) {
+        protected One(String opt) {
             super(opt);
         }
 
@@ -135,8 +129,8 @@ public class TestPolymorphicCreators
 
     public void testManualPolymorphicWithNumbered() throws Exception
     {
-         final ObjectWriter w = MAPPER.writerWithType(AbstractRoot.class);
-         final ObjectReader r = MAPPER.reader(AbstractRoot.class);
+         final ObjectWriter w = MAPPER.writerFor(AbstractRoot.class);
+         final ObjectReader r = MAPPER.readerFor(AbstractRoot.class);
 
          AbstractRoot input = AbstractRoot.make(1, "oh hai!");
          String json = w.writeValueAsString(input);

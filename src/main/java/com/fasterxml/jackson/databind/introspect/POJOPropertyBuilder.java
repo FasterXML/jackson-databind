@@ -2,7 +2,9 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 /**
  * Helper class used for aggregating information about a single
@@ -41,7 +43,8 @@ public class POJOPropertyBuilder
 
     protected Linked<AnnotatedMethod> _setters;
 
-    public POJOPropertyBuilder(PropertyName internalName, AnnotationIntrospector ai, boolean forSerialization) {
+    public POJOPropertyBuilder(PropertyName internalName, AnnotationIntrospector ai,
+            boolean forSerialization) {
         this(internalName, internalName, ai, forSerialization);
     }
 
@@ -52,13 +55,6 @@ public class POJOPropertyBuilder
         _name = name;
         _annotationIntrospector = annotationIntrospector;
         _forSerialization = forSerialization;
-    }
-    
-    @Deprecated // since 2.3
-    public POJOPropertyBuilder(String simpleInternalName,
-            AnnotationIntrospector annotationIntrospector, boolean forSerialization)
-    {
-        this(new PropertyName(simpleInternalName), annotationIntrospector, forSerialization);
     }
 
     public POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
@@ -78,12 +74,6 @@ public class POJOPropertyBuilder
     /* Fluent factory methods
     /**********************************************************
      */
-
-    @Deprecated // since 2.3
-    @Override
-    public POJOPropertyBuilder withName(String newName) {
-        return withSimpleName(newName);
-    }
 
     @Override
     public POJOPropertyBuilder withName(PropertyName newName) {
@@ -137,7 +127,12 @@ public class POJOPropertyBuilder
     public PropertyName getFullName() {
         return _name;
     }
-    
+
+    @Override
+    public boolean hasName(PropertyName name) {
+        return _name.equals(name);
+    }
+
     @Override
     public String getInternalName() { return _internalName.getSimpleName(); }
 
@@ -359,6 +354,14 @@ public class POJOPropertyBuilder
         } while (curr != null);
         return _ctorParameters.value;
     }
+
+    @Override
+    public Iterator<AnnotatedParameter> getConstructorParameters() {
+        if (_ctorParameters == null) {
+            return EmptyIterator.instance();
+        }
+        return new MemberIterator<AnnotatedParameter>(_ctorParameters);
+    }
     
     @Override
     public AnnotatedMember getAccessor()
@@ -466,11 +469,12 @@ public class POJOPropertyBuilder
         final Boolean b = _findRequired();
         final String desc = _findDescription();
         final Integer idx = _findIndex();
-        if (b == null && idx == null) {
+        final String def = _findDefaultValue();
+        if (b == null && idx == null && def == null) {
             return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
                     : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
         }
-        return PropertyMetadata.construct(b.booleanValue(), desc, idx);
+        return PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
     }
 
     protected Boolean _findRequired() {
@@ -500,6 +504,15 @@ public class POJOPropertyBuilder
             }
         });
     }
+
+    protected String _findDefaultValue() {
+        return fromMemberAnnotations(new WithMember<String>() {
+            @Override
+            public String withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findPropertyDefaultValue(member);
+            }
+        });
+    }
     
     @Override
     public ObjectIdInfo findObjectIdInfo() {
@@ -514,7 +527,16 @@ public class POJOPropertyBuilder
             }
         });
     }
-    
+
+    @Override
+    public JsonInclude.Include findInclusion() {
+        if (_annotationIntrospector == null) {
+            return null;
+        }
+        AnnotatedMember am = getAccessor();
+        return _annotationIntrospector.findSerializationInclusion(am, null);
+    }
+
     /*
     /**********************************************************
     /* Data aggregation
@@ -560,71 +582,6 @@ public class POJOPropertyBuilder
         return chain1.append(chain2);
     }
 
-    // // Deprecated variants that do not take 'explName': to be removed in a later version
-    // // (but are used at least by 2.3 and earlier versions of Scala module at least so
-    // // need to be careful with phasing out if before 3.0)
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addField(AnnotatedField a, String name, boolean visible, boolean ignored) {
-        addField(a, _propName(name), name != null, visible, ignored);
-    }
-
-    @Deprecated
-    public void addField(AnnotatedField a, String name, boolean explName, boolean visible, boolean ignored) {
-        addField(a, _propName(name), explName, visible, ignored);
-    }
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addCtor(AnnotatedParameter a, String name, boolean visible, boolean ignored) {
-        addCtor(a, _propName(name), name != null, visible, ignored);
-    }
-    @Deprecated
-    public void addCtor(AnnotatedParameter a, String name, boolean explName, boolean visible, boolean ignored) {
-        addCtor(a, _propName(name), explName, visible, ignored);
-    }
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addGetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        addGetter(a, _propName(name), name != null, visible, ignored);
-    }
-    @Deprecated
-    public void addGetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
-        addGetter(a, _propName(name), explName, visible, ignored);
-    }
-    
-    /**
-     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
-     *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method assumes the name is explicit if it is non-null.
-     */
-    @Deprecated
-    public void addSetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        addSetter(a, _propName(name), name != null, visible, ignored);
-    }
-    @Deprecated
-    public void addSetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
-        addSetter(a, _propName(name), explName, visible, ignored);
-    }
-
-    private PropertyName _propName(String simple) {
-        return PropertyName.construct(simple, null);
-    }
-    
     /*
     /**********************************************************
     /* Modifications
@@ -664,6 +621,15 @@ public class POJOPropertyBuilder
         }
     }
 
+    /**
+     * Mutator that will simply drop any constructor parameters property may have.
+     * 
+     * @since 2.5
+     */
+    public void removeConstructors() {
+        _ctorParameters = null;
+    }
+    
     /**
      * Method called to trim unnecessary entries, such as implicit
      * getter if there is an explict one available. This is important
@@ -801,30 +767,6 @@ public class POJOPropertyBuilder
     }
 
     /**
-     * @since 2.4 Use {@link #findExplicitNames} instead
-     */
-    @Deprecated
-    public String findNewName()
-    {
-        Collection<PropertyName> l = findExplicitNames();
-        if (l == null) {
-            return null;
-        }
-        
-        // 13-Apr-2014, tatu: Start with code similar to existing conflict checks
-        if (l.size() > 1) {
-            throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
-                    +_name+"'): found more than one explicit name: "
-                    +l);
-        }
-        PropertyName first = l.iterator().next();
-        if (first.equals(_name)) {
-            return null;
-        }
-        return first.getSimpleName();
-    }
-    
-    /**
      * Method called to find out set of explicit names for accessors
      * bound together due to implicit name.
      * 
@@ -870,6 +812,11 @@ public class POJOPropertyBuilder
         for (Linked<?> node = accessors; node != null; node = node.next) {
             PropertyName name = node.name;
             if (!node.isNameExplicit || name == null) { // no explicit name -- problem!
+                // [Issue#541] ... but only as long as it's visible
+                if (!node.isVisible) {
+                    continue;
+                }
+                
                 throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
                         +_name+"'): found multiple explicit names: "
                         +newNames+", but also implicit accessor: "+node);
@@ -976,6 +923,38 @@ public class POJOPropertyBuilder
     private interface WithMember<T> {
         public T withMember(AnnotatedMember member);
     }
+
+    /**
+     * @since 2.5
+     */
+    protected static class MemberIterator<T extends AnnotatedMember>
+        implements Iterator<T>
+    {
+        private Linked<T> next;
+        
+        public MemberIterator(Linked<T> first) {
+            next = first;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return (next != null);
+        }
+
+        @Override
+        public T next() {
+            if (next == null) throw new NoSuchElementException();
+            T result = next.value;
+            next = next.next;
+            return result;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+        
+    }
     
     /**
      * Node used for creating simple linked lists to efficiently store small sets
@@ -1058,7 +1037,7 @@ public class POJOPropertyBuilder
          * Method called to append given node(s) at the end of this
          * node chain.
          */
-        private Linked<T> append(Linked<T> appendable) {
+        protected Linked<T> append(Linked<T> appendable) {
             if (next == null) {
                 return withNext(appendable);
             }

@@ -102,7 +102,7 @@ public class TestTypedSerialization
     public void testTypeAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.addMixInAnnotations(Animal.class, TypeWithWrapper.class);
+        m.addMixIn(Animal.class, TypeWithWrapper.class);
         Map<String,Object> result = writeAndMap(m, new Cat("Venla", "black"));
         // should get a wrapper; keyed by minimal class name ("Cat" here)
         assertEquals(1, result.size());
@@ -120,7 +120,7 @@ public class TestTypedSerialization
     public void testTypeAsArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.addMixInAnnotations(Animal.class, TypeWithArray.class);
+        m.addMixIn(Animal.class, TypeWithArray.class);
         // hmmh. Not good idea to rely on exact output, order may change. But...
         Map<String,Object> result = writeAndMap(m, new AnimalWrapper(new Dog("Amadeus", 7)));
         // First level, wrapper
@@ -197,7 +197,7 @@ public class TestTypedSerialization
         List<Super> list = new ArrayList<Super>();
         list.add(new A());
         map.put(1L, list);
-        String json = mapper.writerWithType(new TypeReference<Map<Long, Collection<Super>>>() {}).writeValueAsString(map);
+        String json = mapper.writerFor(new TypeReference<Map<Long, Collection<Super>>>() {}).writeValueAsString(map);
         assertTrue("JSON does not contain '@class': "+json, json.contains("@class"));
     }
 }

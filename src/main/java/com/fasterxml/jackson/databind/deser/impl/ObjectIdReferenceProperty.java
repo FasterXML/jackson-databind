@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -16,8 +12,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 
 public class ObjectIdReferenceProperty extends SettableBeanProperty {
-    private static final long serialVersionUID = 8465266677345565407L;
-    private SettableBeanProperty _forward;
+    private static final long serialVersionUID = 1L;
+
+    private final SettableBeanProperty _forward;
 
     public ObjectIdReferenceProperty(SettableBeanProperty forward, ObjectIdInfo objectIdInfo)
     {
@@ -61,22 +58,19 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
     }
 
     @Override
-    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
-    {
-        deserializeSetAndReturn(jp, ctxt, instance);
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance) throws IOException {
+        deserializeSetAndReturn(p, ctxt, instance);
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp, DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance) throws IOException
     {
-        boolean usingIdentityInfo = _objectIdInfo != null || _valueDeserializer.getObjectIdReader() != null;
         try {
-            return setAndReturn(instance, deserialize(jp, ctxt));
+            return setAndReturn(instance, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
+            boolean usingIdentityInfo = (_objectIdInfo != null) || (_valueDeserializer.getObjectIdReader() != null);
             if (!usingIdentityInfo) {
-                throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
+                throw JsonMappingException.from(p, "Unresolved forward reference but no identity info.", reference);
             }
             reference.getRoid().appendReferring(new PropertyReferring(this, reference, _type.getRawClass(), instance));
             return null;

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.Version;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -30,8 +29,7 @@ public class SimpleModule
     extends Module
     implements java.io.Serializable
 {
-    // at 2.4.0:
-    private static final long serialVersionUID = -8905749147637667249L;
+    private static final long serialVersionUID = 1L; // 2.5.0
 
     protected final String _name;
     protected final Version _version;
@@ -94,8 +92,11 @@ public class SimpleModule
      * use actual name and version number information.
      */
     public SimpleModule() {
-        // when passing 'this', can not chain constructors...
-        _name = "SimpleModule-"+System.identityHashCode(this);
+        // can't chain when making reference to 'this'
+        // note: generate different name for direct instantiation, sub-classing
+        _name = (getClass() == SimpleModule.class) ?
+                "SimpleModule-"+System.identityHashCode(this)
+                : getClass().getName();
         _version = Version.unknownVersion();
     }
     
@@ -161,6 +162,19 @@ public class SimpleModule
         if (serializers != null) {
             _serializers = new SimpleSerializers(serializers);
         }
+    }
+
+    /**
+     * Since instances are likely to be custom, implementation returns
+     * <code>null</code> if (but only if!) this class is directly instantiated;
+     * but class name (default impl) for sub-classes.
+     */
+    @Override
+    public Object getTypeId() {
+        if (getClass() == SimpleModule.class) {
+            return null;
+        }
+        return super.getTypeId();
     }
     
     /*

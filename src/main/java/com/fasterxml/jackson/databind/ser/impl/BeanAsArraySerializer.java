@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -44,6 +43,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class BeanAsArraySerializer
     extends BeanSerializerBase
 {
+    private static final long serialVersionUID = -893701886577615846L;
+
     /**
      * Serializer that would produce JSON Object version; used in
      * cases where array output can not be used.
@@ -119,40 +120,57 @@ public class BeanAsArraySerializer
     /**********************************************************
      */
 
-    // Re-defined from base class...
+    // Re-defined from base class, due to differing prefixes
     @Override
-    public void serializeWithType(Object bean, JsonGenerator jgen,
+    public void serializeWithType(Object bean, JsonGenerator gen,
             SerializerProvider provider, TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
-        /* Should not even get here; but let's be nice and re-route
-         * if need be.
+        /* 10-Dec-2014, tatu: Not sure if this can be made to work reliably;
+         *   but for sure delegating to default implementation will not work. So:
          */
-        _defaultSerializer.serializeWithType(bean, jgen, provider, typeSer);
+        if (_objectIdWriter != null) {
+            _serializeWithObjectId(bean, gen, provider, typeSer);
+            return;
+        }
+        String typeStr = (_typeId == null) ? null : _customTypeId(bean);
+        if (typeStr == null) {
+            typeSer.writeTypePrefixForArray(bean, gen);
+        } else {
+            typeSer.writeCustomTypePrefixForArray(bean, gen, typeStr);
+        }
+        serializeAsArray(bean, gen, provider);
+        if (typeStr == null) {
+            typeSer.writeTypeSuffixForArray(bean, gen);
+        } else {
+            typeSer.writeCustomTypeSuffixForArray(bean, gen, typeStr);
+        }
     }
-    
+
     /**
      * Main serialization method that will delegate actual output to
      * configured
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
         // [JACKSON-805]
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(provider)) {
-            serializeAsArray(bean, jgen, provider);
+            serializeAsArray(bean, gen, provider);
             return;
         }
         /* note: it is assumed here that limitations (type id, object id,
          * any getter, filtering) have already been checked; so code here
          * is trivial.
          */
-        jgen.writeStartArray();
-        serializeAsArray(bean, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray();
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(bean);
+        serializeAsArray(bean, gen, provider);
+        gen.writeEndArray();
     }
 
     /*
@@ -171,8 +189,8 @@ public class BeanAsArraySerializer
         return props.length == 1;
     }
 
-    protected final void serializeAsArray(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    protected final void serializeAsArray(Object bean, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
         final BeanPropertyWriter[] props;
         if (_filteredProps != null && provider.getActiveView() != null) {
@@ -186,14 +204,14 @@ public class BeanAsArraySerializer
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop == null) { // can have nulls in filtered list; but if so, MUST write placeholders
-                    jgen.writeNull();
+                    gen.writeNull();
                 } else {
-                    prop.serializeAsElement(bean, jgen, provider);
+                    prop.serializeAsElement(bean, gen, provider);
                 }
             }
             // NOTE: any getters can not be supported either
             //if (_anyGetterWriter != null) {
-            //    _anyGetterWriter.getAndSerialize(bean, jgen, provider);
+            //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
             //}
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();

@@ -173,6 +173,43 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_IGNORED_PROPERTIES(false),
 
     /**
+     * Feature that determines what happens if an Object Id reference is encountered
+     * that does not refer to an actual Object with that id ("unresolved Object Id"):
+     * either an exception is thrown (<code>true</code>), or a null object is used
+     * instead (<code>false</code>).
+     * Note that if this is set to <code>false</code>, no further processing is done;
+     * specifically, if reference is defined via setter method, that method will NOT
+     * be called.
+     *<p>
+     * Feature is enabled by default, so that unknown Object Ids will result in an
+     * exception being thrown, at the end of deserialization.
+     * 
+     * @since 2.5
+     */
+    FAIL_ON_UNRESOLVED_OBJECT_IDS(true),
+
+    /**
+     * Feature that determines what happens if one or more Creator properties (properties
+     * bound to parameters of Creator method (constructor or static factory method))
+     * are missing value to bind to from content.
+     * If enabled, such missing values result in a {@link JsonMappingException} being
+     * thrown with information on the first one (by index) of missing properties.
+     * If disabled, and if property is NOT marked as required,
+     * missing Creator properties are filled
+     * with <code>null values</code> provided by deserializer for the type of parameter
+     * (usually null for Object types, and default value for primitives; but redefinable
+     * via custom deserializers).
+     *<p>
+     * Note that having an injectable value counts as "not missing".
+     *<p>
+     * Feature is disabled by default, so that no exception is thrown for missing creator
+     * property values, unless they are explicitly marked as `required`.
+     * 
+     * @since 2.6
+     */
+    FAIL_ON_MISSING_CREATOR_PROPERTIES(false),
+    
+    /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about
@@ -188,7 +225,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     WRAP_EXCEPTIONS(true),
-    
+
     /*
     /******************************************************
     /* Structural conversion features
@@ -243,12 +280,41 @@ public enum DeserializationFeature implements ConfigFeature
      * If disabled, standard POJOs can only be bound from JSON null or
      * JSON Object (standard meaning that no custom deserializers or
      * constructors are defined; both of which can add support for other
-     * kinds of JSON values); if enable, empty JSON String can be taken
+     * kinds of JSON values); if enabled, empty JSON String can be taken
      * to be equivalent of JSON null.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default.
      */
     ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false),
+
+    /**
+     * Feature that can be enabled to allow empty JSON Array
+     * value (that is, <code>[ ]</code>) to be bound to POJOs as null.
+     * If disabled, standard POJOs can only be bound from JSON null or
+     * JSON Object (standard meaning that no custom deserializers or
+     * constructors are defined; both of which can add support for other
+     * kinds of JSON values); if enabled, empty JSON Array will be taken
+     * to be equivalent of JSON null.
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.5
+     */
+    ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT(false),
+
+    /**
+     * Feature that determines whether coercion from JSON floating point
+     * number (anything with command (`.`) or exponent portion (`e` / `E'))
+     * to an expected integral number (`int`, `long`, `java.lang.Integer`, `java.lang.Long`,
+     * `java.math.BigDecimal`) is allowed or not.
+     * If enabled, coercion truncates value; if disabled, a {@link JsonMappingException}
+     * will be thrown.
+     *<p>
+     * Feature is enabled by default.
+     * 
+     * @since 2.6
+     */
+    ACCEPT_FLOAT_AS_INT(true),
     
     /**
      * Feature that allows unknown Enum values to be parsed as null values. 
@@ -319,14 +385,21 @@ public enum DeserializationFeature implements ConfigFeature
     ;
 
     private final boolean _defaultState;
+    private final int _mask;
     
     private DeserializationFeature(boolean defaultState) {
         _defaultState = defaultState;
+        _mask = (1 << ordinal());
     }
 
     @Override
     public boolean enabledByDefault() { return _defaultState; }
 
     @Override
-    public int getMask() { return (1 << ordinal()); }
+    public int getMask() { return _mask; }
+
+    /**
+     * @since 2.5
+     */
+    public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 }

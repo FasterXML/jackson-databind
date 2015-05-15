@@ -5,6 +5,26 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestNameConflicts extends BaseMapTest
 {
+    @JsonAutoDetect
+    (fieldVisibility= JsonAutoDetect.Visibility.NONE,getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, isGetterVisibility= JsonAutoDetect.Visibility.NONE)
+    static class CoreBean158 {
+        protected String bar = "x";
+
+        @JsonProperty
+        public String getBar() {
+            return bar;
+        }
+
+        @JsonProperty
+        public void setBar(String bar) {
+            this.bar = bar;
+        }
+
+        public void setBar(java.io.Serializable bar) {
+            this.bar = bar.toString();
+        }
+    }
+    
     static class Bean193
     {
         @JsonProperty("val1")
@@ -64,6 +84,8 @@ public class TestNameConflicts extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     // [Issue#193]
     public void testIssue193() throws Exception
     {
@@ -74,7 +96,7 @@ public class TestNameConflicts extends BaseMapTest
     // [Issue#327]
     public void testNonConflict() throws Exception
     {
-        String json = objectMapper().writeValueAsString(new BogusConflictBean());
+        String json = MAPPER.writeValueAsString(new BogusConflictBean());
         assertEquals(aposToQuotes("{'prop1':2,'prop2':1}"), json);
     }    
 
@@ -83,4 +105,22 @@ public class TestNameConflicts extends BaseMapTest
         String json = objectWriter().writeValueAsString(new MultipleTheoreticalGetters());
         assertEquals(aposToQuotes("{'a':3}"), json);
     }
+
+    // for [jackson-core#158]
+    public void testOverrideName() throws Exception
+    {
+        final ObjectMapper mapper = objectMapper();
+        String json = mapper.writeValueAsString(new CoreBean158());
+        assertEquals(aposToQuotes("{'bar':'x'}"), json);
+
+        // and back
+        CoreBean158 result = null;
+        try {
+            result = mapper.readValue(aposToQuotes("{'bar':'y'}"), CoreBean158.class);
+        } catch (Exception e) {
+            fail("Unexpected failure when reading CoreBean158: "+e);
+        }
+        assertNotNull(result);
+        assertEquals("y", result.bar);
+    }    
 }

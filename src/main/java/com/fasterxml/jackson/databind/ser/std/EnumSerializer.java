@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -32,6 +31,8 @@ public class EnumSerializer
     extends StdScalarSerializer<Enum<?>>
     implements ContextualSerializer
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * This map contains pre-resolved values (since there are ways
      * to customize actual String constants to use) to use as
@@ -64,7 +65,7 @@ public class EnumSerializer
 
     public EnumSerializer(EnumValues v, Boolean serializeAsIndex)
     {
-        super(Enum.class, false);
+        super(v.getEnumClass(), false);
         _values = v;
         _serializeAsIndex = serializeAsIndex;
     }
@@ -75,11 +76,15 @@ public class EnumSerializer
      * 
      * @since 2.1
      */
-    public static EnumSerializer construct(Class<Enum<?>> enumClass, SerializationConfig config,
+    @SuppressWarnings("unchecked")
+    public static EnumSerializer construct(Class<?> enumClass, SerializationConfig config,
             BeanDescription beanDesc, JsonFormat.Value format)
     {
-        // [JACKSON-212]: If toString() is to be used instead, leave EnumValues null
-        EnumValues v = EnumValues.construct(config, enumClass);
+        /* 08-Apr-2015, tatu: As per [databind#749], we can not statically determine
+         *   between name() and toString(), need to construct `EnumValues` with names,
+         *   handle toString() case dynamically (for example)
+         */
+        EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true);
         return new EnumSerializer(v, serializeAsIndex);
     }
@@ -119,15 +124,20 @@ public class EnumSerializer
      */
     
     @Override
-    public final void serialize(Enum<?> en, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public final void serialize(Enum<?> en, JsonGenerator gen, SerializerProvider serializers)
+        throws IOException
     {
         // [JACKSON-684]: serialize as index?
-        if (_serializeAsIndex(provider)) {
-            jgen.writeNumber(en.ordinal());
+        if (_serializeAsIndex(serializers)) {
+            gen.writeNumber(en.ordinal());
             return;
         }
-        jgen.writeString(_values.serializedValueFor(en));
+        // [databind#749]: or via toString()?
+        if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+            gen.writeString(en.toString());
+            return;
+        }
+        gen.writeString(_values.serializedValueFor(en));
     }
     
     @Override
@@ -152,25 +162,33 @@ public class EnumSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+        throws JsonMappingException
     {
-        // [JACKSON-684]: serialize as index?
-        if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+        SerializerProvider serializers = visitor.getProvider();
+        if (_serializeAsIndex(serializers)) {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) { // typically serialized as a small number (byte or int)
                 v2.numberType(JsonParser.NumberType.INT);
             }
-        } else {
-    		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-    		if (typeHint != null && stringVisitor != null) {
-    			if (typeHint.isEnumType()) {
-    				Set<String> enums = new LinkedHashSet<String>();
-    				for (SerializableString value : _values.values()) {
-    					enums.add(value.getValue());
-    				}
-    				stringVisitor.enumTypes(enums);
-    			}
-    		}
+            return;
+        }
+        JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
+        if (stringVisitor != null) {
+            Set<String> enums = new LinkedHashSet<String>();
+            
+            // Use toString()?
+            if ((serializers != null) && 
+                    serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                for (Enum<?> e : _values.enums()) {
+                    enums.add(e.toString());
+                }
+            } else {
+                // No, serialize using name() or explicit overrides
+                for (SerializableString value : _values.values()) {
+                    enums.add(value.getValue());
+                }
+            }
+            stringVisitor.enumTypes(enums);
         }
     }
 
@@ -180,13 +198,12 @@ public class EnumSerializer
     /**********************************************************
      */
     
-    protected final boolean _serializeAsIndex(SerializerProvider provider)
+    protected final boolean _serializeAsIndex(SerializerProvider serializers)
     {
         if (_serializeAsIndex != null) {
             return _serializeAsIndex.booleanValue();
         }
-        return provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        
+        return serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
     }
 
     /**
@@ -205,7 +222,8 @@ public class EnumSerializer
         if (shape == Shape.STRING) {
             return Boolean.FALSE;
         }
-        if (shape.isNumeric()) {
+        // 01-Oct-2014, tatu: For convenience, consider "as-array" to also mean 'yes, use index')
+        if (shape.isNumeric() || (shape == Shape.ARRAY)) {
             return Boolean.TRUE;
         }
         throw new IllegalArgumentException("Unsupported serialization shape ("+shape+") for Enum "+enumClass.getName()
@@ -214,4 +232,3 @@ public class EnumSerializer
                     +" annotation");
     }
 }
-

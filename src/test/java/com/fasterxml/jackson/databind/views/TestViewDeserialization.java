@@ -59,7 +59,7 @@ public class TestViewDeserialization extends BaseMapTest
         
         // but with different views, different contents
         bean = mapper.readerWithView(ViewAA.class)
-                .withType(Bean.class)
+                .forType(Bean.class)
                 .readValue("{\"a\":3, \"aa\":\"foo\", \"b\": 9 }");
         // should include 'a' and 'aa' (as per view)
         assertEquals(3, bean.a);
@@ -68,13 +68,13 @@ public class TestViewDeserialization extends BaseMapTest
         assertEquals(0, bean.b);
 
         bean = mapper.readerWithView(ViewA.class)
-                .withType(Bean.class)
+                .forType(Bean.class)
                 .readValue("{\"a\":1, \"aa\":\"x\", \"b\": 3 }");
         assertEquals(1, bean.a);
         assertNull(bean.aa);
         assertEquals(0, bean.b);
         
-        bean = mapper.reader(Bean.class)
+        bean = mapper.readerFor(Bean.class)
                 .withView(ViewB.class)
                 .readValue("{\"a\":-3, \"aa\":\"y\", \"b\": 2 }");
         assertEquals(0, bean.a);
@@ -95,7 +95,7 @@ public class TestViewDeserialization extends BaseMapTest
 
         // but with, say, AA, will not get 'b'
         bean = myMapper.readerWithView(ViewAA.class)
-                .withType(DefaultsBean.class)
+                .forType(DefaultsBean.class)
                 .readValue("{\"a\":1, \"b\": 2 }");
         // 'a' not there any more
         assertEquals(0, bean.a);

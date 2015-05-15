@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -12,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
  * bean serialization.
  */
 public class TestAnnotationInheritance
-    extends com.fasterxml.jackson.test.BaseTest
+    extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -91,20 +90,5 @@ public class TestAnnotationInheritance
         assertEquals(Integer.valueOf(5), result.get("foobar"));
         assertEquals(Integer.valueOf(1), result.get("width"));
         assertEquals(Integer.valueOf(2), result.get("length"));
-    }
-
-    /*
-    //////////////////////////////////////////////
-    // Helper methods
-    //////////////////////////////////////////////
-     */
-
-    @SuppressWarnings("unchecked")
-	private Map<String,Object> writeAndMap(ObjectMapper m, Object value)
-        throws IOException
-    {
-        StringWriter sw = new StringWriter();
-        m.writeValue(sw, value);
-        return (Map<String,Object>) m.readValue(sw.toString(), Object.class);
     }
 }

@@ -97,11 +97,11 @@ public abstract class JsonSerializer<T>
      * values of type this serializer handles.
      *
      * @param value Value to serialize; can <b>not</b> be null.
-     * @param jgen Generator used to output resulting Json content
-     * @param provider Provider that can be used to get serializers for
+     * @param gen Generator used to output resulting Json content
+     * @param serializers Provider that can be used to get serializers for
      *   serializing Objects value contains, if any.
      */
-    public abstract void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
+    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
         throws IOException, JsonProcessingException;
 
     /**
@@ -116,9 +116,9 @@ public abstract class JsonSerializer<T>
      * implementation would look like:
      *<pre>
      *  // note: method to call depends on whether this type is serialized as JSON scalar, object or Array!
-     *  typeSer.writeTypePrefixForScalar(value, jgen);
-     *  serialize(value, jgen, provider);
-     *  typeSer.writeTypeSuffixForScalar(value, jgen);
+     *  typeSer.writeTypePrefixForScalar(value, gen);
+     *  serialize(value, gen, provider);
+     *  typeSer.writeTypeSuffixForScalar(value, gen);
      *</pre>
      * and implementations for type serialized as JSON Arrays or Objects would differ slightly,
      * as <code>START-ARRAY>/<code>END-ARRAY</code> and
@@ -126,20 +126,21 @@ public abstract class JsonSerializer<T>
      * need to be properly handled with respect to serializing of contents.
      *
      * @param value Value to serialize; can <b>not</b> be null.
-     * @param jgen Generator used to output resulting Json content
-     * @param provider Provider that can be used to get serializers for
+     * @param gen Generator used to output resulting Json content
+     * @param serializers Provider that can be used to get serializers for
      *   serializing Objects value contains, if any.
      * @param typeSer Type serializer to use for including type information
      */
-    public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider serializers,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         Class<?> clz = handledType();
         if (clz == null) {
             clz = value.getClass();
         }
-        throw new UnsupportedOperationException("Type id handling not implemented for type "+clz.getName());
+        throw serializers.mappingException("Type id handling not implemented for type %s (by serializer of type %s)",
+                clz.getName(), getClass().getName());
     }
     
     /*
@@ -169,11 +170,30 @@ public abstract class JsonSerializer<T>
      * Default implementation will consider only null values to be empty.
      * 
      * @since 2.0
+     * 
+     * @deprecated Since 2.5 Use {@link #isEmpty(SerializerProvider, Object)} instead;
+     *   will be removed from 2.7
      */
+    @Deprecated
     public boolean isEmpty(T value) {
-        return (value == null);
+        return isEmpty(null, value);
     }
 
+    /**
+     * Method called to check whether given serializable value is
+     * considered "empty" value (for purposes of suppressing serialization
+     * of empty values).
+     *<p>
+     * Default implementation will consider only null values to be empty.
+     *<p>
+     * NOTE: replaces {@link #isEmpty(Object)}, deprecated in 2.5
+     * 
+     * @since 2.5
+     */
+    public boolean isEmpty(SerializerProvider provider, T value) {
+        return (value == null);
+    }
+    
     /**
      * Method that can be called to see whether this serializer instance
      * will use Object Id to handle cyclic references.

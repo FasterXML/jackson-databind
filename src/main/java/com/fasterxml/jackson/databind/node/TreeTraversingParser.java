@@ -70,12 +70,12 @@ public class TreeTraversingParser extends ParserMinimalBase
         _objectCodec = codec;
         if (n.isArray()) {
             _nextToken = JsonToken.START_ARRAY;
-            _nodeCursor = new NodeCursor.Array(n, null);
+            _nodeCursor = new NodeCursor.ArrayCursor(n, null);
         } else if (n.isObject()) {
             _nextToken = JsonToken.START_OBJECT;
-            _nodeCursor = new NodeCursor.Object(n, null);
+            _nodeCursor = new NodeCursor.ObjectCursor(n, null);
         } else { // value node
-            _nodeCursor = new NodeCursor.RootValue(n, null);
+            _nodeCursor = new NodeCursor.RootCursor(n, null);
         }
     }
 

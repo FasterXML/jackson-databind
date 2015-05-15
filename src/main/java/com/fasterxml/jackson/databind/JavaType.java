@@ -3,13 +3,14 @@ package com.fasterxml.jackson.databind;
 import java.lang.reflect.Modifier;
 
 import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Base class for type token classes used both to contain information
  * and as keys for deserializers.
  *<p>
  * Instances can (only) be constructed by
- * <code>com.fasterxml.jackson.databind.TypeFactory</code>.
+ * <code>com.fasterxml.jackson.databind.type.TypeFactory</code>.
  *<p>
  * Since 2.2 this implements {@link java.lang.reflect.Type} to allow
  * it to be pushed through interfaces that only expose that type.
@@ -226,6 +227,13 @@ public abstract class JavaType
     @Override
     public final boolean hasRawClass(Class<?> clz) { return _class == clz; }
 
+    /**
+     * @since 2.6
+     */
+    public final boolean isTypeOrSubTypeOf(Class<?> clz) {
+        return (_class == clz) || (clz.isAssignableFrom(_class));
+    }
+
     @Override
     public boolean isAbstract() {
         return Modifier.isAbstract(_class.getModifiers());
@@ -290,6 +298,17 @@ public abstract class JavaType
     public boolean isMapLikeType() { return false; }
 
     /**
+     * Convenience method, short-hand for
+     *<code>
+     *   getRawClass() == Object.class
+     *</code>
+     * and used to figure if we basically have "untyped" type object.
+     *
+     * @since 2.5
+     */
+    public final boolean isJavaLangObject() { return _class == Object.class; }
+
+    /**
      * Accessor for checking whether handlers for dealing with values of
      * this type should use static typing (as opposed to dynamic typing).
      * Note that while value of 'true' does mean that static typing is to
@@ -298,7 +317,7 @@ public abstract class JavaType
      * @since 2.2
      */
     public final boolean useStaticType() { return _asStatic; }
-    
+
     /*
     /**********************************************************
     /* Public API, type parameter access; pass-through
@@ -314,14 +333,47 @@ public abstract class JavaType
     @Override
     public JavaType getContentType() { return null; }
 
+    @Override // since 2.6
+    public JavaType getReferencedType() { return null; }
+    
     @Override
     public int containedTypeCount() { return 0; }
 
     @Override
     public JavaType containedType(int index) { return null; }
-
+       
     @Override
     public String containedTypeName(int index) { return null; }
+
+    @Override
+    public abstract Class<?> getParameterSource();
+    
+    /*
+    /**********************************************************
+    /* Extended API beyond ResolvedType
+    /**********************************************************
+     */
+    
+    // NOTE: not defined in Resolved type
+    /**
+     * Convenience method that is functionally same as:
+     *<code>
+     * JavaType t = containedType(index);
+     * if (t == null) {
+     *    t = TypeFactory.unknownType();
+     * }
+     *</code>
+     * and typically used to eliminate need for null checks for common case
+     * where we just want to check if containedType is available first; and
+     * if not, use "unknown type" (which translates to <code>java.lang.Object</code>
+     * basically).
+     *
+     * @since 2.5
+     */
+    public JavaType containedTypeOrUnknown(int index) {
+        JavaType t = containedType(index);
+        return (t == null)  ? TypeFactory.unknownType() : t;
+    }
 
     /*
     /**********************************************************
@@ -341,6 +393,11 @@ public abstract class JavaType
     @SuppressWarnings("unchecked")
     public <T> T getTypeHandler() { return (T) _typeHandler; }
 
+    /**
+     * @since 2.6
+     */
+    public boolean hasValueHandler() { return _valueHandler != null; }
+    
     /*
     /**********************************************************
     /* Support for producing signatures

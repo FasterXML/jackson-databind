@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.util.EnumSet;
+import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
+@SuppressWarnings("serial")
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
 {
@@ -35,13 +35,26 @@ public class EnumSetSerializer
     }
     
     @Override
-    public boolean isEmpty(EnumSet<? extends Enum<?>> value) {
+    public boolean isEmpty(SerializerProvider prov, EnumSet<? extends Enum<?>> value) {
         return (value == null) || value.isEmpty();
     }
 
     @Override
     public boolean hasSingleElement(EnumSet<? extends Enum<?>> value) {
         return value.size() == 1;
+    }
+
+    @Override
+    public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    {
+    	final int len = value.size();
+        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
+        jgen.writeStartArray(len);
+        serializeContents(value, jgen, provider);
+        jgen.writeEndArray();
     }
     
     @Override

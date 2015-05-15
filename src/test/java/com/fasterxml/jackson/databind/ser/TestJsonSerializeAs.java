@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class TestJsonSerializeAs extends BaseMapTest
 {
     // [JACKSON-799] stuff:
-    
     public interface Fooable {
         public int getFoo();
     }
@@ -32,7 +31,7 @@ public class TestJsonSerializeAs extends BaseMapTest
             return new FooImpl();
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -40,7 +39,7 @@ public class TestJsonSerializeAs extends BaseMapTest
      */
 
     private final ObjectWriter WRITER = objectWriter();
-    
+
     // [JACKSON-799]
     public void testSerializeAsInClass() throws IOException
     {

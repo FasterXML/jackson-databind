@@ -118,7 +118,7 @@ public class TestTreeWithType extends BaseMapTest
 
          SavedCookie savedCookie = new SavedCookie("key", "v");
          String json = mapper.writeValueAsString(savedCookie);
-         SavedCookie out = mapper.reader(SavedCookie.class).readValue(json);
+         SavedCookie out = mapper.readerFor(SavedCookie.class).readValue(json);
 
          assertEquals("key", out.name);
          assertEquals("v", out.value);

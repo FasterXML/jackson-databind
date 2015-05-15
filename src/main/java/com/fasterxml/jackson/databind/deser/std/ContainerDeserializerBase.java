@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.deser.std;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
 /**
@@ -30,7 +34,7 @@ public abstract class ContainerDeserializerBase<T>
     /* Overrides
     /**********************************************************
      */
-    
+
     @Override
     public SettableBeanProperty findBackReference(String refName) {
         JsonDeserializer<Object> valueDeser = getContentDeserializer();
@@ -57,4 +61,30 @@ public abstract class ContainerDeserializerBase<T>
      * Accesor for deserializer use for deserializing content values.
      */
     public abstract JsonDeserializer<Object> getContentDeserializer();
+
+    /*
+    /**********************************************************
+    /* Shared methods for sub-classes
+    /**********************************************************
+     */
+
+    /**
+     * Helper method called by various Map(-like) deserializers.
+     */
+    protected void wrapAndThrow(Throwable t, Object ref, String key) throws IOException
+    {
+        // to handle StackOverflow:
+        while (t instanceof InvocationTargetException && t.getCause() != null) {
+            t = t.getCause();
+        }
+        // Errors and "plain" IOExceptions to be passed as is
+        if (t instanceof Error) {
+            throw (Error) t;
+        }
+        // ... except for mapping exceptions
+        if (t instanceof IOException && !(t instanceof JsonMappingException)) {
+            throw (IOException) t;
+        }
+        throw JsonMappingException.wrapWithPath(t, ref, key);
+    }
 }

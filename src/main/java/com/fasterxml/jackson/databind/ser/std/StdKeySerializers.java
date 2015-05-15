@@ -5,64 +5,119 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
+@SuppressWarnings("serial")
 public class StdKeySerializers
 {
     protected final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
 
-    @SuppressWarnings("unchecked")
-    protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER
-        = (JsonSerializer<Object>)(JsonSerializer<?>) new StringKeySerializer();
+    protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
 
     private StdKeySerializers() { }
 
-    @SuppressWarnings("unchecked")
-    public static JsonSerializer<Object> getStdKeySerializer(JavaType keyType)
+    /**
+     * @param config Serialization configuration in use, may be needed in choosing
+     *    serializer to use
+     * @param rawKeyType Type of key values to serialize
+     * @param useDefault If no match is found, should we return fallback deserializer
+     *    (true), or null (false)?
+     */
+    public static JsonSerializer<Object> getStdKeySerializer(SerializationConfig config,
+            Class<?> rawKeyType, boolean useDefault)
     {
-        if (keyType == null) {
-            return DEFAULT_KEY_SERIALIZER;
+        if (rawKeyType != null) {
+            if (rawKeyType == String.class) {
+                return DEFAULT_STRING_SERIALIZER;
+            }
+            if (rawKeyType == Object.class || rawKeyType.isPrimitive()
+                    || Number.class.isAssignableFrom(rawKeyType)) {
+                return DEFAULT_KEY_SERIALIZER;
+            }
+            if (rawKeyType == Class.class) {
+                return new Default(Default.TYPE_CLASS, rawKeyType);
+            }
+            if (Date.class.isAssignableFrom(rawKeyType)) {
+                return new Default(Default.TYPE_DATE, rawKeyType);
+            }
+            if (Calendar.class.isAssignableFrom(rawKeyType)) {
+                return new Default(Default.TYPE_CALENDAR, rawKeyType);
+            }
+            // other types we know convert properly with 'toString()'?
+            if (rawKeyType == java.util.UUID.class) {
+                return new Default(Default.TYPE_TO_STRING, rawKeyType);
+            }
         }
-        Class<?> cls = keyType.getRawClass();
-        if (cls == String.class) {
-            return DEFAULT_STRING_SERIALIZER;
-        }
-        if (cls == Object.class || cls.isPrimitive() || Number.class.isAssignableFrom(cls)) {
-            return DEFAULT_KEY_SERIALIZER;
-        }
-        if (Date.class.isAssignableFrom(cls)) {
-            return (JsonSerializer<Object>) DateKeySerializer.instance;
-        }
-        if (Calendar.class.isAssignableFrom(cls)) {
-            return (JsonSerializer<Object>) CalendarKeySerializer.instance;
-        }
-        /* 14-Mar-2014, tatu: Should support @JsonValue, as per #47; but that
-         *   requires extensive introspection, and passing in more information
-         *   to this method.
-         */
-        // If no match, just use default one:
-        return DEFAULT_KEY_SERIALIZER;
+        return useDefault ? DEFAULT_KEY_SERIALIZER : null;
     }
 
+    /**
+     * @deprecated Since 2.5
+     */
+    @Deprecated
+    public static JsonSerializer<Object> getStdKeySerializer(JavaType keyType) {
+        return getStdKeySerializer(null, keyType.getRawClass(), true);
+    }
+
+    public static JsonSerializer<Object> getDefault() {
+        return DEFAULT_KEY_SERIALIZER;
+    }
+    
     /*
     /**********************************************************
-    /* Standard implementations
+    /* Standard implementations used
     /**********************************************************
      */
 
-    public static class StringKeySerializer extends StdSerializer<String>
-    {
-        public StringKeySerializer() { super(String.class); }
+    public static class Default extends StdSerializer<Object> {
+        final static int TYPE_DATE = 1;
+        final static int TYPE_CALENDAR = 2;
+        final static int TYPE_CLASS = 3;
+        final static int TYPE_TO_STRING = 4;
+
+        protected final int _typeId;
         
+        public Default(int typeId, Class<?> type) {
+            super(type, false);
+            _typeId = typeId;
+        }
+
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            jgen.writeFieldName(value);
+        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+            switch (_typeId) {
+            case TYPE_DATE:
+                provider.defaultSerializeDateKey((Date)value, jgen);
+                break;
+            case TYPE_CALENDAR:
+                provider.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), jgen);
+                break;
+            case TYPE_CLASS:
+                jgen.writeFieldName(((Class<?>)value).getName());
+                break;
+            case TYPE_TO_STRING:
+            default:
+                jgen.writeFieldName(value.toString());
+            }
         }
     }
 
+    public static class StringKeySerializer extends StdSerializer<Object>
+    {
+        public StringKeySerializer() { super(String.class, false); }
+
+        @Override
+        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+            jgen.writeFieldName((String) value);
+        }
+    }
+    
+    /*
+    /**********************************************************
+    /* Deprecated implementations: to be removed in future
+    /**********************************************************
+     */
+
+    @Deprecated // since 2.6; remove from 2.7 or later
     public static class DateKeySerializer extends StdSerializer<Date> {
         protected final static JsonSerializer<?> instance = new DateKeySerializer();
 
@@ -74,6 +129,7 @@ public class StdKeySerializers
         }
     }
 
+    @Deprecated // since 2.6; remove from 2.7 or later
     public static class CalendarKeySerializer extends StdSerializer<Calendar> {
         protected final static JsonSerializer<?> instance = new CalendarKeySerializer();
 

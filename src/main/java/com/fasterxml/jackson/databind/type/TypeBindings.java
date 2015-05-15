@@ -114,8 +114,13 @@ public class TypeBindings
         }
         return _bindings.size();
     }
+
+    @Deprecated // since 2.6, remove from 2.7
+    public JavaType findType(String name) {
+        return findType(name, true);
+    }
     
-    public JavaType findType(String name)
+    public JavaType findType(String name, boolean mustFind)
     {
         if (_bindings == null) {
             _resolve();
@@ -157,6 +162,10 @@ public class TypeBindings
                 }
                 */
             }
+        }
+
+        if (!mustFind) {
+            return null;
         }
         
         String className;
@@ -230,7 +239,7 @@ public class TypeBindings
     protected void _resolveBindings(Type t)
     {
         if (t == null) return;
-        
+
         Class<?> raw;
         if (t instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) t;
@@ -299,7 +308,7 @@ public class TypeBindings
                         }
                         _addPlaceholder(name); // to prevent infinite loops
 
-                        if (typeParams != null) {
+                        if (typeParams != null && typeParams.length > i) {
                             _bindings.put(name, typeParams[i]);
                         } else {
                             _bindings.put(name, _typeFactory._constructType(varType, this));

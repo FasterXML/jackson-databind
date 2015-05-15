@@ -4,24 +4,15 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @SuppressWarnings("serial")
-public class TestMapSerialization
-    extends BaseMapTest
+public class TestMapSerialization extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Class needed for testing [JACKSON-220]
-     */
     @JsonSerialize(using=MapSerializer.class)    
     static class PseudoMap extends LinkedHashMap<String,String>
     {
@@ -69,17 +60,101 @@ public class TestMapSerialization
         }
     }
 
+    // [Databind#565]: Support ser/deser of Map.Entry
+    static class StringIntMapEntry implements Map.Entry<String,Integer> {
+        public final String k;
+        public final Integer v;
+        public StringIntMapEntry(String k, Integer v) {
+            this.k = k;
+            this.v = v;
+        }
+
+        @Override
+        public String getKey() {
+            return k;
+        }
+
+        @Override
+        public Integer getValue() {
+            return v;
+        }
+
+        @Override
+        public Integer setValue(Integer value) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    // [databind#527]
+    static class NoNullValuesMapContainer {
+        @JsonInclude(content=JsonInclude.Include.NON_NULL)
+        public Map<String,String> stuff = new LinkedHashMap<String,String>();
+        
+        public NoNullValuesMapContainer add(String key, String value) {
+            stuff.put(key, value);
+            return this;
+        }
+    }
+
+    // [databind#527]
+    @JsonInclude(content=JsonInclude.Include.NON_NULL)
+    static class NoNullsStringMap extends LinkedHashMap<String,String> {
+        public NoNullsStringMap add(String key, String value) {
+            put(key, value);
+            return this;
+        }
+    }
+
+    @JsonInclude(content=JsonInclude.Include.NON_EMPTY)
+    static class NoEmptyStringsMap extends LinkedHashMap<String,String> {
+        public NoEmptyStringsMap add(String key, String value) {
+            put(key, value);
+            return this;
+        }
+    }
+
+    // for [databind#47]
+    public static class Wat
+    {
+        private final String wat;
+
+        @JsonCreator
+        Wat(String wat) {
+            this.wat = wat;
+        }
+
+        @JsonValue
+        public String getWat() {
+            return wat;
+        }
+
+        @Override
+        public String toString() {
+            return "(String)[Wat: " + wat + "]";
+        }
+    }
+
+    static class WatMap extends HashMap<Wat,Boolean> { }
+
+    // for [databind#691]
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
+    @JsonTypeName("mymap")
+    static class MapWithTypedValues extends LinkedHashMap<String,String> { }
+
+    @JsonTypeInfo(use = Id.CLASS)
+    public static class Mixin691 { }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = objectMapper();
+    final private ObjectMapper MAPPER = objectMapper();
 
     public void testUsingObjectWriter() throws IOException
     {
-        ObjectWriter w = MAPPER.writerWithType(Object.class);
+        ObjectWriter w = MAPPER.writerFor(Object.class);
         Map<String,Object> map = new LinkedHashMap<String,Object>();
         map.put("a", 1);
         String json = w.writeValueAsString(map);
@@ -150,11 +225,97 @@ public class TestMapSerialization
         assertEquals("{\"a\":6,\"b\":3}", m.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS).writeValueAsString(map));
     }
 
-    // [#335[
+    // [Databind#335]
     public void testOrderByKeyViaProperty() throws IOException
     {
         MapOrderingBean input = new MapOrderingBean("c", "b", "a");
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'map':{'a':3,'b':2,'c':1}}"), json);
     }        
+
+    // [Databind#565]
+    public void testEnumMapEntry() throws IOException
+    {
+        StringIntMapEntry input = new StringIntMapEntry("answer", 42);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'answer':42}"), json);
+
+        StringIntMapEntry[] array = new StringIntMapEntry[] { input };
+        json = MAPPER.writeValueAsString(array);
+        assertEquals(aposToQuotes("[{'answer':42}]"), json);
+    }        
+
+    // [databind#527]
+    public void testNonNullValueMap() throws IOException
+    {
+        String json = MAPPER.writeValueAsString(new NoNullsStringMap()
+            .add("a", "foo")
+            .add("b", null)
+            .add("c", "bar"));
+        assertEquals(aposToQuotes("{'a':'foo','c':'bar'}"), json);
+    }
+
+    // [databind#527]
+    public void testNonEmptyValueMap() throws IOException
+    {
+        String json = MAPPER.writeValueAsString(new NoEmptyStringsMap()
+            .add("a", "foo")
+            .add("b", "bar")
+            .add("c", ""));
+        assertEquals(aposToQuotes("{'a':'foo','b':'bar'}"), json);
+    }
+    
+    // [databind#527]
+    public void testNonNullValueMapViaProp() throws IOException
+    {
+        String json = MAPPER.writeValueAsString(new NoNullValuesMapContainer()
+            .add("a", "foo")
+            .add("b", null)
+            .add("c", "bar"));
+        assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
+    }
+
+    // [databind#47]
+    public void testMapJsonValueKey47() throws Exception
+    {
+        WatMap input = new WatMap();
+        input.put(new Wat("3"), true);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'3':true}"), json);
+    }    
+
+    // [databind#682]
+    public void testClassKey() throws IOException
+    {
+        Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
+        map.put(String.class, 2);
+        String json = MAPPER.writeValueAsString(map);
+        assertEquals(aposToQuotes("{'java.lang.String':2}"), json);
+    }
+
+    // [databind#691]
+    public void testNullJsonMapping691() throws Exception
+    {
+        MapWithTypedValues input = new MapWithTypedValues();
+        input.put("id", "Test");
+        input.put("NULL", null);
+
+        String json = MAPPER.writeValueAsString(input);
+
+        assertEquals(aposToQuotes("{'@type':'mymap','id':'Test','NULL':null}"),
+                json);
+    }    
+
+    // [databind#691]
+    public void testNullJsonInTypedMap691() throws Exception {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("NULL", null);
+    
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Object.class, Mixin691.class);
+        String json = mapper.writeValueAsString(map);
+        assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
+    }
 }

@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -44,7 +47,41 @@ public class TestUpdateValue extends BaseMapTest
         @JsonView(TextView.class)
         public String str;
     }
-        
+
+    // for [databind#744]
+    static class DataA {
+        public int i = 1;
+        public int j = 2;
+
+    }
+
+    static class DataB {
+        public DataA da = new DataA();
+        public int k = 3;
+    }
+
+    static class DataADeserializer extends StdDeserializer<DataA> {
+        private static final long serialVersionUID = 1L;
+
+        DataADeserializer() {
+            super(DataA.class);
+        }
+
+        @Override
+        public DataA deserialize(JsonParser jp, DeserializationContext ctxt)
+                throws JsonProcessingException, IOException {
+            if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
+                throw ctxt.mappingException("Wrong current token, expected START_OBJECT, got: "
+                        +jp.getCurrentToken());
+            }
+            /*JsonNode node =*/ jp.readValueAsTree();
+
+            DataA da = new DataA();
+            da.i = 5;
+            return da;
+        }
+    }
+    
     /*
     /********************************************************
     /* Unit tests
@@ -145,5 +182,46 @@ public class TestUpdateValue extends BaseMapTest
 
         assertEquals(100, bean.num);
         assertEquals("foobar", bean.str);
+    }
+
+    // [databind#744]
+    public void testIssue744() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(DataA.class, new DataADeserializer());
+        mapper.registerModule(module);
+
+        DataB db = new DataB();
+        db.da.i = 11;
+        db.k = 13;
+        String jsonBString = mapper.writeValueAsString(db);
+        JsonNode jsonBNode = mapper.valueToTree(db);
+
+        // create parent
+        DataB dbNewViaString = mapper.readValue(jsonBString, DataB.class);
+        assertEquals(5, dbNewViaString.da.i);
+        assertEquals(13, dbNewViaString.k);
+
+        DataB dbNewViaNode = mapper.treeToValue(jsonBNode, DataB.class);
+        assertEquals(5, dbNewViaNode.da.i);
+        assertEquals(13, dbNewViaNode.k);
+
+        // update parent
+        DataB dbUpdViaString = new DataB();
+        DataB dbUpdViaNode = new DataB();
+
+        assertEquals(1, dbUpdViaString.da.i);
+        assertEquals(3, dbUpdViaString.k);
+        mapper.readerForUpdating(dbUpdViaString).readValue(jsonBString);
+        assertEquals(5, dbUpdViaString.da.i);
+        assertEquals(13, dbUpdViaString.k);
+
+        assertEquals(1, dbUpdViaNode.da.i);
+        assertEquals(3, dbUpdViaNode.k);
+        
+        mapper.readerForUpdating(dbUpdViaNode).readValue(jsonBNode);
+        assertEquals(5, dbUpdViaNode.da.i);
+        assertEquals(13, dbUpdViaNode.k);
     }
 }

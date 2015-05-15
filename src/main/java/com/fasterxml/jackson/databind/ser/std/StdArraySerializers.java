@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -20,6 +19,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Dummy container class to group standard homogenous array serializer implementations
  * (primitive arrays and String array).
  */
+@SuppressWarnings("serial")
 public class StdArraySerializers
 {
     protected final static HashMap<String, JsonSerializer<?>> _arraySerializers =
@@ -82,7 +82,7 @@ public class StdArraySerializers
      */
 
     @JacksonStdImpl
-    public final static class BooleanArraySerializer extends ArraySerializerBase<boolean[]>
+    public static class BooleanArraySerializer extends ArraySerializerBase<boolean[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
@@ -110,13 +110,26 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(boolean[] value) {
+        public boolean isEmpty(SerializerProvider prov, boolean[] value) {
             return (value == null) || (value.length == 0);
         }
 
         @Override
         public boolean hasSingleElement(boolean[] value) {
             return (value.length == 1);
+        }
+
+        @Override
+        public final void serialize(boolean[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
         }
         
         @Override
@@ -157,20 +170,20 @@ public class StdArraySerializers
      * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
      */
     @JacksonStdImpl
-    public final static class ByteArraySerializer extends StdSerializer<byte[]>
+    public static class ByteArraySerializer extends StdSerializer<byte[]>
     {
         public ByteArraySerializer() {
             super(byte[].class);
         }
         
         @Override
-        public boolean isEmpty(byte[] value) {
+        public boolean isEmpty(SerializerProvider prov, byte[] value) {
             return (value == null) || (value.length == 0);
         }
         
         @Override
         public void serialize(byte[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             jgen.writeBinary(provider.getConfig().getBase64Variant(),
                     value, 0, value.length);
@@ -179,7 +192,7 @@ public class StdArraySerializers
         @Override
         public void serializeWithType(byte[] value, JsonGenerator jgen, SerializerProvider provider,
                 TypeSerializer typeSer)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             typeSer.writeTypePrefixForScalar(value, jgen);
             jgen.writeBinary(provider.getConfig().getBase64Variant(),
@@ -209,7 +222,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
+    public static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
@@ -236,13 +249,26 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(short[] value) {
+        public boolean isEmpty(SerializerProvider prov, short[] value) {
             return (value == null) || (value.length == 0);
         }
 
         @Override
         public boolean hasSingleElement(short[] value) {
             return (value.length == 1);
+        }
+
+        @Override
+        public final void serialize(short[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
         }
         
         @SuppressWarnings("cast")
@@ -292,12 +318,12 @@ public class StdArraySerializers
      * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
      */
     @JacksonStdImpl
-    public final static class CharArraySerializer extends StdSerializer<char[]>
+    public static class CharArraySerializer extends StdSerializer<char[]>
     {
         public CharArraySerializer() { super(char[].class); }
         
         @Override
-        public boolean isEmpty(char[] value) {
+        public boolean isEmpty(SerializerProvider prov, char[] value) {
             return (value == null) || (value.length == 0);
         }
         
@@ -307,7 +333,7 @@ public class StdArraySerializers
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-                jgen.writeStartArray();
+                jgen.writeStartArray(value.length);
                 _writeArrayContents(jgen, value);
                 jgen.writeEndArray();
             } else {
@@ -363,7 +389,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class IntArraySerializer extends ArraySerializerBase<int[]>
+    public static class IntArraySerializer extends ArraySerializerBase<int[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
@@ -391,7 +417,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(int[] value) {
+        public boolean isEmpty(SerializerProvider prov, int[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -401,8 +427,21 @@ public class StdArraySerializers
         }
 
         @Override
+        public final void serialize(int[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
+
+        @Override
         public void serializeContents(int[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber(value[i]);
@@ -427,7 +466,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
+    public static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
@@ -455,7 +494,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(long[] value) {
+        public boolean isEmpty(SerializerProvider prov, long[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -463,10 +502,23 @@ public class StdArraySerializers
         public boolean hasSingleElement(long[] value) {
             return (value.length == 1);
         }
+
+        @Override
+        public final void serialize(long[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
         
         @Override
         public void serializeContents(long[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
@@ -503,7 +555,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
+    public static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
@@ -533,13 +585,26 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(float[] value) {
+        public boolean isEmpty(SerializerProvider prov, float[] value) {
             return (value == null) || (value.length == 0);
         }
 
         @Override
         public boolean hasSingleElement(float[] value) {
             return (value.length == 1);
+        }
+
+        @Override
+        public final void serialize(float[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
         }
         
         @Override
@@ -577,7 +642,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class DoubleArraySerializer extends ArraySerializerBase<double[]>
+    public static class DoubleArraySerializer extends ArraySerializerBase<double[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
@@ -605,7 +670,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(double[] value) {
+        public boolean isEmpty(SerializerProvider prov, double[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -613,10 +678,22 @@ public class StdArraySerializers
         public boolean hasSingleElement(double[] value) {
             return (value.length == 1);
         }
+
+        @Override
+        public final void serialize(double[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
         
         @Override
-        public void serializeContents(double[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+        public void serializeContents(double[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber(value[i]);
@@ -630,7 +707,7 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
+            throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);

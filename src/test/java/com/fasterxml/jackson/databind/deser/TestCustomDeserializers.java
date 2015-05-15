@@ -1,20 +1,17 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.*;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.annotation.*;
+import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
@@ -228,9 +225,31 @@ public class TestCustomDeserializers
             }
             return this;
         }
-        
     }
-    
+
+    // for [databind#631]
+    static class Issue631Bean
+    {
+        @JsonDeserialize(using=ParentClassDeserializer.class)
+        public Object prop;
+    }
+
+    static class ParentClassDeserializer
+        extends StdScalarDeserializer<Object>
+    {
+        protected ParentClassDeserializer() {
+            super(Object.class);
+        }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException {
+            Object parent = p.getCurrentValue();
+            String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
+            return "prop/"+ desc;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -303,6 +322,26 @@ public class TestCustomDeserializers
         assertEquals(7, imm.y);
     }
 
+    // [databind#623]
+    public void testJsonNodeDelegating() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addDeserializer(Immutable.class,
+            new StdNodeBasedDeserializer<Immutable>(Immutable.class) {
+                @Override
+                public Immutable convert(JsonNode root, DeserializationContext ctxt) throws IOException {
+                    int x = root.path("x").asInt();
+                    int y = root.path("y").asInt();
+                    return new Immutable(x, y);
+                }
+        });
+        mapper.registerModule(module);
+        Immutable imm = mapper.readValue("{\"x\":-10,\"y\":3}", Immutable.class);
+        assertEquals(-10, imm.x);
+        assertEquals(3, imm.y);
+    }
+    
     public void testIssue882() throws Exception
     {
         Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));
@@ -331,5 +370,14 @@ public class TestCustomDeserializers
         assertNotNull(w.value);
         assertNotNull(w.value.inner);
         assertEquals(-13, w.value.inner.x);
+    }
+
+    // [#631]: "current value" access
+    public void testCurrentValueAccess() throws Exception
+    {
+        Issue631Bean bean = MAPPER.readValue(aposToQuotes("{'prop':'stuff'}"),
+                Issue631Bean.class);
+        assertNotNull(bean);
+        assertEquals("prop/Issue631Bean", bean.prop);
     }
 }

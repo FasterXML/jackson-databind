@@ -57,7 +57,7 @@ public class TestAnnotationIgnore
 
     public void testFailOnIgnore() throws Exception
     {
-        ObjectReader r = MAPPER.reader(NoYOrZ.class);
+        ObjectReader r = MAPPER.readerFor(NoYOrZ.class);
         
         // First, fine to get "x":
         NoYOrZ result = r.readValue(aposToQuotes("{'x':3}"));

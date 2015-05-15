@@ -1,14 +1,282 @@
 Project: jackson-databind
-Version: 2.4.1.1 (18-Jun-2014)
 
-Special one-off "micro patc" for:
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.6.0 (not yet released)
+
+#95: Allow read-only properties with `@JsonIgnoreProperties(allowGetters=true)`
+#296: Serialization of transient fields with public getters (add
+    MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+ (suggested by Michal L)
+#312: Support Type Id mappings where two ids map to same Class
+#348: ObjectMapper.valueToTree does not work with @JsonRawValue
+ (reported by Chris P, pimlottc@github)
+#649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
+#664: Add `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to prevent coercion of floating point
+ numbers int `int`/`long`/`Integer`/`Long`
+ (requested by wenzis@github)
+#679: Add `isEmpty()` implementation for `JsonNode` serializers
+#688: Provide a means for an ObjectMapper to discover mixin annotation classes on demand
+ (requested by Laird N)
+#689: Add `ObjectMapper.setDefaultPrettyPrinter(PrettyPrinter)`
+ (requested by derknorton@github)
+#696: Copy constructor does not preserve `_injectableValues`
+ (reported by Charles A)
+#698: Add support for referential types (ReferenceType)
+#700: Cannot Change Default Abstract Type Mapper from LinkedHashMap
+ (reported by wealdtech@github)
+#725: Auto-detect multi-argument constructor with implicit names if it is the only visible creator
+#727: Improve `ObjectWriter.forType()` to avoid forcing base type for container types
+#737: Add support for writing raw values in TokenBuffer
+ (suggested by Guillaume S, gsmet@github)
+#740: Ensure proper `null` (as empty) handling for `AtomicReference`
+#741: Pass `DeserializationContext' argument for `JsonDeserializer` methods "getNullValue()"
+ and "getEmptyValue()"
+#743: Add `RawValue` helper type, for piping raw values through `TokenBuffer`
+#756: Disabling SerializationFeature.FAIL_ON_EMPTY_BEANS does not affect `canSerialize()`
+ (reported by nickwongdev@github)
+#762: Add `ObjectWriter.withoutRootName()`, `ObjectReader.withoutRootName()`
+#765: `SimpleType.withStaticTyping()` impl incorrect
+#769: Fix `JacksonAnnotationIntrospector.findDeserializer` to return `Object` (as per
+  `AnnotationIntrospector`); similarly for other `findXxx(De)Serializer(...)` methods
+#781: Support handling of `@JsonProperty.required` for Creator methods
+#787: Add `ObjectMapper setFilterProvider(FilterProvider)` to allow chaining
+ (suggested by rgoldberg@githin)
+#790: Add `JsonNode.equals(Comparator<JsonNode>, JsonNode)` to support
+  configurable/external equality comparison
+- Remove old cglib compatibility tests; cause problems in Eclipse
+
+2.5.4 (not yet released)
+
+#676: Deserialization of class with generic collection inside depends on
+  how is was deserialized first time
+ (reported by lunaticare@github)
+#771: Annotation bundles ignored when added to Mixin
+ (reported by Andrew D)
+#774: NPE from SqlDateSerializer as _useTimestamp is not checked for being null
+ (reported by mrowkow@github)
+#785: Add handlings for classes which are available in `Thread.currentThread().getContextClassLoader()`
+ (contributed by Charles A)
+#792: Ensure Constructor Parameter annotations are linked with those of Field, Getter, or Setter
+- Fix handling of Enums wrt JSON Schema, when 'toString()' used for serialization
+
+2.5.3 (24-Apr-2015)
+
+#731: XmlAdapter result marshaling error in case of ValueType=Object
+ (reported, debugged by Dmitry S)
+#742: Allow deserialization of `null` Object Id (missing already allowed)
+#744: Custom deserializer with parent object update failing
+ (reported by migel@github)
+#745: EnumDeserializer.deserializerForCreator fails when used to deserialize a Map key
+ (contributed by John M)
+#761: Builder deserializer: in-compatible type exception when return type is super type
+ (contributed by Alexey G)
+#766: Fix Infinite recursion (StackOverflowError) when serializing a SOAP object
+ (contributed by Alain G)
+
+2.5.2 (29-Mar-2015)
+
+#609: Problem resolving locally declared generic type
+ (repoted by Hal H)
+#691: NullSerializer for MapProperty failing when using polymorphic handling
+ (reported by Antibrumm@github)
+#703: Multiple calls to ObjectMapper#canSerialize(Object.class) returns different values
+ (reported by flexfrank@github)
+#705: JsonAnyGetter doesn't work with JsonSerialize (except with keyUsing)
+ (reported by natnan@github)
+#728: TypeFactory#_fromVariable returns unknownType() even though it has enough information
+  to provide a more specific type
+ (reported by jkochaniak@github)
+#733: MappingIterator should move past errors or not return hasNext() == true
+ (reported by Lorrin N, lorrin@github)
+#738: @JsonTypeInfo non-deterministically ignored in 2.5.1 (concurrency issue)
+ (reported by Dylan S, dylanscott@github)
+- Improvement to handling of custom `ValueInstantiator` for delegating mode; no more NPE
+  if `getDelegateCreator()` returns null
+- Refactor `TypedKey` into separate util class
+
+2.5.1 (06-Feb-2015)
+
+#667: Problem with bogus conflict between single-arg-String vs `CharSequence` constructor
+#669: JSOG usage of @JsonTypeInfo and @JsonIdentityInfo(generator=JSOGGenerator.class) fails
+ (reported by ericali78@github)
+#671: Adding `java.util.Currency` deserialization support for maps
+ (contributed by Alexandre S-C)
+#674: Spring CGLIB proxies not handled as intended
+ (reported by Zoltan F)
+#682: Class<?>-valued Map keys not serialized properly
+ (reported by Ludevik@github)
+#684: FAIL_ON_NUMBERS_FOR_ENUMS does not fail when integer value is quoted
+ (reported by kllp@github)
+#696: Copy constructor does not preserve `_injectableValues`
+ (reported by Charles A)
+- Add a work-around in `ISO8601DateFormat` to allow omission of ':' from timezone
+- Bit more work to complete #633
+
+2.5.0 (01-Jan-2015)
+
+#47: Support `@JsonValue` for (Map) key serialization 
+#113: Problem deserializing polymorphic types with @JsonCreator
+#165: Add `DeserializationContext.getContextualType()` to let deserializer
+  known the expected type.
+#299: Add `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` to allow missing
+  Object Ids (as global default)
+#408: External type id does not allow use of 'visible=true'
+#421: @JsonCreator not used in case of multiple creators with parameter names
+ (reported by Lovro P, lpandzic@github)
+#427: Make array and Collection serializers call `JsonGenerator.writeStartArray(int)`
+#521: Keep bundle annotations, prevent problems with recursive annotation types
+ (reported by tea-dragon@github)
+#527: Add support for `@JsonInclude(content=Include.NON_NULL)` (and others) for Maps
+#528: Add support for `JsonType.As.EXISTING_PROPERTY`
+ (reported by heapifyman@github; implemented by fleebytes@github)
+#539: Problem with post-procesing of "empty bean" serializer; was not calling
+  'BeanSerializerModifier.modifySerializer()` for empty beans
+ (reported by Fabien R, fabienrenaud@github)
+#540: Support deserializing `[]` as null or empty collection when the java type
+  is a not an object, `DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
+ (requested by Fabien R, fabienrenaud@github)
+#543: Problem resolving self-referential recursive types
+ (reported by ahgittin@github)
+#550: Minor optimization: prune introspection of "well-known" JDK types
+#552: Improved handling for ISO-8601 (date) format
+ (contributed by Jerome G, geronimo-iia@github)
+#559: Add `getDateFormat()`, `getPropertyNamingStrategy()` in `ObjectMapper`
+#560: @JsonCreator to deserialize BigInteger to Enum
+ (requested by gisupp@github)
+#565: Add support for handling `Map.Entry`
+#566: Add support for case-insensitive deserialization (`MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`)
+ (contributed by Michael R)
+#571: Add support in ObjectMapper for custom `ObjectReader`, `ObjectWriter` (sub-classes)
+#572: Override default serialization of Enums
+ (requested by herau@github)
+#576: Add fluent API for adding mixins
+ (contributed by Adam S, adstro@github)
+#594: `@JsonValue` on enum not used when enum value is a Map key
+ (reported by chrylis@github)
+#596: Add support for `@JsonProperty.defaultValue`, exposed via `BeanProperty.getMetadata().getDefaultValue()`
+#597: Improve error messaging for cases where JSON Creator returns null (which
+  is illegal)
+ (contributed by Aurelien L)
+#599: Add a simple mechanism for avoiding multiple registrations of the same module
+#607: Allow (re)config of `JsonParser.Feature`s via `ObjectReader`
+#608: Allow (re)config of `JsonGenerator.Feature`s via `ObjectWriter`
+#614: Add a mechanism for using `@JsonCreator.mode` for resolving possible ambiguity between
+  delegating- and property-based creators
+#616: Add `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
+#622: Support for non-scalar ObjectId Reference deserialiazation (like JSOG)
+#623: Add `StdNodeBasedDeserializer`
+#630: Add `KeyDeserializer` for `Class`
+#631: Update `current value` of `JsonParser`, `JsonGenerator` from standard serializers,
+ deserializers
+ (suggested by Antibrumm@github)
+#633: Allow returning null value from IdResolver to make type information optional
+ (requested by Antibrumm@github)
+#634: Add `typeFromId(DatabindContext,String)` in `TypeIdDeserializer`
+#636: `ClassNotFoundException` for classes not (yet) needed during serialization
+ (contributed by mspiegel@github)
+#638: Add annotation-based method(s) for injecting properties during serialization
+ (using @JsonAppend, VirtualBeanPropertyWriter)
+#647: Deserialization fails when @JsonUnwrapped property contains an object with same property name
+ (reported by Konstantin L)
+#653: Jackson doesn't follow JavaBean naming convention (added `MapperFeature.USE_STD_BEAN_NAMING`)
+#654: Add support for (re)configuring `JsonGenerator.setRootValueSeparator()` via `ObjectWriter`
+#655: Add `ObjectWriter.writeValues()` for writing value sequences
+#660: `@JsonCreator`-annotated factory method is ignored if constructor exists
+- Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
+- Start using `JsonGenerator.writeStartArray(int)` to help data formats
+  that benefit from knowing number of elements in arrays (and would otherwise
+  need to buffer values to know length)
+- Added new overload for `JsonSerializer.isEmpty()`, to eventually solve #588
+- Improve error messaging (related to [jaxb-annotations#38]) to include known subtype ids.
+
+2.4.6 (23-Apr-2015)
+
+#735: (complete fix) @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
+ (reported by blackfyre512@github) (regression due to #604)
+$744: Custom deserializer with parent object update fails
+
+2.4.5.1 (26-Mar-2015)
+
+Special one-off "micro patch" for:
+
+#706: Add support for `@JsonUnwrapped` via JSON Schema module
+#707: Error in getting string representation of an ObjectNode with a float number value
+ (reported by @navidqar)
+#735: (partial) @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
+
+2.4.5 (13-Jan-2015)
+
+#635: Reduce cachability of `Map` deserializers, to avoid problems with per-property config changes
+    (regression due to #604)
+#656: `defaultImpl` configuration is ignored for `WRAPPER_OBJECT`
+- Solve potential cyclic-resolution problem for `UntypedObjectDeserializer`
+
+2.4.4 (24-Nov-2014)
+
+(jackson-core)#158: Setter confusion on assignable types
+ (reported by tsquared2763@github)
+#245: Calls to ObjectMapper.addMixInAnnotations() on an instance returned by ObjectMapper.copy()
+ don't work
+ (reported by Erik D)
+#580: delegate deserializers choke on a (single) abstract/polymorphic parameter
+ (reported by Ian B, tea-dragon@github)
+#590: Binding invalid Currency gives nonsense at end of the message
+ (reported by Jerbell@github)
+#592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`
+ (reported by Eugene L)
+#601: ClassCastException for a custom serializer for enum key in `EnumMap`
+ (reported by Benson M)
+#604: `Map` deserializers not being cached, causing performance problems
+#610: Fix forward reference in hierarchies
+ (contributed by zeito@github)
+#619: Off by one error in AnnotatedWithParams
+ (reported by stevetodd@github)
+- Minor fix to `EnumSerializer` regarding detection "serialize using index"
+- Minor fix to number serializers, to call proper callback for schema generation
+
+2.4.3 (02-Oct-2014)
+
+#496: Wrong result with `new TextNode("false").asBoolean(true)`
+ (reported by Ivar R, ivarru@github)
+#511: DeserializationFeature.FAIL_ON_INVALID_SUBTYPE does not work
+ (reported by sbelikov@github)
+#523: MapDeserializer and friends do not report the field/key name for mapping exceptions
+ (reported by Ian B, tea-dragon@github)
+#524: @JsonIdentityReference(alwaysAsId = true) Custom resolver is reset to SimpleObjectIdResolver
+ (reported by pkokorev@github)
+#541: @JsonProperty in @JsonCreator is conflicting with POJOs getters/attributes
+ (reported by fabienrenaud@github)
+#543: Problem resolving self-referential generic types
+#570: Add Support for Parsing All Compliant ISO-8601 Date Formats
+ (requested by pfconrey@github)
+- Fixed a problem with `acceptJsonFormatVisitor` with Collection/array types that
+  are marked with `@JsonValue`; could cause NPE in JSON Schema generator module.
+
+2.4.2 (14-Aug-2014)
+
+#515: Mixin annotations lost when using a mixin class hierarchy with non-mixin interfaces
+ (reported by 'stevebread@github')
+- Fixed a problem related to [jackson-dataformat-smile#19].
+
+2.4.1.2 (12-Jul-2014)
+
+Special one-off "micro patch" for:
+
+#503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
+ (reported by fjtc@github)
+
+2.4.1.1 (18-Jun-2014)
+
+Special one-off "micro patch" for:
 
 #491: Temporary work-around for issue #490 (full fix for 2.5 needs to be
   in `jackson-annotations`)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
+#506: Index is never set for Collection and Array in InvalidFormatException.Reference
+ (reported by Fabrice D, fabdouglas@github)
+- Fixed a problem related to [jackson-dataformat-smile#19].
 
 2.4.1 (17-Jun-2014)
 
@@ -78,6 +346,12 @@ Special one-off "micro patc" for:
 - Slightly improve `SqlDateSerializer` to support `@JsonFormat`
 - Improve handling of native type ids (YAML, CBOR) to use non-native type ids
   as fallback
+
+2.3.4 (17-Jul-2014)
+
+#459: BeanDeserializerBuilder copy constructor not copying `_injectables`
+#462: Annotation-provided Deserializers are not contextualized inside CreatorProperties
+ (reported by aarondav@github)
 
 2.3.3 (10-Apr-2014)
 
@@ -193,6 +467,28 @@ Special one-off "micro patc" for:
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.
 - Add `JsonDeserializer.handledType()`
+
+2.2.4 (10-Jun-2014)
+
+#292: Problems with abstract `Map`s, `Collection`s, polymorphic deserialization
+#324: EnumDeserializer should throw JsonMappingException, not IllegalArgumentException
+#346: Problems deserializing `ObjectNode` from empty JSON Object, with @JsonCreator
+
+2.2.3 (22-Aug-2013)
+
+#234: Problems with serializing types for deeply nested generic Maps, default typing 
+#251: SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN ignored with JsonNode
+  serialization
+ (reported by fge@github)
+#259: Fix a problem with JSON Schema generation for `@JsonValue`
+ (reported by Lior L)
+#267: Handle negative, stringified timestamps
+ (reported by Drecth@github)
+#281: Make `NullNode` use configured null-value serializer
+#287: Fix problems with converters, Maps with Object values
+ (reported by antubis@github)
+#288: Fix problem with serialization converters assigned with annotations
+ (reported by cemo@github)
 
 2.2.2 (26-May-2013)
 

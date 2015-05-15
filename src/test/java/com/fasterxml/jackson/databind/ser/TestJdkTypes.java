@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -36,11 +37,13 @@ public class TestJdkTypes
     public void testBigDecimalAsPlainString()
         throws Exception
     {
-        MAPPER.enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        final ObjectMapper mapper = new ObjectMapper();
+
+        mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));
-        String str = MAPPER.writeValueAsString(map);
+        String str = mapper.writeValueAsString(map);
         assertEquals("{\"pi\":3.00000000}", str);
     }
     

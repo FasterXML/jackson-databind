@@ -5,14 +5,13 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -62,6 +61,22 @@ public abstract class DefaultSerializerProvider
         super(src, config, f);
     }
 
+    protected DefaultSerializerProvider(DefaultSerializerProvider src) {
+        super(src);
+    }
+
+    /**
+     * Method needed to ensure that {@link ObjectMapper#copy} will work
+     * properly; specifically, that caches are cleared, but settings
+     * will otherwise remain identical; and that no sharing of state
+     * occurs.
+     *
+     * @since 2.5
+     */
+    public DefaultSerializerProvider copy() {
+        throw new IllegalStateException("DefaultSerializerProvider sub-class not overriding copy()");
+    }
+    
     /*
     /**********************************************************
     /* Extended API: methods that ObjectMapper will call
@@ -81,10 +96,10 @@ public abstract class DefaultSerializerProvider
      * this provider has access to (via caching and/or creating new serializers
      * as need be).
      */
-    public void serializeValue(JsonGenerator jgen, Object value) throws IOException
+    public void serializeValue(JsonGenerator gen, Object value) throws IOException
     {
         if (value == null) {
-            _serializeNull(jgen);
+            _serializeNull(gen);
             return;
         }
         Class<?> cls = value.getClass();
@@ -99,21 +114,21 @@ public abstract class DefaultSerializerProvider
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 PropertyName pname = _rootNames.findRootName(value.getClass(), _config);
-                jgen.writeStartObject();
-                jgen.writeFieldName(pname.simpleAsEncoded(_config));
+                gen.writeStartObject();
+                gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.length() == 0) {
             wrap = false;
         } else { // [JACKSON-764]
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
-            jgen.writeStartObject();
-            jgen.writeFieldName(rootName);
+            gen.writeStartObject();
+            gen.writeFieldName(rootName);
         }
         try {
-            ser.serialize(value, jgen, this);
+            ser.serialize(value, gen, this);
             if (wrap) {
-                jgen.writeEndObject();
+                gen.writeEndObject();
             }
         } catch (IOException ioe) { // As per [JACKSON-99], pass IOException and subtypes as-is
             throw ioe;
@@ -137,10 +152,10 @@ public abstract class DefaultSerializerProvider
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
-    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType) throws IOException
+    public void serializeValue(JsonGenerator gen, Object value, JavaType rootType) throws IOException
     {
         if (value == null) {
-            _serializeNull(jgen);
+            _serializeNull(gen);
             return;
         }
         // Let's ensure types are compatible at this point
@@ -157,22 +172,22 @@ public abstract class DefaultSerializerProvider
             // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
-                jgen.writeStartObject();
+                gen.writeStartObject();
                 PropertyName pname = _rootNames.findRootName(value.getClass(), _config);
-                jgen.writeFieldName(pname.simpleAsEncoded(_config));
+                gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.length() == 0) {
             wrap = false;
         } else { // [JACKSON-764]
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
-            jgen.writeStartObject();
-            jgen.writeFieldName(rootName);
+            gen.writeStartObject();
+            gen.writeFieldName(rootName);
         }
         try {
-            ser.serialize(value, jgen, this);
+            ser.serialize(value, gen, this);
             if (wrap) {
-                jgen.writeEndObject();
+                gen.writeEndObject();
             }
         } catch (IOException ioe) { // no wrapping for IO (and derived)
             throw ioe;
@@ -197,10 +212,10 @@ public abstract class DefaultSerializerProvider
      * 
      * @since 2.1
      */
-    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType, JsonSerializer<Object> ser) throws IOException
+    public void serializeValue(JsonGenerator gen, Object value, JavaType rootType, JsonSerializer<Object> ser) throws IOException
     {
         if (value == null) {
-            _serializeNull(jgen);
+            _serializeNull(gen);
             return;
         }
         // Let's ensure types are compatible at this point
@@ -218,24 +233,24 @@ public abstract class DefaultSerializerProvider
             // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
-                jgen.writeStartObject();
+                gen.writeStartObject();
                 PropertyName pname = (rootType == null)
                         ? _rootNames.findRootName(value.getClass(), _config)
                         : _rootNames.findRootName(rootType, _config);
-                jgen.writeFieldName(pname.simpleAsEncoded(_config));
+                gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.length() == 0) {
             wrap = false;
         } else { // [JACKSON-764]
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
-            jgen.writeStartObject();
-            jgen.writeFieldName(rootName);
+            gen.writeStartObject();
+            gen.writeFieldName(rootName);
         }
         try {
-            ser.serialize(value, jgen, this);
+            ser.serialize(value, gen, this);
             if (wrap) {
-                jgen.writeEndObject();
+                gen.writeEndObject();
             }
         } catch (IOException ioe) { // no wrapping for IO (and derived)
             throw ioe;
@@ -248,16 +263,64 @@ public abstract class DefaultSerializerProvider
         }
     }
 
+    /**
+     * Alternate serialization call used for polymorphic types, when {@link TypeSerializer}
+     * is already known, but not actual value serializer.
+     *
+     * @since 2.5
+     */
+    public void serializePolymorphic(JsonGenerator gen, Object value, TypeSerializer typeSer)
+            throws IOException
+    {
+        if (value == null) {
+            _serializeNull(gen);
+            return;
+        }
+        final Class<?> type = value.getClass();
+        JsonSerializer<Object> ser = findValueSerializer(type, null);
+
+        final boolean wrap;
+        String rootName = _config.getRootName();
+        if (rootName == null) {
+            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+            if (wrap) {
+                gen.writeStartObject();
+                PropertyName pname = _rootNames.findRootName(type, _config);
+                gen.writeFieldName(pname.simpleAsEncoded(_config));
+            }
+        } else if (rootName.length() == 0) {
+            wrap = false;
+        } else {
+            wrap = true;
+            gen.writeStartObject();
+            gen.writeFieldName(rootName);
+        }
+        try {
+            ser.serializeWithType(value, gen, this, typeSer);
+            if (wrap) {
+                gen.writeEndObject();
+            }
+        } catch (IOException ioe) { // no wrapping for IO (and derived)
+            throw ioe;
+        } catch (Exception e) { // but others do need to be, to get path etc
+            String msg = e.getMessage();
+            if (msg == null) {
+                msg = "[no message for "+e.getClass().getName()+"]";
+            }
+            throw new JsonMappingException(msg, e);
+        }
+    }
+    
     /**
      * Helper method called when root value to serialize is null
      * 
      * @since 2.3
      */
-    protected void _serializeNull(JsonGenerator jgen) throws IOException
+    protected void _serializeNull(JsonGenerator gen) throws IOException
     {
         JsonSerializer<Object> ser = getDefaultNullValueSerializer();
         try {
-            ser.serialize(null, jgen, this);
+            ser.serialize(null, gen, this);
         } catch (IOException ioe) { // no wrapping for IO (and derived)
             throw ioe;
         } catch (Exception e) { // but others do need to be, to get path etc
@@ -270,13 +333,15 @@ public abstract class DefaultSerializerProvider
     }
 
     /**
-     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
+     * The method to be called by {@link ObjectMapper}
      * to generate <a href="http://json-schema.org/">JSON schema</a> for
      * given type.
      *
      * @param type The type for which to generate schema
+     * 
+     * @deprecated Should not be used any more
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated // since 2.6
     public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> type)
         throws JsonMappingException
     {
@@ -316,11 +381,6 @@ public abstract class DefaultSerializerProvider
         findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
     }
 
-    @Deprecated // since 2.3; use the overloaded variant
-    public boolean hasSerializerFor(Class<?> cls) {
-        return hasSerializerFor(cls, null);
-    }
-    
     /**
      * Method that can be called to see if this serializer provider
      * can find a serializer for an instance of given class.
@@ -492,11 +552,21 @@ public abstract class DefaultSerializerProvider
         private static final long serialVersionUID = 1L;
 
         public Impl() { super(); }
+        public Impl(Impl src) { super(src); }
 
         protected Impl(SerializerProvider src, SerializationConfig config,SerializerFactory f) {
             super(src, config, f);
         }
 
+        @Override
+        public DefaultSerializerProvider copy()
+        {
+            if (getClass() != Impl.class) {
+                return super.copy();
+            }
+            return new Impl(this);
+        }
+        
         @Override
         public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);

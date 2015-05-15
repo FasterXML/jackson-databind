@@ -153,16 +153,22 @@ public class AsExternalTypeSerializer extends TypeSerializerBase
    }
    
    protected final void _writeScalarSuffix(Object value, JsonGenerator jgen, String typeId) throws IOException {
-       jgen.writeStringField(_typePropertyName, typeId);
+       if (typeId != null) {
+           jgen.writeStringField(_typePropertyName, typeId);
+       }
    }
    
    protected final void _writeObjectSuffix(Object value, JsonGenerator jgen, String typeId) throws IOException {
        jgen.writeEndObject();
-       jgen.writeStringField(_typePropertyName, typeId);
+       if (typeId != null) {
+           jgen.writeStringField(_typePropertyName, typeId);
+       }
    }
 
    protected final void _writeArraySuffix(Object value, JsonGenerator jgen, String typeId) throws IOException {
        jgen.writeEndArray();
-       jgen.writeStringField(_typePropertyName, typeId);
+       if (typeId != null) {
+           jgen.writeStringField(_typePropertyName, typeId);
+       }
    }
 }

@@ -20,10 +20,16 @@ import com.fasterxml.jackson.databind.util.Converter;
  *<p>
  * Note that although types (delegate, target) may be related, they must not be same; trying
  * to do this will result in an exception.
+ *<p>
+ * Since 2.5 There is {@link StdNodeBasedDeserializer} that is a simplified version
+ * for cases where intermediate type is {@link JsonNode}
  * 
  * @param <T> Target type to convert to, from delegate type
  * 
  * @since 2.1
+ * 
+ * @see StdNodeBasedDeserializer
+ * @see Converter
  */
 public class StdDelegatingDeserializer<T>
     extends StdDeserializer<T>
@@ -32,17 +38,17 @@ public class StdDelegatingDeserializer<T>
     private static final long serialVersionUID = 1L;
 
     protected final Converter<Object,T> _converter;
-    
+
     /**
      * Fully resolved delegate type, with generic information if any available.
      */
     protected final JavaType _delegateType;
-    
+
     /**
      * Underlying serializer for type <code>T<.code>.
      */
     protected final JsonDeserializer<Object> _delegateDeserializer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -57,7 +63,7 @@ public class StdDelegatingDeserializer<T>
         _delegateType = null;
         _delegateDeserializer = null;
     }
-    
+
     @SuppressWarnings("unchecked")
     public StdDelegatingDeserializer(Converter<Object,T> converter,
             JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
@@ -66,6 +72,17 @@ public class StdDelegatingDeserializer<T>
         _converter = converter;
         _delegateType = delegateType;
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeserializer;
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected StdDelegatingDeserializer(StdDelegatingDeserializer<T> src)
+    {
+        super(src);
+        _converter = src._converter;
+        _delegateType = src._delegateType;
+        _delegateDeserializer = src._delegateDeserializer;
     }
 
     /**
@@ -95,14 +112,15 @@ public class StdDelegatingDeserializer<T>
             ((ResolvableDeserializer) _delegateDeserializer).resolve(ctxt);
         }
     }
-    
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         throws JsonMappingException
     {
         // First: if already got serializer to delegate to, contextualize it:
         if (_delegateDeserializer != null) {
-            JsonDeserializer<?> deser = ctxt.handleSecondaryContextualization(_delegateDeserializer, property);
+            JsonDeserializer<?> deser = ctxt.handleSecondaryContextualization(_delegateDeserializer,
+                    property, _delegateType);
             if (deser != _delegateDeserializer) {
                 return withDelegate(_converter, _delegateType, deser);
             }
@@ -129,7 +147,7 @@ public class StdDelegatingDeserializer<T>
     public Class<?> handledType() {
         return _delegateDeserializer.handledType();
     }
-    
+
     /*
     /**********************************************************
     /* Serialization

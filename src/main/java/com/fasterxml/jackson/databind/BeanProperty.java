@@ -68,6 +68,10 @@ public interface BeanProperty extends Named
     /**
      * Whether value for property is marked as required using
      * annotations or associated schema.
+     * Equivalent to:
+     *<code>
+     *  getMetadata().isRequired()
+     *</code>
      * 
      * @since 2.2
      */
@@ -181,6 +185,15 @@ public interface BeanProperty extends Named
         @Override public boolean isRequired() { return _metadata.isRequired(); }
         @Override public PropertyMetadata getMetadata() { return _metadata; }
         @Override public AnnotatedMember getMember() { return _member; }
+
+        /**
+         *<p>
+         * TODO: move to {@link BeanProperty} in near future, once all standard
+         * implementations define it.
+         * 
+         * @since 2.5
+         */
+        public boolean isVirtual() { return false; }
 
         /**
          * Implementation of this method throws

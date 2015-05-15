@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -20,6 +19,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestHandlerInstantiation extends BaseMapTest
@@ -111,7 +111,7 @@ public class TestHandlerInstantiation extends BaseMapTest
     }
     
     // copied from "TestCustomTypeIdResolver"
-    static class CustomIdResolver implements TypeIdResolver
+    static class CustomIdResolver extends TypeIdResolverBase
     {
         static List<JavaType> initTypes;
 
@@ -120,11 +120,12 @@ public class TestHandlerInstantiation extends BaseMapTest
         public CustomIdResolver(String idForBean) {
             _id = idForBean;
         }
-        
+
         @Override
         public Id getMechanism() {
             return Id.CUSTOM;
         }
+
         @Override
         public String idFromValue(Object value)
         {
@@ -133,18 +134,21 @@ public class TestHandlerInstantiation extends BaseMapTest
             }
             return "unknown";
         }
+
         @Override
         public String idFromValueAndType(Object value, Class<?> type) {
             return idFromValue(value);
         }
+
         @Override
         public void init(JavaType baseType) {
             if (initTypes != null) {
                 initTypes.add(baseType);
             }
         }
+
         @Override
-        public JavaType typeFromId(String id)
+        public JavaType typeFromId(DatabindContext context, String id)
         {
             if (id.equals(_id)) {
                 return TypeFactory.defaultInstance().constructType(TypeIdBean.class);

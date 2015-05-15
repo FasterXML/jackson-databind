@@ -3,12 +3,11 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
-
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -18,6 +17,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -223,11 +223,23 @@ public abstract class AnnotationIntrospector
      * List of property names is applied
      * after other detection mechanisms, to filter out these specific
      * properties from being serialized and deserialized.
+     * 
+     * @param forSerialization True if requesting properties to ignore for serialization;
+     *   false if for deserialization
      */
+    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
+        // !!! Change direction in 2.7 or later
+        return findPropertiesToIgnore(ac);
+    }
+
+    /**
+     * @deprecated Since 2.6, use variant that takes second argument.
+     */
+    @Deprecated
     public String[] findPropertiesToIgnore(Annotated ac) {
         return null;
     }
-
+    
     /**
      * Method for checking whether an annotation indicates that all unknown properties
      */
@@ -293,7 +305,7 @@ public abstract class AnnotationIntrospector
     
     /*
     /**********************************************************
-    /* Class annotations for Polymorphic type handling (1.5+)
+    /* Class annotations for Polymorphic type handling
     /**********************************************************
     */
     
@@ -477,6 +489,16 @@ public abstract class AnnotationIntrospector
     public PropertyName findWrapperName(Annotated ann) { return null; }
 
     /**
+     * Method for finding suggested default value (as simple textual serialization)
+     * for the property. While core databind does not make any use of it, it is exposed
+     * for extension modules to use: an expected use is generation of schema representations
+     * and documentation.
+     *
+     * @since 2.5
+     */
+    public String findPropertyDefaultValue(Annotated ann) { return null; }
+
+    /**
      * Method used to check whether specified property member (accessor
      * or mutator) defines human-readable description to use for documentation.
      * There are no further definitions for contents; for example, whether
@@ -515,7 +537,7 @@ public abstract class AnnotationIntrospector
      * @since 2.4
      */
     public String findImplicitPropertyName(AnnotatedMember member) { return null; }
-    
+
     /*
     /**********************************************************
     /* Serialization: general annotations
@@ -571,12 +593,27 @@ public abstract class AnnotationIntrospector
      * field) defines which Bean/Map properties are to be included in
      * serialization.
      * If no annotation is found, method should return given second
-     * argument; otherwise value indicated by the annotation
+     * argument; otherwise value indicated by the annotation.
+     *<p>
+     * Note that meaning of inclusion value depends on whether it is for
+     * a Class or property (field/method/constructor): in former case,
+     * it is the default for all properties; in latter case it is specific
+     * override for annotated property.
      *
      * @return Enumerated value indicating which properties to include
      *   in serialization
      */
     public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
+        return defValue;
+    }
+
+    /**
+     * Method for checking whether content (entries) of a {@link java.util.Map} property
+     * are to be included during serialization or not.
+     * 
+     * @since 2.5
+     */
+    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue) {
         return defValue;
     }
 
@@ -703,6 +740,15 @@ public abstract class AnnotationIntrospector
     public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
         return null;
     }
+
+    /**
+     * Method for adding possible virtual properties to be serialized along
+     * with regular properties.
+     * 
+     * @since 2.5
+     */
+    public void findAndAddVirtualProperties(MapperConfig<?> config, AnnotatedClass ac,
+            List<BeanPropertyWriter> properties) { }
     
     /*
     /**********************************************************
@@ -760,6 +806,7 @@ public abstract class AnnotationIntrospector
         // as per [JACKSON-875], should use default here
         return value.name();
     }
+
     /*
     /**********************************************************
     /* Deserialization: general annotations
@@ -925,7 +972,7 @@ public abstract class AnnotationIntrospector
      * @since 2.0
      */
     public Class<?> findPOJOBuilder(AnnotatedClass ac) {
-    	return null;
+        return null;
     }
 
     /**
@@ -1005,5 +1052,60 @@ public abstract class AnnotationIntrospector
      */
     public boolean hasCreatorAnnotation(Annotated a) {
         return false;
+    }
+
+    /**
+     * Method for finding indication of creator binding mode for
+     * a creator (something for which {@link #hasCreatorAnnotation} returns
+     * true), for cases where there may be ambiguity (currently: single-argument
+     * creator with implicit but no explicit name for the argument).
+     * 
+     * @since 2.5
+     */
+    public JsonCreator.Mode findCreatorBinding(Annotated a) {
+        return null;
+    }
+    
+    /*
+    /**********************************************************
+    /* Overridable methods: may be used as low-level extension
+    /* points.
+    /**********************************************************
+     */
+
+    /**
+     * Method that should be used by sub-classes for ALL
+     * annotation access;
+     * overridable so 
+     * that sub-classes may, if they choose to, mangle actual access to
+     * block access ("hide" annotations) or perhaps change it.
+     *<p>
+     * Default implementation is simply:
+     *<code>
+     *  return annotated.getAnnotation(annoClass);
+     *</code>
+     * 
+     * @since 2.5
+     */
+    protected <A extends Annotation> A _findAnnotation(Annotated annotated,
+            Class<A> annoClass) {
+        return annotated.getAnnotation(annoClass);
+    }
+
+    /**
+     * Method that should be used by sub-classes for ALL
+     * annotation existence access;
+     * overridable so  that sub-classes may, if they choose to, mangle actual access to
+     * block access ("hide" annotations) or perhaps change value seen.
+     *<p>
+     * Default implementation is simply:
+     *<code>
+     *  return annotated.hasAnnotation(annoClass);
+     *</code>
+     * 
+     * @since 2.5
+     */
+    protected boolean _hasAnnotation(Annotated annotated, Class<? extends Annotation> annoClass) {
+        return annotated.hasAnnotation(annoClass);
     }
 }

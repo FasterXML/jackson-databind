@@ -67,7 +67,9 @@ public abstract class DelegatingDeserializer
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee, property);
+        JavaType vt = ctxt.constructType(_delegatee.handledType());
+        JsonDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee,
+                property, vt);
         if (del == _delegatee) {
             return this;
         }
@@ -139,11 +141,25 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
-    public Object getNullValue() { return _delegatee.getNullValue(); }
+    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _delegatee.getNullValue(ctxt);
+    }
 
     @Override
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _delegatee.getEmptyValue(ctxt);
+    }
+
+    @Override
+    @Deprecated // remove in 2.7
+    public Object getNullValue() { return _delegatee.getNullValue(); }
+
+    // Remove in 2.7
+    @Override
+    @Deprecated // remove in 2.7
     public Object getEmptyValue() { return _delegatee.getEmptyValue(); }
 
+    
     @Override
     public Collection<Object> getKnownPropertyNames() { return _delegatee.getKnownPropertyNames(); }
     

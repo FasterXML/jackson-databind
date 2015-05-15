@@ -36,7 +36,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     implements ClassIntrospector.MixInResolver,
         java.io.Serializable
 {
-    private static final long serialVersionUID = 8891625428805876137L;
+    private static final long serialVersionUID = 1L; // since 2.5
 
     /**
      * Set of shared mapper features enabled.

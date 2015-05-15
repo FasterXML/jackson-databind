@@ -23,6 +23,8 @@ public class StdDateFormat
      * JDK date parsing is awfully brittle, and ISO-8601 is quite
      * permissive. The two don't mix, need to write a better one.
      */
+    // 02-Oct-2014, tatu: Alas. While spit'n'polished a few times, still
+    //   not really robust
 
     /**
      * Defines a commonly used date format that conforms
@@ -398,31 +400,49 @@ public class StdDateFormat
                     // let's just append '00'
                     dateStr += "00";
                 }
-                // [JACKSON-334]: may be missing milliseconds... if so, add
+                // Milliseconds partial or missing; and even seconds are optional
                 len = dateStr.length();
-                // '+0000' (5 chars); should come after '.000' (4 chars) of milliseconds, so:
-                c = dateStr.charAt(len-9);
-                if (Character.isDigit(c)) {
+                // remove 'T', '+'/'-' and 4-digit timezone-offset
+                int timeLen = len - dateStr.lastIndexOf('T') - 6;
+                if (timeLen < 12) { // 8 for hh:mm:ss, 4 for .sss
+                    int offset = len - 5; // insertion offset, before tz-offset
                     StringBuilder sb = new StringBuilder(dateStr);
-                    sb.insert(len-5, ".000");
+                    switch (timeLen) {
+                    case 11:
+                        sb.insert(offset, '0'); break;
+                    case 10:
+                        sb.insert(offset, "00"); break;
+                    case 9: // is this legal? (just second fraction marker)
+                        sb.insert(offset, "000"); break;
+                    case 8:
+                        sb.insert(offset, ".000"); break;
+                    case 7: // not legal to have single-digit second
+                        break;
+                    case 6: // probably not legal, but let's allow
+                        sb.insert(offset, "00.000");
+                    case 5: // is legal to omit seconds
+                        sb.insert(offset, ":00.000");
+                    }
                     dateStr = sb.toString();
                 }
-                
                 df = _formatISO8601;
                 if (_formatISO8601 == null) {
                     df = _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, _timezone, _locale);
                 }
             } else {
-                /* 24-Nov-2009, tatu: Ugh. This is getting pretty
-                 *   ugly. Need to rewrite!
-                 */
-
                 // If not, plain date. Easiest to just patch 'Z' in the end?
                 StringBuilder sb = new StringBuilder(dateStr);
                 // And possible also millisecond part if missing
                 int timeLen = len - dateStr.lastIndexOf('T') - 1;
-                if (timeLen <= 8) {
-                    sb.append(".000");
+                if (timeLen < 12) { // missing, or partial
+                    switch (timeLen) {
+                    case 11: sb.append('0');
+                    case 10: sb.append('0');
+                    case 9: sb.append('0');
+                        break;
+                    default:
+                        sb.append(".000");
+                    }
                 }
                 sb.append('Z');
                 dateStr = sb.toString();

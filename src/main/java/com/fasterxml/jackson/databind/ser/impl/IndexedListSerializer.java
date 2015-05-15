@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -22,6 +20,8 @@ import com.fasterxml.jackson.databind.ser.std.AsArraySerializerBase;
 public final class IndexedListSerializer
     extends AsArraySerializerBase<List<?>>
 {
+    private static final long serialVersionUID = 1L;
+
     public IndexedListSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             BeanProperty property, JsonSerializer<Object> valueSerializer)
     {
@@ -47,7 +47,7 @@ public final class IndexedListSerializer
      */
     
     @Override
-    public boolean isEmpty(List<?> value) {
+    public boolean isEmpty(SerializerProvider prov, List<?> value) {
         return (value == null) || value.isEmpty();
     }
 
@@ -59,6 +59,19 @@ public final class IndexedListSerializer
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IndexedListSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
+    }
+
+    @Override
+    public final void serialize(List<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    {
+    	final int len = value.size();
+        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
+        jgen.writeStartArray(len);
+        serializeContents(value, jgen, provider);
+        jgen.writeEndArray();
     }
     
     @Override
@@ -101,14 +114,13 @@ public final class IndexedListSerializer
                 }
             }
         } catch (Exception e) {
-            // [JACKSON-55] Need to add reference information
             wrapAndThrow(provider, e, value, i);
         }
     }
     
     public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         final int len = value.size();
         if (len == 0) {
@@ -133,7 +145,7 @@ public final class IndexedListSerializer
     }
 
     public void serializeTypedContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         final int len = value.size();
         if (len == 0) {

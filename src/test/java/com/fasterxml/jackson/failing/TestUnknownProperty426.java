@@ -10,18 +10,19 @@ import com.fasterxml.jackson.databind.*;
 public class TestUnknownProperty426 extends BaseMapTest
 {
     // For [Issue#426]
-    @JsonIgnoreProperties({ "userId"})
-    public class User {
+    @JsonIgnoreProperties({ "userId" })
+    static class User {
+        public String firstName;
         Integer userId; 
 
         void setUserId(String id) {
             setUserId(new Integer(id));
         }
-    
+
         public Integer getUserId() {
             return userId;
         }
-    
+
         public void setUserId(Integer v) {
             this.userId = v;
         }
@@ -37,9 +38,10 @@ public class TestUnknownProperty426 extends BaseMapTest
 
     public void testIssue426() throws Exception
     {
-        String jsonString = "{id: 9, firstName: \"Mike\" }";
-        User result = MAPPER.reader( User.class ).readValue(jsonString);
+        final String JSON = aposToQuotes("{'userId': 9, 'firstName': 'Mike' }");
+        User result = MAPPER.readerFor(User.class).readValue(JSON);
         assertNotNull(result);
+        assertEquals("Mike", result.firstName);
     }
 }
 

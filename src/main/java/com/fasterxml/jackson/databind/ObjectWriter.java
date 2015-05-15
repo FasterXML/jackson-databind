@@ -1,25 +1,21 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.*;
-import java.text.DateFormat;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+import java.text.*;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.core.util.Instantiatable;
-import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -34,7 +30,7 @@ public class ObjectWriter
     implements Versioned,
         java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -7040667122552707164L;
+    private static final long serialVersionUID = 1; // since 2.5
 
     /**
      * We need to keep track of explicit disabling of pretty printing;
@@ -69,53 +65,23 @@ public class ObjectWriter
      */
 
     /**
-     * Specified root serialization type to use; can be same
-     * as runtime type, but usually one of its super types
+     * Container for settings that need to be passed to {@link JsonGenerator}
+     * constructed for serializing values.
+     *
+     * @since 2.5
      */
-    protected final JavaType _rootType;
+    protected final GeneratorSettings _generatorSettings;
 
     /**
-     * We may pre-fetch serializer if {@link #_rootType}
-     * is known, and if so, reuse it afterwards.
+     * We may pre-fetch serializer if root type
+     * is known (has been explicitly declared), and if so, reuse it afterwards.
      * This allows avoiding further serializer lookups and increases
      * performance a bit on cases where readers are reused.
-     * 
-     * @since 2.1
+     *
+     * @since 2.5
      */
-    protected final JsonSerializer<Object> _rootSerializer;
+    protected final Prefetch _prefetch;
     
-    /**
-     * To allow for dynamic enabling/disabling of pretty printing,
-     * pretty printer can be optionally configured for writer
-     * as well
-     */
-    protected final PrettyPrinter _prettyPrinter;
-    
-    /**
-     * When using data format that uses a schema, schema is passed
-     * to generator.
-     */
-    protected final FormatSchema _schema;
-    
-    /**
-     * Caller may want to specify character escaping details, either as
-     * defaults, or on call-by-call basis.
-     * 
-     * @since 2.3
-     */
-    protected final CharacterEscapes _characterEscapes;
-
-    /*
-    /**********************************************************
-    /* Derived settings
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.3
-     */
-    protected final boolean  _cfgBigDecimalAsPlain;
-
     /*
     /**********************************************************
     /* Life-cycle, constructors
@@ -129,22 +95,18 @@ public class ObjectWriter
             JavaType rootType, PrettyPrinter pp)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
-
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
-        _prettyPrinter = pp;
-        _schema = null;
-        _characterEscapes = null;
+        _generatorSettings = (pp == null) ? GeneratorSettings.empty
+                : new GeneratorSettings(pp, null, null, null);
 
         // 29-Apr-2014, tatu: There is no "untyped serializer", so:
         if (rootType == null || rootType.hasRawClass(Object.class)) {
-            _rootType = null;
-            _rootSerializer = null;
+            _prefetch = Prefetch.empty;
         } else {
-            _rootType = rootType.withStaticTyping();
-            _rootSerializer = _prefetchRootSerializer(config, _rootType);
+            rootType = rootType.withStaticTyping();
+            _prefetch = _prefetchRootSerializer(config, rootType);
         }
     }
 
@@ -154,17 +116,12 @@ public class ObjectWriter
     protected ObjectWriter(ObjectMapper mapper, SerializationConfig config)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
-
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
 
-        _rootType = null;
-        _rootSerializer = null;
-        _prettyPrinter = null;
-        _schema = null;
-        _characterEscapes = null;
+        _generatorSettings = GeneratorSettings.empty;
+        _prefetch = Prefetch.empty;
     }
 
     /**
@@ -174,38 +131,30 @@ public class ObjectWriter
             FormatSchema s)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
 
-        _rootType = null;
-        _rootSerializer = null;
-        _prettyPrinter = null;
-        _schema = s;
-        _characterEscapes = null;
+        _generatorSettings = (s == null) ? GeneratorSettings.empty
+                : new GeneratorSettings(null, s, null, null);
+        _prefetch = Prefetch.empty;
     }
     
     /**
      * Copy constructor used for building variations.
      */
     protected ObjectWriter(ObjectWriter base, SerializationConfig config,
-            JavaType rootType, JsonSerializer<Object> rootSer,
-            PrettyPrinter pp, FormatSchema s, CharacterEscapes escapes)
+            GeneratorSettings genSettings, Prefetch prefetch)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
 
-        _rootType = rootType;
-        _rootSerializer = rootSer;
-        _prettyPrinter = pp;
-        _schema = s;
-        _characterEscapes = escapes;
+        _generatorSettings = genSettings;
+        _prefetch = prefetch;
     }
 
     /**
@@ -214,17 +163,13 @@ public class ObjectWriter
     protected ObjectWriter(ObjectWriter base, SerializationConfig config)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
-        _schema = base._schema;
-        _characterEscapes = base._characterEscapes;
 
-        _rootType = base._rootType;
-        _rootSerializer = base._rootSerializer;
-        _prettyPrinter = base._prettyPrinter;
+        _generatorSettings = base._generatorSettings;
+        _prefetch = base._prefetch;
     }
 
     /**
@@ -235,19 +180,15 @@ public class ObjectWriter
         // may need to override ordering, based on data format capabilities
         _config = base._config
             .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, f.requiresPropertyOrdering());
-        _cfgBigDecimalAsPlain = base._cfgBigDecimalAsPlain;
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
-        _schema = base._schema;
-        _characterEscapes = base._characterEscapes;
 
-        _rootType = base._rootType;
-        _rootSerializer = base._rootSerializer;
-        _prettyPrinter = base._prettyPrinter;
+        _generatorSettings = base._generatorSettings;
+        _prefetch = base._prefetch;
     }
-    
+
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -256,10 +197,63 @@ public class ObjectWriter
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
-    
+
     /*
     /**********************************************************
-    /* Life-cycle, fluent factories
+    /* Methods sub-classes MUST override, used for constructing
+    /* writer instances, (re)configuring parser instances.
+    /* Added in 2.5
+    /**********************************************************
+     */
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectWriter _new(ObjectWriter base, JsonFactory f) {
+        return new ObjectWriter(base, f);
+    }
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectWriter _new(ObjectWriter base, SerializationConfig config) {
+        return new ObjectWriter(base, config);
+    }
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods.
+     * It assumes `this` as base for settings other than those directly
+     * passed in.
+     * 
+     * @since 2.5
+     */
+    protected ObjectWriter _new(GeneratorSettings genSettings, Prefetch prefetch) {
+        return new ObjectWriter(this, _config, genSettings, prefetch);
+    }
+
+    /**
+     * Overridable factory method called by {@link #writeValues(OutputStream)}
+     * method (and its various overrides), and initializes it as necessary.
+     * 
+     * @since 2.5
+     */
+    @SuppressWarnings("resource")
+    protected SequenceWriter _newSequenceWriter(boolean wrapInArray,
+            JsonGenerator gen, boolean managedInput)
+        throws IOException
+    {
+        return new SequenceWriter(_serializerProvider(_config),
+                _configureGenerator(gen), managedInput, _prefetch)
+            .init(wrapInArray);
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories for SerializationFeature
     /**********************************************************
      */
 
@@ -269,7 +263,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(SerializationFeature feature)  {
         SerializationConfig newConfig = _config.with(feature);
-        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this : _new(this, newConfig);
     }
 
     /**
@@ -278,7 +272,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(SerializationFeature first, SerializationFeature... other) {
         SerializationConfig newConfig = _config.with(first, other);
-        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this : _new(this, newConfig);
     }    
 
     /**
@@ -287,7 +281,7 @@ public class ObjectWriter
      */
     public ObjectWriter withFeatures(SerializationFeature... features) {
         SerializationConfig newConfig = _config.withFeatures(features);
-        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this : _new(this, newConfig);
     }    
     
     /**
@@ -296,7 +290,7 @@ public class ObjectWriter
      */
     public ObjectWriter without(SerializationFeature feature) {
         SerializationConfig newConfig = _config.without(feature);
-        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this : _new(this, newConfig);
     }    
 
     /**
@@ -305,7 +299,7 @@ public class ObjectWriter
      */
     public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
         SerializationConfig newConfig = _config.without(first, other);
-        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this : _new(this, newConfig);
     }    
 
     /**
@@ -314,9 +308,53 @@ public class ObjectWriter
      */
     public ObjectWriter withoutFeatures(SerializationFeature... features) {
         SerializationConfig newConfig = _config.withoutFeatures(features);
-        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
-    }    
-    
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories for JsonGenerator.Feature
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter with(JsonGenerator.Feature feature)  {
+        SerializationConfig newConfig = _config.with(feature);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withFeatures(JsonGenerator.Feature... features) {
+        SerializationConfig newConfig = _config.withFeatures(features);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter without(JsonGenerator.Feature feature) {
+        SerializationConfig newConfig = _config.without(feature);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withoutFeatures(JsonGenerator.Feature... features) {
+        SerializationConfig newConfig = _config.withoutFeatures(features);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories, other
+    /**********************************************************
+     */
+
     /**
      * Fluent factory method that will construct a new writer instance that will
      * use specified date format for serializing dates; or if null passed, one
@@ -327,7 +365,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(DateFormat df) {
         SerializationConfig newConfig = _config.with(df);
-        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this : _new(this, newConfig);
     }
 
     /**
@@ -335,7 +373,7 @@ public class ObjectWriter
      * pretty printer for serialization.
      */
     public ObjectWriter withDefaultPrettyPrinter() {
-        return with(new DefaultPrettyPrinter());
+        return with(_config.getDefaultPrettyPrinter());
     }
 
     /**
@@ -344,7 +382,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(FilterProvider filterProvider) {
         return (filterProvider == _config.getFilterProvider()) ? this
-                 : new ObjectWriter(this, _config.withFilters(filterProvider));
+                 : _new(this, _config.withFilters(filterProvider));
     }
 
     /**
@@ -352,15 +390,11 @@ public class ObjectWriter
      * printer (or, if null, will not do any pretty-printing)
      */
     public ObjectWriter with(PrettyPrinter pp) {
-        if (pp == _prettyPrinter) {
+        GeneratorSettings genSet = _generatorSettings.with(pp);
+        if (genSet == _generatorSettings) {
             return this;
         }
-        // since null would mean "don't care", need to use placeholder to indicate "disable"
-        if (pp == null) {
-            pp = NULL_PRETTY_PRINTER;
-        }
-        return new ObjectWriter(this, _config, _rootType, _rootSerializer,
-                pp, _schema, _characterEscapes);
+        return _new(genSet, _prefetch);
     }
 
     /**
@@ -370,12 +404,30 @@ public class ObjectWriter
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
+     * 
+     * @param rootName Root name to use, if non-empty; `null` for "use defaults",
+     *    and empty String ("") for "do NOT add root wrapper"
      */
     public ObjectWriter withRootName(String rootName) {
         SerializationConfig newConfig = _config.withRootName(rootName);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
+    /**
+     * Convenience method that is same as calling:
+     *<code>
+     *   withRootName("")
+     *</code>
+     * which will forcibly prevent use of root name wrapping when writing
+     * values with this {@link ObjectWriter}.
+     * 
+     * @since 2.6
+     */
+    public ObjectWriter withoutRootName() {
+        SerializationConfig newConfig = _config.withRootName("");
+        return (newConfig == _config) ? this :  _new(this, newConfig);
+    }
+    
     /**
      * Method that will construct a new instance that uses specific format schema
      * for serialization.
@@ -383,14 +435,21 @@ public class ObjectWriter
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    
-    public ObjectWriter withSchema(FormatSchema schema) {
-        if (_schema == schema) {
+    public ObjectWriter with(FormatSchema schema) {
+        GeneratorSettings genSet = _generatorSettings.with(schema);
+        if (genSet == _generatorSettings) {
             return this;
         }
         _verifySchemaType(schema);
-        return new ObjectWriter(this, _config, _rootType, _rootSerializer,
-                _prettyPrinter, schema, _characterEscapes);
+        return _new(genSet, _prefetch);
+    }
+
+    /**
+     * @deprecated Since 2.5 use {@link #with(FormatSchema)} instead
+     */
+    @Deprecated
+    public ObjectWriter withSchema(FormatSchema schema) {
+        return with(schema);
     }
 
     /**
@@ -400,36 +459,67 @@ public class ObjectWriter
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
+     * 
+     * @since 2.5
      */
-    public ObjectWriter withType(JavaType rootType)
+    public ObjectWriter forType(JavaType rootType)
     {
-        JsonSerializer<Object> rootSer;
+        Prefetch pf;
         if (rootType == null || rootType.hasRawClass(Object.class)) {
-            rootType = null;
-            rootSer = null;
+            pf = Prefetch.empty;
         } else {
             // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-            rootType = rootType.withStaticTyping();
-            rootSer = _prefetchRootSerializer(_config, rootType);
+            /* 19-Mar-2015, tatu: Except when dealing with Collection, Map types, where
+             *    this does more harm than help.
+             */
+            if (!rootType.isContainerType()) {
+                rootType = rootType.withStaticTyping();
+            }
+            pf = _prefetchRootSerializer(_config, rootType);
         }
-        return new ObjectWriter(this, _config, rootType, rootSer,
-                _prettyPrinter, _schema, _characterEscapes);
-    }    
+        return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
+    }
 
     /**
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
+     * 
+     * @since 2.5
      */
-    public ObjectWriter withType(Class<?> rootType) {
+    public ObjectWriter forType(Class<?> rootType) {
         if (rootType == Object.class) {
-            return withType((JavaType) null);
+            return forType((JavaType) null);
         }
-        return withType(_config.constructType(rootType));
+        return forType(_config.constructType(rootType));
     }
 
+    public ObjectWriter forType(TypeReference<?> rootType) {
+        return forType(_config.getTypeFactory().constructType(rootType.getType()));
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
+     */
+    @Deprecated // since 2.5
+    public ObjectWriter withType(JavaType rootType) {
+        return forType(rootType);
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(Class)} instead
+     */
+    @Deprecated // since 2.5
+    public ObjectWriter withType(Class<?> rootType) {
+        return forType(rootType);
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(TypeReference)} instead
+     */
+    @Deprecated // since 2.5
     public ObjectWriter withType(TypeReference<?> rootType) {
-        return withType(_config.getTypeFactory().constructType(rootType.getType()));
+        return forType(rootType);
     }
 
     /**
@@ -442,17 +532,17 @@ public class ObjectWriter
      */
     public ObjectWriter withView(Class<?> view) {
         SerializationConfig newConfig = _config.withView(view);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }    
 
     public ObjectWriter with(Locale l) {
         SerializationConfig newConfig = _config.with(l);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
     public ObjectWriter with(TimeZone tz) {
         SerializationConfig newConfig = _config.with(tz);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
     /**
@@ -463,25 +553,25 @@ public class ObjectWriter
      */
     public ObjectWriter with(Base64Variant b64variant) {
         SerializationConfig newConfig = _config.with(b64variant);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
     /**
      * @since 2.3
      */
     public ObjectWriter with(CharacterEscapes escapes) {
-        if (_characterEscapes == escapes) {
+        GeneratorSettings genSet = _generatorSettings.with(escapes);
+        if (genSet == _generatorSettings) {
             return this;
         }
-        return new ObjectWriter(this, _config, _rootType, _rootSerializer,
-                _prettyPrinter, _schema, escapes);
+        return _new(genSet, _prefetch);
     }
 
     /**
      * @since 2.3
      */
     public ObjectWriter with(JsonFactory f) {
-        return (f == _generatorFactory) ? this : new ObjectWriter(this, f);
+        return (f == _generatorFactory) ? this : _new(this, f);
     }    
 
     /**
@@ -489,7 +579,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(ContextAttributes attrs) {
         SerializationConfig newConfig = _config.with(attrs);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
     /**
@@ -497,7 +587,7 @@ public class ObjectWriter
      */
     public ObjectWriter withAttributes(Map<Object,Object> attrs) {
         SerializationConfig newConfig = _config.withAttributes(attrs);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
     /**
@@ -505,7 +595,7 @@ public class ObjectWriter
      */
     public ObjectWriter withAttribute(Object key, Object value) {
         SerializationConfig newConfig = _config.withAttribute(key, value);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
     /**
@@ -513,9 +603,189 @@ public class ObjectWriter
      */
     public ObjectWriter withoutAttribute(Object key) {
         SerializationConfig newConfig = _config.withoutAttribute(key);
-        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
     }
-    
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withRootValueSeparator(String sep) {
+        GeneratorSettings genSet = _generatorSettings.withRootValueSeparator(sep);
+        if (genSet == _generatorSettings) {
+            return this;
+        }
+        return _new(genSet, _prefetch);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withRootValueSeparator(SerializableString sep) {
+        GeneratorSettings genSet = _generatorSettings.withRootValueSeparator(sep);
+        if (genSet == _generatorSettings) {
+            return this;
+        }
+        return _new(genSet, _prefetch);
+    }
+
+    /*
+    /**********************************************************
+    /* Factory methods for sequence writers (2.5)
+    /**********************************************************
+     */
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *
+     * @param out Target file to write value sequence to.
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(File out) throws IOException {
+        return _newSequenceWriter(false,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure that all content gets flushed by
+     * the generator. However, since a {@link JsonGenerator} is explicitly passed,
+     * it will NOT be closed when {@link SequenceWriter#close()} is called.
+     *
+     * @param gen Low-level generator caller has already constructed that will
+     *   be used for actual writing of token stream.
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(JsonGenerator gen) throws IOException {
+        return _newSequenceWriter(false, _configureGenerator(gen), false);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *
+     * @param out Target writer to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(Writer out) throws IOException {
+        return _newSequenceWriter(false,
+                _generatorFactory.createGenerator(out), true);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *
+     * @param out Physical output stream to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(OutputStream out) throws IOException {
+        return _newSequenceWriter(false,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param out File to write token stream to
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(File out) throws IOException {
+        return _newSequenceWriter(true,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure that all content gets flushed by
+     * the generator. However, since a {@link JsonGenerator} is explicitly passed,
+     * it will NOT be closed when {@link SequenceWriter#close()} is called.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param gen Underlying generator to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(JsonGenerator gen) throws IOException {
+        return _newSequenceWriter(true, gen, false);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param out Writer to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(Writer out) throws IOException {
+        return _newSequenceWriter(true, _generatorFactory.createGenerator(out), true);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param out Physical output stream to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(OutputStream out) throws IOException {
+        return _newSequenceWriter(true,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
     /*
     /**********************************************************
     /* Simple accessors
@@ -569,7 +839,7 @@ public class ObjectWriter
      * @since 2.2
      */
     public boolean hasPrefetchedSerializer() {
-        return _rootSerializer != null;
+        return _prefetch.hasSerializer();
     }
 
     /**
@@ -589,22 +859,24 @@ public class ObjectWriter
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator}.
      */
-    public void writeValue(JsonGenerator jgen, Object value)
+    public void writeValue(JsonGenerator gen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        // 10-Aug-2012, tatu: As per [Issue#12], may need to force PrettyPrinter settings, so:
-        _configureJsonGenerator(jgen);
+        _configureGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof Closeable)) {
-            _writeCloseableValue(jgen, value, _config);
+            _writeCloseableValue(gen, value, _config);
         } else {
-            if (_rootType == null) {
-                _serializerProvider(_config).serializeValue(jgen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(_config).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(_config).serializeValue(gen, value);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                jgen.flush();
+                gen.flush();
             }
         }
     }
@@ -726,15 +998,21 @@ public class ObjectWriter
      * 
      * @since 2.2
      */
-    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor) throws JsonMappingException
     {
         if (type == null) {
             throw new IllegalArgumentException("type must be provided");
         }
         _serializerProvider(_config).acceptJsonFormatVisitor(type, visitor);
     }
-    
+
+    /**
+     * Since 2.6
+     */
+    public void acceptJsonFormatVisitor(Class<?> rawType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
+        acceptJsonFormatVisitor(_config.constructType(rawType), visitor);
+    }
+
     public boolean canSerialize(Class<?> type) {
         return _serializerProvider(_config).hasSerializerFor(type, null);
     }
@@ -748,13 +1026,13 @@ public class ObjectWriter
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
         return _serializerProvider(_config).hasSerializerFor(type, cause);
     }
-    
+
     /*
     /**********************************************************
     /* Overridable helper methods
     /**********************************************************
      */
-    
+
     /**
      * Overridable helper method used for constructing
      * {@link SerializerProvider} to use for serialization.
@@ -762,7 +1040,7 @@ public class ObjectWriter
     protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         return _serializerProvider.createInstance(config, _serializerFactory);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods
@@ -786,23 +1064,26 @@ public class ObjectWriter
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(JsonGenerator jgen, Object value) throws IOException
+    protected final void _configAndWriteValue(JsonGenerator gen, Object value) throws IOException
     {
-        _configureJsonGenerator(jgen);
+        _configureGenerator(gen);
         // [JACKSON-282]: consider Closeable
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _writeCloseable(jgen, value, _config);
+            _writeCloseable(gen, value, _config);
             return;
         }
         boolean closed = false;
         try {
-            if (_rootType == null) {
-                _serializerProvider(_config).serializeValue(jgen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(_config).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(_config).serializeValue(gen, value);
             }
             closed = true;
-            jgen.close();
+            gen.close();
         } finally {
             /* won't try to close twice; also, must catch exception (so it 
              * will not mask exception that is pending)
@@ -811,9 +1092,9 @@ public class ObjectWriter
                 /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                  *    structures, which typically causes more damage.
                  */
-                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+                gen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
-                    jgen.close();
+                    gen.close();
                 } catch (IOException ioe) { }
             }
         }
@@ -823,19 +1104,22 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
-        throws IOException, JsonGenerationException, JsonMappingException
+    private final void _writeCloseable(JsonGenerator gen, Object value, SerializationConfig cfg)
+        throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
-            if (_rootType == null) {
-                _serializerProvider(cfg).serializeValue(jgen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(cfg).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(cfg).serializeValue(gen, value);
             }
-            JsonGenerator tmpJgen = jgen;
-            jgen = null;
-            tmpJgen.close();
+            JsonGenerator tmpGen = gen;
+            gen = null;
+            tmpGen.close();
             Closeable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
@@ -843,13 +1127,13 @@ public class ObjectWriter
             /* Need to close both generator and value, as long as they haven't yet
              * been closed
              */
-            if (jgen != null) {
+            if (gen != null) {
                 /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                  *    structures, which typically causes more damage.
                  */
-                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+                gen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
-                    jgen.close();
+                    gen.close();
                 } catch (IOException ioe) { }
             }
             if (toClose != null) {
@@ -864,18 +1148,21 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseableValue(JsonGenerator jgen, Object value, SerializationConfig cfg)
-        throws IOException, JsonGenerationException, JsonMappingException
+    private final void _writeCloseableValue(JsonGenerator gen, Object value, SerializationConfig cfg)
+        throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
-            if (_rootType == null) {
-                _serializerProvider(cfg).serializeValue(jgen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(cfg).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(cfg).serializeValue(gen, value);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                jgen.flush();
+                gen.flush();
             }
             Closeable tmpToClose = toClose;
             toClose = null;
@@ -894,18 +1181,27 @@ public class ObjectWriter
      * by configuration. Method also is NOT to throw an exception if
      * access fails.
      */
-    protected JsonSerializer<Object> _prefetchRootSerializer(
-            SerializationConfig config, JavaType valueType)
+    protected Prefetch _prefetchRootSerializer(SerializationConfig config, JavaType valueType)
     {
-        if (valueType == null || !_config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
-            return null;
+        if (valueType != null && _config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
+            /* 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
+             *   so although it'd seem like a good idea to look for those first, and avoid
+             *   serializer for polymorphic types, it is actually more efficient to do the
+             *   reverse here.
+             */
+            try {
+                JsonSerializer<Object> ser = _serializerProvider(config).findTypedValueSerializer(valueType, true, null);
+                // Important: for polymorphic types, "unwrap"...
+                if (ser instanceof TypeWrappedSerializer) {
+                    return Prefetch.construct(valueType, ((TypeWrappedSerializer) ser).typeSerializer());
+                }
+                return Prefetch.construct(valueType,  ser);
+            } catch (JsonProcessingException e) {
+                // need to swallow?
+                ;
+            }
         }
-        try {
-            return _serializerProvider(config).findTypedValueSerializer(valueType, true, null);
-        } catch (JsonProcessingException e) {
-            // need to swallow?
-            return null;
-        }
+        return Prefetch.empty;
     }
     
     /**
@@ -913,13 +1209,27 @@ public class ObjectWriter
      * {@link JsonGenerator}
      * 
      * @since 2.1
+     * 
+     * @deprecated Since 2.5 (to be removed from 2.6 or later)
      */
-    private void _configureJsonGenerator(JsonGenerator jgen)
+    @Deprecated
+    protected void _configureJsonGenerator(JsonGenerator gen) {
+        _configureGenerator(gen);
+    }
+
+    /**
+     * Helper method called to set or override settings of passed-in
+     * {@link JsonGenerator}
+     * 
+     * @since 2.5
+     */
+    protected JsonGenerator _configureGenerator(JsonGenerator gen)
     {
-        if (_prettyPrinter != null) {
-            PrettyPrinter pp = _prettyPrinter;
+        GeneratorSettings genSet = _generatorSettings;
+        PrettyPrinter pp = genSet.prettyPrinter;
+        if (pp != null) {
             if (pp == NULL_PRETTY_PRINTER) {
-                jgen.setPrettyPrinter(null);
+                gen.setPrettyPrinter(null);
             } else {
                 /* [JACKSON-851]: Better take care of stateful PrettyPrinters...
                  *   like the DefaultPrettyPrinter.
@@ -927,20 +1237,183 @@ public class ObjectWriter
                 if (pp instanceof Instantiatable<?>) {
                     pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
                 }
-                jgen.setPrettyPrinter(pp);
+                gen.setPrettyPrinter(pp);
             }
-        } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
-            jgen.useDefaultPrettyPrinter();
         }
-        if (_characterEscapes != null) {
-            jgen.setCharacterEscapes(_characterEscapes);
+        CharacterEscapes esc = genSet.characterEscapes;
+        if (esc != null) {
+            gen.setCharacterEscapes(esc);
         }
-        // [JACKSON-520]: add support for pass-through schema:
-        if (_schema != null) {
-            jgen.setSchema(_schema);
+        FormatSchema sch = genSet.schema;
+        if (sch != null) {
+            gen.setSchema(sch);
         }
-        if (_cfgBigDecimalAsPlain) { // should only set if explicitly set; this should work for now:
-            jgen.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        SerializableString sep = genSet.rootValueSeparator;
+        if (sep != null) {
+            gen.setRootValueSeparator(sep);
+        }
+        _config.initialize(gen); // since 2.5
+        return gen;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper classes for configuration
+    /**********************************************************
+     */
+
+    /**
+     * Helper class used for containing settings specifically related
+     * to (re)configuring {@link JsonGenerator} constructed for
+     * writing output.
+     * 
+     * @since 2.5
+     */
+    public final static class GeneratorSettings
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static GeneratorSettings empty = new GeneratorSettings(null, null, null, null);
+
+        /**
+         * To allow for dynamic enabling/disabling of pretty printing,
+         * pretty printer can be optionally configured for writer
+         * as well
+         */
+        public final PrettyPrinter prettyPrinter;
+
+        /**
+         * When using data format that uses a schema, schema is passed
+         * to generator.
+         */
+        public final FormatSchema schema;
+
+        /**
+         * Caller may want to specify character escaping details, either as
+         * defaults, or on call-by-call basis.
+         */
+        public final CharacterEscapes characterEscapes;
+
+        /**
+         * Caller may want to override so-called "root value separator",
+         * String added (verbatim, with no quoting or escaping) between
+         * values in root context. Default value is a single space character,
+         * but this is often changed to linefeed.
+         */
+        public final SerializableString rootValueSeparator;
+
+        public GeneratorSettings(PrettyPrinter pp, FormatSchema sch,
+                CharacterEscapes esc, SerializableString rootSep) {
+            prettyPrinter = pp;
+            schema = sch;
+            characterEscapes = esc;
+            rootValueSeparator = rootSep;
+        }
+
+        public GeneratorSettings with(PrettyPrinter pp) {
+            // since null would mean "don't care", need to use placeholder to indicate "disable"
+            if (pp == null) {
+                pp = NULL_PRETTY_PRINTER;
+            }
+            return (pp == prettyPrinter) ? this
+                    : new GeneratorSettings(pp, schema, characterEscapes, rootValueSeparator);
+        }
+
+        public GeneratorSettings with(FormatSchema sch) {
+            return (schema == sch) ? this
+                    : new GeneratorSettings(prettyPrinter, sch, characterEscapes, rootValueSeparator);
+        }
+
+        public GeneratorSettings with(CharacterEscapes esc) {
+            return (characterEscapes == esc) ? this
+                    : new GeneratorSettings(prettyPrinter, schema, esc, rootValueSeparator);
+        }
+
+        public GeneratorSettings withRootValueSeparator(String sep) {
+            if (sep == null) {
+                if (rootValueSeparator == null) {
+                    return this;
+                }
+            } else if (sep.equals(rootValueSeparator)) {
+                return this;
+            }
+            return new GeneratorSettings(prettyPrinter, schema, characterEscapes,
+                    (sep == null) ? null : new SerializedString(sep));
+        }
+
+        public GeneratorSettings withRootValueSeparator(SerializableString sep) {
+            if (sep == null) {
+                if (rootValueSeparator == null) {
+                    return this;
+                }
+            } else {
+                if (rootValueSeparator != null
+                        && sep.getValue().equals(rootValueSeparator.getValue())) {
+                    return this;
+                }
+            }
+            return new GeneratorSettings(prettyPrinter, schema, characterEscapes, sep);
+        }
+    }
+
+    /**
+     * As a minor optimization, we will make an effort to pre-fetch a serializer,
+     * or at least relevant <code>TypeSerializer</code>, if given enough
+     * information.
+     * 
+     * @since 2.5
+     */
+    public final static class Prefetch
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static Prefetch empty = new Prefetch(null, null, null);
+        
+        /**
+         * Specified root serialization type to use; can be same
+         * as runtime type, but usually one of its super types
+         */
+        public final JavaType rootType;
+
+        /**
+         * We may pre-fetch serializer if {@link #rootType}
+         * is known, and if so, reuse it afterwards.
+         * This allows avoiding further serializer lookups and increases
+         * performance a bit on cases where readers are reused.
+         */
+        public final JsonSerializer<Object> valueSerializer;
+
+        /**
+         * When dealing with polymorphic types, we can not pre-fetch
+         * serializer, but we can pre-fetch {@link TypeSerializer}.
+         */
+        public final TypeSerializer typeSerializer;
+        
+        private Prefetch(JavaType type, JsonSerializer<Object> ser, TypeSerializer typeSer)
+        {
+            rootType = type;
+            valueSerializer = ser;
+            typeSerializer = typeSer;
+        }
+
+        public static Prefetch construct(JavaType type, JsonSerializer<Object> ser) {
+            if (type == null && ser == null) {
+                return empty;
+            }
+            return new Prefetch(type, ser, null);
+        }
+        
+        public static Prefetch construct(JavaType type, TypeSerializer typeSer) {
+            if (type == null && typeSer == null) {
+                return empty;
+            }
+            return new Prefetch(type, null, typeSer);
+        }
+
+        public boolean hasSerializer() {
+            return (valueSerializer != null) || (typeSerializer != null);
         }
     }
 }

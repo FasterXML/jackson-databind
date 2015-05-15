@@ -33,6 +33,16 @@ public abstract class ClassIntrospector
          * annotations) for given class
          */
         public Class<?> findMixInClassFor(Class<?> cls);
+
+        /**
+         * Method called to create a new, non-shared copy, to be used by different
+         * <code>ObjectMapper</code> instance, and one that should not be connected
+         * to this instance, if resolver has mutable state.
+         * If resolver is immutable may simply return `this`.
+         * 
+         * @since 2.6
+         */
+        public MixInResolver copy();
     }
 
     protected ClassIntrospector() { }

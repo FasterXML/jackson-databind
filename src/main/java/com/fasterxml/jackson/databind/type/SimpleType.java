@@ -10,11 +10,19 @@ import com.fasterxml.jackson.databind.JavaType;
  * need not know anything further, since we have no way of dealing
  * with generic types other than Collections and Maps.
  */
-public final class SimpleType
+public class SimpleType // note: until 2.6 was final
     extends TypeBase
 {
-    private static final long serialVersionUID = -800374828948534376L;
+    private static final long serialVersionUID = 1L;
 
+    /**
+     * In case there are resolved type parameters, this field stores reference
+     * to that type. It must be {@link #getRawClass()} or its supertype.
+     * 
+     * @since 2.5
+     */
+    protected final Class<?> _typeParametersFor;
+    
     /**
      * Generic type arguments for this type.
      */
@@ -33,11 +41,29 @@ public final class SimpleType
      */
 
     protected SimpleType(Class<?> cls) {
-        this(cls, null, null, null, null, false);
+        this(cls, null, null, null, null, false, null);
     }
 
+    /**
+     * @deprecated Since 2.5 use variant that takes one more argument
+     */
+    @Deprecated
     protected SimpleType(Class<?> cls, String[] typeNames, JavaType[] typeParams,
             Object valueHandler, Object typeHandler, boolean asStatic)
+    {
+        this(cls, typeNames, typeParams, valueHandler, typeHandler, asStatic, null);
+    }
+
+    /**
+     * 
+     * @param parametersFrom Interface or abstract class implemented by this type,
+     *   and for which type parameters apply. It may be <code>cls</code> itself,
+     *   but more commonly it is one of its supertypes.
+     */
+    protected SimpleType(Class<?> cls,
+            String[] typeNames, JavaType[] typeParams,
+            Object valueHandler, Object typeHandler, boolean asStatic,
+            Class<?> parametersFrom)
     {
         super(cls, 0, valueHandler, typeHandler, asStatic);
         if (typeNames == null || typeNames.length == 0) {
@@ -47,8 +73,23 @@ public final class SimpleType
             _typeNames = typeNames;
             _typeParameters = typeParams;
         }
+        _typeParametersFor = parametersFrom;
     }
 
+    /**
+     * Pass-through constructor used by {@link ReferenceType}.
+     * 
+     * @since 2.6
+     */
+    protected SimpleType(Class<?> cls, int extraHash,
+            Object valueHandler, Object typeHandler, boolean asStatic)
+    {
+        super(cls, extraHash, valueHandler, typeHandler, asStatic);
+        _typeNames = null;
+        _typeParameters = null;
+        _typeParametersFor = cls;
+    }
+    
     /**
      * Method used by core Jackson classes: NOT to be used by application code.
      *<p>
@@ -56,7 +97,7 @@ public final class SimpleType
      * not in same package
      */
     public static SimpleType constructUnsafe(Class<?> raw) {
-        return new SimpleType(raw, null, null, null, null, false);
+        return new SimpleType(raw, null, null, null, null, false, null);
     }
 
     @Override
@@ -64,7 +105,7 @@ public final class SimpleType
     {
         // Should we check that there is a sub-class relationship?
         return new SimpleType(subclass, _typeNames, _typeParameters, _valueHandler, _typeHandler,
-                _asStatic);
+                _asStatic, _typeParametersFor);
     }
 
     @Override
@@ -102,7 +143,7 @@ public final class SimpleType
     @Override
     public SimpleType withTypeHandler(Object h)
     {
-        return new SimpleType(_class, _typeNames, _typeParameters, _valueHandler, h, _asStatic);
+        return new SimpleType(_class, _typeNames, _typeParameters, _valueHandler, h, _asStatic, _typeParametersFor);
     }
 
     @Override
@@ -116,7 +157,7 @@ public final class SimpleType
         if (h == _valueHandler) {
             return this;
         }
-        return new SimpleType(_class, _typeNames, _typeParameters, h, _typeHandler, _asStatic);
+        return new SimpleType(_class, _typeNames, _typeParameters, h, _typeHandler, _asStatic, _typeParametersFor);
     }
     
     @Override
@@ -128,7 +169,7 @@ public final class SimpleType
     @Override
     public SimpleType withStaticTyping() {
         return _asStatic ? this : new SimpleType(_class,
-                _typeNames, _typeParameters, _valueHandler, _typeHandler, _asStatic);
+                _typeNames, _typeParameters, _valueHandler, _typeHandler, true, _typeParametersFor);
     }
 
     @Override
@@ -183,6 +224,11 @@ public final class SimpleType
         }
         return _typeNames[index];
     }
+
+    @Override
+    public Class<?> getParameterSource() {
+        return _typeParametersFor;
+    }
     
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
@@ -203,7 +249,7 @@ public final class SimpleType
         sb.append(';');
         return sb;
     }
-    
+
     /*
     /**********************************************************
     /* Standard methods

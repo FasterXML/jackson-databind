@@ -28,10 +28,10 @@ public final class AnnotatedConstructor
     /**********************************************************
      */
 
-    public AnnotatedConstructor(Constructor<?> constructor,
+    public AnnotatedConstructor(AnnotatedClass ctxt, Constructor<?> constructor,
             AnnotationMap classAnn, AnnotationMap[] paramAnn)
     {
-        super(classAnn, paramAnn);
+        super(ctxt, classAnn, paramAnn);
         if (constructor == null) {
             throw new IllegalArgumentException("Null constructor not allowed");
         }
@@ -44,14 +44,14 @@ public final class AnnotatedConstructor
      */
     protected AnnotatedConstructor(Serialization ser)
     {
-        super(null, null);
+        super(null, null, null);
         _constructor = null;
         _serialization = ser;
     }
     
     @Override
     public AnnotatedConstructor withAnnotations(AnnotationMap ann) {
-        return new AnnotatedConstructor(_constructor, ann, _paramAnnotations);
+        return new AnnotatedConstructor(_context, _constructor, ann, _paramAnnotations);
     }
     
     /*
@@ -169,6 +169,18 @@ public final class AnnotatedConstructor
         return "[constructor for "+getName()+", annotations: "+_annotations+"]";
     }
 
+    @Override
+    public int hashCode() {
+        return _constructor.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedConstructor) o)._constructor == _constructor;
+    }
+    
     /*
     /**********************************************************
     /* JDK serialization handling
@@ -187,7 +199,7 @@ public final class AnnotatedConstructor
             if (!ctor.isAccessible()) {
                 ClassUtil.checkAndFixAccess(ctor);
             }
-            return new AnnotatedConstructor(ctor, null, null);
+            return new AnnotatedConstructor(null, ctor, null, null);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not find constructor with "
                     +_serialization.args.length+" args from Class '"+clazz.getName());

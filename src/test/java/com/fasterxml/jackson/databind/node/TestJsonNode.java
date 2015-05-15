@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.util.Comparator;
+
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Basic tests for {@link JsonNode} base class and some features
@@ -9,6 +13,8 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestJsonNode extends NodeTestBase
 {
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testText()
     {
         assertNull(TextNode.valueOf(null));
@@ -31,6 +37,11 @@ public class TestJsonNode extends NodeTestBase
 
         assertEquals("foobar", n.asText("barf"));
         assertEquals("", empty.asText("xyz"));
+
+        assertTrue(TextNode.valueOf("true").asBoolean(true));
+        assertTrue(TextNode.valueOf("true").asBoolean(false));
+        assertFalse(TextNode.valueOf("false").asBoolean(true));
+        assertFalse(TextNode.valueOf("false").asBoolean(false));
     }
 
     public void testBoolean()
@@ -101,5 +112,52 @@ public class TestJsonNode extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
         // but if wrapping actual number, use it
         assertNodeNumbers(new POJONode(Integer.valueOf(123)), 123, 123.0);
+    }
+
+    // [databind#743]
+    public void testRawValue() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        root.putRawValue("a", new RawValue(new SerializedString("[1, 2, 3]")));
+
+        assertEquals("{\"a\":[1, 2, 3]}", MAPPER.writeValueAsString(root));
+    }
+
+    // [databind#790]
+    public void testCustomComparators() throws Exception
+    {
+        ObjectNode root1 = MAPPER.createObjectNode();
+        root1.put("value", 5);
+        ObjectNode root2 = MAPPER.createObjectNode();
+        root2.put("value", 5.0);
+
+        // default equals(): not strictly equal
+        assertFalse(root1.equals(root2));
+        assertFalse(root2.equals(root1));
+        assertTrue(root1.equals(root1));
+        assertTrue(root2.equals(root2));
+
+        // but. Custom comparator can make all the difference
+        Comparator<JsonNode> cmp = new Comparator<JsonNode>() {
+
+            @Override
+            public int compare(JsonNode o1, JsonNode o2) {
+                if (o1.equals(o2)) {
+                    return 0;
+                }
+                if ((o1 instanceof NumericNode) && (o2 instanceof NumericNode)) {
+                    double d1 = ((NumericNode) o1).asDouble();
+                    double d2 = ((NumericNode) o2).asDouble();
+                    if (d1 == d2) { // strictly equals because it's integral value
+                        return 0;
+                    }
+                }
+                return 0;
+            }
+        };
+        assertTrue(root1.equals(cmp, root2));
+        assertTrue(root2.equals(cmp, root1));
+        assertTrue(root1.equals(cmp, root1));
+        assertTrue(root2.equals(cmp, root2));
     }
 }

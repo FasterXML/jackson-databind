@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -29,16 +28,13 @@ public final class TypeWrappedSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException
-    {
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         _serializer.serializeWithType(value, jgen, provider, _typeSerializer);
     }
 
     @Override
     public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+            TypeSerializer typeSer) throws IOException
     {
         /* Is this an erroneous call? For now, let's assume it is not, and
          * that type serializer is just overridden if so
@@ -48,4 +44,18 @@ public final class TypeWrappedSerializer
     
     @Override
     public Class<Object> handledType() { return Object.class; }
+
+    /*
+    /**********************************************************
+    /* Extended API for other core classes
+    /**********************************************************
+     */
+
+    public JsonSerializer<Object> valueSerializer() {
+        return _serializer;
+    }
+
+    public TypeSerializer typeSerializer() {
+        return _typeSerializer;
+    }
 }

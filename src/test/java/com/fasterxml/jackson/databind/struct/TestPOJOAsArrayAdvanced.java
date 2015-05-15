@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -56,7 +55,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         public int b;
         public int c;
     }
-    
+
     /*
     /*****************************************************
     /* Basic tests
@@ -76,7 +75,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         assertEquals("[1,null,3]", json);
 
         // and then that conversely deserializer does something similar
-        AsArrayWithView output = MAPPER.reader(AsArrayWithView.class).withView(ViewB.class)
+        AsArrayWithView output = MAPPER.readerFor(AsArrayWithView.class).withView(ViewB.class)
                 .readValue("[1,2,3]");
         // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
         assertEquals(3, output.c);

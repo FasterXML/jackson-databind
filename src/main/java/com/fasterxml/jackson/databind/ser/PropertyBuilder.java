@@ -17,7 +17,13 @@ public class PropertyBuilder
 {
     final protected SerializationConfig _config;
     final protected BeanDescription _beanDesc;
-    final protected JsonInclude.Include _outputProps;
+
+    /**
+     * Default inclusion mode for properties of the POJO for which
+     * properties are collected; possibly overridden on
+     * per-property basis.
+     */
+    final protected JsonInclude.Include _defaultInclusion;
 
     final protected AnnotationIntrospector _annotationIntrospector;
 
@@ -33,7 +39,7 @@ public class PropertyBuilder
     {
         _config = config;
         _beanDesc = beanDesc;
-        _outputProps = beanDesc.findSerializationInclusion(config.getSerializationInclusion());
+        _defaultInclusion = beanDesc.findSerializationInclusion(config.getSerializationInclusion());
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -45,23 +51,6 @@ public class PropertyBuilder
 
     public Annotations getClassAnnotations() {
         return _beanDesc.getClassAnnotations();
-    }
-
-    /**
-     * @deprecated Since 2.3, use variant that takes {@link SerializerProvider} as
-     *   first argument -- to be removed from 2.4
-     */
-    @Deprecated
-    protected final BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
-            JavaType declaredType, JsonSerializer<?> ser,
-            TypeSerializer typeSer, TypeSerializer contentTypeSer,
-            AnnotatedMember am, boolean defaultUseStaticTyping)
-    {
-        /* We will only retain this method until 2.4; left for now to explicitly
-         * cause compilation/linking issue iff anyone has overridden the method
-         * (hopefully not)
-         */
-        throw new IllegalStateException();
     }
 
     /**
@@ -90,7 +79,7 @@ public class PropertyBuilder
             }
             JavaType ct = serializationType.getContentType();
             /* 03-Sep-2010, tatu: This is somehow related to [JACKSON-356], but I don't completely
-             *   yet understand how pieces fit together. Still, better be explicit than rely on
+             *   yet understand how pieces fit together. Still, better to be explicit than rely on
              *   NPE to indicate an issue...
              */
             if (ct == null) {
@@ -104,9 +93,12 @@ public class PropertyBuilder
         Object valueToSuppress = null;
         boolean suppressNulls = false;
 
-        JsonInclude.Include methodProps = _annotationIntrospector.findSerializationInclusion(am, _outputProps);
-        if (methodProps != null) {
-            switch (methodProps) {
+        JsonInclude.Include inclusion = propDef.findInclusion();
+        if (inclusion == null) {
+            inclusion = _defaultInclusion;
+        }
+        if (inclusion != null) {
+            switch (inclusion) {
             case NON_DEFAULT:
                 valueToSuppress = getDefaultValue(propDef.getName(), am);
                 if (valueToSuppress == null) {
@@ -140,13 +132,12 @@ public class PropertyBuilder
                 am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress);
 
-        // 14-Oct-2013, tatu: And how about custom null serializer?
+        // How about custom null serializer?
         Object serDef = _annotationIntrospector.findNullSerializer(am);
         if (serDef != null) {
             bpw.assignNullSerializer(prov.serializerInstance(am, serDef));
         }
-        
-        // [JACKSON-132]: Unwrapping
+        // And then, handling of unwrapping
         NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(am);
         if (unwrapper != null) {
             bpw = bpw.unwrappingWriter(unwrapper);

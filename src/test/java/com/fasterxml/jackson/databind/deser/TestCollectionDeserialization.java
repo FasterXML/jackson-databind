@@ -47,6 +47,10 @@ public class TestCollectionDeserialization
     static class ListAsIterableX {
         public Iterable<XBean> nums;
     }
+
+    static class KeyListBean {
+        public List<Key> keys;
+    }
     
     /*
     /**********************************************************
@@ -151,7 +155,7 @@ public class TestCollectionDeserialization
     public void testFromEmptyString() throws Exception
     {
         ObjectReader r = MAPPER.reader(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-        List<?> result = r.withType(List.class).readValue(quote(""));
+        List<?> result = r.forType(List.class).readValue(quote(""));
         assertNull(result);
     }
 
@@ -195,5 +199,46 @@ public class TestCollectionDeserialization
         xb = it.next();
         assertEquals(2, xb.x);
         assertFalse(it.hasNext());
+    }
+
+    // for [Issue#506]
+    public void testArrayIndexForExceptions() throws Exception
+    {
+        final String OBJECTS_JSON = "[ \"KEY2\", false ]";
+        try {
+            MAPPER.readValue(OBJECTS_JSON, Key[].class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not deserialize");
+            List<JsonMappingException.Reference> refs = e.getPath();
+            assertEquals(1, refs.size());
+            assertEquals(1, refs.get(0).getIndex());
+        }
+
+        try {
+            MAPPER.readValue("[ \"xyz\", { } ]", String[].class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not deserialize");
+            List<JsonMappingException.Reference> refs = e.getPath();
+            assertEquals(1, refs.size());
+            assertEquals(1, refs.get(0).getIndex());
+        }
+
+        try {
+            MAPPER.readValue("{\"keys\":"+OBJECTS_JSON+"}", KeyListBean.class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not deserialize");
+            List<JsonMappingException.Reference> refs = e.getPath();
+            assertEquals(2, refs.size());
+            // Bean has no index, but has name:
+            assertEquals(-1, refs.get(0).getIndex());
+            assertEquals("keys", refs.get(0).getFieldName());
+
+            // and for List, reverse:
+            assertEquals(1, refs.get(1).getIndex());
+            assertNull(refs.get(1).getFieldName());
+        }
     }
 }

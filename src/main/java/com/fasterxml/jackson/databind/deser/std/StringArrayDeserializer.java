@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -20,7 +19,7 @@ public final class StringArrayDeserializer
     extends StdDeserializer<String[]>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = -7589512013334920693L;
+    private static final long serialVersionUID = 1L;
 
     public final static StringArrayDeserializer instance = new StringArrayDeserializer();
     
@@ -53,25 +52,29 @@ public final class StringArrayDeserializer
 
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] chunk = buffer.resetAndStart();
-        
+
         int ix = 0;
-        JsonToken t;
-        
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            // Ok: no need to convert Strings, but must recognize nulls
-            String value;
-            if (t == JsonToken.VALUE_STRING) {
-                value = jp.getText();
-            } else if (t == JsonToken.VALUE_NULL) {
-                value = null; // since we have established that '_elementDeserializer == null' earlier
-            } else {
-                value = _parseString(jp, ctxt);
+
+        try {
+            while (true) {
+                String value = jp.nextTextValue();
+                if (value == null) {
+                    JsonToken t = jp.getCurrentToken();
+                    if (t == JsonToken.END_ARRAY) {
+                        break;
+                    }
+                    if (t != JsonToken.VALUE_NULL) {
+                        value = _parseString(jp, ctxt);
+                    }
+                }
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                chunk[ix++] = value;
             }
-            if (ix >= chunk.length) {
-                chunk = buffer.appendCompletedChunk(chunk);
-                ix = 0;
-            }
-            chunk[ix++] = value;
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
@@ -88,16 +91,34 @@ public final class StringArrayDeserializer
         final JsonDeserializer<String> deser = _elementDeserializer;
         
         int ix = 0;
-        JsonToken t;
-        
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            // Ok: no need to convert Strings, but must recognize nulls
-            String value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue() : deser.deserialize(jp, ctxt);
-            if (ix >= chunk.length) {
-                chunk = buffer.appendCompletedChunk(chunk);
-                ix = 0;
+
+        try {
+            while (true) {
+                /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
+                 *   that suggest we are expecting a String; this helps with some formats,
+                 *   notably XML. Note, however, that while we can get String, we can't
+                 *   assume that's what we use due to custom deserializer
+                 */
+                String value;
+                if (jp.nextTextValue() == null) {
+                    JsonToken t = jp.getCurrentToken();
+                    if (t == JsonToken.END_ARRAY) {
+                        break;
+                    }
+                    // Ok: no need to convert Strings, but must recognize nulls
+                    value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue(ctxt) : deser.deserialize(jp, ctxt);
+                } else {
+                    value = deser.deserialize(jp, ctxt);
+                }
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                chunk[ix++] = value;
             }
-            chunk[ix++] = value;
+        } catch (Exception e) {
+            // note: pass String.class, not String[].class, as we need element type for error info
+            throw JsonMappingException.wrapWithPath(e, String.class, ix);
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);
@@ -136,10 +157,11 @@ public final class StringArrayDeserializer
         JsonDeserializer<?> deser = _elementDeserializer;
         // #125: May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
+        JavaType type = ctxt.constructType(String.class);
         if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(ctxt.constructType(String.class), property);
+            deser = ctxt.findContextualValueDeserializer(type, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleSecondaryContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property, type);
         }
         // Ok ok: if all we got is the default String deserializer, can just forget about it
         if (deser != null && this.isDefaultDeserializer(deser)) {

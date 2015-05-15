@@ -9,7 +9,7 @@ Project is licensed under [Apache License 2.0](http://www.apache.org/licenses/LI
 While the original use case for Jackson was JSON data-binding, it can now be used for other data formats as well, as long as parser and generator implementations exist.
 Naming of classes uses word 'JSON' in many places even though there is no actual hard dependency to JSON format.
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-databind.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-databind)
+[![Build Status](https://travis-ci.org/FasterXML/jackson-databind.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-databind) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind)
 
 -----
 
@@ -20,28 +20,44 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 Functionality of this package is contained in Java package `com.fasterxml.jackson.databind`, and can be used using following Maven dependency:
 
 ```xml
-<dependency>
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-databind</artifactId>
-  <version>2.3.3</version>
-</dependency>
+<properties>
+  ...
+  <!-- Use the latest version whenever possible. -->
+  <jackson.version>2.4.4</jackson.version>
+  ...
+</properties>
+
+<dependencies>
+  ...
+  <dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>${jackson.version}</version>
+  </dependency>
+  ...
+</dependencies>
 ```
 
-Since package also depends on `jackson-core` and `jackson-databind` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
+Since package also depends on `jackson-core` and `jackson-annotations` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
 If so, also add:
 
 ```xml
-<dependency>
-  <!-- note: typically only ".0" patch version exists for core annotations -->
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-annotations</artifactId>
-  <version>2.3.0</version>
-</dependency>
-<dependency>
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-core</artifactId>
-  <version>2.3.1</version>
-</dependency>
+<dependencies>
+  ...
+  <dependency>
+    <!-- Note: core-annotations version x.y.0 is generally compatible with
+         (identical to) version x.y.1, x.y.2, etc. -->
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-annotations</artifactId>
+    <version>${jackson.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>${jackson.version}</version>
+  </dependency>
+  ...
+<dependencies>
 ```
 
 but note that this is optional, and only necessary if there are conflicts between jackson core dependencies through transitive dependencies.
@@ -144,7 +160,7 @@ String json = mapper.writeValueAsString(root);
 //   "name" : "Bob", "age" : 13,
 //   "other" : {
 //      "type" : "student"
-//   {
+//   }
 // }
 ```
 
@@ -156,10 +172,37 @@ As convenient as data-binding (to/from POJOs) can be; and as flexible as Tree mo
 It is the underlying processing model that data-binding and Tree Model both build upon, but it is also exposed to users who want ultimate performance and/or control over parsing or generation details.
 
 For in-depth explanation, look at [Jackson Core component](https://github.com/FasterXML/jackson-core).
-But let's look at a simple teaser to whet your appetite:
+But let's look at a simple teaser to whet your appetite.
 
-(TO BE COMPLETED)
+```java
+JsonFactory f = mapper.getFactory(); // may alternatively construct directly too
 
+// First: write simple JSON output
+File jsonFile = new JsonFile("test.json");
+JsonGenerator g = f.createGenerator(jsonFile);
+// write JSON: { "message" : "Hello world!" }
+g.writeStartObject();
+g.writeStringField("message", "Hello world!");
+g.writeEndObject();
+g.close();
+
+// Second: read file back
+JsonParser p = f.createParser(jsonFile);
+
+JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
+t = p.nextToken(); // JsonToken.FIELD_NAME
+if ((t != JsonToken.FIELD_NAME) || !"message".equals(p.getCurrentName())) {
+   // handle error
+}
+t = p.nextToken();
+if (t != JsonToken.VALUE_STRING) {
+   // similarly
+}
+String msg = p.getText();
+System.out.printf("My message to you is: %s!\n", msg);
+p.close();
+
+```
 
 ## 10 minute tutorial: configuration
 
@@ -197,16 +240,17 @@ In addition, you may need to change some of low-level JSON parsing, generation d
 // JsonParser.Feature for configuring parsing settings:
 
 // to allow C/C++ style comments in JSON (non-standard, disabled by default)
-mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+// (note: with Jackson 2.5, there is also `mapper.enable(feature)` / `mapper.disable(feature)`)
+mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 // to allow (non-standard) unquoted field names in JSON:
-mapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 // to allow use of apostrophes (single quotes), non standard
-mapper.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
+mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 
 // JsonGenerator.Feature for configuring low-level JSON generation:
 
 // to force escaping of non-ASCII characters:
-mapper.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 ```
 
 Full set of features are explained on [Jackson Features](https://github.com/FasterXML/jackson-databind/wiki/JacksonFeatures) page.
@@ -320,7 +364,7 @@ are set via setters or directly using fields.
 One useful (but not very widely known) feature of Jackson is its ability
 to do arbitrary POJO-to-POJO conversions. Conceptually you can think of conversions as sequence of 2 steps: first, writing a POJO as JSON, and second, binding that JSON into another kind of POJO. Implementation just skips actual generation of JSON, and uses more efficient intermediate representation.
 
-Conversations work between any compatible types, and invocation is as simple as:
+Conversions work between any compatible types, and invocation is as simple as:
 
 ```java
 ResultType result = mapper.convertValue(sourceObject, ResultType.class);
@@ -357,10 +401,12 @@ There is really just one main rule, which is that to accept any code contributio
 
 One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependendies are allowed beyond:
 
-* Core components may rely on any methods included in the supported JDK: currently core components are limited to JDK 1.5
+* Core components may rely on any methods included in the supported JDK
+    * Minimum JDK version is 1.6 as of Jackson 2.4 and above (1.5 was baseline with 2.3 and earlier)
 * Jackson-databind (this package) depends on the other two (annotations, streaming).
 
-This means that anything that has to rely on additional APIs or libraries needs to be built as an extension, usually a Jackson module.
+This means that anything that has to rely on additional APIs or libraries needs to be built as an extension,
+usually a Jackson module.
 
 -----
 
@@ -376,7 +422,7 @@ Main differences compared to 1.0 "mapper" jar are:
 
 # Further reading
 
-* [Documentation](https://github.com/FasterXML/jackson-databind/wiki/Documentation)
+* [Documentation](https://github.com/FasterXML/jackson-databind/wiki)
 
 Related:
 

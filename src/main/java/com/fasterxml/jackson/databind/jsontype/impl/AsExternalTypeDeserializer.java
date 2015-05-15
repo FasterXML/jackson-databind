@@ -39,4 +39,10 @@ public class AsExternalTypeDeserializer extends AsArrayTypeDeserializer
     
     @Override
     public As getTypeInclusion() { return As.EXTERNAL_PROPERTY; }
+
+    // yes, very important distinction...
+    @Override
+    protected boolean _usesExternalId() {
+        return true;
+    }
 }

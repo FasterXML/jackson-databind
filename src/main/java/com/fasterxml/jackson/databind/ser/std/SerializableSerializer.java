@@ -5,8 +5,6 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
-
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,6 +25,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * interface, can not be checked for direct class equivalence.
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class SerializableSerializer
     extends StdSerializer<JsonSerializable>
 {
@@ -38,18 +37,22 @@ public class SerializableSerializer
     protected SerializableSerializer() { super(JsonSerializable.class); }
 
     @Override
-    public void serialize(JsonSerializable value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
-        value.serialize(jgen, provider);
+    public boolean isEmpty(SerializerProvider serializers, JsonSerializable value) {
+        if (value instanceof JsonSerializable.Base) {
+            return ((JsonSerializable.Base) value).isEmpty(serializers);
+        }
+        return false;
     }
 
     @Override
-    public final void serializeWithType(JsonSerializable value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
-    {
-        value.serializeWithType(jgen, provider, typeSer);
+    public void serialize(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        value.serialize(gen, serializers);
+    }
+
+    @Override
+    public final void serializeWithType(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers,
+            TypeSerializer typeSer) throws IOException {
+        value.serializeWithType(gen, serializers, typeSer);
     }
     
     @Override
@@ -80,14 +83,14 @@ public class SerializableSerializer
         objectNode.put("type", schemaType);
         if (objectProperties != null) {
             try {
-                objectNode.put("properties", _getObjectMapper().readTree(objectProperties));
+                objectNode.set("properties", _getObjectMapper().readTree(objectProperties));
             } catch (IOException e) {
                 throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaObjectPropertiesDefinition value");
             }
         }
         if (itemDefinition != null) {
             try {
-                objectNode.put("items", _getObjectMapper().readTree(itemDefinition));
+                objectNode.set("items", _getObjectMapper().readTree(itemDefinition));
             } catch (IOException e) {
                 throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaItemDefinition value");
             }

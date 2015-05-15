@@ -42,7 +42,7 @@ public abstract class DeserializationContext
     extends DatabindContext
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -4290063686213707727L;
+    private static final long serialVersionUID = 1L; // 2.6
 
     /**
      * Let's limit length of error messages, for cases where underlying data
@@ -128,6 +128,15 @@ public abstract class DeserializationContext
      * @since 2.3
      */
     protected transient ContextAttributes _attributes;
+
+    /**
+     * Type of {@link JsonDeserializer} (or, more specifically,
+     *   {@link ContextualDeserializer}) that is being
+     *   contextualized currently.
+     *
+     * @since 2.5
+     */
+    protected LinkedNode<JavaType> _currentType;
     
     /*
     /**********************************************************
@@ -187,6 +196,19 @@ public abstract class DeserializationContext
         _attributes = config.getAttributes();
     }
 
+    /**
+     * Copy-constructor for use with <code>copy()</code> by {@link ObjectMapper#copy()}
+     */
+    protected DeserializationContext(DeserializationContext src) {
+        _cache = new DeserializerCache();
+        _factory = src._factory;
+
+        _config = src._config;
+        _featureFlags = src._featureFlags;
+        _view = src._view;
+        _injectableValues = null;
+    }
+    
     /*
     /**********************************************************
     /* DatabindContext implementation
@@ -211,7 +233,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* Generic attributes (2.3+)
+    /* Access to per-call state, like generic attributes (2.3+)
     /**********************************************************
      */
 
@@ -226,10 +248,27 @@ public abstract class DeserializationContext
         _attributes = _attributes.withPerCallAttribute(key, value);
         return this;
     }
-    
+
+    /**
+     * Accessor to {@link JavaType} of currently contextualized
+     * {@link ContextualDeserializer}, if any.
+     * This is sometimes useful for generic {@link JsonDeserializer}s that
+     * do not get passed (or do not retain) type information when being
+     * constructed: happens for example for deserializers constructed
+     * from annotations.
+     * 
+     * @since 2.5
+     *
+     * @return Type of {@link ContextualDeserializer} being contextualized,
+     *   if process is on-going; null if not.
+     */
+    public JavaType getContextualType() {
+        return (_currentType == null) ? null : _currentType.value();
+    }
+
     /*
     /**********************************************************
-    /* Public API, accessors
+    /* Public API, config setting accessors
     /**********************************************************
      */
 
@@ -336,7 +375,7 @@ public abstract class DeserializationContext
     /**
      * Method for checking whether we could find a deserializer
      * for given type.
-     * 
+     *
      * @param type
      * @since 2.3
      */
@@ -366,11 +405,30 @@ public abstract class DeserializationContext
     {
         JsonDeserializer<Object> deser = _cache.findValueDeserializer(this, _factory, type);
         if (deser != null) {
-            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, prop);
+            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, prop, type);
         }
         return deser;
     }
 
+    /**
+     * Variant that will try to locate deserializer for current type, but without
+     * performing any contextualization (unlike {@link #findContextualValueDeserializer})
+     * or checking for need to create a {@link TypeDeserializer} (unlike
+     * {@link #findRootValueDeserializer(JavaType)}.
+     * This method is usually called from within {@link ResolvableDeserializer#resolve},
+     * and expectation is that caller then calls either
+     * {@link #handlePrimaryContextualization(JsonDeserializer, BeanProperty, JavaType)} or
+     * {@link #handleSecondaryContextualization(JsonDeserializer, BeanProperty, JavaType)} at a
+     * later point, as necessary.
+     *
+     * @since 2.5
+     */
+    public final JsonDeserializer<Object> findNonContextualValueDeserializer(JavaType type)
+        throws JsonMappingException
+    {
+        return _cache.findValueDeserializer(this, _factory, type);
+    }
+    
     /**
      * Method for finding a deserializer for root-level value.
      */
@@ -383,7 +441,7 @@ public abstract class DeserializationContext
         if (deser == null) { // can this occur?
             return null;
         }
-        deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null);
+        deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
         TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value
@@ -544,15 +602,18 @@ public abstract class DeserializationContext
      * 
      * @param prop Property for which the given primary deserializer is used; never null.
      * 
-     * @since 2.3
+     * @since 2.5
      */
     public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
-            BeanProperty prop)
+            BeanProperty prop, JavaType type)
         throws JsonMappingException
     {
-        if (deser != null) {
-            if (deser instanceof ContextualDeserializer) {
+        if (deser instanceof ContextualDeserializer) {
+            _currentType = new LinkedNode<JavaType>(type, _currentType);
+            try {
                 deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+            } finally {
+                _currentType = _currentType.next();
             }
         }
         return deser;
@@ -572,17 +633,36 @@ public abstract class DeserializationContext
      * @param prop Property for which deserializer is used, if any; null
      *    when deserializing root values
      * 
-     * @since 2.3
+     * @since 2.5
      */
     public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
-            BeanProperty prop)
-        throws JsonMappingException {
-        if (deser != null && (deser instanceof ContextualDeserializer)) {
+            BeanProperty prop, JavaType type)
+        throws JsonMappingException
+    {
+        if (deser instanceof ContextualDeserializer) {
+            _currentType = new LinkedNode<JavaType>(type, _currentType);
+            try {
+                deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+            } finally {
+                _currentType = _currentType.next();
+            }
+        }
+        return deser;
+    }
+
+    @Deprecated // since 2.5; remove from 2.7
+    public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
+        return handlePrimaryContextualization(deser, prop, TypeFactory.unknownType());
+    }
+
+    @Deprecated // since 2.5; remove from 2.7
+    public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
+        if (deser instanceof ContextualDeserializer) {
             deser = ((ContextualDeserializer) deser).createContextual(this, prop);
         }
         return deser;
     }
-    
+
     /*
     /**********************************************************
     /* Parsing methods that may use reusable/-cyclable objects
@@ -605,7 +685,8 @@ public abstract class DeserializationContext
             DateFormat df = getDateFormat();
             return df.parse(dateStr);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Failed to parse Date value '"+dateStr+"': "+e.getMessage());
+            throw new IllegalArgumentException(String.format(
+                    "Failed to parse Date value '%s': %s", dateStr, e.getMessage()));
         }
     }
 
@@ -746,7 +827,9 @@ public abstract class DeserializationContext
     }
 
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
-        return JsonMappingException.from(_parser, "Can not deserialize instance of "+_calcName(targetClass)+" out of "+token+" token");
+        return JsonMappingException.from(_parser,
+                String.format("Can not deserialize instance of %s out of %s token",
+                        _calcName(targetClass), token));
     }
     
     /**
@@ -764,23 +847,12 @@ public abstract class DeserializationContext
      */
     public JsonMappingException instantiationException(Class<?> instClass, Throwable t) {
         return JsonMappingException.from(_parser,
-                "Can not construct instance of "+instClass.getName()+", problem: "+t.getMessage(), t);
+                String.format("Can not construct instance of %s, problem: %s", instClass.getName(), t.getMessage()), t);
     }
 
     public JsonMappingException instantiationException(Class<?> instClass, String msg) {
-        return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+", problem: "+msg);
-    }
-    
-    /**
-     * Method that will construct an exception suitable for throwing when
-     * some String values are acceptable, but the one encountered is not.
-     * 
-     * 
-     * @deprecated Since 2.1 should use variant that takes value
-     */
-    @Deprecated
-    public JsonMappingException weirdStringException(Class<?> instClass, String msg) {
-        return weirdStringException(null, instClass, msg);
+        return JsonMappingException.from(_parser,
+                String.format("Can not construct instance of %s, problem: %s", instClass.getName(), msg));
     }
 
     /**
@@ -795,17 +867,9 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
-                "Can not construct instance of "+instClass.getName()+" from String value '"+_valueDesc()+"': "+msg,
+                String.format("Can not construct instance of %s from String value '%s': %s",
+                        instClass.getName(), _valueDesc(), msg),
                 value, instClass);
-    }
-
-    /**
-     * Helper method for constructing exception to indicate that input JSON
-     * Number was not suitable for deserializing into given type.
-     */
-    @Deprecated
-    public JsonMappingException weirdNumberException(Class<?> instClass, String msg) {
-        return weirdStringException(null, instClass, msg);
     }
 
     /**
@@ -814,7 +878,8 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdNumberException(Number value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
-                "Can not construct instance of "+instClass.getName()+" from number value ("+_valueDesc()+"): "+msg,
+                String.format("Can not construct instance of %s from number value (%s): %s",
+                        instClass.getName(), _valueDesc(), msg),
                 null, instClass);
     }
     
@@ -825,7 +890,8 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
         return InvalidFormatException.from(_parser,
-                "Can not construct Map key of type "+keyClass.getName()+" from String \""+_desc(keyValue)+"\": "+msg,
+                String.format("Can not construct Map key of type %s from String \"%s\": ",
+                        keyClass.getName(), _desc(keyValue), msg),
                 keyValue, keyClass);
     }
 
@@ -834,7 +900,8 @@ public abstract class DeserializationContext
      * token.
      */
     public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken, String msg0) {
-        String msg = "Unexpected token ("+p.getCurrentToken()+"), expected "+expToken;
+        String msg = String.format("Unexpected token (%s), expected %s",
+                p.getCurrentToken(), expToken);
         if (msg0 != null) {
             msg = msg + ": "+msg0;
         }
@@ -845,15 +912,28 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that given
      * type id (parsed from JSON) could not be converted to a Java type.
      */
+    @Deprecated // since 2.5, use overloaded variant
     public JsonMappingException unknownTypeException(JavaType type, String id) {
         return JsonMappingException.from(_parser, "Could not resolve type id '"+id+"' into a subtype of "+type);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public JsonMappingException unknownTypeException(JavaType type, String id,
+            String extraDesc) {
+        String msg = "Could not resolve type id '"+id+"' into a subtype of "+type;
+        if (extraDesc != null) {
+            msg = msg + ": "+extraDesc;
+        }
+        return JsonMappingException.from(_parser, msg);
     }
 
     public JsonMappingException endOfInputException(Class<?> instClass) {
         return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
                 +instClass.getName());
     }
-    
+
     /*
     /**********************************************************
     /* Overridable internal methods
@@ -866,7 +946,7 @@ public abstract class DeserializationContext
             return _dateFormat;
         }
         /* 24-Feb-2012, tatu: At this point, all timezone configuration
-         *    should have occured, with respect to default dateformat
+         *    should have occurred, with respect to default dateformat
          *    and timezone configuration. But we still better clone
          *    an instance as formatters may be stateful.
          */

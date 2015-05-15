@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -14,6 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * types: {@link java.lang.String}, {@link java.lang.Integer},
  * {@link java.lang.Double} and {@link java.lang.Boolean}.
  */
+@SuppressWarnings("serial")
 public abstract class NonTypedScalarSerializerBase<T>
     extends StdScalarSerializer<T>
 {
@@ -21,10 +21,13 @@ public abstract class NonTypedScalarSerializerBase<T>
         super(t);
     }
 
+    protected NonTypedScalarSerializerBase(Class<?> t, boolean bogus) {
+        super(t, bogus);
+    }
+    
     @Override
     public final void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+            TypeSerializer typeSer) throws IOException
     {
         // no type info, just regular serialization
         serialize(value, jgen, provider);            

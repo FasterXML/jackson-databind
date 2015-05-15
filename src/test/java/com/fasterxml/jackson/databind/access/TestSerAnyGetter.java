@@ -34,7 +34,7 @@ public class TestSerAnyGetter
         }
     }
 
-    private static class PrivateThing
+    static class PrivateThing
     {
         @JsonAnyGetter
         public Map<?,?> getProperties()

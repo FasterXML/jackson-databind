@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class BeanSerializer
     extends BeanSerializerBase
 {
+    private static final long serialVersionUID = -4536893235025590367L;
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -113,8 +115,8 @@ public class BeanSerializer
         /* Can not:
          * 
          * - have Object Id (may be allowed in future)
-         * - have any getter
-         * 
+         * - have "any getter"
+         * - have per-property filters
          */
         if ((_objectIdWriter == null)
                 && (_anyGetterWriter == null)
@@ -138,20 +140,22 @@ public class BeanSerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, jgen, provider, true);
+            _serializeWithObjectId(bean, gen, provider, true);
             return;
         }
-        jgen.writeStartObject();
+        gen.writeStartObject();
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(bean);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
+            serializeFieldsFiltered(bean, gen, provider);
         } else {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
         }
-        jgen.writeEndObject();
+        gen.writeEndObject();
     }
     
     /*

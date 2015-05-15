@@ -5,7 +5,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -45,7 +44,7 @@ public final class AnnotatedParameter
     public AnnotatedParameter(AnnotatedWithParams owner, Type type,  AnnotationMap annotations,
             int index)
     {
-        super(annotations);
+        super((owner == null) ? null : owner.getContextClass(), annotations);
         _owner = owner;
         _type = type;
         _index = index;
@@ -175,8 +174,20 @@ public final class AnnotatedParameter
      */
     
     @Override
-    public String toString()
-    {
+    public int hashCode() {
+        return _owner.hashCode() + _index;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        AnnotatedParameter other = (AnnotatedParameter) o;
+        return other._owner.equals(_owner) && (other._index == _index);
+    }
+    
+    @Override
+    public String toString() {
         return "[parameter #"+getIndex()+", annotations: "+_annotations+"]";
     }
 }

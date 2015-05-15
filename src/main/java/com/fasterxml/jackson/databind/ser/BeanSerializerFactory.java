@@ -159,7 +159,8 @@ public class BeanSerializerFactory
             // [#359]: explicitly check (again) for @JsonSerializer...
             ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo());
         }
-        if (ser == null) {
+        // [databind#731]: Should skip if nominally java.lang.Object
+        if (ser == null && !delegateType.isJavaLangObject()) {
             ser = _createSerializer2(prov, delegateType, beanDesc, true);
         }
         return new StdDelegatingSerializer(conv, delegateType, ser);
@@ -223,6 +224,12 @@ public class BeanSerializerFactory
                     // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
                     if (ser == null) {
                         ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
+                        // 18-Sep-2014, tatu: Actually, as per [jackson-databind#539], need to get
+                        //   'unknown' serializer assigned earlier, here, so that it gets properly
+                        //   post-processed
+                        if (ser == null) {
+                            ser = prov.getUnknownTypeSerializer(beanDesc.getBeanClass());
+                        }
                     }
                 }
             }
@@ -283,8 +290,8 @@ public class BeanSerializerFactory
         if (b == null) {
             return createTypeSerializer(config, baseType);
         }
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(
-                accessor, config, ai, baseType);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
+                config, accessor, baseType);
         return b.buildTypeSerializer(config, baseType, subtypes);
     }
 
@@ -309,8 +316,8 @@ public class BeanSerializerFactory
         if (b == null) {
             return createTypeSerializer(config, contentType);
         }
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(accessor,
-                config, ai, contentType);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
+                accessor, contentType);
         return b.buildTypeSerializer(config, contentType, subtypes);
     }
     
@@ -339,22 +346,25 @@ public class BeanSerializerFactory
         final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
         builder.setConfig(config);
-        
+
         // First: any detectable (auto-detect, annotations) properties to serialize?
         List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
         if (props == null) {
             props = new ArrayList<BeanPropertyWriter>();
         }
+        // [databind#638]: Allow injection of "virtual" properties:
+        prov.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
+
         // [JACKSON-440] Need to allow modification bean properties to serialize:
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 props = mod.changeProperties(config, beanDesc, props);
             }
         }
-        
+
         // Any properties to suppress?
         props = filterBeanProperties(config, beanDesc, props);
-        
+
         // [JACKSON-440] Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
@@ -382,18 +392,22 @@ public class BeanSerializerFactory
             JavaType valueType = type.getContentType();
             TypeSerializer typeSer = createTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
-            // TODO: support '@JsonIgnoreProperties' with any setter?
-            MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
-                    typeSer, null, null, /*filterId*/ null);
+            // 23-Feb-2015, tatu: As per [#705], need to support custom serializers
+            JsonSerializer<?> anySer = findSerializerFromAnnotation(prov, anyGetter);
+            if (anySer == null) {
+                // TODO: support '@JsonIgnoreProperties' with any setter?
+                anySer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
+                        typeSer, null, null, /*filterId*/ null);
+            }
             // TODO: can we find full PropertyName?
-            PropertyName name = new PropertyName(anyGetter.getName());
+            PropertyName name = PropertyName.construct(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     beanDesc.getClassAnnotations(), anyGetter, PropertyMetadata.STD_OPTIONAL);
-            builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, mapSer));
+            builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, anySer));
         }
         // Next: need to gather view information, if any:
         processViews(config, builder);
-        
+
         // Finally: let interested parties mess with the result bit more...
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
@@ -403,14 +417,10 @@ public class BeanSerializerFactory
         
         JsonSerializer<Object> ser = (JsonSerializer<Object>) builder.build();
         
-        /* However, after all modifications: no properties, no serializer
-         * (note; as per [JACKSON-670], check was moved later on from an earlier location)
-         */
         if (ser == null) {
-            /* 27-Nov-2009, tatu: Except that as per [JACKSON-201], we are
-             *   ok with that as long as it has a recognized class annotation
-             *  (which may come from a mix-in too)
-             */
+            // If we get this far, there were no properties found, so no regular BeanSerializer
+            // would be constructed. But, couple of exceptions.
+            // First: if there are known annotations, just create 'empty bean' serializer
             if (beanDesc.hasKnownClassAnnotations()) {
                 return builder.createDummy();
             }
@@ -577,7 +587,7 @@ public class BeanSerializerFactory
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedClass ac = beanDesc.getClassInfo();
-        String[] ignored = intr.findPropertiesToIgnore(ac);
+        String[] ignored = intr.findPropertiesToIgnore(ac, true);
         if (ignored != null && ignored.length > 0) {
             HashSet<String> ignoredSet = ArrayBuilders.arrayToSet(ignored);
             Iterator<BeanPropertyWriter> it = props.iterator();
@@ -629,8 +639,8 @@ public class BeanSerializerFactory
 
     /**
      * Method that will apply by-type limitations (as per [JACKSON-429]);
-     * by default this is based on {@link com.fasterxml.jackson.annotation.JsonIgnoreType} annotation but
-     * can be supplied by module-provided introspectors too.
+     * by default this is based on {@link com.fasterxml.jackson.annotation.JsonIgnoreType}
+     * annotation but can be supplied by module-provided introspectors too.
      */
     protected void removeIgnorableTypes(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)

@@ -7,10 +7,7 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.fasterxml.jackson.test.BaseTest;
 
 public abstract class BaseMapTest
     extends BaseTest
@@ -41,6 +38,13 @@ public abstract class BaseMapTest
 
         public IntWrapper() { }
         public IntWrapper(int value) { i = value; }
+    }
+
+    protected static class LongWrapper {
+        public long l;
+
+        public LongWrapper() { }
+        public LongWrapper(long value) { l = value; }
     }
     
     /**
@@ -132,7 +136,7 @@ public abstract class BaseMapTest
     }
     
     protected ObjectReader objectReader(Class<?> cls) {
-        return SHARED_MAPPER.reader(cls);
+        return SHARED_MAPPER.readerFor(cls);
     }
 
     /*
@@ -213,9 +217,8 @@ public abstract class BaseMapTest
     {
         return readAndMapFromString(SHARED_MAPPER, input, cls);
     }
-    
-    protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls)
-        throws IOException
+
+    protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls) throws IOException
     {
         return (T) m.readValue("\""+input+"\"", cls);
     }
@@ -225,7 +228,7 @@ public abstract class BaseMapTest
     /* Helper methods, other
     /**********************************************************
      */
-    
+
     protected TimeZone getUTCTimeZone() {
         return TimeZone.getTimeZone("GMT");
     }
@@ -238,7 +241,7 @@ public abstract class BaseMapTest
         }
     }
 
-    protected String aposToQuotes(String json) {
+    protected static String aposToQuotes(String json) {
         return json.replace("'", "\"");
     }
 }

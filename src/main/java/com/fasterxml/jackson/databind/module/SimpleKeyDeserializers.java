@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.type.ClassKey;
 public class SimpleKeyDeserializers
     implements KeyDeserializers, java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -6786398737835438187L;
+    private static final long serialVersionUID = 1L;
 
     protected HashMap<ClassKey,KeyDeserializer> _classMappings = null;
 

@@ -54,15 +54,14 @@ public class TestJDKProxy extends BaseMapTest
 
     public static <T> T getProxy(Class<T> type, Object obj) {
         class ProxyUtil implements InvocationHandler {
-            @SuppressWarnings("hiding")
-            Object obj;
+            Object _obj;
             public ProxyUtil(Object o) {
-                obj = o;
+                _obj = o;
             }
             @Override
             public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
                 Object result = null;
-                result = m.invoke(obj, args);
+                result = m.invoke(_obj, args);
                 return result;
             }
         }

@@ -5,11 +5,15 @@ import java.text.ParsePosition;
 import java.text.ParseException;
 
 /**
- * Utilities methods for manipulating dates in iso8601 format. This is much much faster and GC friendly than
- * using SimpleDateFormat so highly suitable if you (un)serialize lots of date objects.
+ * Utilities methods for manipulating dates in iso8601 format. This is much much faster and GC friendly than using SimpleDateFormat so
+ * highly suitable if you (un)serialize lots of date objects.
+ * 
+ * Supported parse format: [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh:mm]]
+ * 
+ * @see <a href="http://www.w3.org/TR/NOTE-datetime">this specification</a>
  */
-public class ISO8601Utils {
-
+public class ISO8601Utils
+{
     /**
      * ID to represent the 'GMT' string
      */
@@ -25,21 +29,23 @@ public class ISO8601Utils {
     /* Static factories
     /**********************************************************
      */
-    
+
     /**
      * Accessor for static GMT timezone instance.
      */
-    public static TimeZone timeZoneGMT() { return TIMEZONE_GMT; }
+    public static TimeZone timeZoneGMT() {
+        return TIMEZONE_GMT;
+    }
 
     /*
     /**********************************************************
     /* Formatting
     /**********************************************************
      */
-    
+
     /**
      * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (GMT timezone, no milliseconds precision)
-     *
+     * 
      * @param date the date to format
      * @return the date formatted as 'yyyy-MM-ddThh:mm:ssZ'
      */
@@ -49,8 +55,8 @@ public class ISO8601Utils {
 
     /**
      * Format a date into 'yyyy-MM-ddThh:mm:ss[.sss]Z' (GMT timezone)
-     *
-     * @param date   the date to format
+     * 
+     * @param date the date to format
      * @param millis true to include millis precision otherwise false
      * @return the date formatted as 'yyyy-MM-ddThh:mm:ss[.sss]Z'
      */
@@ -60,10 +66,10 @@ public class ISO8601Utils {
 
     /**
      * Format date into yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
-     *
-     * @param date   the date to format
+     * 
+     * @param date the date to format
      * @param millis true to include millis precision otherwise false
-     * @param tz     timezone to use for the formatting (GMT will produce 'Z')
+     * @param tz timezone to use for the formatting (GMT will produce 'Z')
      * @return the date formatted as yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
      */
     public static String format(Date date, boolean millis, TimeZone tz) {
@@ -114,48 +120,68 @@ public class ISO8601Utils {
      */
 
     /**
-     * Parse a date from ISO-8601 formatted string. It expects a format yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
-     *
+     * Parse a date from ISO-8601 formatted string. It expects a format
+     * [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh:mm]]
+     * 
      * @param date ISO string to parse in the appropriate format.
      * @param pos The position to start parsing from, updated to where parsing stopped.
      * @return the parsed date
      * @throws ParseException if the date is not in the appropriate format
      */
-    public static Date parse(String date, ParsePosition pos) throws ParseException
-    {
+    public static Date parse(String date, ParsePosition pos) throws ParseException {
         Exception fail = null;
         try {
             int offset = pos.getIndex();
 
             // extract year
             int year = parseInt(date, offset, offset += 4);
-            checkOffset(date, offset, '-');
+            if (checkOffset(date, offset, '-')) {
+                offset += 1;
+            }
 
             // extract month
-            int month = parseInt(date, offset += 1, offset += 2);
-            checkOffset(date, offset, '-');
+            int month = parseInt(date, offset, offset += 2);
+            if (checkOffset(date, offset, '-')) {
+                offset += 1;
+            }
 
             // extract day
-            int day = parseInt(date, offset += 1, offset += 2);
-            checkOffset(date, offset, 'T');
-
-            // extract hours, minutes, seconds and milliseconds
-            int hour = parseInt(date, offset += 1, offset += 2);
-            checkOffset(date, offset, ':');
-
-            int minutes = parseInt(date, offset += 1, offset += 2);
-            checkOffset(date, offset, ':');
-
-            int seconds = parseInt(date, offset += 1, offset += 2);
-            // milliseconds can be optional in the format
+            int day = parseInt(date, offset, offset += 2);
+            // default time value
+            int hour = 0;
+            int minutes = 0;
+            int seconds = 0;
             int milliseconds = 0; // always use 0 otherwise returned date will include millis of current time
-            if (date.charAt(offset) == '.') {
-                checkOffset(date, offset, '.');
-                milliseconds = parseInt(date, offset += 1, offset += 3);
+            if (checkOffset(date, offset, 'T')) {
+
+                // extract hours, minutes, seconds and milliseconds
+                hour = parseInt(date, offset += 1, offset += 2);
+                if (checkOffset(date, offset, ':')) {
+                    offset += 1;
+                }
+
+                minutes = parseInt(date, offset, offset += 2);
+                if (checkOffset(date, offset, ':')) {
+                    offset += 1;
+                }
+                // second and milliseconds can be optional
+                if (date.length() > offset) {
+                    char c = date.charAt(offset);
+                    if (c != 'Z' && c != '+' && c != '-') {
+                        seconds = parseInt(date, offset, offset += 2);
+                        // milliseconds can be optional in the format
+                        if (checkOffset(date, offset, '.')) {
+                            milliseconds = parseInt(date, offset += 1, offset += 3);
+                        }
+                    }
+                }
             }
 
             // extract timezone
             String timezoneId;
+            if (date.length() <= offset) {
+                throw new IllegalArgumentException("No time zone indicator");
+            }
             char timezoneIndicator = date.charAt(offset);
             if (timezoneIndicator == '+' || timezoneIndicator == '-') {
                 String timezoneOffset = date.substring(offset);
@@ -169,8 +195,18 @@ public class ISO8601Utils {
             }
 
             TimeZone timezone = TimeZone.getTimeZone(timezoneId);
-            if (!timezone.getID().equals(timezoneId)) {
-                throw new IndexOutOfBoundsException();
+            String act = timezone.getID();
+            if (!act.equals(timezoneId)) {
+                /* 22-Jan-2015, tatu: Looks like canonical version has colons, but we may be given
+                 *    one without. If so, don't sweat.
+                 *   Yes, very inefficient. Hopefully not hit often.
+                 *   If it becomes a perf problem, add 'loose' comparison instead.
+                 */
+                String cleaned = act.replace(":", "");
+                if (!cleaned.equals(timezoneId)) {
+                    throw new IndexOutOfBoundsException("Mismatching time zone indicator: "+timezoneId+" given, resolves to "
+                            +timezone.getID());
+                }
             }
 
             Calendar calendar = new GregorianCalendar(timezone);
@@ -185,8 +221,8 @@ public class ISO8601Utils {
 
             pos.setIndex(offset);
             return calendar.getTime();
-            //If we get a ParseException it'll already have the right message/offset.
-            //Other exception types can convert here.
+            // If we get a ParseException it'll already have the right message/offset.
+            // Other exception types can convert here.
         } catch (IndexOutOfBoundsException e) {
             fail = e;
         } catch (NumberFormatException e) {
@@ -194,32 +230,34 @@ public class ISO8601Utils {
         } catch (IllegalArgumentException e) {
             fail = e;
         }
-        String input = (date == null) ? null : ('"'+date+"'");
-        throw new ParseException("Failed to parse date ["+input
-            +"]: "+fail.getMessage(), pos.getIndex());
+        String input = (date == null) ? null : ('"' + date + "'");
+        String msg = fail.getMessage();
+        if (msg == null || msg.isEmpty()) {
+            msg = "("+fail.getClass().getName()+")";
+        }
+        ParseException ex = new ParseException("Failed to parse date [" + input + "]: " + msg, pos.getIndex());
+        ex.initCause(fail);
+        throw ex;
     }
 
     /**
-     * Check if the expected character exist at the given offset of the
-     *
-     * @param value    the string to check at the specified offset
-     * @param offset   the offset to look for the expected character
+     * Check if the expected character exist at the given offset in the value.
+     * 
+     * @param value the string to check at the specified offset
+     * @param offset the offset to look for the expected character
      * @param expected the expected character
-     * @throws IndexOutOfBoundsException if the expected character is not found
+     * @return true if the expected character exist at the given offset
      */
-    private static void checkOffset(String value, int offset, char expected) throws ParseException {
-        char found = value.charAt(offset);
-        if (found != expected) {
-            throw new ParseException("Expected '" + expected + "' character but found '" + found + "'", offset);
-        }
+    private static boolean checkOffset(String value, int offset, char expected) {
+        return (offset < value.length()) && (value.charAt(offset) == expected);
     }
 
     /**
      * Parse an integer located between 2 given offsets in a string
-     *
-     * @param value      the string to parse
+     * 
+     * @param value the string to parse
      * @param beginIndex the start index for the integer in the string
-     * @param endIndex   the end index for the integer in the string
+     * @param endIndex the end index for the integer in the string
      * @return the int
      * @throws NumberFormatException if the value is not a number
      */
@@ -251,9 +289,9 @@ public class ISO8601Utils {
 
     /**
      * Zero pad a number to a specified length
-     *
+     * 
      * @param buffer buffer to use for padding
-     * @param value  the integer value to pad if necessary.
+     * @param value the integer value to pad if necessary.
      * @param length the length of the string we should zero pad
      */
     private static void padInt(StringBuilder buffer, int value, int length) {
@@ -264,4 +302,3 @@ public class ISO8601Utils {
         buffer.append(strValue);
     }
 }
-

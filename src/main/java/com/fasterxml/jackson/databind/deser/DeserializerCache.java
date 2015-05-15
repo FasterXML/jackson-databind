@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.NoClassDefFoundDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
@@ -32,15 +33,15 @@ public final class DeserializerCache
     /**
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
-     * This currently means bean and Enum deserializers; array, List and Map
-     * deserializers will not be cached.
+     * This currently means bean and Enum deserializers; starting with
+     * 2.5, container deserializers will also be cached.
      *<p>
      * Given that we don't expect much concurrency for additions
      * (should very quickly converge to zero after startup), let's
-     * explicitly define a low concurrency setting.
+     * define a relatively low concurrency setting.
      */
     final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers
-        = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.75f, 2);
+        = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.75f, 4);
 
     /**
      * During deserializer construction process we may need to keep track of partially
@@ -204,6 +205,9 @@ public final class DeserializerCache
         if (type == null) {
             throw new IllegalArgumentException("Null JavaType passed");
         }
+        if (_hasCustomValueHandler(type)) {
+            return null;
+        }
         return _cachedDeserializers.get(type);
     }
 
@@ -214,7 +218,7 @@ public final class DeserializerCache
      * @param ctxt Currently active deserialization context
      * @param type Type of property to deserialize
      */
-    protected JsonDeserializer<Object>_createAndCacheValueDeserializer(DeserializationContext ctxt,
+    protected JsonDeserializer<Object> _createAndCacheValueDeserializer(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
@@ -273,7 +277,8 @@ public final class DeserializerCache
          */
         // 08-Jun-2010, tatu: Related to [JACKSON-296], need to avoid caching MapSerializers... so:
         boolean isResolvable = (deser instanceof ResolvableDeserializer);
-        boolean addToCache = deser.isCachable();
+        // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
+        boolean addToCache = !_hasCustomValueHandler(type) && deser.isCachable();
 
         /* we will temporarily hold on to all created deserializers (to
          * handle cyclic references, and possibly reuse non-cached
@@ -320,7 +325,12 @@ public final class DeserializerCache
         if (type.isAbstract() || type.isMapLikeType() || type.isCollectionLikeType()) {
             type = factory.mapAbstractType(config, type);
         }
-        BeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc;
+        try {
+            beanDesc = config.introspect(type);
+        } catch (NoClassDefFoundError error) {
+            return new NoClassDefFoundDeserializer<Object>(error);
+        }
         // Then: does type define explicit deserializer to use, with annotation(s)?
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt,
                 beanDesc.getClassInfo());
@@ -538,6 +548,28 @@ public final class DeserializerCache
         return type;
     }
 
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+
+    /**
+     * Helper method used to prevent both caching and cache lookups for structured
+     * types that have custom value handlers
+     *
+     * @since 2.4.6
+     */
+    private boolean _hasCustomValueHandler(JavaType t) {
+        if (t.isContainerType()) {
+            JavaType ct = t.getContentType();
+            if (ct != null) {
+                return (ct.getValueHandler() != null) || (ct.getTypeHandler() != null);
+            }
+        }
+        return false;
+    }
+
     private Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
     {
         if (src == null) {
@@ -552,7 +584,7 @@ public final class DeserializerCache
         }
         return cls;
     }
-    
+
     /*
     /**********************************************************
     /* Overridable error reporting methods

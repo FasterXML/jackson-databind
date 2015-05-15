@@ -13,9 +13,8 @@ public class TestBuilderMethods extends BaseMapTest
     {
         public int x;
 
-        @SuppressWarnings("hiding")
-        public SimpleBuilder withX(int x) {
-    		    this.x = x;
+        public SimpleBuilder withX(int x0) {
+    		    this.x = x0;
     		    return this;
         }
     }

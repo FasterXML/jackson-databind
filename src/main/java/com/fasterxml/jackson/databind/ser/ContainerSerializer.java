@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * etc) and {@link java.util.Map}s and iterable things
  * ({@link java.util.Iterator}s).
  */
+@SuppressWarnings("serial")
 public abstract class ContainerSerializer<T>
     extends StdSerializer<T>
 {
@@ -22,6 +24,13 @@ public abstract class ContainerSerializer<T>
 
     protected ContainerSerializer(Class<T> t) {
         super(t);
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected ContainerSerializer(JavaType fullType) {
+        super(fullType);
     }
     
     /**
@@ -75,18 +84,25 @@ public abstract class ContainerSerializer<T>
      * {@link com.fasterxml.jackson.databind.SerializerProvider#findValueSerializer}.
      */
     public abstract JsonSerializer<?> getContentSerializer();
-    
+
     /*
     /**********************************************************
     /* Abstract methods for sub-classes to implement
     /**********************************************************
      */
-    
+
     /* Overridden as abstract, to force re-implementation; necessary for all
      * collection types.
      */
     @Override
-    public abstract boolean isEmpty(T value);
+    @Deprecated
+    public boolean isEmpty(T value) {
+        return isEmpty(null, value);
+    }
+
+    // since 2.5: should be declared abstract in future (2.6)
+//    @Override
+//    public abstract boolean isEmpty(SerializerProvider prov, T value);
 
     /**
      * Method called to determine if the given value (of type handled by
@@ -124,8 +140,9 @@ public abstract class ContainerSerializer<T>
     {
         if (property != null) {
             AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-            if (intr != null) {
-                if (intr.findSerializationContentType(property.getMember(), property.getType()) != null) {
+            AnnotatedMember m = property.getMember();
+            if ((m != null) && (intr != null)) {
+                if (intr.findSerializationContentType(m, property.getType()) != null) {
                     return true;
                 }
             }

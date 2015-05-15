@@ -41,7 +41,7 @@ public class TestEmptyClass
         }
 
         @Override
-        public boolean isEmpty(NonZero value) {
+        public boolean isEmpty(SerializerProvider provider, NonZero value) {
             if (value == null) return true;
             return (value.nr == 0);
         }
@@ -73,7 +73,7 @@ public class TestEmptyClass
 
         // Including class annotation through mix-ins
         ObjectMapper m2 = new ObjectMapper();
-        m2.addMixInAnnotations(Empty.class, EmptyWithAnno.class);
+        m2.addMixIn(Empty.class, EmptyWithAnno.class);
         assertEquals("{}", m2.writeValueAsString(new Empty()));
     }
 

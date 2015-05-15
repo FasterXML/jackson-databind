@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -128,17 +128,25 @@ public class TestNumberNodes extends NodeTestBase
     // @since 2.2
     public void testFloat()
     {
-        FloatNode n = FloatNode.valueOf(0.25f);
+        FloatNode n = FloatNode.valueOf(0.45f);
         assertStandardEquals(n);
         assertTrue(0 != n.hashCode());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
         assertEquals(JsonParser.NumberType.FLOAT, n.numberType());
         assertEquals(0, n.intValue());
-        assertEquals(0.25, n.doubleValue());
-        assertEquals(0.25f, n.floatValue());
+        
+        // NOTE: conversion to double NOT as simple as with exact numbers like 0.25:
+        assertEquals(0.45f, n.floatValue());
+        assertEquals("0.45", n.asText());
+
+        // so; as double we'll get more complex number; however, should round-trip
+        // to something that gets printed the same way. But not exact value, alas, hence:
+        assertEquals("0.45",  String.valueOf((float) n.doubleValue()));
+
         assertNotNull(n.decimalValue());
+        // possibly surprisingly, however, this will produce same output:
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
-        assertEquals("0.25", n.asText());
+        assertEquals("0.45", n.asText());
 
         // 1.6:
         assertNodeNumbers(FloatNode.valueOf(4.5f), 4, 4.5f);
@@ -261,7 +269,7 @@ public class TestNumberNodes extends NodeTestBase
     {
         ObjectMapper mapper = new ObjectMapper()
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                .enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
         final String INPUT = "{\"x\":1e2}";
         final JsonNode node = mapper.readTree(INPUT);
         String result = mapper.writeValueAsString(node);
@@ -269,6 +277,11 @@ public class TestNumberNodes extends NodeTestBase
 
         // also via ObjectWriter:
         assertEquals("{\"x\":100}", mapper.writer().writeValueAsString(node));
+
+        // and once more for [core#175]:
+        BigDecimal bigDecimal = new BigDecimal(100);
+        JsonNode tree = mapper.valueToTree(bigDecimal);
+        assertEquals("100", mapper.writeValueAsString(tree));
     }
 
     // Related to [Issue#333]

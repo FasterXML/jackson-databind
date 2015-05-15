@@ -3,9 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -18,15 +16,19 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public final class TypeWrappedDeserializer
     extends JsonDeserializer<Object>
+    implements java.io.Serializable // since 2.5
 {
-    final TypeDeserializer _typeDeserializer;
-    final JsonDeserializer<Object> _deserializer;
+    private static final long serialVersionUID = 1L;
 
-    public TypeWrappedDeserializer(TypeDeserializer typeDeser, JsonDeserializer<Object> deser)
+    final protected TypeDeserializer _typeDeserializer;
+    final protected JsonDeserializer<Object> _deserializer;
+
+    @SuppressWarnings("unchecked")
+    public TypeWrappedDeserializer(TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
         super();
         _typeDeserializer = typeDeser;
-        _deserializer = deser;
+        _deserializer = (JsonDeserializer<Object>) deser;
     }
 
     @Override
@@ -35,16 +37,14 @@ public final class TypeWrappedDeserializer
     }
     
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         return _deserializer.deserializeWithType(jp, ctxt, _typeDeserializer);
     }
 
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-        TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
+        TypeDeserializer typeDeserializer) throws IOException
     {
         // should never happen? (if it can, could call on that object)
         throw new IllegalStateException("Type-wrapped deserializer's deserializeWithType should never get called");
@@ -52,8 +52,7 @@ public final class TypeWrappedDeserializer
 
     @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt,
-            Object intoValue)
-        throws IOException, JsonProcessingException
+            Object intoValue) throws IOException
     {
         /* 01-Mar-2013, tatu: Hmmh. Tough call as to what to do... need
          *   to delegate, but will this work reliably? Let's just hope so:

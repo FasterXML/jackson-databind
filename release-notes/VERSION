@@ -16,6 +16,8 @@ Project: jackson-databind
 #785: Add handlings for classes which are available in `Thread.currentThread().getContextClassLoader()`
  (contributed by Charles A)
 #792: Ensure Constructor Parameter annotations are linked with those of Field, Getter, or Setter
+#793: `ObjectMapper.readTree()` does not work with defaultTyping enabled
+ (reported by gracefulgopher@github)
 - Fix handling of Enums wrt JSON Schema, when 'toString()' used for serialization
 
 2.5.3 (24-Apr-2015)

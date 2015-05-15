@@ -173,9 +173,11 @@ public class ObjectMapper
                 }
                 // fall through
             case OBJECT_AND_NON_CONCRETE:
-                return (t.getRawClass() == Object.class) || !t.isConcrete()
-                        // [Issue#88] Should not apply to JSON tree models:
-                        || TreeNode.class.isAssignableFrom(t.getRawClass());
+                return t.isJavaLangObject()
+                        || (!t.isConcrete()
+                                // [databind#88] Should not apply to JSON tree models:
+                                && !TreeNode.class.isAssignableFrom(t.getRawClass()));
+
             case NON_FINAL:
                 while (t.isArrayType()) {
                     t = t.getContentType();
@@ -184,7 +186,7 @@ public class ObjectMapper
                 return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
             default:
             //case JAVA_LANG_OBJECT:
-                return (t.getRawClass() == Object.class);
+                return t.isJavaLangObject();
             }
         }
     }

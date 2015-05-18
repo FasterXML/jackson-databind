@@ -47,6 +47,8 @@ Project: jackson-databind
  (suggested by rgoldberg@githin)
 #790: Add `JsonNode.equals(Comparator<JsonNode>, JsonNode)` to support
   configurable/external equality comparison
+#794: Add `SerializationFeature.WRITE_DATES_WITH_ZONE_ID` to allow inclusion/exclusion of
+  timezone id for date/time values (as opposed to timezone offset)
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

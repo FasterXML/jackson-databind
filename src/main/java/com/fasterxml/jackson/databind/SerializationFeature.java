@@ -161,7 +161,7 @@ public enum SerializationFeature implements ConfigFeature
      */
 
     /**
-     * Feature that determines whether {@link java.util.Date} values
+     * Feature that determines whether Date (and date/time) values
      * (and Date-based things like {@link java.util.Calendar}s) are to be
      * serialized as numeric timestamps (true; the default),
      * or as something else (usually textual representation).
@@ -185,6 +185,36 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_DATES_AS_TIMESTAMPS(true),
 
     /**
+     * Feature that determines whether {@link java.util.Date}s
+     * (and sub-types) used as {@link java.util.Map} keys are serialized
+     * as timestamps or not (if not, will be serialized as textual
+     * values).
+     *<p>
+     * Default value is 'false', meaning that Date-valued Map keys are serialized
+     * as textual (ISO-8601) values.
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_DATE_KEYS_AS_TIMESTAMPS(false),
+
+    /**
+     * Feature that determines whether date/time values that represents time periods
+     * (durations, periods, ranges) are to be serialized by default using
+     * a numeric (true) or textual (false) representations. Note that numeric
+     * representation may mean either simple number, or an array of numbers,
+     * depending on type.
+     *<p>
+     * Note: whether {@link java.util.Map} keys are serialized as Strings
+     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
+     *<p>
+     * Feature is enabled by default, so that period/duration are by default
+     * serialized as timestamps.
+     * 
+     * @since 2.5
+     */
+    WRITE_DATES_WITH_ZONE_ID(false), 
+
+    /**
      * Feature that determines whether time values that represents time periods
      * (durations, periods, ranges) are to be serialized by default using
      * a numeric (true) or textual (false) representations. Note that numeric
@@ -200,20 +230,7 @@ public enum SerializationFeature implements ConfigFeature
      * @since 2.5
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
-
-    /**
-     * Feature that determines whether {@link java.util.Date}s
-     * (and sub-types) used as {@link java.util.Map} keys are serialized
-     * as timestamps or not (if not, will be serialized as textual
-     * values).
-     *<p>
-     * Default value is 'false', meaning that Date-valued Map keys are serialized
-     * as textual (ISO-8601) values.
-     *<p>
-     * Feature is disabled by default.
-     */
-    WRITE_DATE_KEYS_AS_TIMESTAMPS(false),
-
+    
     /**
      * Feature that determines how type <code>char[]</code> is serialized:
      * when enabled, will be serialized as an explict JSON array (with

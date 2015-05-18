@@ -6,8 +6,9 @@ import java.util.*;
 /**
  * Helper class used for constructing "untyped" {@link java.util.List},
  * {@link java.util.Map} and <code>Object[]</code> values.
- * 
- * @since 2.4
+ * Could help performance if a single instance can be used for building
+ * nested Maps, Lists/Object[] of relatively small size.
+ * Whether use makes sense depends; currently this class is not used.
  */
 public final class ContainerBuilder
 {
@@ -25,7 +26,7 @@ public final class ContainerBuilder
     private int tail;
 
     /**
-     * When building potentailly multiple containers, we need to keep track of
+     * When building potentially multiple containers, we need to keep track of
      * the starting pointer for the current container.
      */
     private int start;

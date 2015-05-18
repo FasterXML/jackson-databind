@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.convert;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
@@ -47,7 +47,6 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
         }
     }
 
-
     public static class NonAbstractCustomTypeDeserializationConverter extends StdConverter<String, NonAbstractCustomType>{
 
         @Override
@@ -55,7 +54,6 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
             return new NonAbstractCustomType(arg);
         }
     }
-
 
     public static class NonAbstractCustomTypeUser {
         @JsonProperty

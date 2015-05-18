@@ -20,8 +20,8 @@ public class BeanDeserializer
 {
     /* TODOs for future versions:
      * 
-     * For 2.6?
-     * 
+     * For 2.7?
+     *
      * - New method in JsonDeserializer (deserializeNext()) to allow use of more
      *   efficient 'nextXxx()' method `JsonParser` provides.
      *
@@ -429,7 +429,7 @@ public class BeanDeserializer
             unknown.writeFieldName(propName);
             unknown.copyCurrentStructure(p);
         }
-        
+
         // We hit END_OBJECT, so:
         Object bean;
         try {

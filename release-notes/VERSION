@@ -49,6 +49,8 @@ Project: jackson-databind
   configurable/external equality comparison
 #794: Add `SerializationFeature.WRITE_DATES_WITH_ZONE_ID` to allow inclusion/exclusion of
   timezone id for date/time values (as opposed to timezone offset)
+#795: Converter annotation not honored for abstract types
+ (reported by myrosia@github)
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

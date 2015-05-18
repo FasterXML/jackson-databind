@@ -407,11 +407,11 @@ public abstract class BeanDeserializerBase
     {
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
+        SettableBeanProperty[] creatorProps;
         if (_valueInstantiator.canCreateFromObjectWith()) {
-            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
+            creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             // also: need to try to resolve 'external' type ids...
-            for (SettableBeanProperty prop : _propertyBasedCreator.properties()) {
+            for (SettableBeanProperty prop : creatorProps) {
                 if (prop.hasValueTypeDeserializer()) {
                     TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
                     if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
@@ -422,12 +422,15 @@ public abstract class BeanDeserializerBase
                     }
                 }
             }
+        } else {
+            creatorProps = null;
         }
 
         UnwrappedPropertyHandler unwrapped = null;
 
         for (SettableBeanProperty origProp : _beanProperties) {
             SettableBeanProperty prop = origProp;
+
             // May already have deserializer from annotations, if so, skip:
             if (!prop.hasValueDeserializer()) {
                 // [Issue#125]: allow use of converters
@@ -447,6 +450,7 @@ public abstract class BeanDeserializerBase
                     prop = prop.withValueDeserializer(cd);
                 }
             }
+
             // [JACKSON-235]: need to link managed references with matching back references
             prop = _resolveManagedReferenceProperty(ctxt, prop);
 
@@ -472,11 +476,29 @@ public abstract class BeanDeserializerBase
             prop = _resolveInnerClassValuedProperty(ctxt, prop);
             if (prop != origProp) {
                 _beanProperties.replace(prop);
+                // [databind#795]: Make sure PropertyBasedCreator's properties stay in sync
+                if (creatorProps != null) {
+                    // 18-May-2015, tatu: _Should_ start with consistent set. But can we really
+                    //   fully count on this? May need to revisit in future; seems to hold for now.
+                    for (int i = 0, len = creatorProps.length; i < len; ++i) {
+                        if (creatorProps[i] == origProp) {
+                            creatorProps[i] = prop;
+                            break;
+                        }
+                        // ... as per above, it is possible we'd need to add this as fallback
+                        // if (but only if) identity check fails?
+                        /*
+                        if (creatorProps[i].getName().equals(prop.getName())) {
+                            creatorProps[i] = prop;
+                            break;
+                        }
+                        */
+                    }
+                }
             }
             
-            /* one more thing: if this property uses "external property" type inclusion
-             * (see [JACKSON-453]), it needs different handling altogether
-             */
+            // one more thing: if this property uses "external property" type inclusion
+            // (see [JACKSON-453]), it needs different handling altogether
             if (prop.hasValueTypeDeserializer()) {
                 TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
                 if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
@@ -522,7 +544,12 @@ public abstract class BeanDeserializerBase
             }
             _delegateDeserializer = dd;
         }
-        
+
+        // And now that we know CreatorProperty instances are also resolved can finally create the creator:
+        if (creatorProps != null) {
+            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
+        }
+
         if (extTypes != null) {
             _externalTypeIdHandler = extTypes.build();
             // we consider this non-standard, to offline handling

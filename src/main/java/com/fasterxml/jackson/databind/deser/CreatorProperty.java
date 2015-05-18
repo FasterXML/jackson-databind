@@ -5,7 +5,6 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -50,11 +49,14 @@ public class CreatorProperty
      * In special cases, when implementing "updateValue", we can not use
      * constructors or factory methods, but have to fall back on using a
      * setter (or mutable field property). If so, this refers to that fallback
-     * accessor
+     * accessor.
+     *<p>
+     * Mutable only to allow setting after construction, but must be strictly
+     * set before any use.
      * 
      * @since 2.3
      */
-    protected final SettableBeanProperty _fallbackSetter;
+    protected SettableBeanProperty _fallbackSetter;
 
     /**
      * @param name Name of the logical property
@@ -102,17 +104,6 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
     }
 
-    /**
-     * @since 2.3
-     */
-    protected CreatorProperty(CreatorProperty src, SettableBeanProperty fallbackSetter) {
-        super(src);
-        _annotated = src._annotated;
-        _creatorIndex = src._creatorIndex;
-        _injectableValueId = src._injectableValueId;
-        _fallbackSetter = fallbackSetter;
-    }
-    
     @Override
     public CreatorProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
@@ -123,10 +114,16 @@ public class CreatorProperty
         return new CreatorProperty(this, deser);
     }
 
-    public CreatorProperty withFallbackSetter(SettableBeanProperty fallbackSetter) {
-        return new CreatorProperty(this, fallbackSetter);
+    /**
+     * NOTE: one exception to immutability, due to problems with CreatorProperty instances
+     * being shared between Bean, separate PropertyBasedCreator
+     * 
+     * @since 2.6.0
+     */
+    public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
+        _fallbackSetter = fallbackSetter;
     }
-    
+
     /**
      * Method that can be called to locate value to be injected for this
      * property, if it is configured for this.

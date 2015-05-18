@@ -411,7 +411,6 @@ public abstract class BasicDeserializerFactory
 
         // may need to keep track for [#725]
         List<AnnotatedConstructor> implicitCtors = null;
-        
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             final boolean isCreator = intr.hasCreatorAnnotation(ctor);
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
@@ -446,7 +445,7 @@ public abstract class BasicDeserializerFactory
             // 2 or more args; all params must have names or be injectable
             // 14-Mar-2015, tatu (2.6): Or, as per [#725], implicit names will also
             //   do, with some constraints. But that will require bit post processing...
-            
+
             AnnotatedParameter nonAnnotatedParam = null;
             CreatorProperty[] properties = new CreatorProperty[argCount];
             int explicitNameCount = 0;

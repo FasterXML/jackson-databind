@@ -534,13 +534,13 @@ public class BeanDeserializerFactory
                               +name+"' (in class "+beanDesc.getBeanClass().getName()+")");
                 }
                 if (prop != null) {
-                    cprop = cprop.withFallbackSetter(prop);
+                    cprop.setFallbackSetter(prop);
                 }
                 prop = cprop;
                 builder.addCreatorProperty(cprop);
                 continue;
             }
-            
+
             if (prop != null) {
                 Class<?>[] views = propDef.findViews();
                 if (views == null) {

@@ -198,19 +198,23 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_DATE_KEYS_AS_TIMESTAMPS(false),
 
     /**
-     * Feature that determines whether date/time values that represents time periods
-     * (durations, periods, ranges) are to be serialized by default using
-     * a numeric (true) or textual (false) representations. Note that numeric
-     * representation may mean either simple number, or an array of numbers,
-     * depending on type.
+     * Feature that determines whether date/date-time values should be serialized
+     * so that they include timezone id, in cases where type itself contains
+     * timezone information. Including this information may lead to compatibility
+     * issues because ISO-8601 specification does not define formats that include
+     * such information.
      *<p>
-     * Note: whether {@link java.util.Map} keys are serialized as Strings
-     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
+     * If enabled, Timezone id should be included using format specified
+     * with Java 8 <code>DateTimeFormatter#ISO_ZONED_DATE_TIME</code> definition
+     * (for example, '2011-12-03T10:15:30+01:00[Europe/Paris]').
      *<p>
-     * Feature is enabled by default, so that period/duration are by default
-     * serialized as timestamps.
+     * Note: setting has no relevance if date/time values are serialized as timestamps.
+     *<p>
+     * Feature is disabled by default, so that zone id is NOT included; rather, timezone
+     * offset is used for ISO-8601 compatibility (if any timezone information is
+     * included in value).
      * 
-     * @since 2.5
+     * @since 2.6
      */
     WRITE_DATES_WITH_ZONE_ID(false), 
 

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -97,7 +98,23 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         @JsonDeserialize(contentConverter=LowerCaser.class)
         public String[] texts;
     }
-     
+
+    // for [databind#795]
+    
+    static class ToNumberConverter extends StdConverter<String,Number>
+    {
+        @Override
+        public Number convert(String value) {
+            return new BigDecimal(value);
+        }
+    }
+
+    static class Issue795Bean
+    {
+        @JsonDeserialize(converter=ToNumberConverter.class)
+        public Number value;
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -179,5 +196,16 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertNotNull(p);
         assertEquals(1, p.x);
         assertEquals(2, p.y);
+    }
+
+    // [databind#795]
+    public void testConvertToAbstract() throws Exception
+    {
+        Issue795Bean bean = objectReader(Issue795Bean.class)
+                .readValue("{\"value\":\"1.25\"}");
+        assertNotNull(bean.value);
+        assertTrue("Type not BigDecimal but "+bean.value.getClass(),
+                bean.value instanceof BigDecimal);
+        assertEquals(new BigDecimal("1.25"), bean.value);
     }
 }

@@ -246,6 +246,10 @@ public final class ClassUtil
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 2.6 not used; may be removed before 3.x
+     */
+    @Deprecated // since 2.6
     public static boolean hasGetterSignature(Method m)
     {
         // First: static methods can't be getters
@@ -522,12 +526,12 @@ public final class ClassUtil
      */
     public static Class<? extends Enum<?>> findEnumType(EnumSet<?> s)
     {
-    	// First things first: if not empty, easy to determine
-    	if (!s.isEmpty()) {
-    		return findEnumType(s.iterator().next());
-    	}
-    	// Otherwise need to locate using an internal field
-    	return EnumTypeLocator.instance.enumTypeFor(s);
+        // First things first: if not empty, easy to determine
+        if (!s.isEmpty()) {
+    		    return findEnumType(s.iterator().next());
+        }
+        // Otherwise need to locate using an internal field
+        return EnumTypeLocator.instance.enumTypeFor(s);
     }
 
     /**
@@ -538,11 +542,11 @@ public final class ClassUtil
      */
     public static Class<? extends Enum<?>> findEnumType(EnumMap<?,?> m)
     {
-    	if (!m.isEmpty()) {
-    		return findEnumType(m.keySet().iterator().next());
-    	}
-    	// Otherwise need to locate using an internal field
-    	return EnumTypeLocator.instance.enumTypeFor(m);
+        if (!m.isEmpty()) {
+            return findEnumType(m.keySet().iterator().next());
+        }
+        // Otherwise need to locate using an internal field
+        return EnumTypeLocator.instance.enumTypeFor(m);
     }
 
     /**
@@ -627,9 +631,8 @@ public final class ClassUtil
         private final Field enumMapTypeField;
     	
         private EnumTypeLocator() {
-    	    /* JDK uses following fields to store information about actual Enumeration
-    	     * type for EnumSets, EnumMaps...
-    	     */
+    	    //JDK uses following fields to store information about actual Enumeration
+    	    // type for EnumSets, EnumMaps...
     	    enumSetTypeField = locateField(EnumSet.class, "elementType", Class.class);
     	    enumMapTypeField = locateField(EnumMap.class, "elementType", Class.class);
     	}

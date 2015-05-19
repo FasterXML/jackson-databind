@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ser.*;
  * because it can provide default implementation for any methods that may
  * be added in {@link PropertyFilter} (as unfortunate as additions may be).
  */
+@SuppressWarnings("deprecation")
 public class SimpleBeanPropertyFilter
     implements BeanPropertyFilter, PropertyFilter
         // sub-classes must also implement java.io.Serializable
@@ -33,9 +34,21 @@ public class SimpleBeanPropertyFilter
      * Convenience factory method that will return a "no-op" filter that will
      * simply just serialize all properties that are given, and filter out
      * nothing.
-     * 
-     * @since 2.5
+     *
+     * @since 2.6
      */
+    public static SimpleBeanPropertyFilter serializeAll() {
+        return SerializeExceptFilter.INCLUDE_ALL;
+    }
+
+    /**
+     * Factory method that was accidentally added in 2.5 with arguments; basically
+     * works just as an alias of {@link #filterOutAllExcept(Set)} which is not
+     * very useful. Instead, see {@link #serializeAll()} for intended signature.
+     *
+     * @deprecated Since 2.6; to be removed from 2.7
+     */
+    @Deprecated
     public static SimpleBeanPropertyFilter serializeAll(Set<String> properties) {
         return new FilterExceptFilter(properties);
     }
@@ -70,7 +83,6 @@ public class SimpleBeanPropertyFilter
      * 
      * @since 2.3
      */
-    @SuppressWarnings("deprecation")
     public static PropertyFilter from(final BeanPropertyFilter src)
     {
         return new PropertyFilter() {
@@ -276,11 +288,17 @@ public class SimpleBeanPropertyFilter
     {
         private static final long serialVersionUID = 1L;
 
+        final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter();
+
         /**
          * Set of property names to filter out.
          */
         protected final Set<String> _propertiesToExclude;
 
+        SerializeExceptFilter() {
+            _propertiesToExclude = Collections.emptySet();
+        }
+        
         public SerializeExceptFilter(Set<String> properties) {
             _propertiesToExclude = properties;
         }

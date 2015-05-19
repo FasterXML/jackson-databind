@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.ser.impl.*;
 public class TestJsonFilter extends BaseMapTest
 {
     @JsonFilter("RootFilter")
+    @JsonPropertyOrder({ "a", "b" })
     static class Bean {
         public String a = "a";
         public String b = "b";
     }
 
-    
     // [Issue#89]
     static class Pod
     {
@@ -67,7 +67,7 @@ public class TestJsonFilter extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleInclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -80,6 +80,13 @@ public class TestJsonFilter extends BaseMapTest
         assertEquals("{\"a\":\"a\"}", mapper.writeValueAsString(new Bean()));
     }
 
+    public void testIncludeAllFilter() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
+                SimpleBeanPropertyFilter.serializeAll());
+        assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
+    }
+    
     public void testSimpleExclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",

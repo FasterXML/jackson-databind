@@ -66,7 +66,7 @@ public class EnumMapSerializer
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public EnumMapSerializer(JavaType valueType, boolean staticTyping, EnumValues keyEnums,
             TypeSerializer vts, JsonSerializer<Object> valueSerializer)
     {

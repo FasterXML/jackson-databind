@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @SuppressWarnings("serial")
@@ -85,6 +86,14 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
+    static class StringIntMapEntryWrapper {
+        public StringIntMapEntry value;
+
+        public StringIntMapEntryWrapper(String k, Integer v) {
+            value = new StringIntMapEntry(k, v);
+        }
+    }
+    
     // [databind#527]
     static class NoNullValuesMapContainer {
         @JsonInclude(content=JsonInclude.Include.NON_NULL)
@@ -160,7 +169,7 @@ public class TestMapSerialization extends BaseMapTest
         String json = w.writeValueAsString(map);
         assertEquals(aposToQuotes("{'a':1}"), json);
     }
-    
+
     // Test [JACKSON-220]
     public void testMapSerializer() throws IOException
     {
@@ -234,7 +243,7 @@ public class TestMapSerialization extends BaseMapTest
     }        
 
     // [Databind#565]
-    public void testEnumMapEntry() throws IOException
+    public void testMapEntry() throws IOException
     {
         StringIntMapEntry input = new StringIntMapEntry("answer", 42);
         String json = MAPPER.writeValueAsString(input);
@@ -243,8 +252,21 @@ public class TestMapSerialization extends BaseMapTest
         StringIntMapEntry[] array = new StringIntMapEntry[] { input };
         json = MAPPER.writeValueAsString(array);
         assertEquals(aposToQuotes("[{'answer':42}]"), json);
+
+        // and maybe with bit of extra typing?
+        ObjectMapper mapper = new ObjectMapper().enableDefaultTyping(DefaultTyping.NON_FINAL);
+        json = mapper.writeValueAsString(input);
+        assertEquals(aposToQuotes("['"+StringIntMapEntry.class.getName()+"',{'answer':42}]"),
+                json);
     }        
 
+    public void testMapEntryWrapper() throws IOException
+    {
+        StringIntMapEntryWrapper input = new StringIntMapEntryWrapper("answer", 42);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'value':{'answer':42}}"), json);
+    }        
+    
     // [databind#527]
     public void testNonNullValueMap() throws IOException
     {

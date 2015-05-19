@@ -7,7 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 
-public class TestDateSerialization
+public class DateSerializationTest
     extends BaseMapTest
 {
     static class TimeZoneBean {
@@ -57,7 +57,7 @@ public class TestDateSerialization
             value.setTimeInMillis(l);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -65,7 +65,7 @@ public class TestDateSerialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testDateNumeric() throws IOException
     {
         // default is to output time stamps...
@@ -109,6 +109,14 @@ public class TestDateSerialization
         assertEquals(aposToQuotes("{'date':0}"), MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
     }
 
+    public void testSqlTime() throws IOException
+    {
+        java.sql.Time time = new java.sql.Time(0L);
+        // not 100% sure what we should expect wrt timezone, but what serializes
+        // does use is quite simple:
+        assertEquals(quote(time.toString()), MAPPER.writeValueAsString(time));
+    }
+    
     public void testTimeZone() throws IOException
     {
         TimeZone input = TimeZone.getTimeZone("PST");

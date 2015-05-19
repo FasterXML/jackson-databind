@@ -31,9 +31,34 @@ public class NewSchemaTest extends BaseMapTest
             return "value-"+name();
         }
     }
+
+    // silly little class to exercise basic traversal
+    static class POJO {
+        public List<POJO> children;
+        public POJO[] childOrdering;
+        public Map<String, java.util.Date> times;
+        public Map<String,Integer> conversions;
+
+        public EnumMap<TestEnum,Double> weights;
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
     
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    /* Silly little test for simply triggering traversal, without attempting to
+     * verify what is being reported. Smoke test that should trigger problems
+     * if basic POJO type/serializer traversal had issues.
+     */
+    public void testBasicTraversal() throws Exception
+    {
+        MAPPER.acceptJsonFormatVisitor(POJO.class, new JsonFormatVisitorWrapper.Base());
+    }
+    
     public void testSimpleEnum() throws Exception
     {
         final Set<String> values = new TreeSet<String>();

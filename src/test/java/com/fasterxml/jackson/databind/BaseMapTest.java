@@ -113,6 +113,8 @@ public abstract class BaseMapTest
         public abstract void foobar();
     }
 
+    public enum ABC { A, B, C; }
+    
     protected BaseMapTest() { super(); }
 
     /*

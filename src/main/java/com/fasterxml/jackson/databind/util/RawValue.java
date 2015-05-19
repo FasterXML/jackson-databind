@@ -20,6 +20,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class RawValue
     implements JsonSerializable
 {
+    /**
+     * Contents to serialize. Untyped because there are multiple types that are
+     * supported: {@link java.lang.String}, {@link JsonSerializable}, {@link SerializableString}.
+     */
     protected Object _value;
 
     public RawValue(String v) {
@@ -33,7 +37,14 @@ public class RawValue
     public RawValue(JsonSerializable v) {
         _value = v;
     }
-    
+
+    /**
+     * Constructor that may be used by sub-classes, and allows passing value
+     * types other than ones for which explicit constructor exists. Caller has to
+     * take care that values of types not supported by base implementation are
+     * handled properly, usually by overriding some of existing serialization
+     * methods.
+     */
     protected RawValue(Object value, boolean bogus) {
         _value = value;
     }

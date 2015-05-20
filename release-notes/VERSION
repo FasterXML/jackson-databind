@@ -14,6 +14,8 @@ Project: jackson-databind
 #312: Support Type Id mappings where two ids map to same Class
 #348: ObjectMapper.valueToTree does not work with @JsonRawValue
  (reported by Chris P, pimlottc@github)
+#504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
+ (suggested by Jeff S)
 #649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
 #664: Add `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to prevent coercion of floating point
  numbers int `int`/`long`/`Integer`/`Long`
@@ -51,6 +53,7 @@ Project: jackson-databind
   timezone id for date/time values (as opposed to timezone offset)
 #795: Converter annotation not honored for abstract types
  (reported by myrosia@github)
+#797: `JsonNodeFactory` method `numberNode(long)` produces `IntNode` for small numbers
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

@@ -410,21 +410,24 @@ public class NumberDeserializers
     @SuppressWarnings("serial")
     @JacksonStdImpl
     public static class NumberDeserializer
-        extends StdScalarDeserializer<Number>
+        extends StdScalarDeserializer<Object>
     {
         public final static NumberDeserializer instance = new NumberDeserializer();
         
-        public NumberDeserializer() { super(Number.class); }
+        public NumberDeserializer() {
+            super(Number.class);
+        }
 
         @Override
-        public Number deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             switch (p.getCurrentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
-                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return p.getBigIntegerValue();
+                if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
+                    return _coerceIntegral(p, ctxt);
                 }
                 return p.getNumberValue();
+
             case JsonTokenId.ID_NUMBER_FLOAT:
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                     return p.getDecimalValue();
@@ -462,8 +465,10 @@ public class NumberDeserializers
                         return new BigInteger(text);
                     }
                     long value = Long.parseLong(text);
-                    if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
-                        return Integer.valueOf((int) value);
+                    if (!ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
+                        if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
+                            return Integer.valueOf((int) value);
+                        }
                     }
                     return Long.valueOf(value);
                 } catch (IllegalArgumentException iae) {
@@ -472,7 +477,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                     p.nextToken();
-                    final Number value = deserialize(p, ctxt);
+                    final Object value = deserialize(p, ctxt);
                     if (p.nextToken() != JsonToken.END_ARRAY) {
                         throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                                 "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array"

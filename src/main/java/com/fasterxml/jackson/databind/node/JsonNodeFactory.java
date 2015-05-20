@@ -174,9 +174,6 @@ public class JsonNodeFactory
      */
     @Override
     public NumericNode numberNode(long v) {
-        if (_inIntRange(v)) {
-            return IntNode.valueOf((int) v);
-        }
         return LongNode.valueOf(v);
     }
     
@@ -190,9 +187,7 @@ public class JsonNodeFactory
         if (value == null) {
             return nullNode();
         }
-        long l = value.longValue();
-        return _inIntRange(l)
-                ? IntNode.valueOf((int) l) : LongNode.valueOf(l);
+        return LongNode.valueOf(value.longValue());
     }
     
     /**

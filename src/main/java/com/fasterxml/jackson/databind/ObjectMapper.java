@@ -1271,7 +1271,7 @@ public class ObjectMapper
      * Method for specifying {@link PrettyPrinter} to use when "default pretty-printing"
      * is enabled (by enabling {@link SerializationFeature#INDENT_OUTPUT})
      * 
-     * @param pp
+     * @param pp Pretty printer to use by default.
      * 
      * @return This mapper, useful for call-chaining
      * 

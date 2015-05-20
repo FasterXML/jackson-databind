@@ -21,7 +21,7 @@ public class UntypedNumbersTest
         /* Even if declared as 'generic' type, should return using most
          * efficient type... here, Integer
          */
-        Number result = MAPPER.readValue(new StringReader(" 123 "), Number.class);
+        Number result = MAPPER.readValue(" 123 ", Number.class);
         assertEquals(Integer.valueOf(123), result);
     }
 
@@ -52,14 +52,19 @@ public class UntypedNumbersTest
         BigInteger exp = BigInteger.valueOf(123L);
 
         // first test as any Number
-        Number result = r.forType(Number.class).readValue(new StringReader(" 123 "));
+        Number result = r.forType(Number.class).readValue(" 123 ");
         assertEquals(BigInteger.class, result.getClass());
         assertEquals(exp, result);
 
         // then as any Object
-        /*Object value =*/ r.forType(Object.class).readValue(new StringReader("123"));
+        /*Object value =*/ r.forType(Object.class).readValue("123");
         assertEquals(BigInteger.class, result.getClass());
         assertEquals(exp, result);
+
+        // and as JsonNode
+        JsonNode node = r.readTree("  123");
+        assertTrue(node.isBigInteger());
+        assertEquals(123, node.asInt());
     }
 
     public void testDoubleAsNumber() throws Exception
@@ -82,6 +87,10 @@ public class UntypedNumbersTest
         Object value = r.forType(Object.class).readValue(dec.toString());
         assertEquals(BigDecimal.class, result.getClass());
         assertEquals(dec, value);
+
+        JsonNode node = r.readTree(dec.toString());
+        assertTrue(node.isBigDecimal());
+        assertEquals(dec.doubleValue(), node.asDouble());
     }
 
     public void testFpTypeOverrideStructured() throws Exception
@@ -108,6 +117,21 @@ public class UntypedNumbersTest
     // [databind#504]
     public void testForceIntsToLongs() throws Exception
     {
-	    
+        ObjectReader r = MAPPER.reader(DeserializationFeature.USE_LONG_FOR_INTS);
+
+        Object ob = r.forType(Object.class).readValue("42");
+        assertEquals(Long.class, ob.getClass());
+        assertEquals(Long.valueOf(42L), ob);
+
+        Number n = r.forType(Number.class).readValue("42");
+        assertEquals(Long.class, n.getClass());
+        assertEquals(Long.valueOf(42L), n);
+
+        // and one more: should get proper node as well
+        JsonNode node = r.readTree("42");
+        if (!node.isLong()) {
+            fail("Expected LongNode, got: "+node.getClass().getName());
+        }
+        assertEquals(42, node.asInt());
     }
 }

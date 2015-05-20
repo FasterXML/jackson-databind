@@ -648,7 +648,7 @@ public final class DeserializationConfig
     }
 
     /**
-     * "Bulk" access method for checking that all features specified by
+     * Bulk access method for checking that all features specified by
      * mask are enabled.
      * 
      * @since 2.3
@@ -657,6 +657,20 @@ public final class DeserializationConfig
         return (_deserFeatures & featureMask) == featureMask;
     }
 
+    /**
+     * Bulk access method for checking that at least one of features specified by
+     * mask is enabled.
+     * 
+     * @since 2.6
+     */
+    public final boolean hasSomeOfFeatures(int featureMask) {
+        return (_deserFeatures & featureMask) != 0;
+    }
+
+    /**
+     * Bulk access method for getting the bit mask of all {@link DeserializationFeature}s
+     * that are enabled.
+     */
     public final int getDeserializationFeatures() {
         return _deserFeatures;
     }

@@ -293,9 +293,12 @@ public class TestNumberNodes extends NodeTestBase
         n = f.numberNode(1L + Integer.MAX_VALUE);
         assertFalse(n.isInt());
         assertTrue(n.isLong());
+
+        /* 19-May-2015, tatu: Actually, no, coercion should not happen by default.
+         *   But it should be possible to change it if necessary.
+         */
         // but "too small" number will be 'int'...
         n = f.numberNode(123L);
-        assertTrue(n.isInt());
-        assertFalse(n.isLong());
+        assertTrue(n.isLong());
     }
 }

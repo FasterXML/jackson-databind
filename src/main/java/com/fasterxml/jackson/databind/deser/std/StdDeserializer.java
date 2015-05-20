@@ -25,6 +25,17 @@ public abstract class StdDeserializer<T>
     private static final long serialVersionUID = 1L;
 
     /**
+     * Bitmask that covers {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}
+     * and {@link DeserializationFeature#USE_LONG_FOR_INTS}, used for more efficient
+     * cheks when coercing integral values for untyped deserialization.
+     *
+     * @since 2.6
+     */
+    protected final static int F_MASK_INT_COERCIONS = 
+            DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
+            | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
+    
+    /**
      * Type of values this deserializer handles: sometimes
      * exact types, other time most specific supertype of
      * types deserializer handles (which may be as generic
@@ -884,6 +895,34 @@ public abstract class StdDeserializer<T>
     }
 
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }
+
+    /*
+    /****************************************************
+    /* Helper methods for sub-classes, coercions
+    /****************************************************
+     */
+
+    /**
+     * Helper method called in case where an integral number is encountered, but
+     * config settings suggest that a coercion may be needed to "upgrade"
+     * {@link java.lang.Number} into "bigger" type like {@link java.lang.Long} or
+     * {@link java.math.BigInteger}
+     * 
+     * @see {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}, {@link DeserializationFeature#USE_LONG_FOR_INTS}
+     *
+     * @since 2.6
+     */
+    protected Object _coerceIntegral(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        int feats = ctxt.getDeserializationFeatures();
+        if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(feats)) {
+            return p.getBigIntegerValue();
+        }
+        if (DeserializationFeature.USE_LONG_FOR_INTS.enabledIn(feats)) {
+            return p.getLongValue();
+        }
+        return p.getBigIntegerValue(); // should be optimal, whatever it is
+    }
     
     /*
     /****************************************************

@@ -60,7 +60,7 @@ public class BeanDeserializer
     protected BeanDeserializer(BeanDeserializerBase src, boolean ignoreAllUnknown) {
         super(src, ignoreAllUnknown);
     }
-    
+
     protected BeanDeserializer(BeanDeserializerBase src, NameTransformer unwrapper) {
         super(src, unwrapper);
     }
@@ -72,7 +72,7 @@ public class BeanDeserializer
     public BeanDeserializer(BeanDeserializerBase src, HashSet<String> ignorableProps) {
         super(src, ignorableProps);
     }
-    
+
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
@@ -171,7 +171,7 @@ public class BeanDeserializer
     protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
         throw ctxt.endOfInputException(handledType());
     }
-    
+
     /**
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially
@@ -215,7 +215,7 @@ public class BeanDeserializer
         do {
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
-            
+
             if (prop != null) { // normal case
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
@@ -251,7 +251,7 @@ public class BeanDeserializer
             do {
                 p.nextToken();
                 SettableBeanProperty prop = _beanProperties.find(propName);
-                
+
                 if (prop != null) { // normal case
                     try {
                         prop.deserializeAndSet(p, ctxt, bean);
@@ -351,7 +351,7 @@ public class BeanDeserializer
      * Method called to deserialize bean using "property-based creator":
      * this means that a non-default constructor or factory method is
      * called, and then possibly other setters. The trick is that
-     * values for creator method need to be buffered, first; and 
+     * values for creator method need to be buffered, first; and
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
@@ -362,7 +362,7 @@ public class BeanDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
-        
+
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
 
@@ -374,7 +374,7 @@ public class BeanDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
+                if (buffer.assignParameter(creatorProp, deserializeWithErrorWrapping(creatorProp, p, ctxt, propName))) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -447,6 +447,18 @@ public class BeanDeserializer
             return handleUnknownProperties(ctxt, bean, unknown);
         }
         return bean;
+    }
+
+    protected Object deserializeWithErrorWrapping(SettableBeanProperty creatorProp, JsonParser p, DeserializationContext ctxt,
+                                                  String propName)
+            throws IOException {
+        try {
+            return creatorProp.deserialize(p, ctxt);
+        } catch (IOException e) {
+            wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+            // exception below will be throw only if someone overwrite default implementation of wrapAndThrow method
+            throw e;
+        }
     }
 
     /*
@@ -616,7 +628,7 @@ public class BeanDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
+                if (buffer.assignParameter(creatorProp, deserializeWithErrorWrapping(creatorProp, p, ctxt, propName))) {
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -686,7 +698,7 @@ public class BeanDeserializer
     /* external type id
     /**********************************************************
      */
-    
+
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
@@ -695,14 +707,14 @@ public class BeanDeserializer
         }
         return deserializeWithExternalTypeId(p, ctxt, _valueInstantiator.createUsingDefault(ctxt));
     }
-    
+
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt,
             Object bean)
         throws IOException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
-        
+
         for (JsonToken t = p.getCurrentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             t = p.nextToken();
@@ -742,7 +754,7 @@ public class BeanDeserializer
                 continue;
             }
             // Unknown: let's call handler method
-            handleUnknownProperty(p, ctxt, bean, propName);         
+            handleUnknownProperty(p, ctxt, bean, propName);
         }
         // and when we get this far, let's try finalizing the deal:
         return ext.complete(p, ctxt, bean);
@@ -771,7 +783,7 @@ public class BeanDeserializer
                     ;
                 } else {
                     // Last creator property to set?
-                    if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
+                    if (buffer.assignParameter(creatorProp, deserializeWithErrorWrapping(creatorProp, p, ctxt, propName))) {
                         t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                         Object bean;
                         try {

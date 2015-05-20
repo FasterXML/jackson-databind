@@ -38,7 +38,6 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
         }
     }
 
-
     static class Baz {
 
         private String qux;

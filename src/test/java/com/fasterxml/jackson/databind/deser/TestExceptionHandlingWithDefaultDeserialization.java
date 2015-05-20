@@ -33,7 +33,6 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
 
     }
 
-
     static class Baz {
 
         private String qux;

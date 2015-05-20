@@ -30,7 +30,6 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
         public Baz getBaz() {
             return baz;
         }
-
     }
 
     static class Baz {
@@ -43,7 +42,6 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
         public String getQux() {
             return qux;
         }
-
     }
 
     public void testShouldThrowJsonMappingExceptionWithPathReference() throws IOException {

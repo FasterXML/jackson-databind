@@ -6,9 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.*;
@@ -250,6 +248,16 @@ public class TestCustomDeserializers
         }
     }
 
+    static class UCStringDeserializer extends StdDeserializer<String> {
+        public UCStringDeserializer() { super(String.class); }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException {
+            return p.getText().toUpperCase();
+        }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -379,5 +387,16 @@ public class TestCustomDeserializers
                 Issue631Bean.class);
         assertNotNull(bean);
         assertEquals("prop/Issue631Bean", bean.prop);
+    }
+
+    public void testCustomStringDeser() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper().registerModule(
+                new SimpleModule().addDeserializer(String.class, new UCStringDeserializer())
+                );
+        assertEquals("FOO", mapper.readValue(quote("foo"), String.class));
+        StringWrapper sw = mapper.readValue("{\"str\":\"foo\"}", StringWrapper.class);
+        assertNotNull(sw);
+        assertEquals("FOO", sw.str);
     }
 }

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * Deserializer class that can deserialize instances of
  * arbitrary bean objects, usually from JSON Object structs,
- * but possibly also from simple types like String values.
  */
 public class BeanDeserializer
     extends BeanDeserializerBase
@@ -374,7 +373,7 @@ public class BeanDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, deserializeWithErrorWrapping(creatorProp, p, ctxt, propName))) {
+                if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -449,15 +448,16 @@ public class BeanDeserializer
         return bean;
     }
 
-    protected Object deserializeWithErrorWrapping(SettableBeanProperty creatorProp, JsonParser p, DeserializationContext ctxt,
-                                                  String propName)
-            throws IOException {
+    protected Object _deserializeWithErrorWrapping(JsonParser p, DeserializationContext ctxt,
+            SettableBeanProperty prop)
+        throws IOException
+    {
         try {
-            return creatorProp.deserialize(p, ctxt);
-        } catch (IOException e) {
-            wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-            // exception below will be throw only if someone overwrite default implementation of wrapAndThrow method
-            throw e;
+            return prop.deserialize(p, ctxt);
+        } catch (Exception e) {
+            wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
+            // never gets here, unless caller returns
+            return null;
         }
     }
 
@@ -628,7 +628,7 @@ public class BeanDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, deserializeWithErrorWrapping(creatorProp, p, ctxt, propName))) {
+                if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -783,7 +783,7 @@ public class BeanDeserializer
                     ;
                 } else {
                     // Last creator property to set?
-                    if (buffer.assignParameter(creatorProp, deserializeWithErrorWrapping(creatorProp, p, ctxt, propName))) {
+                    if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
                         t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                         Object bean;
                         try {
@@ -799,7 +799,7 @@ public class BeanDeserializer
                             t = p.nextToken();
                         }
                         if (bean.getClass() != _beanType.getRawClass()) {
-                            // !!! 08-Jul-2011, tatu: Could probably support; but for now
+                            // !!! 08-Jul-2011, tatu: Could theoretically support; but for now
                             //   it's too complicated, so bail out
                             throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
                         }

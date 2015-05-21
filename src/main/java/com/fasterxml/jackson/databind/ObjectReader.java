@@ -314,8 +314,8 @@ public class ObjectReader
             JsonParser parser, DeserializationContext ctxt,
             JsonDeserializer<?> deser, boolean parserManaged, Object valueToUpdate)
     {
-            return new MappingIterator<T>(valueType, parser, ctxt,
-                    deser, parserManaged, valueToUpdate);
+        return new MappingIterator<T>(valueType, parser, ctxt,
+                deser, parserManaged, valueToUpdate);
     }
 
     /*

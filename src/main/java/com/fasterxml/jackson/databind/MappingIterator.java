@@ -23,6 +23,12 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     protected final JsonDeserializer<T> _deserializer;
 
     protected JsonParser _parser;
+
+    /**
+     * If not null, "value to update" instead of creating a new instance
+     * for each call.
+     */
+    protected final T _updatedValue;
     
     /**
      * Flag that indicates whether input {@link JsonParser} should be closed
@@ -36,12 +42,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * should value; reset when {@link #nextValue} is called
      */
     protected boolean _hasNextChecked;
-    
-    /**
-     * If not null, "value to update" instead of creating a new instance
-     * for each call.
-     */
-    protected final T _updatedValue;
 
     /**
      * @param managedParser Whether we "own" the {@link JsonParser} passed or not:
@@ -75,7 +75,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
          * and if not, caller needs to hand us JsonParser instead, pointing to
          * the first token of the first element.
          */
-        if (managedParser && jp != null && jp.getCurrentToken() == JsonToken.START_ARRAY) {
+        if (managedParser && (jp != null) && jp.isExpectedStartArrayToken()) {
             jp.clearCurrentToken();
         }
     }

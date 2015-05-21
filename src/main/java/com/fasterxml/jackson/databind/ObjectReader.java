@@ -896,7 +896,7 @@ public class ObjectReader
     public <T> T readValue(JsonParser jp, Class<T> valueType)
         throws IOException, JsonProcessingException
     {
-        return (T) withType(valueType).readValue(jp);
+        return (T) forType(valueType).readValue(jp);
     }
 
     /**
@@ -914,7 +914,7 @@ public class ObjectReader
     public <T> T readValue(JsonParser jp, TypeReference<?> valueTypeRef)
         throws IOException, JsonProcessingException
     {
-        return (T) withType(valueTypeRef).readValue(jp);
+        return (T) forType(valueTypeRef).readValue(jp);
     }
 
     /**
@@ -930,7 +930,7 @@ public class ObjectReader
     @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, ResolvedType valueType) throws IOException, JsonProcessingException {
-        return (T) withType((JavaType)valueType).readValue(jp);
+        return (T) forType((JavaType)valueType).readValue(jp);
     }
 
     /**
@@ -941,7 +941,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, JavaType valueType) throws IOException, JsonProcessingException {
-        return (T) withType(valueType).readValue(jp);
+        return (T) forType(valueType).readValue(jp);
     }
 
     /**
@@ -956,7 +956,7 @@ public class ObjectReader
     @Override
     public <T> Iterator<T> readValues(JsonParser jp, Class<T> valueType)
         throws IOException, JsonProcessingException {
-        return withType(valueType).readValues(jp);
+        return forType(valueType).readValues(jp);
     }
 
     /**
@@ -971,7 +971,7 @@ public class ObjectReader
     @Override
     public <T> Iterator<T> readValues(JsonParser jp, TypeReference<?> valueTypeRef)
         throws IOException, JsonProcessingException {
-        return withType(valueTypeRef).readValues(jp);
+        return forType(valueTypeRef).readValues(jp);
     }
     
     /**
@@ -1000,7 +1000,7 @@ public class ObjectReader
      */
     public <T> Iterator<T> readValues(JsonParser jp, JavaType valueType)
         throws IOException, JsonProcessingException {
-        return withType(valueType).readValues(jp);
+        return forType(valueType).readValues(jp);
     }
 
     /*

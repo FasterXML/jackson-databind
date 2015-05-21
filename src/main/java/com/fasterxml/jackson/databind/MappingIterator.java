@@ -44,15 +44,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     protected final T _updatedValue;
 
     /**
-     * @deprecated Since 2.1, to be removed
-     */
-    @Deprecated
-    protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt,
-            JsonDeserializer<?> deser) {
-        this(type, jp, ctxt, deser, true, null);
-    }
-
-    /**
      * @param managedParser Whether we "own" the {@link JsonParser} passed or not:
      *   if true, it was created by {@link ObjectReader} and code here needs to
      *   close it; if false, it was passed by calling code and should not be
@@ -195,7 +186,6 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
              *   matter what, to avoid infinite loop for certain failure cases.
              *   For 2.6 need to improve further.
              */
-            // Need to consume the token too
             _parser.clearCurrentToken();
         }
     }
@@ -254,7 +244,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * @since 2.2
      */
     public JsonParser getParser() {
-    	return _parser;
+        return _parser;
     }
 
     /**

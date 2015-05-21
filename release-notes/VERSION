@@ -32,6 +32,7 @@ Project: jackson-databind
  (reported by wealdtech@github)
 #725: Auto-detect multi-argument constructor with implicit names if it is the only visible creator
 #727: Improve `ObjectWriter.forType()` to avoid forcing base type for container types
+#734: Add basic error-recovery for `ObjectReader.readValues()`
 #737: Add support for writing raw values in TokenBuffer
  (suggested by Guillaume S, gsmet@github)
 #740: Ensure proper `null` (as empty) handling for `AtomicReference`

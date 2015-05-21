@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.*;
 public class ReadRecoveryTest extends BaseMapTest
 {
     static class Bean {
-        public int a;
+        public int a, b;
 
-        @Override public String toString() { return "{Bean, a="+a+"}"; }
+        @Override public String toString() { return "{Bean, a="+a+", b="+b+"}"; }
     }
 
     /*
@@ -24,7 +24,7 @@ public class ReadRecoveryTest extends BaseMapTest
 
     public void testRootBeans() throws Exception
     {
-        final String JSON = aposToQuotes("{'a':3} {'b':5}");
+        final String JSON = aposToQuotes("{'a':3} {'x':5}");
         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
         // First one should be fine
         assertTrue(it.hasNextValue());
@@ -35,15 +35,71 @@ public class ReadRecoveryTest extends BaseMapTest
             bean = it.nextValue();
             fail("Should not have succeeded");
         } catch (JsonMappingException e) {
-            verifyException(e, "Unrecognized field");
+            verifyException(e, "Unrecognized field \"x\"");
         }
-        // 24-Mar-2015, tatu: With 2.5, best we can do is to avoid infinite loop;
-        //    also, since the next token is END_OBJECT, will produce empty Object
-        assertTrue(it.hasNextValue());
-        bean = it.nextValue();
-        assertEquals(0, bean.a);
-        // and we should be done now
+        // 21-May-2015, tatu: With [databind#734], recovery, we now know there's no more data!
         assertFalse(it.hasNextValue());
+
+        it.close();
+    }
+
+    // for [databind#734]
+    // Simple test for verifying that basic recover works for a case of
+    // unknown structured value
+    public void testSimpleRootRecovery() throws Exception
+    {
+        final String JSON = aposToQuotes("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
+
+        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
+        Bean bean = it.nextValue();
+
+        assertNotNull(bean);
+        assertEquals(3, bean.a);
+
+        // second one problematic
+        try {
+            it.nextValue();
+        } catch (JsonMappingException e) {
+            verifyException(e, "Unrecognized field \"foo\"");
+        }
+
+        // but should recover nicely
+        bean = it.nextValue();
+        assertNotNull(bean);
+        assertEquals(1, bean.a);
+        assertEquals(2, bean.b);
+
+        assertFalse(it.hasNextValue());
+        
+        it.close();
+    }
+
+    // Similar to "raw" root-level Object sequence, but in array
+    public void testSimpleArrayRecovery() throws Exception
+    {
+        final String JSON = aposToQuotes("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");
+
+        MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
+        Bean bean = it.nextValue();
+
+        assertNotNull(bean);
+        assertEquals(3, bean.a);
+
+        // second one problematic
+        try {
+            it.nextValue();
+        } catch (JsonMappingException e) {
+            verifyException(e, "Unrecognized field \"foo\"");
+        }
+
+        // but should recover nicely
+        bean = it.nextValue();
+        assertNotNull(bean);
+        assertEquals(1, bean.a);
+        assertEquals(2, bean.b);
+
+        assertFalse(it.hasNextValue());
+        
         it.close();
     }
 }

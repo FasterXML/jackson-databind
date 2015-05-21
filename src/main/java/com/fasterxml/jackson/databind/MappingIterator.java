@@ -15,15 +15,69 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
 {
     protected final static MappingIterator<?> EMPTY_ITERATOR =
         new MappingIterator<Object>(null, null, null, null, false, null);
+
+    /*
+    /**********************************************************
+    /* State constants
+    /**********************************************************
+     */
+
+    /**
+     * State in which iterator is closed
+     */
+    protected final static int STATE_CLOSED = 0;
     
+    /**
+     * State in which value read failed
+     */
+    protected final static int STATE_NEED_RESYNC = 1;
+    
+    /**
+     * State in which no recovery is needed, but "hasNextValue()" needs
+     * to be called first
+     */
+    protected final static int STATE_MAY_HAVE_VALUE = 2;
+
+    /**
+     * State in which "hasNextValue()" has been succesfully called
+     * and deserializer can be called to fetch value
+     */
+    protected final static int STATE_HAS_VALUE = 3;
+
+    /*
+    /**********************************************************
+    /* Configuration
+    /**********************************************************
+     */
+
+    /**
+     * Type to bind individual elements to.
+     */
     protected final JavaType _type;
 
+    /**
+     * Context for deserialization, needed to pass through to deserializer
+     */
     protected final DeserializationContext _context;
-    
+
+    /**
+     * Deserializer for individual element values.
+     */
     protected final JsonDeserializer<T> _deserializer;
 
-    protected JsonParser _parser;
+    /**
+     * Underlying parser used for reading content to bind. Initialized
+     * as not <code>null</code> but set as <code>null</null> when
+     * iterator is closed, to denote closing.
+     */
+    protected final JsonParser _parser;
 
+    /**
+     * Context to resynchronize to, in case an exception is encountered
+     * but caller wants to try to read more elements.
+     */
+    protected final JsonStreamContext _seqContext;
+    
     /**
      * If not null, "value to update" instead of creating a new instance
      * for each call.
@@ -37,12 +91,23 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      */
     protected final boolean _closeParser;
 
-    /**
-     * Flag that is set when we have determined what {@link #hasNextValue()}
-     * should value; reset when {@link #nextValue} is called
+    /*
+    /**********************************************************
+    /* Parsing state
+    /**********************************************************
      */
-    protected boolean _hasNextChecked;
+    
+    /**
+     * State of the iterator
+     */
+    protected int _state;
 
+    /*
+    /**********************************************************
+    /* Construction
+    /**********************************************************
+     */
+    
     /**
      * @param managedParser Whether we "own" the {@link JsonParser} passed or not:
      *   if true, it was created by {@link ObjectReader} and code here needs to
@@ -50,12 +115,12 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      *   closed by iterator.
      */
     @SuppressWarnings("unchecked")
-    protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt,
+    protected MappingIterator(JavaType type, JsonParser p, DeserializationContext ctxt,
             JsonDeserializer<?> deser,
             boolean managedParser, Object valueToUpdate)
     {
         _type = type;
-        _parser = jp;
+        _parser = p;
         _context = ctxt;
         _deserializer = (JsonDeserializer<T>) deser;
         _closeParser = managedParser;
@@ -75,8 +140,25 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
          * and if not, caller needs to hand us JsonParser instead, pointing to
          * the first token of the first element.
          */
-        if (managedParser && (jp != null) && jp.isExpectedStartArrayToken()) {
-            jp.clearCurrentToken();
+        if (p == null) { // can this occur?
+            _seqContext = null;
+            _state = STATE_CLOSED;
+        } else {
+            JsonStreamContext sctxt = p.getParsingContext();
+            if (managedParser && p.isExpectedStartArrayToken()) {
+                // If pointing to START_ARRAY, context should be that ARRAY
+                p.clearCurrentToken();
+            } else {
+                // regardless, recovery context should be whatever context we have now,
+                // with sole exception of pointing to a start marker, in which case it's
+                // the parent
+                JsonToken t = p.getCurrentToken();
+                if ((t == JsonToken.START_OBJECT) || (t == JsonToken.START_ARRAY)) {
+                    sctxt = sctxt.getParent();
+                }
+            }
+            _seqContext = sctxt;
+            _state = STATE_MAY_HAVE_VALUE;
         }
     }
 
@@ -121,9 +203,12 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     }
     
     @Override
-    public void close() throws IOException{
-        if (_parser != null) {
-            _parser.close();
+    public void close() throws IOException {
+        if (_state != STATE_CLOSED) {
+            _state = STATE_CLOSED;
+            if (_parser != null) {
+                _parser.close();
+            }
         }
     }
 
@@ -133,55 +218,71 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**********************************************************
      */
 
+
+    /*
+     */
+    
     /**
      * Equivalent of {@link #next} but one that may throw checked
      * exceptions from Jackson due to invalid input.
      */
     public boolean hasNextValue() throws IOException
     {
-        if (_parser == null) {
+        switch (_state) {
+        case STATE_CLOSED:
             return false;
-        }
-        if (!_hasNextChecked) {
+        case STATE_NEED_RESYNC:
+            _resync();
+            // fall-through
+        case STATE_MAY_HAVE_VALUE:
             JsonToken t = _parser.getCurrentToken();
-            _hasNextChecked = true;
             if (t == null) { // un-initialized or cleared; find next
                 t = _parser.nextToken();
                 // If EOF, no more, or if we hit END_ARRAY (although we don't clear the token).
                 if (t == null || t == JsonToken.END_ARRAY) {
-                    JsonParser jp = _parser;
-                    _parser = null;
-                    if (_closeParser) {
-                        jp.close();
+                    _state = STATE_CLOSED;
+                    if (_closeParser && (_parser != null)) {
+                        _parser.close();
                     }
                     return false;
                 }
             }
+            _state = STATE_HAS_VALUE;
+            return true;
+        case STATE_HAS_VALUE:
+            // fall through
         }
         return true;
     }
-    
+
     public T nextValue() throws IOException
     {
-        // caller should always call 'hasNext[Value]' first; but let's ensure:
-        if (!_hasNextChecked) {
+        switch (_state) {
+        case STATE_CLOSED:
+            return _throwNoSuchElement();
+        case STATE_NEED_RESYNC: // fall-through, will do re-sync
+        case STATE_MAY_HAVE_VALUE:
             if (!hasNextValue()) {
                 return _throwNoSuchElement();
             }
+            break;
+        case STATE_HAS_VALUE:
+            break;
         }
-        if (_parser == null) {
-            return _throwNoSuchElement();
-        }
-        _hasNextChecked = false;
 
+        int nextState = STATE_NEED_RESYNC;
         try {
+            T value;
             if (_updatedValue == null) {
-                return _deserializer.deserialize(_parser, _context);
+                value = _deserializer.deserialize(_parser, _context);
             } else{
                 _deserializer.deserialize(_parser, _context, _updatedValue);
-                return _updatedValue;
+                value = _updatedValue;
             }
+            nextState = STATE_MAY_HAVE_VALUE;
+            return value;
         } finally {
+            _state = nextState;
             /* 24-Mar-2015, tatu: As per [#733], need to mark token consumed no
              *   matter what, to avoid infinite loop for certain failure cases.
              *   For 2.6 need to improve further.
@@ -277,6 +378,29 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /* Helper methods
     /**********************************************************
      */
+
+    protected void _resync() throws IOException
+    {
+        final JsonParser p = _parser;
+        // First, a quick check to see if we might have been lucky and no re-sync needed
+        if (p.getParsingContext() == _seqContext) {
+            return;
+        }
+
+        while (true) {
+            JsonToken t = p.nextToken();
+            if ((t == JsonToken.END_ARRAY) || (t == JsonToken.END_OBJECT)) {
+                if (p.getParsingContext() == _seqContext) {
+                    p.clearCurrentToken();
+                    return;
+                }
+            } else if ((t == JsonToken.START_ARRAY) || (t == JsonToken.START_OBJECT)) {
+                p.skipChildren();
+            } else if (t == null) {
+                return;
+            }
+        }
+    }
 
     protected <R> R _throwNoSuchElement() {
         throw new NoSuchElementException();

@@ -8,10 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMapTest {
-
+public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMapTest
+{
     static class Foo {
-
         private Bar bar;
 
         @JsonCreator
@@ -25,7 +24,6 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
     }
 
     static class Bar {
-
         private Baz baz;
 
         @JsonCreator
@@ -38,9 +36,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
         }
     }
 
-
     static class Baz {
-
         private String qux;
 
         @JsonCreator

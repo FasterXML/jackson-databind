@@ -250,6 +250,11 @@ Charles Allen:
     `Thread.currentThread().getContextClassLoader()`
    (2.5.4)
 
+Kamil Benedykciński (Kamil-Benedykcinski@github)
+  * Contributed #801: Using `@JsonCreator` cause generating invalid path reference
+   in `JsonMappingException`
+   (2.5.4)
+
 Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)
@@ -275,5 +280,4 @@ Michal Letynski (mletynski@github)
 Jeff Schnitzer (stickfigure@github)
   * Suggested #504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
    (2.6.0)
-
 

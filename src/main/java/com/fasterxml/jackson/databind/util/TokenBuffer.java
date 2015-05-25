@@ -260,9 +260,9 @@ public class TokenBuffer
         }
         _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
         
-        JsonParser jp = other.asParser();
-        while (jp.nextToken() != null) {
-            copyCurrentStructure(jp);
+        JsonParser p = other.asParser();
+        while (p.nextToken() != null) {
+            copyCurrentStructure(p);
         }
         return this;
     }
@@ -405,10 +405,10 @@ public class TokenBuffer
      * 
      * @since 2.3
      */
-    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        if (jp.getCurrentTokenId() != JsonToken.FIELD_NAME.id()) {
-            copyCurrentStructure(jp);
+        if (p.getCurrentTokenId() != JsonToken.FIELD_NAME.id()) {
+            copyCurrentStructure(p);
             return this;
         }
         /* 28-Oct-2014, tatu: As per #592, need to support a special case of starting from
@@ -418,15 +418,15 @@ public class TokenBuffer
         JsonToken t;
         writeStartObject();
         do {
-            copyCurrentStructure(jp);
-        } while ((t = jp.nextToken()) == JsonToken.FIELD_NAME);
+            copyCurrentStructure(p);
+        } while ((t = p.nextToken()) == JsonToken.FIELD_NAME);
         if (t != JsonToken.END_OBJECT) {
             throw ctxt.mappingException("Expected END_OBJECT after copying contents of a JsonParser into TokenBuffer, got "+t);
         }
         writeEndObject();
         return this;
     }
-    
+
     @Override
     @SuppressWarnings("resource")
     public String toString()

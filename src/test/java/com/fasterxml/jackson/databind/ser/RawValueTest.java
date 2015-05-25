@@ -1,8 +1,12 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * This unit test suite tests functioning of {@link JsonRawValue}
@@ -79,5 +83,17 @@ public class RawValueTest
         JsonNode w = MAPPER.valueToTree(new RawWrapped("{ }"));
         assertNotNull(w);
         assertEquals("{\"json\":{ }}", MAPPER.writeValueAsString(w));
+    }
+
+    // for [databind#743]
+    public void testRawFromMapToTree() throws Exception
+    {
+        RawValue myType = new RawValue("Jackson");
+
+        Map<String, Object> object = new HashMap<String, Object>();
+        object.put("key", myType);
+        JsonNode jsonNode = MAPPER.valueToTree(object);
+        String json = MAPPER.writeValueAsString(jsonNode);
+        assertEquals("{\"key\":Jackson}", json);
     }
 }

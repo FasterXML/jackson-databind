@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Deserializer that can build instances of {@link JsonNode} from any
@@ -225,6 +226,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             case JsonTokenId.ID_START_ARRAY:
                 value = deserializeArray(p, ctxt, nodeFactory);
                 break;
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                value = _fromEmbedded(p, ctxt, nodeFactory);
+                break;
             case JsonTokenId.ID_STRING:
                 value = nodeFactory.textNode(p.getText());
                 break;
@@ -270,6 +274,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 break;
             case JsonTokenId.ID_END_ARRAY:
                 return node;
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                node.add(_fromEmbedded(p, ctxt, nodeFactory));
             case JsonTokenId.ID_STRING:
                 node.add(nodeFactory.textNode(p.getText()));
                 break;
@@ -376,7 +382,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (type == byte[].class) { // most common special case
             return nodeFactory.binaryNode((byte[]) ob);
         }
-        if (JsonNode.class.isAssignableFrom(type)) {
+        // [databind#743]: Don't forget RawValue
+        if (ob instanceof RawValue) {
+            return nodeFactory.rawValueNode((RawValue) ob);
+        }
+        if (ob instanceof JsonNode) {
             // [Issue#433]: but could also be a JsonNode hiding in there!
             return (JsonNode) ob;
         }

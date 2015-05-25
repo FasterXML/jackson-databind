@@ -99,4 +99,27 @@ public class RawValue
             gen.writeRawValue(String.valueOf(_value));
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof RawValue)) return false;
+        RawValue other = (RawValue) o;
+
+        if (_value == other._value) {
+            return true;
+        }
+        return (_value != null) && _value.equals(other._value);
+    }
+    
+    @Override
+    public int hashCode() {
+        return (_value == null) ? 0 : _value.hashCode();
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("[RawValue of type %s]",
+                (_value == null) ? "NULL" : _value.getClass().getName());
+    }
 }

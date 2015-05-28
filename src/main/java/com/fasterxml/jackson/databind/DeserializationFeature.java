@@ -420,8 +420,6 @@ public enum DeserializationFeature implements ConfigFeature
     @Override
     public int getMask() { return _mask; }
 
-    /**
-     * @since 2.5
-     */
+    @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 }

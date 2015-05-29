@@ -40,7 +40,8 @@ public @interface JsonDeserialize
      * anywhere where class deserializer is needed); or only used for
      * deserializing property access via a setter method.
      */
-    public Class<? extends JsonDeserializer<?>> using()
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends JsonDeserializer> using()
         default JsonDeserializer.None.class;
 
     /**
@@ -49,7 +50,8 @@ public @interface JsonDeserialize
      * Can only be used on instances (methods, fields, constructors),
      * and not value classes themselves.
      */
-    public Class<? extends JsonDeserializer<?>> contentUsing()
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends JsonDeserializer> contentUsing()
         default JsonDeserializer.None.class;
 
     /**
@@ -83,7 +85,8 @@ public @interface JsonDeserialize
      *
      * @since 2.2
      */
-    public Class<? extends Converter<?,?>> converter() default Converter.None.class;
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends Converter> converter() default Converter.None.class;
 
     /**
      * Similar to {@link #converter}, but used for values of structures types
@@ -91,7 +94,8 @@ public @interface JsonDeserialize
      *
      * @since 2.2
      */
-    public Class<? extends Converter<?,?>> contentConverter() default Converter.None.class;
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends Converter> contentConverter() default Converter.None.class;
     
     
     // // // Annotations for explicitly specifying deserialization type

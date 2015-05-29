@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -23,7 +24,7 @@ public class TestEmptyClass
         public NonZero(int i) { nr = i; }
     }
 
-    @JsonSerialize(include=JsonSerialize.Inclusion.NON_EMPTY)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     static class NonZeroWrapper {
         public NonZero value;
         

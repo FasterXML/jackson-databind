@@ -40,7 +40,8 @@ public @interface JsonSerialize
      * anywhere where class serializer is needed); or only used for
      * serializing property access via a getter method.
      */
-    public Class<? extends JsonSerializer<?>> using() default JsonSerializer.None.class;
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends JsonSerializer> using() default JsonSerializer.None.class;
 
     /**
      * Serializer class to use for serializing contents (elements
@@ -48,7 +49,8 @@ public @interface JsonSerialize
      * Can only be used on properties (methods, fields, constructors),
      * and not value classes themselves (as they are typically generic)
      */
-    public Class<? extends JsonSerializer<?>> contentUsing()
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends JsonSerializer> contentUsing()
         default JsonSerializer.None.class;
 
     /**
@@ -57,7 +59,8 @@ public @interface JsonSerialize
      * Can only be used on properties (methods, fields, constructors),
      * and not value classes themselves.
      */
-    public Class<? extends JsonSerializer<?>> keyUsing()
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends JsonSerializer> keyUsing()
         default JsonSerializer.None.class;
 
     /**
@@ -69,7 +72,8 @@ public @interface JsonSerialize
      * 
      * @since 2.3
      */
-    public Class<? extends JsonSerializer<?>> nullsUsing()
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends JsonSerializer> nullsUsing()
         default JsonSerializer.None.class;
 
     // // // Annotations for type handling, explicit declaration
@@ -130,7 +134,8 @@ public @interface JsonSerialize
      *
      * @since 2.2
      */
-    public Class<? extends Converter<?,?>> converter() default Converter.None.class;
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends Converter> converter() default Converter.None.class;
 
     /**
      * Similar to {@link #converter}, but used for values of structures types
@@ -142,7 +147,8 @@ public @interface JsonSerialize
      *
      * @since 2.2
      */
-    public Class<? extends Converter<?,?>> contentConverter() default Converter.None.class;
+    @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
+    public Class<? extends Converter> contentConverter() default Converter.None.class;
     
     // // // Annotation(s) for inclusion criteria
 
@@ -176,6 +182,7 @@ public @interface JsonSerialize
      * to define which properties
      * of Java Beans are to be included in serialization
      */
+    @Deprecated // since 2.0, marked deprecated in 2.6
     public enum Inclusion
     {
         /**

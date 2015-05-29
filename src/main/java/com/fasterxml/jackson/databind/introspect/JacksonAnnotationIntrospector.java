@@ -309,7 +309,8 @@ public class JacksonAnnotationIntrospector
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
-            Class<? extends JsonSerializer<?>> serClass = ann.using();
+            @SuppressWarnings("rawtypes")
+            Class<? extends JsonSerializer> serClass = ann.using();
             if (serClass != JsonSerializer.None.class) {
                 return serClass;
             }
@@ -333,7 +334,8 @@ public class JacksonAnnotationIntrospector
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
-            Class<? extends JsonSerializer<?>> serClass = ann.keyUsing();
+            @SuppressWarnings("rawtypes")
+            Class<? extends JsonSerializer> serClass = ann.keyUsing();
             if (serClass != JsonSerializer.None.class) {
                 return serClass;
             }
@@ -346,7 +348,8 @@ public class JacksonAnnotationIntrospector
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
-            Class<? extends JsonSerializer<?>> serClass = ann.contentUsing();
+            @SuppressWarnings("rawtypes")
+            Class<? extends JsonSerializer> serClass = ann.contentUsing();
             if (serClass != JsonSerializer.None.class) {
                 return serClass;
             }
@@ -359,7 +362,8 @@ public class JacksonAnnotationIntrospector
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
-            Class<? extends JsonSerializer<?>> serClass = ann.nullsUsing();
+            @SuppressWarnings("rawtypes")
+            Class<? extends JsonSerializer> serClass = ann.nullsUsing();
             if (serClass != JsonSerializer.None.class) {
                 return serClass;
             }
@@ -368,6 +372,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
@@ -680,7 +685,8 @@ public class JacksonAnnotationIntrospector
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
-            Class<? extends JsonDeserializer<?>> deserClass = ann.using();
+            @SuppressWarnings("rawtypes")
+            Class<? extends JsonDeserializer> deserClass = ann.using();
             if (deserClass != JsonDeserializer.None.class) {
                 return deserClass;
             }
@@ -706,7 +712,8 @@ public class JacksonAnnotationIntrospector
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
-            Class<? extends JsonDeserializer<?>> deserClass = ann.contentUsing();
+            @SuppressWarnings("rawtypes")
+            Class<? extends JsonDeserializer> deserClass = ann.contentUsing();
             if (deserClass != JsonDeserializer.None.class) {
                 return deserClass;
             }

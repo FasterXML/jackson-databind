@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -26,16 +27,16 @@ public class TestNullProperties
         public String getB() { return null; }
     }
     
-    @JsonSerialize(include=JsonSerialize.Inclusion.ALWAYS) // just to ensure default
+    @JsonInclude(JsonInclude.Include.ALWAYS) // just to ensure default
     static class NoNullsBean
     {
-        @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public String getA() { return null; }
 
         public String getB() { return null; }
     }
 
-    @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class NonDefaultBean
     {
         String _a = "a", _b = "b";
@@ -52,20 +53,20 @@ public class TestNullProperties
 
         MixedBean() { }
 
-        @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
         public String getA() { return _a; }
 
-        @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public String getB() { return _b; }
     }
 
     // to ensure that default values work for collections as well
     static class ListBean {
-        @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
         public List<String> strings = new ArrayList<String>();
     }
     
-    @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class ArrayBean {
         public int[] ints = new int[] { 1, 2 };
     }

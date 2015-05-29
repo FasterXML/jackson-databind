@@ -55,6 +55,7 @@ Project: jackson-databind
 #795: Converter annotation not honored for abstract types
  (reported by myrosia@github)
 #797: `JsonNodeFactory` method `numberNode(long)` produces `IntNode` for small numbers
+#812: Java 8 breaks Class-value annotation properties, wrt generics: need to work around
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

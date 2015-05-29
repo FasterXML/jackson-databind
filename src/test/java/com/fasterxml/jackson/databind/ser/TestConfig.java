@@ -21,8 +21,8 @@ public class TestConfig
     /**********************************************************
      */
 
-    @JsonSerialize(include=JsonSerialize.Inclusion.NON_DEFAULT,
-                   typing=JsonSerialize.Typing.STATIC)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    @JsonSerialize(typing=JsonSerialize.Typing.STATIC)
     final static class Config { }
 
     final static class ConfigNone { }

@@ -110,6 +110,14 @@ public class PropertyBuilder
                     }
                 }
                 break;
+            case NON_ABSENT: // new with 2.6, to support Guava/JDK8 Optionals
+                // always suppress nulls
+                suppressNulls = true;
+                // and for referential types, also "empty", which in their case means "absent"
+                if (declaredType.isReferenceType()) {
+                    valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+                }
+                break;
             case NON_EMPTY:
                 // always suppress nulls
                 suppressNulls = true;

@@ -84,6 +84,17 @@ public class TestSimpleAtomicTypes
         assertEquals(2, longs[1]);
     }
 
+    // for [databind#811]
+    public void testAbsentExclusion() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
+        assertEquals(aposToQuotes("{'value':true}"),
+                mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
+        assertEquals(aposToQuotes("{}"),
+                mapper.writeValueAsString(new SimpleWrapper(null)));
+    }
+
     // [databind#340]
     public void testPolymorphicAtomicReference() throws Exception
     {

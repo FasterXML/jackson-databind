@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.databind.creators;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitParamsForCreatorTest extends BaseMapTest
+public class ImplicitParamsForCreator806Test extends BaseMapTest
 {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
@@ -37,11 +37,14 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testNonSingleArgCreator() throws Exception
+    // for [databind#806]
+    public void testImplicitNameWithNamingStrategy() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
-        XY value = mapper.readValue(aposToQuotes("{'paramName0':1,'paramName1':2}"), XY.class);
+        ObjectMapper mapper = new ObjectMapper()
+            .setAnnotationIntrospector(new MyParamIntrospector())
+            .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+            ;
+        XY value = mapper.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);
         assertEquals(2, value.y);

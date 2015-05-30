@@ -1213,8 +1213,14 @@ public class ObjectMapper
     }
 
     /**
-     * Method for changing {@link AnnotationIntrospector} used by this
-     * mapper instance for both serialization and deserialization
+     * Method for setting {@link AnnotationIntrospector} used by this
+     * mapper instance for both serialization and deserialization.
+     * Note that doing this will replace the current introspector, which
+     * may lead to unavailability of core Jackson annotations.
+     * If you want to combine handling of multiple introspectors,
+     * have a look at {@link com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair}.
+     * 
+     * @see com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
      */
     public ObjectMapper setAnnotationIntrospector(AnnotationIntrospector ai) {
         _serializationConfig = _serializationConfig.with(ai);
@@ -1234,6 +1240,8 @@ public class ObjectMapper
      *    serialization
      * @param deserializerAI {@link AnnotationIntrospector} to use for configuring
      *    deserialization
+     * 
+     * @see com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair
      */
     public ObjectMapper setAnnotationIntrospectors(AnnotationIntrospector serializerAI,
             AnnotationIntrospector deserializerAI) {

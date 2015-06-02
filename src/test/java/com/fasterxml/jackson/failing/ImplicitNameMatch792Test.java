@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.introspect;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitNameMatchTest extends BaseMapTest
+public class ImplicitNameMatch792Test extends BaseMapTest
 {
     // Simple introspector that gives generated "ctorN" names for constructor
     // parameters
@@ -49,6 +49,18 @@ public class ImplicitNameMatchTest extends BaseMapTest
 
         public int getValue() { return x; }
     }
+
+    static class ReadWriteBean
+    {
+        private int value;
+
+        private ReadWriteBean(@JsonProperty(value="value",
+                access=JsonProperty.Access.READ_WRITE) int v) {
+            value = v;
+        }
+
+        public int testValue() { return value; }
+    }
     
     /*
     /**********************************************************
@@ -56,6 +68,8 @@ public class ImplicitNameMatchTest extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     public void testBindingOfImplicitCreatorNames() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -66,8 +80,13 @@ public class ImplicitNameMatchTest extends BaseMapTest
 
     public void testImplicitWithSetterGetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String json = m.writeValueAsString(new Bean2());
+        String json = MAPPER.writeValueAsString(new Bean2());
         assertEquals(aposToQuotes("{'stuff':3}"), json);
+    }
+
+    public void testReadWriteWithPrivateField() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new ReadWriteBean(3));
+        assertEquals("{\"value\":3}", json);
     }
 }

@@ -172,6 +172,72 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
+    @Override
+    public String findImplicitPropertyName(AnnotatedMember param) {
+        // not known by default (until JDK8) for creators; default 
+        //
+        return null;
+    }
+    
+    @Override
+    public boolean hasIgnoreMarker(AnnotatedMember m) {
+        return _isIgnorable(m);
+    }
+
+    @Override
+    public Boolean hasRequiredMarker(AnnotatedMember m)
+    {
+        JsonProperty ann = _findAnnotation(m, JsonProperty.class);
+        if (ann != null) {
+            return ann.required();
+        }
+        return null;
+    }
+
+    @Override
+    public JsonProperty.Access findPropertyAccess(Annotated m) {
+        JsonProperty ann = _findAnnotation(m, JsonProperty.class);
+        if (ann != null) {
+            return ann.access();
+        }
+        return null;
+    }
+
+    @Override
+    public String findPropertyDescription(Annotated ann) {
+        JsonPropertyDescription desc = _findAnnotation(ann, JsonPropertyDescription.class);
+        return (desc == null) ? null : desc.value();
+    }
+
+    @Override
+    public Integer findPropertyIndex(Annotated ann) {
+        JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
+        if (prop != null) {
+          int ix = prop.index();
+          if (ix != JsonProperty.INDEX_UNKNOWN) {
+               return Integer.valueOf(ix);
+          }
+        }
+        return null;
+    }
+    
+    @Override
+    public String findPropertyDefaultValue(Annotated ann) {
+        JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
+        if (prop == null) {
+            return null;
+        }
+        String str = prop.defaultValue();
+        // Since annotations do not allow nulls, need to assume empty means "none"
+        return str.isEmpty() ? null : str;
+    }
+    
+    @Override
+    public JsonFormat.Value findFormat(Annotated ann) {
+        JsonFormat f = _findAnnotation(ann, JsonFormat.class);
+        return (f == null)  ? null : new JsonFormat.Value(f);
+    }
+
     @Override        
     public ReferenceProperty findReferenceType(AnnotatedMember member)
     {
@@ -201,21 +267,6 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public boolean hasIgnoreMarker(AnnotatedMember m) {
-        return _isIgnorable(m);
-    }
-
-    @Override
-    public Boolean hasRequiredMarker(AnnotatedMember m)
-    {
-        JsonProperty ann = _findAnnotation(m, JsonProperty.class);
-        if (ann != null) {
-            return ann.required();
-        }
-        return null;
-    }
-    
-    @Override
     public Object findInjectableValueId(AnnotatedMember m)
     {
         JacksonInject ann = _findAnnotation(m, JacksonInject.class);
@@ -239,10 +290,17 @@ public class JacksonAnnotationIntrospector
         }
         return id;
     }
-    
+
+    @Override
+    public Class<?>[] findViews(Annotated a)
+    {
+        JsonView ann = _findAnnotation(a, JsonView.class);
+        return (ann == null) ? null : ann.value();
+    }
+
     /*
     /**********************************************************
-    /* Class annotations for PM type handling (1.5+)
+    /* Annotations for Polymorphic Type handling
     /**********************************************************
      */
 
@@ -296,6 +354,37 @@ public class JacksonAnnotationIntrospector
     {
         JsonTypeName tn = _findAnnotation(ac, JsonTypeName.class);
         return (tn == null) ? null : tn.value();
+    }
+
+    @Override
+    public Boolean isTypeId(AnnotatedMember member) {
+        return _hasAnnotation(member, JsonTypeId.class);
+    }
+
+    /*
+    /**********************************************************
+    /* Annotations for Object Id handling
+    /**********************************************************
+     */
+
+    @Override
+    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
+        JsonIdentityInfo info = _findAnnotation(ann, JsonIdentityInfo.class);
+        if (info == null || info.generator() == ObjectIdGenerators.None.class) {
+            return null;
+        }
+        // In future may need to allow passing namespace?
+        PropertyName name = PropertyName.construct(info.property());
+        return new ObjectIdInfo(name, info.scope(), info.generator(), info.resolver());
+    }
+
+    @Override
+    public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
+        JsonIdentityReference ref = _findAnnotation(ann, JsonIdentityReference.class);
+        if (ref != null) {
+            objectIdInfo = objectIdInfo.withAlwaysAsId(ref.alwaysAsId());
+        }
+        return objectIdInfo;
     }
 
     /*
@@ -445,81 +534,7 @@ public class JacksonAnnotationIntrospector
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);
     }
-    
-    @Override
-    public Class<?>[] findViews(Annotated a)
-    {
-        JsonView ann = _findAnnotation(a, JsonView.class);
-        return (ann == null) ? null : ann.value();
-    }
 
-    @Override
-    public Boolean isTypeId(AnnotatedMember member) {
-        return _hasAnnotation(member, JsonTypeId.class);
-    }
-
-    @Override
-    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
-        JsonIdentityInfo info = _findAnnotation(ann, JsonIdentityInfo.class);
-        if (info == null || info.generator() == ObjectIdGenerators.None.class) {
-            return null;
-        }
-        // In future may need to allow passing namespace?
-        PropertyName name = PropertyName.construct(info.property());
-        return new ObjectIdInfo(name, info.scope(), info.generator(), info.resolver());
-    }
-
-    @Override
-    public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
-        JsonIdentityReference ref = _findAnnotation(ann, JsonIdentityReference.class);
-        if (ref != null) {
-            objectIdInfo = objectIdInfo.withAlwaysAsId(ref.alwaysAsId());
-        }
-        return objectIdInfo;
-    }
-    
-    @Override
-    public JsonFormat.Value findFormat(Annotated ann) {
-        JsonFormat f = _findAnnotation(ann, JsonFormat.class);
-        return (f == null)  ? null : new JsonFormat.Value(f);
-    }
-
-    @Override
-    public String findPropertyDefaultValue(Annotated ann) {
-        JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
-        if (prop == null) {
-            return null;
-        }
-        String str = prop.defaultValue();
-        // Since annotations do not allow nulls, need to assume empty means "none"
-        return str.isEmpty() ? null : str;
-    }
-
-    @Override
-    public String findPropertyDescription(Annotated ann) {
-        JsonPropertyDescription desc = _findAnnotation(ann, JsonPropertyDescription.class);
-        return (desc == null) ? null : desc.value();
-    }
-
-    @Override
-    public Integer findPropertyIndex(Annotated ann) {
-        JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
-        if (prop != null) {
-        	int ix = prop.index();
-        	if (ix != JsonProperty.INDEX_UNKNOWN) {
-        		return Integer.valueOf(ix);
-        	}
-        }
-        return null;
-    }
-
-    @Override
-    public String findImplicitPropertyName(AnnotatedMember param) {
-        // not known by default (until JDK8) for creators; default 
-        //
-        return null;
-    }
-    
     /*
     /**********************************************************
     /* Serialization: class annotations

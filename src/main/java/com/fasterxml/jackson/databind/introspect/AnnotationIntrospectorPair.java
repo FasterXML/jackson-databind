@@ -8,6 +8,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -453,6 +454,19 @@ public class AnnotationIntrospectorPair
     public String findImplicitPropertyName(AnnotatedMember param) {
         String r = _primary.findImplicitPropertyName(param);
         return (r == null) ? _secondary.findImplicitPropertyName(param) : r;
+    }
+
+    @Override
+    public JsonProperty.Access findPropertyAccess(Annotated ann) {
+        JsonProperty.Access acc = _primary.findPropertyAccess(ann);
+        if ((acc != null) && (acc != JsonProperty.Access.AUTO)) {
+            return acc;
+        }
+        acc = _secondary.findPropertyAccess(ann);
+        if (acc != null) {
+            return acc;
+        }
+        return JsonProperty.Access.AUTO;
     }
 
     // // // Serialization: class annotations

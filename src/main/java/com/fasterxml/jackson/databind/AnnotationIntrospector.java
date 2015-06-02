@@ -6,8 +6,11 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
+
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -170,7 +173,7 @@ public abstract class AnnotationIntrospector
 
     /*
     /**********************************************************
-    /* General annotations (for classes, properties)
+    /* Annotations for Object Id handling
     /**********************************************************
      */
     
@@ -305,7 +308,7 @@ public abstract class AnnotationIntrospector
     
     /*
     /**********************************************************
-    /* Class annotations for Polymorphic type handling
+    /* Annotations for Polymorphic type handling
     /**********************************************************
     */
     
@@ -387,7 +390,14 @@ public abstract class AnnotationIntrospector
      * @param ac Class to check for type name annotations
      */
     public String findTypeName(AnnotatedClass ac) { return null; }
-    
+
+    /**
+     * Method for checking whether given accessor claims to represent
+     * type id: if so, its value may be used as an override,
+     * instead of generated type id.
+     */
+    public Boolean isTypeId(AnnotatedMember member) { return null; }
+
     /*
     /**********************************************************
     /* General member (field, method/constructor) annotations
@@ -467,13 +477,6 @@ public abstract class AnnotationIntrospector
      * @since 2.1
      */
     public JsonFormat.Value findFormat(Annotated memberOrClass) { return null; }
-    
-    /**
-     * Method for checking whether given accessor claims to represent
-     * type id: if so, its value may be used as an override,
-     * instead of generated type id.
-     */
-    public Boolean isTypeId(AnnotatedMember member) { return null; }
 
     /**
      * Method used to check if specified property has annotation that indicates
@@ -537,6 +540,18 @@ public abstract class AnnotationIntrospector
      * @since 2.4
      */
     public String findImplicitPropertyName(AnnotatedMember member) { return null; }
+
+    /**
+     * Method for finding optional access definition for a property, annotated
+     * on one of its accessors. If a definition for read-only, write-only
+     * or read-write cases, visibility rules may be modified. Note, however,
+     * that even more specific annotations (like one for ignoring specific accessor)
+     * may further override behavior of the access definition.
+     *
+     * @since 2.6
+     */
+//    public JsonProperty.Access findPropertyAccess(Annotated ann) { return null; }
+    public abstract JsonProperty.Access findPropertyAccess(Annotated ann);
 
     /*
     /**********************************************************

@@ -24,7 +24,7 @@ public class StdDateFormat
      * permissive. The two don't mix, need to write a better one.
      */
     // 02-Oct-2014, tatu: Alas. While spit'n'polished a few times, still
-    //   not really robust
+    //   not really robust. But still in use.
 
     /**
      * Defines a commonly used date format that conforms

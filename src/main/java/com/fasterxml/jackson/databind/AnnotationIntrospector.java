@@ -550,15 +550,14 @@ public abstract class AnnotationIntrospector
      *
      * @since 2.6
      */
-//    public JsonProperty.Access findPropertyAccess(Annotated ann) { return null; }
-    public abstract JsonProperty.Access findPropertyAccess(Annotated ann);
+    public JsonProperty.Access findPropertyAccess(Annotated ann) { return null; }
 
     /*
     /**********************************************************
     /* Serialization: general annotations
     /**********************************************************
      */
-    
+
     /**
      * Method for getting a serializer definition on specified method
      * or field. Type of definition is either instance (of type

@@ -470,7 +470,6 @@ public class JacksonAnnotationIntrospector
         }
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
-            @SuppressWarnings("deprecation")
             JsonSerialize.Inclusion i2 = ann.include();
             switch (i2) {
             case ALWAYS:

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
 
@@ -537,6 +538,16 @@ public class POJOPropertyBuilder
         return _annotationIntrospector.findSerializationInclusion(am, null);
     }
 
+    @Override
+    public JsonProperty.Access findAccess() {
+        return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
+            @Override
+            public JsonProperty.Access withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findPropertyAccess(member);
+            }
+        }, JsonProperty.Access.AUTO);
+    }
+    
     /*
     /**********************************************************
     /* Data aggregation
@@ -912,6 +923,40 @@ public class POJOPropertyBuilder
             }
         }
         return result;
+    }
+
+    protected <T> T fromMemberAnnotationsExcept(WithMember<T> func, T defaultValue)
+    {
+        if (_annotationIntrospector != null) {
+            if (_forSerialization) {
+                if (_getters != null) {
+                    T result = func.withMember(_getters.value);
+                    if ((result != null) && (result != defaultValue)) {
+                        return result;
+                    }
+                }
+            } else {
+                if (_ctorParameters != null) {
+                    T result = func.withMember(_ctorParameters.value);
+                    if ((result != null) && (result != defaultValue)) {
+                        return result;
+                    }
+                }
+                if (_setters != null) {
+                    T result = func.withMember(_setters.value);
+                    if ((result != null) && (result != defaultValue)) {
+                        return result;
+                    }
+                }
+            }
+            if (_fields != null) {
+                T result = func.withMember(_fields.value);
+                if ((result != null) && (result != defaultValue)) {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
     
     /*

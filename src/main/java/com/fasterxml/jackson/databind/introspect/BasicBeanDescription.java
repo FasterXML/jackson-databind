@@ -16,9 +16,12 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
- * Default {@link BeanDescription} implementation.
- * Can theoretically be subclassed to customize
- * some aspects of property introspection.
+ * Default {@link BeanDescription} implementation used by Jackson.
+ *<p>
+ * Although sub-classing is a theoretical possibility there are no known
+ * use cases for that, nor is such usage tested or supported.
+ * Separation from API is mostly to isolate some implementation details
+ * here and keep API simple.
  */
 public class BasicBeanDescription extends BeanDescription
 {

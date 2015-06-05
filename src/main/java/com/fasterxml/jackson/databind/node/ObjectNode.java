@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -320,6 +322,7 @@ public class ObjectNode
      *
      * @since 2.1
      */
+    @JsonIgnore // work-around for [databind#815]
     public JsonNode setAll(Map<String,? extends JsonNode> properties)
     {
         for (Map.Entry<String,? extends JsonNode> en : properties.entrySet()) {

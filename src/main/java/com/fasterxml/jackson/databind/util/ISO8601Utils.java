@@ -152,6 +152,15 @@ public class ISO8601Utils
             int minutes = 0;
             int seconds = 0;
             int milliseconds = 0; // always use 0 otherwise returned date will include millis of current time
+
+            // if the value has no time component (and no time zone), we are done
+            if (!checkOffset(date, offset, 'T') && (date.length() <= offset)) {
+                Calendar calendar = new GregorianCalendar(year, month - 1, day);
+
+                pos.setIndex(offset);
+                return calendar.getTime();
+            }
+
             if (checkOffset(date, offset, 'T')) {
 
                 // extract hours, minutes, seconds and milliseconds

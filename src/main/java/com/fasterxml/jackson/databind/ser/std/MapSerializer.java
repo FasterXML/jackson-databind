@@ -445,12 +445,16 @@ public class MapSerializer
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
             Object suppressableValue = _suppressableValue;
-            if (suppressableValue == null) {
+            if (suppressableValue == JsonInclude.Include.ALWAYS) {
+                suppressableValue = null;
+            } else if (suppressableValue == null) {
                 if (!provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
                     suppressableValue = JsonInclude.Include.NON_NULL;
                 }
-            } else if (suppressableValue == JsonInclude.Include.ALWAYS) {
-                suppressableValue = null;
+            } else if (suppressableValue == JsonInclude.Include.NON_ABSENT) {
+                // 05-Jun-2015, tatu: For referential, this is same as NON_EMPTY; for others, NON_NULL, so:
+                suppressableValue = _valueType.isReferenceType() ?
+                        JsonInclude.Include.NON_EMPTY : JsonInclude.Include.NON_NULL;
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
@@ -479,12 +483,16 @@ public class MapSerializer
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
             Object suppressableValue = _suppressableValue;
-            if (suppressableValue == null) {
+            if (suppressableValue == JsonInclude.Include.ALWAYS) {
+                suppressableValue = null;
+            } else if (suppressableValue == null) {
                 if (!provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
                     suppressableValue = JsonInclude.Include.NON_NULL;
                 }
-            } else if (suppressableValue == JsonInclude.Include.ALWAYS) {
-                suppressableValue = null;
+            } else if (suppressableValue == JsonInclude.Include.NON_ABSENT) {
+                // 05-Jun-2015, tatu: For referential, this is same as NON_EMPTY; for others, NON_NULL, so:
+                suppressableValue = _valueType.isReferenceType() ?
+                        JsonInclude.Include.NON_EMPTY : JsonInclude.Include.NON_NULL;
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
@@ -564,6 +572,9 @@ public class MapSerializer
         }
     }
 
+    /**
+     * Serialization method called when exclusion filtering needs to be applied.
+     */
     public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue)
         throws IOException

@@ -782,6 +782,10 @@ public abstract class BasicSerializerFactory
     }
 
     /**
+     *<p>
+     * NOTE: although return type is left opaque, it really needs to be
+     * {@link JsonInclude#Include} for things to work as expected.
+     *
      * @since 2.5
      */
     protected Object findSuppressableContentValue(SerializationConfig config,

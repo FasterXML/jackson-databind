@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -114,6 +115,14 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
+    @JsonInclude(content=JsonInclude.Include.NON_ABSENT)
+    static class NoAbsentStringMap extends LinkedHashMap<String, AtomicReference<?>> {
+        public NoAbsentStringMap add(String key, Object value) {
+            put(key, new AtomicReference<Object>(value));
+            return this;
+        }
+    }
+    
     @JsonInclude(content=JsonInclude.Include.NON_EMPTY)
     static class NoEmptyStringsMap extends LinkedHashMap<String,String> {
         public NoEmptyStringsMap add(String key, String value) {
@@ -285,6 +294,14 @@ public class TestMapSerialization extends BaseMapTest
             .add("b", "bar")
             .add("c", ""));
         assertEquals(aposToQuotes("{'a':'foo','b':'bar'}"), json);
+    }
+
+    public void testNonAbsentValueMap() throws IOException
+    {
+        String json = MAPPER.writeValueAsString(new NoAbsentStringMap()
+            .add("a", "foo")
+            .add("b", null));
+        assertEquals(aposToQuotes("{'a':'foo'}"), json);
     }
     
     // [databind#527]

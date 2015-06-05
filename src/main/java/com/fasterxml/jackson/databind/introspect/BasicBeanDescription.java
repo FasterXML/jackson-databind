@@ -22,6 +22,9 @@ import com.fasterxml.jackson.databind.util.Converter;
  * use cases for that, nor is such usage tested or supported.
  * Separation from API is mostly to isolate some implementation details
  * here and keep API simple.
+ *<p>
+ * Note that since 2.6 this class has been a thin shell around
+ * {@link POJOPropertiesCollector}, which handles most of actual work.
  */
 public class BasicBeanDescription extends BeanDescription
 {
@@ -31,6 +34,13 @@ public class BasicBeanDescription extends BeanDescription
     /**********************************************************
      */
 
+    /**
+     * We will hold a reference to the collector in cases where
+     * information is lazily accessed and constructed; properties
+     * are only accessed when they are actually needed.
+     */
+    final protected POJOPropertiesCollector _propCollector;
+    
     final protected MapperConfig<?> _config;
 
     final protected AnnotationIntrospector _annotationIntrospector;
@@ -53,32 +63,14 @@ public class BasicBeanDescription extends BeanDescription
      */
 
     /**
-     * Properties collected for the POJO.
+     * Properties collected for the POJO; initialized as needed.
      */
-    protected final List<BeanPropertyDefinition> _properties;
+    protected List<BeanPropertyDefinition> _properties;
 
     /**
      * Details of Object Id to include, if any
      */
     protected ObjectIdInfo _objectIdInfo;
-    
-    // // for deserialization
-    
-    protected AnnotatedMethod _anySetterMethod;
-
-    protected Map<Object, AnnotatedMember> _injectables;
-    
-    /**
-     * Set of properties that can be ignored during deserialization, due
-     * to being marked as ignored.
-     */
-    protected Set<String> _ignoredPropertyNames;
-
-    // // for serialization
-    
-    protected AnnotatedMethod _jsonValueMethod;
-
-    protected AnnotatedMember _anyGetter;
     
     /*
     /**********************************************************
@@ -86,20 +78,34 @@ public class BasicBeanDescription extends BeanDescription
     /**********************************************************
      */
 
-    protected BasicBeanDescription(MapperConfig<?> config,
-            JavaType type, AnnotatedClass classDef,
-            List<BeanPropertyDefinition> props)
+    protected BasicBeanDescription(POJOPropertiesCollector coll,
+            JavaType type, AnnotatedClass classDef)
     {
         super(type);
+        _propCollector = coll;
+        _config = coll.getConfig();
+        _annotationIntrospector = (_config == null) ? null : _config.getAnnotationIntrospector();
+        _classInfo = classDef;
+    }
+
+    /**
+     * Alternate constructor used in cases where property information is not needed,
+     * only class info.
+     */
+    protected BasicBeanDescription(MapperConfig<?> config,
+            JavaType type, AnnotatedClass classDef, List<BeanPropertyDefinition> props)
+    {
+        super(type);
+        _propCollector = null;
         _config = config;
-        _annotationIntrospector = (config == null) ? null : config.getAnnotationIntrospector();
+        _annotationIntrospector = (_config == null) ? null : _config.getAnnotationIntrospector();
         _classInfo = classDef;
         _properties = props;
     }
     
     protected BasicBeanDescription(POJOPropertiesCollector coll)
     {
-        this(coll.getConfig(), coll.getType(), coll.getClassDef(), coll.getProperties());
+        this(coll, coll.getType(), coll.getClassDef());
         _objectIdInfo = coll.getObjectIdInfo();
     }
 
@@ -107,26 +113,16 @@ public class BasicBeanDescription extends BeanDescription
      * Factory method to use for constructing an instance to use for building
      * deserializers.
      */
-    public static BasicBeanDescription forDeserialization(POJOPropertiesCollector coll)
-    {
-        BasicBeanDescription desc = new BasicBeanDescription(coll);
-        desc._anySetterMethod = coll.getAnySetterMethod();
-        desc._ignoredPropertyNames = coll.getIgnoredPropertyNames();
-        desc._injectables = coll.getInjectables();
-        desc._jsonValueMethod = coll.getJsonValueMethod();
-        return desc;
+    public static BasicBeanDescription forDeserialization(POJOPropertiesCollector coll) {
+        return new BasicBeanDescription(coll);
     }
 
     /**
      * Factory method to use for constructing an instance to use for building
      * serializers.
      */
-    public static BasicBeanDescription forSerialization(POJOPropertiesCollector coll)
-    {
-        BasicBeanDescription desc = new BasicBeanDescription(coll);
-        desc._jsonValueMethod = coll.getJsonValueMethod();
-        desc._anyGetter = coll.getAnyGetter();
-        return desc;
+    public static BasicBeanDescription forSerialization(POJOPropertiesCollector coll) {
+        return new BasicBeanDescription(coll);
     }
 
     /**
@@ -139,6 +135,13 @@ public class BasicBeanDescription extends BeanDescription
     {
         return new BasicBeanDescription(config, type,
                 ac, Collections.<BeanPropertyDefinition>emptyList());
+    }
+
+    protected List<BeanPropertyDefinition> _properties() {
+        if (_properties == null) {
+            _properties = _propCollector.getProperties();
+        }
+        return _properties;
     }
 
     /*
@@ -156,7 +159,7 @@ public class BasicBeanDescription extends BeanDescription
      */
     public boolean removeProperty(String propName)
     {
-        Iterator<BeanPropertyDefinition> it = _properties.iterator();
+        Iterator<BeanPropertyDefinition> it = _properties().iterator();
         while (it.hasNext()) {
             BeanPropertyDefinition prop = it.next();
             if (prop.getName().equals(propName)) {
@@ -173,7 +176,7 @@ public class BasicBeanDescription extends BeanDescription
         if (hasProperty(def.getFullName())) {
             return false;
         }
-        _properties.add(def);
+        _properties().add(def);
         return true;
     }
     
@@ -189,7 +192,7 @@ public class BasicBeanDescription extends BeanDescription
      */
     public BeanPropertyDefinition findProperty(PropertyName name)
     {
-        for (BeanPropertyDefinition prop : _properties) {
+        for (BeanPropertyDefinition prop : _properties()) {
             if (prop.hasName(name)) {
                 return prop;
             }
@@ -211,20 +214,23 @@ public class BasicBeanDescription extends BeanDescription
 
     @Override
     public List<BeanPropertyDefinition> findProperties() {
-        return _properties;
+        return _properties();
     }
 
     @Override
     public AnnotatedMethod findJsonValueMethod() {
-        return _jsonValueMethod;
+        return (_propCollector == null) ? null
+                : _propCollector.getJsonValueMethod();
     }
 
     @Override
     public Set<String> getIgnoredPropertyNames() {
-        if (_ignoredPropertyNames == null) {
+        Set<String> ign = (_propCollector == null) ? null
+                : _propCollector.getIgnoredPropertyNames();
+        if (ign == null) {
             return Collections.emptySet();
         }
-        return _ignoredPropertyNames;
+        return ign;
     }
 
     @Override
@@ -262,7 +268,9 @@ public class BasicBeanDescription extends BeanDescription
     @Override
     public AnnotatedMethod findAnySetter() throws IllegalArgumentException
     {
-        if (_anySetterMethod != null) {
+        AnnotatedMethod anySetter = (_propCollector == null) ? null
+                : _propCollector.getAnySetterMethod();
+        if (anySetter != null) {
             /* Also, let's be somewhat strict on how field name is to be
              * passed; String, Object make sense, others not
              * so much.
@@ -271,17 +279,20 @@ public class BasicBeanDescription extends BeanDescription
              *  requested; easy enough for devs to add support within
              *  method.
              */
-            Class<?> type = _anySetterMethod.getRawParameterType(0);
+            Class<?> type = anySetter.getRawParameterType(0);
             if (type != String.class && type != Object.class) {
-                throw new IllegalArgumentException("Invalid 'any-setter' annotation on method "+_anySetterMethod.getName()+"(): first argument not of type String or Object, but "+type.getName());
+                throw new IllegalArgumentException("Invalid 'any-setter' annotation on method "+anySetter.getName()+"(): first argument not of type String or Object, but "+type.getName());
             }
         }
-        return _anySetterMethod;
+        return anySetter;
     }
 
     @Override
     public Map<Object, AnnotatedMember> findInjectables() {
-        return _injectables;
+        if (_propCollector != null) {
+            return _propCollector.getInjectables();
+        }
+        return Collections.emptyMap();
     }
 
     @Override
@@ -387,25 +398,27 @@ public class BasicBeanDescription extends BeanDescription
     @Override
     public AnnotatedMember findAnyGetter() throws IllegalArgumentException
     {
-        if (_anyGetter != null) {
+        AnnotatedMember anyGetter = (_propCollector == null) ? null
+                : _propCollector.getAnyGetter();
+        if (anyGetter != null) {
             /* For now let's require a Map; in future can add support for other
              * types like perhaps Iterable<Map.Entry>?
              */
-            Class<?> type = _anyGetter.getRawType();
+            Class<?> type = anyGetter.getRawType();
             if (!Map.class.isAssignableFrom(type)) {
-                throw new IllegalArgumentException("Invalid 'any-getter' annotation on method "+_anyGetter.getName()+"(): return type is not instance of java.util.Map");
+                throw new IllegalArgumentException("Invalid 'any-getter' annotation on method "+anyGetter.getName()+"(): return type is not instance of java.util.Map");
             }
         }
-        return _anyGetter;
+        return anyGetter;
     }
-    
+
     @Override
     public Map<String,AnnotatedMember> findBackReferenceProperties()
     {
         HashMap<String,AnnotatedMember> result = null;
 //        boolean hasIgnored = (_ignoredPropertyNames != null);
 
-        for (BeanPropertyDefinition property : _properties) {
+        for (BeanPropertyDefinition property : _properties()) {
             /* 23-Sep-2014, tatu: As per [Databind#426], we _should_ try to avoid
              *   calling accessor, as it triggers exception from seeming conflict.
              *   But the problem is that _ignoredPropertyNames here only contains
@@ -636,7 +649,7 @@ public class BasicBeanDescription extends BeanDescription
             Collection<String> ignoredProperties, boolean forSerialization)
     {
         LinkedHashMap<String,AnnotatedField> results = new LinkedHashMap<String,AnnotatedField>();
-        for (BeanPropertyDefinition property : _properties) {
+        for (BeanPropertyDefinition property : _properties()) {
             AnnotatedField f = property.getField();
             if (f != null) {
                 String name = property.getName();

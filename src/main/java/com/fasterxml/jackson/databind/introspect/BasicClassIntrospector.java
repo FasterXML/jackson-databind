@@ -194,7 +194,7 @@ public class BasicClassIntrospector
         boolean useAnnotations = config.isAnnotationProcessingEnabled();
         AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(),
                 (useAnnotations ? config.getAnnotationIntrospector() : null), r);
-        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix).collect();
+        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }
     
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
@@ -205,7 +205,7 @@ public class BasicClassIntrospector
         AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(), ai, r);
         JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
         String mutatorPrefix = (builderConfig == null) ? "with" : builderConfig.withPrefix;
-        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix).collect();
+        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }
 
     /**

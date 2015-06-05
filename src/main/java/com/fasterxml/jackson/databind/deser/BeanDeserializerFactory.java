@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -213,7 +212,17 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         // First: check what creators we can use, if any
-        ValueInstantiator valueInstantiator = findValueInstantiator(ctxt, beanDesc);
+        ValueInstantiator valueInstantiator;
+        /* 04-Jun-2015, tatu: To work around [databind#636], need to catch the
+         *    issue, defer; this seems like a reasonable good place for now.
+         *   Note, however, that for non-Bean types (Collections, Maps) this
+         *   probably won't work and needs to be added elsewhere.
+         */
+        try {
+            valueInstantiator = findValueInstantiator(ctxt, beanDesc);
+        } catch (NoClassDefFoundError error) {
+            return new NoClassDefFoundDeserializer<Object>(error);
+        }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(valueInstantiator);
          // And then setters for deserializing from JSON Object

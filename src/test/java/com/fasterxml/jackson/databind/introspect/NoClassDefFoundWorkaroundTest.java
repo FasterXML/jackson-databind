@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.introspect;
 
 import javax.measure.Measure;
 
@@ -7,8 +7,9 @@ import java.util.List;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestNoClassDefFoundDeserializer extends BaseMapTest {
-
+// Tests for [databind#636]
+public class NoClassDefFoundWorkaroundTest extends BaseMapTest
+{
     public static class Parent {
         public List<Child> child;
     }
@@ -19,19 +20,24 @@ public class TestNoClassDefFoundDeserializer extends BaseMapTest {
 
     public void testClassIsMissing()
     {
-        boolean missing = false;
         try {
             Class.forName("javax.measure.Measure");
+            fail("Should not have found javax.measure.Measure");
         } catch (ClassNotFoundException ex) {
-            missing = true;
+            ; // expected case
         }
-        assertTrue("javax.measure.Measure is not in classpath", missing);
     }
 
     public void testDeserialize() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        Parent result = m.readValue(" { } ", Parent.class);
+        Parent result = null;
+
+        try {
+            result = m.readValue(" { } ", Parent.class);
+        } catch (Exception e) {
+            fail("Should not have had issues, got: "+e);
+        }
         assertNotNull(result);
     }
 
@@ -46,5 +52,4 @@ public class TestNoClassDefFoundDeserializer extends BaseMapTest {
         }
         assertTrue("cannot instantiate a missing class", missing);
     }
-
 }

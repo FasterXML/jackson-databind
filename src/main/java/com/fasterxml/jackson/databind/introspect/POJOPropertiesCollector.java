@@ -64,6 +64,12 @@ public class POJOPropertiesCollector
      */
 
     /**
+     * State flag we keep to indicate whether actual property information
+     * has been collected or not.
+     */
+    protected boolean _collected;
+    
+    /**
      * Set of logical property information collected so far.
      *<p>
      * Since 2.6, this has been constructed (more) lazily, to defer
@@ -72,16 +78,16 @@ public class POJOPropertiesCollector
      */
     protected LinkedHashMap<String, POJOPropertyBuilder> _properties;
 
-    protected LinkedList<POJOPropertyBuilder> _creatorProperties = null;
+    protected LinkedList<POJOPropertyBuilder> _creatorProperties ;
     
-    protected LinkedList<AnnotatedMember> _anyGetters = null;
+    protected LinkedList<AnnotatedMember> _anyGetters;
 
-    protected LinkedList<AnnotatedMethod> _anySetters = null;
+    protected LinkedList<AnnotatedMethod> _anySetters;
 
     /**
      * Method(s) marked with 'JsonValue' annotation
      */
-    protected LinkedList<AnnotatedMethod> _jsonValueGetters = null;
+    protected LinkedList<AnnotatedMethod> _jsonValueGetters;
 
     /**
      * Lazily collected list of properties that can be implicitly
@@ -151,11 +157,17 @@ public class POJOPropertiesCollector
     }
 
     public Map<Object, AnnotatedMember> getInjectables() {
+        if (!_collected) {
+            collectAll();
+        }
         return _injectables;
     }
     
     public AnnotatedMethod getJsonValueMethod()
     {
+        if (!_collected) {
+            collectAll();
+        }
         // If @JsonValue defined, must have a single one
         if (_jsonValueGetters != null) {
             if (_jsonValueGetters.size() > 1) {
@@ -170,6 +182,9 @@ public class POJOPropertiesCollector
 
     public AnnotatedMember getAnyGetter()
     {
+        if (!_collected) {
+            collectAll();
+        }
         if (_anyGetters != null) {
             if (_anyGetters.size() > 1) {
                 reportProblem("Multiple 'any-getters' defined ("+_anyGetters.get(0)+" vs "
@@ -182,6 +197,9 @@ public class POJOPropertiesCollector
 
     public AnnotatedMethod getAnySetterMethod()
     {
+        if (!_collected) {
+            collectAll();
+        }
         if (_anySetters != null) {
             if (_anySetters.size() > 1) {
                 reportProblem("Multiple 'any-setters' defined ("+_anySetters.get(0)+" vs "
@@ -226,11 +244,10 @@ public class POJOPropertiesCollector
     
     // for unit tests:
     protected Map<String, POJOPropertyBuilder> getPropertyMap() {
-        Map<String, POJOPropertyBuilder> props = _properties;
-        if (props == null) {
-            props = collectProperties();
+        if (!_collected) {
+            collectAll();
         }
-        return props;
+        return _properties;
     }
 
     /*
@@ -245,13 +262,20 @@ public class POJOPropertiesCollector
      *<p>
      * Since 2.6 has become a no-op and actual collection is done more lazily
      * at point where properties are actually needed.
+     * 
+     * @deprecated Since 2.6; no need to call
      */
-    public POJOPropertiesCollector collect()
-    {
+    @Deprecated
+    public POJOPropertiesCollector collect() {
         return this;
     }
 
-    protected Map<String, POJOPropertyBuilder> collectProperties()
+    /**
+     * Internal method that will collect actual property information.
+     *
+     * @since 2.6
+     */
+    protected void collectAll()
     {
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
@@ -294,7 +318,9 @@ public class POJOPropertiesCollector
         
         // well, almost last: there's still ordering...
         _sortProperties(props);
-        return props;
+        _properties = props;
+
+        _collected = true;
     }
 
     /*

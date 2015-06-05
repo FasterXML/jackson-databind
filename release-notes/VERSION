@@ -20,6 +20,7 @@ Project: jackson-databind
  (reported by gracefulgopher@github)
 #801: Using `@JsonCreator` cause generating invalid path reference in `JsonMappingException`
  (contributed by Kamil B)
+#815: Presence of PropertyNamingStrategy Makes Deserialization fail
 - Fix handling of Enums wrt JSON Schema, when 'toString()' used for serialization
 
 2.5.3 (24-Apr-2015)

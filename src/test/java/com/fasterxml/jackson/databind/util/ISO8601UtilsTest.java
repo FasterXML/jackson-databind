@@ -116,30 +116,6 @@ public class ISO8601UtilsTest extends BaseMapTest {
         assertEquals(dateWithoutTime, d);
     }
 
-    public void testParseWithoutTimeAndTimeZoneMustFail() {
-        try {
-            ISO8601Utils.parse("2007-08-13", new ParsePosition(0));
-            fail();
-        } catch (ParseException p) {
-        }
-        try {
-            ISO8601Utils.parse("20070813", new ParsePosition(0));
-            fail();
-        } catch (ParseException p) {
-        }
-        try {
-            ISO8601Utils.parse("2007-08-13", new ParsePosition(0));
-            fail();
-        } catch (ParseException p) {
-        }
-        try {
-            ISO8601Utils.parse("20070813", new ParsePosition(0));
-            fail();
-        } catch (ParseException p) {
-        }
-    }
-    
-    
     public void testParseOptional() throws java.text.ParseException {
         Date d = ISO8601Utils.parse("2007-08-13T19:51Z", new ParsePosition(0));
         assertEquals(dateZeroSecondAndMillis, d);

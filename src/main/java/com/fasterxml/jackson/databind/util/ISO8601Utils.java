@@ -154,14 +154,16 @@ public class ISO8601Utils
             int milliseconds = 0; // always use 0 otherwise returned date will include millis of current time
 
             // if the value has no time component (and no time zone), we are done
-            if (!checkOffset(date, offset, 'T') && (date.length() <= offset)) {
+            boolean hasT = checkOffset(date, offset, 'T');
+            
+            if (!hasT && (date.length() <= offset)) {
                 Calendar calendar = new GregorianCalendar(year, month - 1, day);
 
                 pos.setIndex(offset);
                 return calendar.getTime();
             }
 
-            if (checkOffset(date, offset, 'T')) {
+            if (hasT) {
 
                 // extract hours, minutes, seconds and milliseconds
                 hour = parseInt(date, offset += 1, offset += 2);

@@ -250,6 +250,10 @@ Charles Allen:
     `Thread.currentThread().getContextClassLoader()`
    (2.5.4)
 
+Andrew Goodale (newyankeecodeshop@github)
+  * Contributed #816: Allow date-only ISO strings to have no time zone
+   (2.5.4)
+
 Kamil Benedykciński (Kamil-Benedykcinski@github)
   * Contributed #801: Using `@JsonCreator` cause generating invalid path reference
    in `JsonMappingException`

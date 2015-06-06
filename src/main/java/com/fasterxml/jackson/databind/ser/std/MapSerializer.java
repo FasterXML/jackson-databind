@@ -188,6 +188,11 @@ public class MapSerializer
         _property = src._property;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
+        // 05-Jun-2015, tatu: For referential, this is same as NON_EMPTY; for others, NON_NULL, so:
+        if (suppressableValue == JsonInclude.Include.NON_ABSENT) {
+            suppressableValue = _valueType.isReferenceType() ?
+                    JsonInclude.Include.NON_EMPTY : JsonInclude.Include.NON_NULL;
+        }
         _suppressableValue = suppressableValue;
     }
 
@@ -451,10 +456,6 @@ public class MapSerializer
                 if (!provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
                     suppressableValue = JsonInclude.Include.NON_NULL;
                 }
-            } else if (suppressableValue == JsonInclude.Include.NON_ABSENT) {
-                // 05-Jun-2015, tatu: For referential, this is same as NON_EMPTY; for others, NON_NULL, so:
-                suppressableValue = _valueType.isReferenceType() ?
-                        JsonInclude.Include.NON_EMPTY : JsonInclude.Include.NON_NULL;
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
@@ -489,10 +490,6 @@ public class MapSerializer
                 if (!provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
                     suppressableValue = JsonInclude.Include.NON_NULL;
                 }
-            } else if (suppressableValue == JsonInclude.Include.NON_ABSENT) {
-                // 05-Jun-2015, tatu: For referential, this is same as NON_EMPTY; for others, NON_NULL, so:
-                suppressableValue = _valueType.isReferenceType() ?
-                        JsonInclude.Include.NON_EMPTY : JsonInclude.Include.NON_NULL;
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
 import com.fasterxml.jackson.databind.util.Named;
@@ -232,16 +231,6 @@ public abstract class BeanPropertyDefinition
      * @since 2.5
      */
     public JsonInclude.Include findInclusion() {
-        return null;
-    }
-
-    /**
-     * Method used for checking if the logical property should have explicitly
-     * specified access with respect to read/write access (accessor/mutator).
-     * 
-     * @since 2.6
-     */
-    public JsonProperty.Access findAccess() {
         return null;
     }
 }

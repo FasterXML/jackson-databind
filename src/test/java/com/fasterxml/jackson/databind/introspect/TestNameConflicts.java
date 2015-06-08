@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestNameConflicts extends BaseMapTest
 {
     @JsonAutoDetect
-    (fieldVisibility= JsonAutoDetect.Visibility.NONE,getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, isGetterVisibility= JsonAutoDetect.Visibility.NONE)
+    (fieldVisibility= JsonAutoDetect.Visibility.NONE,getterVisibility=JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, isGetterVisibility= JsonAutoDetect.Visibility.NONE)
     static class CoreBean158 {
         protected String bar = "x";
 

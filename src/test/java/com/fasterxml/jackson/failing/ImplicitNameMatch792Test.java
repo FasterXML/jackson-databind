@@ -60,6 +60,27 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         }
 
         public int testValue() { return value; }
+
+        // Let's also add setter to ensure conflict resolution works
+        public void setValue(int v) {
+            throw new RuntimeException("Should have used constructor for 'value' not setter");
+        }
+    }
+
+    // Bean that should only serialize 'value', but deserialize both
+    static class PasswordBean
+    {
+        @JsonProperty(access=JsonProperty.Access.WRITE_ONLY)
+        private String password;
+
+        private int value;
+
+        public int getValue() { return value; }
+        public String getPassword() { return password; }
+
+        public String asString() {
+            return String.format("[password='%s',value=%d]", password, value);
+        }
     }
     
     /*
@@ -88,5 +109,14 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     {
         String json = MAPPER.writeValueAsString(new ReadWriteBean(3));
         assertEquals("{\"value\":3}", json);
+    }
+
+    public void testWriteOnly() throws Exception
+    {
+        PasswordBean bean = MAPPER.readValue(aposToQuotes("{'value':7,'password':'foo'}"),
+                PasswordBean.class);
+        assertEquals("[password='foo',value=7]", bean.asString());
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals("{\"value\":7}", json);
     }
 }

@@ -538,7 +538,6 @@ public class POJOPropertyBuilder
         return _annotationIntrospector.findSerializationInclusion(am, null);
     }
 
-    @Override
     public JsonProperty.Access findAccess() {
         return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override
@@ -611,24 +610,48 @@ public class POJOPropertyBuilder
         _ctorParameters = _removeIgnored(_ctorParameters);
     }
 
-    public void removeNonVisible(boolean force)
+    /**
+     * @param inferMutators Whether mutators can be "pulled in" by visible
+     *    accessors or not. 
+     */
+    public void removeNonVisible(boolean inferMutators)
     {
-        /* 21-Aug-2011, tatu: This is tricky part -- if and when allow
-         *   non-visible property elements to be "pulled in" by visible
-         *   counterparts?
-         *   For now, we will only do this to pull in setter or field used
-         *   as setter, if an explicit getter is found.
+        /* 07-Jun-2015, tatu: With 2.6, we will allow optional definition
+         *  of explicit access type for property; if not "AUTO", it will
+         *  dictate how visibility checks are applied.
          */
-        /*
-         * 28-Mar-2013, tatu: Also, as per [Issue#195], may force removal
-         *   if inferred properties are NOT supported.
-         */
-        _getters = _removeNonVisible(_getters);
-        _ctorParameters = _removeNonVisible(_ctorParameters);
-
-        if (force || (_getters == null)) {
-            _fields = _removeNonVisible(_fields);
-            _setters = _removeNonVisible(_setters);
+        JsonProperty.Access acc = findAccess();
+        if (acc == null) {
+            acc = JsonProperty.Access.AUTO;
+        }
+        switch (acc) {
+        case READ_ONLY:
+            // Remove setters, creators for sure, but fields too if deserializing
+            _setters = null;
+            _ctorParameters = null;
+            if (!_forSerialization) {
+                _fields = null;
+            }
+            break;
+        case READ_WRITE:
+            // no trimming whatsoever?
+            break;
+        case WRITE_ONLY:
+            // remove getters, definitely, but also fields if serializing
+            _getters = null;
+            if (_forSerialization) {
+                _fields = null;
+            }
+            break;
+        default:
+        case AUTO: // the default case: base it imply on visibility
+            _getters = _removeNonVisible(_getters);
+            _ctorParameters = _removeNonVisible(_ctorParameters);
+    
+            if (!inferMutators || (_getters == null)) {
+                _fields = _removeNonVisible(_fields);
+                _setters = _removeNonVisible(_setters);
+            }
         }
     }
 
@@ -927,26 +950,17 @@ public class POJOPropertyBuilder
 
     protected <T> T fromMemberAnnotationsExcept(WithMember<T> func, T defaultValue)
     {
-        if (_annotationIntrospector != null) {
-            if (_forSerialization) {
-                if (_getters != null) {
-                    T result = func.withMember(_getters.value);
-                    if ((result != null) && (result != defaultValue)) {
-                        return result;
-                    }
-                }
-            } else {
-                if (_ctorParameters != null) {
-                    T result = func.withMember(_ctorParameters.value);
-                    if ((result != null) && (result != defaultValue)) {
-                        return result;
-                    }
-                }
-                if (_setters != null) {
-                    T result = func.withMember(_setters.value);
-                    if ((result != null) && (result != defaultValue)) {
-                        return result;
-                    }
+        if (_annotationIntrospector == null) {
+            return null;
+        }
+
+        // NOTE: here we must ask ALL accessors, but the order varies between
+        // serialization, deserialization
+        if (_forSerialization) {
+            if (_getters != null) {
+                T result = func.withMember(_getters.value);
+                if ((result != null) && (result != defaultValue)) {
+                    return result;
                 }
             }
             if (_fields != null) {
@@ -954,6 +968,43 @@ public class POJOPropertyBuilder
                 if ((result != null) && (result != defaultValue)) {
                     return result;
                 }
+            }
+            if (_ctorParameters != null) {
+                T result = func.withMember(_ctorParameters.value);
+                if ((result != null) && (result != defaultValue)) {
+                    return result;
+                }
+            }
+            if (_setters != null) {
+                T result = func.withMember(_setters.value);
+                if ((result != null) && (result != defaultValue)) {
+                    return result;
+                }
+            }
+            return null;
+        }
+        if (_ctorParameters != null) {
+            T result = func.withMember(_ctorParameters.value);
+            if ((result != null) && (result != defaultValue)) {
+                return result;
+            }
+        }
+        if (_setters != null) {
+            T result = func.withMember(_setters.value);
+            if ((result != null) && (result != defaultValue)) {
+                return result;
+            }
+        }
+        if (_fields != null) {
+            T result = func.withMember(_fields.value);
+            if ((result != null) && (result != defaultValue)) {
+                return result;
+            }
+        }
+        if (_getters != null) {
+            T result = func.withMember(_getters.value);
+            if ((result != null) && (result != defaultValue)) {
+                return result;
             }
         }
         return null;

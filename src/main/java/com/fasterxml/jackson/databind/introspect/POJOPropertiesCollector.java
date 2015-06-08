@@ -285,11 +285,21 @@ public class POJOPropertiesCollector
         _addCreators(props);
         _addInjectables(props);
 
-        // Remove ignored properties, individual entries
+        // Remove ignored properties, first; this MUST precede annotation merging
+        // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
+
+        // then merge annotations, to simplify further processing
+        for (POJOPropertyBuilder property : props.values()) {
+            property.mergeAnnotations(_forSerialization);
+        }
+        
+        // and then remove unneeded accessors (wrt read-only, read-write)
+        _removeUnwantedAccessor(props);
 
         // Rename remaining properties
         _renameProperties(props);
+
         // And use custom naming strategy, if applicable...
         PropertyNamingStrategy naming = _findNamingStrategy();
         if (naming != null) {
@@ -302,11 +312,6 @@ public class POJOPropertiesCollector
          */
         for (POJOPropertyBuilder property : props.values()) {
             property.trimByVisibility();
-        }
-
-        // and then "merge" annotations
-        for (POJOPropertyBuilder property : props.values()) {
-            property.mergeAnnotations(_forSerialization);
         }
 
         /* and, if required, apply wrapper name: note, MUST be done after
@@ -646,16 +651,14 @@ public class POJOPropertiesCollector
 
     /**
      * Method called to get rid of candidate properties that are marked
-     * as ignored, or that are not visible.
+     * as ignored.
      */
     protected void _removeUnwantedProperties(Map<String, POJOPropertyBuilder> props)
     {
-        Iterator<Map.Entry<String,POJOPropertyBuilder>> it = props.entrySet().iterator();
-        final boolean forceNonVisibleRemoval = !_config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
+        Iterator<POJOPropertyBuilder> it = props.values().iterator();
 
         while (it.hasNext()) {
-            Map.Entry<String, POJOPropertyBuilder> entry = it.next();
-            POJOPropertyBuilder prop = entry.getValue();
+            POJOPropertyBuilder prop = it.next();
 
             // First: if nothing visible, just remove altogether
             if (!prop.anyVisible()) {
@@ -667,21 +670,40 @@ public class POJOPropertiesCollector
                 // first: if one or more ignorals, and no explicit markers, remove the whole thing
                 if (!prop.isExplicitlyIncluded()) {
                     it.remove();
-                    _addIgnored(prop.getName());
+                    _collectIgnorals(prop.getName());
                     continue;
                 }
                 // otherwise just remove ones marked to be ignored
                 prop.removeIgnored();
                 if (!_forSerialization && !prop.couldDeserialize()) {
-                    _addIgnored(prop.getName());
+                    _collectIgnorals(prop.getName());
                 }
             }
-            // and finally, handle removal of individual non-visible elements
-            prop.removeNonVisible(forceNonVisibleRemoval);
         }
     }
-    
-    private void _addIgnored(String name)
+
+    /**
+     * Method called to further get rid of unwanted individual accessors,
+     * based on read/write settings and rules for "pulling in" accessors
+     * (or not).
+     */
+    protected void _removeUnwantedAccessor(Map<String, POJOPropertyBuilder> props)
+    {
+        final boolean inferMutators = _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
+        Iterator<POJOPropertyBuilder> it = props.values().iterator();
+
+        while (it.hasNext()) {
+            POJOPropertyBuilder prop = it.next();
+            prop.removeNonVisible(inferMutators);
+        }
+    }
+        
+    /**
+     * Helper method called to add explicitly ignored properties to a list
+     * of known ignored properties; this helps in proper reporting of
+     * errors.
+     */
+    private void _collectIgnorals(String name)
     {
         if (!_forSerialization) {
             if (_ignoredPropertyNames == null) {

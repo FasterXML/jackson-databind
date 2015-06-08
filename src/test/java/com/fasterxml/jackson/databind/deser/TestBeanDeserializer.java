@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionType;
@@ -217,6 +218,23 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
+    static class UCStringDeserializer extends StdScalarDeserializer<String>
+    {
+        private final JsonDeserializer<?> _deser;
+        
+        public UCStringDeserializer(JsonDeserializer<?> orig) {
+            super(String.class);
+            _deser = orig;
+        }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException {
+            Object ob = _deser.deserialize(p, ctxt);
+            return String.valueOf(ob).toUpperCase();
+        }
+    }
+
     /*
     /********************************************************
     /* Unit tests
@@ -377,4 +395,27 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals(1, result.size());
         assertEquals("foo", result.entrySet().iterator().next().getKey());
     }
+
+    /**
+     * Test to verify that even standard deserializers will result in `modifyDeserializer`
+     * getting appropriately called.
+     */
+    public void testModifyStdScalarDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setDeserializerModifier(new BeanDeserializerModifier() {
+                        @Override
+                        public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                                BeanDescription beanDesc, JsonDeserializer<?> deser) {
+                            if (beanDesc.getBeanClass() == String.class) {
+                                return new UCStringDeserializer(deser);
+                            }
+                            return deser;
+                        }
+            }));
+        Object result = mapper.readValue(quote("abcDEF"), String.class);
+        assertEquals("ABCDEF", result);
+    }
+
 }

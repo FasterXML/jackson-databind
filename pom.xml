@@ -10,7 +10,7 @@
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.6.0-rc2-SNAPSHOT</version>
+  <version>2.6.0-rc3-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -69,12 +69,12 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.6.0-rc2-SNAPSHOT</version>
+      <version>2.6.0-rc2</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.6.0-rc2-SNAPSHOT</version>
+      <version>2.6.0-rc2</version>
     </dependency>
 
     <!-- and for testing we need a few libraries

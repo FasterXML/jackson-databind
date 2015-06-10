@@ -1,11 +1,14 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -225,6 +228,20 @@ public abstract class JsonSerializer<T>
      */
     public JsonSerializer<?> getDelegatee() {
         return null;
+    }
+
+    /**
+     * Accessor for iterating over logical properties that the type
+     * handled by this serializer has, from serialization perspective.
+     * Actual type of properties, if any, will be
+     * {@link com.fasterxml.jackson.databind.ser.BeanPropertyWriter}.
+     * Of standard Jackson serializers, only {@link com.fasterxml.jackson.databind.ser.BeanSerializer}
+     * exposes properties.
+     *
+     * @since 2.6
+     */
+    public Iterator<PropertyWriter> properties() {
+        return EmptyIterator.instance();
     }
 
     /*

@@ -91,10 +91,10 @@ public class BeanPropertyWriter extends PropertyWriter
     
     /*
     /**********************************************************
-    /* Serialization settings
+    /* Basic property metadata: name, type, other
     /**********************************************************
      */
-    
+
     /**
      * Logical name of the property; will be used as the field name
      * under which value for the property is written.
@@ -112,12 +112,34 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.2
      */
     protected final PropertyName _wrapperName;
-    
+
     /**
      * Type to use for locating serializer; normally same as return
      * type of the accessor method, but may be overridden by annotations.
      */
     protected final JavaType _cfgSerializationType;
+
+    /**
+     * Base type of the property, if the declared type is "non-trivial";
+     * meaning it is either a structured type (collection, map, array),
+     * or parameterized. Used to retain type information about contained
+     * type, which is mostly necessary if type meta-data is to be
+     * included.
+     */
+    protected JavaType _nonTrivialBaseType;
+
+    /**
+     * Additional information about property
+     *
+     * @since 2.3
+     */
+    protected final PropertyMetadata _metadata;
+
+    /*
+    /**********************************************************
+    /* Serializers needed
+    /**********************************************************
+     */
 
     /**
      * Serializer to use for writing out the value: null if it can not
@@ -130,7 +152,16 @@ public class BeanPropertyWriter extends PropertyWriter
      * null values are to be suppressed.
      */
     protected JsonSerializer<Object> _nullSerializer;
-    
+
+    /**
+     * If property being serialized needs type information to be
+     * included this is the type serializer to use.
+     * Declared type (possibly augmented with annotations) of property
+     * is used for determining exact mechanism to use (compared to
+     * actual runtime type used for serializing actual state).
+     */
+    protected final TypeSerializer _typeSerializer;
+
     /**
      * In case serializer is not known statically (i.e. <code>_serializer</code>
      * is null), we will use a lookup structure for storing dynamically
@@ -138,12 +169,20 @@ public class BeanPropertyWriter extends PropertyWriter
      */
     protected transient PropertySerializerMap _dynamicSerializers;
 
+    /*
+    /**********************************************************
+    /* Filtering
+    /**********************************************************
+     */
+
     /**
      * Whether null values are to be suppressed (nothing written out if
-     * value is null) or not.
+     * value is null) or not. Note that this is a configuration value
+     * during construction, and actual handling relies on setting
+     * (or not) of {@link #_nullSerializer}.
      */
     protected final boolean _suppressNulls;
-    
+
     /**
      * Value that is considered default value of the property; used for
      * default-value-suppression if enabled.
@@ -155,31 +194,6 @@ public class BeanPropertyWriter extends PropertyWriter
      * is available for the Bean.
      */
     protected final Class<?>[] _includeInViews;
-
-    /**
-     * If property being serialized needs type information to be
-     * included this is the type serializer to use.
-     * Declared type (possibly augmented with annotations) of property
-     * is used for determining exact mechanism to use (compared to
-     * actual runtime type used for serializing actual state).
-     */
-    protected TypeSerializer _typeSerializer;
-    
-    /**
-     * Base type of the property, if the declared type is "non-trivial";
-     * meaning it is either a structured type (collection, map, array),
-     * or parameterized. Used to retain type information about contained
-     * type, which is mostly necessary if type meta-data is to be
-     * included.
-     */
-    protected JavaType _nonTrivialBaseType;
-
-    /**
-     * Additional information about property
-     * 
-     * @since 2.3
-     */
-    protected final PropertyMetadata _metadata;
 
     /*
     /**********************************************************
@@ -308,7 +322,6 @@ public class BeanPropertyWriter extends PropertyWriter
         _field = base._field;
         _serializer = base._serializer;
         _nullSerializer = base._nullSerializer;
-        // one more thing: copy internal settings, if any (since 1.7)
         if (base._internalSettings != null) {
             _internalSettings = new HashMap<Object,Object>(base._internalSettings);
         }
@@ -322,12 +335,53 @@ public class BeanPropertyWriter extends PropertyWriter
         _metadata = base._metadata;
     }
 
+    /**
+     * @since 2.6
+     */
+    protected BeanPropertyWriter(BeanPropertyWriter base, TypeSerializer typeSer)
+    {
+        _name = base._name;
+        _wrapperName = base._wrapperName;
+
+        _member = base._member;
+        _contextAnnotations = base._contextAnnotations;
+        _declaredType = base._declaredType;
+        _accessorMethod = base._accessorMethod;
+        _field = base._field;
+        _serializer = base._serializer;
+        _nullSerializer = base._nullSerializer;
+        _internalSettings = base._internalSettings; // safe, as per usage
+        _cfgSerializationType = base._cfgSerializationType;
+        _dynamicSerializers = base._dynamicSerializers;
+        _suppressNulls = base._suppressNulls;
+        _suppressableValue = base._suppressableValue;
+        _includeInViews = base._includeInViews;
+        _nonTrivialBaseType = base._nonTrivialBaseType;
+        _metadata = base._metadata;
+
+        _typeSerializer = typeSer;
+    }
+    
     public BeanPropertyWriter rename(NameTransformer transformer) {
         String newName = transformer.transform(_name.getValue());
         if (newName.equals(_name.toString())) {
             return this;
         }
         return new BeanPropertyWriter(this, PropertyName.construct(newName));
+    }
+
+    /**
+     * Mutant factory to construct and return a new {@link BeanPropertyWriter} with
+     * specified type serializer, unless this instance already has that 
+     * type serializer configured.
+     * 
+     * @since 2.6
+     */
+    public BeanPropertyWriter withTypeSerializer(TypeSerializer typeSer) {
+        if (typeSer == _typeSerializer) {
+            return this;
+        }
+        return new BeanPropertyWriter(this, typeSer);
     }
 
     /**
@@ -355,7 +409,7 @@ public class BeanPropertyWriter extends PropertyWriter
         }
         _nullSerializer = nullSer;
     }
-    
+
     /**
      * Method called create an instance that handles details of unwrapping
      * contained value.
@@ -478,6 +532,11 @@ public class BeanPropertyWriter extends PropertyWriter
     public boolean hasNullSerializer() { return _nullSerializer != null; }
 
     /**
+     * @since 2.6
+     */
+    public TypeSerializer getTypeSerializer() { return _typeSerializer; }
+
+    /**
      * Accessor that will return true if this bean property has to support
      * "unwrapping"; ability to replace POJO structural wrapping with optional
      * name prefix and/or suffix (or in some cases, just removal of wrapper name).
@@ -489,6 +548,21 @@ public class BeanPropertyWriter extends PropertyWriter
     public boolean isUnwrapping() { return false; }
     
     public boolean willSuppressNulls() { return _suppressNulls; }
+
+    /**
+     * Method called to check to see if this property has a name that would
+     * conflict with a given name.
+     *
+     * @since 2.6
+     */
+    public boolean wouldConflictWithName(PropertyName name) {
+        if (_wrapperName != null) {
+            return _wrapperName.equals(name);
+        }
+        // Bit convoluted since our support for namespaces is spotty but:
+        return name.hasSimpleName(_name.getValue())
+                && !name.hasNamespace();
+    }
     
     // Needed by BeanSerializer#getSchema
     public JsonSerializer<Object> getSerializer() { return _serializer; }

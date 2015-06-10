@@ -32,7 +32,7 @@ public abstract class TypeSerializer
      * @since 2.0
      */
     public abstract TypeSerializer forProperty(BeanProperty prop);
-    
+
     /*
     /**********************************************************
     /* Introspection

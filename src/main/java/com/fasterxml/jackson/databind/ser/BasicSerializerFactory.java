@@ -277,6 +277,8 @@ public abstract class BasicSerializerFactory
         if (b == null) {
             return null;
         }
+        // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
+        //    wrt EXTERNAL_PROPERTY
         return b.buildTypeSerializer(config, baseType, subtypes);
     }
 
@@ -293,7 +295,7 @@ public abstract class BasicSerializerFactory
     /* Overridable secondary serializer accessor methods
     /**********************************************************
      */
-    
+
     /**
      * Method that will use fast lookup (and identity comparison) methods to
      * see if we know serializer to use for given type.

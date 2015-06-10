@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #77: Allow injection of 'transient' fields
 #95: Allow read-only properties with `@JsonIgnoreProperties(allowGetters=true)`
+#222: EXTERNAL_PROPERTY adds property multiple times and in multiple places
+ (reported by Rob E, thatsnotright@github)
 #296: Serialization of transient fields with public getters (add
     MapperFeature.PROPAGATE_TRANSIENT_MARKER)
  (suggested by Michal L)

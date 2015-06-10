@@ -76,13 +76,11 @@ public class StdTypeResolverBuilder
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, null);
         case PROPERTY:
-            return new AsPropertyTypeSerializer(idRes, null,
-                    _typeProperty);
+            return new AsPropertyTypeSerializer(idRes, null, _typeProperty);
         case WRAPPER_OBJECT:
             return new AsWrapperTypeSerializer(idRes, null);
         case EXTERNAL_PROPERTY:
-            return new AsExternalTypeSerializer(idRes, null,
-                    _typeProperty);
+            return new AsExternalTypeSerializer(idRes, null, _typeProperty);
         case EXISTING_PROPERTY:
         	// as per [#528]
         	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);

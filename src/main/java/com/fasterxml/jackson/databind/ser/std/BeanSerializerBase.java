@@ -512,7 +512,18 @@ public abstract class BeanSerializerBase
         }
         return contextual;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+
+    @Override
+    public Iterator<PropertyWriter> properties() {
+        return Arrays.<PropertyWriter>asList(_props).iterator();
+    }
+
     /*
     /**********************************************************
     /* Partial JsonSerializer implementation
@@ -526,7 +537,7 @@ public abstract class BeanSerializerBase
     
     // Main serialization method left unimplemented
     @Override
-    public abstract void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
+    public abstract void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException;
 
     // Type-info-augmented case implemented as it does not usually differ between impls
@@ -559,78 +570,78 @@ public abstract class BeanSerializerBase
     }
 
     protected final void _serializeWithObjectId(Object bean,
-            JsonGenerator jgen, SerializerProvider provider,
+            JsonGenerator gen, SerializerProvider provider,
             boolean startEndObject)
         throws IOException, JsonGenerationException
     {
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsId(jgen, provider, w)) {
+        if (objectId.writeAsId(gen, provider, w)) {
             return;
         }
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, jgen, provider);
+            w.serializer.serialize(id, gen, provider);
             return;
         }
         if (startEndObject) {
-            jgen.writeStartObject();
+            gen.writeStartObject();
         }
-        objectId.writeAsField(jgen, provider, w);
+        objectId.writeAsField(gen, provider, w);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
+            serializeFieldsFiltered(bean, gen, provider);
         } else {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
         }
         if (startEndObject) {
-            jgen.writeEndObject();
+            gen.writeEndObject();
         }
     }
     
     protected final void _serializeWithObjectId(Object bean,
-            JsonGenerator jgen, SerializerProvider provider,
+            JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsId(jgen, provider, w)) {
+        if (objectId.writeAsId(gen, provider, w)) {
             return;
         }
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, jgen, provider);
+            w.serializer.serialize(id, gen, provider);
             return;
         }
 
-        _serializeObjectId(bean, jgen, provider, typeSer, objectId);
+        _serializeObjectId(bean, gen, provider, typeSer, objectId);
     }
 
     protected  void _serializeObjectId(Object bean,
-            JsonGenerator jgen,SerializerProvider provider,
+            JsonGenerator gen,SerializerProvider provider,
             TypeSerializer typeSer, WritableObjectId objectId)
         throws IOException, JsonProcessingException, JsonGenerationException {
         final ObjectIdWriter w = _objectIdWriter;
         String typeStr = (_typeId == null) ? null :_customTypeId(bean);
         if (typeStr == null) {
-            typeSer.writeTypePrefixForObject(bean, jgen);
+            typeSer.writeTypePrefixForObject(bean, gen);
         } else {
-            typeSer.writeCustomTypePrefixForObject(bean, jgen, typeStr);
+            typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
         }
-        objectId.writeAsField(jgen, provider, w);
+        objectId.writeAsField(gen, provider, w);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
+            serializeFieldsFiltered(bean, gen, provider);
         } else {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
         }
         if (typeStr == null) {
-            typeSer.writeTypeSuffixForObject(bean, jgen);
+            typeSer.writeTypeSuffixForObject(bean, gen);
         } else {
-            typeSer.writeCustomTypeSuffixForObject(bean, jgen, typeStr);
+            typeSer.writeCustomTypeSuffixForObject(bean, gen, typeStr);
         }
     }
     
@@ -649,7 +660,7 @@ public abstract class BeanSerializerBase
     /**********************************************************
      */
 
-    protected void serializeFields(Object bean, JsonGenerator jgen, SerializerProvider provider)
+    protected void serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
         final BeanPropertyWriter[] props;
@@ -663,11 +674,11 @@ public abstract class BeanSerializerBase
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, jgen, provider);
+                    prop.serializeAsField(bean, gen, provider);
                 }
             }
             if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndSerialize(bean, jgen, provider);
+                _anyGetterWriter.getAndSerialize(bean, gen, provider);
             }
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
@@ -689,7 +700,7 @@ public abstract class BeanSerializerBase
      * {@link PropertyFilter} that needs to be called to determine
      * which properties are to be serialized (and possibly how)
      */
-    protected void serializeFieldsFiltered(Object bean, JsonGenerator jgen,
+    protected void serializeFieldsFiltered(Object bean, JsonGenerator gen,
             SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
@@ -705,7 +716,7 @@ public abstract class BeanSerializerBase
         final PropertyFilter filter = findPropertyFilter(provider, _propertyFilterId, bean);
         // better also allow missing filter actually..
         if (filter == null) {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
             return;
         }
         int i = 0;
@@ -713,11 +724,11 @@ public abstract class BeanSerializerBase
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
-                    filter.serializeAsField(bean, jgen, provider, prop);
+                    filter.serializeAsField(bean, gen, provider, prop);
                 }
             }
             if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndFilter(bean, jgen, provider, filter);
+                _anyGetterWriter.getAndFilter(bean, gen, provider, filter);
             }
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();

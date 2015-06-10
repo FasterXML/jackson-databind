@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -286,13 +287,17 @@ public class BeanSerializerFactory
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, accessor, baseType);        
+        TypeSerializer typeSer;
+
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
-            return createTypeSerializer(config, baseType);
+            typeSer = createTypeSerializer(config, baseType);
+        } else {
+            Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
+                    config, accessor, baseType);
+            typeSer = b.buildTypeSerializer(config, baseType, subtypes);
         }
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
-                config, accessor, baseType);
-        return b.buildTypeSerializer(config, baseType, subtypes);
+        return typeSer;
     }
 
     /**
@@ -312,15 +317,19 @@ public class BeanSerializerFactory
         JavaType contentType = containerType.getContentType();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, accessor, containerType);        
+        TypeSerializer typeSer;
+
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
-            return createTypeSerializer(config, contentType);
+            typeSer = createTypeSerializer(config, contentType);
+        } else {
+            Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
+                    accessor, contentType);
+            typeSer = b.buildTypeSerializer(config, contentType, subtypes);
         }
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
-                accessor, contentType);
-        return b.buildTypeSerializer(config, contentType, subtypes);
+        return typeSer;
     }
-    
+
     /*
     /**********************************************************
     /* Overridable non-public factory methods
@@ -351,7 +360,10 @@ public class BeanSerializerFactory
         List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
         if (props == null) {
             props = new ArrayList<BeanPropertyWriter>();
+        } else {
+            props = removeOverlappingTypeIds(prov, beanDesc, builder, props);
         }
+        
         // [databind#638]: Allow injection of "virtual" properties:
         prov.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
 
@@ -690,6 +702,34 @@ public class BeanSerializerFactory
             }
         }
     }
+
+    /**
+     * Helper method called to ensure that we do not have "duplicate" type ids.
+     * Added to resolve [databind#222]
+     *
+     * @since 2.6
+     */
+    protected List<BeanPropertyWriter> removeOverlappingTypeIds(SerializerProvider prov,
+            BeanDescription beanDesc, BeanSerializerBuilder builder,
+            List<BeanPropertyWriter> props)
+    {
+        for (int i = 0, end = props.size(); i < end; ++i) {
+            BeanPropertyWriter bpw = props.get(i);
+            TypeSerializer td = bpw.getTypeSerializer();
+            if ((td == null) || (td.getTypeInclusion() != As.EXTERNAL_PROPERTY)) {
+                continue;
+            }
+            String n = td.getPropertyName();
+            PropertyName typePropName = PropertyName.construct(n);
+            for (BeanPropertyWriter w2 : props) {
+                if ((w2 != bpw) && w2.wouldConflictWithName(typePropName)) {
+                    props.set(i, bpw.withTypeSerializer(null));
+                    break;
+                }
+            }
+        }
+        return props;
+    }
     
     /*
     /**********************************************************
@@ -728,7 +768,8 @@ public class BeanSerializerFactory
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         // 16-Feb-2014, cgc: contentType serializers for collection-like and map-like types
-        if (ClassUtil.isCollectionMapOrArray(type.getRawClass()) || type.isCollectionLikeType() || type.isMapLikeType()) {
+        if (ClassUtil.isCollectionMapOrArray(type.getRawClass())
+                || type.isCollectionLikeType() || type.isMapLikeType()) {
             contentTypeSer = findPropertyContentTypeSerializer(type, prov.getConfig(), accessor);
         }
         // and if not JAXB collection/array with annotations, maybe regular type info?

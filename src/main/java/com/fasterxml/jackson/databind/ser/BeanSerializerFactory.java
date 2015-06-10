@@ -721,9 +721,10 @@ public class BeanSerializerFactory
             }
             String n = td.getPropertyName();
             PropertyName typePropName = PropertyName.construct(n);
+
             for (BeanPropertyWriter w2 : props) {
                 if ((w2 != bpw) && w2.wouldConflictWithName(typePropName)) {
-                    props.set(i, bpw.withTypeSerializer(null));
+                    bpw.assignTypeSerializer(null);
                     break;
                 }
             }

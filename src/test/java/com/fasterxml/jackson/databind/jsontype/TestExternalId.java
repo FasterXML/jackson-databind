@@ -5,19 +5,12 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // Tests for [JACKSON-453]
 public class TestExternalId extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-    
     static class ExternalBean
     {
         @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType")
@@ -217,6 +210,31 @@ public class TestExternalId extends BaseMapTest
         }
     }
 
+    // [databind#222]
+    static class Issue222Bean
+    {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                property = "type",
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
+        public Issue222BeanB value;
+
+        public String type = "foo";
+        
+        public Issue222Bean() { }
+        public Issue222Bean(int v) {
+            value = new Issue222BeanB(v);
+        }
+    }
+
+    @JsonTypeName("222b") // shouldn't actually matter
+    static class Issue222BeanB
+    {
+        public int x;
+        
+        public Issue222BeanB() { }
+        public Issue222BeanB(int value) { x = value; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests, serialization
@@ -399,7 +417,7 @@ public class TestExternalId extends BaseMapTest
         assertEquals("foobar", result.value);
     }
     
-    // For [Issue#119]... and bit of [#167] as well
+    // For [databind#119]... and bit of [#167] as well
     public void testWithAsValue() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
@@ -421,5 +439,14 @@ public class TestExternalId extends BaseMapTest
         */
         assertEquals(Date.class, result.value.getClass());
         assertEquals(12345L, ((Date) result.value).getTime());
+    }
+
+    // for [databind#222]
+    public void testExternalTypeWithProp222() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        Issue222Bean input = new Issue222Bean(13);
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"value\":{\"x\":13},\"type\":\"foo\"}", json);
     }
 }

@@ -160,7 +160,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * is used for determining exact mechanism to use (compared to
      * actual runtime type used for serializing actual state).
      */
-    protected final TypeSerializer _typeSerializer;
+    protected TypeSerializer _typeSerializer;
 
     /**
      * In case serializer is not known statically (i.e. <code>_serializer</code>
@@ -335,33 +335,6 @@ public class BeanPropertyWriter extends PropertyWriter
         _metadata = base._metadata;
     }
 
-    /**
-     * @since 2.6
-     */
-    protected BeanPropertyWriter(BeanPropertyWriter base, TypeSerializer typeSer)
-    {
-        _name = base._name;
-        _wrapperName = base._wrapperName;
-
-        _member = base._member;
-        _contextAnnotations = base._contextAnnotations;
-        _declaredType = base._declaredType;
-        _accessorMethod = base._accessorMethod;
-        _field = base._field;
-        _serializer = base._serializer;
-        _nullSerializer = base._nullSerializer;
-        _internalSettings = base._internalSettings; // safe, as per usage
-        _cfgSerializationType = base._cfgSerializationType;
-        _dynamicSerializers = base._dynamicSerializers;
-        _suppressNulls = base._suppressNulls;
-        _suppressableValue = base._suppressableValue;
-        _includeInViews = base._includeInViews;
-        _nonTrivialBaseType = base._nonTrivialBaseType;
-        _metadata = base._metadata;
-
-        _typeSerializer = typeSer;
-    }
-    
     public BeanPropertyWriter rename(NameTransformer transformer) {
         String newName = transformer.transform(_name.getValue());
         if (newName.equals(_name.toString())) {
@@ -371,17 +344,13 @@ public class BeanPropertyWriter extends PropertyWriter
     }
 
     /**
-     * Mutant factory to construct and return a new {@link BeanPropertyWriter} with
-     * specified type serializer, unless this instance already has that 
-     * type serializer configured.
-     * 
+     * Method called to set, reset or clear the configured type serializer
+     * for property.
+     *
      * @since 2.6
      */
-    public BeanPropertyWriter withTypeSerializer(TypeSerializer typeSer) {
-        if (typeSer == _typeSerializer) {
-            return this;
-        }
-        return new BeanPropertyWriter(this, typeSer);
+    public void assignTypeSerializer(TypeSerializer typeSer) {
+        _typeSerializer = typeSer;
     }
 
     /**

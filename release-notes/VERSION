@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.4.6.1 (not yet released)
+2.4.6.1 (09-Jun-2015)
 
 #676: Deserialization of class with generic collection inside depends on
   how is was deserialized first time

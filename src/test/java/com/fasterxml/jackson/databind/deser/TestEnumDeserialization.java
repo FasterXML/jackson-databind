@@ -81,7 +81,6 @@ public class TestEnumDeserialization
         public String toString() { return name().toLowerCase(); }
     }
 
-    // for [JACKSON-749]
     protected enum EnumWithJsonValue {
         A("foo"), B("bar");
         private final String name;
@@ -92,13 +91,11 @@ public class TestEnumDeserialization
         @Override
         public String toString() { return name; }
     }
-    
-    // [JACKSON-810]
+
     static class ClassWithEnumMapKey {
-    	@JsonProperty Map<TestEnum, String> map;
+        @JsonProperty Map<TestEnum, String> map;
     }
 
-    // [JACKSON-834]
     protected enum TestEnumFor834
     {
         ENUM_A(1), ENUM_B(2), ENUM_C(3);
@@ -127,7 +124,7 @@ public class TestEnumDeserialization
         }
     }
 
-    // [Issue#745]
+    // [databind#745]
     static class DelegatingDeserializers extends Deserializers.Base
     {
         @Override
@@ -145,13 +142,29 @@ public class TestEnumDeserialization
         }
     }
 
-    // [Issue#745]
+    // [databind#745]
     static class DelegatingDeserializersModule extends SimpleModule
     {
         @Override
         public void setupModule(final SetupContext context) {
             context.addDeserializers(new DelegatingDeserializers());
         }
+    }
+
+    // [databind#677]
+    static enum EnumWithPropertyAnno {
+        @JsonProperty("a")
+        A,
+
+        // For this value, force use of anonymous sub-class, to ensure things still work
+        @JsonProperty("b")
+        B {
+            @Override
+            public String toString() {
+                return "bb";
+            }
+        }
+        ;
     }
 
     /*
@@ -161,7 +174,6 @@ public class TestEnumDeserialization
      */
 
     protected final ObjectMapper MAPPER = new ObjectMapper();
-    
 
     public void testSimple() throws Exception
     {
@@ -226,15 +238,13 @@ public class TestEnumDeserialization
                 new TypeReference<EnumMap<TestEnum,String>>() { });
         assertEquals("value", value.get(TestEnum.OK));
     }
-    
-    // Test [JACKSON-214]
+
     public void testSubclassedEnums() throws Exception
     {
         EnumWithSubClass value = MAPPER.readValue("\"A\"", EnumWithSubClass.class);
         assertEquals(EnumWithSubClass.A, value);
     }
 
-    // [JACKSON-193]
     public void testCreatorEnums() throws Exception {
         EnumWithCreator value = MAPPER.readValue("\"enumA\"", EnumWithCreator.class);
         assertEquals(EnumWithCreator.A, value);
@@ -244,8 +254,7 @@ public class TestEnumDeserialization
         EnumWithBDCreator value = MAPPER.readValue("\"8.0\"", EnumWithBDCreator.class);
         assertEquals(EnumWithBDCreator.E8, value);
     }
-    
-    // [JACKSON-212]
+
     public void testToStringEnums() throws Exception
     {
         // can't reuse global one due to reconfig
@@ -255,7 +264,6 @@ public class TestEnumDeserialization
         assertEquals(LowerCaseEnum.C, value);
     }
 
-    // [JACKSON-212]
     public void testToStringEnumMaps() throws Exception
     {
         // can't reuse global one due to reconfig
@@ -266,7 +274,6 @@ public class TestEnumDeserialization
         assertEquals("value", value.get(LowerCaseEnum.A));
     }
 
-    // [JACKSON-412], disallow use of numbers
     public void testNumbersToEnums() throws Exception
     {
         // by default numbers are fine:
@@ -293,7 +300,6 @@ public class TestEnumDeserialization
         }
     }
 
-    // [JACKSON-684], enums using index
     public void testEnumsWithIndex() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -303,8 +309,7 @@ public class TestEnumDeserialization
         TestEnum result = m.readValue(json, TestEnum.class);
         assertSame(TestEnum.RULES, result);
     }
-    
-    // [JACKSON-749]: @JsonValue should be considered as well
+
     public void testEnumsWithJsonValue() throws Exception
     {
         // first, enum as is
@@ -328,8 +333,6 @@ public class TestEnumDeserialization
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(13), map.get(EnumWithJsonValue.A));
     }
-
-    // [JACKSON-756], next three tests
 
     public void testEnumWithCreatorEnumMaps() throws Exception {
           EnumMap<EnumWithCreator,String> value = MAPPER.readValue("{\"enumA\":\"value\"}",
@@ -386,7 +389,6 @@ public class TestEnumDeserialization
          }
     }
 
-    // [JACKSON-834]
     public void testEnumsFromInts() throws Exception
     {
         Object ob = MAPPER.readValue("1 ", TestEnumFor834.class);
@@ -394,7 +396,7 @@ public class TestEnumDeserialization
         assertSame(TestEnumFor834.ENUM_A, ob);
     }
 
-    // [Issue#141]: allow mapping of empty String into null
+    // [databind#141]: allow mapping of empty String into null
     public void testEnumsWithEmpty() throws Exception
     {
        final ObjectMapper mapper = new ObjectMapper();
@@ -413,7 +415,7 @@ public class TestEnumDeserialization
        assertEquals(TestEnum.JACKSON, mapper.readValue(quote("jackson"), TestEnum.class));
     }
     
-    // [Issue#324]
+    // [databind#324]
     public void testExceptionFromCreator() throws Exception
     {
         try {
@@ -424,7 +426,7 @@ public class TestEnumDeserialization
         }
     }
     
-    // [Issue#381]
+    // [databind#381]
     public void testUnwrappedEnum() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -443,7 +445,7 @@ public class TestEnumDeserialization
         }
     }
 
-    // [Issue#149]: 'stringified' indexes for enums
+    // [databind#149]: 'stringified' indexes for enums
     public void testIndexAsString() throws Exception
     {
         // first, regular index ought to work fine
@@ -455,7 +457,7 @@ public class TestEnumDeserialization
         assertSame(TestEnum.values()[1], en);
     }
 
-    // [Issue#745]
+    // [databind#745]
     public void testDeserializerForCreatorWithEnumMaps() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
@@ -463,5 +465,20 @@ public class TestEnumDeserialization
         EnumMap<EnumWithCreator,String> value = mapper.readValue("{\"enumA\":\"value\"}",
             new TypeReference<EnumMap<EnumWithCreator,String>>() {});
         assertEquals("value", value.get(EnumWithCreator.A));
+    }
+
+    public void testEnumWithJsonPropertyRename() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new EnumWithPropertyAnno[] {
+                EnumWithPropertyAnno.B, EnumWithPropertyAnno.A
+        });
+        assertEquals("[\"b\",\"a\"]", json);
+
+        // and while not really proper place, let's also verify deser while we're at it
+        EnumWithPropertyAnno[] result = MAPPER.readValue(json, EnumWithPropertyAnno[].class);
+        assertNotNull(result);
+        assertEquals(2, result.length);
+        assertSame(EnumWithPropertyAnno.B, result[0]);
+        assertSame(EnumWithPropertyAnno.A, result[1]);
     }
 }

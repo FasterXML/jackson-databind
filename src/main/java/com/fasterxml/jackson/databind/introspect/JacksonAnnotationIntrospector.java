@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -57,8 +58,31 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
-    // default impl is fine:
-    //public String findEnumValue(Enum<?> value) { return value.name(); }
+    /**
+     * Since 2.6, we have supported use of {@link JsonProperty} for specifying
+     * explicit serialized name
+     */
+    @Override
+    public String findEnumValue(Enum<?> value)
+    {
+        // 11-Jun-2015, tatu: As per [databind#677], need to allow explicit naming.
+        //   Unfortunately can not quite use standard AnnotatedClass here (due to various
+        //   reasons, including odd representation JVM uses); has to do for now
+        try {
+            // We know that values are actually static fields with matching name so:
+            Field f = value.getClass().getField(value.name());
+            if (f != null) {
+                JsonProperty prop = f.getAnnotation(JsonProperty.class);
+                String n = prop.value();
+                if (n != null && !n.isEmpty()) {
+                    return n;
+                }
+            }
+        } catch (Exception e) {
+            // no such field, or access; neither which we can do much about
+        }
+        return value.name();
+    }
 
     /*
     /**********************************************************

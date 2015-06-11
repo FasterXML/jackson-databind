@@ -22,6 +22,8 @@ Project: jackson-databind
 #664: Add `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to prevent coercion of floating point
  numbers int `int`/`long`/`Integer`/`Long`
  (requested by wenzis@github)
+#677: Specifying `Enum` value serialization using `@JsonProperty`
+ (requested by Allen C, allenchen1154@github)
 #679: Add `isEmpty()` implementation for `JsonNode` serializers
 #688: Provide a means for an ObjectMapper to discover mixin annotation classes on demand
  (requested by Laird N)

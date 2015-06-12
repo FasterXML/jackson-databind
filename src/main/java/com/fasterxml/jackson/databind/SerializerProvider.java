@@ -1004,14 +1004,14 @@ public abstract class SerializerProvider
      * Note: date here means "full" date, that is, date AND time, as per
      * Java convention (and not date-only values like in SQL)
      */
-    public final void defaultSerializeDateValue(Date date, JsonGenerator jgen)
+    public final void defaultSerializeDateValue(Date date, JsonGenerator gen)
         throws IOException
     {
         // [JACKSON-87]: Support both numeric timestamps and textual
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
-            jgen.writeNumber(date.getTime());
+            gen.writeNumber(date.getTime());
         } else {
-            jgen.writeString(_dateFormat().format(date));
+            gen.writeString(_dateFormat().format(date));
         }
     }
 
@@ -1020,13 +1020,13 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(long timestamp, JsonGenerator jgen)
+    public void defaultSerializeDateKey(long timestamp, JsonGenerator gen)
         throws IOException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
-            jgen.writeFieldName(String.valueOf(timestamp));
+            gen.writeFieldName(String.valueOf(timestamp));
         } else {
-            jgen.writeFieldName(_dateFormat().format(new Date(timestamp)));
+            gen.writeFieldName(_dateFormat().format(new Date(timestamp)));
         }
     }
 
@@ -1035,12 +1035,12 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(Date date, JsonGenerator jgen) throws IOException
+    public void defaultSerializeDateKey(Date date, JsonGenerator gen) throws IOException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
-            jgen.writeFieldName(String.valueOf(date.getTime()));
+            gen.writeFieldName(String.valueOf(date.getTime()));
         } else {
-            jgen.writeFieldName(_dateFormat().format(date));
+            gen.writeFieldName(_dateFormat().format(date));
         }
     }
 
@@ -1225,13 +1225,17 @@ public abstract class SerializerProvider
         if (_dateFormat != null) {
             return _dateFormat;
         }
-        /* 24-Feb-2012, tatu: At this point, all timezone configuration
-         *    should have occured, with respect to default dateformat
-         *    and timezone configuration. But we still better clone
-         *    an instance as formatters may be stateful.
+        /* At this point, all timezone configuration should have occured, with respect
+         * to default dateformat configuration. But we still better clone
+         * an instance as formatters are stateful, not thread-safe.
          */
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();
+        // 11-Jun-2015, tatu: Plus caller may have actually changed default TimeZone to use
+        TimeZone tz = getTimeZone();
+        if (tz != df.getTimeZone()) {
+            df.setTimeZone(tz);
+        }
         return df;
     }
 }

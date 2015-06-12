@@ -21,10 +21,10 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
  * be freely shared and used without synchronization.
  */
 public final class BaseSettings
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
-    // for 2.1.0:
-    private static final long serialVersionUID = 4939673998947122190L;
+    // for 2.6
+    private static final long serialVersionUID = 1L;
 
     /*
     /**********************************************************
@@ -231,9 +231,10 @@ public final class BaseSettings
         if (_dateFormat == df) {
             return this;
         }
+        TimeZone tz = (df == null) ? _timeZone : df.getTimeZone();
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64);
+                tz, _defaultBase64);
     }
 
     public BaseSettings withHandlerInstantiator(HandlerInstantiator hi) {

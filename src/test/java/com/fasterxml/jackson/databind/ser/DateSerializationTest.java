@@ -130,7 +130,7 @@ public class DateSerializationTest
         String json = MAPPER.writeValueAsString(new TimeZoneBean("PST"));
         assertEquals("{\"tz\":\"PST\"}", json);
     }
-    
+
     // [JACKSON-648]: (re)configuring via ObjectWriter
     public void testDateUsingObjectWriter() throws IOException
     {
@@ -205,6 +205,12 @@ public class DateSerializationTest
         mapper.setLocale(Locale.FRANCE);
         json = mapper.writeValueAsString(new Date(0));
         assertEquals(quote("1969-12-31/16:00 PST"), json);
+
+        // Also: should be able to dynamically change timezone:
+        ObjectWriter w = mapper.writer();
+        w = w.with(TimeZone.getTimeZone("EST"));
+        json = w.writeValueAsString(new Date(0));
+        assertEquals(quote("1969-12-31/19:00 EST"), json);
     }
 }
 

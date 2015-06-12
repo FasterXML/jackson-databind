@@ -238,6 +238,11 @@ public class StdDateFormat
     /**********************************************************
      */
 
+    @Override // since 2.6
+    public TimeZone getTimeZone() {
+        return _timezone;
+    }
+    
     @Override
     public void setTimeZone(TimeZone tz)
     {

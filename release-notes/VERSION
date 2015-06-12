@@ -65,6 +65,8 @@ Project: jackson-databind
 #812: Java 8 breaks Class-value annotation properties, wrt generics: need to work around
 #813: Add support for new property of `@JsonProperty.access` to support
   read-only/write-only use cases
+#824: Contextual `TimeZone` changes don't take effect wrt `java.util.Date`,
+  `java.util.Calendar` serialization
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

@@ -42,8 +42,7 @@ public class DateSerializer
     }
 
     @Override
-    public void serialize(Date value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(Date value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
         if (_asTimestamp(provider)) {
             gen.writeNumber(_timestamp(value));

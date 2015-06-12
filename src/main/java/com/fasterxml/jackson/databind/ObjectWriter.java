@@ -879,7 +879,7 @@ public class ObjectWriter
                 _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
                         _prefetch.valueSerializer);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(_config).serializeValue(gen, value);
             }
@@ -1086,7 +1086,7 @@ public class ObjectWriter
                 _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
                         _prefetch.valueSerializer);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(_config).serializeValue(gen, value);
             }
@@ -1121,7 +1121,7 @@ public class ObjectWriter
                 _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
                         _prefetch.valueSerializer);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(cfg).serializeValue(gen, value);
             }
@@ -1165,7 +1165,7 @@ public class ObjectWriter
                 _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
                         _prefetch.valueSerializer);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(cfg).serializeValue(gen, value);
             }

@@ -270,15 +270,28 @@ public abstract class DefaultSerializerProvider
      *
      * @since 2.5
      */
-    public void serializePolymorphic(JsonGenerator gen, Object value, TypeSerializer typeSer)
+    public void serializePolymorphic(JsonGenerator gen, Object value, JavaType rootType, TypeSerializer typeSer)
             throws IOException
     {
         if (value == null) {
             _serializeNull(gen);
             return;
         }
+        
+        // Let's ensure types are compatible at this point
+        if ((rootType != null) && !rootType.getRawClass().isAssignableFrom(value.getClass())) {
+            _reportIncompatibleRootType(value, rootType);
+        }
+        
+        JsonSerializer<Object> ser = null;
+        
         final Class<?> type = value.getClass();
-        JsonSerializer<Object> ser = findValueSerializer(type, null);
+        if (rootType.isMapLikeType()) {
+            // Ensure custom key serializers are used for map types when using polymorphic serialization.
+            ser = findTypedValueSerializer(rootType, true, null);
+        } else {
+            ser = findValueSerializer(type, null);
+        }
 
         final boolean wrap;
         PropertyName rootName = _config.getFullRootName();

@@ -49,6 +49,8 @@ Project: jackson-databind
 #765: `SimpleType.withStaticTyping()` impl incorrect
 #769: Fix `JacksonAnnotationIntrospector.findDeserializer` to return `Object` (as per
   `AnnotationIntrospector`); similarly for other `findXxx(De)Serializer(...)` methods
+#777: Allow missing build method if its name is empty ("")
+ (suggested by galdosd@github)
 #781: Support handling of `@JsonProperty.required` for Creator methods
 #787: Add `ObjectMapper setFilterProvider(FilterProvider)` to allow chaining
  (suggested by rgoldberg@githin)

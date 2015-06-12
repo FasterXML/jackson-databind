@@ -249,7 +249,19 @@ public class BuilderSimpleTest extends BaseMapTest
             return null;
         }
     }
-    
+
+    // [databind#777]
+    @JsonDeserialize(builder = SelfBuilder777.class)
+    @JsonPOJOBuilder(buildMethodName = "", withPrefix = "with")
+    static class SelfBuilder777 {
+        public int x;
+
+        public SelfBuilder777 withX(int value) {
+            x = value;
+            return this;
+        }
+    }
+
     // [databind#822]
     @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "with")
     static class ValueBuilder822
@@ -289,12 +301,12 @@ public class BuilderSimpleTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testSimple() throws Exception
     {
         String json = "{\"x\":1,\"y\":2}";
-        Object o = mapper.readValue(json, ValueClassXY.class);
+        Object o = MAPPER.readValue(json, ValueClassXY.class);
         assertNotNull(o);
     	    assertSame(ValueClassXY.class, o.getClass());
     	    ValueClassXY value = (ValueClassXY) o;
@@ -306,7 +318,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testMultiAccess() throws Exception
     {
         String json = "{\"c\":3,\"a\":2,\"b\":-9}";
-        ValueClassABC value = mapper.readValue(json, ValueClassABC.class);
+        ValueClassABC value = MAPPER.readValue(json, ValueClassABC.class);
         assertNotNull(value);
     	    // note: ctor adds one to both values
         assertEquals(value.a, 2);
@@ -318,7 +330,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testImmutable() throws Exception
     {
         final String json = "{\"value\":13}";
-        ValueImmutable value = mapper.readValue(json, ValueImmutable.class);        
+        ValueImmutable value = MAPPER.readValue(json, ValueImmutable.class);        
         assertEquals(13, value.value);
     }
 
@@ -326,7 +338,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testCustomWith() throws Exception
     {
         final String json = "{\"value\":1}";
-        ValueFoo value = mapper.readValue(json, ValueFoo.class);        
+        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);        
         assertEquals(1, value.value);
     }
 
@@ -334,7 +346,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testWithCreator() throws Exception
     {
         final String json = "{\"a\":1,\"c\":3,\"b\":2}";
-        CreatorValue value = mapper.readValue(json, CreatorValue.class);        
+        CreatorValue value = MAPPER.readValue(json, CreatorValue.class);        
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(3, value.c);
@@ -345,14 +357,14 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testBuilderMethodReturnMoreGeneral() throws Exception
     {
         final String json = "{\"x\":1}";
-        ValueInterface value = mapper.readValue(json, ValueInterface.class);
+        ValueInterface value = MAPPER.readValue(json, ValueInterface.class);
         assertEquals(2, value.getX());
     }
 
     public void testBuilderMethodReturnMoreSpecific() throws Exception
     {
         final String json = "{\"x\":1}";
-        ValueInterface2 value = mapper.readValue(json, ValueInterface2.class);
+        ValueInterface2 value = MAPPER.readValue(json, ValueInterface2.class);
         assertEquals(2, value.getX());
     }
     
@@ -360,7 +372,7 @@ public class BuilderSimpleTest extends BaseMapTest
     {
         final String json = "{\"x\":1}";
         try {
-            mapper.readValue(json, ValueClassWrongBuildType.class);
+            MAPPER.readValue(json, ValueClassWrongBuildType.class);
             fail("Missing expected JsonProcessingException exception");
         } catch(JsonProcessingException e) {
             assertTrue(
@@ -369,10 +381,18 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
+    public void testSelfBuilder777() throws Exception
+    {
+        SelfBuilder777 result = MAPPER.readValue(aposToQuotes("{'x':3}'"),
+                SelfBuilder777.class);
+        assertNotNull(result);
+        assertEquals(3, result.x);
+    }
+
     public void testWithAnySetter822() throws Exception
     {
         final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
-        ValueClass822 value = mapper.readValue(json, ValueClass822.class);
+        ValueClass822 value = MAPPER.readValue(json, ValueClass822.class);
         assertEquals(1, value.x);
         assertNotNull(value.stuff);
         assertEquals(3, value.stuff.size());
@@ -383,4 +403,6 @@ public class BuilderSimpleTest extends BaseMapTest
         assertTrue(ob instanceof List);
         assertTrue(((List<?>) ob).isEmpty());
     }
+
+    
 }

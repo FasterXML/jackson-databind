@@ -369,18 +369,22 @@ public class BeanDeserializerBuilder
     {
         // First: validation; must have build method that returns compatible type
         if (_buildMethod == null) {
-            throw new IllegalArgumentException("Builder class "+_beanDesc.getBeanClass().getName()
-                    +" does not have build method '"+expBuildMethodName+"()'");
-        }
-        // also: type of the method must be compatible
-        Class<?> rawBuildType = _buildMethod.getRawReturnType();
-        Class<?> rawValueType = valueType.getRawClass();
-        if ((rawBuildType != rawValueType)
-                && !rawBuildType.isAssignableFrom(rawValueType)
-                && !rawValueType.isAssignableFrom(rawBuildType)) {
-            throw new IllegalArgumentException("Build method '"+_buildMethod.getFullName()
-                    +" has bad return type ("+rawBuildType.getName()
-                    +"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
+            // as per [databind#777], allow empty name
+            if (!expBuildMethodName.isEmpty()) {
+                throw new IllegalArgumentException("Builder class "+_beanDesc.getBeanClass().getName()
+                    +" does not have build method (name: '"+expBuildMethodName+"')");
+            }
+        } else {
+            // also: type of the method must be compatible
+            Class<?> rawBuildType = _buildMethod.getRawReturnType();
+            Class<?> rawValueType = valueType.getRawClass();
+            if ((rawBuildType != rawValueType)
+                    && !rawBuildType.isAssignableFrom(rawValueType)
+                    && !rawValueType.isAssignableFrom(rawBuildType)) {
+                throw new IllegalArgumentException("Build method '"+_buildMethod.getFullName()
+                        +" has bad return type ("+rawBuildType.getName()
+                        +"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
+            }
         }
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();

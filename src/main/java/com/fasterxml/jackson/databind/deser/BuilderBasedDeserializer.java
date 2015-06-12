@@ -117,6 +117,10 @@ public class BuilderBasedDeserializer
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
             throws IOException
     {
+        // As per [databind#777], allow returning builder itself
+        if (null == _buildMethod) {
+            return builder;
+        }
         try {
             return _buildMethod.getMember().invoke(builder);
         } catch (Exception e) {

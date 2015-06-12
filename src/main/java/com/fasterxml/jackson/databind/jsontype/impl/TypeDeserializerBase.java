@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
@@ -55,7 +56,7 @@ public abstract class TypeDeserializerBase
      * For efficient operation we will lazily build mappings from type ids
      * to actual deserializers, once needed.
      */
-    protected final HashMap<String,JsonDeserializer<Object>> _deserializers;
+    protected final Map<String,JsonDeserializer<Object>> _deserializers;
 
     protected JsonDeserializer<Object> _defaultImplDeserializer;
 
@@ -72,7 +73,7 @@ public abstract class TypeDeserializerBase
         _idResolver = idRes;
         _typePropertyName = typePropertyName;
         _typeIdVisible = typeIdVisible;
-        _deserializers = new HashMap<String,JsonDeserializer<Object>>();
+        _deserializers = new ConcurrentHashMap<String, JsonDeserializer<Object>>();
         if (defaultImpl == null) {
             _defaultImpl = null;
         } else {
@@ -144,39 +145,35 @@ public abstract class TypeDeserializerBase
     protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt, String typeId)
         throws IOException
     {
-        JsonDeserializer<Object> deser;
-
-        synchronized (_deserializers) {
-            deser = _deserializers.get(typeId);
-            if (deser == null) {
-                /* As per [Databind#305], need to provide contextual info. But for
-                 * backwards compatibility, let's start by only supporting this
-                 * for base class, not via interface. Later on we can add this
-                 * to the interface, assuming deprecation at base class helps.
-                 */
-                JavaType type = _idResolver.typeFromId(ctxt, typeId);
-                if (type == null) {
-                    // As per [JACKSON-614], use the default impl if no type id available:
-                    deser = _findDefaultImplDeserializer(ctxt);
-                    if (deser == null) {
-                        deser = _handleUnknownTypeId(ctxt, typeId, _idResolver, _baseType);
-                    }
-                } else {
-                    /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
-                     *   we actually now need to explicitly narrow from base type (which may have parameterization)
-                     *   using raw type.
-                     *   
-                     *   One complication, though; can not change 'type class' (simple type to container); otherwise
-                     *   we may try to narrow a SimpleType (Object.class) into MapType (Map.class), losing actual
-                     *   type in process (getting SimpleType of Map.class which will not work as expected)
-                     */
-                    if (_baseType != null && _baseType.getClass() == type.getClass()) {
-                        type = _baseType.narrowBy(type.getRawClass());
-                    }
-                    deser = ctxt.findContextualValueDeserializer(type, _property);
+        JsonDeserializer<Object> deser = _deserializers.get(typeId);
+        if (deser == null) {
+            /* As per [Databind#305], need to provide contextual info. But for
+             * backwards compatibility, let's start by only supporting this
+             * for base class, not via interface. Later on we can add this
+             * to the interface, assuming deprecation at base class helps.
+             */
+            JavaType type = _idResolver.typeFromId(ctxt, typeId);
+            if (type == null) {
+                // As per [JACKSON-614], use the default impl if no type id available:
+                deser = _findDefaultImplDeserializer(ctxt);
+                if (deser == null) {
+                    deser = _handleUnknownTypeId(ctxt, typeId, _idResolver, _baseType);
                 }
-                _deserializers.put(typeId, deser);
+            } else {
+                /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
+                 *   we actually now need to explicitly narrow from base type (which may have parameterization)
+                 *   using raw type.
+                 *
+                 *   One complication, though; can not change 'type class' (simple type to container); otherwise
+                 *   we may try to narrow a SimpleType (Object.class) into MapType (Map.class), losing actual
+                 *   type in process (getting SimpleType of Map.class which will not work as expected)
+                 */
+                if (_baseType != null && _baseType.getClass() == type.getClass()) {
+                    type = _baseType.narrowBy(type.getRawClass());
+                }
+                deser = ctxt.findContextualValueDeserializer(type, _property);
             }
+            _deserializers.put(typeId, deser);
         }
         return deser;
     }

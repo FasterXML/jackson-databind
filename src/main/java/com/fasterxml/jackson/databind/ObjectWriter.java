@@ -37,7 +37,7 @@ public class ObjectWriter
      * easiest to do by a token value.
      */
     protected final static PrettyPrinter NULL_PRETTY_PRINTER = new MinimalPrettyPrinter();
-    
+
     /*
     /**********************************************************
     /* Immutable configuration from ObjectMapper
@@ -48,7 +48,7 @@ public class ObjectWriter
      * General serialization configuration settings
      */
     protected final SerializationConfig _config;
-   
+
     protected final DefaultSerializerProvider _serializerProvider;
 
     protected final SerializerFactory _serializerFactory;
@@ -414,6 +414,14 @@ public class ObjectWriter
     }
 
     /**
+     * @since 2.6
+     */
+    public ObjectWriter withRootName(PropertyName rootName) {
+        SerializationConfig newConfig = _config.withRootName(rootName);
+        return (newConfig == _config) ? this :  _new(this, newConfig);
+    }
+
+    /**
      * Convenience method that is same as calling:
      *<code>
      *   withRootName("")
@@ -424,7 +432,7 @@ public class ObjectWriter
      * @since 2.6
      */
     public ObjectWriter withoutRootName() {
-        SerializationConfig newConfig = _config.withRootName("");
+        SerializationConfig newConfig = _config.withRootName(PropertyName.NO_NAME);
         return (newConfig == _config) ? this :  _new(this, newConfig);
     }
     

@@ -311,11 +311,6 @@ public class ObjectMapper
      */
     protected SubtypeResolver _subtypeResolver;
 
-    /**
-     * Cache for root names used when root-wrapping is enabled.
-     */
-    protected final RootNameLookup _rootNames;
-
     /*
     /**********************************************************
     /* Configuration settings: mix-in annotations
@@ -473,14 +468,14 @@ public class ObjectMapper
         _jsonFactory = src._jsonFactory.copy();
         _jsonFactory.setCodec(this);
         _subtypeResolver = src._subtypeResolver;
-        _rootNames = new RootNameLookup();
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
 
         SimpleMixInResolver mixins = src._mixIns.copy();
         _mixIns = mixins;
-        _serializationConfig = new SerializationConfig(src._serializationConfig, mixins);
-        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins);
+        RootNameLookup rootNames = new RootNameLookup();
+        _serializationConfig = new SerializationConfig(src._serializationConfig, mixins, rootNames);
+        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins, rootNames);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 
@@ -518,7 +513,7 @@ public class ObjectMapper
             }
         }
         _subtypeResolver = new StdSubtypeResolver();
-        _rootNames = new RootNameLookup();
+        RootNameLookup rootNames = new RootNameLookup();
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
 
@@ -527,9 +522,9 @@ public class ObjectMapper
 
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
         _serializationConfig = new SerializationConfig(base,
-                    _subtypeResolver, mixins);
+                    _subtypeResolver, mixins, rootNames);
         _deserializationConfig = new DeserializationConfig(base,
-                    _subtypeResolver, mixins);
+                    _subtypeResolver, mixins, rootNames);
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
@@ -3760,23 +3755,21 @@ public class ObjectMapper
             JavaType rootType, JsonDeserializer<Object> deser)
         throws IOException
     {
-        String expName = config.getRootName();
-        if (expName == null) {
-            PropertyName pname = _rootNames.findRootName(rootType, config);
-            expName = pname.getSimpleName();
-        }
+        PropertyName expRootName = config.findRootName(rootType);
+        // 12-Jun-2015, tatu: Should try to support namespaces etc but...
+        String expSimpleName = expRootName.getSimpleName();
         if (p.getCurrentToken() != JsonToken.START_OBJECT) {
             throw JsonMappingException.from(p, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +expName+"'), but "+p.getCurrentToken());
+                    +expSimpleName+"'), but "+p.getCurrentToken());
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
             throw JsonMappingException.from(p, "Current token not FIELD_NAME (to contain expected root name '"
-                    +expName+"'), but "+p.getCurrentToken());
+                    +expSimpleName+"'), but "+p.getCurrentToken());
         }
         String actualName = p.getCurrentName();
-        if (!expName.equals(actualName)) {
+        if (!expSimpleName.equals(actualName)) {
             throw JsonMappingException.from(p, "Root name '"+actualName+"' does not match expected ('"
-                    +expName+"') for type "+rootType);
+                    +expSimpleName+"') for type "+rootType);
         }
         // ok, then move to value itself....
         p.nextToken();
@@ -3784,7 +3777,7 @@ public class ObjectMapper
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {
             throw JsonMappingException.from(p, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +expName+"'), but "+p.getCurrentToken());
+                    +expSimpleName+"'), but "+p.getCurrentToken());
         }
         return result;
     }

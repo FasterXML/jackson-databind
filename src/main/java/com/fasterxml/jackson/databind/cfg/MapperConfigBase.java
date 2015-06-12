@@ -9,7 +9,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 @SuppressWarnings("serial")
 public abstract class MapperConfigBase<CFG extends ConfigFeature,
@@ -52,7 +55,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * String, will disable root-name wrapping; if null, will
      * use defaults
      */
-    protected final String _rootName;
+    protected final PropertyName _rootName;
 
     /**
      * View to use for filtering out properties to serialize
@@ -70,6 +73,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final ContextAttributes _attributes;
 
+    /**
+     * @since 2.6
+     */
+    protected final RootNameLookup _rootNames;
+    
     /*
     /**********************************************************
     /* Construction
@@ -81,11 +89,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * that of creating fluent copies)
      */
     protected MapperConfigBase(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins)
+            SubtypeResolver str, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
         _mixIns = mixins;
         _subtypeResolver = str;
+        _rootNames = rootNames;
         _rootName = null;
         _view = null;
         // default to "no attributes"
@@ -101,6 +111,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(src);
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
@@ -108,9 +119,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
     {
-        super(base, src._mapperFeatures);
+        super(src, base);
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
@@ -118,9 +130,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
     {
-        super(src._base, mapperFeatures);
+        super(src, mapperFeatures);
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
@@ -130,15 +143,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(src);
         _mixIns = src._mixIns;
         _subtypeResolver = str;
+        _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
     }
 
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, String rootName) {
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
         super(src);
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
         _rootName = rootName;
         _view = src._view;
         _attributes = src._attributes;
@@ -149,6 +164,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(src);
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = view;
         _attributes = src._attributes;
@@ -162,11 +178,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(src);
         _mixIns = mixins;
         _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
     }
-
+    
     /**
      * @since 2.3
      */
@@ -175,9 +192,25 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(src);
         _mixIns = src._mixIns;
         _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
         _attributes = attr;
+    }
+
+    /**
+     * @since 2.6
+     */
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
+    {
+        super(src);
+        _mixIns = mixins;
+        _subtypeResolver = src._subtypeResolver;
+        _rootNames = rootNames;
+        _rootName = src._rootName;
+        _view = src._view;
+        _attributes = src._attributes;
     }
     
     /*
@@ -260,9 +293,18 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * @param rootName to use: if null, means "use default" (clear setting);
      *   if empty String ("") means that no root name wrapping is used;
      *   otherwise defines root name to use.
+     *   
+     * @since 2.6
      */
-    public abstract T withRootName(String rootName);
+    public abstract T withRootName(PropertyName rootName);
 
+    public T withRootName(String rootName) {
+        if (rootName == null) {
+            return withRootName((PropertyName) null);
+        }
+        return withRootName(PropertyName.construct(rootName));
+    }
+    
     /**
      * Method for constructing and returning a new instance with different
      * {@link SubtypeResolver}
@@ -377,11 +419,21 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _subtypeResolver;
     }
 
+    /**
+     * @deprecated Since 2.6 use {@link #getFullRootName} instead.
+     */
+    @Deprecated // since 2.6
     public final String getRootName() {
+        return (_rootName == null) ? null : _rootName.getSimpleName();
+    }
+
+    /**
+     * @since 2.6
+     */
+    public final PropertyName getFullRootName() {
         return _rootName;
     }
 
-    @Override
     public final Class<?> getActiveView() {
         return _view;
     }
@@ -391,6 +443,28 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _attributes;
     }
 
+    /*
+    /**********************************************************
+    /* Other config access
+    /**********************************************************
+     */
+
+    @Override
+    public PropertyName findRootName(JavaType rootType) {
+        if (_rootName != null) {
+            return _rootName;
+        }
+        return _rootNames.findRootName(rootType, this);
+    }
+
+    @Override
+    public PropertyName findRootName(Class<?> rawRootType) {
+        if (_rootName != null) {
+            return _rootName;
+        }
+        return _rootNames.findRootName(rawRootType, this);
+    }
+    
     /*
     /**********************************************************
     /* ClassIntrospector.MixInResolver impl:

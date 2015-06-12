@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
  * Class that defines API used by {@link ObjectMapper} and
@@ -98,11 +97,6 @@ public abstract class SerializerProvider
      */
     final protected SerializerCache _serializerCache;
 
-    /**
-     * Helper object for keeping track of introspected root names
-     */
-    final protected RootNameLookup _rootNames;
-    
     /**
      * Lazily-constructed holder for per-call attributes.
      * Only set for non-blueprint instances.
@@ -191,7 +185,6 @@ public abstract class SerializerProvider
         _serializerCache = new SerializerCache();
         // Blueprints doesn't have access to any serializers...
         _knownSerializers = null;
-        _rootNames = new RootNameLookup();
 
         _serializationView = null;
         _attributes = null;
@@ -223,8 +216,6 @@ public abstract class SerializerProvider
 
         _stdNullValueSerializer = (_nullValueSerializer == DEFAULT_NULL_KEY_SERIALIZER);
 
-        _rootNames = src._rootNames;
-
         _serializationView = config.getActiveView();
         _attributes = config.getAttributes();
 
@@ -249,7 +240,6 @@ public abstract class SerializerProvider
 
         // and others initialized to default empty state
         _serializerCache = new SerializerCache();
-        _rootNames = new RootNameLookup();
 
         _unknownTypeSerializer = src._unknownTypeSerializer;
         _keySerializer = src._keySerializer;

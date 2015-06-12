@@ -6,9 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -16,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.LinkedNode;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
  * Object that contains baseline configuration for deserialization
@@ -25,9 +24,6 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
  * Note that instances are considered immutable and as such no copies
  * should need to be created for sharing; all copying is done with
  * "fluent factory" methods.
- * Note also that unlike with Jackson 1, these instances can not be
- * assigned to {@link ObjectMapper}; in fact, application code should
- * rarely interact directly with these instances.
  */
 public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
@@ -73,9 +69,10 @@ public final class DeserializationConfig
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
     public DeserializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins)
+            SubtypeResolver str, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
     {
-        super(base, str, mixins);
+        super(base, str, mixins, rootNames);
         _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
         _nodeFactory = JsonNodeFactory.instance;
         _problemHandlers = null;
@@ -140,7 +137,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
     }
 
-    private DeserializationConfig(DeserializationConfig src, String rootName)
+    private DeserializationConfig(DeserializationConfig src, PropertyName rootName)
     {
         super(src, rootName);
         _deserFeatures = src._deserFeatures;
@@ -161,6 +158,19 @@ public final class DeserializationConfig
     }
 
     /**
+     * @since 2.3
+     */
+    protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
+    {
+        super(src, attrs);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _parserFeatures = src._parserFeatures;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
+    }
+
+    /**
      * @since 2.1
      */
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
@@ -172,13 +182,17 @@ public final class DeserializationConfig
         _parserFeatures = src._parserFeatures;
         _parserFeaturesToChange = src._parserFeaturesToChange;
     }
-
+    
     /**
-     * @since 2.3
+     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}
+     * or {@link ObjectReader}.
+     *
+     * @since 2.6
      */
-    protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
+    protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
     {
-        super(src, attrs);
+        super(src, mixins, rootNames);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
@@ -270,7 +284,7 @@ public final class DeserializationConfig
     }
 
     @Override
-    public DeserializationConfig withRootName(String rootName) {
+    public DeserializationConfig withRootName(PropertyName rootName) {
         if (rootName == null) {
             if (_rootName == null) {
                 return this;
@@ -280,7 +294,7 @@ public final class DeserializationConfig
         }
         return new DeserializationConfig(this, rootName);
     }
-    
+
     @Override
     public DeserializationConfig with(TypeFactory tf) {
         return _withBase( _base.withTypeFactory(tf));
@@ -595,7 +609,7 @@ public final class DeserializationConfig
     public boolean useRootWrapping()
     {
         if (_rootName != null) { // empty String disables wrapping; non-empty enables
-            return (_rootName.length() > 0);
+            return !_rootName.isEmpty();
         }
         return isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE);
     }

@@ -89,7 +89,7 @@ public abstract class DefaultSerializerProvider
      */
     public abstract DefaultSerializerProvider createInstance(SerializationConfig config,
             SerializerFactory jsf);
-    
+
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
      * for serializing given value, using serializers that
@@ -108,22 +108,23 @@ public abstract class DefaultSerializerProvider
 
         // Ok: should we wrap result in an additional property ("root name")?
         final boolean wrap;
-        String rootName = _config.getRootName();
+        PropertyName rootName = _config.getFullRootName();
+
         if (rootName == null) { // not explicitly specified
             // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
-                PropertyName pname = _rootNames.findRootName(value.getClass(), _config);
                 gen.writeStartObject();
+                PropertyName pname = _config.findRootName(value.getClass());
                 gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
-        } else if (rootName.length() == 0) {
+        } else if (rootName.isEmpty()) {
             wrap = false;
         } else { // [JACKSON-764]
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
             gen.writeStartObject();
-            gen.writeFieldName(rootName);
+            gen.writeFieldName(rootName.getSimpleName());
         }
         try {
             ser.serialize(value, gen, this);
@@ -167,22 +168,22 @@ public abstract class DefaultSerializerProvider
 
         // Ok: should we wrap result in an additional property ("root name")?
         final boolean wrap;
-        String rootName = _config.getRootName();
+        PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 gen.writeStartObject();
-                PropertyName pname = _rootNames.findRootName(value.getClass(), _config);
+                PropertyName pname = _config.findRootName(value.getClass());
                 gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
-        } else if (rootName.length() == 0) {
+        } else if (rootName.isEmpty()) {
             wrap = false;
         } else { // [JACKSON-764]
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
             gen.writeStartObject();
-            gen.writeFieldName(rootName);
+            gen.writeFieldName(rootName.getSimpleName());
         }
         try {
             ser.serialize(value, gen, this);
@@ -228,24 +229,24 @@ public abstract class DefaultSerializerProvider
         }
         // Ok: should we wrap result in an additional property ("root name")?
         final boolean wrap;
-        String rootName = _config.getRootName();
+        PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 gen.writeStartObject();
                 PropertyName pname = (rootType == null)
-                        ? _rootNames.findRootName(value.getClass(), _config)
-                        : _rootNames.findRootName(rootType, _config);
+                        ? _config.findRootName(value.getClass())
+                        : _config.findRootName(rootType);
                 gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
-        } else if (rootName.length() == 0) {
+        } else if (rootName.isEmpty()) {
             wrap = false;
         } else { // [JACKSON-764]
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
             gen.writeStartObject();
-            gen.writeFieldName(rootName);
+            gen.writeFieldName(rootName.getSimpleName());
         }
         try {
             ser.serialize(value, gen, this);
@@ -280,20 +281,20 @@ public abstract class DefaultSerializerProvider
         JsonSerializer<Object> ser = findValueSerializer(type, null);
 
         final boolean wrap;
-        String rootName = _config.getRootName();
+        PropertyName rootName = _config.getFullRootName();
         if (rootName == null) {
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 gen.writeStartObject();
-                PropertyName pname = _rootNames.findRootName(type, _config);
+                PropertyName pname = _config.findRootName(type);
                 gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
-        } else if (rootName.length() == 0) {
+        } else if (rootName.isEmpty()) {
             wrap = false;
         } else {
             wrap = true;
             gen.writeStartObject();
-            gen.writeFieldName(rootName);
+            gen.writeFieldName(rootName.getSimpleName());
         }
         try {
             ser.serializeWithType(value, gen, this, typeSer);

@@ -60,6 +60,18 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         _mapperFeatures = mapperFeatures;
     }
 
+    protected MapperConfig(MapperConfig<T> src, int mapperFeatures)
+    {
+        _base = src._base;
+        _mapperFeatures = mapperFeatures;
+    }
+
+    protected MapperConfig(MapperConfig<T> src, BaseSettings base)
+    {
+        _base = base;
+        _mapperFeatures = src._mapperFeatures;
+    }
+    
     protected MapperConfig(MapperConfig<T> src)
     {
         _base = src._base;
@@ -382,6 +394,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract ContextAttributes getAttributes();
 
+    /**
+     * @since 2.6
+     */
+    public abstract PropertyName findRootName(JavaType rootType);
+
+    /**
+     * @since 2.6
+     */
+    public abstract PropertyName findRootName(Class<?> rawRootType);
+    
     /*
     /**********************************************************
     /* Methods for instantiating handlers

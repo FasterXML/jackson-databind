@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
  * Object that contains baseline configuration for serialization
@@ -88,9 +89,10 @@ public final class SerializationConfig
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
     public SerializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins)
+            SubtypeResolver str, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
     {
-        super(base, str, mixins);
+        super(base, str, mixins, rootNames);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
         _filterProvider = null;
         _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
@@ -166,23 +168,9 @@ public final class SerializationConfig
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
-    private SerializationConfig(SerializationConfig src, String rootName)
+    private SerializationConfig(SerializationConfig src, PropertyName rootName)
     {
         super(src, rootName);
-        _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
-    }
-
-    /**
-     * @since 2.1
-     */
-    protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins)
-    {
-        super(src, mixins);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
@@ -206,6 +194,20 @@ public final class SerializationConfig
     }
 
     /**
+     * @since 2.1
+     */
+    protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins)
+    {
+        super(src, mixins);
+        _serFeatures = src._serFeatures;
+        _serializationInclusion = src._serializationInclusion;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+    }
+    
+    /**
      * @since 2.6
      */
     protected SerializationConfig(SerializationConfig src, PrettyPrinter defaultPP)
@@ -218,7 +220,25 @@ public final class SerializationConfig
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
-    
+
+    /**
+     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}
+     * or {@link ObjectReader}.
+     *
+     * @since 2.6
+     */
+    protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
+    {
+        super(src, mixins, rootNames);
+        _serFeatures = src._serFeatures;
+        _serializationInclusion = src._serializationInclusion;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+    }
+
     /*
     /**********************************************************
     /* Life-cycle, factory methods from MapperConfig
@@ -319,7 +339,7 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig withRootName(String rootName) {
+    public SerializationConfig withRootName(PropertyName rootName) {
         if (rootName == null) {
             if (_rootName == null) {
                 return this;
@@ -633,7 +653,7 @@ public final class SerializationConfig
     public boolean useRootWrapping()
     {
         if (_rootName != null) { // empty String disables wrapping; non-empty enables
-            return (_rootName.length() > 0);
+            return !_rootName.isEmpty();
         }
         return isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
     }

@@ -20,14 +20,13 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
  * Builder object that can be used for per-serialization configuration of
  * deserialization parameters, such as root type to use or object
  * to update (instead of constructing new instance).
  *<p>
- * Uses "fluent" (or, kind of, builder) pattern so that instances are immutable
+ * Uses "mutant factory" pattern so that instances are immutable
  * (and thus fully thread-safe with no external synchronization);
  * new instances are constructed for different configurations.
  * Instances are initially constructed by {@link ObjectMapper} and can be
@@ -143,12 +142,6 @@ public class ObjectReader
      */
     final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
 
-    /**
-     * Cache for root names used when root-wrapping is enabled.
-     * Passed by {@link ObjectMapper}, shared with it.
-     */
-    protected final RootNameLookup _rootNames;
-    
     /*
     /**********************************************************
     /* Life-cycle, construction
@@ -174,7 +167,6 @@ public class ObjectReader
         _context = mapper._deserializationContext;
         _rootDeserializers = mapper._rootDeserializers;
         _parserFactory = mapper._jsonFactory;
-        _rootNames = mapper._rootNames;
         _valueType = valueType;
         _valueToUpdate = valueToUpdate;
         if (valueToUpdate != null && valueType.isArrayType()) {
@@ -201,7 +193,6 @@ public class ObjectReader
 
         _rootDeserializers = base._rootDeserializers;
         _parserFactory = base._parserFactory;
-        _rootNames = base._rootNames;
 
         _valueType = valueType;
         _rootDeserializer = rootDeser;
@@ -225,7 +216,6 @@ public class ObjectReader
 
         _rootDeserializers = base._rootDeserializers;
         _parserFactory = base._parserFactory;
-        _rootNames = base._rootNames;
 
         _valueType = base._valueType;
         _rootDeserializer = base._rootDeserializer;
@@ -245,7 +235,6 @@ public class ObjectReader
 
         _rootDeserializers = base._rootDeserializers;
         _parserFactory = f;
-        _rootNames = base._rootNames;
 
         _valueType = base._valueType;
         _rootDeserializer = base._rootDeserializer;
@@ -538,6 +527,13 @@ public class ObjectReader
     }
 
     /**
+     * @since 2.6
+     */
+    public ObjectReader withRootName(PropertyName rootName) {
+        return _with(_config.withRootName(rootName));
+    }
+    
+    /**
      * Convenience method that is same as calling:
      *<code>
      *   withRootName("")
@@ -548,7 +544,7 @@ public class ObjectReader
      * @since 2.6
      */
     public ObjectReader withoutRootName() {
-        return _with(_config.withRootName(""));
+        return _with(_config.withRootName(PropertyName.NO_NAME));
     }
     
     /**
@@ -1521,23 +1517,22 @@ public class ObjectReader
     protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,
             JavaType rootType, JsonDeserializer<Object> deser) throws IOException
     {
-        String expName = _config.getRootName();
-        if (expName == null) {
-            PropertyName pname = _rootNames.findRootName(rootType, _config);
-            expName = pname.getSimpleName();
-        }
+        PropertyName expRootName = _config.findRootName(rootType);
+        // 12-Jun-2015, tatu: Should try to support namespaces etc but...
+        String expSimpleName = expRootName.getSimpleName();
+
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
+                    +expSimpleName+"'), but "+jp.getCurrentToken());
         }
         if (jp.nextToken() != JsonToken.FIELD_NAME) {
             throw JsonMappingException.from(jp, "Current token not FIELD_NAME (to contain expected root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
+                    +expSimpleName+"'), but "+jp.getCurrentToken());
         }
         String actualName = jp.getCurrentName();
-        if (!expName.equals(actualName)) {
+        if (!expSimpleName.equals(actualName)) {
             throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"
-                    +expName+"') for type "+rootType);
+                    +expSimpleName+"') for type "+rootType);
         }
         // ok, then move to value itself....
         jp.nextToken();
@@ -1551,7 +1546,7 @@ public class ObjectReader
         // and last, verify that we now get matching END_OBJECT
         if (jp.nextToken() != JsonToken.END_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
+                    +expSimpleName+"'), but "+jp.getCurrentToken());
         }
         return result;
     }

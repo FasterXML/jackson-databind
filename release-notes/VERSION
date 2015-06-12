@@ -67,6 +67,8 @@ Project: jackson-databind
   read-only/write-only use cases
 #824: Contextual `TimeZone` changes don't take effect wrt `java.util.Date`,
   `java.util.Calendar` serialization
+#826: Replaced synchronized HashMap with ConcurrentHashMap in TypeDeserializerBase._findDeserializer
+ (contributed by Lars P)
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

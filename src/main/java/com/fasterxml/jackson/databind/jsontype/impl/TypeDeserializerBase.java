@@ -65,7 +65,7 @@ public abstract class TypeDeserializerBase
     /* Life-cycle
     /**********************************************************
      */
-    
+
     protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
@@ -73,7 +73,8 @@ public abstract class TypeDeserializerBase
         _idResolver = idRes;
         _typePropertyName = typePropertyName;
         _typeIdVisible = typeIdVisible;
-        _deserializers = new ConcurrentHashMap<String, JsonDeserializer<Object>>();
+        // defaults are fine, although concurrency of 4 bit more frugal than 16:
+        _deserializers = new ConcurrentHashMap<String, JsonDeserializer<Object>>(16, 0.75f, 4);
         if (defaultImpl == null) {
             _defaultImpl = null;
         } else {
@@ -83,7 +84,6 @@ public abstract class TypeDeserializerBase
              */
             _defaultImpl = baseType.forcedNarrowBy(defaultImpl);
         }
-
         _property = null;
     }
 
@@ -96,13 +96,12 @@ public abstract class TypeDeserializerBase
         _deserializers = src._deserializers;
         _defaultImpl = src._defaultImpl;
         _defaultImplDeserializer = src._defaultImplDeserializer;
-
         _property = property;
     }
 
     @Override
     public abstract TypeDeserializer forProperty(BeanProperty prop);
-    
+
     /*
     /**********************************************************
     /* Accessors

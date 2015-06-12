@@ -285,3 +285,7 @@ Jeff Schnitzer (stickfigure@github)
   * Suggested #504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
    (2.6.0)
 
+Lars Pfannenschmidt (larsp@github)
+  * Contributed #826: Replaced synchronized HashMap with ConcurrentHashMap in
+   TypeDeserializerBase._findDeserializer
+   (2.6.0)

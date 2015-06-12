@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.creators;
 
+import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -8,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-public class TestBuilderSimple extends BaseMapTest
+public class BuilderSimpleTest extends BaseMapTest
 {
     // // Simple 2-property value class, builder with standard naming
 	
@@ -246,6 +249,39 @@ public class TestBuilderSimple extends BaseMapTest
             return null;
         }
     }
+    
+    // [databind#822]
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "with")
+    static class ValueBuilder822
+    {
+        public int x;
+        private Map<String,Object> stuff = new HashMap<String,Object>();
+        
+        public ValueBuilder822 withX(int x0) {
+            this.x = x0;
+            return this;
+        }
+
+        @JsonAnySetter
+        public void addStuff(String key, Object value) {
+            stuff.put(key, value);
+        }
+
+        public ValueClass822 build() {
+            return new ValueClass822(x, stuff);
+        }
+    }
+
+    @JsonDeserialize(builder = ValueBuilder822.class)
+    static class ValueClass822 {
+        public int x;
+        public Map<String,Object> stuff;
+
+        public ValueClass822(int x, Map<String,Object> stuff) {
+            this.x = x;
+            this.stuff = stuff;
+        }
+    }
 
     /*
     /**********************************************************
@@ -333,4 +369,18 @@ public class TestBuilderSimple extends BaseMapTest
         }
     }
 
+    public void testWithAnySetter822() throws Exception
+    {
+        final String json = "{\"extra\":3,\"foobar\":[ ],\"x\":1,\"name\":\"bob\"}";
+        ValueClass822 value = mapper.readValue(json, ValueClass822.class);
+        assertEquals(1, value.x);
+        assertNotNull(value.stuff);
+        assertEquals(3, value.stuff.size());
+        assertEquals(Integer.valueOf(3), value.stuff.get("extra"));
+        assertEquals("bob", value.stuff.get("name"));
+        Object ob = value.stuff.get("foobar");
+        assertNotNull(ob);
+        assertTrue(ob instanceof List);
+        assertTrue(((List<?>) ob).isEmpty());
+    }
 }

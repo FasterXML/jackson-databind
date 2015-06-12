@@ -147,9 +147,9 @@ public class StringArraySerializer
     
     @Override
     public final void serialize(String[] value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
-    	final int len = value.length;
+        final int len = value.length;
         if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
             serializeContents(value, jgen, provider);
             return;
@@ -160,45 +160,36 @@ public class StringArraySerializer
     }
     
     @Override
-    public void serializeContents(String[] value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeContents(String[] value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
         final int len = value.length;
         if (len == 0) {
             return;
         }
         if (_elementSerializer != null) {
-            serializeContentsSlow(value, jgen, provider, _elementSerializer);
+            serializeContentsSlow(value, gen, provider, _elementSerializer);
             return;
         }
-        /* 08-Dec-2008, tatus: If we want this to be fully overridable
-         *  (for example, to support String cleanup during writing
-         *  or something), we should find serializer  by provider.
-         *  But for now, that seems like an overkill: and caller can
-         *  add custom serializer if that is needed as well.
-         * (ditto for null values)
-         */
-        //JsonSerializer<String> ser = (JsonSerializer<String>)provider.findValueSerializer(String.class);
         for (int i = 0; i < len; ++i) {
             String str = value[i];
             if (str == null) {
-                jgen.writeNull();
+                gen.writeNull();
             } else {
-                //ser.serialize(value[i], jgen, provider);
-                jgen.writeString(value[i]);
+                gen.writeString(value[i]);
             }
         }
     }
 
-    private void serializeContentsSlow(String[] value, JsonGenerator jgen, SerializerProvider provider, JsonSerializer<Object> ser)
-        throws IOException, JsonGenerationException
+    private void serializeContentsSlow(String[] value, JsonGenerator gen, SerializerProvider provider, JsonSerializer<Object> ser)
+        throws IOException
     {
         for (int i = 0, len = value.length; i < len; ++i) {
             String str = value[i];
             if (str == null) {
-                provider.defaultSerializeNull(jgen);
+                provider.defaultSerializeNull(gen);
             } else {
-                ser.serialize(value[i], jgen, provider);
+                ser.serialize(value[i], gen, provider);
             }
         }
     }

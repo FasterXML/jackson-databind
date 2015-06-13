@@ -826,15 +826,6 @@ public class ObjectReader
     public JsonFactory getFactory() {
         return _parserFactory;
     }
-    
-    /**
-     * @deprecated Since 2.1: Use {@link #getFactory} instead
-     */
-    @Deprecated
-    @Override
-    public JsonFactory getJsonFactory() {
-        return _parserFactory;
-    }
 
     public TypeFactory getTypeFactory() {
         return _config.getTypeFactory();

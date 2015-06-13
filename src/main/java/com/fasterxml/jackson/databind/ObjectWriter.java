@@ -246,8 +246,9 @@ public class ObjectWriter
             JsonGenerator gen, boolean managedInput)
         throws IOException
     {
+        _configureGenerator(gen);
         return new SequenceWriter(_serializerProvider(_config),
-                _configureGenerator(gen), managedInput, _prefetch)
+                gen, managedInput, _prefetch)
             .init(wrapInArray);
     }
 
@@ -676,7 +677,8 @@ public class ObjectWriter
      * @since 2.5
      */
     public SequenceWriter writeValues(JsonGenerator gen) throws IOException {
-        return _newSequenceWriter(false, _configureGenerator(gen), false);
+        _configureGenerator(gen);
+        return _newSequenceWriter(false, gen, false);
     }
 
     /**
@@ -817,14 +819,6 @@ public class ObjectWriter
      */
     public SerializationConfig getConfig() {
         return _config;
-    }
-
-    /**
-     * @deprecated Since 2.2, use {@link #getFactory} instead.
-     */
-    @Deprecated
-    public JsonFactory getJsonFactory() {
-        return _generatorFactory;
     }
 
     /**
@@ -1215,19 +1209,6 @@ public class ObjectWriter
         }
         return Prefetch.empty;
     }
-    
-    /**
-     * Helper method called to set or override settings of passed-in
-     * {@link JsonGenerator}
-     * 
-     * @since 2.1
-     * 
-     * @deprecated Since 2.5 (to be removed from 2.6 or later)
-     */
-    @Deprecated
-    protected void _configureJsonGenerator(JsonGenerator gen) {
-        _configureGenerator(gen);
-    }
 
     /**
      * Helper method called to set or override settings of passed-in
@@ -1235,37 +1216,12 @@ public class ObjectWriter
      * 
      * @since 2.5
      */
-    protected JsonGenerator _configureGenerator(JsonGenerator gen)
+    protected final void _configureGenerator(JsonGenerator gen)
     {
-        GeneratorSettings genSet = _generatorSettings;
-        PrettyPrinter pp = genSet.prettyPrinter;
-        if (pp != null) {
-            if (pp == NULL_PRETTY_PRINTER) {
-                gen.setPrettyPrinter(null);
-            } else {
-                /* [JACKSON-851]: Better take care of stateful PrettyPrinters...
-                 *   like the DefaultPrettyPrinter.
-                 */
-                if (pp instanceof Instantiatable<?>) {
-                    pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
-                }
-                gen.setPrettyPrinter(pp);
-            }
-        }
-        CharacterEscapes esc = genSet.characterEscapes;
-        if (esc != null) {
-            gen.setCharacterEscapes(esc);
-        }
-        FormatSchema sch = genSet.schema;
-        if (sch != null) {
-            gen.setSchema(sch);
-        }
-        SerializableString sep = genSet.rootValueSeparator;
-        if (sep != null) {
-            gen.setRootValueSeparator(sep);
-        }
+        // order is slightly significant: both may change PrettyPrinter
+        // settings.
         _config.initialize(gen); // since 2.5
-        return gen;
+        _generatorSettings.initialize(gen);
     }
 
     /*
@@ -1366,6 +1322,33 @@ public class ObjectWriter
                 }
             }
             return new GeneratorSettings(prettyPrinter, schema, characterEscapes, sep);
+        }
+
+        /**
+         * @since 2.6
+         */
+        public void initialize(JsonGenerator gen)
+        {
+            PrettyPrinter pp = prettyPrinter;
+            if (prettyPrinter != null) {
+                if (pp == NULL_PRETTY_PRINTER) {
+                    gen.setPrettyPrinter(null);
+                } else {
+                    if (pp instanceof Instantiatable<?>) {
+                        pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
+                    }
+                    gen.setPrettyPrinter(pp);
+                }
+            }
+            if (characterEscapes != null) {
+                gen.setCharacterEscapes(characterEscapes);
+            }
+            if (schema != null) {
+                gen.setSchema(schema);
+            }
+            if (rootValueSeparator != null) {
+                gen.setRootValueSeparator(rootValueSeparator);
+            }
         }
     }
 

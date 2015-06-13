@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.seq;
 
 import java.io.IOException;
 import java.util.HashMap;

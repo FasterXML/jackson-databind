@@ -875,11 +875,12 @@ public class ObjectWriter
                 && (value instanceof Closeable)) {
             _writeCloseableValue(gen, value, _config);
         } else {
-            if (_prefetch.valueSerializer != null) {
-                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
-                        _prefetch.valueSerializer);
+            JsonSerializer<Object> ser = _prefetch.valueSerializer;
+            if (ser != null) {
+                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType, ser);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(_config).serializePolymorphic(gen, value,
+                        _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(_config).serializeValue(gen, value);
             }
@@ -888,7 +889,7 @@ public class ObjectWriter
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Serialization methods, others
@@ -1086,7 +1087,8 @@ public class ObjectWriter
                 _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
                         _prefetch.valueSerializer);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(_config).serializePolymorphic(gen, value,
+                        _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(_config).serializeValue(gen, value);
             }
@@ -1121,7 +1123,8 @@ public class ObjectWriter
                 _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
                         _prefetch.valueSerializer);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(cfg).serializePolymorphic(gen, value,
+                        _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(cfg).serializeValue(gen, value);
             }
@@ -1165,7 +1168,8 @@ public class ObjectWriter
                 _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
                         _prefetch.valueSerializer);
             } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
+                _serializerProvider(cfg).serializePolymorphic(gen, value,
+                        _prefetch.rootType, _prefetch.typeSerializer);
             } else {
                 _serializerProvider(cfg).serializeValue(gen, value);
             }

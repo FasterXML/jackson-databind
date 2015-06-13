@@ -268,17 +268,31 @@ public abstract class DefaultSerializerProvider
      * Alternate serialization call used for polymorphic types, when {@link TypeSerializer}
      * is already known, but not actual value serializer.
      *
-     * @since 2.5
+     * @since 2.6
      */
-    public void serializePolymorphic(JsonGenerator gen, Object value, TypeSerializer typeSer)
-            throws IOException
+    public void serializePolymorphic(JsonGenerator gen, Object value,
+            JavaType rootType, TypeSerializer typeSer)
+        throws IOException
     {
         if (value == null) {
             _serializeNull(gen);
             return;
         }
-        final Class<?> type = value.getClass();
-        JsonSerializer<Object> ser = findValueSerializer(type, null);
+        // Let's ensure types are compatible at this point
+        if ((rootType != null) && !rootType.getRawClass().isAssignableFrom(value.getClass())) {
+            _reportIncompatibleRootType(value, rootType);
+        }
+        JsonSerializer<Object> ser;
+        /* 12-Jun-2015, tatu: nominal root type is necessary for Maps at least;
+         *   possibly collections, but can cause problems for other polymorphic
+         *   types. We really need to distinguish between serialization type,
+         *   base type; but right we don't. Hence this check
+         */
+        if ((rootType != null) && rootType.isContainerType()) {
+            ser = findValueSerializer(rootType, null);
+        } else {
+            ser = findValueSerializer(value.getClass(), null);
+        }
 
         final boolean wrap;
         PropertyName rootName = _config.getFullRootName();
@@ -286,7 +300,7 @@ public abstract class DefaultSerializerProvider
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 gen.writeStartObject();
-                PropertyName pname = _config.findRootName(type);
+                PropertyName pname = _config.findRootName(value.getClass());
                 gen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.isEmpty()) {
@@ -311,7 +325,18 @@ public abstract class DefaultSerializerProvider
             throw new JsonMappingException(msg, e);
         }
     }
-    
+
+    /**
+     * @deprecated since 2.6; remove from 2.7 or later
+     */
+    @Deprecated
+    public void serializePolymorphic(JsonGenerator gen, Object value, TypeSerializer typeSer)
+            throws IOException
+    {
+        JavaType t = (value == null) ? null : _config.constructType(value.getClass());
+        serializePolymorphic(gen, value, t, typeSer);
+    }
+
     /**
      * Helper method called when root value to serialize is null
      * 

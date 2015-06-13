@@ -93,7 +93,7 @@ public class ObjectWriterTest
         assertEquals("{\"a\":5}", json);
     }
 
-    public void testPolymorpicWithTyping() throws Exception
+    public void testPolymorphicWithTyping() throws Exception
     {
         ObjectWriter writer = MAPPER.writerFor(PolyBase.class);
         String json;

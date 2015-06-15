@@ -1417,8 +1417,7 @@ public class ObjectReader
                 if (valueToUpdate == null) {
                     result = deser.deserialize(jp, ctxt);
                 } else {
-                    deser.deserialize(jp, ctxt, valueToUpdate);
-                    result = valueToUpdate;
+                    result = deser.deserialize(jp, ctxt, valueToUpdate);
                 }
             }
         }

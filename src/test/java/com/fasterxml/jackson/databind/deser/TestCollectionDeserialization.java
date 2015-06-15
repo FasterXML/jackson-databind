@@ -51,7 +51,22 @@ public class TestCollectionDeserialization
     static class KeyListBean {
         public List<Key> keys;
     }
-    
+
+    // [Issue#828]
+    // @JsonDeserialize(using)
+    @JsonDeserialize(using=SomeObjectDeserializer.class)
+    static class SomeObject {}
+
+    static class SomeObjectDeserializer extends StdDeserializer<SomeObject> {
+        public SomeObjectDeserializer() { super(SomeObject.class); }
+
+        @Override
+        public SomeObject deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException {
+            throw new RuntimeException("I want to catch this exception");
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -239,6 +254,32 @@ public class TestCollectionDeserialization
             // and for List, reverse:
             assertEquals(1, refs.get(1).getIndex());
             assertNull(refs.get(1).getFieldName());
+        }
+    }
+
+    // for [Issue#828]
+    public void testWrapExceptions() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.WRAP_EXCEPTIONS);
+
+        try {
+            mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
+        } catch (JsonMappingException exc) {
+            assertEquals("I want to catch this exception", exc.getOriginalMessage());
+        } catch (RuntimeException exc) {
+            fail("The RuntimeException should have been wrapped with a JsonMappingException.");
+        }
+
+        ObjectMapper mapperNoWrap = new ObjectMapper();
+        mapperNoWrap.disable(DeserializationFeature.WRAP_EXCEPTIONS);
+
+        try {
+            mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
+        } catch (JsonMappingException exc) {
+            fail("It should not have wrapped the RuntimeException.");
+        } catch (RuntimeException exc) {
+            assertEquals("I want to catch this exception", exc.getMessage());
         }
     }
 }

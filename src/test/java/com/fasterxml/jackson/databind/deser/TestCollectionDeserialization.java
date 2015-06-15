@@ -53,7 +53,6 @@ public class TestCollectionDeserialization
     }
 
     // [Issue#828]
-    // @JsonDeserialize(using)
     @JsonDeserialize(using=SomeObjectDeserializer.class)
     static class SomeObject {}
 

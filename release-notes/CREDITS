@@ -291,5 +291,5 @@ Lars Pfannenschmidt (larsp@github)
    (2.6.0)
 
 Stephen A. Goss (thezerobit@github)
-  * Contributed #829: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
+  * Contributed #828: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
    (2.6.0)

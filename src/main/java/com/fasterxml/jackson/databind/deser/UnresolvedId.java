@@ -31,6 +31,7 @@ public class UnresolvedId {
 
     @Override
     public String toString() {
-        return String.format("Object id [%s] (for %s) at %s", _id, _type, _location);
+        return String.format("Object id [%s] (for %s) at %s", _id,
+                (_type == null) ? "NULL" : _type.getName(), _location);
     }
 }

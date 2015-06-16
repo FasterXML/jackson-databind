@@ -704,7 +704,8 @@ public abstract class BeanDeserializerBase
      * Method that wraps given property with {@link ObjectIdReferenceProperty}
      * in case where object id resolution is required.
      */
-    protected SettableBeanProperty _resolvedObjectIdProperty(DeserializationContext ctxt, SettableBeanProperty prop)
+    protected SettableBeanProperty _resolvedObjectIdProperty(DeserializationContext ctxt,
+            SettableBeanProperty prop)
     {
         ObjectIdInfo objectIdInfo = prop.getObjectIdInfo();
         JsonDeserializer<Object> valueDeser = prop.getValueDeserializer();
@@ -712,7 +713,6 @@ public abstract class BeanDeserializerBase
         if (objectIdInfo == null && objectIdReader == null) {
             return prop;
         }
-
         return new ObjectIdReferenceProperty(prop, objectIdInfo);
     }
 

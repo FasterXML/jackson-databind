@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
@@ -20,24 +20,24 @@ public class ReadableObjectId
      * @deprecated Prefer using {@link #resolve()}, which is able to handle
      *             external id resolving mechanism.
      */
-    @Deprecated
+    @Deprecated // at least since 2.5. Remove from 2.7
     public Object item;
     @Deprecated
     public final Object id;
 
-    private final IdKey _key;
+    private final ObjectIdGenerator.IdKey _key;
 
     private LinkedList<Referring> _referringProperties;
 
     private ObjectIdResolver _resolver;
 
-    @Deprecated
+    @Deprecated // at least since 2.5. Remove from 2.7
     public ReadableObjectId(Object id) {
         this.id = id;
         _key = null;
     }
 
-    public ReadableObjectId(IdKey key) {
+    public ReadableObjectId(ObjectIdGenerator.IdKey key) {
         _key = key;
         id = key.key;
     }
@@ -46,7 +46,7 @@ public class ReadableObjectId
         _resolver = resolver;
     }
 
-    public IdKey getKey() {
+    public ObjectIdGenerator.IdKey getKey() {
         return _key;
     }
 
@@ -89,6 +89,11 @@ public class ReadableObjectId
         return _referringProperties.iterator();
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(_key);
+    }
+    
     /*
     /**********************************************************
     /* Helper classes

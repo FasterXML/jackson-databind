@@ -115,15 +115,6 @@ public abstract class DefaultDeserializationContext
 
         if (resolver == null) {
             resolver = resolverType.newForDeserialization(this);
-            // 19-Dec-2014, tatu: For final 2.5.0, remove temporary (2.4.x) work-around
-            //   needed to clear state between calls.
-            // !!! 18-Jun-2014, pgelinas: Temporary fix for [#490] until real
-            //    fix (for jackson-annotations, SimpleObjectIdResolver) can be added.
-            /*
-            if (resolverType.getClass() == SimpleObjectIdResolver.class) {
-                resolver = new SimpleObjectIdResolver();
-            }
-            */
             _objectIdResolvers.add(resolver);
         }
 
@@ -152,14 +143,16 @@ public abstract class DefaultDeserializationContext
         UnresolvedForwardReference exception = null;
         for (Entry<IdKey,ReadableObjectId> entry : _objectIds.entrySet()) {
             ReadableObjectId roid = entry.getValue();
-            if (roid.hasReferringProperties()) {
-                if (exception == null) {
-                    exception = new UnresolvedForwardReference("Unresolved forward references for: ");
-                }
-                for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext(); ) {
-                    Referring referring = iterator.next();
-                    exception.addUnresolvedId(roid.getKey().key, referring.getBeanType(), referring.getLocation());
-                }
+            if (!roid.hasReferringProperties()) {
+                continue;
+            }
+            if (exception == null) {
+                exception = new UnresolvedForwardReference("Unresolved forward references for: ");
+            }
+            Object key = roid.getKey().key;
+            for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext(); ) {
+                Referring referring = iterator.next();
+                exception.addUnresolvedId(key, referring.getBeanType(), referring.getLocation());
             }
         }
         if (exception != null) {

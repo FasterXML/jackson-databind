@@ -289,3 +289,7 @@ Lars Pfannenschmidt (larsp@github)
   * Contributed #826: Replaced synchronized HashMap with ConcurrentHashMap in
    TypeDeserializerBase._findDeserializer
    (2.6.0)
+
+Stephen A. Goss (thezerobit@github)
+  * Contributed #829: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
+   (2.6.0)

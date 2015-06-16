@@ -73,6 +73,8 @@ Project: jackson-databind
  (contributed by Lars P)
 #827: Fix for polymorphic custom map key serializer
  (reported by mjr6140@gitgub)
+#829: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
+ (contributed by Steve G, thezerobit@github)
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (09-Jun-2015)

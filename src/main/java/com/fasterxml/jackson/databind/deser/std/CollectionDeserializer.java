@@ -259,6 +259,10 @@ public class CollectionDeserializer
                 Referring ref = referringAccumulator.handleUnresolvedReference(reference);
                 reference.getRoid().appendReferring(ref);
             } catch (Exception e) {
+                boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+                if (!wrap && e instanceof RuntimeException) {
+                    throw (RuntimeException)e;
+                }
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
             }
         }

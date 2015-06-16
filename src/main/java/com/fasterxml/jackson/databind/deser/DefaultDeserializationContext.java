@@ -152,6 +152,11 @@ public abstract class DefaultDeserializationContext
         UnresolvedForwardReference exception = null;
         for (Entry<IdKey,ReadableObjectId> entry : _objectIds.entrySet()) {
             ReadableObjectId roid = entry.getValue();
+
+            if (roid.hasReferringProperties()) {
+                roid.attemptResolvingByCreating();
+            }
+
             if (roid.hasReferringProperties()) {
                 if (exception == null) {
                     exception = new UnresolvedForwardReference("Unresolved forward references for: ");

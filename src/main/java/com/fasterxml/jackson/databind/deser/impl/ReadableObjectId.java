@@ -74,6 +74,19 @@ public class ReadableObjectId
         }
     }
 
+    public void attemptResolvingByCreating() {
+        Object createdItem = _resolver.createItem(_key);
+        if (createdItem != null) {
+            try {
+                bindItem(createdItem);
+            } catch (IOException ex) {
+                // Ignore binding exception, we will fail with
+                // UnresolvedForwardReference anyway
+                ex.printStackTrace();
+            }
+        }
+    }
+
     public Object resolve(){
          return (item = _resolver.resolveId(_key));
     }

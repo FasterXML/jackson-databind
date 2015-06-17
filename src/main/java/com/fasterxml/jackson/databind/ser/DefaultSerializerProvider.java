@@ -213,7 +213,8 @@ public abstract class DefaultSerializerProvider
      * 
      * @since 2.1
      */
-    public void serializeValue(JsonGenerator gen, Object value, JavaType rootType, JsonSerializer<Object> ser) throws IOException
+    public void serializeValue(JsonGenerator gen, Object value, JavaType rootType,
+            JsonSerializer<Object> ser) throws IOException
     {
         if (value == null) {
             _serializeNull(gen);
@@ -266,12 +267,12 @@ public abstract class DefaultSerializerProvider
 
     /**
      * Alternate serialization call used for polymorphic types, when {@link TypeSerializer}
-     * is already known, but not actual value serializer.
+     * is already known, but the actual serializer may or may not be.
      *
      * @since 2.6
      */
-    public void serializePolymorphic(JsonGenerator gen, Object value,
-            JavaType rootType, TypeSerializer typeSer)
+    public void serializePolymorphic(JsonGenerator gen, Object value, JavaType rootType,
+            JsonSerializer<Object> valueSer, TypeSerializer typeSer)
         throws IOException
     {
         if (value == null) {
@@ -282,16 +283,17 @@ public abstract class DefaultSerializerProvider
         if ((rootType != null) && !rootType.getRawClass().isAssignableFrom(value.getClass())) {
             _reportIncompatibleRootType(value, rootType);
         }
-        JsonSerializer<Object> ser;
         /* 12-Jun-2015, tatu: nominal root type is necessary for Maps at least;
          *   possibly collections, but can cause problems for other polymorphic
          *   types. We really need to distinguish between serialization type,
          *   base type; but right we don't. Hence this check
          */
-        if ((rootType != null) && rootType.isContainerType()) {
-            ser = findValueSerializer(rootType, null);
-        } else {
-            ser = findValueSerializer(value.getClass(), null);
+        if (valueSer == null) {
+            if ((rootType != null) && rootType.isContainerType()) {
+                valueSer = findValueSerializer(rootType, null);
+            } else {
+                valueSer = findValueSerializer(value.getClass(), null);
+            }
         }
 
         final boolean wrap;
@@ -311,7 +313,7 @@ public abstract class DefaultSerializerProvider
             gen.writeFieldName(rootName.getSimpleName());
         }
         try {
-            ser.serializeWithType(value, gen, this, typeSer);
+            valueSer.serializeWithType(value, gen, this, typeSer);
             if (wrap) {
                 gen.writeEndObject();
             }
@@ -334,7 +336,7 @@ public abstract class DefaultSerializerProvider
             throws IOException
     {
         JavaType t = (value == null) ? null : _config.constructType(value.getClass());
-        serializePolymorphic(gen, value, t, typeSer);
+        serializePolymorphic(gen, value, t, null, typeSer);
     }
 
     /**

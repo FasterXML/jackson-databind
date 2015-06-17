@@ -19,6 +19,7 @@ public class PolyMapWriter827Test extends BaseMapTest
         String a;
         int b;
 
+        @Override
         public String toString() { return "BAD-KEY"; }
     }
 

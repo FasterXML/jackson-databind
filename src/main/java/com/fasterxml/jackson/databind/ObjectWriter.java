@@ -106,7 +106,7 @@ public class ObjectWriter
             _prefetch = Prefetch.empty;
         } else {
             rootType = rootType.withStaticTyping();
-            _prefetch = _prefetchRootSerializer(config, rootType);
+            _prefetch = Prefetch.empty.forRootType(this, rootType);
         }
     }
 
@@ -247,7 +247,7 @@ public class ObjectWriter
         throws IOException
     {
         _configureGenerator(gen);
-        return new SequenceWriter(_serializerProvider(_config),
+        return new SequenceWriter(_serializerProvider(),
                 gen, managedInput, _prefetch)
             .init(wrapInArray);
     }
@@ -352,10 +352,116 @@ public class ObjectWriter
 
     /*
     /**********************************************************
-    /* Life-cycle, fluent factories, other
+    /* Life-cycle, fluent factories, type-related
     /**********************************************************
      */
 
+    /**
+     * Method that will construct a new instance that uses specific type
+     * as the root type for serialization, instead of runtime dynamic
+     * type of the root object itself.
+     *<p>
+     * Note that method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     * 
+     * @since 2.5
+     */
+    public ObjectWriter forType(JavaType rootType)
+    {
+        Prefetch pf = _prefetch.forRootType(this, rootType);
+        return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
+    }
+
+    /**
+     * Method that will construct a new instance that uses specific type
+     * as the root type for serialization, instead of runtime dynamic
+     * type of the root object itself.
+     * 
+     * @since 2.5
+     */
+    public ObjectWriter forType(Class<?> rootType) {
+        if (rootType == Object.class) {
+            return forType((JavaType) null);
+        }
+        return forType(_config.constructType(rootType));
+    }
+
+    /**
+     * Method that will construct a new instance that uses specific type
+     * as the root type for serialization, instead of runtime dynamic
+     * type of the root object itself.
+     * 
+     * @since 2.5
+     */
+    public ObjectWriter forType(TypeReference<?> rootType) {
+        return forType(_config.getTypeFactory().constructType(rootType.getType()));
+    }
+
+    /**
+     * Method that will construct a new instance that uses specific type
+     * as the base type when determining if and how to write polymorphic
+     * type information, that is, what kind of {@link TypeSerializer} to
+     * use, if any.
+     * It does NOT, however, determine actual {@link JsonSerializer} to use,
+     * which is based either on runtime type, or by type set using
+     * {@link #forType(Class)} method}.
+     * Note that it is possible to use this method with or without
+     * {@link #forType(Class)} (that is, one, both or none), and that most
+     * often this method is used when root value is polymorphic, or
+     * default typing is enabled.
+     *
+     * @since 2.6
+     */
+    public ObjectWriter withBaseType(JavaType baseType)
+    {
+        Prefetch pf = _prefetch.withBaseType(this, baseType);
+        return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
+    }
+
+    /**
+     * @since 2.6
+     */
+    public ObjectWriter withBaseType(Class<?> rootType) {
+        return withBaseType(_config.constructType(rootType));
+    }
+
+    /**
+     * @since 2.6
+     */
+    public ObjectWriter withBaseType(TypeReference<?> rootType) {
+        return withBaseType(_config.getTypeFactory().constructType(rootType.getType()));
+    }
+    
+    /**
+     * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
+     */
+    @Deprecated // since 2.5
+    public ObjectWriter withType(JavaType rootType) {
+        return forType(rootType);
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(Class)} instead
+     */
+    @Deprecated // since 2.5
+    public ObjectWriter withType(Class<?> rootType) {
+        return forType(rootType);
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(TypeReference)} instead
+     */
+    @Deprecated // since 2.5
+    public ObjectWriter withType(TypeReference<?> rootType) {
+        return forType(rootType);
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories, other
+    /**********************************************************
+     */
+    
     /**
      * Fluent factory method that will construct a new writer instance that will
      * use specified date format for serializing dates; or if null passed, one
@@ -459,76 +565,6 @@ public class ObjectWriter
     @Deprecated
     public ObjectWriter withSchema(FormatSchema schema) {
         return with(schema);
-    }
-
-    /**
-     * Method that will construct a new instance that uses specific type
-     * as the root type for serialization, instead of runtime dynamic
-     * type of the root object itself.
-     *<p>
-     * Note that method does NOT change state of this reader, but
-     * rather construct and returns a newly configured instance.
-     * 
-     * @since 2.5
-     */
-    public ObjectWriter forType(JavaType rootType)
-    {
-        Prefetch pf;
-        if (rootType == null || rootType.hasRawClass(Object.class)) {
-            pf = Prefetch.empty;
-        } else {
-            // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-            /* 19-Mar-2015, tatu: Except when dealing with Collection, Map types, where
-             *    this does more harm than help.
-             */
-            if (!rootType.isContainerType()) {
-                rootType = rootType.withStaticTyping();
-            }
-            pf = _prefetchRootSerializer(_config, rootType);
-        }
-        return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
-    }
-
-    /**
-     * Method that will construct a new instance that uses specific type
-     * as the root type for serialization, instead of runtime dynamic
-     * type of the root object itself.
-     * 
-     * @since 2.5
-     */
-    public ObjectWriter forType(Class<?> rootType) {
-        if (rootType == Object.class) {
-            return forType((JavaType) null);
-        }
-        return forType(_config.constructType(rootType));
-    }
-
-    public ObjectWriter forType(TypeReference<?> rootType) {
-        return forType(_config.getTypeFactory().constructType(rootType.getType()));
-    }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
-     */
-    @Deprecated // since 2.5
-    public ObjectWriter withType(JavaType rootType) {
-        return forType(rootType);
-    }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(Class)} instead
-     */
-    @Deprecated // since 2.5
-    public ObjectWriter withType(Class<?> rootType) {
-        return forType(rootType);
-    }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(TypeReference)} instead
-     */
-    @Deprecated // since 2.5
-    public ObjectWriter withType(TypeReference<?> rootType) {
-        return forType(rootType);
     }
 
     /**
@@ -867,17 +903,25 @@ public class ObjectWriter
         _configureGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof Closeable)) {
-            _writeCloseableValue(gen, value, _config);
-        } else {
-            JsonSerializer<Object> ser = _prefetch.valueSerializer;
-            if (ser != null) {
-                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType, ser);
-            } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(_config).serializePolymorphic(gen, value,
-                        _prefetch.rootType, _prefetch.typeSerializer);
-            } else {
-                _serializerProvider(_config).serializeValue(gen, value);
+
+            Closeable toClose = (Closeable) value;
+            try {
+                _prefetch.serialize(gen, value, _serializerProvider());
+                if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
+                    gen.flush();
+                }
+                Closeable tmpToClose = toClose;
+                toClose = null;
+                tmpToClose.close();
+            } finally {
+                if (toClose != null) {
+                    try {
+                        toClose.close();
+                    } catch (IOException ioe) { }
+                }
             }
+        } else {
+            _prefetch.serialize(gen, value, _serializerProvider());
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 gen.flush();
             }
@@ -1006,7 +1050,7 @@ public class ObjectWriter
         if (type == null) {
             throw new IllegalArgumentException("type must be provided");
         }
-        _serializerProvider(_config).acceptJsonFormatVisitor(type, visitor);
+        _serializerProvider().acceptJsonFormatVisitor(type, visitor);
     }
 
     /**
@@ -1017,7 +1061,7 @@ public class ObjectWriter
     }
 
     public boolean canSerialize(Class<?> type) {
-        return _serializerProvider(_config).hasSerializerFor(type, null);
+        return _serializerProvider().hasSerializerFor(type, null);
     }
 
     /**
@@ -1027,7 +1071,7 @@ public class ObjectWriter
      * @since 2.3
      */
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
-        return _serializerProvider(_config).hasSerializerFor(type, cause);
+        return _serializerProvider().hasSerializerFor(type, cause);
     }
 
     /*
@@ -1040,8 +1084,8 @@ public class ObjectWriter
      * Overridable helper method used for constructing
      * {@link SerializerProvider} to use for serialization.
      */
-    protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
-        return _serializerProvider.createInstance(config, _serializerFactory);
+    protected DefaultSerializerProvider _serializerProvider() {
+        return _serializerProvider.createInstance(_config, _serializerFactory);
     }
 
     /*
@@ -1070,28 +1114,18 @@ public class ObjectWriter
     protected final void _configAndWriteValue(JsonGenerator gen, Object value) throws IOException
     {
         _configureGenerator(gen);
-        // [JACKSON-282]: consider Closeable
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _writeCloseable(gen, value, _config);
+            _writeCloseable(gen, value);
             return;
         }
         boolean closed = false;
         try {
-            if (_prefetch.valueSerializer != null) {
-                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
-                        _prefetch.valueSerializer);
-            } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(_config).serializePolymorphic(gen, value,
-                        _prefetch.rootType, _prefetch.typeSerializer);
-            } else {
-                _serializerProvider(_config).serializeValue(gen, value);
-            }
+            _prefetch.serialize(gen, value, _serializerProvider());
             closed = true;
             gen.close();
         } finally {
-            /* won't try to close twice; also, must catch exception (so it 
-             * will not mask exception that is pending)
-             */
+            // won't try to close twice; also, must catch exception (so it 
+            // will not mask exception that is pending)
             if (!closed) {
                 /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                  *    structures, which typically causes more damage.
@@ -1108,20 +1142,12 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseable(JsonGenerator gen, Object value, SerializationConfig cfg)
+    private final void _writeCloseable(JsonGenerator gen, Object value)
         throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
-            if (_prefetch.valueSerializer != null) {
-                _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
-                        _prefetch.valueSerializer);
-            } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(cfg).serializePolymorphic(gen, value,
-                        _prefetch.rootType, _prefetch.typeSerializer);
-            } else {
-                _serializerProvider(cfg).serializeValue(gen, value);
-            }
+            _prefetch.serialize(gen, value, _serializerProvider());
             JsonGenerator tmpGen = gen;
             gen = null;
             tmpGen.close();
@@ -1147,67 +1173,6 @@ public class ObjectWriter
                 } catch (IOException ioe) { }
             }
         }
-    }
-    
-    /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
-     * method is to be called right after serialization has been called
-     */
-    private final void _writeCloseableValue(JsonGenerator gen, Object value, SerializationConfig cfg)
-        throws IOException
-    {
-        Closeable toClose = (Closeable) value;
-        try {
-            if (_prefetch.valueSerializer != null) {
-                _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
-                        _prefetch.valueSerializer);
-            } else if (_prefetch.typeSerializer != null) {
-                _serializerProvider(cfg).serializePolymorphic(gen, value,
-                        _prefetch.rootType, _prefetch.typeSerializer);
-            } else {
-                _serializerProvider(cfg).serializeValue(gen, value);
-            }
-            if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                gen.flush();
-            }
-            Closeable tmpToClose = toClose;
-            toClose = null;
-            tmpToClose.close();
-        } finally {
-            if (toClose != null) {
-                try {
-                    toClose.close();
-                } catch (IOException ioe) { }
-            }
-        }
-    }
-
-    /**
-     * Method called to locate (root) serializer ahead of time, if permitted
-     * by configuration. Method also is NOT to throw an exception if
-     * access fails.
-     */
-    protected Prefetch _prefetchRootSerializer(SerializationConfig config, JavaType valueType)
-    {
-        if (valueType != null && _config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
-            /* 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
-             *   so although it'd seem like a good idea to look for those first, and avoid
-             *   serializer for polymorphic types, it is actually more efficient to do the
-             *   reverse here.
-             */
-            try {
-                JsonSerializer<Object> ser = _serializerProvider(config).findTypedValueSerializer(valueType, true, null);
-                // Important: for polymorphic types, "unwrap"...
-                if (ser instanceof TypeWrappedSerializer) {
-                    return Prefetch.construct(valueType, ((TypeWrappedSerializer) ser).typeSerializer());
-                }
-                return Prefetch.construct(valueType,  ser);
-            } catch (JsonProcessingException e) {
-                // need to swallow?
-                ;
-            }
-        }
-        return Prefetch.empty;
     }
 
     /**
@@ -1364,51 +1329,136 @@ public class ObjectWriter
     {
         private static final long serialVersionUID = 1L;
 
-        public final static Prefetch empty = new Prefetch(null, null, null);
+        public final static Prefetch empty = new Prefetch(null, null, null, null);
         
         /**
          * Specified root serialization type to use; can be same
          * as runtime type, but usually one of its super types
+         * (parent class or interface it implements).
          */
-        public final JavaType rootType;
+        private final JavaType rootType;
 
+        /**
+         * Optional alternate type used for locating {@link TypeSerializer}
+         * to use.
+         *
+         * @since 2.6
+         */
+        private final JavaType baseType;
+        
         /**
          * We may pre-fetch serializer if {@link #rootType}
          * is known, and if so, reuse it afterwards.
          * This allows avoiding further serializer lookups and increases
          * performance a bit on cases where readers are reused.
          */
-        public final JsonSerializer<Object> valueSerializer;
+        private final JsonSerializer<Object> valueSerializer;
 
         /**
          * When dealing with polymorphic types, we can not pre-fetch
-         * serializer, but we can pre-fetch {@link TypeSerializer}.
+         * serializer, but can pre-fetch {@link TypeSerializer}.
          */
-        public final TypeSerializer typeSerializer;
+        private final TypeSerializer typeSerializer;
         
-        private Prefetch(JavaType type, JsonSerializer<Object> ser, TypeSerializer typeSer)
+        private Prefetch(JavaType rootT, JavaType baseT,
+                JsonSerializer<Object> ser, TypeSerializer typeSer)
         {
-            rootType = type;
+            rootType = rootT;
+            baseType = baseT;
             valueSerializer = ser;
             typeSerializer = typeSer;
         }
 
-        public static Prefetch construct(JavaType type, JsonSerializer<Object> ser) {
-            if (type == null && ser == null) {
-                return empty;
+        public Prefetch forRootType(ObjectWriter parent, JavaType newType) {
+            // First: if nominal type not defined, or trivial (java.lang.Object),
+            // not thing much to do
+            boolean noType = (newType == null) || newType.isJavaLangObject();
+
+            if (noType) {
+                if ((rootType == null) || (valueSerializer == null)) {
+                    return this;
+                }
+                return new Prefetch(null, baseType, null, typeSerializer);
             }
-            return new Prefetch(type, ser, null);
+            if (newType.equals(rootType)) {
+                return this;
+            }
+            if (parent.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
+                DefaultSerializerProvider prov = parent._serializerProvider();
+                // 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
+                //   so although it'd seem like a good idea to look for those first, and avoid
+                //   serializer for polymorphic types, it is actually more efficient to do the
+                //   reverse here.
+                try {
+                    JsonSerializer<Object> ser = prov.findTypedValueSerializer(newType, true, null);
+                    // Important: for polymorphic types, "unwrap"...
+                    if (ser instanceof TypeWrappedSerializer) {
+                        return new Prefetch(newType, baseType, null,
+                                ((TypeWrappedSerializer) ser).typeSerializer());
+                    }
+                    return new Prefetch(newType, baseType, ser, null);
+                } catch (JsonProcessingException e) {
+                    // need to swallow?
+                    ;
+                }
+            }
+            return new Prefetch(null, baseType, null, typeSerializer);
         }
-        
-        public static Prefetch construct(JavaType type, TypeSerializer typeSer) {
-            if (type == null && typeSer == null) {
-                return empty;
+
+        public Prefetch withBaseType(ObjectWriter parent, JavaType newType) {
+            // Clearing base type?
+            if (newType == null) {
+                if (baseType == null) {
+                    return this;
+                }
+                // Should be able to retain actual value serializer, if any, however:
+                return new Prefetch(rootType, null, valueSerializer, null);
             }
-            return new Prefetch(type, null, typeSer);
+            if (newType.equals(baseType)) {
+                return this;
+            }
+            // !!! TODO
+            return this;
+        }
+
+        public final JsonSerializer<Object> getValueSerializer() {
+            return valueSerializer;
+        }
+
+        public final TypeSerializer getTypeSerializer() {
+            return typeSerializer;
         }
 
         public boolean hasSerializer() {
             return (valueSerializer != null) || (typeSerializer != null);
         }
+
+        public void serialize(JsonGenerator gen, Object value, DefaultSerializerProvider prov)
+            throws IOException
+        {
+            if (typeSerializer != null) {
+                prov.serializePolymorphic(gen, value, rootType, valueSerializer, typeSerializer);
+                return;
+            }
+            if (valueSerializer != null) {
+                prov.serializeValue(gen, value, rootType, valueSerializer);
+                return;
+            }
+            prov.serializeValue(gen, value);
+        }
+        
+        /*
+        if (rootType == null || rootType.hasRawClass(Object.class)) {
+            pf = Prefetch.empty;
+        } else {
+            // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+            // 19-Mar-2015, tatu: Except when dealing with Collection, Map types, where
+            //    this does more harm than help.
+            if (!rootType.isContainerType()) {
+                rootType = rootType.withStaticTyping();
+            }
+            pf =  pf.forType(_config, rootType);
+        }
+         */
     }
 }

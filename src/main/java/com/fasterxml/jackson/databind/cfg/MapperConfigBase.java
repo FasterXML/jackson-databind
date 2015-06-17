@@ -434,6 +434,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _rootName;
     }
 
+    @Override
     public final Class<?> getActiveView() {
         return _view;
     }

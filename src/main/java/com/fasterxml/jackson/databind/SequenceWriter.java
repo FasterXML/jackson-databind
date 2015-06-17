@@ -82,8 +82,8 @@ public class SequenceWriter
         _provider = prov;
         _generator = gen;
         _closeGenerator = closeGenerator;
-        _rootSerializer = prefetch.valueSerializer;
-        _typeSerializer = prefetch.typeSerializer;
+        _rootSerializer = prefetch.getValueSerializer();
+        _typeSerializer = prefetch.getTypeSerializer();
 
         _config = prov.getConfig();
         _cfgFlush = _config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE);

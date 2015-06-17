@@ -398,41 +398,6 @@ public class ObjectWriter
     }
 
     /**
-     * Method that will construct a new instance that uses specific type
-     * as the base type when determining if and how to write polymorphic
-     * type information, that is, what kind of {@link TypeSerializer} to
-     * use, if any.
-     * It does NOT, however, determine actual {@link JsonSerializer} to use,
-     * which is based either on runtime type, or by type set using
-     * {@link #forType(Class)} method}.
-     * Note that it is possible to use this method with or without
-     * {@link #forType(Class)} (that is, one, both or none), and that most
-     * often this method is used when root value is polymorphic, or
-     * default typing is enabled.
-     *
-     * @since 2.6
-     */
-    public ObjectWriter withBaseType(JavaType baseType)
-    {
-        Prefetch pf = _prefetch.withBaseType(this, baseType);
-        return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
-    }
-
-    /**
-     * @since 2.6
-     */
-    public ObjectWriter withBaseType(Class<?> rootType) {
-        return withBaseType(_config.constructType(rootType));
-    }
-
-    /**
-     * @since 2.6
-     */
-    public ObjectWriter withBaseType(TypeReference<?> rootType) {
-        return withBaseType(_config.getTypeFactory().constructType(rootType.getType()));
-    }
-    
-    /**
      * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
      */
     @Deprecated // since 2.5
@@ -1329,7 +1294,7 @@ public class ObjectWriter
     {
         private static final long serialVersionUID = 1L;
 
-        public final static Prefetch empty = new Prefetch(null, null, null, null);
+        public final static Prefetch empty = new Prefetch(null, null, null);
         
         /**
          * Specified root serialization type to use; can be same
@@ -1338,14 +1303,6 @@ public class ObjectWriter
          */
         private final JavaType rootType;
 
-        /**
-         * Optional alternate type used for locating {@link TypeSerializer}
-         * to use.
-         *
-         * @since 2.6
-         */
-        private final JavaType baseType;
-        
         /**
          * We may pre-fetch serializer if {@link #rootType}
          * is known, and if so, reuse it afterwards.
@@ -1360,11 +1317,10 @@ public class ObjectWriter
          */
         private final TypeSerializer typeSerializer;
         
-        private Prefetch(JavaType rootT, JavaType baseT,
+        private Prefetch(JavaType rootT,
                 JsonSerializer<Object> ser, TypeSerializer typeSer)
         {
             rootType = rootT;
-            baseType = baseT;
             valueSerializer = ser;
             typeSerializer = typeSer;
         }
@@ -1378,7 +1334,7 @@ public class ObjectWriter
                 if ((rootType == null) || (valueSerializer == null)) {
                     return this;
                 }
-                return new Prefetch(null, baseType, null, typeSerializer);
+                return new Prefetch(null, null, typeSerializer);
             }
             if (newType.equals(rootType)) {
                 return this;
@@ -1393,32 +1349,16 @@ public class ObjectWriter
                     JsonSerializer<Object> ser = prov.findTypedValueSerializer(newType, true, null);
                     // Important: for polymorphic types, "unwrap"...
                     if (ser instanceof TypeWrappedSerializer) {
-                        return new Prefetch(newType, baseType, null,
+                        return new Prefetch(newType, null,
                                 ((TypeWrappedSerializer) ser).typeSerializer());
                     }
-                    return new Prefetch(newType, baseType, ser, null);
+                    return new Prefetch(newType, ser, null);
                 } catch (JsonProcessingException e) {
                     // need to swallow?
                     ;
                 }
             }
-            return new Prefetch(null, baseType, null, typeSerializer);
-        }
-
-        public Prefetch withBaseType(ObjectWriter parent, JavaType newType) {
-            // Clearing base type?
-            if (newType == null) {
-                if (baseType == null) {
-                    return this;
-                }
-                // Should be able to retain actual value serializer, if any, however:
-                return new Prefetch(rootType, null, valueSerializer, null);
-            }
-            if (newType.equals(baseType)) {
-                return this;
-            }
-            // !!! TODO
-            return this;
+            return new Prefetch(null, null, typeSerializer);
         }
 
         public final JsonSerializer<Object> getValueSerializer() {
@@ -1446,19 +1386,5 @@ public class ObjectWriter
             }
             prov.serializeValue(gen, value);
         }
-        
-        /*
-        if (rootType == null || rootType.hasRawClass(Object.class)) {
-            pf = Prefetch.empty;
-        } else {
-            // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-            // 19-Mar-2015, tatu: Except when dealing with Collection, Map types, where
-            //    this does more harm than help.
-            if (!rootType.isContainerType()) {
-                rootType = rootType.withStaticTyping();
-            }
-            pf =  pf.forType(_config, rootType);
-        }
-         */
     }
 }

@@ -276,8 +276,6 @@ public enum SerializationFeature implements ConfigFeature
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).
      *<p>
-     * For further details, check out [JACKSON-314]
-     *<p>
      * Feature is enabled by default.
      */
     WRITE_NULL_MAP_VALUES(true),

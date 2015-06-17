@@ -45,9 +45,11 @@ public class ObjectId825Test extends BaseMapTest
         a.d = d;
 
         String json = DEF_TYPING_MAPPER.writeValueAsString(a);
-        System.out.println("JSON: " + json);
+//        System.out.println("JSON: " + json);
         TestA testADeserialized = DEF_TYPING_MAPPER.readValue(json, TestA.class);
 
         assertNotNull(testADeserialized);
+        assertNotNull(testADeserialized.d);
+        assertEquals("oidD", testADeserialized.d.oidString);
     }
 }

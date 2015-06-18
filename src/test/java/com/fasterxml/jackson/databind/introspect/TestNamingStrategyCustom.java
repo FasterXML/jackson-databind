@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 /**
- * Unit tests to verify functioning of {@link PropertyNamingStrategy} which
- * was added in Jackson 1.8, as per [JACKSON-178].
+ * Unit tests to verify functioning of {@link PropertyNamingStrategy}.
  */
 @SuppressWarnings("serial")
 public class TestNamingStrategyCustom extends BaseMapTest
@@ -138,7 +137,6 @@ public class TestNamingStrategyCustom extends BaseMapTest
         }
     }
 
-    // [JACKSON-687]
     static class LcStrategy extends PropertyNamingStrategy.PropertyNamingStrategyBase
     {
         @Override
@@ -230,7 +228,6 @@ public class TestNamingStrategyCustom extends BaseMapTest
         assertEquals(3, result.values.get(0).intValue);
     }
 
-    // For [JACKSON-687]
     public void testLowerCase() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -243,7 +240,7 @@ public class TestNamingStrategyCustom extends BaseMapTest
         assertEquals("a", result.getTheValues().get(0));
     }
 
-    // @JsonNaming / [Issue#45]
+    // @JsonNaming / [databind#45]
     public void testPerClassAnnotation() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();

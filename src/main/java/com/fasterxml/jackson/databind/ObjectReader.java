@@ -176,7 +176,7 @@ public class ObjectReader
         _injectableValues = injectableValues;
         _unwrapRoot = config.useRootWrapping();
 
-        _rootDeserializer = _prefetchRootDeserializer(config, valueType);
+        _rootDeserializer = _prefetchRootDeserializer(valueType);
         _dataFormatReaders = null;        
     }
     
@@ -299,12 +299,11 @@ public class ObjectReader
      * 
      * @since 2.5
      */
-    protected <T> MappingIterator<T> _newIterator(JavaType valueType,
-            JsonParser parser, DeserializationContext ctxt,
-            JsonDeserializer<?> deser, boolean parserManaged, Object valueToUpdate)
+    protected <T> MappingIterator<T> _newIterator(JsonParser p, DeserializationContext ctxt,
+            JsonDeserializer<?> deser, boolean parserManaged)
     {
-        return new MappingIterator<T>(valueType, parser, ctxt,
-                deser, parserManaged, valueToUpdate);
+        return new MappingIterator<T>(_valueType, p, ctxt,
+                deser, parserManaged, _valueToUpdate);
     }
 
     /*
@@ -579,7 +578,7 @@ public class ObjectReader
         if (valueType != null && valueType.equals(_valueType)) {
             return this;
         }
-        JsonDeserializer<Object> rootDeser = _prefetchRootDeserializer(_config, valueType);
+        JsonDeserializer<Object> rootDeser = _prefetchRootDeserializer(valueType);
         // type is stored here, no need to make a copy of config
         DataFormatReaders det = _dataFormatReaders;
         if (det != null) {
@@ -1054,7 +1053,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
-        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src));
     }
 
     /**
@@ -1070,7 +1069,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src));
     }
     
     /**
@@ -1086,7 +1085,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src));
     }
 
     /**
@@ -1102,7 +1101,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, 0, src.length);
         }
-        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src));
     }
 
     /**
@@ -1118,7 +1117,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, offset, length);
         }
-        return (T) _bindAndClose(_parserFactory.createParser(src, offset, length), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src, offset, length));
     }
     
     @SuppressWarnings("unchecked")
@@ -1128,7 +1127,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src));
     }
 
     /**
@@ -1144,7 +1143,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src));
     }
 
     /**
@@ -1161,7 +1160,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(treeAsTokens(src), _valueToUpdate);
+        return (T) _bindAndClose(treeAsTokens(src));
     }
     
     /**
@@ -1235,14 +1234,12 @@ public class ObjectReader
      * parser MUST NOT point to the surrounding <code>START_ARRAY</code> but rather
      * to the token following it.
      */
-    public <T> MappingIterator<T> readValues(JsonParser jp)
+    public <T> MappingIterator<T> readValues(JsonParser p)
         throws IOException, JsonProcessingException
     {
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(p);
         // false -> do not close as caller gave parser instance
-        return _newIterator(_valueType, jp, ctxt,
-                _findRootDeserializer(ctxt, _valueType),
-                false, _valueToUpdate);
+        return _newIterator(p, ctxt, _findRootDeserializer(ctxt), false);
     }
     
     /**
@@ -1271,7 +1268,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
-        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src));
     }
     
     /**
@@ -1287,9 +1284,8 @@ public class ObjectReader
         JsonParser p = _parserFactory.createParser(src);
         _initForMultiRead(p);
         p.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(p, _config);
-        return _newIterator(_valueType, p, ctxt,
-                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
+        DeserializationContext ctxt = createDeserializationContext(p);
+        return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
     
     /**
@@ -1307,9 +1303,8 @@ public class ObjectReader
         JsonParser p = _parserFactory.createParser(json);
         _initForMultiRead(p);
         p.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(p, _config);
-        return _newIterator(_valueType, p, ctxt,
-                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
+        DeserializationContext ctxt = createDeserializationContext(p);
+        return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
 
     /**
@@ -1321,7 +1316,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
-        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src));
     }
 
     /**
@@ -1342,7 +1337,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), false);
         }
-        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src));
     }
 
     /**
@@ -1357,7 +1352,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src));
     }
 
     /*
@@ -1377,9 +1372,9 @@ public class ObjectReader
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }    
-    
+
     @Override
-    public void writeValue(JsonGenerator jgen, Object value) throws IOException, JsonProcessingException {
+    public void writeValue(JsonGenerator gen, Object value) throws IOException, JsonProcessingException {
         throw new UnsupportedOperationException("Not implemented for ObjectReader");
     }
 
@@ -1392,242 +1387,158 @@ public class ObjectReader
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _bind(JsonParser jp, Object valueToUpdate) throws IOException
+    protected Object _bind(JsonParser p, Object valueToUpdate) throws IOException
     {
         /* First: may need to read the next token, to initialize state (either
          * before first read from parser, or after previous token has been cleared)
          */
         Object result;
-        JsonToken t = _initForReading(jp);
+        JsonToken t = _initForReading(p);
         if (t == JsonToken.VALUE_NULL) {
             if (valueToUpdate == null) {
-                DeserializationContext ctxt = createDeserializationContext(jp, _config);
-                result = _findRootDeserializer(ctxt, _valueType).getNullValue(ctxt);
+                DeserializationContext ctxt = createDeserializationContext(p);
+                result = _findRootDeserializer(ctxt).getNullValue(ctxt);
             } else {
                 result = valueToUpdate;
             }
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = valueToUpdate;
         } else { // pointing to event other than null
-            DeserializationContext ctxt = createDeserializationContext(jp, _config);
-            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
+            DeserializationContext ctxt = createDeserializationContext(p);
+            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt);
             if (_unwrapRoot) {
-                result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
+                result = _unwrapAndDeserialize(p, ctxt, _valueType, deser);
             } else {
                 if (valueToUpdate == null) {
-                    result = deser.deserialize(jp, ctxt);
+                    result = deser.deserialize(p, ctxt);
                 } else {
-                    deser.deserialize(jp, ctxt, valueToUpdate);
+                    deser.deserialize(p, ctxt, valueToUpdate);
                     result = valueToUpdate;
                 }
             }
         }
         // Need to consume the token too
-        jp.clearCurrentToken();
+        p.clearCurrentToken();
         return result;
     }
     
-    protected Object _bindAndClose(JsonParser jp, Object valueToUpdate) throws IOException
+    protected Object _bindAndClose(JsonParser p) throws IOException
     {
         try {
             Object result;
-            JsonToken t = _initForReading(jp);
+            JsonToken t = _initForReading(p);
             if (t == JsonToken.VALUE_NULL) {
-                if (valueToUpdate == null) {
-                    DeserializationContext ctxt = createDeserializationContext(jp, _config);
-                    result = _findRootDeserializer(ctxt, _valueType).getNullValue(ctxt);
+                if (_valueToUpdate == null) {
+                    DeserializationContext ctxt = createDeserializationContext(p);
+                    result = _findRootDeserializer(ctxt).getNullValue(ctxt);
                 } else {
-                    result = valueToUpdate;
+                    result = _valueToUpdate;
                 }
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-                result = valueToUpdate;
+                result = _valueToUpdate;
             } else {
-                DeserializationContext ctxt = createDeserializationContext(jp, _config);
-                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
+                DeserializationContext ctxt = createDeserializationContext(p);
+                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt);
                 if (_unwrapRoot) {
-                    result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
+                    result = _unwrapAndDeserialize(p, ctxt, _valueType, deser);
                 } else {
-                    if (valueToUpdate == null) {
-                        result = deser.deserialize(jp, ctxt);
+                    if (_valueToUpdate == null) {
+                        result = deser.deserialize(p, ctxt);
                     } else {
-                        deser.deserialize(jp, ctxt, valueToUpdate);
-                        result = valueToUpdate;                    
+                        deser.deserialize(p, ctxt, _valueToUpdate);
+                        result = _valueToUpdate;                    
                     }
                 }
             }
             return result;
         } finally {
             try {
-                jp.close();
+                p.close();
             } catch (IOException ioe) { }
         }
     }
 
-    protected JsonNode _bindAndCloseAsTree(JsonParser jp) throws IOException {
+    protected JsonNode _bindAndCloseAsTree(JsonParser p) throws IOException {
         try {
-            return _bindAsTree(jp);
+            return _bindAsTree(p);
         } finally {
             try {
-                jp.close();
+                p.close();
             } catch (IOException ioe) { }
         }
     }
     
-    protected JsonNode _bindAsTree(JsonParser jp) throws IOException
+    protected JsonNode _bindAsTree(JsonParser p) throws IOException
     {
         JsonNode result;
-        JsonToken t = _initForReading(jp);
+        JsonToken t = _initForReading(p);
         if (t == JsonToken.VALUE_NULL || t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = NullNode.instance;
         } else {
-            DeserializationContext ctxt = createDeserializationContext(jp, _config);
+            DeserializationContext ctxt = createDeserializationContext(p);
             JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
-                result = (JsonNode) _unwrapAndDeserialize(jp, ctxt, JSON_NODE_TYPE, deser);
+                result = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
             } else {
-                result = (JsonNode) deser.deserialize(jp, ctxt);
+                result = (JsonNode) deser.deserialize(p, ctxt);
             }
         }
         // Need to consume the token too
-        jp.clearCurrentToken();
+        p.clearCurrentToken();
         return result;
     }
     
     /**
      * @since 2.1
      */
-    protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p, Object valueToUpdate) throws IOException
+    protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p) throws IOException
     {
         _initForMultiRead(p);
         p.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(p, _config);
-        return _newIterator(_valueType, p, ctxt, 
-                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
+        DeserializationContext ctxt = createDeserializationContext(p);
+        return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
 
-    protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,
+    protected Object _unwrapAndDeserialize(JsonParser p, DeserializationContext ctxt,
             JavaType rootType, JsonDeserializer<Object> deser) throws IOException
     {
         PropertyName expRootName = _config.findRootName(rootType);
         // 12-Jun-2015, tatu: Should try to support namespaces etc but...
         String expSimpleName = expRootName.getSimpleName();
 
-        if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
-            throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +expSimpleName+"'), but "+jp.getCurrentToken());
+        if (p.getCurrentToken() != JsonToken.START_OBJECT) {
+            throw JsonMappingException.from(p, "Current token not START_OBJECT (needed to unwrap root name '"
+                    +expSimpleName+"'), but "+p.getCurrentToken());
         }
-        if (jp.nextToken() != JsonToken.FIELD_NAME) {
-            throw JsonMappingException.from(jp, "Current token not FIELD_NAME (to contain expected root name '"
-                    +expSimpleName+"'), but "+jp.getCurrentToken());
+        if (p.nextToken() != JsonToken.FIELD_NAME) {
+            throw JsonMappingException.from(p, "Current token not FIELD_NAME (to contain expected root name '"
+                    +expSimpleName+"'), but "+p.getCurrentToken());
         }
-        String actualName = jp.getCurrentName();
+        String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
-            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"
+            throw JsonMappingException.from(p, "Root name '"+actualName+"' does not match expected ('"
                     +expSimpleName+"') for type "+rootType);
         }
         // ok, then move to value itself....
-        jp.nextToken();
+        p.nextToken();
         Object result;
         if (_valueToUpdate == null) {
-            result = deser.deserialize(jp, ctxt);
+            result = deser.deserialize(p, ctxt);
         } else {
-            deser.deserialize(jp, ctxt, _valueToUpdate);
+            deser.deserialize(p, ctxt, _valueToUpdate);
             result = _valueToUpdate;                    
         }
         // and last, verify that we now get matching END_OBJECT
-        if (jp.nextToken() != JsonToken.END_OBJECT) {
-            throw JsonMappingException.from(jp, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +expSimpleName+"'), but "+jp.getCurrentToken());
+        if (p.nextToken() != JsonToken.END_OBJECT) {
+            throw JsonMappingException.from(p, "Current token not END_OBJECT (to match wrapper object with root name '"
+                    +expSimpleName+"'), but "+p.getCurrentToken());
         }
         return result;
     }
 
     /*
     /**********************************************************
-    /* Helper methods, locating deserializers etc
-    /**********************************************************
-     */
-    
-    /**
-     * Method called to locate deserializer for the passed root-level value.
-     */
-    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
-            JavaType valueType)
-        throws JsonMappingException
-    {
-        if (_rootDeserializer != null) {
-            return _rootDeserializer;
-        }
-
-        // Sanity check: must have actual type...
-        if (valueType == null) {
-            throw new JsonMappingException("No value type configured for ObjectReader");
-        }
-        
-        // First: have we already seen it?
-        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
-        if (deser != null) {
-            return deser;
-        }
-        // Nope: need to ask provider to resolve it
-        deser = ctxt.findRootValueDeserializer(valueType);
-        if (deser == null) { // can this happen?
-            throw new JsonMappingException("Can not find a deserializer for type "+valueType);
-        }
-        _rootDeserializers.put(valueType, deser);
-        return deser;
-    }
-
-    /**
-     * @since 2.6
-     */
-    protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
-        throws JsonMappingException
-    {
-        JsonDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
-        if (deser == null) {
-            // Nope: need to ask provider to resolve it
-            deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
-            if (deser == null) { // can this happen?
-                throw new JsonMappingException("Can not find a deserializer for type "+JSON_NODE_TYPE);
-            }
-            _rootDeserializers.put(JSON_NODE_TYPE, deser);
-        }
-        return deser;
-    }
-
-    /**
-     * Method called to locate deserializer ahead of time, if permitted
-     * by configuration. Method also is NOT to throw an exception if
-     * access fails.
-     */
-    protected JsonDeserializer<Object> _prefetchRootDeserializer(DeserializationConfig config, JavaType valueType)
-    {
-        if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
-            return null;
-        }
-        // already cached?
-        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
-        if (deser == null) {
-            try {
-                // If not, need to resolve; for which we need a temporary context as well:
-                DeserializationContext ctxt = createDeserializationContext(null, _config);
-                deser = ctxt.findRootValueDeserializer(valueType);
-                if (deser != null) {
-                    _rootDeserializers.put(valueType, deser);
-                }
-                return deser;
-                
-            } catch (JsonProcessingException e) {
-                // need to swallow?
-            }
-        }
-        return deser;
-    }
-
-    /*
-    /**********************************************************
-    /* Internal methods, format auto-detection (since 2.1)
+    /* Internal methods, format auto-detection
     /**********************************************************
      */
     
@@ -1638,8 +1549,8 @@ public class ObjectReader
         if (!match.hasMatch()) {
             _reportUnkownFormat(_dataFormatReaders, match);
         }
-        JsonParser jp = match.createParserWithMatch();
-        return match.getReader()._bindAndClose(jp, _valueToUpdate);
+        JsonParser p = match.createParserWithMatch();
+        return match.getReader()._bindAndClose(p);
     }
 
     @SuppressWarnings("resource")
@@ -1656,7 +1567,7 @@ public class ObjectReader
             p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         }
         // important: use matching ObjectReader (may not be 'this')
-        return match.getReader()._bindAndClose(p, _valueToUpdate);
+        return match.getReader()._bindAndClose(p);
     }
 
     @SuppressWarnings("resource")
@@ -1673,7 +1584,7 @@ public class ObjectReader
             p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         }
         // important: use matching ObjectReader (may not be 'this')
-        return match.getReader()._bindAndReadValues(p, _valueToUpdate);
+        return match.getReader()._bindAndReadValues(p);
     }
     
     @SuppressWarnings("resource")
@@ -1723,10 +1634,8 @@ public class ObjectReader
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected DefaultDeserializationContext createDeserializationContext(JsonParser jp,
-            DeserializationConfig cfg) {
-        // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
-        return _context.createInstance(cfg, jp, _injectableValues);
+    protected DefaultDeserializationContext createDeserializationContext(JsonParser p) {
+        return _context.createInstance(_config, p, _injectableValues);
     }
 
     protected void _reportUndetectableSource(Object src) throws JsonProcessingException
@@ -1742,5 +1651,87 @@ public class ObjectReader
 
     protected InputStream _inputStream(File f) throws IOException {
         return new FileInputStream(f);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, locating deserializers etc
+    /**********************************************************
+     */
+    
+    /**
+     * Method called to locate deserializer for the passed root-level value.
+     */
+    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        if (_rootDeserializer != null) {
+            return _rootDeserializer;
+        }
+
+        // Sanity check: must have actual type...
+        JavaType t = _valueType;
+        if (t == null) {
+            throw new JsonMappingException("No value type configured for ObjectReader");
+        }
+        
+        // First: have we already seen it?
+        JsonDeserializer<Object> deser = _rootDeserializers.get(t);
+        if (deser != null) {
+            return deser;
+        }
+        // Nope: need to ask provider to resolve it
+        deser = ctxt.findRootValueDeserializer(t);
+        if (deser == null) { // can this happen?
+            throw new JsonMappingException("Can not find a deserializer for type "+t);
+        }
+        _rootDeserializers.put(t, deser);
+        return deser;
+    }
+
+    /**
+     * @since 2.6
+     */
+    protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        JsonDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
+        if (deser == null) {
+            // Nope: need to ask provider to resolve it
+            deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
+            if (deser == null) { // can this happen?
+                throw new JsonMappingException("Can not find a deserializer for type "+JSON_NODE_TYPE);
+            }
+            _rootDeserializers.put(JSON_NODE_TYPE, deser);
+        }
+        return deser;
+    }
+
+    /**
+     * Method called to locate deserializer ahead of time, if permitted
+     * by configuration. Method also is NOT to throw an exception if
+     * access fails.
+     */
+    protected JsonDeserializer<Object> _prefetchRootDeserializer(JavaType valueType)
+    {
+        if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
+            return null;
+        }
+        // already cached?
+        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
+        if (deser == null) {
+            try {
+                // If not, need to resolve; for which we need a temporary context as well:
+                DeserializationContext ctxt = createDeserializationContext(null);
+                deser = ctxt.findRootValueDeserializer(valueType);
+                if (deser != null) {
+                    _rootDeserializers.put(valueType, deser);
+                }
+                return deser;
+            } catch (JsonProcessingException e) {
+                // need to swallow?
+            }
+        }
+        return deser;
     }
 }

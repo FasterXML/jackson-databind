@@ -101,20 +101,19 @@ public enum SerializationFeature implements ConfigFeature
      */
     WRAP_EXCEPTIONS(true),
 
-	/**
-	 * Feature that determines what happens when an object which
-	 * normally has type information included by Jackson is used
-	 * in conjunction with {@link com.fasterxml.jackson.annotation.JsonUnwrapped}.
-	 * In the default (enabled) state, an error will be thrown when
-	 * an unwrapped object has type information. When disabled, the
-	 * object will be unwrapped and the type information discarded.
-	 *<p>
-	 * Feature is enabled by default.
-	 *
-	 * @since 2.4
-	 */
-	FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS(true),
-
+    /**
+     * Feature that determines what happens when an object which
+     * normally has type information included by Jackson is used
+     * in conjunction with {@link com.fasterxml.jackson.annotation.JsonUnwrapped}.
+     * In the default (enabled) state, an error will be thrown when
+     * an unwrapped object has type information. When disabled, the
+     * object will be unwrapped and the type information discarded.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.4
+     */
+    FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS(true),
 
     /*
     /******************************************************

@@ -10,8 +10,7 @@ public class TestObjectId687 extends BaseMapTest
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class ReferredWithCreator {
-        @JsonProperty("label")
-        private String label;
+        public String label;
 
         @JsonCreator
         ReferredWithCreator(@JsonProperty("label")String label) {
@@ -21,52 +20,41 @@ public class TestObjectId687 extends BaseMapTest
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class ReferringToObjWithCreator {
-        @JsonProperty("label")
-        private String label = "test1";
-        @JsonProperty("refs")
-        private List<ReferredWithCreator> refs = new ArrayList<ReferredWithCreator>();
+        public String label = "test1";
+
+        public List<ReferredWithCreator> refs = new ArrayList<ReferredWithCreator>();
         public void addRef(ReferredWithCreator r) {
-            this.refs.add(r);
+            refs.add(r);
         }
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class EnclosingForRefsWithCreator {
-        @JsonProperty("label")
-        String label = "enclosing1";
-        @JsonProperty("baseRef")
-        ReferredWithCreator baseRef;
-        @JsonProperty("nextRef")
-        ReferringToObjWithCreator nextRef;
+        public String label = "enclosing1";
+        public ReferredWithCreator baseRef;
+        public ReferringToObjWithCreator nextRef;
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class ReferredWithNoCreator {
-        @JsonProperty("label")
-        private String label = "label2";
+        public String label = "label2";
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class ReferringToObjWithNoCreator {
-        @JsonProperty("label")
-        private String label = "test2";
-        @JsonProperty("refs")
-        private List<ReferredWithNoCreator> refs = new ArrayList<ReferredWithNoCreator>();
+        public String label = "test2";
+        public List<ReferredWithNoCreator> refs = new ArrayList<ReferredWithNoCreator>();
         public void addRef(ReferredWithNoCreator r) {
-            this.refs.add(r);
+            refs.add(r);
         }
     }
 
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class EnclosingForRefWithNoCreator {
-        @JsonProperty("label")
-        String label = "enclosing2";
-        @JsonProperty("baseRef")
-        ReferredWithNoCreator baseRef;
-        @JsonProperty("nextRef")
-        ReferringToObjWithNoCreator nextRef;
+        public String label = "enclosing2";
+        public ReferredWithNoCreator baseRef;
+        public ReferringToObjWithNoCreator nextRef;
     }
-
 
     /*
     /*****************************************************

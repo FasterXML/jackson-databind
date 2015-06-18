@@ -20,10 +20,27 @@ public class ISO8601Utils
     private static final String GMT_ID = "GMT";
 
     /**
-     * The GMT timezone
+     * @since 2.6
+     */
+//    private static final String UTC_ID = "UTC";
+    
+    /**
+     * The GMT timezone, prefetched to avoid more lookups.
      */
     private static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone(GMT_ID);
 
+    /**
+     * The UTC timezone, prefetched to avoid more lookups.
+     * 
+     * @since 2.6
+     */
+//    private static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone(UTC_ID);
+
+    /**
+     * Timezone we use for 'Z' in ISO-8601 date/time values.
+     */
+    private static final TimeZone TIMEZONE_Z = TIMEZONE_GMT;
+    
     /*
     /**********************************************************
     /* Static factories
@@ -32,7 +49,10 @@ public class ISO8601Utils
 
     /**
      * Accessor for static GMT timezone instance.
+     *
+     * @deprecated since 2.6
      */
+    @Deprecated // since 2.6
     public static TimeZone timeZoneGMT() {
         return TIMEZONE_GMT;
     }
@@ -189,35 +209,43 @@ public class ISO8601Utils
             }
 
             // extract timezone
-            String timezoneId;
             if (date.length() <= offset) {
                 throw new IllegalArgumentException("No time zone indicator");
             }
-            char timezoneIndicator = date.charAt(offset);
-            if (timezoneIndicator == '+' || timezoneIndicator == '-') {
-                String timezoneOffset = date.substring(offset);
-                timezoneId = GMT_ID + timezoneOffset;
-                offset += timezoneOffset.length();
-            } else if (timezoneIndicator == 'Z') {
-                timezoneId = GMT_ID;
-                offset += 1;
-            } else {
-                throw new IndexOutOfBoundsException("Invalid time zone indicator " + timezoneIndicator);
-            }
 
-            TimeZone timezone = TimeZone.getTimeZone(timezoneId);
-            String act = timezone.getID();
-            if (!act.equals(timezoneId)) {
-                /* 22-Jan-2015, tatu: Looks like canonical version has colons, but we may be given
-                 *    one without. If so, don't sweat.
-                 *   Yes, very inefficient. Hopefully not hit often.
-                 *   If it becomes a perf problem, add 'loose' comparison instead.
-                 */
-                String cleaned = act.replace(":", "");
-                if (!cleaned.equals(timezoneId)) {
-                    throw new IndexOutOfBoundsException("Mismatching time zone indicator: "+timezoneId+" given, resolves to "
-                            +timezone.getID());
+            TimeZone timezone = null;
+            char timezoneIndicator = date.charAt(offset);
+
+            if (timezoneIndicator == 'Z') {
+                timezone = TIMEZONE_Z;
+                offset += 1;
+            } else if (timezoneIndicator == '+' || timezoneIndicator == '-') {
+                String timezoneOffset = date.substring(offset);
+                offset += timezoneOffset.length();
+                // 18-Jun-2015, tatu: Minor simplification, skip offset of "+0000"/"+00:00"
+                if ("+0000".equals(timezoneOffset) || "+00:00".equals(timezoneOffset)) {
+                    timezone = TIMEZONE_Z;
+                } else {
+                    // 18-Jun-2015, tatu: Looks like offsets only work from GMT, not UTC...
+                    //    not sure why, but it is what it is.
+                    String timezoneId = GMT_ID + timezoneOffset;
+                    timezone = TimeZone.getTimeZone(timezoneId);
+                    String act = timezone.getID();
+                    if (!act.equals(timezoneId)) {
+                        /* 22-Jan-2015, tatu: Looks like canonical version has colons, but we may be given
+                         *    one without. If so, don't sweat.
+                         *   Yes, very inefficient. Hopefully not hit often.
+                         *   If it becomes a perf problem, add 'loose' comparison instead.
+                         */
+                        String cleaned = act.replace(":", "");
+                        if (!cleaned.equals(timezoneId)) {
+                            throw new IndexOutOfBoundsException("Mismatching time zone indicator: "+timezoneId+" given, resolves to "
+                                    +timezone.getID());
+                        }
+                    }
                 }
+            } else {
+                throw new IndexOutOfBoundsException("Invalid time zone indicator '" + timezoneIndicator+"'");
             }
 
             Calendar calendar = new GregorianCalendar(timezone);

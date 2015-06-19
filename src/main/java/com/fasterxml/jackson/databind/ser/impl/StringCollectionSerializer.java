@@ -6,11 +6,9 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 
 /**
@@ -24,12 +22,9 @@ import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 @SuppressWarnings("serial")
 public class StringCollectionSerializer
     extends StaticListSerializerBase<Collection<String>>
-    implements ContextualSerializer
 {
     public final static StringCollectionSerializer instance = new StringCollectionSerializer();
-    
-    protected final JsonSerializer<String> _serializer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -37,72 +32,29 @@ public class StringCollectionSerializer
      */
     
     protected StringCollectionSerializer() {
-        this(null);
+        super(Collection.class);
     }
 
-    @SuppressWarnings("unchecked")
-    protected StringCollectionSerializer(JsonSerializer<?> ser)
+    protected StringCollectionSerializer(StringCollectionSerializer src,
+            JsonSerializer<?> ser, Boolean unwrapSingle)
     {
-        super(Collection.class);
-        _serializer = (JsonSerializer<String>) ser;
+        super(src, ser, unwrapSingle);
     }        
+
+    @Override
+    public JsonSerializer<?> _withResolved(BeanProperty prop,
+            JsonSerializer<?> ser, Boolean unwrapSingle) {
+        return new StringCollectionSerializer(this, ser, unwrapSingle);
+    }
     
     @Override protected JsonNode contentSchema() {
         return createSchemaNode("string", true);
     }
     
     @Override
-    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor)
-        throws JsonMappingException
+    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) throws JsonMappingException
     {
         visitor.itemsFormat(JsonFormatTypes.STRING);
-    }
-
-    /*
-    /**********************************************************
-    /* Post-processing
-    /**********************************************************
-     */
-
-    @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
-         *    checking here since we finally know for sure the property,
-         *    and it may have overrides
-         */
-        JsonSerializer<?> ser = null;
-        // First: if we have a property, may have property-annotation overrides
-        if (property != null) {
-            AnnotatedMember m = property.getMember();
-            if (m != null) {
-                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
-                if (serDef != null) {
-                    ser = provider.serializerInstance(m, serDef);
-                }
-            }
-        }
-        if (ser == null) {
-            ser = _serializer;
-        }
-        // #124: May have a content converter
-        ser = findConvertingContentSerializer(provider, property, ser);
-        if (ser == null) {
-            ser = provider.findValueSerializer(String.class, property);
-        } else {
-            ser = provider.handleSecondaryContextualization(ser, property);
-        }
-        // Optimization: default serializer just writes String, so we can avoid a call:
-        if (isDefaultSerializer(ser)) {
-            ser = null;
-        }
-        // note: will never have TypeSerializer, because Strings are "natural" type
-        if (ser == _serializer) {
-            return this;
-        }
-        return new StringCollectionSerializer(ser);
     }
 
     /*
@@ -112,31 +64,34 @@ public class StringCollectionSerializer
      */
     
     @Override
-    public void serialize(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(Collection<String> value, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
-        // [JACKSON-805]
-    	final int len = value.size();
-        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            _serializeUnwrapped(value, jgen, provider);
-            return;
+        final int len = value.size();
+        if (len == 1) {
+            if (((_unwrapSingle == null) &&
+                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    || (_unwrapSingle == Boolean.TRUE)) {
+                _serializeUnwrapped(value, gen, provider);
+                return;
+            }
         }      
-        jgen.writeStartArray(len);
+        gen.writeStartArray(len);
         if (_serializer == null) {
-            serializeContents(value, jgen, provider);
+            serializeContents(value, gen, provider);
         } else {
-            serializeUsingCustom(value, jgen, provider);
+            serializeUsingCustom(value, gen, provider);
         }
-        jgen.writeEndArray();
+        gen.writeEndArray();
     }
 
-    private final void _serializeUnwrapped(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    private final void _serializeUnwrapped(Collection<String> value, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
         if (_serializer == null) {
-            serializeContents(value, jgen, provider);
+            serializeContents(value, gen, provider);
         } else {
-            serializeUsingCustom(value, jgen, provider);
+            serializeUsingCustom(value, gen, provider);
         }
     }
 

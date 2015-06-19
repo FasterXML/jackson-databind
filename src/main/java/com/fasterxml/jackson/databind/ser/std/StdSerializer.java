@@ -59,6 +59,15 @@ public abstract class StdSerializer<T>
     protected StdSerializer(Class<?> t, boolean dummy) {
         _handledType = (Class<T>) t;
     }
+
+    /**
+     * @since 2.6
+     */
+    @SuppressWarnings("unchecked")
+    protected StdSerializer(StdSerializer<?> src) {
+        _handledType = (Class<T>) src._handledType;
+    }
+    
     /*
     /**********************************************************
     /* Accessors

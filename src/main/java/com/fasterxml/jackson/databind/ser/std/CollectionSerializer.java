@@ -32,27 +32,40 @@ public class CollectionSerializer
     /**********************************************************
      */
 
+    /**
+     * @since 2.6
+     */
     public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            BeanProperty property, JsonSerializer<Object> valueSerializer)
-    {
-        super(Collection.class, elemType, staticTyping, vts, property, valueSerializer);
+            JsonSerializer<Object> valueSerializer) {
+        super(Collection.class, elemType, staticTyping, vts, valueSerializer);
     }
 
+    /**
+     * @deprecated since 2.6
+     */
+    @Deprecated // since 2.6
+    public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
+            BeanProperty property, JsonSerializer<Object> valueSerializer) {
+        // note: assumption is 'property' is always passed as null
+        this(elemType, staticTyping, vts, valueSerializer);
+    }
+    
     public CollectionSerializer(CollectionSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
-    {
-        super(src, property, vts, valueSerializer);
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle) {
+        super(src, property, vts, valueSerializer, unwrapSingle);
     }
     
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new CollectionSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
+        return new CollectionSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
     }
 
     @Override
     public CollectionSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return new CollectionSerializer(this, property, vts, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle) {
+        return new CollectionSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
 
     /*
@@ -85,10 +98,14 @@ public class CollectionSerializer
     @Override
     public final void serialize(Collection<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
-    	final int len = value.size();
-        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            serializeContents(value, jgen, provider);
-            return;
+        final int len = value.size();
+        if (len == 1) {
+            if (((_unwrapSingle == null) &&
+                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    || (_unwrapSingle == Boolean.TRUE)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
         }
         jgen.writeStartArray(len);
         serializeContents(value, jgen, provider);

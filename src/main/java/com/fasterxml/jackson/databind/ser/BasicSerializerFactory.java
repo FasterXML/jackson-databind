@@ -712,15 +712,15 @@ public abstract class BasicSerializerFactory
 
     public  ContainerSerializer<?> buildIndexedListSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
-        return new IndexedListSerializer(elemType, staticTyping, vts, null, valueSerializer);
+        return new IndexedListSerializer(elemType, staticTyping, vts, valueSerializer);
     }
     public ContainerSerializer<?> buildCollectionSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
-        return new CollectionSerializer(elemType, staticTyping, vts, null, valueSerializer);
+        return new CollectionSerializer(elemType, staticTyping, vts, valueSerializer);
     }
 
     public JsonSerializer<?> buildEnumSetSerializer(JavaType enumType) {
-        return new EnumSetSerializer(enumType, null);
+        return new EnumSetSerializer(enumType);
     }
 
     /*
@@ -875,7 +875,7 @@ public abstract class BasicSerializerFactory
             JavaType valueType)
         throws JsonMappingException
     {
-        return new IteratorSerializer(valueType, staticTyping, createTypeSerializer(config, valueType), null);
+        return new IteratorSerializer(valueType, staticTyping, createTypeSerializer(config, valueType));
     }
 
     @Deprecated // since 2.5
@@ -896,7 +896,7 @@ public abstract class BasicSerializerFactory
             JavaType valueType)
         throws JsonMappingException
     {
-        return new IterableSerializer(valueType, staticTyping, createTypeSerializer(config, valueType), null);
+        return new IterableSerializer(valueType, staticTyping, createTypeSerializer(config, valueType));
     }
 
     @Deprecated // since 2.5

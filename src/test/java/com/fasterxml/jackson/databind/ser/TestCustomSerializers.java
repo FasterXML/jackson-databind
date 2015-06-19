@@ -151,7 +151,7 @@ public class TestCustomSerializers extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null, null);
+        JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null);
         final JsonSerializer<Object> collectionSerializer = (JsonSerializer<Object>) ser;
 
         module.addSerializer(Collection.class, new JsonSerializer<Collection>() {

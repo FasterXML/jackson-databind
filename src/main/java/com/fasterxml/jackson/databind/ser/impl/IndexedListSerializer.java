@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -23,21 +22,22 @@ public final class IndexedListSerializer
     private static final long serialVersionUID = 1L;
 
     public IndexedListSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            BeanProperty property, JsonSerializer<Object> valueSerializer)
+            JsonSerializer<Object> valueSerializer)
     {
-        super(List.class, elemType, staticTyping, vts, property, valueSerializer);
+        super(List.class, elemType, staticTyping, vts, valueSerializer);
     }
 
     public IndexedListSerializer(IndexedListSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
-    {
-        super(src, property, vts, valueSerializer);
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle) {
+        super(src, property, vts, valueSerializer, unwrapSingle);
     }
 
     @Override
     public IndexedListSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return new IndexedListSerializer(this, property, vts, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle) {
+        return new IndexedListSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
 
     /*
@@ -58,25 +58,31 @@ public final class IndexedListSerializer
 
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IndexedListSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
+        return new IndexedListSerializer(this, 
+                _property, vts, _elementSerializer, _unwrapSingle);
     }
 
     @Override
-    public final void serialize(List<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public final void serialize(List<?> value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
-    	final int len = value.size();
-        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            serializeContents(value, jgen, provider);
-            return;
+        final int len = value.size();
+        if (len == 1) {
+            if (((_unwrapSingle == null) &&
+                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    || (_unwrapSingle == Boolean.TRUE)) {
+                serializeContents(value, gen, provider);
+                return;
+            }
         }
-        jgen.writeStartArray(len);
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray(len);
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
     
     @Override
     public void serializeContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         if (_elementSerializer != null) {
             serializeContentsUsing(value, jgen, provider, _elementSerializer);

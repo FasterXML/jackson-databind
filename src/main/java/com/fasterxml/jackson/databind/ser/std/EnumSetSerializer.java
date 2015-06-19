@@ -11,15 +11,25 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
 {
-    public EnumSetSerializer(JavaType elemType, BeanProperty property)
-    {
-        super(EnumSet.class, elemType, true, null, property, null);
+    /**
+     * @since 2.6
+     */
+    public EnumSetSerializer(JavaType elemType) {
+        super(EnumSet.class, elemType, true, null, null);
+    }
+
+    /**
+     * @deprecated since 2.6
+     */
+    @Deprecated // since 2.6
+    public EnumSetSerializer(JavaType elemType, BeanProperty property) {
+        this(elemType);
     }
 
     public EnumSetSerializer(EnumSetSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
-    {
-        super(src, property, vts, valueSerializer);
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle) {
+        super(src, property, vts, valueSerializer, unwrapSingle);
     }
     
     @Override
@@ -30,8 +40,9 @@ public class EnumSetSerializer
 
     @Override
     public EnumSetSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return new EnumSetSerializer(this, property, vts, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle) {
+        return new EnumSetSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
     
     @Override
@@ -45,21 +56,27 @@ public class EnumSetSerializer
     }
 
     @Override
-    public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
     	final int len = value.size();
-        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            serializeContents(value, jgen, provider);
-            return;
+        if (len == 1) {
+            if (((_unwrapSingle == null)
+                    && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    || (_unwrapSingle == Boolean.TRUE)) {
+                serializeContents(value, gen, provider);
+                return;
+            }
         }
-        jgen.writeStartArray(len);
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray(len);
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
     
     @Override
-    public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
+            SerializerProvider provider)
+        throws IOException
     {
         JsonSerializer<Object> enumSer = _elementSerializer;
         /* Need to dynamically find instance serializer; unfortunately
@@ -73,7 +90,7 @@ public class EnumSetSerializer
                  */
                 enumSer = provider.findValueSerializer(en.getDeclaringClass(), _property);
             }
-            enumSer.serialize(en, jgen, provider);
+            enumSer.serialize(en, gen, provider);
         }
     }
 }

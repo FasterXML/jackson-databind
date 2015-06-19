@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 
 /**
@@ -24,13 +21,10 @@ import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 @JacksonStdImpl
 public final class IndexedStringListSerializer
     extends StaticListSerializerBase<List<String>>
-    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 
     public final static IndexedStringListSerializer instance = new IndexedStringListSerializer();
-    
-    protected final JsonSerializer<String> _serializer;
 
     /*
     /**********************************************************
@@ -38,14 +32,21 @@ public final class IndexedStringListSerializer
     /**********************************************************
      */
     
-    protected IndexedStringListSerializer() { this(null); }
-
-    @SuppressWarnings("unchecked")
-    public IndexedStringListSerializer(JsonSerializer<?> ser) {
+    protected IndexedStringListSerializer() {
         super(List.class);
-        _serializer = (JsonSerializer<String>) ser;
     }
 
+    public IndexedStringListSerializer(IndexedStringListSerializer src,
+            JsonSerializer<?> ser, Boolean unwrapSingle) {
+        super(src, ser, unwrapSingle);
+    }
+
+    @Override
+    public JsonSerializer<?> _withResolved(BeanProperty prop,
+            JsonSerializer<?> ser, Boolean unwrapSingle) {
+        return new IndexedStringListSerializer(this, ser, unwrapSingle);
+    }
+    
     @Override protected JsonNode contentSchema() { return createSchemaNode("string", true); }
 
     @Override
@@ -55,108 +56,69 @@ public final class IndexedStringListSerializer
 
     /*
     /**********************************************************
-    /* Post-processing
-    /**********************************************************
-     */
-
-    @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property) throws JsonMappingException
-    {
-        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
-         *    checking here since we finally know for sure the property,
-         *    and it may have overrides
-         */
-        JsonSerializer<?> ser = null;
-        // First: if we have a property, may have property-annotation overrides
-        if (property != null) {
-            AnnotatedMember m = property.getMember();
-            if (m != null) {
-                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
-                if (serDef != null) {
-                    ser = provider.serializerInstance(m, serDef);
-                }
-            }
-        }
-        if (ser == null) {
-            ser = _serializer;
-        }
-        // #124: May have a content converter
-        ser = findConvertingContentSerializer(provider, property, ser);
-        if (ser == null) {
-            ser = provider.findValueSerializer(String.class, property);
-        } else {
-            ser = provider.handleSecondaryContextualization(ser, property);
-        }
-        // Optimization: default serializer just writes String, so we can avoid a call:
-        if (isDefaultSerializer(ser)) {
-            ser = null;
-        }
-        // note: will never have TypeSerializer, because Strings are "natural" type
-        if (ser == _serializer) {
-            return this;
-        }
-        return new IndexedStringListSerializer(ser);
-    }
-
-    /*
-    /**********************************************************
     /* Actual serialization
     /**********************************************************
      */
 
     @Override
-    public void serialize(List<String> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serialize(List<String> value, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
         final int len = value.size();
-        // [JACKSON-805]
-        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            _serializeUnwrapped(value, jgen, provider);
-            return;
+        if (len == 1) {
+            if (((_unwrapSingle == null) &&
+                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    || (_unwrapSingle == Boolean.TRUE)) {
+                _serializeUnwrapped(value, gen, provider);
+                return;
+            }
         }
         
-        jgen.writeStartArray(len);
+        gen.writeStartArray(len);
         if (_serializer == null) {
-            serializeContents(value, jgen, provider, len);
+            serializeContents(value, gen, provider, len);
         } else {
-            serializeUsingCustom(value, jgen, provider, len);
+            serializeUsingCustom(value, gen, provider, len);
         }
-        jgen.writeEndArray();
+        gen.writeEndArray();
     }
 
-    private final void _serializeUnwrapped(List<String> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    private final void _serializeUnwrapped(List<String> value, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
         if (_serializer == null) {
-            serializeContents(value, jgen, provider, 1);
+            serializeContents(value, gen, provider, 1);
         } else {
-            serializeUsingCustom(value, jgen, provider, 1);
+            serializeUsingCustom(value, gen, provider, 1);
         }
     }
     
     @Override
-    public void serializeWithType(List<String> value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(List<String> value, JsonGenerator gen,
+            SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
         final int len = value.size();
-        typeSer.writeTypePrefixForArray(value, jgen);
+        typeSer.writeTypePrefixForArray(value, gen);
         if (_serializer == null) {
-            serializeContents(value, jgen, provider, len);
+            serializeContents(value, gen, provider, len);
         } else {
-            serializeUsingCustom(value, jgen, provider, len);
+            serializeUsingCustom(value, gen, provider, len);
         }
-        typeSer.writeTypeSuffixForArray(value, jgen);
+        typeSer.writeTypeSuffixForArray(value, gen);
     }
-    
-    private final void serializeContents(List<String> value, JsonGenerator jgen, SerializerProvider provider,
-            int len) throws IOException
+
+    private final void serializeContents(List<String> value, JsonGenerator gen,
+            SerializerProvider provider, int len) throws IOException
     {
         int i = 0;
         try {
             for (; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNull(gen);
                 } else {
-                    jgen.writeString(str);
+                    gen.writeString(str);
                 }
             }
         } catch (Exception e) {
@@ -164,8 +126,8 @@ public final class IndexedStringListSerializer
         }
     }
 
-    private final void serializeUsingCustom(List<String> value, JsonGenerator jgen, SerializerProvider provider,
-            int len) throws IOException
+    private final void serializeUsingCustom(List<String> value, JsonGenerator gen,
+            SerializerProvider provider, int len) throws IOException
     {
         int i = 0;
         try {
@@ -173,9 +135,9 @@ public final class IndexedStringListSerializer
             for (i = 0; i < len; ++i) {
                 String str = value.get(i);
                 if (str == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNull(gen);
                 } else {
-                    ser.serialize(str, jgen, provider);
+                    ser.serialize(str, gen, provider);
                 }
             }
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -25,10 +26,24 @@ public abstract class AsArraySerializerBase<T>
     extends ContainerSerializer<T>
     implements ContextualSerializer
 {
-    protected final boolean _staticTyping;
-
     protected final JavaType _elementType;
 
+    /**
+     * Collection-valued property being serialized with this instance
+     */
+    protected final BeanProperty _property;
+
+    protected final boolean _staticTyping;
+
+    /**
+     * Setting for specific local override for "unwrap single element arrays":
+     * true for enable unwrapping, false for preventing it, `null` for using
+     * global configuration.
+     *
+     * @since 2.6
+     */
+    protected final Boolean _unwrapSingle;
+    
     /**
      * Type serializer used for values, if any.
      */
@@ -38,11 +53,6 @@ public abstract class AsArraySerializerBase<T>
      * Value serializer to use, if it can be statically determined
      */
     protected final JsonSerializer<Object> _elementSerializer;
-
-    /**
-     * Collection-valued property being serialized with this instance
-     */
-    protected final BeanProperty _property;
 
     /**
      * If element type can not be statically determined, mapping from
@@ -55,7 +65,32 @@ public abstract class AsArraySerializerBase<T>
     /* Life-cycle
     /**********************************************************
      */
-    
+
+    /**
+     * Non-contextual, "blueprint" constructor typically called when the first
+     * instance is created, without knowledge of property it was used via.
+     *
+     * @since 2.6
+     */
+    protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
+            TypeSerializer vts, JsonSerializer<Object> elementSerializer)
+    {
+        super(cls, false);
+        _elementType = et;
+        // static if explicitly requested, or if element type is final
+        _staticTyping = staticTyping || (et != null && et.isFinal());
+        _valueTypeSerializer = vts;
+        _property = null;
+        _elementSerializer = elementSerializer;
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+        _unwrapSingle = null;
+    }
+
+    /**
+     * @deprecated Since 2.6 Use variants that either take 'src', or do NOT pass
+     *    BeanProperty
+     */
+    @Deprecated
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
     {
@@ -68,11 +103,13 @@ public abstract class AsArraySerializerBase<T>
         _property = property;
         _elementSerializer = elementSerializer;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+        _unwrapSingle = null;
     }
 
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle)
     {
         super(src);
         _elementType = src._elementType;
@@ -81,10 +118,34 @@ public abstract class AsArraySerializerBase<T>
         _property = property;
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
         _dynamicSerializers = src._dynamicSerializers;
+        _unwrapSingle = unwrapSingle;
+    }
+
+    /**
+     * @deprecated since 2.6: use the overloaded method that takes 'unwrapSingle'
+     */
+    @Deprecated
+    protected AsArraySerializerBase(AsArraySerializerBase<?> src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
+    {
+        this(src, property, vts, elementSerializer, src._unwrapSingle);
     }
     
+    /**
+     * @deprecated since 2.6: use the overloaded method that takes 'unwrapSingle'
+     */
+    @Deprecated
+    public final AsArraySerializerBase<T> withResolved(BeanProperty property,
+            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
+        return withResolved(property, vts, elementSerializer, _unwrapSingle);
+    }
+
+    /**
+     * @since 2.6
+     */
     public abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle);
 
     /*
     /**********************************************************
@@ -112,14 +173,21 @@ public abstract class AsArraySerializerBase<T>
          *    and it may have overrides
          */
         JsonSerializer<?> ser = null;
+        Boolean unwrapSingle = null;
         // First: if we have a property, may have property-annotation overrides
+        
         if (property != null) {
+            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
+                Object serDef = intr.findContentSerializer(m);
                 if (serDef != null) {
                     ser = provider.serializerInstance(m, serDef);
                 }
+            }
+            JsonFormat.Value format = property.findFormatOverrides(intr);
+            if (format != null) {
+                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
             }
         }
         if (ser == null) {
@@ -140,8 +208,11 @@ public abstract class AsArraySerializerBase<T>
         } else {
             ser = provider.handleSecondaryContextualization(ser, property);
         }
-        if ((ser != _elementSerializer) || (property != _property) || _valueTypeSerializer != typeSer) {
-            return withResolved(property, typeSer, ser);
+        if ((ser != _elementSerializer)
+                || (property != _property)
+                || (_valueTypeSerializer != typeSer)
+                || (_unwrapSingle != unwrapSingle)) {
+            return withResolved(property, typeSer, ser, unwrapSingle);
         }
         return this;
     }

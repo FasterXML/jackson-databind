@@ -25,8 +25,8 @@ public class FormatFeaturesTest extends BaseMapTest
 
         public boolean[] bools = new boolean[] { true };
     }
-
-    @JsonPropertyOrder( { "strings", "ints", "bools" })
+    
+    @JsonPropertyOrder( { "strings", "ints", "bools", "enums" })
     static class WrapWriteWithCollections
     {
         @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
@@ -36,11 +36,14 @@ public class FormatFeaturesTest extends BaseMapTest
         public Collection<Integer> ints = Arrays.asList(Integer.valueOf(1));
 
         public Set<Boolean> bools = Collections.singleton(true);
+
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public EnumSet<ABC> enums = EnumSet.of(ABC.B);
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testWriteSingleElemArrayUnwrapped() throws Exception
+    public void testWithArrayTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
         assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true]}"),
@@ -55,5 +58,22 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true]}"),
                 MAPPER.writer().without(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithArrays()));
+    }
+
+    public void testWithCollectionTypes() throws Exception
+    {
+        // default: strings unwrapped, ints wrapped
+        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
+                MAPPER.writeValueAsString(new WrapWriteWithCollections()));
+
+        // change global default to "yes, unwrap"; changes 'bools' only
+        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':true,'enums':'B'}"),
+                MAPPER.writer().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .writeValueAsString(new WrapWriteWithCollections()));
+
+        // change global default to "no, don't, unwrap", same as first case
+        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
+                MAPPER.writer().without(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .writeValueAsString(new WrapWriteWithCollections()));
     }
 }

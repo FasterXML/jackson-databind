@@ -15,26 +15,26 @@ public class IterableSerializer
     extends AsArraySerializerBase<Iterable<?>>
 {
     public IterableSerializer(JavaType elemType, boolean staticTyping,
-            TypeSerializer vts, BeanProperty property)
-    {
-        super(Iterable.class, elemType, staticTyping, vts, property, null);
+            TypeSerializer vts) {
+        super(Iterable.class, elemType, staticTyping, vts, null);
     }
 
     public IterableSerializer(IterableSerializer src, BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> valueSerializer)
-    {
-        super(src, property, vts, valueSerializer);
+            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle) {
+        super(src, property, vts, valueSerializer, unwrapSingle);
     }
     
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IterableSerializer(_elementType, _staticTyping, vts, _property);
+        return new IterableSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
     }
 
     @Override
     public IterableSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return new IterableSerializer(this, property, vts, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle) {
+        return new IterableSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
     
     @Override
@@ -59,20 +59,25 @@ public class IterableSerializer
     }
 
     @Override
-    public final void serialize(Iterable<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public final void serialize(Iterable<?> value, JsonGenerator gen,
+        SerializerProvider provider)throws IOException
     {
-        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED) && hasSingleElement(value)) {
-            serializeContents(value, jgen, provider);
-            return;
+        if (((_unwrapSingle == null) &&
+                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                || (_unwrapSingle == Boolean.TRUE)) {
+            if (hasSingleElement(value)) {
+                serializeContents(value, gen, provider);
+                return;
+            }
         }
-        jgen.writeStartArray();
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray();
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
     
     @Override
-    public void serializeContents(Iterable<?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeContents(Iterable<?> value, JsonGenerator jgen,
+        SerializerProvider provider) throws IOException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {

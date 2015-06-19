@@ -15,16 +15,14 @@ import com.fasterxml.jackson.databind.ser.std.AsArraySerializerBase;
 public class IteratorSerializer
     extends AsArraySerializerBase<Iterator<?>>
 {
-    public IteratorSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            BeanProperty property)
-    {
-        super(Iterator.class, elemType, staticTyping, vts, property, null);
+    public IteratorSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts) {
+        super(Iterator.class, elemType, staticTyping, vts, null);
     }
 
     public IteratorSerializer(IteratorSerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
-    {
-        super(src, property, vts, valueSerializer);
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            Boolean unwrapSingle) {
+        super(src, property, vts, valueSerializer, unwrapSingle);
     }
 
     @Override
@@ -40,30 +38,36 @@ public class IteratorSerializer
     
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IteratorSerializer(_elementType, _staticTyping, vts, _property);
+        return new IteratorSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
     }
 
     @Override
     public IteratorSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return new IteratorSerializer(this, property, vts, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle) {
+        return new IteratorSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
 
     @Override
-    public final void serialize(Iterator<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public final void serialize(Iterator<?> value, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
-        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED) && hasSingleElement(value)) {
-            serializeContents(value, jgen, provider);
-            return;
+        if (((_unwrapSingle == null) &&
+                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                || (_unwrapSingle == Boolean.TRUE)) {
+            if (hasSingleElement(value)) {
+                serializeContents(value, gen, provider);
+                return;
+            }
         }
-        jgen.writeStartArray();
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray();
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
     
     @Override
-    public void serializeContents(Iterator<?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException
+    public void serializeContents(Iterator<?> value, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
         if (value.hasNext()) {
             final TypeSerializer typeSer = _valueTypeSerializer;
@@ -72,7 +76,7 @@ public class IteratorSerializer
             do {
                 Object elem = value.next();
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNull(gen);
                     continue;
                 }
                 JsonSerializer<Object> currSerializer = _elementSerializer;
@@ -88,9 +92,9 @@ public class IteratorSerializer
                     }
                 }
                 if (typeSer == null) {
-                    currSerializer.serialize(elem, jgen, provider);
+                    currSerializer.serialize(elem, gen, provider);
                 } else {
-                    currSerializer.serializeWithType(elem, jgen, provider, typeSer);
+                    currSerializer.serializeWithType(elem, gen, provider, typeSer);
                 }
             } while (value.hasNext());
         }

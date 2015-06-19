@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -31,7 +32,7 @@ public class StringArraySerializer
     private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(String.class);
 
     public final static StringArraySerializer instance = new StringArraySerializer();
-    
+
     /**
      * Value serializer to use, if it's not the standard one
      * (if it is we can optimize serialization a lot)
@@ -45,14 +46,14 @@ public class StringArraySerializer
      */
     
     protected StringArraySerializer() {
-        super(String[].class, null);
+        super(String[].class);
         _elementSerializer = null;
     }
 
     @SuppressWarnings("unchecked")
     public StringArraySerializer(StringArraySerializer src,
-            BeanProperty prop, JsonSerializer<?> ser) {
-        super(src, prop);
+            BeanProperty prop, JsonSerializer<?> ser, Boolean unwrapSingle) {
+        super(src, prop, unwrapSingle);
         _elementSerializer = (JsonSerializer<Object>) ser;
     }
     
@@ -81,20 +82,27 @@ public class StringArraySerializer
          *    and it may have overrides
          */
         JsonSerializer<?> ser = null;
+        Boolean unwrapSingle = null;
+
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
+            final AnnotationIntrospector ai = provider.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
+                Object serDef = ai.findContentSerializer(m);
                 if (serDef != null) {
                     ser = provider.serializerInstance(m, serDef);
                 }
+            }
+            JsonFormat.Value format = property.findFormatOverrides(ai);
+            if (format != null) {
+                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
             }
         }
         if (ser == null) {
             ser = _elementSerializer;
         }
-        // #124: May have a content converter
+        // May have a content converter
         ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             ser = provider.findValueSerializer(String.class, property);
@@ -106,10 +114,10 @@ public class StringArraySerializer
             ser = null;
         }
         // note: will never have TypeSerializer, because Strings are "natural" type
-        if (ser == _elementSerializer) {
+        if ((ser == _elementSerializer) && (unwrapSingle == _unwrapSingle)) {
             return this;
         }
-        return new StringArraySerializer(this, property, ser);
+        return new StringArraySerializer(this, property, ser, unwrapSingle);
     }
 
     /*
@@ -145,17 +153,21 @@ public class StringArraySerializer
      */
     
     @Override
-    public final void serialize(String[] value, JsonGenerator jgen, SerializerProvider provider)
+    public final void serialize(String[] value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
         final int len = value.length;
-        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            serializeContents(value, jgen, provider);
-            return;
+        if (len == 1) {
+            if (((_unwrapSingle == null) &&
+                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    || (_unwrapSingle == Boolean.TRUE)) {
+                serializeContents(value, gen, provider);
+                return;
+            }
         }
-        jgen.writeStartArray(len);
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray(len);
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
     
     @Override

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -76,11 +77,22 @@ public interface BeanProperty extends Named
      * @since 2.2
      */
     public boolean isRequired();
+
+    /*
+    /**********************************************************
+    /* Access to annotation information
+    /**********************************************************
+     */
     
     /**
      * Method for finding annotation associated with this property;
      * meaning annotation associated with one of entities used to
      * access property.
+     *<p>
+     * Note that this method should only be called for custom annotations;
+     * access to standard Jackson annotations (or ones supported by
+     * alternate {@link AnnotationIntrospector}s) should be accessed
+     * through {@link AnnotationIntrospector}.
      */
     public <A extends Annotation> A getAnnotation(Class<A> acls);
 
@@ -88,6 +100,11 @@ public interface BeanProperty extends Named
      * Method for finding annotation associated with context of
      * this property; usually class in which member is declared
      * (or its subtype if processing subtype).
+     *<p>
+     * Note that this method should only be called for custom annotations;
+     * access to standard Jackson annotations (or ones supported by
+     * alternate {@link AnnotationIntrospector}s) should be accessed
+     * through {@link AnnotationIntrospector}.
      */
     public <A extends Annotation> A getContextAnnotation(Class<A> acls);
 
@@ -97,6 +114,22 @@ public interface BeanProperty extends Named
      */
     public AnnotatedMember getMember();
 
+    /**
+     * Convenience method that is roughly equivalent to
+     *<pre>
+     *   return intr.findFormat(getMember());
+     *</pre>
+     *
+     * @since 2.6
+     */
+    public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr);
+
+    /*
+    /**********************************************************
+    /* Schema/introspection support
+    /**********************************************************
+     */
+    
     /**
      * Method that can be called to visit the type structure that this
      * property is part of.
@@ -177,7 +210,12 @@ public interface BeanProperty extends Named
         public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
             return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
         }
-        
+
+        @Override
+        public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
+            return null;
+        }
+
         @Override public String getName() { return _name.getSimpleName(); }
         @Override public PropertyName getFullName() { return _name; }
         @Override public JavaType getType() { return _type; }

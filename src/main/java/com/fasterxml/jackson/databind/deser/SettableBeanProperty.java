@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
@@ -354,14 +355,25 @@ public abstract class SettableBeanProperty
     }
     
     @Override
-    public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
+    public abstract AnnotatedMember getMember();
 
     @Override
-    public abstract AnnotatedMember getMember();
+    public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
 
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _contextAnnotations.get(acls);
+    }
+
+    @Override
+    public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
+        if (intr != null) {
+            AnnotatedMember m = getMember();
+            if (m != null) {
+                return intr.findFormat(m);
+            }
+        }
+        return null;
     }
 
     @Override

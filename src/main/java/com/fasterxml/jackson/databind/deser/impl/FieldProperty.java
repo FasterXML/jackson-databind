@@ -83,7 +83,7 @@ public final class FieldProperty
     
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return _annotated.getAnnotation(acls);
+        return (_annotated == null) ? null : _annotated.getAnnotation(acls);
     }
 
     @Override public AnnotatedMember getMember() {  return _annotated; }

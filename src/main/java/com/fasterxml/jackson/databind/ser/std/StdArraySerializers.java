@@ -69,8 +69,8 @@ public class StdArraySerializers
         }
 
         protected TypedPrimitiveArraySerializer(TypedPrimitiveArraySerializer<T> src,
-                BeanProperty prop, TypeSerializer vts) {
-            super(src, prop);
+                BeanProperty prop, TypeSerializer vts, Boolean unwrapSingle) {
+            super(src, prop, unwrapSingle);
             _valueTypeSerializer = vts;
         }
     }
@@ -87,7 +87,7 @@ public class StdArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
 
-        public BooleanArraySerializer() { super(boolean[].class, null); }
+        public BooleanArraySerializer() { super(boolean[].class); }
 
         /**
          * Booleans never add type info; hence, even if type serializer is suggested,
@@ -122,10 +122,14 @@ public class StdArraySerializers
         @Override
         public final void serialize(boolean[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
-        	final int len = value.length;
-            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-                serializeContents(value, jgen, provider);
-                return;
+            final int len = value.length;
+            if (len == 1) {
+                if (((_unwrapSingle == null) &&
+                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                        || (_unwrapSingle == Boolean.TRUE)) {
+                    serializeContents(value, jgen, provider);
+                    return;
+                }
             }
             jgen.writeStartArray(len);
             serializeContents(value, jgen, provider);
@@ -228,13 +232,14 @@ public class StdArraySerializers
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
 
         public ShortArraySerializer() { super(short[].class); }
-        public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop, TypeSerializer vts) {
-            super(src, prop, vts);
+        public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
+                TypeSerializer vts, Boolean unwrapSingle) {
+            super(src, prop, vts, unwrapSingle);
         }
 
         @Override
         public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new ShortArraySerializer(this, _property, vts);
+            return new ShortArraySerializer(this, _property, vts, _unwrapSingle);
         }
 
         @Override
@@ -262,9 +267,13 @@ public class StdArraySerializers
         public final void serialize(short[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
         	final int len = value.length;
-            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-                serializeContents(value, jgen, provider);
-                return;
+            if (len == 1) {
+                if (((_unwrapSingle == null) &&
+                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                        || (_unwrapSingle == Boolean.TRUE)) {
+                    serializeContents(value, jgen, provider);
+                    return;
+                }
             }
             jgen.writeStartArray(len);
             serializeContents(value, jgen, provider);
@@ -394,7 +403,7 @@ public class StdArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
 
-        public IntArraySerializer() { super(int[].class, null); }
+        public IntArraySerializer() { super(int[].class); }
 
         /**
          * Ints never add type info; hence, even if type serializer is suggested,
@@ -429,10 +438,14 @@ public class StdArraySerializers
         @Override
         public final void serialize(int[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
-        	final int len = value.length;
-            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-                serializeContents(value, jgen, provider);
-                return;
+            final int len = value.length;
+            if (len == 1) {
+                if (((_unwrapSingle == null) &&
+                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                        || (_unwrapSingle == Boolean.TRUE)) {
+                    serializeContents(value, jgen, provider);
+                    return;
+                }
             }
             jgen.writeStartArray(len);
             serializeContents(value, jgen, provider);
@@ -473,13 +486,13 @@ public class StdArraySerializers
 
         public LongArraySerializer() { super(long[].class); }
         public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
-                TypeSerializer vts) {
-            super(src, prop, vts);
+                TypeSerializer vts, Boolean unwrapSingle) {
+            super(src, prop, vts, unwrapSingle);
         }
 
         @Override
         public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new LongArraySerializer(this, _property, vts);
+            return new LongArraySerializer(this, _property, vts, _unwrapSingle);
         }
 
         @Override
@@ -506,10 +519,14 @@ public class StdArraySerializers
         @Override
         public final void serialize(long[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
-        	final int len = value.length;
-            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-                serializeContents(value, jgen, provider);
-                return;
+            final int len = value.length;
+            if (len == 1) {
+                if (((_unwrapSingle == null) &&
+                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                        || (_unwrapSingle == Boolean.TRUE)) {
+                    serializeContents(value, jgen, provider);
+                    return;
+                }
             }
             jgen.writeStartArray(len);
             serializeContents(value, jgen, provider);
@@ -564,13 +581,13 @@ public class StdArraySerializers
             super(float[].class);
         }
         public FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
-                TypeSerializer vts) {
-            super(src, prop, vts);
+                TypeSerializer vts, Boolean unwrapSingle) {
+            super(src, prop, vts, unwrapSingle);
         }
 
         @Override
         public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new FloatArraySerializer(this, _property, vts);
+            return new FloatArraySerializer(this, _property, vts, _unwrapSingle);
         }
 
         @Override
@@ -595,32 +612,36 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(float[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public final void serialize(float[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
         {
-        	final int len = value.length;
-            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-                serializeContents(value, jgen, provider);
-                return;
+            final int len = value.length;
+            if (len == 1) {
+                if (((_unwrapSingle == null) &&
+                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                        || (_unwrapSingle == Boolean.TRUE)) {
+                    serializeContents(value, gen, provider);
+                    return;
+                }
             }
-            jgen.writeStartArray(len);
-            serializeContents(value, jgen, provider);
-            jgen.writeEndArray();
+            gen.writeStartArray(len);
+            serializeContents(value, gen, provider);
+            gen.writeEndArray();
         }
         
         @Override
-        public void serializeContents(float[] value, JsonGenerator jgen, SerializerProvider provider)
+        public void serializeContents(float[] value, JsonGenerator gen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
-                    _valueTypeSerializer.writeTypePrefixForScalar(null, jgen, Float.TYPE);
-                    jgen.writeNumber(value[i]);
-                    _valueTypeSerializer.writeTypeSuffixForScalar(null, jgen);
+                    _valueTypeSerializer.writeTypePrefixForScalar(null, gen, Float.TYPE);
+                    gen.writeNumber(value[i]);
+                    _valueTypeSerializer.writeTypeSuffixForScalar(null, gen);
                 }
                 return;
             }
             for (int i = 0, len = value.length; i < len; ++i) {
-                jgen.writeNumber(value[i]);
+                gen.writeNumber(value[i]);
             }
         }
 
@@ -647,7 +668,7 @@ public class StdArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
 
-        public DoubleArraySerializer() { super(double[].class, null); }
+        public DoubleArraySerializer() { super(double[].class); }
 
         /**
          * Doubles never add type info; hence, even if type serializer is suggested,
@@ -680,23 +701,27 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(double[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public final void serialize(double[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
         {
-        	final int len = value.length;
-            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-                serializeContents(value, jgen, provider);
-                return;
+            final int len = value.length;
+            if (len == 1) {
+                if (((_unwrapSingle == null) &&
+                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                        || (_unwrapSingle == Boolean.TRUE)) {
+                    serializeContents(value, gen, provider);
+                    return;
+                }
             }
-            jgen.writeStartArray(len);
-            serializeContents(value, jgen, provider);
-            jgen.writeEndArray();
+            gen.writeStartArray(len);
+            serializeContents(value, gen, provider);
+            gen.writeEndArray();
         }
-        
+
         @Override
-        public void serializeContents(double[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public void serializeContents(double[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
-                jgen.writeNumber(value[i]);
+                gen.writeNumber(value[i]);
             }
         }
 

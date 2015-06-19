@@ -43,7 +43,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class BeanAsArraySerializer
     extends BeanSerializerBase
 {
-    private static final long serialVersionUID = -893701886577615846L;
+    private static final long serialVersionUID = 1L; // since 2.6
 
     /**
      * Serializer that would produce JSON Object version; used in
@@ -156,7 +156,6 @@ public class BeanAsArraySerializer
     public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        // [JACKSON-805]
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(provider)) {
             serializeAsArray(bean, gen, provider);

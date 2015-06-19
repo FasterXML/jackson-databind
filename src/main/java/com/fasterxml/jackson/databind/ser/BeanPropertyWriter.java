@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
@@ -42,6 +43,14 @@ public class BeanPropertyWriter extends PropertyWriter
      */
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
+    /**
+     * Marker we use to indicate case where we have done format lookup,
+     * but found nothing; marker used to avoid having to repeat such lookups.
+     *
+     * @since 2.6
+     */
+    protected final static JsonFormat.Value NO_FORMAT = new JsonFormat.Value();
+    
     /*
     /**********************************************************
     /* Settings for accessing property value to serialize
@@ -134,6 +143,13 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.3
      */
     protected final PropertyMetadata _metadata;
+
+    /**
+     * Lazily accessed value for per-property format override definition.
+     * 
+     * @since 2.6
+     */
+    protected transient JsonFormat.Value _format;
 
     /*
     /**********************************************************
@@ -425,6 +441,17 @@ public class BeanPropertyWriter extends PropertyWriter
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
+    }
+    
+    @Override
+    public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
+        JsonFormat.Value f = _format;
+        if (f == null) { // not yet looked up, do that
+            f = ((intr == null) || (_member == null)) ? null
+                    : intr.findFormat(_member);
+            _format = (f == null) ? NO_FORMAT : f;
+        }
+        return (f == NO_FORMAT) ? null : f;
     }
 
     @Override public AnnotatedMember getMember() { return _member; }

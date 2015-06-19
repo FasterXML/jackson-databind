@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -64,7 +65,7 @@ public class ObjectArraySerializer
     public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> elementSerializer)
     {
-        super(Object[].class, null);
+        super(Object[].class);
         _elementType = elemType;
         _staticTyping = staticTyping;
         _valueTypeSerializer = vts;
@@ -84,9 +85,10 @@ public class ObjectArraySerializer
     
     @SuppressWarnings("unchecked")
     public ObjectArraySerializer(ObjectArraySerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            Boolean unwrapSingle)
     {
-        super(src,  property);
+        super(src,  property, unwrapSingle);
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
@@ -101,11 +103,12 @@ public class ObjectArraySerializer
     }
 
     public ObjectArraySerializer withResolved(BeanProperty prop,
-            TypeSerializer vts, JsonSerializer<?> ser) {
-        if (_property == prop && ser == _elementSerializer && _valueTypeSerializer == vts) {
+            TypeSerializer vts, JsonSerializer<?> ser, Boolean unwrapSingle) {
+        if ((_property == prop) && (ser == _elementSerializer)
+                && (_valueTypeSerializer == vts) && (_unwrapSingle == unwrapSingle)) {
             return this;
         }
-        return new ObjectArraySerializer(this, prop, vts, ser);
+        return new ObjectArraySerializer(this, prop, vts, ser, unwrapSingle);
     }
 
     /*
@@ -123,19 +126,22 @@ public class ObjectArraySerializer
         if (vts != null) {
             vts = vts.forProperty(property);
         }
-        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
-         *    checking here since we finally know for sure the property,
-         *    and it may have overrides
-         */
         JsonSerializer<?> ser = null;
+        Boolean unwrapSingle = null;
+
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
             AnnotatedMember m = property.getMember();
+            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
             if (m != null) {
-                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
+                Object serDef = intr.findContentSerializer(m);
                 if (serDef != null) {
                     ser = provider.serializerInstance(m, serDef);
                 }
+            }
+            JsonFormat.Value format = property.findFormatOverrides(intr);
+            if (format != null) {
+                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
             }
         }
         if (ser == null) {
@@ -154,7 +160,7 @@ public class ObjectArraySerializer
         } else {
             ser = provider.handleSecondaryContextualization(ser, property);
         }
-        return withResolved(property, vts, ser);
+        return withResolved(property, vts, ser, unwrapSingle);
     }
 
     /*
@@ -190,31 +196,35 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public final void serialize(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public final void serialize(Object[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
-    	final int len = value.length;
-        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            serializeContents(value, jgen, provider);
-            return;
+        final int len = value.length;
+        if (len == 1) {
+            if (((_unwrapSingle == null) &&
+                    provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                    || (_unwrapSingle == Boolean.TRUE)) {
+                serializeContents(value, gen, provider);
+                return;
+            }
         }
-        jgen.writeStartArray(len);
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray(len);
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
-    
+
     @Override
-    public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serializeContents(Object[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
         final int len = value.length;
         if (len == 0) {
             return;
         }
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, jgen, provider, _elementSerializer);
+            serializeContentsUsing(value, gen, provider, _elementSerializer);
             return;
         }
         if (_valueTypeSerializer != null) {
-            serializeTypedContents(value, jgen, provider);
+            serializeTypedContents(value, gen, provider);
             return;
         }
         int i = 0;
@@ -224,7 +234,7 @@ public class ObjectArraySerializer
             for (; i < len; ++i) {
                 elem = value[i];
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNull(gen);
                     continue;
                 }
                 Class<?> cc = elem.getClass();
@@ -238,7 +248,7 @@ public class ObjectArraySerializer
                         serializer = _findAndAddDynamic(serializers, cc, provider);
                     }
                 }
-                serializer.serialize(elem, jgen, provider);
+                serializer.serialize(elem, gen, provider);
             }
         } catch (IOException ioe) {
             throw ioe;

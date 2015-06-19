@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ser.*;
 @SuppressWarnings("serial")
 public abstract class ArraySerializerBase<T>
     extends ContainerSerializer<T>
+    implements ContextualSerializer // for 'unwrapSingleElemArray'
 {
     protected final BeanProperty _property;
 
@@ -78,16 +80,45 @@ public abstract class ArraySerializerBase<T>
         _unwrapSingle = src._unwrapSingle;
     }
 
+    /**
+     * @since 2.6
+     */
+    public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
+            Boolean unwrapSingle);
+
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property) throws JsonMappingException
+    {
+        Boolean unwrapSingle = null;
+
+        // First: if we have a property, may have property-annotation overrides
+        if (property != null) {
+            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+            JsonFormat.Value format = property.findFormatOverrides(intr);
+            if (format != null) {
+                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+                if (unwrapSingle != _unwrapSingle) {
+                    return _withResolved(property, unwrapSingle);
+                }
+            }
+        }
+        return this;
+    }
+    
     // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
     // at least if they can provide access to actual size of value and use `writeStartArray()`
     // variant that passes size of array to output, which is helpful with some data formats
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
-        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
-                && hasSingleElement(value)) {
-            serializeContents(value, gen, provider);
-            return;
+        if (((_unwrapSingle == null) &&
+                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                || (_unwrapSingle == Boolean.TRUE)) {
+            if (hasSingleElement(value)) {
+                serializeContents(value, gen, provider);
+                return;
+            }
         }
         gen.writeStartArray();
         // [databind#631]: Assign current value, to be accessible by custom serializers

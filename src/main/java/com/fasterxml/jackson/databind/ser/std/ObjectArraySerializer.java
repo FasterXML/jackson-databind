@@ -95,10 +95,15 @@ public class ObjectArraySerializer
         _dynamicSerializers = src._dynamicSerializers;
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
     }
+
+    @Override
+    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+        return new ObjectArraySerializer(this, prop,
+                _valueTypeSerializer, _elementSerializer, unwrapSingle);
+    }
     
     @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts)
-    {
+    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new ObjectArraySerializer(_elementType, _staticTyping, vts, _elementSerializer);
     }
 

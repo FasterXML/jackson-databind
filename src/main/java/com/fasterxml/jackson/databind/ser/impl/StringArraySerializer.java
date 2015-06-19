@@ -56,7 +56,12 @@ public class StringArraySerializer
         super(src, prop, unwrapSingle);
         _elementSerializer = (JsonSerializer<Object>) ser;
     }
-    
+
+    @Override
+    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+        return new StringArraySerializer(this, prop, _elementSerializer, unwrapSingle);
+    }
+
     /**
      * Strings never add type info; hence, even if type serializer is suggested,
      * we'll ignore it...

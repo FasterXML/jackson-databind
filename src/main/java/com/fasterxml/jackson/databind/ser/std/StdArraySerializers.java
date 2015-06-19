@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -27,7 +29,7 @@ public class StdArraySerializers
     static {
         // Arrays of various types (including common object types)
         _arraySerializers.put(boolean[].class.getName(), new StdArraySerializers.BooleanArraySerializer());
-        _arraySerializers.put(byte[].class.getName(), new StdArraySerializers.ByteArraySerializer());
+        _arraySerializers.put(byte[].class.getName(), new ByteArraySerializer());
         _arraySerializers.put(char[].class.getName(), new StdArraySerializers.CharArraySerializer());
         _arraySerializers.put(short[].class.getName(), new StdArraySerializers.ShortArraySerializer());
         _arraySerializers.put(int[].class.getName(), new StdArraySerializers.IntArraySerializer());
@@ -56,7 +58,8 @@ public class StdArraySerializers
      * Intermediate base class used for cases where we may add
      * type information (excludes boolean/int/double arrays).
      */
-    protected abstract static class TypedPrimitiveArraySerializer<T> extends ArraySerializerBase<T>
+    protected abstract static class TypedPrimitiveArraySerializer<T>
+        extends ArraySerializerBase<T>
     {
         /**
          * Type serializer to use for values, if any.
@@ -82,13 +85,24 @@ public class StdArraySerializers
      */
 
     @JacksonStdImpl
-    public static class BooleanArraySerializer extends ArraySerializerBase<boolean[]>
+    public static class BooleanArraySerializer
+        extends ArraySerializerBase<boolean[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
 
         public BooleanArraySerializer() { super(boolean[].class); }
 
+        protected BooleanArraySerializer(BooleanArraySerializer src,
+                BeanProperty prop, Boolean unwrapSingle) {
+            super(src, prop, unwrapSingle);
+        }
+        
+        @Override
+        public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+            return new BooleanArraySerializer(this, prop, unwrapSingle);
+        }
+        
         /**
          * Booleans never add type info; hence, even if type serializer is suggested,
          * we'll ignore it...
@@ -167,62 +181,14 @@ public class StdArraySerializers
     }
 
     /**
-     * Unlike other integral number array serializers, we do not just print out byte values
-     * as numbers. Instead, we assume that it would make more sense to output content
-     * as base64 encoded bytes (using default base64 encoding).
-     *<p>
-     * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
+     * @deprecated Since 2.6 use the main-level implementation, base class of this class
      */
+    @Deprecated
     @JacksonStdImpl
-    public static class ByteArraySerializer extends StdSerializer<byte[]>
+    public static class ByteArraySerializer
+        extends com.fasterxml.jackson.databind.ser.std.ByteArraySerializer
     {
-        public ByteArraySerializer() {
-            super(byte[].class);
-        }
-        
-        @Override
-        public boolean isEmpty(SerializerProvider prov, byte[] value) {
-            return (value == null) || (value.length == 0);
-        }
-        
-        @Override
-        public void serialize(byte[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException
-        {
-            jgen.writeBinary(provider.getConfig().getBase64Variant(),
-                    value, 0, value.length);
-        }
-
-        @Override
-        public void serializeWithType(byte[] value, JsonGenerator jgen, SerializerProvider provider,
-                TypeSerializer typeSer)
-            throws IOException
-        {
-            typeSer.writeTypePrefixForScalar(value, jgen);
-            jgen.writeBinary(provider.getConfig().getBase64Variant(),
-                    value, 0, value.length);
-            typeSer.writeTypeSuffixForScalar(value, jgen);
-        }
-        
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            ObjectNode itemSchema = createSchemaNode("string"); //binary values written as strings?
-            return o.set("items", itemSchema);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
-            if (visitor != null) {
-                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-                if (v2 != null) {
-                    v2.itemsFormat(JsonFormatTypes.STRING);
-                }
-            }
-        }
+        public ByteArraySerializer() { super(); }
     }
 
     @JacksonStdImpl
@@ -235,6 +201,11 @@ public class StdArraySerializers
         public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
                 TypeSerializer vts, Boolean unwrapSingle) {
             super(src, prop, vts, unwrapSingle);
+        }
+
+        @Override
+        public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
+            return new ShortArraySerializer(this, prop, _valueTypeSerializer, unwrapSingle);
         }
 
         @Override
@@ -406,6 +377,19 @@ public class StdArraySerializers
         public IntArraySerializer() { super(int[].class); }
 
         /**
+         * @since 2.6
+         */
+        protected IntArraySerializer(IntArraySerializer src,
+                BeanProperty prop, Boolean unwrapSingle) {
+            super(src, prop, unwrapSingle);
+        }
+        
+        @Override
+        public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+            return new IntArraySerializer(this, prop, unwrapSingle);
+        }
+        
+        /**
          * Ints never add type info; hence, even if type serializer is suggested,
          * we'll ignore it...
          */
@@ -488,6 +472,11 @@ public class StdArraySerializers
         public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
                 TypeSerializer vts, Boolean unwrapSingle) {
             super(src, prop, vts, unwrapSingle);
+        }
+
+        @Override
+        public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
+            return new LongArraySerializer(this, prop, _valueTypeSerializer, unwrapSingle);
         }
 
         @Override
@@ -591,6 +580,11 @@ public class StdArraySerializers
         }
 
         @Override
+        public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
+            return new FloatArraySerializer(this, prop, _valueTypeSerializer, unwrapSingle);
+        }
+        
+        @Override
         public JavaType getContentType() {
             return VALUE_TYPE;
         }
@@ -669,6 +663,19 @@ public class StdArraySerializers
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
 
         public DoubleArraySerializer() { super(double[].class); }
+
+        /**
+         * @since 2.6
+         */
+        protected DoubleArraySerializer(DoubleArraySerializer src,
+                BeanProperty prop, Boolean unwrapSingle) {
+            super(src, prop, unwrapSingle);
+        }
+
+        @Override
+        public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+            return new DoubleArraySerializer(this, prop, unwrapSingle);
+        }
 
         /**
          * Doubles never add type info; hence, even if type serializer is suggested,

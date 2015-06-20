@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.BitSet;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -182,8 +183,28 @@ public class PropertyValueBuffer
     public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws IOException
     {
         if (_objectIdReader != null) {
+
+            //bojanv55 20.06.2015 had problem when deserializing ref. object.
+            if(_idValue == null){
+                //read the value of id from object that needs to be reconstructed
+                try {
+                    Field f = bean.getClass().getDeclaredField(_objectIdReader.propertyName.getSimpleName());
+                    f.setAccessible(true);
+                    _idValue = f.get(bean);
+                    f.setAccessible(false);
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
             if (_idValue != null) {
                 ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator, _objectIdReader.resolver);
+                Object res = roid.resolve();
+                if(res != null) {
+                    bean = res;
+                }
                 roid.bindItem(bean);
                 // also: may need to set a property value as well
                 SettableBeanProperty idProp = _objectIdReader.idProperty;

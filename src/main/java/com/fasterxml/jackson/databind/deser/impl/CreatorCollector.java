@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -60,9 +61,9 @@ public class CreatorCollector
     protected boolean _hasNonDefaultCreator = false;
 
     // when there are injectable values along with delegate:
-    protected CreatorProperty[] _delegateArgs;
+    protected SettableBeanProperty[] _delegateArgs;
 
-    protected CreatorProperty[] _propertyBasedArgs;
+    protected SettableBeanProperty[] _propertyBasedArgs;
 
     protected AnnotatedParameter _incompleteParameter;
 
@@ -171,14 +172,14 @@ public class CreatorCollector
     }
 
     public void addDelegatingCreator(AnnotatedWithParams creator, boolean explicit,
-            CreatorProperty[] injectables)
+            SettableBeanProperty[] injectables)
     {
         verifyNonDup(creator, C_DELEGATE, explicit);
         _delegateArgs = injectables;
     }
     
     public void addPropertyCreator(AnnotatedWithParams creator, boolean explicit,
-            CreatorProperty[] properties)
+            SettableBeanProperty[] properties)
     {
         verifyNonDup(creator, C_PROPS, explicit);
         // [JACKSON-470] Better ensure we have no duplicate names either...

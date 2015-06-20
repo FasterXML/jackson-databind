@@ -422,7 +422,7 @@ public abstract class BasicDeserializerFactory
                 boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
 
                 if (useProps) {
-                    CreatorProperty[] properties = new CreatorProperty[1];
+                    SettableBeanProperty[] properties = new SettableBeanProperty[1];
                     PropertyName name = (argDef == null) ? null : argDef.getFullName();
                     AnnotatedParameter arg = ctor.getParameter(0);
                     properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, arg,
@@ -447,7 +447,7 @@ public abstract class BasicDeserializerFactory
             //   do, with some constraints. But that will require bit post processing...
 
             AnnotatedParameter nonAnnotatedParam = null;
-            CreatorProperty[] properties = new CreatorProperty[argCount];
+            SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             int explicitNameCount = 0;
             int implicitWithCreatorCount = 0;
             int injectCount = 0;

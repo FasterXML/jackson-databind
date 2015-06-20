@@ -37,13 +37,13 @@ public class StdValueInstantiator
     // // // With-args (property-based) construction
 
     protected AnnotatedWithParams _withArgsCreator;
-    protected CreatorProperty[] _constructorArguments;
+    protected SettableBeanProperty[] _constructorArguments;
 
     // // // Delegate construction
     
     protected JavaType _delegateType;
     protected AnnotatedWithParams _delegateCreator;
-    protected CreatorProperty[] _delegateArguments;
+    protected SettableBeanProperty[] _delegateArguments;
     
     // // // Scalar construction
 
@@ -100,8 +100,8 @@ public class StdValueInstantiator
      * three), and clear other properties
      */
     public void configureFromObjectSettings(AnnotatedWithParams defaultCreator,
-            AnnotatedWithParams delegateCreator, JavaType delegateType, CreatorProperty[] delegateArgs,
-            AnnotatedWithParams withArgsCreator, CreatorProperty[] constructorArgs)
+            AnnotatedWithParams delegateCreator, JavaType delegateType, SettableBeanProperty[] delegateArgs,
+            AnnotatedWithParams withArgsCreator, SettableBeanProperty[] constructorArgs)
     {
         _defaultCreator = defaultCreator;
         _delegateCreator = delegateCreator;
@@ -247,7 +247,7 @@ public class StdValueInstantiator
             final int len = _delegateArguments.length;
             Object[] args = new Object[len];
             for (int i = 0; i < len; ++i) {
-                CreatorProperty prop = _delegateArguments[i];
+                SettableBeanProperty prop = _delegateArguments[i];
                 if (prop == null) { // delegate
                     args[i] = delegate;
                 } else { // nope, injectable:

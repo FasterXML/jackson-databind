@@ -324,7 +324,7 @@ public abstract class SerializerProvider
     public final TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
     }
-    
+
     @Override
     public final Class<?> getActiveView() { return _serializationView; }
     
@@ -334,6 +334,28 @@ public abstract class SerializerProvider
     @Deprecated
     public final Class<?> getSerializationView() { return _serializationView; }
 
+    /**
+     * Method for accessing default Locale to use: convenience method for
+     *<pre>
+     *   getConfig().getLocale();
+     *</pre>
+     */
+    @Override
+    public Locale getLocale() {
+        return _config.getLocale();
+    }
+
+    /**
+     * Method for accessing default TimeZone to use: convenience method for
+     *<pre>
+     *   getConfig().getTimeZone();
+     *</pre>
+     */
+    @Override
+    public TimeZone getTimeZone() {
+        return _config.getTimeZone();
+    }
+    
     /*
     /**********************************************************
     /* Generic attributes (2.3+)
@@ -389,26 +411,6 @@ public abstract class SerializerProvider
      */
     public final FilterProvider getFilterProvider() {
         return _config.getFilterProvider();
-    }
-
-    /**
-     * Method for accessing default Locale to use: convenience method for
-     *<pre>
-     *   getConfig().getLocale();
-     *</pre>
-     */
-    public Locale getLocale() {
-        return _config.getLocale();
-    }
-
-    /**
-     * Method for accessing default TimeZone to use: convenience method for
-     *<pre>
-     *   getConfig().getTimeZone();
-     *</pre>
-     */
-    public TimeZone getTimeZone() {
-        return _config.getTimeZone();
     }
 
     /*

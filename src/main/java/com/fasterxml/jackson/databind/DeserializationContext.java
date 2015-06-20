@@ -231,6 +231,28 @@ public abstract class DeserializationContext
         return _config.getTypeFactory();
     }
 
+    /**
+     * Method for accessing default Locale to use: convenience method for
+     *<pre>
+     *   getConfig().getLocale();
+     *</pre>
+     */
+    @Override
+    public Locale getLocale() {
+        return _config.getLocale();
+    }
+
+    /**
+     * Method for accessing default TimeZone to use: convenience method for
+     *<pre>
+     *   getConfig().getTimeZone();
+     *</pre>
+     */
+    @Override
+    public TimeZone getTimeZone() {
+        return _config.getTimeZone();
+    }
+
     /*
     /**********************************************************
     /* Access to per-call state, like generic attributes (2.3+)
@@ -359,26 +381,6 @@ public abstract class DeserializationContext
      */
     public final JsonNodeFactory getNodeFactory() {
         return _config.getNodeFactory();
-    }
-
-    /**
-     * Method for accessing default Locale to use: convenience method for
-     *<pre>
-     *   getConfig().getLocale();
-     *</pre>
-     */
-    public Locale getLocale() {
-        return _config.getLocale();
-    }
-
-    /**
-     * Method for accessing default TimeZone to use: convenience method for
-     *<pre>
-     *   getConfig().getTimeZone();
-     *</pre>
-     */
-    public TimeZone getTimeZone() {
-        return _config.getTimeZone();
     }
 
     /*

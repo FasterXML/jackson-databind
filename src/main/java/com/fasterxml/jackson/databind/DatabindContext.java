@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
@@ -42,7 +44,7 @@ public abstract class DatabindContext
      *</pre>
      */
     public abstract AnnotationIntrospector getAnnotationIntrospector();
-    
+
     /*
     /**********************************************************
     /* Access to specific config settings
@@ -76,7 +78,17 @@ public abstract class DatabindContext
      * returns null if no view has been set.
      */
     public abstract Class<?> getActiveView();
-    
+
+    /**
+     * @since 2.6
+     */
+    public abstract Locale getLocale();
+
+    /**
+     * @since 2.6
+     */
+    public abstract TimeZone getTimeZone();
+
     /*
     /**********************************************************
     /* Generic attributes (2.3+)

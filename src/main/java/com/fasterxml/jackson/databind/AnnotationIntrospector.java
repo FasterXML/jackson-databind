@@ -601,35 +601,6 @@ public abstract class AnnotationIntrospector
     public Object findNullSerializer(Annotated am) {
         return null;
     }
-    
-    /**
-     * Method for checking whether given annotated entity (class, method,
-     * field) defines which Bean/Map properties are to be included in
-     * serialization.
-     * If no annotation is found, method should return given second
-     * argument; otherwise value indicated by the annotation.
-     *<p>
-     * Note that meaning of inclusion value depends on whether it is for
-     * a Class or property (field/method/constructor): in former case,
-     * it is the default for all properties; in latter case it is specific
-     * override for annotated property.
-     *
-     * @return Enumerated value indicating which properties to include
-     *   in serialization
-     */
-    public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
-        return defValue;
-    }
-
-    /**
-     * Method for checking whether content (entries) of a {@link java.util.Map} property
-     * are to be included during serialization or not.
-     * 
-     * @since 2.5
-     */
-    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue) {
-        return defValue;
-    }
 
     /**
      * Method for accessing annotated type definition that a
@@ -726,7 +697,51 @@ public abstract class AnnotationIntrospector
     public Object findSerializationContentConverter(AnnotatedMember a) {
         return null;
     }
-    
+
+    /**
+     * Method for checking whether given annotated entity (class, method,
+     * field) defines which Bean/Map properties are to be included in
+     * serialization.
+     * If no annotation is found, method should return given second
+     * argument; otherwise value indicated by the annotation.
+     *<p>
+     * Note that meaning of inclusion value depends on whether it is for
+     * a Class or property (field/method/constructor): in former case,
+     * it is the default for all properties; in latter case it is specific
+     * override for annotated property.
+     *
+     * @return Enumerated value indicating which properties to include
+     *   in serialization
+     */
+    public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
+        return defValue;
+    }
+
+    /**
+     * Method for checking whether content (entries) of a {@link java.util.Map} property
+     * are to be included during serialization or not.
+     * NOTE: this is NOT called for POJO properties, or array/Collection elements.
+     * 
+     * @since 2.5
+     */
+    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue) {
+        return defValue;
+    }
+
+    // // // Forwards compatibility: added in 2.6 BUT NOT YET USED until 2.7
+
+    /**
+     * NOTE: introduced in 2.6 but NOT YET USED by core databind until 2.7
+     *
+     * @since 2.6
+     */
+    public JsonInclude.Value findPropertyInclusion(Annotated a) {
+        JsonInclude.Include def = JsonInclude.Include.USE_DEFAULTS;
+        JsonInclude.Include vi = findSerializationInclusion(a, def);
+        JsonInclude.Include ci = findSerializationInclusionForContent(a, def);
+        return JsonInclude.Value.construct(vi, ci);
+    }
+
     /*
     /**********************************************************
     /* Serialization: class annotations

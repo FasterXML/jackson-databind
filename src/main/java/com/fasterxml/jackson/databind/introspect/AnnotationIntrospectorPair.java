@@ -341,7 +341,18 @@ public class AnnotationIntrospectorPair
         defValue = _primary.findSerializationInclusion(a, defValue);
         return defValue;
     }
-    
+
+    @Override
+    public JsonInclude.Value findPropertyInclusion(Annotated a) {
+        JsonInclude.Value v2 = _secondary.findPropertyInclusion(a);
+        JsonInclude.Value v1 = _secondary.findPropertyInclusion(a);
+
+        if (v2 == null) { // shouldn't occur but
+            return v1;
+        }
+        return v2.withOverrides(v1);
+    }
+
     @Override
     public Class<?> findSerializationType(Annotated a) {
         Class<?> r = _primary.findSerializationType(a);

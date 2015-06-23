@@ -490,7 +490,10 @@ public class JacksonAnnotationIntrospector
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
         if (inc != null) {
-            return inc.value();
+            JsonInclude.Include v = inc.value();
+            if (v != JsonInclude.Include.USE_DEFAULTS) {
+                return v;
+            }
         }
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
@@ -515,7 +518,45 @@ public class JacksonAnnotationIntrospector
     public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
-        return (inc == null) ? defValue : inc.content();
+        if (inc != null) {
+            JsonInclude.Include incl = inc.content();
+            if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                return incl;
+            }
+        }
+        return defValue;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public JsonInclude.Value findPropertyInclusion(Annotated a)
+    {
+        JsonInclude inc = _findAnnotation(a, JsonInclude.class);
+        JsonInclude.Include valueIncl = (inc == null) ? JsonInclude.Include.USE_DEFAULTS : inc.value();
+        if (valueIncl == JsonInclude.Include.USE_DEFAULTS) {
+            JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
+            if (ann != null) {
+                JsonSerialize.Inclusion i2 = ann.include();
+                switch (i2) {
+                case ALWAYS:
+                    valueIncl = JsonInclude.Include.ALWAYS;
+                    break;
+                case NON_NULL:
+                    valueIncl = JsonInclude.Include.NON_NULL;
+                    break;
+                case NON_DEFAULT:
+                    valueIncl = JsonInclude.Include.NON_DEFAULT;
+                    break;
+                case NON_EMPTY:
+                    valueIncl = JsonInclude.Include.NON_EMPTY;
+                    break;
+                case DEFAULT_INCLUSION:
+                default:
+                }
+            }
+        }
+        JsonInclude.Include contentIncl = (inc == null) ? JsonInclude.Include.USE_DEFAULTS : inc.content();
+        return JsonInclude.Value.construct(valueIncl, contentIncl);
     }
 
     @Override
@@ -524,7 +565,7 @@ public class JacksonAnnotationIntrospector
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.as());
     }
-    
+
     @Override
     public Class<?> findSerializationKeyType(Annotated am, JavaType baseType)
     {

@@ -1,14 +1,21 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Type deserializer used with {@link As#PROPERTY}
@@ -106,24 +113,59 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     @SuppressWarnings("resource")
     protected final Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb) throws IOException
     {
-        String typeId = jp.getText();
-        JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
-        if (_typeIdVisible) { // need to merge id back in JSON input?
-            if (tb == null) {
-                tb = new TokenBuffer(null, false);
+        if(jp.getCurrentToken() == JsonToken.VALUE_STRING) {
+            String typeId = jp.getText();
+            JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+            if (_typeIdVisible) { // need to merge id back in JSON input?
+                if (tb == null) {
+                    tb = new TokenBuffer(null, false);
+                }
+                tb.writeFieldName(jp.getCurrentName());
+                tb.writeString(typeId);
             }
-            tb.writeFieldName(jp.getCurrentName());
-            tb.writeString(typeId);
+            if (tb != null) { // need to put back skipped properties?
+                jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
+            }
+            // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
+            jp.nextToken(); // to skip past String value
+            // deserializer should take care of closing END_OBJECT as well
+            return deser.deserialize(jp, ctxt);
         }
-        if (tb != null) { // need to put back skipped properties?
-            jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
+        else if(jp.getCurrentToken() == JsonToken.START_ARRAY){
+            if(_typeIdVisible){
+                if(tb==null){
+                    tb = new TokenBuffer(jp.getCodec(), false);
+                }
+                tb.writeFieldName(jp.getCurrentName());
+            }
+            Set<String> values = new HashSet<String>();
+            while(jp.getCurrentToken()!=JsonToken.END_ARRAY){
+                if(_typeIdVisible){
+                    tb.copyCurrentEvent(jp);
+                }
+                jp.nextToken();
+                if(jp.getCurrentToken() == JsonToken.VALUE_STRING){
+                    values.add(jp.getText());
+                }
+            }
+            if(_typeIdVisible){
+                tb.copyCurrentEvent(jp);
+            }
+            String typeId = Arrays.toString(values.toArray(new String[0]));
+            JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+            if (tb != null) { // need to put back skipped properties?
+                jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
+            }
+            jp.nextToken();
+            return deser.deserialize(jp, ctxt);
         }
-        // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
-        jp.nextToken(); // to skip past String value
-        // deserializer should take care of closing END_OBJECT as well
-        return deser.deserialize(jp, ctxt);
+
+        throw new IllegalStateException("Can't resolve typeid from token: " + jp.getCurrentToken());
+
     }
-    
+
+
+
     // off-lined to keep main method lean and mean...
     @SuppressWarnings("resource")
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb) throws IOException

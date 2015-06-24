@@ -1,16 +1,29 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.TreeMap;
-
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.TreeMap;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -1271,7 +1284,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public String getCurrentName() { return _parsingContext.getCurrentName(); }
+        public String getCurrentName() {
+            // Cloned from ParserBase.getCurrentName()
+            if(this._currToken != JsonToken.START_OBJECT && this._currToken != JsonToken.START_ARRAY) {
+                return this._parsingContext.getCurrentName();
+            } else {
+                JsonReadContext parent = this._parsingContext.getParent();
+                return parent.getCurrentName();
+            }
+        }
 
         @Override
         public void overrideCurrentName(String name)

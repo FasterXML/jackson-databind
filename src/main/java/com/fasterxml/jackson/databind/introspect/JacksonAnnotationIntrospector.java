@@ -616,15 +616,15 @@ public class JacksonAnnotationIntrospector
         return _findSortAlpha(ann);
     }
 
-    @Override
-    @Deprecated
-    public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
-        return _findSortAlpha(ac);
-    }
-
     private final Boolean _findSortAlpha(Annotated ann) {
         JsonPropertyOrder order = _findAnnotation(ann, JsonPropertyOrder.class);
-        return (order == null) ? null : order.alphabetic();
+        /* 23-Jun-2015, tatu: as per [databind#840], let's only consider
+         *  `true` to have any significance.
+         */
+        if ((order != null) && order.alphabetic()) {
+            return Boolean.TRUE;
+        }
+        return null;
     }
 
     @Override

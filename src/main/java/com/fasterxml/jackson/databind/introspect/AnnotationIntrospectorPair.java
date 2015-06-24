@@ -488,18 +488,6 @@ public class AnnotationIntrospectorPair
         return (r == null) ? _secondary.findSerializationPropertyOrder(ac) : r;
     }
 
-    /**
-     * Method for checking whether an annotation indicates that serialized properties
-     * for which no explicit is defined should be alphabetically (lexicograpically)
-     * ordered
-     */
-    @Override
-    @Deprecated
-    public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
-        Boolean r = _primary.findSerializationSortAlphabetically(ac);
-        return (r == null) ? _secondary.findSerializationSortAlphabetically(ac) : r;
-    }
-
     @Override
     public Boolean findSerializationSortAlphabetically(Annotated ann) {
         Boolean r = _primary.findSerializationSortAlphabetically(ann);

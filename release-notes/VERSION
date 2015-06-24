@@ -75,6 +75,7 @@ Project: jackson-databind
  (reported by mjr6140@gitgub)
 #828: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
  (contributed by Steve G, thezerobit@github)
+#840: Change semantics of `@JsonPropertyOrder(alphabetic)` to only count `true` value
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (09-Jun-2015)

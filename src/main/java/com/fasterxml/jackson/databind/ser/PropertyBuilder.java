@@ -93,47 +93,49 @@ public class PropertyBuilder
         boolean suppressNulls = false;
 
         JsonInclude.Include inclusion = propDef.findInclusion();
-        if (inclusion == null) {
+        if ((inclusion == null)
+                || (inclusion == JsonInclude.Include.USE_DEFAULTS)) { // since 2.6
             inclusion = _defaultInclusion;
-        }
-        if (inclusion != null) {
-            switch (inclusion) {
-            case NON_DEFAULT:
-                valueToSuppress = getDefaultValue(propDef.getName(), am);
-                if (valueToSuppress == null) {
-                    suppressNulls = true;
-                } else {
-                    // [JACKSON-531]: Allow comparison of arrays too...
-                    if (valueToSuppress.getClass().isArray()) {
-                        valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
-                    }
-                }
-                break;
-            case NON_ABSENT: // new with 2.6, to support Guava/JDK8 Optionals
-                // always suppress nulls
-                suppressNulls = true;
-                // and for referential types, also "empty", which in their case means "absent"
-                if (declaredType.isReferenceType()) {
-                    valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
-                }
-                break;
-            case NON_EMPTY:
-                // always suppress nulls
-                suppressNulls = true;
-                // but possibly also 'empty' values:
-                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
-                break;
-            case NON_NULL:
-                suppressNulls = true;
-                // fall through
-            case ALWAYS: // default
-                // we may still want to suppress empty collections, as per [JACKSON-254]:
-                if (declaredType.isContainerType()
-                        && !_config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)) {
-                    valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
-                }
-                break;
+            if (inclusion == null) {
+                inclusion = JsonInclude.Include.ALWAYS;
             }
+        }
+        switch (inclusion) {
+        case NON_DEFAULT:
+            valueToSuppress = getDefaultValue(propDef.getName(), am);
+            if (valueToSuppress == null) {
+                suppressNulls = true;
+            } else {
+                if (valueToSuppress.getClass().isArray()) {
+                    valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                }
+            }
+            break;
+        case NON_ABSENT: // new with 2.6, to support Guava/JDK8 Optionals
+            // always suppress nulls
+            suppressNulls = true;
+            // and for referential types, also "empty", which in their case means "absent"
+            if (declaredType.isReferenceType()) {
+                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+            }
+            break;
+        case NON_EMPTY:
+            // always suppress nulls
+            suppressNulls = true;
+            // but possibly also 'empty' values:
+            valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+            break;
+        case NON_NULL:
+            suppressNulls = true;
+            // fall through
+        case ALWAYS: // default
+        default:
+            // we may still want to suppress empty collections, as per [JACKSON-254]:
+            if (declaredType.isContainerType()
+                    && !_config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)) {
+                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
+            }
+            break;
         }
         BeanPropertyWriter bpw = new BeanPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,

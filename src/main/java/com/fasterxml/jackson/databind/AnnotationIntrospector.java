@@ -765,11 +765,6 @@ public abstract class AnnotationIntrospector
         return null;
     }
 
-    @Deprecated // since 2.4
-    public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
-        return null;
-    }
-
     /**
      * Method for adding possible virtual properties to be serialized along
      * with regular properties.

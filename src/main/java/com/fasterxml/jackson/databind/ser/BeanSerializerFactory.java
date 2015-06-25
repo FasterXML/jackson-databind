@@ -171,11 +171,7 @@ public class BeanSerializerFactory
             JavaType type, BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
     {
-        // Then JsonSerializable, @JsonValue etc:
-        JsonSerializer<?> ser = findSerializerByAnnotations(prov, type, beanDesc);
-        if (ser != null) {
-            return ser;
-        }
+        JsonSerializer<?> ser = null;
         final SerializationConfig config = prov.getConfig();
         
         // Container types differ from non-container types
@@ -208,12 +204,17 @@ public class BeanSerializerFactory
                     break;
                 }
             }
+            // 25-Jun-2015, tatu: Then JsonSerializable, @JsonValue etc. NOTE! Prior to 2.6,
+            //    this call was BEFORE custom serializer lookup, which was wrong.
+            if (ser == null) {
+                ser = findSerializerByAnnotations(prov, type, beanDesc);
+            }
         }
         
-        // Otherwise, we will check "primary types"; both marker types that
-        // indicate specific handling (JsonSerializable), or main types that have
-        // precedence over container types
         if (ser == null) {
+            // Otherwise, we will check "primary types"; both marker types that
+            // indicate specific handling (JsonSerializable), or main types that have
+            // precedence over container types
             ser = findSerializerByLookup(type, config, beanDesc, staticTyping);
             if (ser == null) {
                 ser = findSerializerByPrimaryType(prov, type, beanDesc, staticTyping);
@@ -236,7 +237,7 @@ public class BeanSerializerFactory
             }
         }
         if (ser != null) {
-            // [Issue#120]: Allow post-processing
+            // [databind#120]: Allow post-processing
             if (_factoryConfig.hasSerializerModifiers()) {
                 for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                     ser = mod.modifySerializer(config, beanDesc, ser);

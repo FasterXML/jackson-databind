@@ -1,26 +1,24 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * This unit test suite tests functioning of {@link JsonValue}
  * annotation with bean serialization.
  */
+@SuppressWarnings("serial")
 public class TestJsonValue
     extends BaseMapTest
 {
-    /*
-    /*********************************************************
-    /* Helper bean classes
-    /*********************************************************
-     */
-
     static class ValueClass<T>
     {
         final T _value;
@@ -89,14 +87,12 @@ public class TestJsonValue
         }
     }
 
-    @SuppressWarnings("serial")
     static class MapAsNumber extends HashMap<String,String>
     {
         @JsonValue
         public int value() { return 42; }
     }
 
-    @SuppressWarnings("serial")
     static class ListAsNumber extends ArrayList<Integer>
     {
         @JsonValue
@@ -130,7 +126,7 @@ public class TestJsonValue
     @JsonSubTypes(value = {@JsonSubTypes.Type(name = "boopsy", value = AdditionInterfaceImpl.class) })
     static interface AdditionInterface
     {
-    	public int add(int in);
+        public int add(int in);
     }
 	
     public static class AdditionInterfaceImpl implements AdditionInterface
@@ -158,18 +154,38 @@ public class TestJsonValue
 	    final AdditionInterface delegate;
 	
 	    public NegatingAdditionInterface(AdditionInterface delegate) {
-	    	this.delegate = delegate;
+	        this.delegate = delegate;
 	    }
 	
 	    @Override
 	    public int add(int in) {
-	      return delegate.add(-in);
+	        return delegate.add(-in);
 	    }
 	
 	    @JsonValue
 	    public AdditionInterface getDelegate() {
-	      return delegate;
+	        return delegate;
 	    }
+    }
+
+    static class Bean838 {
+        @JsonValue
+        public String value() {
+            return "value";
+        }
+    }
+
+    static class Bean838Serializer extends StdScalarSerializer<Bean838>
+    {
+        public Bean838Serializer() {
+            super(Bean838.class);
+        }
+
+        @Override
+        public void serialize(Bean838 value, JsonGenerator gen,
+                SerializerProvider provider) throws IOException {
+            gen.writeNumber(42);
+        }
     }
     
     /*
@@ -251,4 +267,18 @@ public class TestJsonValue
 	    assertEquals(2, MAPPER.readValue(json, AdditionInterface.class).add(1));
     }
 
+    public void testJsonValueWithCustomOverride() throws Exception
+    {
+        final Bean838 INPUT = new Bean838();
+
+        // by default, @JsonValue should be used
+        assertEquals(quote("value"), MAPPER.writeValueAsString(INPUT));
+
+        // but custom serializer should override it
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule()
+            .addSerializer(Bean838.class, new Bean838Serializer())
+            );
+        assertEquals("42", mapper.writeValueAsString(INPUT));
+    }
 }

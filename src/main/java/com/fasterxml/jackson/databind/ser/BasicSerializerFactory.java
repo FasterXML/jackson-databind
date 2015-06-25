@@ -547,7 +547,7 @@ public abstract class BasicSerializerFactory
     {
         final SerializationConfig config = prov.getConfig();
 
-        /* [Issue#23], 15-Mar-2013, tatu: must force static handling of root value type,
+        /* [databind#23], 15-Mar-2013, tatu: must force static handling of root value type,
          *   with just one important exception: if value type is "untyped", let's
          *   leave it as is; no clean way to make it work.
          */
@@ -568,62 +568,70 @@ public abstract class BasicSerializerFactory
         }
         JsonSerializer<Object> elementValueSerializer = _findContentSerializer(prov,
                 beanDesc.getClassInfo());
-        
         if (type.isMapLikeType()) { // implements java.util.Map
             MapLikeType mlt = (MapLikeType) type;
             /* 29-Sep-2012, tatu: This is actually too early to (try to) find
              *  key serializer from property annotations, and can lead to caching
-             *  issues (see [Issue#75]). Instead, must be done from 'createContextual()' call.
+             *  issues (see [databind#75]). Instead, must be done from 'createContextual()' call.
              *  But we do need to check class annotations.
              */
             JsonSerializer<Object> keySerializer = _findKeySerializer(prov, beanDesc.getClassInfo());
             if (mlt.isTrueMapType()) {
-                return buildMapSerializer(config, (MapType) mlt, beanDesc, staticTyping,
+                return buildMapSerializer(prov, (MapType) mlt, beanDesc, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
             }
-            // Only custom serializers may be available:
-            for (Serializers serializers : customSerializers()) {
-                MapLikeType mlType = (MapLikeType) type;
-                JsonSerializer<?> ser = serializers.findMapLikeSerializer(config,
+            // With Map-like, just 2 options: (1) Custom, (2) Annotations
+            JsonSerializer<?> ser = null;
+            MapLikeType mlType = (MapLikeType) type;
+            for (Serializers serializers : customSerializers()) { // (1) Custom
+                ser = serializers.findMapLikeSerializer(config,
                         mlType, beanDesc, keySerializer, elementTypeSerializer, elementValueSerializer);
                 if (ser != null) {
-                    // [Issue#120]: Allow post-processing
-                    if (_factoryConfig.hasSerializerModifiers()) {
-                        for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
-                            ser = mod.modifyMapLikeSerializer(config, mlType, beanDesc, ser);
-                        }
-                    }
-                    return ser;
+                    break;
                 }
             }
-            return null;
+            if (ser == null) { // (2) Annotations-based ones:
+                ser = findSerializerByAnnotations(prov, type, beanDesc);
+            }
+            if (ser != null) {
+                if (_factoryConfig.hasSerializerModifiers()) {
+                    for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+                        ser = mod.modifyMapLikeSerializer(config, mlType, beanDesc, ser);
+                    }
+                }
+            }
+            return ser;
         }
         if (type.isCollectionLikeType()) {
             CollectionLikeType clt = (CollectionLikeType) type;
             if (clt.isTrueCollectionType()) {
-                return buildCollectionSerializer(config,  (CollectionType) clt, beanDesc, staticTyping,
+                return buildCollectionSerializer(prov,  (CollectionType) clt, beanDesc, staticTyping,
                         elementTypeSerializer, elementValueSerializer);
             }
+            // With Map-like, just 2 options: (1) Custom, (2) Annotations
+            JsonSerializer<?> ser = null;
             CollectionLikeType clType = (CollectionLikeType) type;
-            // Only custom variants for this:
-            for (Serializers serializers : customSerializers()) {
-                JsonSerializer<?> ser = serializers.findCollectionLikeSerializer(config,
+            for (Serializers serializers : customSerializers()) { // (1) Custom
+                ser = serializers.findCollectionLikeSerializer(config,
                         clType, beanDesc, elementTypeSerializer, elementValueSerializer);
                 if (ser != null) {
-                    // [Issue#120]: Allow post-processing
-                    if (_factoryConfig.hasSerializerModifiers()) {
-                        for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
-                            ser = mod.modifyCollectionLikeSerializer(config, clType, beanDesc, ser);
-                        }
-                    }
-                    return ser;
+                    break;
                 }
             }
-            // fall through either way (whether shape dictates serialization as POJO or not)
-            return null;
+            if (ser == null) { // (2) Annotations-based ones:
+                ser = findSerializerByAnnotations(prov, type, beanDesc);
+            }
+            if (ser != null) {
+                if (_factoryConfig.hasSerializerModifiers()) {
+                    for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+                        ser = mod.modifyCollectionLikeSerializer(config, clType, beanDesc, ser);
+                    }
+                }
+            }
+            return ser;
         }
         if (type.isArrayType()) {
-            return buildArraySerializer(config, (ArrayType) type, beanDesc, staticTyping,
+            return buildArraySerializer(prov, (ArrayType) type, beanDesc, staticTyping,
                     elementTypeSerializer, elementValueSerializer);
         }
         return null;
@@ -635,14 +643,18 @@ public abstract class BasicSerializerFactory
      * 
      * @since 2.1
      */
-    protected JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
+    protected JsonSerializer<?> buildCollectionSerializer(SerializerProvider prov,
             CollectionType type, BeanDescription beanDesc, boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
     {
+        SerializationConfig config = prov.getConfig();
         JsonSerializer<?> ser = null;
-        // Module-provided custom collection serializers?
-        for (Serializers serializers : customSerializers()) {
+        // Order of lookups:
+        // 1. Custom serializers
+        // 2. Annotations (@JsonValue, @JsonDeserialize)
+        // 3. Defaults
+        for (Serializers serializers : customSerializers()) { // (1) Custom
             ser = serializers.findCollectionSerializer(config,
                     type, beanDesc, elementTypeSerializer, elementValueSerializer);
             if (ser != null) {
@@ -651,46 +663,49 @@ public abstract class BasicSerializerFactory
         }
 
         if (ser == null) {
-            // We may also want to use serialize Collections "as beans", if (and only if)
-            // this is specified with `@JsonFormat(shape=Object)`
-            JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-            if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
-                return null;
-            }
-            Class<?> raw = type.getRawClass();
-            if (EnumSet.class.isAssignableFrom(raw)) {
-                // this may or may not be available (Class doesn't; type of field/method does)
-                JavaType enumType = type.getContentType();
-                // and even if nominally there is something, only use if it really is enum
-                if (!enumType.isEnumType()) {
-                    enumType = null;
+            ser = findSerializerByAnnotations(prov, type, beanDesc); // (2) Annotations
+            if (ser == null) {
+                // We may also want to use serialize Collections "as beans", if (and only if)
+                // this is specified with `@JsonFormat(shape=Object)`
+                JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+                if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+                    return null;
                 }
-                ser = buildEnumSetSerializer(enumType);
-            } else {
-                Class<?> elementRaw = type.getContentType().getRawClass();
-                if (isIndexedList(raw)) {
-                    if (elementRaw == String.class) {
+                Class<?> raw = type.getRawClass();
+                if (EnumSet.class.isAssignableFrom(raw)) {
+                    // this may or may not be available (Class doesn't; type of field/method does)
+                    JavaType enumType = type.getContentType();
+                    // and even if nominally there is something, only use if it really is enum
+                    if (!enumType.isEnumType()) {
+                        enumType = null;
+                    }
+                    ser = buildEnumSetSerializer(enumType);
+                } else {
+                    Class<?> elementRaw = type.getContentType().getRawClass();
+                    if (isIndexedList(raw)) {
+                        if (elementRaw == String.class) {
+                            // [JACKSON-829] Must NOT use if we have custom serializer
+                            if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
+                                ser = IndexedStringListSerializer.instance;
+                            }
+                        } else {
+                            ser = buildIndexedListSerializer(type.getContentType(), staticTyping,
+                                elementTypeSerializer, elementValueSerializer);
+                        }
+                    } else if (elementRaw == String.class) {
                         // [JACKSON-829] Must NOT use if we have custom serializer
                         if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
-                            ser = IndexedStringListSerializer.instance;
+                            ser = StringCollectionSerializer.instance;
                         }
-                    } else {
-                        ser = buildIndexedListSerializer(type.getContentType(), staticTyping,
-                            elementTypeSerializer, elementValueSerializer);
                     }
-                } else if (elementRaw == String.class) {
-                    // [JACKSON-829] Must NOT use if we have custom serializer
-                    if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
-                        ser = StringCollectionSerializer.instance;
+                    if (ser == null) {
+                        ser = buildCollectionSerializer(type.getContentType(), staticTyping,
+                                elementTypeSerializer, elementValueSerializer);
                     }
-                }
-                if (ser == null) {
-                    ser = buildCollectionSerializer(type.getContentType(), staticTyping,
-                            elementTypeSerializer, elementValueSerializer);
                 }
             }
         }
-        // [Issue#120]: Allow post-processing
+        // [databind#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyCollectionSerializer(config, type, beanDesc, ser);
@@ -733,48 +748,58 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.Map} types.
      */
-    protected JsonSerializer<?> buildMapSerializer(SerializationConfig config,
+    protected JsonSerializer<?> buildMapSerializer(SerializerProvider prov,
             MapType type, BeanDescription beanDesc,
             boolean staticTyping, JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
     {
+        final SerializationConfig config = prov.getConfig();
         JsonSerializer<?> ser = null;
-        for (Serializers serializers : customSerializers()) {
+
+        // Order of lookups:
+        // 1. Custom serializers
+        // 2. Annotations (@JsonValue, @JsonDeserialize)
+        // 3. Defaults
+        
+        for (Serializers serializers : customSerializers()) { // (1) Custom
             ser = serializers.findMapSerializer(config, type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer);
             if (ser != null) { break; }
         }
         if (ser == null) {
-            // 08-Nov-2014, tatu: As per [databind#601], better just use default Map serializer
-            /*
-            if (EnumMap.class.isAssignableFrom(type.getRawClass())
-                    && ((keySerializer == null) || ClassUtil.isJacksonStdImpl(keySerializer))) {
-                JavaType keyType = type.getKeyType();
-                // Need to find key enum values...
-                EnumValues enums = null;
-                if (keyType.isEnumType()) { // non-enum if we got it as type erased class (from instance)
-                    @SuppressWarnings("unchecked")
-                    Class<Enum<?>> enumClass = (Class<Enum<?>>) keyType.getRawClass();
-                    enums = EnumValues.construct(config, enumClass);
+            ser = findSerializerByAnnotations(prov, type, beanDesc); // (2) Annotations
+            if (ser == null) {
+                // 08-Nov-2014, tatu: As per [databind#601], better just use default Map serializer
+                /*
+                if (EnumMap.class.isAssignableFrom(type.getRawClass())
+                        && ((keySerializer == null) || ClassUtil.isJacksonStdImpl(keySerializer))) {
+                    JavaType keyType = type.getKeyType();
+                    // Need to find key enum values...
+                    EnumValues enums = null;
+                    if (keyType.isEnumType()) { // non-enum if we got it as type erased class (from instance)
+                        @SuppressWarnings("unchecked")
+                        Class<Enum<?>> enumClass = (Class<Enum<?>>) keyType.getRawClass();
+                        enums = EnumValues.construct(config, enumClass);
+                    }
+                    ser = new EnumMapSerializer(type.getContentType(), staticTyping, enums,
+                        elementTypeSerializer, elementValueSerializer);
+                } else {
+                */
+                Object filterId = findFilterId(config, beanDesc);
+                AnnotationIntrospector ai = config.getAnnotationIntrospector();
+                MapSerializer mapSer = MapSerializer.construct(ai.findPropertiesToIgnore(beanDesc.getClassInfo(), true),
+                        type, staticTyping, elementTypeSerializer,
+                        keySerializer, elementValueSerializer, filterId);
+                Object suppressableValue = findSuppressableContentValue(config,
+                        type.getContentType(), beanDesc);
+                if (suppressableValue != null) {
+                    mapSer = mapSer.withContentInclusion(suppressableValue);
                 }
-                ser = new EnumMapSerializer(type.getContentType(), staticTyping, enums,
-                    elementTypeSerializer, elementValueSerializer);
-            } else {
-            */
-            Object filterId = findFilterId(config, beanDesc);
-            AnnotationIntrospector ai = config.getAnnotationIntrospector();
-            MapSerializer mapSer = MapSerializer.construct(ai.findPropertiesToIgnore(beanDesc.getClassInfo(), true),
-                    type, staticTyping, elementTypeSerializer,
-                    keySerializer, elementValueSerializer, filterId);
-            Object suppressableValue = findSuppressableContentValue(config,
-                    type.getContentType(), beanDesc);
-            if (suppressableValue != null) {
-                mapSer = mapSer.withContentInclusion(suppressableValue);
+                ser = mapSer;
             }
-            ser = mapSer;
         }
-        // [Issue#120]: Allow post-processing
+        // [databind#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyMapSerializer(config, type, beanDesc, ser);
@@ -821,22 +846,28 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * <code>Object[]</code> (and subtypes, except for String).
      */
-    protected JsonSerializer<?> buildArraySerializer(SerializationConfig config,
+    protected JsonSerializer<?> buildArraySerializer(SerializerProvider prov,
             ArrayType type, BeanDescription beanDesc,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
     {
-        JsonSerializer<?> ser = null;        
-         // Module-provided custom collection serializers?
-         for (Serializers serializers : customSerializers()) {
+        // 25-Jun-2015, tatu: Note that unlike with Collection(Like) and Map(Like) types, array
+        //   types can not be annotated (in theory I guess we could have mix-ins but... ?)
+        //   so we need not do primary annotation lookup here.
+        //   So all we need is (1) Custom, (2) Default array serializers
+        SerializationConfig config = prov.getConfig();
+        JsonSerializer<?> ser = null;
+
+        for (Serializers serializers : customSerializers()) { // (1) Custom
              ser = serializers.findArraySerializer(config,
                      type, beanDesc, elementTypeSerializer, elementValueSerializer);
              if (ser != null) {
                  break;
              }
-         }
-         if (ser == null) {
+        }
+        
+        if (ser == null) {
              Class<?> raw = type.getRawClass();
              // Important: do NOT use standard serializers if non-standard element value serializer specified
              if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
@@ -852,7 +883,7 @@ public abstract class BasicSerializerFactory
                          elementValueSerializer);
              }
          }
-         // [Issue#120]: Allow post-processing
+         // [databind#120]: Allow post-processing
          if (_factoryConfig.hasSerializerModifiers()) {
              for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                  ser = mod.modifyArraySerializer(config, type, beanDesc, ser);

@@ -304,6 +304,12 @@ public class TestCreators
         assertEquals(42, bean.x);
     }
 
+    public void testSimpleConstructorDefaultAttribute() throws Exception
+    {
+        ConstructorBean bean = MAPPER.readerFor(ConstructorBean.class).withAttribute("x", 42).readValue("{}");
+        assertEquals(42, bean.x);
+    }
+
     // [JACKSON-850]
     public void testNoArgsFactory() throws Exception
     {

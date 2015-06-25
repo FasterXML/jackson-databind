@@ -136,6 +136,10 @@ public class PropertyValueBuffer
             return _context.findInjectableValue(prop.getInjectableValueId(),
                     prop, null);
         }
+        Object contextDefaultValue = _context.getAttribute(prop.getName());
+        if (contextDefaultValue != null) {
+            return contextDefaultValue;
+        }
         // Second: required?
         if (prop.isRequired()) {
             throw _context.mappingException(String.format("Missing required creator property '%s' (index %d)",

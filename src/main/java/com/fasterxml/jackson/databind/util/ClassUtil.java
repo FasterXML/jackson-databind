@@ -202,6 +202,10 @@ public final class ClassUtil
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 2.6, use method in {@link com.fasterxml.jackson.databind.type.TypeFactory}.
+     */
+    @Deprecated
     public static Class<?> findClass(String className) throws ClassNotFoundException
     {
         // [JACKSON-597]: support primitive types (and void)

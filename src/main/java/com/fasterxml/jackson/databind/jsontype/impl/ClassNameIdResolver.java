@@ -60,7 +60,7 @@ public class ClassNameIdResolver
             return t;
         }
         try {
-            Class<?> cls =  ClassUtil.findClass(id);
+            Class<?> cls =  typeFactory.findClass(id);
             return typeFactory.constructSpecializedType(_baseType, cls);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): no such class found");

@@ -531,15 +531,17 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Helper method to use for locating Class for given name. Should be used
-     * instead of basic <code>Class.forName(className);</code> as it can
-     * try using contextual class loader, or use platform-specific workarounds
-     * (like on Android, GAE).
+     * Helper method that is to be used when resolving basic class name into
+     * Class instance, the reason being that it may be necessary to work around
+     * various ClassLoader limitations, as well as to handle primitive type
+     * signatures.
+     *
+     * @since 2.6
      */
     public Class<?> findClass(String className) throws ClassNotFoundException
     {
         // By default, delegate to ClassUtil: can be overridden with custom handling
-        return ClassUtil.findClass(className);
+        return getTypeFactory().findClass(className);
     }
 
     /*

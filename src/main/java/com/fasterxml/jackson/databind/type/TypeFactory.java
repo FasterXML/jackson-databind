@@ -7,6 +7,7 @@ import java.lang.reflect.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LRUMap;
 
 /**
@@ -173,6 +174,64 @@ public final class TypeFactory
         }
         // Shouldbe able to optimize bit more in future...
         return defaultInstance().constructType(t).getRawClass();
+    }
+
+    /*
+    /**********************************************************
+    /* Low-level helper methods
+    /**********************************************************
+     */
+
+    /**
+     * Low-level lookup method moved from {@link com.fasterxml.jackson.databind.util.ClassUtil},
+     * to allow for overriding of lookup functionality in environments like OSGi.
+     *
+     * @since 2.6
+     */
+    public Class<?> findClass(String className) throws ClassNotFoundException
+    {
+        if (className.indexOf('.') < 0) {
+            Class<?> prim = _findPrimitive(className);
+            if (prim != null) {
+                return prim;
+            }
+        }
+        // Two-phase lookup: first using context ClassLoader; then default
+        Throwable prob = null;
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        
+        if (loader != null) {
+            try {
+                return Class.forName(className, true, loader);
+            } catch (Exception e) {
+                prob = ClassUtil.getRootCause(e);
+            }
+        }
+        try {
+            return Class.forName(className);
+        } catch (Exception e) {
+            if (prob == null) {
+                prob = ClassUtil.getRootCause(e);
+            }
+        }
+        if (prob instanceof RuntimeException) {
+            throw (RuntimeException) prob;
+        }
+        throw new ClassNotFoundException(prob.getMessage(), prob);
+    }
+
+    protected Class<?> _findPrimitive(String className)
+    {
+        if ("int".equals(className)) return Integer.TYPE;
+        if ("long".equals(className)) return Long.TYPE;
+        if ("float".equals(className)) return Float.TYPE;
+        if ("double".equals(className)) return Double.TYPE;
+        if ("boolean".equals(className)) return Boolean.TYPE;
+        if ("byte".equals(className)) return Byte.TYPE;
+        if ("char".equals(className)) return Character.TYPE;
+        if ("short".equals(className)) return Short.TYPE;
+        if ("void".equals(className)) return Void.TYPE;
+        return null;
     }
     
     /*

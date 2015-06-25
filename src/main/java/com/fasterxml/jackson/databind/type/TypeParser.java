@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.type;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Simple recursive-descent parser for parsing canonical {@link JavaType}
@@ -73,7 +72,7 @@ public class TypeParser
     protected Class<?> findClass(String className, MyTokenizer tokens)
     {
         try {
-            return ClassUtil.findClass(className);
+            return _factory.findClass(className);
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;

@@ -184,8 +184,8 @@ public final class TypeFactory
     /**
      * Factory method for creating a subtype of given base type, as defined
      * by specified subclass; but retaining generic type information if any.
-     * Can be used, for example, to get equivalent of "HashMap&lt;String,Integer>"
-     * from "Map&ltString,Integer>" by giving <code>HashMap.class</code>
+     * Can be used, for example, to get equivalent of "HashMap&lt;String,Integer&gt;"
+     * from "Map&lt;String,Integer&gt;" by giving <code>HashMap.class</code>
      * as subclass.
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
@@ -575,7 +575,7 @@ public final class TypeFactory
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type <code>List&ltInteger></code>, you could
+     * type <code>List&lt;Integer></code>, you could
      * call
      *<pre>
      *  TypeFactory.constructParametrizedType(List.class, List.class, Integer.class);
@@ -583,7 +583,7 @@ public final class TypeFactory
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
-     * constructed for <code>ArrayList<Integer></code>, the usual call would be:
+     * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
      *<pre>
      *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
      *</pre>
@@ -632,7 +632,7 @@ public final class TypeFactory
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
-     * constructed for <code>ArrayList<Integer></code>, the usual call would be:
+     * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
      *<pre>
      *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
      *</pre>
@@ -701,7 +701,7 @@ public final class TypeFactory
      * and is equivalent to calling:
      *<pre>
      *  typeFactory.constructCollectionType(collectionClass, typeFactory.unknownType());
-     *<pre>
+     *</pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
@@ -716,7 +716,7 @@ public final class TypeFactory
      * and is equivalent to calling:
      *<pre>
      *  typeFactory.constructCollectionLikeType(collectionClass, typeFactory.unknownType());
-     *<pre>
+     *</pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
@@ -731,7 +731,7 @@ public final class TypeFactory
      * and is equivalent to calling:
      *<pre>
      *  typeFactory.constructMapType(collectionClass, typeFactory.unknownType(), typeFactory.unknownType());
-     *<pre>
+     *</pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */
@@ -746,7 +746,7 @@ public final class TypeFactory
      * and is equivalent to calling:
      *<pre>
      *  typeFactory.constructMapLikeType(collectionClass, typeFactory.unknownType(), typeFactory.unknownType());
-     *<pre>
+     *</pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
      */

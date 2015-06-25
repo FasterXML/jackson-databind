@@ -651,9 +651,9 @@ public class MapDeserializer
     }
 
     /**
-     * Helper class to maintain processing order of value. The resolved
-     * object associated with {@link #_id} comes before the values in
-     * {@link _next}.
+     * Helper class to maintain processing order of value.
+     * The resolved object associated with {@link #key} comes before the values in
+     * {@link #next}.
      */
     final static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;

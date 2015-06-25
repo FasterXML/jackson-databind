@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
  * {@link com.fasterxml.jackson.annotation.JsonValue} annotation to
  * indicate that serialization should be done by calling the method
  * annotated, and serializing result it returns.
- * <p/>
+ *<p>
  * Implementation note: we will post-process resulting serializer
  * (much like what is done with {@link BeanSerializer})
  * to figure out actual serializers for final types.

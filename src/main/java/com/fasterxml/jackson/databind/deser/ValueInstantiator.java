@@ -250,7 +250,7 @@ public abstract class ValueInstantiator
      */
 
     /**
-     * @since 2.4 (demoted from <code>StdValueInstantiator)
+     * @since 2.4 (demoted from <code>StdValueInstantiator</code>)
      */
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
             throws IOException, JsonProcessingException

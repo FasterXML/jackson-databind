@@ -222,7 +222,7 @@ public @interface JsonSerialize
          *   and return value of 0 indicates empty String (note that <code>String.isEmpty()</code>
          *   was added in Java 1.6 and as such can not be used by Jackson
          *   </li>
-         * <ul>
+         * </ul>
          *  For other types, non-null values are to be included.
          */
         NON_EMPTY,

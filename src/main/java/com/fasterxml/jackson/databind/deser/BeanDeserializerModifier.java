@@ -24,9 +24,11 @@ import com.fasterxml.jackson.databind.type.MapType;
  * of deserializers can be changed.
  *<p>
  * Sequence in which callback methods are called for {@link BeanDeserializer} is:
+ * <ol>
  *  <li>{@link #updateProperties} is called once all property definitions are
  *    collected, and initial filtering (by ignorable type and explicit ignoral-by-bean)
  *    has been performed.
+ *   </li>
  *  <li>{@link #updateBuilder} is called once all initial pieces for building deserializer
  *    have been collected
  *   </li>

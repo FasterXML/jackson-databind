@@ -28,9 +28,9 @@ public class PropertyBuilder
 
     /**
      * If a property has serialization inclusion value of
-     * {@link Inclusion#ALWAYS}, we need to know the default
-     * value of the bean, to know if property value equals default
-     * one.
+     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT},
+     * we need to know the default value of the bean, to know if property value
+     * equals default one.
      */
     protected Object _defaultBean;
 

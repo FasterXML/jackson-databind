@@ -936,7 +936,7 @@ public class ObjectMapper
      * Convenience method that is functionally equivalent to:
      *<code>
      *   mapper.registerModules(mapper.findModules());
-     *<code>
+     *</code>
      *<p>
      * As with {@link #findModules()}, no caching is done for modules, so care
      * needs to be taken to either create and share a single mapper instance;

@@ -8,9 +8,9 @@ import java.util.GregorianCalendar;
 /**
  * Provide a fast thread-safe formatter/parser DateFormat for ISO8601 dates ONLY.
  * It was mainly done to be used with Jackson JSON Processor.
- * <p/>
+ *<p>
  * Watch out for clone implementation that returns itself.
- * <p/>
+ *<p>
  * All other methods but parse and format and clone are undefined behavior.
  *
  * @see ISO8601Utils

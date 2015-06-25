@@ -21,7 +21,7 @@ public abstract class SerializerFactory
      * provider; equivalent to calling
      *<pre>
      *   withConfig(getConfig().withAdditionalSerializers(additional));
-     *<pre>
+     *</pre>
      */
     public abstract SerializerFactory withAdditionalSerializers(Serializers additional);
 
@@ -32,7 +32,7 @@ public abstract class SerializerFactory
      * serializer modifier; equivalent to calling
      *<pre>
      *   withConfig(getConfig().withSerializerModifier(modifier));
-     *<pre>
+     *</pre>
      */
     public abstract SerializerFactory withSerializerModifier(BeanSerializerModifier modifier);
     

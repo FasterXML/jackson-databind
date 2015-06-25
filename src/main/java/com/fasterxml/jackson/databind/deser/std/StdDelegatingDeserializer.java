@@ -45,7 +45,7 @@ public class StdDelegatingDeserializer<T>
     protected final JavaType _delegateType;
 
     /**
-     * Underlying serializer for type <code>T<.code>.
+     * Underlying serializer for type <code>T</code>.
      */
     protected final JsonDeserializer<Object> _delegateDeserializer;
 

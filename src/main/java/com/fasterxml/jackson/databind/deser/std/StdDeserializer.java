@@ -908,7 +908,8 @@ public abstract class StdDeserializer<T>
      * {@link java.lang.Number} into "bigger" type like {@link java.lang.Long} or
      * {@link java.math.BigInteger}
      * 
-     * @see {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}, {@link DeserializationFeature#USE_LONG_FOR_INTS}
+     * @see DeserializationFeature#USE_BIG_INTEGER_FOR_INTS
+     * @see DeserializationFeature#USE_LONG_FOR_INTS
      *
      * @since 2.6
      */

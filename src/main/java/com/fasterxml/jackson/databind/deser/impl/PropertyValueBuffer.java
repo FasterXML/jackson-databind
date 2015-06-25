@@ -103,10 +103,6 @@ public class PropertyValueBuffer
      * after either {@link #assignParameter(SettableBeanProperty, Object)}
      * returns <code>true</code> (to indicate all creator properties are found), or when
      * then whole JSON Object has been processed,
-     *
-     * @param defaults If any of parameters requires nulls to be replaced with a non-null
-     *    object (usually primitive types), this is a non-null array that has such replacement
-     *    values (and nulls for cases where nulls are ok)
      */
     protected Object[] getParameters(SettableBeanProperty[] props)
         throws JsonMappingException

@@ -111,7 +111,11 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${version.plugin.javadoc}</version>
         <configuration>
+<!-- Only works on Java 8:
           <additionalparam>-Xdoclint:none</additionalparam>
+-->
+<!-- so with Java 7, use this: -->
+          <failOnError>false</failOnError>
           <links>
             <link>http://docs.oracle.com/javase/7/docs/api/</link>
             <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.5</link>

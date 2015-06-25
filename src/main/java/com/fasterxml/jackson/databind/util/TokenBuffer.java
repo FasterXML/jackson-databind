@@ -1271,7 +1271,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public String getCurrentName() { return _parsingContext.getCurrentName(); }
+        public String getCurrentName() {
+            // 25-Jun-2015, tatu: as per [databind#838], needs to be same as ParserBase
+            if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+                JsonReadContext parent = _parsingContext.getParent();
+                return parent.getCurrentName();
+            }
+            return _parsingContext.getCurrentName();
+        }
 
         @Override
         public void overrideCurrentName(String name)

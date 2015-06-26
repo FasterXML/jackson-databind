@@ -29,19 +29,19 @@ public class UnwrappingBeanPropertyWriter
      * of unwrapped POJO.
      */
     protected final NameTransformer _nameTransformer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, NameTransformer unwrapper) {
         super(base);
         _nameTransformer = unwrapper;
     }
 
-    private UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, NameTransformer transformer,
+    protected UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, NameTransformer transformer,
             SerializedString name) {
         super(base, name);
         _nameTransformer = transformer;
@@ -56,7 +56,17 @@ public class UnwrappingBeanPropertyWriter
         // important: combine transformers:
         transformer = NameTransformer.chainedTransformer(transformer, _nameTransformer);
     
-        return new UnwrappingBeanPropertyWriter(this, transformer, new SerializedString(newName));
+        return _new(transformer, new SerializedString(newName));
+    }
+
+    /**
+     * Overridable factory method used by sub-classes
+     *
+     * @since 2.6.0
+     */
+    protected UnwrappingBeanPropertyWriter _new(NameTransformer transformer, SerializedString newName)
+    {
+        return new UnwrappingBeanPropertyWriter(this, transformer, newName);
     }
 
     /*

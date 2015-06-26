@@ -69,9 +69,9 @@ public class UnwrappingBeanPropertyWriter
     public boolean isUnwrapping() {
         return true;
     }
-    
+
     @Override
-    public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
     {
         final Object value = get(bean);
@@ -100,20 +100,20 @@ public class UnwrappingBeanPropertyWriter
         }
         // For non-nulls, first: simple check for direct cycles
         if (value == bean) {
-            if (_handleSelfReference(bean, jgen, prov, ser)) {
+            if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
         }
 
         // note: must verify we are using unwrapping serializer; if not, will write field name
         if (!ser.isUnwrappingSerializer()) {
-            jgen.writeFieldName(_name);
+            gen.writeFieldName(_name);
         }
 
         if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+            ser.serializeWithType(value, gen, prov, _typeSerializer);
         }
     }
 

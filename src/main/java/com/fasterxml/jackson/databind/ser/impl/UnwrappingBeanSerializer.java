@@ -47,12 +47,12 @@ public class UnwrappingBeanSerializer
         super(src, objectIdWriter, filterId);
         _nameTransformer = src._nameTransformer;
     }
-    
+
     protected UnwrappingBeanSerializer(UnwrappingBeanSerializer src, String[] toIgnore) {
         super(src, toIgnore);
         _nameTransformer = src._nameTransformer;
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories
@@ -79,7 +79,7 @@ public class UnwrappingBeanSerializer
     protected BeanSerializerBase withFilterId(Object filterId) {
         return new UnwrappingBeanSerializer(this, _objectIdWriter, filterId);
     }
-    
+
     @Override
     protected BeanSerializerBase withIgnorals(String[] toIgnore) {
         return new UnwrappingBeanSerializer(this, toIgnore);

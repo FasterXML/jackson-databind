@@ -356,7 +356,16 @@ public class BeanPropertyWriter extends PropertyWriter
         if (newName.equals(_name.toString())) {
             return this;
         }
-        return new BeanPropertyWriter(this, PropertyName.construct(newName));
+        return _new(PropertyName.construct(newName));
+    }
+
+    /**
+     * Overridable factory method used by sub-classes
+     *
+     * @since 2.6.0
+     */
+    protected BeanPropertyWriter _new(PropertyName newName) {
+        return new BeanPropertyWriter(this, newName);
     }
 
     /**

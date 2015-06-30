@@ -13,13 +13,13 @@
   <version>2.6.0-rc3-mahi</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
-  <description>General data-binding functionality for Jackson: works on core streaming API</description>
+  <description>General data-binding functionality for Jackson: works on core streaming API - MahiFX</description>
   <url>http://github.com/FasterXML/jackson</url>
 
   <scm>
-    <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
-    <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-databind</url>
+    <connection>scm:git:git@github.com:MahiFX/jackson-databind.git</connection>
+    <developerConnection>scm:git:git@github.com:MahiFX/jackson-databind.git</developerConnection>
+    <url>http://github.com/MahiFX/jackson-databind</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -133,6 +133,26 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
       </plugin>
     </plugins>
   </build>
+
+  <distributionManagement>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>releases</id>
+      <name>releases</name>
+      <url>http://build.mahifx.com:8081/nexus/content/repositories/releases</url>
+    </repository>
+
+    <snapshotRepository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>snapshots</id>
+      <name>snapshots</name>
+      <url>http://build.mahifx.com:8081/nexus/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <site>
+      <id>${project.name}</id>
+      <url>file://${user.dir}/all/target/site-deployed</url>
+    </site>
+  </distributionManagement>
 
   <reporting>
     <plugins>

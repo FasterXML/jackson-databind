@@ -455,7 +455,7 @@ public class NumberDeserializers
                     return Double.NaN;
                 }
                 try {
-                    if (text.indexOf('.') >= 0 || text.indexOf('E') >= 0) { // floating point
+                    if (!_isIntNumber(text)) {
                         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                             return new BigDecimal(text);
                         }
@@ -519,7 +519,7 @@ public class NumberDeserializers
     /* types
     /**********************************************************
      */
-    
+
     /**
      * This is bit trickier to implement efficiently, while avoiding
      * overflow problems.

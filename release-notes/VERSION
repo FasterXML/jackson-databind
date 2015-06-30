@@ -79,6 +79,10 @@ Project: jackson-databind
 #848: Custom serializer not used if POJO has `@JsonValue`
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
+2.5.5 (not released)
+
+#852: Accept scientific number notation for quoted numbers too
+
 2.5.4 (09-Jun-2015)
 
 #676: Deserialization of class with generic collection inside depends on

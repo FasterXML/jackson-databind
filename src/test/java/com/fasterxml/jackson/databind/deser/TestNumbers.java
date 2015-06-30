@@ -57,56 +57,53 @@ public class TestNumbers extends BaseMapTest
     /* Unit tests
     /**********************************************************************
      */
+
+    final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testNaN() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Float result = m.readValue(" \"NaN\"", Float.class);
+        Float result = MAPPER.readValue(" \"NaN\"", Float.class);
         assertEquals(Float.valueOf(Float.NaN), result);
 
-        Double d = m.readValue(" \"NaN\"", Double.class);
+        Double d = MAPPER.readValue(" \"NaN\"", Double.class);
         assertEquals(Double.valueOf(Double.NaN), d);
 
-        Number num = m.readValue(" \"NaN\"", Number.class);
+        Number num = MAPPER.readValue(" \"NaN\"", Number.class);
         assertEquals(Double.valueOf(Double.NaN), num);
     }
 
     public void testDoubleInf() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Double result = m.readValue(" \""+Double.POSITIVE_INFINITY+"\"", Double.class);
+        Double result = MAPPER.readValue(" \""+Double.POSITIVE_INFINITY+"\"", Double.class);
         assertEquals(Double.valueOf(Double.POSITIVE_INFINITY), result);
 
-        result = m.readValue(" \""+Double.NEGATIVE_INFINITY+"\"", Double.class);
+        result = MAPPER.readValue(" \""+Double.NEGATIVE_INFINITY+"\"", Double.class);
         assertEquals(Double.valueOf(Double.NEGATIVE_INFINITY), result);
     }
 
     // [JACKSON-349]
     public void testEmptyAsNumber() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        assertNull(m.readValue(quote(""), Integer.class));
-        assertNull(m.readValue(quote(""), Long.class));
-        assertNull(m.readValue(quote(""), Float.class));
-        assertNull(m.readValue(quote(""), Double.class));
-        assertNull(m.readValue(quote(""), BigInteger.class));
-        assertNull(m.readValue(quote(""), BigDecimal.class));
+        assertNull(MAPPER.readValue(quote(""), Integer.class));
+        assertNull(MAPPER.readValue(quote(""), Long.class));
+        assertNull(MAPPER.readValue(quote(""), Float.class));
+        assertNull(MAPPER.readValue(quote(""), Double.class));
+        assertNull(MAPPER.readValue(quote(""), BigInteger.class));
+        assertNull(MAPPER.readValue(quote(""), BigDecimal.class));
     }
 
     // // Tests for [JACKSON-668]
-    
+
     public void testDeserializeDecimalHappyPath() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         String json = "{\"defaultValue\": { \"value\": 123 } }";
-        MyBeanHolder result = mapper.readValue(json, MyBeanHolder.class);
+        MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);
         assertEquals(BigDecimal.valueOf(123), result.defaultValue.value.decimal);
     }
 
     public void testDeserializeDecimalProperException() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         String json = "{\"defaultValue\": { \"value\": \"123\" } }";
         try {
-            mapper.readValue(json, MyBeanHolder.class);
+            MAPPER.readValue(json, MyBeanHolder.class);
             fail("should have raised exception");
         } catch (JsonProcessingException e) {
             verifyException(e, "not numeric");
@@ -114,13 +111,25 @@ public class TestNumbers extends BaseMapTest
     }
 
     public void testDeserializeDecimalProperExceptionWhenIdSet() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         String json = "{\"id\": 5, \"defaultValue\": { \"value\": \"123\" } }";
         try {
-            MyBeanHolder result = mapper.readValue(json, MyBeanHolder.class);
+            MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);
             fail("should have raised exception instead value was set to " + result.defaultValue.value.decimal.toString());
         } catch (JsonProcessingException e) {
             verifyException(e, "not numeric");
         }
+    }
+
+    // And then [databind#852]
+    public void testScientificNotationForString() throws Exception
+    {
+        Object ob = MAPPER.readValue("\"3E-8\"", Number.class);
+        assertEquals(Double.class, ob.getClass());
+        ob = MAPPER.readValue("\"3e-8\"", Number.class);
+        assertEquals(Double.class, ob.getClass());
+        ob = MAPPER.readValue("\"300000000\"", Number.class);
+        assertEquals(Integer.class, ob.getClass());
+        ob = MAPPER.readValue("\"123456789012\"", Number.class);
+        assertEquals(Long.class, ob.getClass());
     }
 }

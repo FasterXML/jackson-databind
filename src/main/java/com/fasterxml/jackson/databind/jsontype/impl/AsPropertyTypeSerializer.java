@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * use JSON Object). If this is not possible (for JSON Arrays, scalars),
  * uses a JSON Array wrapper (similar to how
  * {@link As#WRAPPER_ARRAY} always works) as a fallback.
- * 
- * @author tatus
  */
 public class AsPropertyTypeSerializer
     extends AsArrayTypeSerializer

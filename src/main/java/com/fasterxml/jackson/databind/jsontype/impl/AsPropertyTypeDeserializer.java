@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * when typed object is expressed as JSON Object; otherwise behaves similar to how
  * {@link As#WRAPPER_ARRAY} works.
  * Latter is used if JSON representation is polymorphic
- * 
- * @author tatu
  */
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
@@ -104,7 +102,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
 
     @SuppressWarnings("resource")
-    protected final Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb) throws IOException
+    protected Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb) throws IOException
     {
         String typeId = jp.getText();
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);

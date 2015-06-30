@@ -18,6 +18,7 @@ Project: jackson-databind
  (reported by Chris P, pimlottc@github)
 #504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
  (suggested by Jeff S)
+#624: Allow setting external `ClassLoader` to use, via `TypeFactory`
 #649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
 #664: Add `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to prevent coercion of floating point
  numbers int `int`/`long`/`Integer`/`Long`

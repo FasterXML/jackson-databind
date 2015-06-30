@@ -98,6 +98,13 @@ public final class TypeFactory
     protected final TypeModifier[] _modifiers;
     
     protected final TypeParser _parser;
+    
+    /**
+     * ClassLoader used by this factory (Issue #624)
+     */
+    protected final ClassLoader _classLoader;
+    
+    protected boolean isDefaultInstance;
 
     /*
     /**********************************************************
@@ -108,22 +115,34 @@ public final class TypeFactory
     private TypeFactory() {
         _parser = new TypeParser(this);
         _modifiers = null;
+        _classLoader = null;
+        isDefaultInstance = true;
     }
 
     protected TypeFactory(TypeParser p, TypeModifier[] mods) {
+    	this(p, mods, null);
+    }
+    
+    protected TypeFactory(TypeParser p, TypeModifier[] mods, ClassLoader classLoader) {
         _parser = p;
         _modifiers = mods;
+        _classLoader = classLoader;
+        isDefaultInstance = false;
     }
 
     public TypeFactory withModifier(TypeModifier mod) 
     {
-        if (mod == null) { // mostly for unit tests
-            return new TypeFactory(_parser, _modifiers);
-        }
-        if (_modifiers == null) {
-            return new TypeFactory(_parser, new TypeModifier[] { mod });
-        }
-        return new TypeFactory(_parser, ArrayBuilders.insertInListNoDup(_modifiers, mod));
+       if (mod == null) { // mostly for unit tests
+          return new TypeFactory(_parser, _modifiers, _classLoader);
+       }
+       if (_modifiers == null) {
+          return new TypeFactory(_parser, new TypeModifier[] { mod }, _classLoader);
+       }
+       return new TypeFactory(_parser, ArrayBuilders.insertInListNoDup(_modifiers, mod), _classLoader);
+    }
+    
+    public TypeFactory withClassLoader(ClassLoader classLoader) {
+       return new TypeFactory(_parser, _modifiers, classLoader);
     }
 
     /**
@@ -145,6 +164,13 @@ public final class TypeFactory
      */
     public void clearCache() {
         _typeCache.clear();
+    }
+    
+    /*
+     * Getters
+     */
+    public ClassLoader getClassLoader() {
+    	return _classLoader;
     }
     
     /*
@@ -198,17 +224,19 @@ public final class TypeFactory
         }
         // Two-phase lookup: first using context ClassLoader; then default
         Throwable prob = null;
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        
+        ClassLoader loader = this.getClassLoader();
+        if (loader == null) {
+          loader = 	Thread.currentThread().getContextClassLoader();
+        }
         if (loader != null) {
             try {
-                return Class.forName(className, true, loader);
+                return classForName(className, true, loader);
             } catch (Exception e) {
                 prob = ClassUtil.getRootCause(e);
             }
         }
         try {
-            return Class.forName(className);
+            return classForName(className);
         } catch (Exception e) {
             if (prob == null) {
                 prob = ClassUtil.getRootCause(e);
@@ -218,6 +246,15 @@ public final class TypeFactory
             throw (RuntimeException) prob;
         }
         throw new ClassNotFoundException(prob.getMessage(), prob);
+    }
+    
+    protected Class<?> classForName(String name, boolean initialize,
+                                   ClassLoader loader) throws ClassNotFoundException {
+    	return Class.forName(name, true, loader);
+    }
+    
+    protected Class<?> classForName(String name) throws ClassNotFoundException {
+    	return Class.forName(name);
     }
 
     protected Class<?> _findPrimitive(String className)

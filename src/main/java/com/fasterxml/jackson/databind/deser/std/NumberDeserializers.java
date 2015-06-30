@@ -455,7 +455,7 @@ public class NumberDeserializers
                     return Double.NaN;
                 }
                 try {
-                    if (text.indexOf('.') >= 0) { // floating point
+                    if (text.indexOf('.') >= 0 || text.indexOf('E') >= 0) { // floating point
                         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                             return new BigDecimal(text);
                         }

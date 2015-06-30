@@ -18,11 +18,12 @@ import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 public class ReadableObjectId
 {
     /**
-     * @deprecated Prefer using {@link #resolve()}, which is able to handle
-     *             external id resolving mechanism.
+     * @deprecated Change visibility, if possible; prefer using {@link #resolve()}, which is able
+     *    to handle external id resolving mechanism.
      */
     @Deprecated // at least since 2.5. Remove from 2.7
     public Object item;
+
     @Deprecated
     public final Object id;
 

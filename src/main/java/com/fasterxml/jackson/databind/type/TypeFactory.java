@@ -103,8 +103,6 @@ public final class TypeFactory
      * ClassLoader used by this factory (Issue #624)
      */
     protected final ClassLoader _classLoader;
-    
-    protected boolean isDefaultInstance;
 
     /*
     /**********************************************************
@@ -116,7 +114,6 @@ public final class TypeFactory
         _parser = new TypeParser(this);
         _modifiers = null;
         _classLoader = null;
-        isDefaultInstance = true;
     }
 
     protected TypeFactory(TypeParser p, TypeModifier[] mods) {
@@ -127,7 +124,6 @@ public final class TypeFactory
         _parser = p;
         _modifiers = mods;
         _classLoader = classLoader;
-        isDefaultInstance = false;
     }
 
     public TypeFactory withModifier(TypeModifier mod) 

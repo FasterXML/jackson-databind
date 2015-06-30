@@ -146,6 +146,10 @@ public abstract class DefaultDeserializationContext
             if (!roid.hasReferringProperties()) {
                 continue;
             }
+            // as per [databind#675], allow resolution at this point
+            if (tryToResolveUnresolvedObjectId(roid)) {
+                continue;
+            }
             if (exception == null) {
                 exception = new UnresolvedForwardReference("Unresolved forward references for: ");
             }
@@ -160,6 +164,21 @@ public abstract class DefaultDeserializationContext
         }
     }
 
+    /**
+     * Overridable helper method called to try to resolve otherwise unresolvable {@link ReadableObjectId};
+     * and if this succeeds, return <code>true</code> to indicate problem has been resolved in
+     * some way, so that caller can avoid reporting it as an error.
+     *<p>
+     * Default implementation simply calls {@link ReadableObjectId#tryToResolveUnresolved} and
+     * returns whatever it returns.
+     *
+     * @since 2.6
+     */
+    protected boolean tryToResolveUnresolvedObjectId(ReadableObjectId roid)
+    {
+        return roid.tryToResolveUnresolved(this);
+    }
+    
     /*
     /**********************************************************
     /* Abstract methods impls, other factory methods

@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 
 /**
@@ -25,11 +26,11 @@ public class ReadableObjectId
     @Deprecated
     public final Object id;
 
-    private final ObjectIdGenerator.IdKey _key;
+    protected final ObjectIdGenerator.IdKey _key;
 
-    private LinkedList<Referring> _referringProperties;
+    protected LinkedList<Referring> _referringProperties;
 
-    private ObjectIdResolver _resolver;
+    protected ObjectIdResolver _resolver;
 
     @Deprecated // at least since 2.5. Remove from 2.7
     public ReadableObjectId(Object id) {
@@ -89,11 +90,31 @@ public class ReadableObjectId
         return _referringProperties.iterator();
     }
 
+    /**
+     * Method called by {@link DeserializationContext} at the end of deserialization
+     * if this Object Id was not resolved during normal processing. Call is made to
+     * allow custom implementations to use alternative resolution strategies; currently
+     * the only way to make use of this functionality is by sub-classing
+     * {@link ReadableObjectId} and overriding this method.
+     *<p>
+     * Default implementation simply returns <code>false</code> to indicate that resolution
+     * attempt did not succeed. 
+     *
+     * @return True, if resolution succeeded (and no error needs to be reported); false to
+     *   indicate resolution did not succeed.
+     *
+     * @since 2.6
+     */
+    public boolean tryToResolveUnresolved(DeserializationContext ctxt)
+    {
+        return false;
+    }
+    
     @Override
     public String toString() {
         return String.valueOf(_key);
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes

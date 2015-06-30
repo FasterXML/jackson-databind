@@ -882,6 +882,28 @@ public abstract class StdDeserializer<T>
         return ctxt.findContextualValueDeserializer(type, property);
     }
 
+    /**
+     * Helper method to check whether given text refers to what looks like a clean simple
+     * integer number, consisting of optional sign followed by a sequence of digits.
+     */
+    protected final boolean _isIntNumber(String text)
+    {
+        final int len = text.length();
+        if (len > 0) {
+            char c = text.charAt(0);
+            // skip leading sign (plus not allowed for strict JSON numbers but...)
+            int i = (c == '-' || c == '+') ? 1 : 0;
+            for (; i < len; ++i) {
+                int ch = text.charAt(i);
+                if (ch > '9' || ch < '0') {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     /*
     /**********************************************************
     /* Helper methods for sub-classes, deserializer construction

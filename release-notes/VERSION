@@ -83,6 +83,8 @@ Project: jackson-databind
 
 2.5.5 (not released)
 
+#844: Using JsonCreator still causes invalid path references in JsonMappingException
+ (reported by Ian B)
 #852: Accept scientific number notation for quoted numbers too
 
 2.5.4 (09-Jun-2015)

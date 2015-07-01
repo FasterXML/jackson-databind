@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.TreeSet;
 
 public class TypeNameIdResolver extends TypeIdResolverBase
 {
@@ -80,7 +82,15 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     @Override
     public String idFromValue(Object value)
     {
-        Class<?> cls = _typeFactory.constructType(value.getClass()).getRawClass();
+        return idFromClass(value.getClass());
+    }
+
+    protected String idFromClass(Class<?> clazz)
+    {
+        if(clazz==null){
+            return null;
+        }
+        Class<?> cls = _typeFactory.constructType(clazz).getRawClass();
         final String key = cls.getName();
         String name;
         synchronized (_typeToId) {
@@ -108,7 +118,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
          *   it seems; nothing much we can figure out that way.
          */
         if (value == null) {
-            return null;
+            return idFromClass(type);
         }
         return idFromValue(value);
     }

@@ -385,7 +385,7 @@ public class BeanDeserializer
                     try {
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                        wrapInstantiationProblem(e, ctxt);
                         bean = null; // never gets here
                     }
                     if (bean == null) {
@@ -413,7 +413,8 @@ public class BeanDeserializer
             // regular property? needs buffering
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
-                buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
+                buffer.bufferProperty(prop,
+                        deserializeWithErrorWrapping(prop, p, ctxt, propName));
                 continue;
             }
             // As per [JACKSON-313], things marked as ignorable should not be
@@ -424,7 +425,11 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                try {
+                    buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                } catch (Exception e) {
+                    wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                }
                 continue;
             }
             // Ok then, let's collect the whole field; name and value
@@ -454,11 +459,11 @@ public class BeanDeserializer
         return bean;
     }
 
-    protected Object deserializeWithErrorWrapping(SettableBeanProperty creatorProp, JsonParser p, DeserializationContext ctxt,
-                                                  String propName)
-            throws IOException {
+    protected Object deserializeWithErrorWrapping(SettableBeanProperty prop,
+            JsonParser p, DeserializationContext ctxt, String propName) throws IOException
+    {
         try {
-            return creatorProp.deserialize(p, ctxt);
+            return prop.deserialize(p, ctxt);
         } catch (IOException e) {
             wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
             // exception below will be throw only if someone overwrite default implementation of wrapAndThrow method
@@ -639,7 +644,7 @@ public class BeanDeserializer
                     try {
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                        wrapInstantiationProblem(e, ctxt);
                         continue; // never gets here
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
@@ -668,9 +673,11 @@ public class BeanDeserializer
             // regular property? needs buffering
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
-                buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
+                buffer.bufferProperty(prop,
+                        deserializeWithErrorWrapping(prop, p, ctxt, propName));
                 continue;
             }
+
             /* As per [JACKSON-313], things marked as ignorable should not be
              * passed to any setter
              */
@@ -682,14 +689,18 @@ public class BeanDeserializer
             tokens.copyCurrentStructure(p);
             // "any property"?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                try {
+                    buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                } catch (Exception e) {
+                    wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                }
             }
         }
 
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean =  creator.build(ctxt, buffer);
+            bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here

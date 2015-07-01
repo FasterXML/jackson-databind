@@ -149,6 +149,8 @@ Steve Sanbeg: (sanbeg@github)
 Ian Barfield: (tea-dragon@github)
   * Reported #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
    (2.4.4)
+  * Reported #844: Using JsonCreator still causes invalid path references in JsonMappingException
+   (2.5.5)
 
 Eugene Lukash
   * Reported #592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`

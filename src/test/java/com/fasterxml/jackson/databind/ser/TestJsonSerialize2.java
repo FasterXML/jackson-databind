@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 public class TestJsonSerialize2
     extends BaseMapTest
 {
-    // [JACKSON-480]
-
     static class SimpleKey {
         protected final String key;
         
@@ -107,6 +105,27 @@ public class TestJsonSerialize2
         }
     }
 
+    static class NonEmptyString {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public String value;
+
+        public NonEmptyString(String v) { value = v; }
+    }
+
+    static class NonEmptyInt {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public int value;
+
+        public NonEmptyInt(int v) { value = v; }
+    }
+
+    static class NonEmptyDouble {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public double value;
+
+        public NonEmptyDouble(double v) { value = v; }
+    }
+    
     static class NullBean
     {
         @JsonSerialize(using=NullSerializer.class)
@@ -146,14 +165,12 @@ public class TestJsonSerialize2
         assertEquals("[\"value foo\"]", m.writeValueAsString(list));
     }
 
-    // [JACKSON-480], test annotations when applied to List property (getter, setter)
     public void testSerializedAsListWithPropertyAnnotations() throws IOException
     {
         ListWrapperSimple input = new ListWrapperSimple("bar");
         assertEquals("{\"values\":[{\"value\":\"bar\"}]}", MAPPER.writeValueAsString(input));
     }
     
-    // [JACKSON-480], test Serialization annotation with Map
     public void testSerializedAsMapWithClassSerializer() throws IOException
     {
         SimpleValueMapWithSerializer map = new SimpleValueMapWithSerializer();
@@ -161,7 +178,6 @@ public class TestJsonSerialize2
         assertEquals("{\"key abc\":\"value 123\"}", MAPPER.writeValueAsString(map));
     }
 
-    // [JACKSON-480], test annotations when applied to Map property (getter, setter)
     public void testSerializedAsMapWithPropertyAnnotations() throws IOException
     {
         MapWrapperSimple input = new MapWrapperSimple("a", "b");
@@ -181,16 +197,10 @@ public class TestJsonSerialize2
         assertEquals("{\"values\":{\"key foo\":\"value b\"}}", MAPPER.writeValueAsString(input));
     }
 
-    // [JACKSON-602]: Include.NON_EMPTY
-    public void testEmptyInclusion() throws IOException
+    public void testEmptyInclusionContainers() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
         ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-        StringWrapper str = new StringWrapper("");
-        assertEquals("{\"str\":\"\"}", defMapper.writeValueAsString(str));
-        assertEquals("{}", inclMapper.writeValueAsString(str));
-        assertEquals("{}", inclMapper.writeValueAsString(new StringWrapper()));
 
         ListWrapper<String> list = new ListWrapper<String>();
         assertEquals("{\"list\":[]}", defMapper.writeValueAsString(list));
@@ -208,7 +218,32 @@ public class TestJsonSerialize2
         assertEquals("{}", inclMapper.writeValueAsString(new ArrayWrapper<Integer>(null)));
     }
 
-    // [JACKSON-699]
+    public void testEmptyInclusionScalars() throws IOException
+    {
+        ObjectMapper defMapper = MAPPER;
+        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+        // First, Strings
+        StringWrapper str = new StringWrapper("");
+        assertEquals("{\"str\":\"\"}", defMapper.writeValueAsString(str));
+        assertEquals("{}", inclMapper.writeValueAsString(str));
+        assertEquals("{}", inclMapper.writeValueAsString(new StringWrapper()));
+
+        assertEquals("{\"value\":\"x\"}", defMapper.writeValueAsString(new NonEmptyString("x")));
+        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyString("")));
+
+        // Then numbers
+        assertEquals("{\"value\":12}", defMapper.writeValueAsString(new NonEmptyInt(12)));
+        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyInt(0)));
+
+        assertEquals("{\"value\":1.25}", defMapper.writeValueAsString(new NonEmptyDouble(1.25)));
+        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyDouble(0.0)));
+
+        IntWrapper zero = new IntWrapper(0);
+        assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
+        assertEquals("{}", inclMapper.writeValueAsString(zero));
+    }
+
     public void testNullSerializer() throws Exception
     {
         String json = MAPPER.writeValueAsString(new NullBean());

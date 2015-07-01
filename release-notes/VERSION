@@ -78,6 +78,7 @@ Project: jackson-databind
  (contributed by Steve G, thezerobit@github)
 #840: Change semantics of `@JsonPropertyOrder(alphabetic)` to only count `true` value
 #848: Custom serializer not used if POJO has `@JsonValue`
+#849: Possible problem with `NON_EMPTY` exclusion, `int`s, `Strings`
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.5 (not released)

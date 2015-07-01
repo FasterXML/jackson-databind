@@ -51,6 +51,8 @@ public class NumberSerializers
     protected abstract static class Base<T> extends StdScalarSerializer<T>
         implements ContextualSerializer
     {
+        protected final static Integer EMPTY_INTEGER = Integer.valueOf(0);
+
         protected final JsonParser.NumberType _numberType;
         protected final String _schemaType;
         protected final boolean _isInt;
@@ -116,16 +118,22 @@ public class NumberSerializers
     @JacksonStdImpl
     public final static class ShortSerializer extends Base<Short>
     {
+        private final static Short EMPTY = (short) 0;
         final static ShortSerializer instance = new ShortSerializer();
-    
+
         public ShortSerializer() { super(Short.class, JsonParser.NumberType.INT, "number"); }
+
+        @Override
+        public boolean isEmpty(SerializerProvider prov, Short value) {
+            return EMPTY.equals(value);
+        }
 
         @Override
         public void serialize(Short value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(value.shortValue());
         }
     }
-    
+
     /**
      * This is the special serializer for regular {@link java.lang.Integer}s
      * (and primitive ints)
@@ -153,6 +161,11 @@ public class NumberSerializers
             // no type info, just regular serialization
             serialize(value, gen, provider);            
         }
+
+        @Override
+        public boolean isEmpty(SerializerProvider prov, Object value) {
+            return EMPTY_INTEGER.equals(value);
+        }
     }
 
     /**
@@ -164,11 +177,16 @@ public class NumberSerializers
     public final static class IntLikeSerializer extends Base<Number>
     {
         final static IntLikeSerializer instance = new IntLikeSerializer();
-    
+
         public IntLikeSerializer() {
             super(Number.class, JsonParser.NumberType.INT, "integer");
         }
-        
+
+        @Override
+        public boolean isEmpty(SerializerProvider prov, Number value) {
+            return value.intValue() == 0;
+        }
+
         @Override
         public void serialize(Number value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(value.intValue());
@@ -178,26 +196,40 @@ public class NumberSerializers
     @JacksonStdImpl
     public final static class LongSerializer extends Base<Object>
     {
+        private final static Long EMPTY = 0L;
+
         final static LongSerializer instance = new LongSerializer();
     
         public LongSerializer() { super(Long.class, JsonParser.NumberType.LONG, "number"); }
-        
+
+        @Override
+        public boolean isEmpty(SerializerProvider prov, Object value) {
+            return EMPTY.equals(value);
+        }
+
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(((Long) value).longValue());
         }
     }
-    
+
     @JacksonStdImpl
-    public final static class FloatSerializer extends Base<Float>
+    public final static class FloatSerializer extends Base<Object>
     {
+        private final static Float EMPTY = 0f;
+
         final static FloatSerializer instance = new FloatSerializer();
-    
+
         public FloatSerializer() { super(Float.class, JsonParser.NumberType.FLOAT, "number"); }
-        
+
         @Override
-        public void serialize(Float value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-            gen.writeNumber(value.floatValue());
+        public boolean isEmpty(SerializerProvider prov, Object value) {
+            return EMPTY.equals(value);
+        }
+
+        @Override
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeNumber(((Float) value).floatValue());
         }
     }
 
@@ -211,10 +243,17 @@ public class NumberSerializers
     @JacksonStdImpl
     public final static class DoubleSerializer extends Base<Object>
     {
+        private final static Double EMPTY = 0d;
+
         final static DoubleSerializer instance = new DoubleSerializer();
     
         public DoubleSerializer() { super(Double.class, JsonParser.NumberType.DOUBLE, "number"); }
-    
+
+        @Override
+        public boolean isEmpty(SerializerProvider prov, Object value) {
+            return EMPTY.equals(value);
+        }
+
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(((Double) value).doubleValue());

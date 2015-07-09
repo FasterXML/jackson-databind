@@ -89,6 +89,20 @@ public abstract class JsonSerializer<T>
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Mutant factory method that is called if contextual configuration indicates that
+     * a specific filter (as specified by <code>filterId</code>) is to be used for
+     * serialization.
+     *<p>
+     * Default implementation simply returns <code>this</code>; sub-classes that do support
+     * filtering will need to create and return new instance if filter changes.
+     *
+     * @since 2.6
+     */
+    public JsonSerializer<?> withFilterId(Object filterId) {
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Serialization methods

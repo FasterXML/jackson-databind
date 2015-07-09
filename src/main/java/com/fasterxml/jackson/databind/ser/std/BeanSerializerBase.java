@@ -226,7 +226,8 @@ public abstract class BeanSerializerBase
      * 
      * @since 2.3
      */
-    protected abstract BeanSerializerBase withFilterId(Object filterId);
+    @Override
+    public abstract BeanSerializerBase withFilterId(Object filterId);
     
     /**
      * Copy-constructor that is useful for sub-classes that just want to

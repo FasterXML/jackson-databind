@@ -94,7 +94,7 @@ public class BeanSerializer
     }
 
     @Override
-    protected BeanSerializerBase withFilterId(Object filterId) {
+    public BeanSerializerBase withFilterId(Object filterId) {
         return new BeanSerializer(this, _objectIdWriter, filterId);
     }
 

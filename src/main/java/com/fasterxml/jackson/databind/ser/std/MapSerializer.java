@@ -237,9 +237,7 @@ public class MapSerializer
         return ser;
     }
 
-    /**
-     * @since 2.3
-     */
+    @Override
     public MapSerializer withFilterId(Object filterId) {
         if (_filterId == filterId) {
             return this;
@@ -376,7 +374,7 @@ public class MapSerializer
             mser = mser.withContentInclusion(suppressableValue);
         }
 
-        // [Issue#307]: allow filtering
+        // [databind#307]: allow filtering
         if (property != null) {
             AnnotatedMember m = property.getMember();
             if (m != null) {

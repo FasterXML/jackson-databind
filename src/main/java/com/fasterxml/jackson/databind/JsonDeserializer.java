@@ -121,8 +121,7 @@ public abstract class JsonDeserializer<T>
      * that do not explicitly add support do not necessarily support
      * update-existing-value operation (esp. immutable types)
      */
-    public T deserialize(JsonParser p, DeserializationContext ctxt,
-            T intoValue)
+    public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
         throws IOException, JsonProcessingException
     {
         throw new UnsupportedOperationException("Can not update object of type "

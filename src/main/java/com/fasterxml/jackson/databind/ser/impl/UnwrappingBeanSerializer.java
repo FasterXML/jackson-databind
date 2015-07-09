@@ -76,7 +76,7 @@ public class UnwrappingBeanSerializer
     }
 
     @Override
-    protected BeanSerializerBase withFilterId(Object filterId) {
+    public BeanSerializerBase withFilterId(Object filterId) {
         return new UnwrappingBeanSerializer(this, _objectIdWriter, filterId);
     }
 

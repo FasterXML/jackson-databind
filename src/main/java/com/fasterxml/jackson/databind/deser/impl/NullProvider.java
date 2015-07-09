@@ -30,8 +30,9 @@ public final class NullProvider
     public Object nullValue(DeserializationContext ctxt) throws JsonProcessingException
     {
         if (_isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            throw ctxt.mappingException("Can not map JSON null into type "+_rawType.getName()
-                    +" (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
+            throw ctxt.mappingException("Can not map JSON null into type %s"
+                    +" (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    _rawType.getName());                    
         }
         return _nullValue;
     }

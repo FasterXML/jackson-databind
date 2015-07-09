@@ -539,8 +539,8 @@ public class BeanDeserializerFactory
                     }
                 }
                 if (cprop == null) {
-                    throw ctxt.mappingException("Could not find creator property with name '"
-                              +name+"' (in class "+beanDesc.getBeanClass().getName()+")");
+                    throw ctxt.mappingException("Could not find creator property with name '%s' (in class %s)",
+                            name, beanDesc.getBeanClass().getName());
                 }
                 if (prop != null) {
                     cprop.setFallbackSetter(prop);

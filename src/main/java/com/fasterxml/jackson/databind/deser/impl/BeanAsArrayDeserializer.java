@@ -122,7 +122,8 @@ public class BeanAsArrayDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            throw ctxt.mappingException("Unexpected JSON values; expected at most "+propCount+" properties (in JSON Array)");
+            throw ctxt.mappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    propCount);
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -168,7 +169,8 @@ public class BeanAsArrayDeserializer
         
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            throw ctxt.mappingException("Unexpected JSON values; expected at most "+propCount+" properties (in JSON Array)");
+            throw ctxt.mappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    propCount);
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -236,7 +238,8 @@ public class BeanAsArrayDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            throw ctxt.mappingException("Unexpected JSON values; expected at most "+propCount+" properties (in JSON Array)");
+            throw ctxt.mappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                    propCount);
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -320,7 +323,8 @@ public class BeanAsArrayDeserializer
                          *   but make explicitly non-supported for now.
                          */
                         throw ctxt.mappingException("Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: "
-                                +"nominal type "+_beanType.getRawClass().getName()+", actual type "+bean.getClass().getName());
+                                +"nominal type %s, actual type %s",
+                                _beanType.getRawClass().getName(), bean.getClass().getName());
                     }
                 }
                 continue;
@@ -355,10 +359,11 @@ public class BeanAsArrayDeserializer
         throws IOException
     {
         // Let's start with failure
-        throw ctxt.mappingException("Can not deserialize a POJO (of type "+_beanType.getRawClass().getName()
-                +") from non-Array representation (token: "+p.getCurrentToken()
-                +"): type/property designed to be serialized as JSON Array");
+        throw ctxt.mappingException("Can not deserialize a POJO (of type %s) from non-Array representation (token: %s): "
+                +"type/property designed to be serialized as JSON Array",
+                _beanType.getRawClass().getName(),
+                p.getCurrentToken());
         // in future, may allow use of "standard" POJO serialization as well; if so, do:
-        //return _delegate.deserialize(jp, ctxt);
+        //return _delegate.deserialize(p, ctxt);
     }
 }

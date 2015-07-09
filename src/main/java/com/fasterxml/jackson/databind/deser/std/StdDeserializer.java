@@ -1053,8 +1053,7 @@ public abstract class StdDeserializer<T>
     protected void _failDoubleToIntCoercion(JsonParser jp, DeserializationContext ctxt,
             String type) throws IOException
     {
-        throw ctxt.mappingException(String.format
-                ("Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
-                        jp.getValueAsString(), type));
+        throw ctxt.mappingException("Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
+                        jp.getValueAsString(), type);
     }
 }

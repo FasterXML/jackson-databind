@@ -150,13 +150,15 @@ public class ExternalTypeHandler
                     }
                     // 26-Oct-2012, tatu: As per [Issue#94], must allow use of 'defaultImpl'
                     if (!_properties[i].hasDefaultType()) {
-                        throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName()+"'");
+                        throw ctxt.mappingException("Missing external type id property '%s'",
+                                _properties[i].getTypePropertyName());                                
                     }
                     typeId = _properties[i].getDefaultTypeId();
                 }
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = _properties[i].getProperty();
-                throw ctxt.mappingException("Missing property '"+prop.getName()+"' for external type id '"+_properties[i].getTypePropertyName());
+                throw ctxt.mappingException("Missing property '%s' for external type id '%s'",
+                        prop.getName(), _properties[i].getTypePropertyName());
             }
             _deserializeAndSet(jp, ctxt, bean, i, typeId);
         }
@@ -184,12 +186,14 @@ public class ExternalTypeHandler
                 // but not just one
                 // 26-Oct-2012, tatu: As per [Issue#94], must allow use of 'defaultImpl'
                 if (!_properties[i].hasDefaultType()) {
-                    throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName()+"'");
+                    throw ctxt.mappingException("Missing external type id property '%s'",
+                            _properties[i].getTypePropertyName());
                 }
                 typeId = _properties[i].getDefaultTypeId();
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = _properties[i].getProperty();
-                throw ctxt.mappingException("Missing property '"+prop.getName()+"' for external type id '"+_properties[i].getTypePropertyName());
+                throw ctxt.mappingException("Missing property '%s' for external type id '%s'",
+                        prop.getName(), _properties[i].getTypePropertyName());
             }
             values[i] = _deserialize(jp, ctxt, i, typeId);
         }

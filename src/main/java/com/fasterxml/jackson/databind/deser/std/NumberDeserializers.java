@@ -138,10 +138,9 @@ public class NumberDeserializers
         public final T getNullValue(DeserializationContext ctxt) throws JsonMappingException
         {
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                String msg = String.format(
+                throw ctxt.mappingException(
                         "Can not map JSON null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
-                throw ctxt.mappingException(msg);
             }
             return _nullValue;
         }

@@ -107,7 +107,8 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
 
     private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) throws IOException {
         if (bytes.length != 16) {
-            ctxt.mappingException("Can only construct UUIDs from byte[16]; got "+bytes.length+" bytes");
+            ctxt.mappingException("Can only construct UUIDs from byte[16]; got %d bytes",
+                    bytes.length);
         }
         return new UUID(_long(bytes, 0), _long(bytes, 8));
     }

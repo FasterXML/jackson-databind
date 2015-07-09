@@ -138,12 +138,12 @@ public class PropertyValueBuffer
         }
         // Second: required?
         if (prop.isRequired()) {
-            throw _context.mappingException(String.format("Missing required creator property '%s' (index %d)",
-                    prop.getName(), prop.getCreatorIndex()));
+            throw _context.mappingException("Missing required creator property '%s' (index %d)",
+                    prop.getName(), prop.getCreatorIndex());
         }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)) {
-            throw _context.mappingException(String.format("Missing creator property '%s' (index %d); DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES enabled",
-                    prop.getName(), prop.getCreatorIndex()));
+            throw _context.mappingException("Missing creator property '%s' (index %d); DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES enabled",
+                    prop.getName(), prop.getCreatorIndex());
         }
         // Third: default value
         JsonDeserializer<Object> deser = prop.getValueDeserializer();
@@ -188,8 +188,8 @@ public class PropertyValueBuffer
                 }
             } else {
                 // TODO: is this an error case?
-                throw ctxt.mappingException("No _idValue when handleIdValue called, on instance of "
-                        +bean.getClass().getName());
+                throw ctxt.mappingException("No _idValue when handleIdValue called, on instance of %s",
+                        bean.getClass().getName());
             }
         }
         return bean;

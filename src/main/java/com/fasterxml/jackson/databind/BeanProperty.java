@@ -187,6 +187,13 @@ public interface BeanProperty extends Named
             _contextAnnotations = contextAnnotations;
         }
 
+        /**
+         * @since 2.6
+         */
+        public Std(Std base, JavaType newType) {
+            this(base._name, newType, base._wrapperName, base._contextAnnotations, base._member, base._metadata);
+        }
+
         @Deprecated // since 2.3
         public Std(String name, JavaType type, PropertyName wrapperName,
                 Annotations contextAnnotations, AnnotatedMember member,
@@ -196,11 +203,11 @@ public interface BeanProperty extends Named
                     member,
                     isRequired ? PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL);
         }
-        
+
         public Std withType(JavaType type) {
-            return new Std(_name, type, _wrapperName, _contextAnnotations, _member, _metadata);
+            return new Std(this, type);
         }
-        
+
         @Override
         public <A extends Annotation> A getAnnotation(Class<A> acls) {
             return (_member == null) ? null : _member.getAnnotation(acls);

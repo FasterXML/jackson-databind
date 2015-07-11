@@ -60,7 +60,7 @@ public abstract class SerializerProvider
     /**
      * Placeholder serializer used when <code>java.lang.Object</code> typed property
      * is marked to be serialized.
-     *<br />
+     *<br>
      * NOTE: starting with 2.6, this instance is NOT used for any other types, and
      * separate instances are constructed for "empty" Beans.
      *<p>

@@ -86,7 +86,6 @@ public abstract class JsonDeserializer<T>
      *  </pre>
      * This results in the stream pointing to the field name, so that
      * the two conditions align.
-     * </p>
      * <p>
      * Post-condition is that the parser will point to the last
      * event that is part of deserialized value (or in case deserialization

@@ -712,7 +712,7 @@ public abstract class JsonNode
      *<p>
      * This method is functionally equivalent to:
      *<pre>
-     *   node.get(fieldName) != null && !node.get(fieldName).isNull()
+     *   node.get(fieldName) != null &lt;&lt; !node.get(fieldName).isNull()
      *</pre>
      * 
      * @since 2.1
@@ -728,7 +728,7 @@ public abstract class JsonNode
      *<p>
      * This method is equivalent to:
      *<pre>
-     *   node.get(index) != null && !node.get(index).isNull()
+     *   node.get(index) != null &lt;&lt; !node.get(index).isNull()
      *</pre>
      * 
      * @since 2.1
@@ -909,7 +909,7 @@ public abstract class JsonNode
      * types (arrays, objects), but defer to comparator for scalar value
      * comparisons. If a "natural" {@link Comparator} is passed -- one that
      * simply calls <code>equals()</code> on one of arguments, passing the other
-     * -- implementation is the same as directly calling <code>equals()<code>
+     * -- implementation is the same as directly calling <code>equals()</code>
      * on node.
      *<p>
      * Default implementation simply delegates to passed in <code>comparator</code>,

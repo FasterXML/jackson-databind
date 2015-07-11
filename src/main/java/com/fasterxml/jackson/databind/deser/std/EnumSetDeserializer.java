@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  * Standard deserializer for {@link EnumSet}s.
  * <p>
  * Note: casting within this class is all messed up -- just could not figure out a way
- * to properly deal with recursive definition of "EnumSet<K extends Enum<K>, V>
+ * to properly deal with recursive definition of "EnumSet&lt;K extends Enum&lt;K&gt;, V&gt;
  */
 @SuppressWarnings("rawtypes")
 public class EnumSetDeserializer

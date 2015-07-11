@@ -67,7 +67,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
 
     /**
      * Underlying parser used for reading content to bind. Initialized
-     * as not <code>null</code> but set as <code>null</null> when
+     * as not <code>null</code> but set as <code>null</code> when
      * iterator is closed, to denote closing.
      */
     protected final JsonParser _parser;

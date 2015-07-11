@@ -195,7 +195,7 @@ public class PropertyName
     /**
      * Method that is basically equivalent of:
      *<pre>
-     *   !hasSimpleName() && !hasNamespace();
+     *   !hasSimpleName() &lt;&lt; !hasNamespace();
      *</pre>
      * 
      * @since 2.4

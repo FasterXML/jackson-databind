@@ -155,8 +155,7 @@ public class StdDelegatingDeserializer<T>
      */
     
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         Object delegateValue = _delegateDeserializer.deserialize(jp, ctxt);
         if (delegateValue == null) {
@@ -167,8 +166,7 @@ public class StdDelegatingDeserializer<T>
 
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+            TypeDeserializer typeDeserializer) throws IOException
     {
         /* 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
          *    let's give it a chance?
@@ -181,6 +179,35 @@ public class StdDelegatingDeserializer<T>
         return convertValue(delegateValue);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public T deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
+        throws IOException
+    {
+        if (_delegateType.getRawClass().isAssignableFrom(intoValue.getClass())){
+            return (T) _delegateDeserializer.deserialize(p, ctxt, intoValue);
+        }
+        return (T) _handleIncompatibleUpdateValue(p, ctxt, intoValue);
+    }
+
+    /**
+     * Overridable handler method called when {@link #deserialize(JsonParser, DeserializationContext, Object)}
+     * has been called with a value that is not compatible with delegate value.
+     * Since no conversion are expected for such "updateValue" case, this is normally not
+     * an operation that can be permitted, and the default behavior is to throw exception.
+     * Sub-classes may choose to try alternative approach if they have more information on
+     * exact usage and constraints.
+     *
+     * @since 2.6
+     */
+    protected Object _handleIncompatibleUpdateValue(JsonParser p, DeserializationContext ctxt, Object intoValue)
+        throws IOException
+    {
+        throw new UnsupportedOperationException(String.format
+                ("Can not update object of type %s (using deserializer for type %s)"
+                        +intoValue.getClass().getName(), _delegateType));
+    }
+    
     /*
     /**********************************************************
     /* Overridable methods

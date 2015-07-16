@@ -8,7 +8,7 @@ Version: 2.3.6 (not yet released)
 === History: ===
 ------------------------------------------------------------------------
 
-2.3.5 (13-Jan-2014)
+2.3.5 (13-Jan-2015)
 
 #496: Wrong result for TextNode("false").asBoolean(true)
  (reported by Ivar R, ivarru@github)

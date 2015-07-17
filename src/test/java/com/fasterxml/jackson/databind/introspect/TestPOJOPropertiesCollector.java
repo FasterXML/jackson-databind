@@ -1,5 +1,9 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -198,7 +202,35 @@ public class TestPOJOPropertiesCollector
         @JsonProperty(required=true, index=B_INDEX, defaultValue="13")
         public int getB() { return b; }
     }
-    
+
+    @Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+    @Retention(RetentionPolicy.RUNTIME)
+    @JacksonAnnotation
+    @interface A {}
+
+    @Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+    @Retention(RetentionPolicy.RUNTIME)
+    @JacksonAnnotation
+    @interface B {}
+
+    static class DuplicateGetterBean
+    {
+        @A
+        public boolean isBloop() { return true; }
+
+        @B
+        public boolean getBloop() { return true; }
+    }
+
+    static class DuplicateGetterCreatorBean
+    {
+        public DuplicateGetterCreatorBean(@JsonProperty("bloop") @A boolean bloop) {}
+
+        public boolean isBloop() { return true; }
+
+        public boolean getBloop() { return true; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -431,6 +463,30 @@ public class TestPOJOPropertiesCollector
         _verifyProperty(beanDesc, false, true, "13");
         beanDesc = MAPPER.getSerializationConfig().introspect(MAPPER.constructType(PropDescBean.class));
         _verifyProperty(beanDesc, false, true, "13");
+    }
+
+    public void testDuplicateGetters() throws Exception
+    {
+        POJOPropertiesCollector coll = collector(MAPPER, DuplicateGetterBean.class, true);
+        List<BeanPropertyDefinition> props = coll.getProperties();
+        assertEquals(1, props.size());
+        BeanPropertyDefinition prop = props.get(0);
+        assertEquals("bloop", prop.getName());
+        assertTrue(prop.getGetter().hasAnnotation(A.class));
+        assertTrue(prop.getGetter().hasAnnotation(B.class));
+    }
+
+    public void testDuplicateGettersCreator() throws Exception
+    {
+        POJOPropertiesCollector coll = collector(MAPPER, DuplicateGetterCreatorBean.class, true);
+        List<BeanPropertyDefinition> props = coll.getProperties();
+        assertEquals(1, props.size());
+        POJOPropertyBuilder prop = (POJOPropertyBuilder) props.get(0);
+        assertEquals("bloop", prop.getName());
+        // Can't call getGetter or the duplicate will be removed
+        assertTrue(prop._getters.value.hasAnnotation(A.class));
+        assertNotNull(prop._getters.next);
+        assertTrue(prop._getters.next.value.hasAnnotation(A.class));
     }
 
     private void _verifyProperty(BeanDescription beanDesc,

@@ -683,28 +683,28 @@ public class POJOPropertyBuilder
         if (forSerialization) {
             if (_getters != null) {
                 AnnotationMap ann = _mergeAnnotations(0, _getters, _fields, _ctorParameters, _setters);
-                _getters = _getters.withValue(_getters.value.withAnnotations(ann));
+                _getters = _applyAnnotations(_getters, ann);
             } else if (_fields != null) {
                 AnnotationMap ann = _mergeAnnotations(0, _fields, _ctorParameters, _setters);
-                _fields = _fields.withValue(_fields.value.withAnnotations(ann));
+                _fields = _applyAnnotations(_fields, ann);
             }
         } else { // for deserialization
             if (_ctorParameters != null) {
                 AnnotationMap ann = _mergeAnnotations(0, _ctorParameters, _setters, _fields, _getters);
-                _ctorParameters = _ctorParameters.withValue(_ctorParameters.value.withAnnotations(ann));
+                _ctorParameters = _applyAnnotations(_ctorParameters, ann);
             } else if (_setters != null) {
                 AnnotationMap ann = _mergeAnnotations(0, _setters, _fields, _getters);
-                _setters = _setters.withValue(_setters.value.withAnnotations(ann));
+                _setters = _applyAnnotations(_setters, ann);
             } else if (_fields != null) {
                 AnnotationMap ann = _mergeAnnotations(0, _fields, _getters);
-                _fields = _fields.withValue(_fields.value.withAnnotations(ann));
+                _fields = _applyAnnotations(_fields, ann);
             }
         }
     }
 
     private AnnotationMap _mergeAnnotations(int index, Linked<? extends AnnotatedMember>... nodes)
     {
-        AnnotationMap ann = nodes[index].value.getAllAnnotations();
+        AnnotationMap ann = _getAllAnnotations(nodes[index]);
         ++index;
         for (; index < nodes.length; ++index) {
             if (nodes[index] != null) {
@@ -713,7 +713,23 @@ public class POJOPropertyBuilder
         }
         return ann;
     }
-    
+
+    private <T extends AnnotatedMember> AnnotationMap _getAllAnnotations(Linked<T> node) {
+        AnnotationMap ann = node.value.getAllAnnotations();
+        if (node.next != null) {
+            ann = AnnotationMap.merge(ann, _getAllAnnotations(node.next));
+        }
+        return ann;
+    }
+
+    private <T extends AnnotatedMember> Linked<T> _applyAnnotations(Linked<T> node, AnnotationMap ann) {
+        T value = (T) node.value.withAnnotations(ann);
+        if (node.next != null) {
+            node = node.withNext(_applyAnnotations(node.next, ann));
+        }
+        return node.withValue(value);
+    }
+
     private <T> Linked<T> _removeIgnored(Linked<T> node)
     {
         if (node == null) {
@@ -1056,7 +1072,7 @@ public class POJOPropertyBuilder
      * Node used for creating simple linked lists to efficiently store small sets
      * of things.
      */
-    private final static class Linked<T>
+    protected final static class Linked<T>
     {
         public final T value;
         public final Linked<T> next;

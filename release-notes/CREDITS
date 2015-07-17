@@ -287,6 +287,10 @@ Jeff Schnitzer (stickfigure@github)
   * Suggested #504: Add `DeserializationFeature.USE_LONG_FOR_INTS`
    (2.6.0)
 
+Jerry Yang (islanderman@github)
+  * Contributed #820: Add new method for `ObjectReader`, to bind from JSON Pointer position
+   (2.6.0)
+
 Lars Pfannenschmidt (larsp@github)
   * Contributed #826: Replaced synchronized HashMap with ConcurrentHashMap in
    TypeDeserializerBase._findDeserializer
@@ -295,3 +299,4 @@ Lars Pfannenschmidt (larsp@github)
 Stephen A. Goss (thezerobit@github)
   * Contributed #828: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
    (2.6.0)
+

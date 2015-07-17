@@ -15,7 +15,7 @@ public class ObjectReaderTest extends BaseMapTest
     final ObjectMapper MAPPER = new ObjectMapper();
 
     static class POJO {
-		public Map<String, Object> name;
+        public Map<String, Object> name;
     }
     
     public void testParserFeatures() throws Exception
@@ -40,47 +40,66 @@ public class ObjectReaderTest extends BaseMapTest
     }
     
     public void testNoPointerLoading() throws Exception {
-    	final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}"; 
-    	
-    	JsonNode tree = MAPPER.readTree(source);
-    	JsonNode node = tree.at("/foo/bar/caller");
-    	POJO pojo = MAPPER.treeToValue(node, POJO.class);
-		assertTrue(pojo.name.containsKey("value"));
-		assertEquals(1234, pojo.name.get("value"));
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        JsonNode tree = MAPPER.readTree(source);
+        JsonNode node = tree.at("/foo/bar/caller");
+        POJO pojo = MAPPER.treeToValue(node, POJO.class);
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
     }
-    
+
     public void testPointerLoading() throws Exception {
-    	final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}"; 
-    	
-    	ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
-    	
-    	POJO pojo = reader.readValue(source);
-		assertTrue(pojo.name.containsKey("value"));
-		assertEquals(1234, pojo.name.get("value"));
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        POJO pojo = reader.readValue(source);
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
     }
-    
+
     public void testPointerLoadingAsJsonNode() throws Exception {
-    	final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}"; 
-    	
-    	ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
-    	
-    	JsonNode node = reader.readTree(source);
-		assertTrue(node.has("name"));
-		assertEquals("{\"value\":1234}", node.get("name").toString());
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        JsonNode node = reader.readTree(source);
+        assertTrue(node.has("name"));
+        assertEquals("{\"value\":1234}", node.get("name").toString());
+    }
+
+    public void testPointerLoadingMappingIteratorOne() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        MappingIterator<POJO> itr = reader.readValues(source);
+
+        POJO pojo = itr.next();
+
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
+        assertFalse(itr.hasNext());
     }
     
-    public void testPointerLoadingMappingIterator() throws Exception {
-    	final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}"; 
-    	
-    	ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+    public void testPointerLoadingMappingIteratorMany() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":[{\"name\":{\"value\":1234}}, {\"name\":{\"value\":5678}}]}}}";
 
-    	MappingIterator<POJO> itr = reader.readValues(source);
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
 
-    	POJO pojo = itr.next();
-    	
-		assertTrue(pojo.name.containsKey("value"));
-		assertEquals(1234, pojo.name.get("value"));
-		assertFalse(itr.hasNext());
+        MappingIterator<POJO> itr = reader.readValues(source);
+
+        POJO pojo = itr.next();
+
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
+        assertTrue(itr.hasNext());
+        
+        pojo = itr.next();
+
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(5678, pojo.name.get("value"));
+        assertFalse(itr.hasNext());
     }
-
 }

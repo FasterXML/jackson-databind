@@ -93,7 +93,7 @@ public class ObjectReader
      * Filter to be consider for JsonParser.  
      * Default value to be null as filter not considered.
      */
-    private TokenFilter _filter;
+    private final TokenFilter _filter;
     
     /*
     /**********************************************************
@@ -273,6 +273,21 @@ public class ObjectReader
         _unwrapRoot = base._unwrapRoot;
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
+    }
+    
+    protected ObjectReader(ObjectReader base, TokenFilter filter) {
+        _config = base._config;
+        _context = base._context;
+        _rootDeserializers = base._rootDeserializers;
+        _parserFactory = base._parserFactory;
+        _valueType = base._valueType;
+        _rootDeserializer = base._rootDeserializer;
+        _valueToUpdate = base._valueToUpdate;
+        _schema = base._schema;
+        _injectableValues = base._injectableValues;
+        _unwrapRoot = base._unwrapRoot;
+        _dataFormatReaders = base._dataFormatReaders;
+        _filter = filter;
     }
     
     /**
@@ -1084,7 +1099,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
         
-        return (T) _bindAndClose(considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /**
@@ -1101,7 +1116,7 @@ public class ObjectReader
             _reportUndetectableSource(src);
         }
 
-        return (T) _bindAndClose(considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
     }
     
     /**
@@ -1118,7 +1133,7 @@ public class ObjectReader
             _reportUndetectableSource(src);
         }
         
-        return (T) _bindAndClose(considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /**
@@ -1135,7 +1150,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(src, 0, src.length);
         }
         
-        return (T) _bindAndClose(considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /**
@@ -1152,7 +1167,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(src, offset, length);
         }
 
-        return (T) _bindAndClose(considerFilter(_parserFactory.createParser(src, offset, length)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src, offset, length)));
     }
     
     @SuppressWarnings("unchecked")
@@ -1163,7 +1178,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
 
-        return (T) _bindAndClose(considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /**
@@ -1180,7 +1195,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
 
-        return (T) _bindAndClose(considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /**
@@ -1198,7 +1213,7 @@ public class ObjectReader
             _reportUndetectableSource(src);
         }
         
-        return (T) _bindAndClose(considerFilter(treeAsTokens(src)));
+        return (T) _bindAndClose(_considerFilter(treeAsTokens(src)));
     }
     
     /**
@@ -1217,7 +1232,7 @@ public class ObjectReader
             return _detectBindAndCloseAsTree(in);
         }
 
-        return _bindAndCloseAsTree(considerFilter(_parserFactory.createParser(in)));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(in)));
     }
     
     /**
@@ -1236,7 +1251,7 @@ public class ObjectReader
             _reportUndetectableSource(r);
         }
         
-        return _bindAndCloseAsTree(considerFilter(_parserFactory.createParser(r)));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(r)));
     }
 
     /**
@@ -1255,7 +1270,7 @@ public class ObjectReader
             _reportUndetectableSource(json);
         }
 
-        return _bindAndCloseAsTree(considerFilter(_parserFactory.createParser(json)));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json)));
     }
 
     /*
@@ -1310,7 +1325,7 @@ public class ObjectReader
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
         
-        return _bindAndReadValues(considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
     }
     
     /**
@@ -1323,7 +1338,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        JsonParser p = considerFilter(_parserFactory.createParser(src));
+        JsonParser p = _considerFilter(_parserFactory.createParser(src));
         _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -1342,7 +1357,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        JsonParser p = considerFilter(_parserFactory.createParser(json));
+        JsonParser p = _considerFilter(_parserFactory.createParser(json));
         _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -1358,7 +1373,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
-        return _bindAndReadValues(considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /**
@@ -1379,7 +1394,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), false);
         }
-        return _bindAndReadValues(considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /**
@@ -1394,7 +1409,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return _bindAndReadValues(considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
     }
 
     /*
@@ -1467,9 +1482,9 @@ public class ObjectReader
     /**
      * Consider filter when creating JsonParser.  
      */
-    private JsonParser considerFilter(final JsonParser p) {
-    	return _filter == null || FilteringParserDelegate.class.isInstance(p) 
-    			? p : new FilteringParserDelegate(p, _filter, false, false);
+    protected JsonParser _considerFilter(final JsonParser p) {
+        return _filter == null || FilteringParserDelegate.class.isInstance(p) 
+                ? p : new FilteringParserDelegate(p, _filter, false, false);
     }
     
     protected Object _bindAndClose(JsonParser p) throws IOException
@@ -1790,19 +1805,16 @@ public class ObjectReader
      * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
      * @since 2.6
      */
-	public ObjectReader at(final String value) {
-		_filter = new JsonPointerBasedFilter(value);
-		return this;
-	}
+    public ObjectReader at(final String value) {
+        return new ObjectReader(this, new JsonPointerBasedFilter(value));
+    }
 
     /**
      * Convenience method to bind from {@link JsonPointer}
 	 * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
      * @since 2.6
      */
-	public ObjectReader at(final JsonPointer pointer) {
-		_filter = new JsonPointerBasedFilter(pointer);
-		return this;
-	}
-
+    public ObjectReader at(final JsonPointer pointer) {
+        return new ObjectReader(this, new JsonPointerBasedFilter(pointer));
+    }
 }

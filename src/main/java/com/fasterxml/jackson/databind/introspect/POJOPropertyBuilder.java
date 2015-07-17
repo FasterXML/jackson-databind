@@ -714,6 +714,15 @@ public class POJOPropertyBuilder
         return ann;
     }
 
+    /**
+     * Replacement, as per [databind#868], of simple access to annotations, which
+     * does "deep merge" if an as necessary.
+     *<pre>
+     * nodes[index].value.getAllAnnotations()
+     *</pre>
+     * 
+     * @since 2.6
+     */
     private <T extends AnnotatedMember> AnnotationMap _getAllAnnotations(Linked<T> node) {
         AnnotationMap ann = node.value.getAllAnnotations();
         if (node.next != null) {
@@ -722,7 +731,17 @@ public class POJOPropertyBuilder
         return ann;
     }
 
+    /**
+     * Helper method to handle recursive merging of annotations within accessor class,
+     * to ensure no annotations are accidentally dropped within chain when non-visible
+     * and secondary accessors are pruned later on.
+     *<p>
+     * See [databind#868] for more information.
+     *
+     * @since 2.6
+     */
     private <T extends AnnotatedMember> Linked<T> _applyAnnotations(Linked<T> node, AnnotationMap ann) {
+        @SuppressWarnings("unchecked")
         T value = (T) node.value.withAnnotations(ann);
         if (node.next != null) {
             node = node.withNext(_applyAnnotations(node.next, ann));

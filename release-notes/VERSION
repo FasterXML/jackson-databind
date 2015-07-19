@@ -81,6 +81,7 @@ Project: jackson-databind
 #840: Change semantics of `@JsonPropertyOrder(alphabetic)` to only count `true` value
 #848: Custom serializer not used if POJO has `@JsonValue`
 #849: Possible problem with `NON_EMPTY` exclusion, `int`s, `Strings`
+#868: Annotations are lost in the case of duplicate methods
 - Remove old cglib compatibility tests; cause problems in Eclipse
 - Add `withFilterId()` method in `JsonSerializer` (demote from `BeanSerializer`)
 

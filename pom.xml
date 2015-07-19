@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-parent</artifactId>
-    <version>2.6.0-rc1</version>
+    <version>2.6.1</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.6.0-rc5-SNAPSHOT</version>
+  <version>2.6.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -20,7 +20,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-databind</url>
-    <tag>jackson-databind-2.6.0-rc3</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
@@ -69,12 +69,12 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.6.0-rc3</version>
+      <version>2.6.0</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.6.0-rc3</version>
+      <version>2.6.0</version>
     </dependency>
 
     <!-- and for testing we need a few libraries

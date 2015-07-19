@@ -81,6 +81,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(pojo.name.containsKey("value"));
         assertEquals(1234, pojo.name.get("value"));
         assertFalse(itr.hasNext());
+        itr.close();
     }
     
     public void testPointerLoadingMappingIteratorMany() throws Exception {
@@ -101,5 +102,6 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(pojo.name.containsKey("value"));
         assertEquals(5678, pojo.name.get("value"));
         assertFalse(itr.hasNext());
+        itr.close();
     }
 }

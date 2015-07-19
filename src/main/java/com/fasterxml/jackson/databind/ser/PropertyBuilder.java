@@ -77,10 +77,7 @@ public class PropertyBuilder
                 serializationType = declaredType;
             }
             JavaType ct = serializationType.getContentType();
-            /* 03-Sep-2010, tatu: This is somehow related to [JACKSON-356], but I don't completely
-             *   yet understand how pieces fit together. Still, better to be explicit than rely on
-             *   NPE to indicate an issue...
-             */
+            // Not exactly sure why, but this used to occur; better check explicitly:
             if (ct == null) {
                 throw new IllegalStateException("Problem trying to create BeanPropertyWriter for property '"
                         +propDef.getName()+"' (of type "+_beanDesc.getType()+"); serialization type "+serializationType+" has no content");
@@ -153,7 +150,7 @@ public class PropertyBuilder
         }
         return bpw;
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods; annotation access

@@ -161,6 +161,9 @@ public @interface JsonSerialize
      * being property setting for a Bean constructed with default no-arg
      * constructor, often null).
      *<p>
+     * This property has been replaced by special-purpose {@link com.fasterxml.jackson.annotation.JsonInclude}
+     * annotation, introduced in Jackson 2.0.
+     *<p>
      * Note that Jackson 2.3 changed default to <code>DEFAULT_INCLUSION</code>,
      * which is roughly same as saying "whatever". This is important because
      * it allows hierarchic default values to be used.

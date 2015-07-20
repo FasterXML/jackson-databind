@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.0 (not yet released)
+2.6.0 (19-Jul-2015)
 
 #77: Allow injection of 'transient' fields
 #95: Allow read-only properties with `@JsonIgnoreProperties(allowGetters=true)`

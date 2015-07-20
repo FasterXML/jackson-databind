@@ -23,7 +23,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.4.4</jackson.version>
+  <jackson.version>2.6.0</jackson.version>
   ...
 </properties>
 
@@ -412,7 +412,9 @@ usually a Jackson module.
 
 # Differences from Jackson 1.x
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
+Project contains versions 2.0 and above: source code for earlier (1.x) versions was available from [Codehaus](http://jackson.codehaus.org) SVN repository, but due to Codehaus closure is currently (July 2015) not officially available.
+We may try to create Jackson1x repository at Github in future (if you care about this, ping Jackson team via mailing lists, or file an issue for this project).
+
 Main differences compared to 1.0 "mapper" jar are:
 
 * Maven build instead of Ant
@@ -422,11 +424,11 @@ Main differences compared to 1.0 "mapper" jar are:
 
 # Further reading
 
-* [Documentation](https://github.com/FasterXML/jackson-databind/wiki)
+* [Overall Jackson Docs](../../../jackson/docs)
+* [Project wiki page](https://github.com/FasterXML/jackson-databind/wiki)
 
 Related:
 
 * [Core annotations](https://github.com/FasterXML/jackson-annotations) package defines annotations commonly used for configuring databinding details
 * [Core parser/generator](https://github.com/FasterXML/jackson-core) package defines low-level incremental/streaming parsers, generators
 * [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome) has additional documentation (although much of it for Jackson 1.x)
-

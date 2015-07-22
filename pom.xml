@@ -50,6 +50,7 @@ com.fasterxml.jackson.databind.util
 com.fasterxml.jackson.annotation,
 com.fasterxml.jackson.core,
 com.fasterxml.jackson.core.base,
+com.fasterxml.jackson.core.filter,
 com.fasterxml.jackson.core.format,
 com.fasterxml.jackson.core.json,
 com.fasterxml.jackson.core.io,

@@ -558,6 +558,7 @@ public abstract class BeanSerializerBase
         } else {
             typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
         }
+        gen.setCurrentValue(bean);
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {

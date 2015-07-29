@@ -9,47 +9,46 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * @author dharaburda
- */
-public class TestCreatorsWithIdentity extends BaseMapTest {
-
-  @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Parent.class)
-  public static class Parent {
-    @JsonProperty("id")
-    String id;
-
-    @JsonProperty
-    String parentProp;
-
-    @JsonCreator
-    public Parent(@JsonProperty("parentProp") String parentProp) {
-      this.parentProp = parentProp;
-    }
-  }
+public class TestCreatorsWithIdentity extends BaseMapTest
+{
+	@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Parent.class)
+	public static class Parent {
+	    @JsonProperty("id")
+	    String id;
+	
+	    @JsonProperty
+	    String parentProp;
+	
+	    @JsonCreator
+	    public Parent(@JsonProperty("parentProp") String parentProp) {
+	        this.parentProp = parentProp;
+	    }
+	}
 
 
-  public static class Child {
-    @JsonProperty
-    Parent parent;
+	public static class Child {
+	    @JsonProperty
+	    Parent parent;
 
-    @JsonProperty
-    String childProp;
+	    @JsonProperty
+	    String childProp;
 
-    @JsonCreator
-    public Child(@JsonProperty("parent") Parent parent, @JsonProperty("childProp") String childProp) {
-      this.parent = parent;
-      this.childProp = childProp;
-    }
-  }
+	    @JsonCreator
+	    public Child(@JsonProperty("parent") Parent parent, @JsonProperty("childProp") String childProp) {
+	        this.parent = parent;
+	        this.childProp = childProp;
+	    }
+	}
 
-  private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-  public void test() throws IOException {
-    String parentStr = "{\"id\" : \"1\", \"parentProp\" : \"parent\"}";
-    String childStr = "{\"childProp\" : \"child\", \"parent\" : " + parentStr + "}";
-    Parent parent = JSON_MAPPER.readValue(parentStr, Parent.class);
-    Child child = JSON_MAPPER.readValue(childStr, Child.class);
-  }
-
+	public void testSimple() throws IOException
+	{
+	    String parentStr = "{\"id\" : \"1\", \"parentProp\" : \"parent\"}";
+	    String childStr = "{\"childProp\" : \"child\", \"parent\" : " + parentStr + "}";
+	    Parent parent = JSON_MAPPER.readValue(parentStr, Parent.class);
+	    assertNotNull(parent);
+	    Child child = JSON_MAPPER.readValue(childStr, Child.class);
+	    assertNotNull(child);
+	}
 }

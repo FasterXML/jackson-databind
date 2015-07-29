@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 
 /**
@@ -25,10 +26,10 @@ public class JsonLocationInstantiator extends ValueInstantiator
     public boolean canCreateFromObjectWith() { return true; }
     
     @Override
-    public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
         JavaType intType = config.constructType(Integer.TYPE);
         JavaType longType = config.constructType(Long.TYPE);
-        return  new CreatorProperty[] {
+        return new SettableBeanProperty[] {
                 creatorProp("sourceRef", config.constructType(Object.class), 0),
                 creatorProp("byteOffset", longType, 1),
                 creatorProp("charOffset", longType, 2),

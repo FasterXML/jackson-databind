@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.1 (not yet released)
+
+#881: BeanDeserializerBase having issues with non-CreatorProperty properties.
+ (reported by dharaburda@github)
+
 2.6.0 (19-Jul-2015)
 
 #77: Allow injection of 'transient' fields

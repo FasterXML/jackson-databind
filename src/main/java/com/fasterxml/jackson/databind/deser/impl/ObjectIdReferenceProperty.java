@@ -11,7 +11,8 @@ import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 
-public class ObjectIdReferenceProperty extends SettableBeanProperty {
+public class ObjectIdReferenceProperty extends SettableBeanProperty
+{
     private static final long serialVersionUID = 1L;
 
     private final SettableBeanProperty _forward;
@@ -55,6 +56,11 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
     @Override
     public AnnotatedMember getMember() {
         return _forward.getMember();
+    }
+
+    @Override
+    public int getCreatorIndex() {
+        return _forward.getCreatorIndex();
     }
 
     @Override

@@ -422,7 +422,7 @@ public abstract class BasicDeserializerFactory
                 boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
 
                 if (useProps) {
-                    CreatorProperty[] properties = new CreatorProperty[1];
+                    SettableBeanProperty[] properties = new SettableBeanProperty[1];
                     PropertyName name = (argDef == null) ? null : argDef.getFullName();
                     AnnotatedParameter arg = ctor.getParameter(0);
                     properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, arg,
@@ -447,7 +447,7 @@ public abstract class BasicDeserializerFactory
             //   do, with some constraints. But that will require bit post processing...
 
             AnnotatedParameter nonAnnotatedParam = null;
-            CreatorProperty[] properties = new CreatorProperty[argCount];
+            SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             int explicitNameCount = 0;
             int implicitWithCreatorCount = 0;
             int injectCount = 0;
@@ -536,7 +536,7 @@ public abstract class BasicDeserializerFactory
             List<AnnotatedConstructor> implicitCtors) throws JsonMappingException
     {
         AnnotatedConstructor found = null;
-        CreatorProperty[] foundProps = null;
+        SettableBeanProperty[] foundProps = null;
 
         // Further checks: (a) must have names for all parameters, (b) only one visible
         // Also, since earlier matching of properties and creators relied on existence of
@@ -549,7 +549,7 @@ public abstract class BasicDeserializerFactory
             }
             // as per earlier notes, only end up here if no properties associated with creator
             final int argCount = ctor.getParameterCount();
-            CreatorProperty[] properties = new CreatorProperty[argCount];
+            SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
                 final AnnotatedParameter param = ctor.getParameter(i);
                 final PropertyName name = _findParamName(param, intr);
@@ -573,7 +573,7 @@ public abstract class BasicDeserializerFactory
             creators.addPropertyCreator(found, /*isCreator*/ false, foundProps);
             BasicBeanDescription bbd = (BasicBeanDescription) beanDesc;
             // Also: add properties, to keep error messages complete wrt known properties...
-            for (CreatorProperty prop : foundProps) {
+            for (SettableBeanProperty prop : foundProps) {
                 PropertyName pn = prop.getFullName();
                 if (!bbd.hasProperty(pn)) {
                     BeanPropertyDefinition newDef = SimpleBeanPropertyDefinition.construct(
@@ -698,7 +698,7 @@ public abstract class BasicDeserializerFactory
             }
             // 1 or more args; all params must have name annotations
             AnnotatedParameter nonAnnotatedParam = null;            
-            CreatorProperty[] properties = new CreatorProperty[argCount];
+            SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             int implicitNameCount = 0;
             int explicitNameCount = 0;
             int injectCount = 0;
@@ -817,7 +817,7 @@ public abstract class BasicDeserializerFactory
      * a logical property passed via Creator (constructor or static
      * factory method)
      */
-    protected CreatorProperty constructCreatorProperty(DeserializationContext ctxt,
+    protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, PropertyName name, int index,
             AnnotatedParameter param,
             Object injectableValueId)
@@ -861,7 +861,7 @@ public abstract class BasicDeserializerFactory
         }
         // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
         // so it is not called directly here
-        CreatorProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
+        SettableBeanProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
                 metadata);
         if (deser != null) {

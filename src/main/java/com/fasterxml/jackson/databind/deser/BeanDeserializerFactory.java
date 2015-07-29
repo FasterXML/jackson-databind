@@ -532,7 +532,7 @@ public class BeanDeserializerFactory
                 CreatorProperty cprop = null;
                 if (creatorProps != null) {
                     for (SettableBeanProperty cp : creatorProps) {
-                        if (name.equals(cp.getName())) {
+                        if (name.equals(cp.getName()) && (cp instanceof CreatorProperty)) {
                             cprop = (CreatorProperty) cp;
                             break;
                         }

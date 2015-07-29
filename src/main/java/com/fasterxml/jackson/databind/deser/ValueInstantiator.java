@@ -115,7 +115,9 @@ public abstract class ValueInstantiator
      * NOTE: all properties will be of type
      * {@link com.fasterxml.jackson.databind.deser.CreatorProperty}.
      */
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) { return null; }
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+        return null;
+    }
 
     /**
      * Method that can be used to determine what is the type of delegate

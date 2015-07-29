@@ -481,7 +481,7 @@ public abstract class BeanDeserializerBase
                     // 18-May-2015, tatu: _Should_ start with consistent set. But can we really
                     //   fully count on this? May need to revisit in future; seems to hold for now.
                     for (int i = 0, len = creatorProps.length; i < len; ++i) {
-                        if (creatorProps[i] == origProp && prop instanceof CreatorProperty) {
+                        if (creatorProps[i] == origProp) {
                             creatorProps[i] = prop;
                             break;
                         }
@@ -496,9 +496,8 @@ public abstract class BeanDeserializerBase
                     }
                 }
             }
-            
-            // one more thing: if this property uses "external property" type inclusion
-            // (see [JACKSON-453]), it needs different handling altogether
+            // one more thing: if this property uses "external property" type inclusion,
+            // it needs different handling altogether
             if (prop.hasValueTypeDeserializer()) {
                 TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
                 if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {

@@ -546,6 +546,8 @@ public abstract class BeanSerializerBase
         } else {
             typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
         }
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(bean);
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {

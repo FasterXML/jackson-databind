@@ -261,4 +261,8 @@ Kamil Benedykciński (Kamil-Benedykcinski@github)
    in `JsonMappingException`
    (2.5.4)
 
+Chi Kim (chikim79@github)
+  * Reported #878: serializeWithType on BeanSerializer does not setCurrentValue
+   (2.5.5 / 2.6.1)
+
 

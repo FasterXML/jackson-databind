@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -106,37 +106,37 @@ public class UnwrappingBeanSerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
+        gen.setCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, jgen, provider, false);
+            _serializeWithObjectId(bean, gen, provider, false);
             return;
         }
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
+            serializeFieldsFiltered(bean, gen, provider);
         } else {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
         }
     }
     
     @Override
-    public void serializeWithType(Object bean, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
+    		TypeSerializer typeSer) throws IOException
     {
         if (provider.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)) {
             throw new JsonMappingException("Unwrapped property requires use of type information: can not serialize without disabling `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`");
         }
 
+        gen.setCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, jgen, provider, typeSer);
+            _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
+            serializeFieldsFiltered(bean, gen, provider);
         } else {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
         }
     }
 

@@ -548,6 +548,7 @@ public abstract class BeanSerializerBase
         throws IOException
     {
         if (_objectIdWriter != null) {
+            gen.setCurrentValue(bean); // [databind#631]
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
@@ -558,6 +559,7 @@ public abstract class BeanSerializerBase
         } else {
             typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
         }
+        gen.setCurrentValue(bean); // [databind#631]
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {
@@ -570,10 +572,8 @@ public abstract class BeanSerializerBase
         }
     }
 
-    protected final void _serializeWithObjectId(Object bean,
-            JsonGenerator gen, SerializerProvider provider,
-            boolean startEndObject)
-        throws IOException, JsonGenerationException
+    protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
+            boolean startEndObject) throws IOException
     {
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
@@ -601,10 +601,8 @@ public abstract class BeanSerializerBase
         }
     }
     
-    protected final void _serializeWithObjectId(Object bean,
-            JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+    protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
+            TypeSerializer typeSer) throws IOException
     {
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
@@ -622,10 +620,9 @@ public abstract class BeanSerializerBase
         _serializeObjectId(bean, gen, provider, typeSer, objectId);
     }
 
-    protected  void _serializeObjectId(Object bean,
-            JsonGenerator gen,SerializerProvider provider,
-            TypeSerializer typeSer, WritableObjectId objectId)
-        throws IOException, JsonProcessingException, JsonGenerationException {
+    protected  void _serializeObjectId(Object bean, JsonGenerator gen,SerializerProvider provider,
+            TypeSerializer typeSer, WritableObjectId objectId) throws IOException
+    {
         final ObjectIdWriter w = _objectIdWriter;
         String typeStr = (_typeId == null) ? null :_customTypeId(bean);
         if (typeStr == null) {

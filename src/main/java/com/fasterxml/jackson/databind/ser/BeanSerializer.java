@@ -144,6 +144,7 @@ public class BeanSerializer
         throws IOException
     {
         if (_objectIdWriter != null) {
+            gen.setCurrentValue(bean); // [databind#631]
             _serializeWithObjectId(bean, gen, provider, true);
             return;
         }

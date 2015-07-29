@@ -261,6 +261,10 @@ Kamil Benedykciński (Kamil-Benedykcinski@github)
    in `JsonMappingException`
    (2.5.4)
 
+Chi Kim (chikim79@github)
+  * Reported #878: serializeWithType on BeanSerializer does not setCurrentValue
+   (2.5.5 / 2.6.1)
+
 Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)
@@ -299,4 +303,3 @@ Lars Pfannenschmidt (larsp@github)
 Stephen A. Goss (thezerobit@github)
   * Contributed #828: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
    (2.6.0)
-

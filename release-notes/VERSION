@@ -90,6 +90,8 @@ Project: jackson-databind
 #844: Using JsonCreator still causes invalid path references in JsonMappingException
  (reported by Ian B)
 #852: Accept scientific number notation for quoted numbers too
+#878: serializeWithType on BeanSerializer does not setCurrentValue
+ (reported by Chi K, chikim79@github)
 
 2.5.4 (09-Jun-2015)
 

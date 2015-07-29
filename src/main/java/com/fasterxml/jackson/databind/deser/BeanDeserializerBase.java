@@ -481,7 +481,7 @@ public abstract class BeanDeserializerBase
                     // 18-May-2015, tatu: _Should_ start with consistent set. But can we really
                     //   fully count on this? May need to revisit in future; seems to hold for now.
                     for (int i = 0, len = creatorProps.length; i < len; ++i) {
-                        if (creatorProps[i] == origProp) {
+                        if (creatorProps[i] == origProp && prop instanceof CreatorProperty) {
                             creatorProps[i] = prop;
                             break;
                         }

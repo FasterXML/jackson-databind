@@ -9,6 +9,8 @@ Project: jackson-databind
 #873: Add missing OSGi import
 #881: BeanDeserializerBase having issues with non-CreatorProperty properties.
  (reported by dharaburda@github)
+#884: ArrayIndexOutOfBoundException in 2.6.0
+ (reported by alterGauner@github)
 
 2.6.0 (19-Jul-2015)
 

@@ -67,11 +67,11 @@ public class BeanPropertyMap
         _size = props.size();
         
         // First: calculate size of primary hash area
-        final int size = findSize(_size);
-        _hashMask = size-1;
+        final int hashSize = findSize(_size);
+        _hashMask = hashSize-1;
 
         // and allocate enough to contain primary/secondary, expand for spillovers as need be
-        int alloc = (size + (size>>1)) * 2;
+        int alloc = (hashSize + (hashSize>>1)) * 2;
         Object[] hashed = new Object[alloc];
         int spillCount = 0;
 
@@ -88,10 +88,10 @@ public class BeanPropertyMap
             // primary slot not free?
             if (hashed[ix] != null) {
                 // secondary?
-                ix = (size + (slot >> 1)) << 1;
+                ix = (hashSize + (slot >> 1)) << 1;
                 if (hashed[ix] != null) {
                     // ok, spill over.
-                    ix = ((size + (size >> 1) ) << 1) + spillCount;
+                    ix = ((hashSize + (hashSize >> 1) ) << 1) + spillCount;
                     spillCount += 2;
                     if (ix >= hashed.length) {
                         hashed = Arrays.copyOf(hashed, hashed.length + 4);
@@ -140,8 +140,6 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
      * passed as the argument.
      * Note that method does not modify this instance but constructs
      * and returns a new one.
-     * 
-     * @since 2.0
      */
     public BeanPropertyMap withProperty(SettableBeanProperty newProp)
     {
@@ -157,23 +155,33 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
             }
         }
         // If not, append
-        int slot = _hashCode(key);
-        int hashSize = _hashMask+1;
-
+        final int slot = _hashCode(key);
+        final int hashSize = _hashMask+1;
+        int ix = (slot<<1);
+        
         // primary slot not free?
-        if (_hashArea[slot << 1] != null) {
+        if (_hashArea[ix] != null) {
             // secondary?
-            slot = hashSize + (slot >> 1);
-            if (_hashArea[slot << 1] != null) {
+            ix = (hashSize + (slot >> 1)) << 1;
+            if (_hashArea[ix] != null) {
                 // ok, spill over.
-                slot = hashSize + (hashSize >> 1) + _spillCount;
+                ix = ((hashSize + (hashSize >> 1) ) << 1) + _spillCount;
                 _spillCount += 2;
-                if ((slot << 1) >= _hashArea.length) {
+                if (ix >= _hashArea.length) {
                     _hashArea = Arrays.copyOf(_hashArea, _hashArea.length + 4);
+                    // Uncomment for debugging only
+                    /*
+for (int i = 0; i < _hashArea.length; i += 2) {
+    if (_hashArea[i] != null) {
+        System.err.println("Property #"+(i/2)+" '"+_hashArea[i]+"'...");
+    }
+}
+System.err.println("And new propr #"+slot+" '"+key+"'");
+*/
+                
                 }
             }
         }
-        int ix = slot << 1;
         _hashArea[ix] = key;
         _hashArea[ix+1] = newProp;
 
@@ -491,10 +499,12 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
     private final int _hashCode(String key) {
         // This method produces better hash, fewer collisions... yet for some
         // reason produces slightly worse performance. Very strange.
+
+        // 05-Aug-2015, tatu: ... still true?
+
         /*
         int h = key.hashCode();
-        h = h + (h >> 13);
-        return h & _hashMask;
+        return (h + (h >> 13)) & _hashMask;
         */
         return key.hashCode() & _hashMask;
     }

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-// related to [JACKSON-847]
 public class TestObjectId extends BaseMapTest
 {
     @JsonPropertyOrder({"a", "b"})

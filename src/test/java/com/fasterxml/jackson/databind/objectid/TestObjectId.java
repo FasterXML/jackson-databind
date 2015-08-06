@@ -117,7 +117,7 @@ public class TestObjectId extends BaseMapTest
         assertSame(deserialized.a, deserialized.b);
     }
 
-    // For Issue#188
+    // For [databind#188]
     public void testMixedRefsIssue188() throws Exception
     {
         Company comp = new Company();

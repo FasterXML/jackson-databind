@@ -208,6 +208,10 @@ public class TestConfig
         mapper.setTimeZone(tz1);
         assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
         assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
+
+        // also better stick via reader/writer as well
+        assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
+        assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
         
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         f.setTimeZone(tz2);
@@ -216,6 +220,8 @@ public class TestConfig
         // should not change the timezone tho
         assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
         assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
+        assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
+        assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
     }
     
     private final static String getLF() {

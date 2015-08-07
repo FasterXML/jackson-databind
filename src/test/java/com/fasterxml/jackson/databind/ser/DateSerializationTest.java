@@ -36,7 +36,7 @@ public class DateSerializationTest
         public java.sql.Date date;
         public SqlDateAsNumberBean(long l) { date = new java.sql.Date(l); }
     }
-    
+
     static class DateAsStringBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
         public Date date;
@@ -88,8 +88,8 @@ public class DateSerializationTest
     {
         ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
-        df.setTimeZone(TimeZone.getTimeZone("PST"));
         mapper.setDateFormat(df);
+        mapper.setTimeZone(TimeZone.getTimeZone("PST"));
         // let's hit epoch start, offset by a bit
         assertEquals(quote("1969-12-31X16:00:00"), mapper.writeValueAsString(new Date(0L)));
     }
@@ -124,30 +124,29 @@ public class DateSerializationTest
         assertEquals(quote("PST"), json);
     }
 
-    // [JACKSON-663]
     public void testTimeZoneInBean() throws IOException
     {
         String json = MAPPER.writeValueAsString(new TimeZoneBean("PST"));
         assertEquals("{\"tz\":\"PST\"}", json);
     }
 
-    // [JACKSON-648]: (re)configuring via ObjectWriter
     public void testDateUsingObjectWriter() throws IOException
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
-        df.setTimeZone(TimeZone.getTimeZone("PST"));
+        TimeZone tz = TimeZone.getTimeZone("PST");
         assertEquals(quote("1969-12-31X16:00:00"),
-                MAPPER.writer(df).writeValueAsString(new Date(0L)));
+                MAPPER.writer(df)
+                    .with(tz)
+                    .writeValueAsString(new Date(0L)));
         ObjectWriter w = MAPPER.writer((DateFormat)null);
         assertEquals("0", w.writeValueAsString(new Date(0L)));
 
-        w = w.with(df);
+        w = w.with(df).with(tz);
         assertEquals(quote("1969-12-31X16:00:00"), w.writeValueAsString(new Date(0L)));
         w = w.with((DateFormat) null);
         assertEquals("0", w.writeValueAsString(new Date(0L)));
     }
 
-    // [JACKSON-606]
     public void testDatesAsMapKeys() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -162,7 +161,6 @@ public class DateSerializationTest
         assertEquals("{\"0\":1}", mapper.writeValueAsString(map));
     }
 
-    // [JACKSON-435]
     public void testDateWithJsonFormat() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

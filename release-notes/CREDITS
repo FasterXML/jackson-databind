@@ -303,3 +303,7 @@ Lars Pfannenschmidt (larsp@github)
 Stephen A. Goss (thezerobit@github)
   * Contributed #828: Respect DeserializationFeatures.WRAP_EXCEPTIONS in CollectionDeserializer
    (2.6.0)
+
+Andy Wilkinson (wilkinsona@github)
+  * Reported #889: Configuring an ObjectMapper's DateFormat changes time zone
+   (2.6.1)

@@ -11,6 +11,8 @@ Project: jackson-databind
  (reported by dharaburda@github)
 #884: ArrayIndexOutOfBoundException for `BeanPropertyMap` (with ObjectId)
  (reported by alterGauner@github)
+#889: Configuring an ObjectMapper's DateFormat changes time zone
+ (reported by Andy W, wilkinsona@github)
 
 2.6.0 (19-Jul-2015)
 

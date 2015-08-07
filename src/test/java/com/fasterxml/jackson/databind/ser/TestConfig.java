@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -189,6 +190,32 @@ public class TestConfig
         ObjectMapper m = new ObjectMapper();
         m.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
         assertEquals("{\"x\":1}", m.writeValueAsString(new SimpleBean()));
+    }
+
+    public void testDateFormatConfig() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        TimeZone tz1 = TimeZone.getTimeZone("America/Los_Angeles");
+        TimeZone tz2 = TimeZone.getTimeZone("Central Standard Time");
+
+        // sanity checks
+        assertEquals(tz1, tz1);
+        assertEquals(tz2, tz2);
+        if (tz1.equals(tz2)) {
+            fail();
+        }
+
+        mapper.setTimeZone(tz1);
+        assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
+        assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
+        
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        f.setTimeZone(tz2);
+        mapper.setDateFormat(f);
+
+        // should not change the timezone tho
+        assertEquals(tz1, mapper.getSerializationConfig().getTimeZone());
+        assertEquals(tz1, mapper.getDeserializationConfig().getTimeZone());
     }
     
     private final static String getLF() {

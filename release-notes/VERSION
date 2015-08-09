@@ -13,6 +13,8 @@ Project: jackson-databind
  (reported by alterGauner@github)
 #889: Configuring an ObjectMapper's DateFormat changes time zone
  (reported by Andy W, wilkinsona@github)
+#890: Exception deserializing a byte[] when the target type comes from an annotation
+ (reported by gmjabs@github)
 
 2.6.0 (19-Jul-2015)
 

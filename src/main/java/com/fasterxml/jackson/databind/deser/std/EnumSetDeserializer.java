@@ -39,6 +39,10 @@ public class EnumSetDeserializer
         super(EnumSet.class);
         _enumType = enumType;
         _enumClass = (Class<Enum>) enumType.getRawClass();
+        // sanity check
+        if (!_enumClass.isEnum()) {
+            throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
+        }
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
     }
 
@@ -83,8 +87,7 @@ public class EnumSetDeserializer
     
     @SuppressWarnings("unchecked") 
     @Override
-    public EnumSet<?> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public EnumSet<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!jp.isExpectedStartArrayToken()) {
@@ -128,7 +131,7 @@ public class EnumSetDeserializer
     @SuppressWarnings("unchecked") 
     private EnumSet constructSet()
     {
-    	// superbly ugly... but apparently necessary
-    	return EnumSet.noneOf(_enumClass);
+        // superbly ugly... but apparently necessary
+        return EnumSet.noneOf(_enumClass);
     }
 }

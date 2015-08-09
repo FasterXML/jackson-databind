@@ -141,8 +141,8 @@ public abstract class TypeDeserializerBase
     /**********************************************************
      */
 
-    protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt, String typeId)
-        throws IOException
+    protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt,
+            String typeId) throws IOException
     {
         JsonDeserializer<Object> deser = _deserializers.get(typeId);
         if (deser == null) {
@@ -167,8 +167,14 @@ public abstract class TypeDeserializerBase
                  *   we may try to narrow a SimpleType (Object.class) into MapType (Map.class), losing actual
                  *   type in process (getting SimpleType of Map.class which will not work as expected)
                  */
-                if (_baseType != null && _baseType.getClass() == type.getClass()) {
-                    type = _baseType.narrowBy(type.getRawClass());
+                if ((_baseType != null)
+                        && _baseType.getClass() == type.getClass()) {
+                    /* 09-Aug-2015, tatu: Not sure if the second part of the check makes sense;
+                     *   but it appears to check that JavaType impl class is the same which is
+                     *   important for some reason?
+                     *   Disabling the check will break 2 Enum-related tests.
+                     */
+                    type = ctxt.getTypeFactory().constructSpecializedType(_baseType, type.getRawClass());
                 }
                 deser = ctxt.findContextualValueDeserializer(type, _property);
             }

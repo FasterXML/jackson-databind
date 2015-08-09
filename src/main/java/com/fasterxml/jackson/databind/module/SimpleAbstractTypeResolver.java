@@ -76,7 +76,8 @@ public class SimpleAbstractTypeResolver
         if (dst == null) {
             return null;
         }
-        return type.narrowBy(dst);
+        // 09-Aug-2015, tatu: Instead of direct call via JavaType, better use TypeFactory
+        return config.getTypeFactory().constructSpecializedType(type, dst);
     }
 
     

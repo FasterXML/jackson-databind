@@ -1,15 +1,14 @@
 package com.fasterxml.jackson.databind.deser;
 
-
 import java.io.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -96,7 +95,7 @@ public class TestArrayDeserialization
     }
 
     static class ObjectArrayWrapper {
-    	public Object[] wrapped;
+        public Object[] wrapped;
     }
 
     static class CustomNonDeserArrayDeserializer extends JsonDeserializer<NonDeserializable[]>
@@ -129,7 +128,12 @@ public class TestArrayDeserialization
         public String height;
         public String width;
     }
-    
+
+    static class HiddenBinaryBean890 {
+        @JsonDeserialize(as=byte[].class)
+        public Object someBytes;
+    }
+
     /*
     /**********************************************************
     /* Tests for "untyped" arrays, Object[]
@@ -547,6 +551,22 @@ public class TestArrayDeserialization
         assertEquals(src, result);
     }
 
+    /*
+    /**********************************************************
+    /* And special cases for byte array (base64 encoded)
+    /**********************************************************
+     */
+    
+    // for [databind#890]
+    public void testByteArrayTypeOverride890() throws Exception
+    {
+        HiddenBinaryBean890 result = MAPPER.readValue(
+                aposToQuotes("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
+        assertNotNull(result);
+        assertNotNull(result.someBytes);
+        assertEquals(byte[].class, result.someBytes.getClass());
+    }
+    
     /*
     /**********************************************************
     /* And custom deserializers too

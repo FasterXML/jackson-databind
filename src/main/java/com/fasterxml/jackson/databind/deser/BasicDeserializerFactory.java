@@ -1754,7 +1754,7 @@ public abstract class BasicDeserializerFactory
         Class<?> subclass = intr.findDeserializationType(a, type);
         if (subclass != null) {
             try {
-                type = (T) type.narrowBy(subclass);
+                type = (T) ctxt.getTypeFactory().constructSpecializedType(type, subclass);
             } catch (IllegalArgumentException iae) {
                 throw new JsonMappingException("Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), null, iae);
             }

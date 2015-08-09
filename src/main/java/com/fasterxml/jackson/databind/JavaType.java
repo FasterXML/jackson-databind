@@ -147,8 +147,9 @@ public abstract class JavaType
         if (subclass == _class) { return this; }
         // Otherwise, ensure compatibility
         _assertSubclass(subclass, _class);
+        
         JavaType result = _narrow(subclass);
-
+        
         // TODO: these checks should NOT actually be needed; above should suffice:
         if (_valueHandler != result.<Object>getValueHandler()) {
             result = result.withValueHandler(_valueHandler);

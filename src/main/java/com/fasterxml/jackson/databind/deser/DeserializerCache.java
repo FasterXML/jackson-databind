@@ -474,7 +474,7 @@ public final class DeserializerCache
         Class<?> subclass = intr.findDeserializationType(a, type);
         if (subclass != null) {
             try {
-                type = type.narrowBy(subclass);
+                type = ctxt.getTypeFactory().constructSpecializedType(type, subclass);
             } catch (IllegalArgumentException iae) {
                 throw new JsonMappingException("Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), null, iae);
             }

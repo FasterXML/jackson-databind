@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.1 (not yet released)
+2.6.1 (09-Aug-2015)
 
 #873: Add missing OSGi import
 #881: BeanDeserializerBase having issues with non-CreatorProperty properties.

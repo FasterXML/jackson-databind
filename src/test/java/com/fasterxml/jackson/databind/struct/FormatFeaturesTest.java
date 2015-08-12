@@ -13,8 +13,9 @@ public class FormatFeaturesTest extends BaseMapTest
     @JsonPropertyOrder( { "strings", "ints", "bools" })
     static class WrapWriteWithArrays
     {
+        @JsonProperty("strings")
         @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
-        public String[] strings = new String[] {
+        public String[] _strings = new String[] {
             "a"
         };
 

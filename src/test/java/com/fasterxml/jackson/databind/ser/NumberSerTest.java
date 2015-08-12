@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,13 +11,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class TestNumbers extends BaseMapTest
+public class NumberSerTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 
     static class IntAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
-        public int value = 3;
+        @JsonProperty("value")
+        public int foo = 3;
     }
 
     static class LongAsString {

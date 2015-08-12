@@ -8,10 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-/**
- * Tests related to [JACKSON-139]
- */
-public class TestNumbers extends BaseMapTest
+public class NumberDeserTest extends BaseMapTest
 {
     /*
     /**********************************************************************

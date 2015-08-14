@@ -3332,11 +3332,26 @@ public class ObjectMapper
 
     /**
      * Convenience method for doing two-step conversion from given value, into
-     * instance of given value type. This is functionality equivalent to first
-     * serializing given value into JSON, then binding JSON data into value
-     * of given type, but may be executed without fully serializing into
-     * JSON. Same converters (serializers, deserializers) will be used as for
+     * instance of given value type, if (but only if!) conversion is needed.
+     * If given value is already of requested type, value is returned as is.
+     *<p>
+     * This method is functionally similar to first
+     * serializing given value into JSON, and then binding JSON data into value
+     * of given type, but should be more efficient since full serialization does
+     * not (need to) occur.
+     * However, same converters (serializers, deserializers) will be used as for
      * data binding, meaning same object mapper configuration works.
+     *<p>
+     * Note that it is possible that in some cases behavior does differ from
+     * full serialize-then-deserialize cycle: in most case differences are
+     * unintentional (that is, flaws to fix) and should be reported.
+     * It is not guaranteed, however, that the behavior is 100% the same:
+     * the goal is just to allow efficient value conversions for structurally
+     * compatible Objects, according to standard Jackson configuration.
+     *<p>
+     * Further note that functianality is not designed to support "advanced" use
+     * cases, such as conversion of polymorphic values, or cases where Object Identity
+     * is used.
      *      
      * @throws IllegalArgumentException If conversion fails due to incompatible type;
      *    if so, root cause will contain underlying checked exception data binding
@@ -3351,6 +3366,9 @@ public class ObjectMapper
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
     } 
 
+    /**
+     * See {@link #convertValue(Object, Class)}
+     */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, TypeReference<?> toValueTypeRef)
         throws IllegalArgumentException
@@ -3358,6 +3376,9 @@ public class ObjectMapper
         return (T) convertValue(fromValue, _typeFactory.constructType(toValueTypeRef));
     } 
 
+    /**
+     * See {@link #convertValue(Object, Class)}
+     */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
@@ -3391,9 +3412,7 @@ public class ObjectMapper
             return fromValue;
         }
         
-        /* Then use TokenBuffer, which is a JsonGenerator:
-         * (see [JACKSON-175])
-         */
+        // Then use TokenBuffer, which is a JsonGenerator:
         TokenBuffer buf = new TokenBuffer(this, false);
         try {
             // inlined 'writeValue' with minor changes:

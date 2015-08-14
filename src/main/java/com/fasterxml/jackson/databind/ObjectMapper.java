@@ -3366,6 +3366,9 @@ public class ObjectMapper
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
     } 
 
+    /**
+     * See {@link #convertValue(Object, Class)}
+     */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, TypeReference<?> toValueTypeRef)
         throws IllegalArgumentException
@@ -3373,6 +3376,9 @@ public class ObjectMapper
         return (T) convertValue(fromValue, _typeFactory.constructType(toValueTypeRef));
     } 
 
+    /**
+     * See {@link #convertValue(Object, Class)}
+     */
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
@@ -3406,9 +3412,7 @@ public class ObjectMapper
             return fromValue;
         }
         
-        /* Then use TokenBuffer, which is a JsonGenerator:
-         * (see [JACKSON-175])
-         */
+        // Then use TokenBuffer, which is a JsonGenerator:
         TokenBuffer buf = new TokenBuffer(this, false);
         try {
             // inlined 'writeValue' with minor changes:

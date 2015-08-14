@@ -15,7 +15,10 @@ import java.util.*;
  * @since 2.6
  */
 public final class CompactStringObjectMap
+    implements java.io.Serializable // since 2.6.2
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Shared instance that can be used when there are no contents to Map.
      */

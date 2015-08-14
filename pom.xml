@@ -10,7 +10,7 @@
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.6.2-SNAPSHOT</version>
+  <version>2.7.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -24,41 +24,9 @@
   </scm>
 
   <properties>
-    <osgi.export>
-com.fasterxml.jackson.databind,
-com.fasterxml.jackson.databind.annotation,
-com.fasterxml.jackson.databind.cfg,
-com.fasterxml.jackson.databind.deser,
-com.fasterxml.jackson.databind.deser.impl,
-com.fasterxml.jackson.databind.deser.std,
-com.fasterxml.jackson.databind.exc,
-com.fasterxml.jackson.databind.ext,
-com.fasterxml.jackson.databind.introspect,
-com.fasterxml.jackson.databind.jsonschema,
-com.fasterxml.jackson.databind.jsonFormatVisitors,
-com.fasterxml.jackson.databind.jsontype,
-com.fasterxml.jackson.databind.jsontype.impl,
-com.fasterxml.jackson.databind.module,
-com.fasterxml.jackson.databind.node,
-com.fasterxml.jackson.databind.ser,
-com.fasterxml.jackson.databind.ser.impl,
-com.fasterxml.jackson.databind.ser.std,
-com.fasterxml.jackson.databind.type,
-com.fasterxml.jackson.databind.util
-    </osgi.export>
-    <osgi.import>
-com.fasterxml.jackson.annotation,
-com.fasterxml.jackson.core,
-com.fasterxml.jackson.core.base,
-com.fasterxml.jackson.core.filter,
-com.fasterxml.jackson.core.format,
-com.fasterxml.jackson.core.json,
-com.fasterxml.jackson.core.io,
-com.fasterxml.jackson.core.util,
-com.fasterxml.jackson.core.type,
-org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
-javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
-</osgi.import>
+    <!-- Can not use default, since group id != Java package name here -->
+    <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
+    <!-- but imports should work fine with defaults -->
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
@@ -75,7 +43,7 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.6.1</version>
+      <version>2.7.0-SNAPSHOT</version>
     </dependency>
 
     <!-- and for testing we need a few libraries

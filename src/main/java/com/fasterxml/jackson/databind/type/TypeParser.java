@@ -21,6 +21,13 @@ public class TypeParser
         _factory = f;
     }
 
+    /**
+     * @since 2.6.2
+     */
+    public TypeParser withFactory(TypeFactory f) {
+        return (f == _factory) ? this : new TypeParser(f);
+    }
+
     public JavaType parse(String canonical)
         throws IllegalArgumentException
     {

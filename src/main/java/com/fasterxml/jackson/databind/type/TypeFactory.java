@@ -72,7 +72,7 @@ public final class TypeFactory
      * a bottleneck, esp. for root-level Maps, so we better do bit
      * of low-level component caching here...
      */
-    
+
     /**
      * Lazily constructed copy of type hierarchy from {@link java.util.HashMap}
      * to its supertypes.
@@ -84,19 +84,19 @@ public final class TypeFactory
      * to its supertypes.
      */
     protected transient HierarchicType _cachedArrayListType;
-    
+
     /*
     /**********************************************************
     /* Configuration
     /**********************************************************
      */
-    
+
     /**
      * Registered {@link TypeModifier}s: objects that can change details
      * of {@link JavaType} instances factory constructs.
      */
     protected final TypeModifier[] _modifiers;
-    
+
     protected final TypeParser _parser;
     
     /**
@@ -117,28 +117,29 @@ public final class TypeFactory
     }
 
     protected TypeFactory(TypeParser p, TypeModifier[] mods) {
-    	this(p, mods, null);
+        this(p, mods, null);
     }
     
     protected TypeFactory(TypeParser p, TypeModifier[] mods, ClassLoader classLoader) {
-        _parser = p;
+        // As per [databind#894] must ensure we have back-linkage from TypeFactory:
+        _parser = p.withFactory(this);
         _modifiers = mods;
         _classLoader = classLoader;
     }
 
     public TypeFactory withModifier(TypeModifier mod) 
     {
-       if (mod == null) { // mostly for unit tests
-          return new TypeFactory(_parser, _modifiers, _classLoader);
-       }
-       if (_modifiers == null) {
-          return new TypeFactory(_parser, new TypeModifier[] { mod }, _classLoader);
-       }
-       return new TypeFactory(_parser, ArrayBuilders.insertInListNoDup(_modifiers, mod), _classLoader);
+        if (mod == null) { // mostly for unit tests
+            return new TypeFactory(_parser, _modifiers, _classLoader);
+        }
+        if (_modifiers == null) {
+            return new TypeFactory(_parser, new TypeModifier[] { mod }, _classLoader);
+        }
+        return new TypeFactory(_parser, ArrayBuilders.insertInListNoDup(_modifiers, mod), _classLoader);
     }
     
     public TypeFactory withClassLoader(ClassLoader classLoader) {
-       return new TypeFactory(_parser, _modifiers, classLoader);
+        return new TypeFactory(_parser, _modifiers, classLoader);
     }
 
     /**

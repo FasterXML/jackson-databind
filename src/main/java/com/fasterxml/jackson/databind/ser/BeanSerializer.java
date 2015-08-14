@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class BeanSerializer
     extends BeanSerializerBase
 {
-    private static final long serialVersionUID = -4536893235025590367L;
+    private static final long serialVersionUID = -3618164443537292758L;
 
     /*
     /**********************************************************

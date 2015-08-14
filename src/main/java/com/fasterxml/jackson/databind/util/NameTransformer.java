@@ -11,7 +11,14 @@ public abstract class NameTransformer
      * Singleton "no-operation" transformer which simply returns given
      * name as is. Used commonly as placeholder or marker.
      */
-    public final static NameTransformer NOP = new NameTransformer() {
+    public final static NameTransformer NOP = new NopTransformer();
+    
+    protected final static class NopTransformer
+        extends NameTransformer
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public String transform(String name) {
             return name;
@@ -21,7 +28,7 @@ public abstract class NameTransformer
             // identity transformation is always reversible:
             return transformed;
         }
-    };
+    }
 
     protected NameTransformer() { }
     
@@ -107,7 +114,10 @@ public abstract class NameTransformer
     public abstract String reverse(String transformed);
 
     public static class Chained extends NameTransformer
+        implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         protected final NameTransformer _t1, _t2;
         
         public Chained(NameTransformer t1, NameTransformer t2) {

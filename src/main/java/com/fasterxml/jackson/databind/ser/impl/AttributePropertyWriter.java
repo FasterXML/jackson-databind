@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public class AttributePropertyWriter
     extends VirtualBeanPropertyWriter
 {
+    private static final long serialVersionUID = 1;
+
     protected final String _attrName;
 
     /*

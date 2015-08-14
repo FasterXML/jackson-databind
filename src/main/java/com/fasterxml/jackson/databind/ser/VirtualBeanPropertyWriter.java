@@ -22,7 +22,10 @@ import com.fasterxml.jackson.databind.util.Annotations;
  */
 public abstract class VirtualBeanPropertyWriter
     extends BeanPropertyWriter
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructor used by most sub-types.
      */

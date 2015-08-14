@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.2 (not yet released)
+
+#899: Problem serializing `ObjectReader` (and possibly `ObjectMapper`)
+
 2.6.1 (09-Aug-2015)
 
 #873: Add missing OSGi import

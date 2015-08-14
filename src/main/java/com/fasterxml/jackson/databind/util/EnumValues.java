@@ -11,7 +11,10 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * enumerations.
  */
 public final class EnumValues
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1;
+
     private final Class<Enum<?>> _enumClass;
 
     private final Enum<?>[] _values;

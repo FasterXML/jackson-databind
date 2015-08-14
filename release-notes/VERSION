@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.6.2 (not yet released)
 
+#894: When using withFactory on ObjectMapper, the created Factory has a TypeParser
+  which still has the original Factory
+ (reported by lufe66@github)
 #899: Problem serializing `ObjectReader` (and possibly `ObjectMapper`)
 
 2.6.1 (09-Aug-2015)

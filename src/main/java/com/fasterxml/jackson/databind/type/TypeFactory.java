@@ -97,7 +97,7 @@ public final class TypeFactory
      */
     protected final TypeModifier[] _modifiers;
     
-    protected final TypeParser _parser;
+    protected TypeParser _parser;
     
     /**
      * ClassLoader used by this factory (Issue #624)
@@ -129,16 +129,16 @@ public final class TypeFactory
     public TypeFactory withModifier(TypeModifier mod) 
     {
        if (mod == null) { // mostly for unit tests
-          return new TypeFactory(_parser, _modifiers, _classLoader);
+    	   return factoryWithModifiedParser(_parser, _modifiers, _classLoader);
        }
        if (_modifiers == null) {
-          return new TypeFactory(_parser, new TypeModifier[] { mod }, _classLoader);
+          return factoryWithModifiedParser(_parser, new TypeModifier[] { mod }, _classLoader);
        }
-       return new TypeFactory(_parser, ArrayBuilders.insertInListNoDup(_modifiers, mod), _classLoader);
+       return factoryWithModifiedParser(_parser, ArrayBuilders.insertInListNoDup(_modifiers, mod), _classLoader);
     }
     
     public TypeFactory withClassLoader(ClassLoader classLoader) {
-       return new TypeFactory(_parser, _modifiers, classLoader);
+       return factoryWithModifiedParser(_parser, _modifiers, classLoader);
     }
 
     /**
@@ -1282,5 +1282,15 @@ public final class TypeFactory
         current.setSuperType(t);
         t.setSubType(current);
         return current;
+    }
+    
+    private void setTypeParser(TypeParser p) {
+    	this._parser = p;
+    }
+    
+    private TypeFactory factoryWithModifiedParser(TypeParser p, TypeModifier[] mods, ClassLoader classLoader) {
+       TypeFactory f = new TypeFactory(p, mods, classLoader);
+ 	   f.setTypeParser(p.withFactory(f));
+ 	   return f;
     }
 }

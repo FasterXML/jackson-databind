@@ -90,9 +90,7 @@ public class TestJDKSerialization extends BaseMapTest
         /* 14-Aug-2015, tatu: Looks like pre-loading JsonSerializer is problematic
          *    at this point; comment out for now. Try to fix later on.
          */
-        
-//        bytes = jdkSerialize(mapper.writerFor(EnumPOJO.class));
-        bytes = jdkSerialize(mapper.writer());
+        bytes = jdkSerialize(mapper.writerFor(EnumPOJO.class));
         ObjectWriter w = jdkDeserialize(bytes);
         assertNotNull(w);
 

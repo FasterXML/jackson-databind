@@ -23,7 +23,10 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  */
 public class UnwrappingBeanPropertyWriter
     extends BeanPropertyWriter
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Transformer used to add prefix and/or suffix for properties
      * of unwrapped POJO.

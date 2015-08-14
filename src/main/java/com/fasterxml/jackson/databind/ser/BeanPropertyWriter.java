@@ -36,8 +36,12 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  */
 @JacksonStdImpl // since 2.6. NOTE: sub-classes typically are not
 public class BeanPropertyWriter extends PropertyWriter
-    implements BeanProperty
+    implements BeanProperty,
+        java.io.Serializable // since 2.6.2
 {
+    // as of 2.6.2
+    private static final long serialVersionUID = 4603296144163950020L;
+
     /**
      * Marker object used to indicate "do not serialize if empty"
      */
@@ -50,54 +54,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.6
      */
     protected final static JsonFormat.Value NO_FORMAT = new JsonFormat.Value();
-    
-    /*
-    /**********************************************************
-    /* Settings for accessing property value to serialize
-    /**********************************************************
-     */
 
-    /**
-     * Member (field, method) that represents property and allows access
-     * to associated annotations.
-     */
-    protected final AnnotatedMember _member;
-
-    /**
-     * Annotations from context (most often, class that declares property,
-     * or in case of sub-class serializer, from that sub-class)
-     */
-    protected final Annotations _contextAnnotations;
-    
-    /**
-     * Type property is declared to have, either in class definition 
-     * or associated annotations.
-     */
-    protected final JavaType _declaredType;
-    
-    /**
-     * Accessor method used to get property value, for
-     * method-accessible properties.
-     * Null if and only if {@link #_field} is null.
-     */
-    protected final Method _accessorMethod;
-    
-    /**
-     * Field that contains the property value for field-accessible
-     * properties.
-     * Null if and only if {@link #_accessorMethod} is null.
-     */
-    protected final Field _field;
-    
-    /*
-    /**********************************************************
-    /* Opaque internal data that bean serializer factory and
-    /* bean serializers can add.
-    /**********************************************************
-     */
-
-    protected HashMap<Object,Object> _internalSettings;
-    
     /*
     /**********************************************************
     /* Basic property metadata: name, type, other
@@ -123,6 +80,12 @@ public class BeanPropertyWriter extends PropertyWriter
     protected final PropertyName _wrapperName;
 
     /**
+     * Type property is declared to have, either in class definition 
+     * or associated annotations.
+     */
+    protected final JavaType _declaredType;
+
+    /**
      * Type to use for locating serializer; normally same as return
      * type of the accessor method, but may be overridden by annotations.
      */
@@ -138,6 +101,15 @@ public class BeanPropertyWriter extends PropertyWriter
     protected JavaType _nonTrivialBaseType;
 
     /**
+     * Annotations from context (most often, class that declares property,
+     * or in case of sub-class serializer, from that sub-class)
+     *<p>
+     * NOTE: transient just to support JDK serializability; Annotations
+     * do not serialize. At all.
+     */
+    protected final transient Annotations _contextAnnotations;
+    
+    /**
      * Additional information about property
      *
      * @since 2.3
@@ -150,6 +122,36 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.6
      */
     protected transient JsonFormat.Value _format;
+
+    /*
+    /**********************************************************
+    /* Settings for accessing property value to serialize
+    /**********************************************************
+     */
+
+    /**
+     * Member (field, method) that represents property and allows access
+     * to associated annotations.
+     */
+    protected final AnnotatedMember _member;
+    
+    /**
+     * Accessor method used to get property value, for
+     * method-accessible properties.
+     * Null if and only if {@link #_field} is null.
+     *<p>
+     * `transient` (and non-final) only to support JDK serializability.
+     */
+    protected transient Method _accessorMethod;
+    
+    /**
+     * Field that contains the property value for field-accessible
+     * properties.
+     * Null if and only if {@link #_accessorMethod} is null.
+     *<p>
+     * `transient` (and non-final) only to support JDK serializability.
+     */
+    protected transient Field _field;
 
     /*
     /**********************************************************
@@ -210,6 +212,15 @@ public class BeanPropertyWriter extends PropertyWriter
      * is available for the Bean.
      */
     protected final Class<?>[] _includeInViews;
+
+    /*
+    /**********************************************************
+    /* Opaque internal data that bean serializer factory and
+    /* bean serializers can add.
+    /**********************************************************
+     */
+
+    protected transient HashMap<Object,Object> _internalSettings;
 
     /*
     /**********************************************************
@@ -301,16 +312,18 @@ public class BeanPropertyWriter extends PropertyWriter
         /* 02-Dec-2014, tatu: This is a big mess, alas, what with dependency
          *   to MapperConfig to encode, and Afterburner having heartburn
          *   for SerializableString (vs SerializedString).
-         *   Hope it can be resolved/reworker in 2.6 timeframe, if not for 2.5
+         *   Hope it can be resolved/reworked in 2.6 timeframe, if not for 2.5
          */
         _name = new SerializedString(name.getSimpleName());
         _wrapperName = base._wrapperName;
 
-        _member = base._member;
         _contextAnnotations = base._contextAnnotations;
         _declaredType = base._declaredType;
+
+        _member = base._member;
         _accessorMethod = base._accessorMethod;
         _field = base._field;
+
         _serializer = base._serializer;
         _nullSerializer = base._nullSerializer;
         // one more thing: copy internal settings, if any (since 1.7)
@@ -419,6 +432,30 @@ public class BeanPropertyWriter extends PropertyWriter
      */
     public void setNonTrivialBaseType(JavaType t) {
         _nonTrivialBaseType = t;
+    }
+
+    /*
+    /**********************************************************
+    /* JDK Serializability
+    /**********************************************************
+     */
+
+    /* Ideally would not require mutable state, and instead would re-create with
+     * final settings. However, as things are, with sub-types and all, simplest
+     * to just change Field/Method value directly.
+     */
+    Object readResolve() {
+        if (_member instanceof AnnotatedField) {
+            _accessorMethod = null;
+            _field = (Field) _member.getMember();
+        } else if (_member instanceof AnnotatedMethod) {
+            _accessorMethod = (Method) _member.getMember();
+            _field = null;
+        }
+        if (_serializer == null) {
+            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+        }
+        return this;
     }
 
     /*

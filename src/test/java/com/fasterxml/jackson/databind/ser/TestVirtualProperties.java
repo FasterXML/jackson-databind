@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -45,6 +44,7 @@ public class TestVirtualProperties extends BaseMapTest
         public int value = 28;
     }
 
+    @SuppressWarnings("serial")
     static class CustomVProperty
         extends VirtualBeanPropertyWriter
     {

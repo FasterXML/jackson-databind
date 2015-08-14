@@ -28,10 +28,6 @@ public class TestJDKSerialization extends BaseMapTest
         public void setY(int y) { this.y = y; }
     }
 
-    static enum ABC {
-        A, B, C;
-    }
-    
     // for [databind#899]
     static class EnumPOJO {
         public ABC abc = ABC.B;
@@ -78,7 +74,7 @@ public class TestJDKSerialization extends BaseMapTest
         // ensure we have serializers and/or deserializers, first
         String json = mapper.writerFor(EnumPOJO.class)
                 .writeValueAsString(new EnumPOJO());
-        EnumPOJO result = mapper.reader(EnumPOJO.class)
+        EnumPOJO result = mapper.readerFor(EnumPOJO.class)
                 .readValue(json);
         assertNotNull(result);
 
@@ -87,7 +83,7 @@ public class TestJDKSerialization extends BaseMapTest
         ObjectMapper mapper2 = jdkDeserialize(bytes);
         assertNotNull(mapper2);
 
-        bytes = jdkSerialize(mapper.reader(EnumPOJO.class));
+        bytes = jdkSerialize(mapper.readerFor(EnumPOJO.class));
         ObjectReader r = jdkDeserialize(bytes);
         assertNotNull(r);
 

@@ -454,11 +454,9 @@ public abstract class SerializerProvider
      * Note: this method is only called for non-null values; not for keys
      * or null values. For these, check out other accessor methods.
      *<p>
-     * Note that starting with version 1.5, serializers should also be type-aware
-     * if they handle polymorphic types. That means that it may be necessary
-     * to also use a {@link TypeSerializer} based on declared (static) type
-     * being serializer (whereas actual data may be serialized using dynamic
-     * type)
+     * Note that serializers produced should NOT handle polymorphic serialization
+     * aspects; separate {@link TypeSerializer} is to be constructed by caller
+     * if and as necessary.
      *
      * @throws JsonMappingException if there are fatal problems with
      *   accessing suitable serializer; including that of not

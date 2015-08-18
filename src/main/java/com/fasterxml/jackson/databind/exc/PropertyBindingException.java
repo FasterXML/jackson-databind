@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
@@ -28,7 +29,7 @@ public abstract class PropertyBindingException
      * reference path.
      */
     protected final String _propertyName;
-    
+
     /**
      * Set of ids of properties that are known for the type, if this
      * can be statically determined.
@@ -40,16 +41,29 @@ public abstract class PropertyBindingException
      * constructing actual message if and as needed.
      */
     protected transient String _propertiesAsString;
-    
+
+    /**
+     * @since 2.7
+     */
+    protected PropertyBindingException(JsonParser p, String msg, JsonLocation loc,
+            Class<?> referringClass, String propName,
+            Collection<Object> propertyIds)
+    {
+        super(p, msg, loc);
+        _referringClass = referringClass;
+        _propertyName = propName;
+        _propertyIds = propertyIds;
+    }
+
+    /**
+     * @deprecated Since 2.7
+     */
+    @Deprecated // since 2.7
     protected PropertyBindingException(String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
     {
-        
-        super(msg, loc);
-        _referringClass = referringClass;
-        _propertyName = propName;
-        _propertyIds = propertyIds;
+        this(null, msg, loc, referringClass, propName, propertyIds);
     }
 
     /*

@@ -18,6 +18,20 @@ public class IgnoredPropertyException
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * @since 2.7
+     */
+    public IgnoredPropertyException(JsonParser p, String msg, JsonLocation loc,
+            Class<?> referringClass, String propName,
+            Collection<Object> propertyIds)
+    {
+        super(p, msg, loc, referringClass, propName, propertyIds);
+    }
+
+    /**
+     * @deprecated Since 2.7
+     */
+    @Deprecated
     public IgnoredPropertyException(String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
@@ -25,6 +39,7 @@ public class IgnoredPropertyException
         super(msg, loc, referringClass, propName, propertyIds);
     }
 
+    
     /**
      * Factory method used for constructing instances of this exception type.
      * 
@@ -35,7 +50,7 @@ public class IgnoredPropertyException
      * @param propertyIds (optional, null if not available) Set of properties that
      *    type would recognize, if completely known: null if set can not be determined.
      */
-    public static IgnoredPropertyException from(JsonParser jp,
+    public static IgnoredPropertyException from(JsonParser p,
             Object fromObjectOrClass, String propertyName,
             Collection<Object> propertyIds)
     {
@@ -50,8 +65,8 @@ public class IgnoredPropertyException
         }
         String msg = "Ignored field \""+propertyName+"\" (class "+ref.getName()
                 +") encountered; mapper configured not to allow this";
-        IgnoredPropertyException e = new IgnoredPropertyException(msg,
-                jp.getCurrentLocation(), ref, propertyName, propertyIds);
+        IgnoredPropertyException e = new IgnoredPropertyException(p, msg,
+                p.getCurrentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment
         e.prependPath(fromObjectOrClass, propertyName);
         return e;

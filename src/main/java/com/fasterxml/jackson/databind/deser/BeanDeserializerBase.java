@@ -998,14 +998,12 @@ public abstract class BeanDeserializerBase
      *
      * @since 2.3
      */
-    protected Object _handleTypedObjectId(JsonParser jp, DeserializationContext ctxt,
+    protected Object _handleTypedObjectId(JsonParser p, DeserializationContext ctxt,
             Object pojo, Object rawId)
         throws IOException
     {
-        /* 07-Aug-2013, tatu: One more challenge: type of id may not be type
-         *   of property we are expecting later on; specifically, numeric ids
-         *   vs Strings.
-         */
+        // One more challenge: type of id may not be type of property we are expecting
+        // later on; specifically, numeric ids vs Strings.
         JsonDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
         final Object id;
 
@@ -1014,7 +1012,7 @@ public abstract class BeanDeserializerBase
             // nope: already same type
             id = rawId;
         } else {
-            id = _convertObjectId(jp, ctxt, rawId, idDeser);
+            id = _convertObjectId(p, ctxt, rawId, idDeser);
         }
 
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);

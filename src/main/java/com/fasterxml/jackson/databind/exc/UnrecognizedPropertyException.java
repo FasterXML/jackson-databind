@@ -17,6 +17,17 @@ public class UnrecognizedPropertyException
 {
     private static final long serialVersionUID = 1L;
 
+    public UnrecognizedPropertyException(JsonParser p, String msg, JsonLocation loc,
+            Class<?> referringClass, String propName,
+            Collection<Object> propertyIds)
+    {
+        super(p, msg, loc, referringClass, propName, propertyIds);
+    }
+
+    /**
+     * @deprecated Since 2.7
+     */
+    @Deprecated // since 2.7
     public UnrecognizedPropertyException(String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
@@ -34,7 +45,7 @@ public class UnrecognizedPropertyException
      * @param propertyIds (optional, null if not available) Set of properties that
      *    type would recognize, if completely known: null if set can not be determined.
      */
-    public static UnrecognizedPropertyException from(JsonParser jp,
+    public static UnrecognizedPropertyException from(JsonParser p,
             Object fromObjectOrClass, String propertyName,
             Collection<Object> propertyIds)
     {
@@ -48,18 +59,10 @@ public class UnrecognizedPropertyException
             ref = fromObjectOrClass.getClass();
         }
         String msg = "Unrecognized field \""+propertyName+"\" (class "+ref.getName()+"), not marked as ignorable";
-        UnrecognizedPropertyException e = new UnrecognizedPropertyException(msg,
-                jp.getCurrentLocation(), ref, propertyName, propertyIds);
+        UnrecognizedPropertyException e = new UnrecognizedPropertyException(p, msg,
+                p.getCurrentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment
         e.prependPath(fromObjectOrClass, propertyName);
         return e;
     }
-
-    /**
-     * @deprecated Since 2.3, use {@link #getPropertyName} instead.
-     */
-    @Deprecated // since 2.3
-    public String getUnrecognizedPropertyName() {
-        return getPropertyName();
-    }    
 }

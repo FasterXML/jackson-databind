@@ -5,13 +5,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.PropertyName;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -85,11 +81,10 @@ public final class SetterlessProperty
      */
     
     @Override
-    public final void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-            Object instance)
-        throws IOException, JsonProcessingException
+    public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
+            Object instance) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_NULL) {
             /* Hmmh. Is this a problem? We won't be setting anything, so it's
              * equivalent of empty Collection/Map in this case
@@ -99,7 +94,8 @@ public final class SetterlessProperty
 
         // For [#501] fix we need to implement this but:
         if (_valueTypeDeserializer != null) {
-            throw new JsonMappingException("Problem deserializing 'setterless' property (\""+getName()+"\"): no way to handle typed deser with setterless yet");
+            throw JsonMappingException.from(p,
+                    "Problem deserializing 'setterless' property (\""+getName()+"\"): no way to handle typed deser with setterless yet");
 //            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
         }
         
@@ -108,7 +104,7 @@ public final class SetterlessProperty
         try {
             toModify = _getter.invoke(instance);
         } catch (Exception e) {
-            _throwAsIOE(e);
+            _throwAsIOE(p, e);
             return; // never gets here
         }
         /* Note: null won't work, since we can't then inject anything
@@ -117,16 +113,17 @@ public final class SetterlessProperty
          * be compatible. If so, implementation could be changed.
          */
         if (toModify == null) {
-            throw new JsonMappingException("Problem deserializing 'setterless' property '"+getName()+"': get method returned null");
+            throw JsonMappingException.from(p,
+                    "Problem deserializing 'setterless' property '"+getName()+"': get method returned null");
         }
-        _valueDeserializer.deserialize(jp, ctxt, toModify);
+        _valueDeserializer.deserialize(p, ctxt, toModify);
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance) throws IOException, JsonProcessingException
+    public Object deserializeSetAndReturn(JsonParser p,
+    		DeserializationContext ctxt, Object instance) throws IOException
     {
-        deserializeAndSet(jp, ctxt, instance);
+        deserializeAndSet(p, ctxt, instance);
         return instance;
     }
     

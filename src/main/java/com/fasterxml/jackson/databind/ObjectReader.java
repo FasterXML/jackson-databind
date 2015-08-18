@@ -1,31 +1,11 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.core.Base64Variant;
-import com.fasterxml.jackson.core.FormatSchema;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.Versioned;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter;
@@ -1670,11 +1650,11 @@ public class ObjectReader
      */
     protected void _reportUnkownFormat(DataFormatReaders detector, DataFormatReaders.Match match) throws JsonProcessingException
     {
-        throw new JsonParseException("Can not detect format from input, does not look like any of detectable formats "
-                +detector.toString(),
-                JsonLocation.NA);
+        // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
+        throw new JsonParseException(null, "Can not detect format from input, does not look like any of detectable formats "
+                +detector.toString());
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, other
@@ -1705,9 +1685,9 @@ public class ObjectReader
 
     protected void _reportUndetectableSource(Object src) throws JsonProcessingException
     {
-        throw new JsonParseException("Can not use source of type "
-                +src.getClass().getName()+" with format auto-detection: must be byte- not char-based",
-                JsonLocation.NA);
+        // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
+        throw new JsonParseException(null, "Can not use source of type "
+                +src.getClass().getName()+" with format auto-detection: must be byte- not char-based");
     }
 
     protected InputStream _inputStream(URL src) throws IOException {
@@ -1737,7 +1717,7 @@ public class ObjectReader
         // Sanity check: must have actual type...
         JavaType t = _valueType;
         if (t == null) {
-            throw new JsonMappingException("No value type configured for ObjectReader");
+            throw JsonMappingException.from(ctxt, "No value type configured for ObjectReader");
         }
         
         // First: have we already seen it?
@@ -1748,7 +1728,7 @@ public class ObjectReader
         // Nope: need to ask provider to resolve it
         deser = ctxt.findRootValueDeserializer(t);
         if (deser == null) { // can this happen?
-            throw new JsonMappingException("Can not find a deserializer for type "+t);
+            throw JsonMappingException.from(ctxt, "Can not find a deserializer for type "+t);
         }
         _rootDeserializers.put(t, deser);
         return deser;
@@ -1765,7 +1745,8 @@ public class ObjectReader
             // Nope: need to ask provider to resolve it
             deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
             if (deser == null) { // can this happen?
-                throw new JsonMappingException("Can not find a deserializer for type "+JSON_NODE_TYPE);
+                throw JsonMappingException.from(ctxt,
+                        "Can not find a deserializer for type "+JSON_NODE_TYPE);
             }
             _rootDeserializers.put(JSON_NODE_TYPE, deser);
         }

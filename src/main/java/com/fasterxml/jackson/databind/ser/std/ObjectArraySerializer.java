@@ -378,7 +378,7 @@ public class ObjectArraySerializer
             TypeFactory tf = visitor.getProvider().getTypeFactory();
             JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
             if (contentType == null) {
-                throw new JsonMappingException("Could not resolve type");
+                throw JsonMappingException.from(visitor.getProvider(), "Could not resolve type");
             }
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {

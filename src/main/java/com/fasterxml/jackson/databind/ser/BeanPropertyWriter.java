@@ -896,7 +896,7 @@ public class BeanPropertyWriter extends PropertyWriter
             // 13-Feb-2014, tatu: another possible ok case: custom serializer (something
             //   OTHER than {@link BeanSerializerBase}
             if (ser instanceof BeanSerializerBase) {
-                throw new JsonMappingException("Direct self-reference leading to cycle");
+                throw JsonMappingException.from(gen, "Direct self-reference leading to cycle");
             }
         }
         return false;

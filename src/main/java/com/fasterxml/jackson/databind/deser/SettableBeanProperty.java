@@ -530,7 +530,7 @@ public abstract class SettableBeanProperty
      * Method that takes in exception of any type, and casts or wraps it
      * to an IOException or its subclass.
      */
-    protected void _throwAsIOE(Exception e, Object value) throws IOException
+    protected void _throwAsIOE(JsonParser p, Exception e, Object value) throws IOException
     {
         if (e instanceof IllegalArgumentException) {
             String actType = (value == null) ? "[NULL]" : value.getClass().getName();
@@ -543,12 +543,15 @@ public abstract class SettableBeanProperty
             } else {
                 msg.append(" (no error message provided)");
             }
-            throw new JsonMappingException(msg.toString(), null, e);
+            throw JsonMappingException.from(p, msg.toString(), e);
         }
-        _throwAsIOE(e);
+        _throwAsIOE(p, e);
     }
-
-    protected IOException _throwAsIOE(Exception e) throws IOException
+    
+    /**
+     * @since 2.7
+     */
+    protected IOException _throwAsIOE(JsonParser p, Exception e) throws IOException
     {
         if (e instanceof IOException) {
             throw (IOException) e;
@@ -561,7 +564,17 @@ public abstract class SettableBeanProperty
         while (th.getCause() != null) {
             th = th.getCause();
         }
-        throw new JsonMappingException(th.getMessage(), null, th);
+        throw JsonMappingException.from(p, th.getMessage(), th);
+    }
+
+    @Deprecated // since 2.7
+    protected IOException _throwAsIOE(Exception e) throws IOException {
+        return _throwAsIOE((JsonParser) null, e);
+    }
+
+    @Deprecated // since 2.7
+    protected void _throwAsIOE(Exception e, Object value) throws IOException {
+        _throwAsIOE((JsonParser) null, e, value);
     }
 
     @Override public String toString() { return "[property '"+getName()+"']"; }

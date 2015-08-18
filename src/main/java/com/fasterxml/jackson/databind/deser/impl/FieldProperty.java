@@ -95,26 +95,26 @@ public final class FieldProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser jp,
+    public void deserializeAndSet(JsonParser p,
     		DeserializationContext ctxt, Object instance) throws IOException
     {
-        Object value = deserialize(jp, ctxt);
+        Object value = deserialize(p, ctxt);
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(e, value);
+            _throwAsIOE(p, e, value);
         }
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp,
+    public Object deserializeSetAndReturn(JsonParser p,
     		DeserializationContext ctxt, Object instance) throws IOException
     {
-        Object value = deserialize(jp, ctxt);
+        Object value = deserialize(p, ctxt);
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(e, value);
+            _throwAsIOE(p, e, value);
         }
         return instance;
     }

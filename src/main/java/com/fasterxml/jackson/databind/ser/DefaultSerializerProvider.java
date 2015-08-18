@@ -138,7 +138,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw new JsonMappingException(msg, e);
+            throw new JsonMappingException(gen, msg, e);
         }
     }
 
@@ -197,7 +197,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw new JsonMappingException(msg, e);
+            throw JsonMappingException.from(gen, msg, e);
         }
     }
 
@@ -261,7 +261,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw new JsonMappingException(msg, e);
+            throw JsonMappingException.from(gen, msg, e);
         }
     }
 
@@ -324,7 +324,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw new JsonMappingException(msg, e);
+            throw JsonMappingException.from(gen, msg, e);
         }
     }
 
@@ -356,7 +356,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw new JsonMappingException(msg, e);
+            throw JsonMappingException.from(gen, msg, e);
         }
     }
 

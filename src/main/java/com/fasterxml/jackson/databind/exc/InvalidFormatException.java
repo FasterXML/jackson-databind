@@ -32,28 +32,46 @@ public class InvalidFormatException extends JsonMappingException
     /* Life-cycle
     /**********************************************************
      */
-    
+
+    /**
+     * @deprecated Since 2.7 Use variant that takes {@link JsonParser}
+     */
+    @Deprecated // since 2.7
     public InvalidFormatException(String msg,
             Object value, Class<?> targetType)
     {
-        super(msg);
+        super(null, msg);
         _value = value;
         _targetType = targetType;
     }
 
+    /**
+     * @deprecated Since 2.7 Use variant that takes {@link JsonParser}
+     */
+    @Deprecated // since 2.7
     public InvalidFormatException(String msg, JsonLocation loc,
             Object value, Class<?> targetType)
     {
-        super(msg, loc);
+        super(null, msg, loc);
+        _value = value;
+        _targetType = targetType;
+    }
+
+    /**
+     * @since 2.7
+     */
+    public InvalidFormatException(JsonParser p,
+            String msg, Object value, Class<?> targetType)
+    {
+        super(p, msg);
         _value = value;
         _targetType = targetType;
     }
     
-    public static InvalidFormatException from(JsonParser jp, String msg,
+    public static InvalidFormatException from(JsonParser p, String msg,
             Object value, Class<?> targetType)
     {
-        return new InvalidFormatException(msg, jp.getTokenLocation(),
-                value, targetType);
+        return new InvalidFormatException(p, msg, value, targetType);
     }
 
     /*

@@ -29,7 +29,7 @@ public class UnknownSerializer
     {
         // 27-Nov-2009, tatu: As per [JACKSON-201] may or may not fail...
         if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-            failForEmpty(value);
+            failForEmpty(gen, value);
         }
         // But if it's fine, we'll just output empty JSON Object:
         gen.writeStartObject();
@@ -41,7 +41,7 @@ public class UnknownSerializer
             TypeSerializer typeSer) throws IOException
     {
         if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-            failForEmpty(value);
+            failForEmpty(gen, value);
         }
         typeSer.writeTypePrefixForObject(value, gen);
         typeSer.writeTypeSuffixForObject(value, gen);
@@ -64,8 +64,8 @@ public class UnknownSerializer
         visitor.expectAnyFormat(typeHint);
     }
 
-    protected void failForEmpty(Object value) throws JsonMappingException
-    {
-        throw new JsonMappingException("No serializer found for class "+value.getClass().getName()+" and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) )");
+    protected void failForEmpty(JsonGenerator gen, Object value) throws JsonMappingException {
+        throw JsonMappingException.from(gen,
+                "No serializer found for class "+value.getClass().getName()+" and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS) )");
     }
 }

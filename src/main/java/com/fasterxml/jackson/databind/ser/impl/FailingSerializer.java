@@ -30,9 +30,9 @@ public class FailingSerializer
     }
     
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        throw new JsonGenerationException(_msg);
+        throw new JsonGenerationException(_msg, g);
     }
 
     @Override

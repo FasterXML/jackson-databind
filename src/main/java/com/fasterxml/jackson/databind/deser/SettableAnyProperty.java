@@ -173,7 +173,7 @@ public class SettableAnyProperty
             } else {
                 msg.append(" (no error message provided)");
             }
-            throw new JsonMappingException(msg.toString(), null, e);
+            throw new JsonMappingException(null, msg.toString(), e);
         }
         if (e instanceof IOException) {
             throw (IOException) e;
@@ -186,7 +186,7 @@ public class SettableAnyProperty
         while (t.getCause() != null) {
             t = t.getCause();
         }
-        throw new JsonMappingException(t.getMessage(), null, t);
+        throw new JsonMappingException(null, t.getMessage(), t);
     }
 
     private String getClassName() { return _setter.getDeclaringClass().getName(); }

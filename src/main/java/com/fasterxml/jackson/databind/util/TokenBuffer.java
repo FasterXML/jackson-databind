@@ -371,7 +371,9 @@ public class TokenBuffer
                     } else if (n instanceof String) {
                         gen.writeNumber((String) n);
                     } else {
-                        throw new JsonGenerationException("Unrecognized value type for VALUE_NUMBER_FLOAT: "+n.getClass().getName()+", can not serialize");
+                        throw new JsonGenerationException(String.format(
+                                "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, can not serialize",
+                                n.getClass().getName()), gen);
                     }
                 }
                 break;

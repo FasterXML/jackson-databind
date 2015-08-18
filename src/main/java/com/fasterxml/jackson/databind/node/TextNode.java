@@ -292,10 +292,10 @@ public class TextNode
         if (msg != null) {
             base = base + ": " + msg;
         }
-        throw new JsonParseException(base, JsonLocation.NA);
+        throw new JsonParseException(null, base, JsonLocation.NA);
     }
 
     protected void _reportBase64EOF() throws JsonParseException {
-        throw new JsonParseException("Unexpected end-of-String when base64 content", JsonLocation.NA);
+        throw new JsonParseException(null, "Unexpected end-of-String when base64 content");
     }
 }

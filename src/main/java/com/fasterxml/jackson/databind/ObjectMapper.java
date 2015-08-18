@@ -3822,7 +3822,8 @@ public class ObjectMapper
         // Nope: need to ask provider to resolve it
         deser = ctxt.findRootValueDeserializer(valueType);
         if (deser == null) { // can this happen?
-            throw new JsonMappingException("Can not find a deserializer for type "+valueType);
+            throw JsonMappingException.from(ctxt,
+                    "Can not find a deserializer for type "+valueType);
         }
         _rootDeserializers.put(valueType, deser);
         return deser;

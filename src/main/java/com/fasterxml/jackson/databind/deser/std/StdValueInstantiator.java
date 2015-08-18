@@ -211,9 +211,9 @@ public class StdValueInstantiator
         try {
             return _defaultCreator.call();
         } catch (ExceptionInInitializerError e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         } catch (Exception e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         }
     }
     
@@ -226,9 +226,9 @@ public class StdValueInstantiator
         try {
             return _withArgsCreator.call(args);
         } catch (ExceptionInInitializerError e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         } catch (Exception e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         }
     }
 
@@ -257,9 +257,9 @@ public class StdValueInstantiator
             // and then try calling with full set of arguments
             return _delegateCreator.call(args);
         } catch (ExceptionInInitializerError e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         } catch (Exception e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         }
     }
     
@@ -276,9 +276,9 @@ public class StdValueInstantiator
             try {
                 return _fromStringCreator.call1(value);
             } catch (Exception e) {
-                throw wrapException(e);
+                throw wrapException(ctxt, e);
             } catch (ExceptionInInitializerError e) {
-                throw wrapException(e);
+                throw wrapException(ctxt, e);
             }
         }
         return _createFromStringFallbacks(ctxt, value);
@@ -297,9 +297,9 @@ public class StdValueInstantiator
                 return _fromLongCreator.call1(Long.valueOf(value));
             }
         } catch (Exception e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         } catch (ExceptionInInitializerError e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         }
         throw ctxt.mappingException("Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
                 getValueTypeDesc(), value);
@@ -313,9 +313,9 @@ public class StdValueInstantiator
                 return _fromLongCreator.call1(Long.valueOf(value));
             }
         } catch (Exception e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         } catch (ExceptionInInitializerError e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         }
         throw ctxt.mappingException("Can not instantiate value of type %s"
                 +" from Long integral number (%s); no single-long-arg constructor/factory method",
@@ -330,9 +330,9 @@ public class StdValueInstantiator
                 return _fromDoubleCreator.call1(Double.valueOf(value));
             }
         } catch (Exception e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         } catch (ExceptionInInitializerError e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         }
         throw ctxt.mappingException("Can not instantiate value of type %s"
                 +" from Floating-point number (%s); no one-double/Double-arg constructor/factory method",
@@ -347,9 +347,9 @@ public class StdValueInstantiator
                 return _fromBooleanCreator.call1(Boolean.valueOf(value));
             }
         } catch (Exception e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         } catch (ExceptionInInitializerError e) {
-            throw wrapException(e);
+            throw wrapException(ctxt, e);
         }
         throw ctxt.mappingException("Can not instantiate value of type %s"
                 +" from Boolean value (%s); no single-boolean/Boolean-arg constructor/factory method",
@@ -388,6 +388,10 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 2.7 use method that passes context
+     */
+    @Deprecated // since 2.7
     protected JsonMappingException wrapException(Throwable t)
     {
         while (t.getCause() != null) {
@@ -396,8 +400,22 @@ public class StdValueInstantiator
         if (t instanceof JsonMappingException) {
             return (JsonMappingException) t;
         }
-        return new JsonMappingException("Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
+        return new JsonMappingException(null,
+                "Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected JsonMappingException wrapException(DeserializationContext ctxt, Throwable t)
+    {
+        while (t.getCause() != null) {
+            t = t.getCause();
+        }
+        if (t instanceof JsonMappingException) {
+            return (JsonMappingException) t;
+        }
+        return JsonMappingException.from(ctxt.getParser(),
+                "Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
     }
 }
-
-

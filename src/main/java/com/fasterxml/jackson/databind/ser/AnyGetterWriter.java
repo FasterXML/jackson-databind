@@ -45,7 +45,7 @@ public class AnyGetterWriter
             return;
         }
         if (!(value instanceof Map<?,?>)) {
-            throw new JsonMappingException("Value returned by 'any-getter' ("
+            throw JsonMappingException.from(gen, "Value returned by 'any-getter' ("
                     +_accessor.getName()+"()) not java.util.Map but "+value.getClass().getName());
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
@@ -68,7 +68,7 @@ public class AnyGetterWriter
             return;
         }
         if (!(value instanceof Map<?,?>)) {
-            throw new JsonMappingException("Value returned by 'any-getter' ("
+            throw JsonMappingException.from(gen, "Value returned by 'any-getter' ("
                     +_accessor.getName()+"()) not java.util.Map but "+value.getClass().getName());
         }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?

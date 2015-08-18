@@ -253,7 +253,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 
                     int i = value.lastIndexOf(']');
                     if (i == -1) {
-                        throw new InvalidFormatException("Bracketed IPv6 address must contain closing bracket",
+                        throw new InvalidFormatException(ctxt.getParser(),
+                                "Bracketed IPv6 address must contain closing bracket",
                                 value, InetSocketAddress.class);
                     }
 

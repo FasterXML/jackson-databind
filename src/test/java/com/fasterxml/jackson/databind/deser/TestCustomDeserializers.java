@@ -78,7 +78,7 @@ public class TestCustomDeserializers
                 final String fieldName = jp.getCurrentName();
                 t = jp.nextToken();
                 if (t != JsonToken.VALUE_NUMBER_INT) {
-                    throw new JsonParseException("expecting number got "+ t, jp.getCurrentLocation());
+                    throw new JsonParseException(jp, "expecting number got "+ t);
                 }
                 if (fieldName.equals("a")) {
                     a = jp.getIntValue();

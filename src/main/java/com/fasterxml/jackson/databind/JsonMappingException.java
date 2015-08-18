@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
@@ -133,23 +134,139 @@ public class JsonMappingException
      */
     protected LinkedList<Reference> _path;
 
+    /**
+     * Underlying processor ({@link JsonParser} or {@link JsonGenerator}),
+     * if known.
+     *
+     * @since 2.7
+     */
+    protected Closeable _processor;
+    
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
+     */
+    @Deprecated // since 2.7
     public JsonMappingException(String msg) { super(msg); }
+
+    /**
+     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
+     */
+    @Deprecated // since 2.7
     public JsonMappingException(String msg, Throwable rootCause) { super(msg, rootCause); }
+
+    /**
+     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
+     */
+    @Deprecated // since 2.7
     public JsonMappingException(String msg, JsonLocation loc) { super(msg, loc); }
+
+    /**
+     * @deprecated Since 2.7 Use variant that takes {@link JsonParser} instead
+     */
+    @Deprecated // since 2.7
     public JsonMappingException(String msg, JsonLocation loc, Throwable rootCause) { super(msg, loc, rootCause); }
 
-    public static JsonMappingException from(JsonParser jp, String msg) {
-        return new JsonMappingException(msg, ((jp == null) ? null : jp.getTokenLocation()));
+    /**
+     * @since 2.7
+     */
+    public JsonMappingException(Closeable processor, String msg) {
+        super(msg);
+        _processor = processor;
+        if (processor instanceof JsonParser) {
+            // 17-Aug-2015, tatu: Use of token location makes some sense from databinding,
+            //   since actual parsing (current) location is typically only needed for low-level
+            //   parsing exceptions.
+            _location = ((JsonParser) processor).getTokenLocation();
+        }
     }
 
-    public static JsonMappingException from(JsonParser jp, String msg, Throwable problem) {
-        return new JsonMappingException(msg, ((jp == null) ? null : jp.getTokenLocation()), problem);
+    /**
+     * @since 2.7
+     */
+    public JsonMappingException(Closeable processor, String msg, Throwable problem) {
+        super(msg, problem);
+        _processor = processor;
+        if (processor instanceof JsonParser) {
+            _location = ((JsonParser) processor).getTokenLocation();
+        }
+    }
+
+    /**
+     * @since 2.7
+     */
+    public JsonMappingException(Closeable processor, String msg, JsonLocation loc) {
+        super(msg, loc);
+        _processor = processor;
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(JsonParser p, String msg) {
+        return new JsonMappingException(p, msg);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(JsonParser p, String msg, Throwable problem) {
+        return new JsonMappingException(p, msg, problem);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(JsonGenerator g, String msg) {
+        return new JsonMappingException(g, msg, (Throwable) null);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(JsonGenerator g, String msg, Throwable problem) {
+        return new JsonMappingException(g, msg, problem);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(DeserializationContext ctxt, String msg) {
+        return new JsonMappingException(ctxt.getParser(), msg);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(DeserializationContext ctxt, String msg, Throwable t) {
+        return new JsonMappingException(ctxt.getParser(), msg, t);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(SerializerProvider ctxt, String msg) {
+        /* 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
+         *   SerializerProvider instance does not currently hold on to generator...
+         */
+        JsonGenerator g = null;
+        return new JsonMappingException(g, msg);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static JsonMappingException from(SerializerProvider ctxt, String msg, Throwable problem) {
+        /* 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
+         *   SerializerProvider instance does not currently hold on to generator...
+         */
+        JsonGenerator g = null;
+        return new JsonMappingException(g, msg, problem);
     }
     
     /**
@@ -160,10 +277,11 @@ public class JsonMappingException
      * @since 2.1
      */
     public static JsonMappingException fromUnexpectedIOE(IOException src) {
-        return new JsonMappingException("Unexpected IOException (of type "
-                +src.getClass().getName()+"): "+src.getMessage(), (JsonLocation)null, src);
+        return new JsonMappingException(null,
+                String.format("Unexpected IOException (of type %s): %s",
+                        src.getClass().getName(), src.getMessage()));
     }
-    
+
     /**
      * Method that can be called to either create a new JsonMappingException
      * (if underlying exception is not a JsonMappingException), or augment
@@ -194,6 +312,7 @@ public class JsonMappingException
      * (if underlying exception is not a JsonMappingException), or augment
      * given exception with given path/reference information.
      */
+    @SuppressWarnings("resource")
     public static JsonMappingException wrapWithPath(Throwable src, Reference ref)
     {
         JsonMappingException jme;
@@ -201,18 +320,24 @@ public class JsonMappingException
             jme = (JsonMappingException) src;
         } else {
             String msg = src.getMessage();
-            /* Related to [JACKSON-62], let's use a more meaningful placeholder
-             * if all we have is null
-             */
+            // Let's use a more meaningful placeholder if all we have is null
             if (msg == null || msg.length() == 0) {
                 msg = "(was "+src.getClass().getName()+")";
             }
-            jme = new JsonMappingException(msg, null, src);
+            // 17-Aug-2015, tatu: Let's also pass the processor (parser/generator) along
+            Closeable proc = null;
+            if (src instanceof JsonProcessingException) {
+                Object proc0 = ((JsonProcessingException) src).getProcessor();
+                if (proc0 instanceof Closeable) {
+                    proc = (Closeable) proc0;
+                }
+            }
+            jme = new JsonMappingException(proc, msg, src);
         }
         jme.prependPath(ref);
         return jme;
     }
-    
+
     /*
     /**********************************************************
     /* Accessors/mutators

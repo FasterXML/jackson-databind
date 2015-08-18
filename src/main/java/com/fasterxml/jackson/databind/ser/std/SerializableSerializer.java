@@ -85,14 +85,16 @@ public class SerializableSerializer
             try {
                 objectNode.set("properties", _getObjectMapper().readTree(objectProperties));
             } catch (IOException e) {
-                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaObjectPropertiesDefinition value");
+                throw JsonMappingException.from(provider,
+                        "Failed to parse @JsonSerializableSchema.schemaObjectPropertiesDefinition value");
             }
         }
         if (itemDefinition != null) {
             try {
                 objectNode.set("items", _getObjectMapper().readTree(itemDefinition));
             } catch (IOException e) {
-                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaItemDefinition value");
+                throw JsonMappingException.from(provider,
+                        "Failed to parse @JsonSerializableSchema.schemaItemDefinition value");
             }
         }
         // always optional, no need to specify:

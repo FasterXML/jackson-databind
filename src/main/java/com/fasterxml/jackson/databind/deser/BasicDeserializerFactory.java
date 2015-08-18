@@ -261,8 +261,8 @@ public abstract class BasicDeserializerFactory
                 instantiator = insts.findValueInstantiator(config, beanDesc, instantiator);
                 // let's do sanity check; easier to spot buggy handlers
                 if (instantiator == null) {
-                    throw new JsonMappingException("Broken registered ValueInstantiators (of type "
-                            +insts.getClass().getName()+"): returned null ValueInstantiator");
+                    throw JsonMappingException.from(ctxt.getParser(),
+                            "Broken registered ValueInstantiators (of type "+insts.getClass().getName()+"): returned null ValueInstantiator");
                 }
             }
         }
@@ -1756,7 +1756,8 @@ public abstract class BasicDeserializerFactory
             try {
                 type = (T) ctxt.getTypeFactory().constructSpecializedType(type, subclass);
             } catch (IllegalArgumentException iae) {
-                throw new JsonMappingException("Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), null, iae);
+                throw JsonMappingException.from(ctxt.getParser(),
+                        "Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), iae);
             }
         }
 
@@ -1766,12 +1767,14 @@ public abstract class BasicDeserializerFactory
             if (keyClass != null) {
                 // illegal to use on non-Maps
                 if (!(type instanceof MapLikeType)) {
-                    throw new JsonMappingException("Illegal key-type annotation: type "+type+" is not a Map(-like) type");
+                    throw JsonMappingException.from(ctxt.getParser(),
+                            "Illegal key-type annotation: type "+type+" is not a Map(-like) type");
                 }
                 try {
                     type = (T) ((MapLikeType) type).narrowKey(keyClass);
                 } catch (IllegalArgumentException iae) {
-                    throw new JsonMappingException("Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage(), null, iae);
+                    throw JsonMappingException.from(ctxt.getParser(),
+                            "Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage(), iae);
                 }
             }
             JavaType keyType = type.getKeyType();
@@ -1794,7 +1797,8 @@ public abstract class BasicDeserializerFactory
                try {
                    type = (T) type.narrowContentsBy(cc);
                } catch (IllegalArgumentException iae) {
-                   throw new JsonMappingException("Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage(), null, iae);
+                   throw JsonMappingException.from(ctxt.getParser(),
+                           "Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage(), iae);
                }
            }
            // ... as well as deserializer for contents:

@@ -59,25 +59,25 @@ public class ThrowableDeserializer
      */
 
     @Override
-    public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // 30-Sep-2010, tatu: Need to allow use of @JsonCreator, so:
         if (_propertyBasedCreator != null) { // proper @JsonCreator
-            return _deserializeUsingPropertyBased(jp, ctxt);
+            return _deserializeUsingPropertyBased(p, ctxt);
         }
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(jp, ctxt));
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
         if (_beanType.isAbstract()) { // for good measure, check this too
-            throw JsonMappingException.from(jp, "Can not instantiate abstract type "+_beanType
+            throw JsonMappingException.from(p, "Can not instantiate abstract type "+_beanType
                     +" (need to add/enable type information?)");
         }
         boolean hasStringCreator = _valueInstantiator.canCreateFromString();
         boolean hasDefaultCtor = _valueInstantiator.canCreateUsingDefault();
         // and finally, verify we do have single-String arg constructor (if no @JsonCreator)
         if (!hasStringCreator && !hasDefaultCtor) {
-            throw new JsonMappingException("Can not deserialize Throwable of type "+_beanType
+            throw JsonMappingException.from(p,"Can not deserialize Throwable of type "+_beanType
                     +" without having a default contructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
         
@@ -85,14 +85,14 @@ public class ThrowableDeserializer
         Object[] pending = null;
         int pendingIx = 0;
 
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
-            String propName = jp.getCurrentName();
+        for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
+            String propName = p.getCurrentName();
             SettableBeanProperty prop = _beanProperties.find(propName);
-            jp.nextToken(); // to point to field value
+            p.nextToken(); // to point to field value
 
             if (prop != null) { // normal case
                 if (throwable != null) {
-                    prop.deserializeAndSet(jp, ctxt, throwable);
+                    prop.deserializeAndSet(p, ctxt, throwable);
                     continue;
                 }
                 // nope; need to defer
@@ -101,14 +101,14 @@ public class ThrowableDeserializer
                     pending = new Object[len + len];
                 }
                 pending[pendingIx++] = prop;
-                pending[pendingIx++] = prop.deserialize(jp, ctxt);
+                pending[pendingIx++] = prop.deserialize(p, ctxt);
                 continue;
             }
 
             // Maybe it's "message"?
             if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {
-                    throwable = _valueInstantiator.createFromString(ctxt, jp.getText());
+                    throwable = _valueInstantiator.createFromString(ctxt, p.getText());
                     // any pending values?
                     if (pending != null) {
                         for (int i = 0, len = pendingIx; i < len; i += 2) {
@@ -124,15 +124,15 @@ public class ThrowableDeserializer
              * passed to any setter
              */
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                p.skipChildren();
                 continue;
             }
             if (_anySetter != null) {
-                _anySetter.deserializeAndSet(jp, ctxt, throwable, propName);
+                _anySetter.deserializeAndSet(p, ctxt, throwable, propName);
                 continue;
             }
             // Unknown: let's call handler method
-            handleUnknownProperty(jp, ctxt, throwable, propName);
+            handleUnknownProperty(p, ctxt, throwable, propName);
         }
         // Sanity check: did we find "message"?
         if (throwable == null) {

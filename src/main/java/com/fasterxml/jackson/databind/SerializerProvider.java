@@ -1,17 +1,19 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
-import com.fasterxml.jackson.databind.ser.SerializerCache;
-import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
@@ -20,12 +22,6 @@ import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-
-import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * Class that defines API used by {@link ObjectMapper} and
@@ -950,17 +946,17 @@ public abstract class SerializerProvider
      * field values are best handled calling
      * {@link #defaultSerializeField} instead.
      */
-    public final void defaultSerializeValue(Object value, JsonGenerator jgen) throws IOException
+    public final void defaultSerializeValue(Object value, JsonGenerator gen) throws IOException
     {
         if (value == null) {
             if (_stdNullValueSerializer) { // minor perf optimization
-                jgen.writeNull();
+                gen.writeNull();
             } else {
-                _nullValueSerializer.serialize(null, jgen, this);
+                _nullValueSerializer.serialize(null, gen, this);
             }
         } else {
             Class<?> cls = value.getClass();
-            findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
+            findTypedValueSerializer(cls, true, null).serialize(value, gen, this);
         }
     }
     
@@ -969,22 +965,22 @@ public abstract class SerializerProvider
      * value. Value may be null. Serializer is done using the usual
      * null) using standard serializer locating functionality.
      */
-    public final void defaultSerializeField(String fieldName, Object value, JsonGenerator jgen)
+    public final void defaultSerializeField(String fieldName, Object value, JsonGenerator gen)
         throws IOException
     {
-        jgen.writeFieldName(fieldName);
+        gen.writeFieldName(fieldName);
         if (value == null) {
             /* Note: can't easily check for suppression at this point
              * any more; caller must check it.
              */
             if (_stdNullValueSerializer) { // minor perf optimization
-                jgen.writeNull();
+                gen.writeNull();
             } else {
-                _nullValueSerializer.serialize(null, jgen, this);
+                _nullValueSerializer.serialize(null, gen, this);
             }
         } else {
             Class<?> cls = value.getClass();
-            findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
+            findTypedValueSerializer(cls, true, null).serialize(value, gen, this);
         }
     }
 
@@ -1075,7 +1071,7 @@ public abstract class SerializerProvider
         if (args != null && args.length > 0) {
             message = String.format(message, args);
         }
-        return new JsonMappingException(message);
+        return JsonMappingException.from(this, message);
     }
 
     /*
@@ -1084,8 +1080,7 @@ public abstract class SerializerProvider
     /********************************************************
      */
 
-    protected void _reportIncompatibleRootType(Object value, JavaType rootType)
-        throws IOException, JsonProcessingException
+    protected void _reportIncompatibleRootType(Object value, JavaType rootType) throws IOException
     {
         /* 07-Jan-2010, tatu: As per [JACKSON-456] better handle distinction between wrapper types,
          *    primitives
@@ -1097,7 +1092,8 @@ public abstract class SerializerProvider
                 return;
             }
         }
-        throw new JsonMappingException("Incompatible types: declared root type ("+rootType+") vs "
+        throw JsonMappingException.from(this,
+                "Incompatible types: declared root type ("+rootType+") vs "
                 +value.getClass().getName());
     }
     
@@ -1153,7 +1149,7 @@ public abstract class SerializerProvider
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
              */
-            throw new JsonMappingException(iae.getMessage(), null, iae);
+            throw JsonMappingException.from(this, iae.getMessage(), iae);
         }
 
         if (ser != null) {
@@ -1172,7 +1168,7 @@ public abstract class SerializerProvider
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
              */
-            throw new JsonMappingException(iae.getMessage(), null, iae);
+            throw JsonMappingException.from(this, iae.getMessage(), iae);
         }
     
         if (ser != null) {

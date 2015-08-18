@@ -165,7 +165,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      */
 
     protected void _reportProblem(JsonParser p, String msg) throws JsonMappingException {
-        throw new JsonMappingException(msg, p.getTokenLocation());
+        throw JsonMappingException.from(p, msg);
     }
 
     /**

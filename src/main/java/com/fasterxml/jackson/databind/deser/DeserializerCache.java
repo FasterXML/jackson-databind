@@ -266,7 +266,7 @@ public final class DeserializerCache
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
              */
-            throw new JsonMappingException(iae.getMessage(), null, iae);
+            throw JsonMappingException.from(ctxt, iae.getMessage(), iae);
         }
         if (deser == null) {
             return null;
@@ -476,7 +476,8 @@ public final class DeserializerCache
             try {
                 type = ctxt.getTypeFactory().constructSpecializedType(type, subclass);
             } catch (IllegalArgumentException iae) {
-                throw new JsonMappingException("Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), null, iae);
+                throw JsonMappingException.from(ctxt,
+                        "Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), iae);
             }
         }
 
@@ -486,12 +487,13 @@ public final class DeserializerCache
             if (keyClass != null) {
                 // illegal to use on non-Maps
                 if (!(type instanceof MapLikeType)) {
-                    throw new JsonMappingException("Illegal key-type annotation: type "+type+" is not a Map(-like) type");
+                    throw JsonMappingException.from(ctxt.getParser(), "Illegal key-type annotation: type "+type+" is not a Map(-like) type");
                 }
                 try {
                     type = ((MapLikeType) type).narrowKey(keyClass);
                 } catch (IllegalArgumentException iae) {
-                    throw new JsonMappingException("Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage(), null, iae);
+                    throw JsonMappingException.from(ctxt,
+                            "Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage(), iae);
                 }
             }
             JavaType keyType = type.getKeyType();
@@ -516,7 +518,8 @@ public final class DeserializerCache
                 try {
                     type = type.narrowContentsBy(cc);
                 } catch (IllegalArgumentException iae) {
-                    throw new JsonMappingException("Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage(), null, iae);
+                    throw JsonMappingException.from(ctxt,
+                            "Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage(), iae);
                 }
             }
             // ... as well as deserializer for contents:

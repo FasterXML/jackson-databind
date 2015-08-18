@@ -104,7 +104,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
           }
           JsonNode n = node.get(REF_KEY);
           if (n == null) {
-              throw new JsonMappingException("Could not find key '"+REF_KEY
+              throw JsonMappingException.from(jp, "Could not find key '"+REF_KEY
                       +"' from ("+node.getClass().getName()+"): "+node);
           }
           return new JSOGRef(n.asInt());

@@ -145,7 +145,7 @@ public final class DeserializerCache
                  * decide it; can throw an exception, or return a valid
                  * deserializer
                  */
-                deser = _handleUnknownValueDeserializer(propertyType);
+                deser = _handleUnknownValueDeserializer(ctxt, propertyType);
             }
         }
         return deser;
@@ -165,7 +165,7 @@ public final class DeserializerCache
     {
         KeyDeserializer kd = factory.createKeyDeserializer(ctxt, type);
         if (kd == null) { // if none found, need to use a placeholder that'll fail
-            return _handleUnknownKeyDeserializer(type);
+            return _handleUnknownKeyDeserializer(ctxt, type);
         }
         // First: need to resolve?
         if (kd instanceof ResolvableDeserializer) {
@@ -588,23 +588,23 @@ public final class DeserializerCache
     /**********************************************************
      */
 
-    protected JsonDeserializer<Object> _handleUnknownValueDeserializer(JavaType type)
-        throws JsonMappingException
+    // NOTE: changed 2.6 -> 2.7 to pass context; no way to make backwards compatible
+    protected JsonDeserializer<Object> _handleUnknownValueDeserializer(DeserializationContext ctxt, JavaType type)
+            throws JsonMappingException
     {
         /* Let's try to figure out the reason, to give better error
          * messages
          */
         Class<?> rawClass = type.getRawClass();
         if (!ClassUtil.isConcrete(rawClass)) {
-            throw new JsonMappingException("Can not find a Value deserializer for abstract type "+type);
+            throw JsonMappingException.from(ctxt, "Can not find a Value deserializer for abstract type "+type);
         }
-        throw new JsonMappingException("Can not find a Value deserializer for type "+type);
+        throw JsonMappingException.from(ctxt, "Can not find a Value deserializer for type "+type);
     }
 
-    protected KeyDeserializer _handleUnknownKeyDeserializer(JavaType type)
+    protected KeyDeserializer _handleUnknownKeyDeserializer(DeserializationContext ctxt, JavaType type)
         throws JsonMappingException
     {
-        throw new JsonMappingException("Can not find a (Map) Key deserializer for type "+type);
+        throw JsonMappingException.from(ctxt, "Can not find a (Map) Key deserializer for type "+type);
     }
-
 }

@@ -1067,85 +1067,86 @@ public abstract class BeanDeserializerBase
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
      */
-    protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return deserializeFromObject(jp, ctxt);
+    protected Object deserializeWithObjectId(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return deserializeFromObject(p, ctxt);
     }
 
     /**
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        Object id = _objectIdReader.readObjectReference(jp, ctxt);
+        Object id = _objectIdReader.readObjectReference(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         // do we have it resolved?
         Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
-            throw new UnresolvedForwardReference("Could not resolve Object Id ["+id+"] (for "
-                    +_beanType+").", jp.getCurrentLocation(), roid);
+            throw new UnresolvedForwardReference(p,
+                    "Could not resolve Object Id ["+id+"] (for "+_beanType+").",
+                    p.getCurrentLocation(), roid);
         }
         return pojo;
     }
 
-    protected Object deserializeFromObjectUsingNonDefault(JsonParser jp,
+    protected Object deserializeFromObjectUsingNonDefault(JsonParser p,
             DeserializationContext ctxt) throws IOException
     {
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(jp, ctxt));
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
         if (_propertyBasedCreator != null) {
-            return _deserializeUsingPropertyBased(jp, ctxt);
+            return _deserializeUsingPropertyBased(p, ctxt);
         }
         // should only occur for abstract types...
         if (_beanType.isAbstract()) {
-            throw JsonMappingException.from(jp, "Can not instantiate abstract type "+_beanType
+            throw JsonMappingException.from(p, "Can not instantiate abstract type "+_beanType
                     +" (need to add/enable type information?)");
         }
-        throw JsonMappingException.from(jp, "No suitable constructor found for type "
+        throw JsonMappingException.from(p, "No suitable constructor found for type "
                 +_beanType+": can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)");
     }
 
-    protected abstract Object _deserializeUsingPropertyBased(final JsonParser jp,
+    protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
     @SuppressWarnings("incomplete-switch")
-    public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromNumber(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
-            return deserializeFromObjectId(jp, ctxt);
+            return deserializeFromObjectId(p, ctxt);
         }
 
-        switch (jp.getNumberType()) {
+        switch (p.getNumberType()) {
         case INT:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
                     return bean;
                 }
             }
-            return _valueInstantiator.createFromInt(ctxt, jp.getIntValue());
+            return _valueInstantiator.createFromInt(ctxt, p.getIntValue());
         case LONG:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
                     return bean;
                 }
             }
-            return _valueInstantiator.createFromLong(ctxt, jp.getLongValue());
+            return _valueInstantiator.createFromLong(ctxt, p.getLongValue());
         }
         // actually, could also be BigInteger, so:
         if (_delegateDeserializer != null) {
-            Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+            Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
             if (_injectables != null) {
                 injectValues(ctxt, bean);
             }

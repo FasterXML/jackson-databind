@@ -151,7 +151,7 @@ public abstract class DefaultDeserializationContext
                 continue;
             }
             if (exception == null) {
-                exception = new UnresolvedForwardReference("Unresolved forward references for: ");
+                exception = new UnresolvedForwardReference(getParser(), "Unresolved forward references for: ");
             }
             Object key = roid.getKey().key;
             for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext(); ) {

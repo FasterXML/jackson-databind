@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 
@@ -14,19 +16,41 @@ import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
  * 
  * @author pgelinas
  */
-public final class UnresolvedForwardReference extends JsonMappingException {
+public class UnresolvedForwardReference extends JsonMappingException {
     private static final long serialVersionUID = 1L;
     private ReadableObjectId _roid;
     private List<UnresolvedId> _unresolvedIds;
 
-    public UnresolvedForwardReference(String msg, JsonLocation loc, ReadableObjectId roid)
-    {
+    /**
+     * @since 2.7
+     */
+    public UnresolvedForwardReference(JsonParser p, String msg, JsonLocation loc, ReadableObjectId roid) {
+        super(p, msg, loc);
+        _roid = roid;
+    }
+
+    /**
+     * @since 2.7
+     */
+    public UnresolvedForwardReference(JsonParser p, String msg) {
+        super(p, msg);
+        _unresolvedIds = new ArrayList<UnresolvedId>();
+    }
+
+    /**
+     * @deprecated Since 2.7
+     */
+    @Deprecated // since 2.7
+    public UnresolvedForwardReference(String msg, JsonLocation loc, ReadableObjectId roid) {
         super(msg, loc);
         _roid = roid;
     }
 
-    public UnresolvedForwardReference(String msg)
-    {
+    /**
+     * @deprecated Since 2.7
+     */
+    @Deprecated // since 2.7
+    public UnresolvedForwardReference(String msg) {
         super(msg);
         _unresolvedIds = new ArrayList<UnresolvedId>();
     }

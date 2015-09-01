@@ -33,6 +33,14 @@ public class MappingJsonFactory
         }
     }
 
+    public MappingJsonFactory(JsonFactory src, ObjectMapper mapper)
+    {
+        super(src, mapper);
+        if (mapper == null) {
+          setCodec(new ObjectMapper(this));
+        }
+    }
+
     /**
      * We'll override the method to return more specific type; co-variance
      * helps here
@@ -46,7 +54,7 @@ public class MappingJsonFactory
     {
         _checkInvalidCopy(MappingJsonFactory.class);
         // note: as with base class, must NOT copy mapper reference
-        return new MappingJsonFactory(null);
+        return new MappingJsonFactory(this, null);
     }
     
     /*

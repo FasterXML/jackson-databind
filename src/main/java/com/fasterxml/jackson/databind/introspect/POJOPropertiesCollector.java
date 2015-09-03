@@ -785,8 +785,9 @@ public class POJOPropertiesCollector
             PropertyName fullName = prop.getFullName();
             String rename = null;
             // As per [#428](https://github.com/FasterXML/jackson-databind/issues/428) need
-            // to skip renaming if property has explicitly defined name
-            if (!prop.isExplicitlyNamed()) {
+            // to skip renaming if property has explicitly defined name, unless feature
+            // is enabled
+            if (!prop.isExplicitlyNamed() || _config.isEnabled(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)) {
                 if (_forSerialization) {
                     if (prop.hasGetter()) {
                         rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());

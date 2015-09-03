@@ -331,6 +331,17 @@ public enum MapperFeature implements ConfigFeature
      */
     USE_STD_BEAN_NAMING(false),
 
+    /**
+     * Feature that when enabled will allow explicitly named properties (i.e., fields or methods
+     * annotated with {@link com.fasterxml.jackson.annotation.JsonProperty}("explicitName")) to
+     * be re-named by a {@link PropertyNamingStrategy}, if one is configured.
+     * <p>
+     * Feature is disabled by default.
+     *
+     * @since 2.6
+     */
+    ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
+
     /*
     /******************************************************
     /* Other features

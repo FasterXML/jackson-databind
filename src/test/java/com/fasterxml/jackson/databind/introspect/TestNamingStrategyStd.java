@@ -327,7 +327,7 @@ public class TestNamingStrategyStd extends BaseMapTest
       String userAge = "35";
     }
 
-    public void test2() throws Exception {
+    public void testExplicitRename() throws Exception {
       ObjectMapper m = new ObjectMapper();
       m.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
       m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);

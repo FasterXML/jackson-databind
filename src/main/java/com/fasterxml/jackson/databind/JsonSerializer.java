@@ -138,8 +138,8 @@ public abstract class JsonSerializer<T>
      *  typeSer.writeTypeSuffixForScalar(value, gen);
      *</pre>
      * and implementations for type serialized as JSON Arrays or Objects would differ slightly,
-     * as <code>START-ARRAY></code>/<code>END-ARRAY</code> and
-     * <code>START-OBJECT></code>/<code>END-OBJECT</code> pairs
+     * as <code>START-ARRAY</code>/<code>END-ARRAY</code> and
+     * <code>START-OBJECT</code>/<code>END-OBJECT</code> pairs
      * need to be properly handled with respect to serializing of contents.
      *
      * @param value Value to serialize; can <b>not</b> be null.

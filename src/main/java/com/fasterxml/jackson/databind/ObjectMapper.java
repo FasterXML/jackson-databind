@@ -481,6 +481,14 @@ public class ObjectMapper
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = src._serializerFactory;
+
+        // as per [databind#922], make sure to copy registered modules as appropriate
+        Set<Object> reg = _registeredModuleTypes;
+        if (reg == null) {
+            _registeredModuleTypes = null;
+        } else {
+            _registeredModuleTypes = new LinkedHashSet<Object>(reg);
+        }
     }
 
     /**
@@ -681,7 +689,9 @@ public class ObjectMapper
             Object typeId = module.getTypeId();
             if (typeId != null) {
                 if (_registeredModuleTypes == null) {
-                    _registeredModuleTypes = new HashSet<Object>();
+                    // plus let's keep them in order too, easier to debug or expose
+                    // in registration order if that matter
+                    _registeredModuleTypes = new LinkedHashSet<Object>();
                 }
                 // try adding; if already had it, should skip
                 if (!_registeredModuleTypes.add(typeId)) {

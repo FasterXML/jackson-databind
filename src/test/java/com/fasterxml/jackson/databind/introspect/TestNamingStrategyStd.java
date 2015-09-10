@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -315,5 +316,42 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertNotNull(result.json);
         assertEquals(2, result.json.size());
         assertEquals("bing", result.json.path("baz").asText());
+    }
+
+    static class ExplicitBean {
+      @JsonProperty("firstName")
+      String userFirstName = "Peter";
+      @JsonProperty("lastName")
+      String userLastName = "Venkman";
+      @JsonProperty
+      String userAge = "35";
+    }
+
+    public void testExplicitRename() throws Exception {
+      ObjectMapper m = new ObjectMapper();
+      m.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+      m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+      // by default, renaming will not take place on explicitly named fields
+      assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
+          m.writeValueAsString(new ExplicitBean()));
+
+      m = new ObjectMapper();
+      m.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+      m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+      m.enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING);
+      // w/ feature enabled, ALL property names should get re-written
+      assertEquals(aposToQuotes("{'first_name':'Peter','last_name':'Venkman','user_age':'35'}"),
+          m.writeValueAsString(new ExplicitBean()));
+
+      // test deserialization as well
+      ExplicitBean bean =
+          m.readValue(aposToQuotes("{'first_name':'Egon','last_name':'Spengler','user_age':'32'}"),
+              ExplicitBean.class);
+
+      assertNotNull(bean);
+      assertEquals("Egon", bean.userFirstName);
+      assertEquals("Spengler", bean.userLastName);
+      assertEquals("32", bean.userAge);
+
     }
 }

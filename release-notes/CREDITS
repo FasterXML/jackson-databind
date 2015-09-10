@@ -309,7 +309,10 @@ Andy Wilkinson (wilkinsona@github)
    (2.6.1)
 
 lufe66@github:
-
   * Reported 894: When using withFactory on ObjectMapper, the created Factory has a TypeParser
     which still has the original Factory
    (2.6.2)
+
+David Haraburda (dharaburda@github)
+  * Contributed #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
+   (2.7.0)

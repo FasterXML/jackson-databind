@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.0 (not yet released)
+
+#918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
+ (contributed by David H)
+
 2.6.2 (not yet released)
 
 #894: When using withFactory on ObjectMapper, the created Factory has a TypeParser

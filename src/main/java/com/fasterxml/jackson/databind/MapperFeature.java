@@ -338,7 +338,7 @@ public enum MapperFeature implements ConfigFeature
      * <p>
      * Feature is disabled by default.
      *
-     * @since 2.6
+     * @since 2.7
      */
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
 

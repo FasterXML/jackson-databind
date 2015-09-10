@@ -15,6 +15,8 @@ Project: jackson-databind
   which still has the original Factory
  (reported by lufe66@github)
 #899: Problem serializing `ObjectReader` (and possibly `ObjectMapper`)
+#913: ObjectMapper.copy does not preserve MappingJsonFactory features
+ (reported, fixed by Daniel W)
 
 2.6.1 (09-Aug-2015)
 

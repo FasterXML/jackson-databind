@@ -313,6 +313,11 @@ lufe66@github:
     which still has the original Factory
    (2.6.2)
 
+Daniel Walker (dsw2127@github)
+  * Reported, contributed fix for #913: `ObjectMapper.copy()` does not preserve
+   `MappingJsonFactory` features
+   (2.6.2)
+
 David Haraburda (dharaburda@github)
   * Contributed #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
    (2.7.0)

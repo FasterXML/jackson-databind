@@ -12,6 +12,7 @@ Project: jackson-databind
 #899: Problem serializing `ObjectReader` (and possibly `ObjectMapper`)
 #913: ObjectMapper.copy does not preserve MappingJsonFactory features
  (reported, fixed by Daniel W)
+#922: ObjectMapper.copy() does not preserve _registeredModuleTypes
 
 2.6.1 (09-Aug-2015)
 

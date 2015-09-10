@@ -309,7 +309,11 @@ Andy Wilkinson (wilkinsona@github)
    (2.6.1)
 
 lufe66@github:
-
   * Reported 894: When using withFactory on ObjectMapper, the created Factory has a TypeParser
     which still has the original Factory
+   (2.6.2)
+
+Daniel Walker (dsw2127@github)
+  * Reported, contributed fix for #913: `ObjectMapper.copy()` does not preserve
+   `MappingJsonFactory` features
    (2.6.2)

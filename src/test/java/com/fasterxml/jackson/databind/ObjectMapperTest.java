@@ -159,6 +159,9 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         InjectableValues inj = new InjectableValues.Std();
         m.setInjectableValues(inj);
+        assertFalse(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        m.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
 
         // // First: verify that handling of features is decoupled:
         
@@ -193,6 +196,10 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(0, m2.getSerializationConfig().mixInCount());
         assertEquals(1, m.getDeserializationConfig().mixInCount());
         assertEquals(0, m2.getDeserializationConfig().mixInCount());
+
+        // [Issue#913]: Ensure JsonFactory Features copied
+        assertTrue(m2.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        
     }
 
     public void testAnnotationIntrospectorCopyin() 

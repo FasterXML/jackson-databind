@@ -426,6 +426,13 @@ Special one-off "micro patch" for:
 - Improve handling of native type ids (YAML, CBOR) to use non-native type ids
   as fallback
 
+2.3.5 (13-Jan-2015)
+
+#496: Wrong result for TextNode("false").asBoolean(true)
+ (reported by Ivar R, ivarru@github)
+#543: Problems resolving self-referential generic types.
+#656: defaultImpl configuration is ignored for WRAPPER_OBJECT
+
 2.3.4 (17-Jul-2014)
 
 #459: BeanDeserializerBuilder copy constructor not copying `_injectables`

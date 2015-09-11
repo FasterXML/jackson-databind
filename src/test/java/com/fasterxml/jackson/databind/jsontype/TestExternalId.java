@@ -236,6 +236,20 @@ public class TestExternalId extends BaseMapTest
         public Issue222BeanB(int value) { x = value; }
     }
 
+    // [databind#928]
+    static class Envelope928 {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.EXTERNAL_PROPERTY, property="class")
+        Object payload;
+
+        public Envelope928(@JsonProperty("payload") Object payload) {
+            this.payload = payload;
+        }
+    }
+
+    static class Payload928 {
+        public String something;
+    }
+
     /*
     /**********************************************************
     /* Unit tests, serialization
@@ -461,5 +475,24 @@ public class TestExternalId extends BaseMapTest
         Issue222Bean input = new Issue222Bean(13);
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"value\":{\"x\":13},\"type\":\"foo\"}", json);
+    }
+
+    // [databind#928]
+    public void testInverseExternalId928() throws Exception
+    {
+        final String CLASS = Payload928.class.getName();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        final String successCase = "{\"payload\":{\"something\":\"test\"},\"class\":\""+CLASS+"\"}";
+        Envelope928 envelope1 = mapper.readValue(successCase, Envelope928.class);
+        assertNotNull(envelope1);
+        assertEquals(Payload928.class, envelope1.payload.getClass());
+
+        // and then re-ordered case that was problematic
+        final String failCase = "{\"class\":\""+CLASS+"\",\"payload\":{\"something\":\"test\"}}";
+        Envelope928 envelope2 = mapper.readValue(failCase, Envelope928.class);
+        assertNotNull(envelope2);
+        assertEquals(Payload928.class, envelope2.payload.getClass());
     }
 }

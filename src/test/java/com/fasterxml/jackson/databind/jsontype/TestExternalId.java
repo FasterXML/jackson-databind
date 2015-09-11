@@ -8,7 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// Tests for [JACKSON-453]
+// Tests for External type id, one that exists at same level as typed Object,
+// that is, property is not within typed object but a member of its parent.
 public class TestExternalId extends BaseMapTest
 {
     static class ExternalBean
@@ -280,6 +281,13 @@ public class TestExternalId extends BaseMapTest
         assertNotNull(result.bean);
         ValueBean vb = (ValueBean) result.bean;
         assertEquals(11, vb.value);
+
+        // let's also test with order switched:
+        result = mapper.readValue("{\"extType\":\"vbean\", \"bean\":{\"value\":13}}", ExternalBean.class);
+        assertNotNull(result);
+        assertNotNull(result.bean);
+        vb = (ValueBean) result.bean;
+        assertEquals(13, vb.value);
     }
 
     // Test for verifying that it's ok to have multiple (say, 3)
@@ -320,6 +328,11 @@ public class TestExternalId extends BaseMapTest
                 FunkyExternalBean.class);
         assertNotNull(result);
         assertEquals(3, result.i);
+
+        result = MAPPER.readValue("{\"i\":4,\"extType\":\"funk\"}",
+                FunkyExternalBean.class);
+        assertNotNull(result);
+        assertEquals(4, result.i);
     }
 
     public void testIssue798() throws Exception

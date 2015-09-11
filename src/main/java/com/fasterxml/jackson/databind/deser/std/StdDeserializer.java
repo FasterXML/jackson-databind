@@ -140,7 +140,7 @@ public abstract class StdDeserializer<T>
             if (jp.getNumberType() == NumberType.INT) {
                 return (jp.getIntValue() != 0);
             }
-            return _parseBooleanFromNumber(jp, ctxt);
+            return _parseBooleanFromOther(jp, ctxt);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
@@ -188,7 +188,7 @@ public abstract class StdDeserializer<T>
             if (p.getNumberType() == NumberType.INT) {
                 return (p.getIntValue() == 0) ? Boolean.FALSE : Boolean.TRUE;
             }
-            return Boolean.valueOf(_parseBooleanFromNumber(p, ctxt));
+            return Boolean.valueOf(_parseBooleanFromOther(p, ctxt));
         }
         if (t == JsonToken.VALUE_NULL) {
             return (Boolean) getNullValue(ctxt);
@@ -226,14 +226,14 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected final boolean _parseBooleanFromNumber(JsonParser jp, DeserializationContext ctxt)
+    protected final boolean _parseBooleanFromOther(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
-        if (jp.getNumberType() == NumberType.LONG) {
-            return (jp.getLongValue() == 0L) ? Boolean.FALSE : Boolean.TRUE;
+        if (p.getNumberType() == NumberType.LONG) {
+            return (p.getLongValue() == 0L) ? Boolean.FALSE : Boolean.TRUE;
         }
         // no really good logic; let's actually resort to textual comparison
-        String str = jp.getText();
+        String str = p.getText();
         if ("0.0".equals(str) || "0".equals(str)) {
             return Boolean.FALSE;
         }
@@ -354,7 +354,7 @@ public abstract class StdDeserializer<T>
         }
         return (short) value;
     }
-    
+
     protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
@@ -822,28 +822,27 @@ public abstract class StdDeserializer<T>
      * 
      * @since 2.1
      */
-    protected final String _parseString(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_STRING) {
-            return jp.getText();
+            return p.getText();
         }
-        
-        // Issue#381
+        // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final String parsed = _parseString(jp, ctxt);
-            if (jp.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+            p.nextToken();
+            final String parsed = _parseString(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'String' value but there was more than a single value in the array");
             }            
             return parsed;            
         }
-        String value = jp.getValueAsString();
+        String value = p.getValueAsString();
         if (value != null) {
             return value;
         }
-        throw ctxt.mappingException(String.class, jp.getCurrentToken());
+        throw ctxt.mappingException(String.class, p.getCurrentToken());
     }
 
     /**

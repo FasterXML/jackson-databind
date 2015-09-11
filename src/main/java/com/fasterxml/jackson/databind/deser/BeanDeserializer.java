@@ -130,8 +130,7 @@ public class BeanDeserializer
             }
             return deserializeFromObject(p, ctxt);
         }
-        JsonToken t = p.getCurrentToken();
-        return _deserializeOther(p, ctxt, t);
+        return _deserializeOther(p, ctxt, p.getCurrentToken());
     }
 
     protected final Object _deserializeOther(JsonParser p, DeserializationContext ctxt,

@@ -8,7 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// Tests for [JACKSON-453]
+// Tests for External type id, one that exists at same level as typed Object,
+// that is, property is not within typed object but a member of its parent.
 public class TestExternalId extends BaseMapTest
 {
     static class ExternalBean
@@ -235,6 +236,21 @@ public class TestExternalId extends BaseMapTest
         public Issue222BeanB(int value) { x = value; }
     }
 
+    // [databind#928]
+    static class Envelope928 {
+        Object _payload;
+
+        public Envelope928(@JsonProperty("payload")
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.EXTERNAL_PROPERTY, property="class")
+        Object payload) {
+            _payload = payload;
+        }
+    }
+
+    static class Payload928 {
+        public String something;
+    }
+
     /*
     /**********************************************************
     /* Unit tests, serialization
@@ -280,6 +296,13 @@ public class TestExternalId extends BaseMapTest
         assertNotNull(result.bean);
         ValueBean vb = (ValueBean) result.bean;
         assertEquals(11, vb.value);
+
+        // let's also test with order switched:
+        result = mapper.readValue("{\"extType\":\"vbean\", \"bean\":{\"value\":13}}", ExternalBean.class);
+        assertNotNull(result);
+        assertNotNull(result.bean);
+        vb = (ValueBean) result.bean;
+        assertEquals(13, vb.value);
     }
 
     // Test for verifying that it's ok to have multiple (say, 3)
@@ -320,6 +343,11 @@ public class TestExternalId extends BaseMapTest
                 FunkyExternalBean.class);
         assertNotNull(result);
         assertEquals(3, result.i);
+
+        result = MAPPER.readValue("{\"i\":4,\"extType\":\"funk\"}",
+                FunkyExternalBean.class);
+        assertNotNull(result);
+        assertEquals(4, result.i);
     }
 
     public void testIssue798() throws Exception
@@ -448,5 +476,24 @@ public class TestExternalId extends BaseMapTest
         Issue222Bean input = new Issue222Bean(13);
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"value\":{\"x\":13},\"type\":\"foo\"}", json);
+    }
+
+    // [databind#928]
+    public void testInverseExternalId928() throws Exception
+    {
+        final String CLASS = Payload928.class.getName();
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        final String successCase = "{\"payload\":{\"something\":\"test\"},\"class\":\""+CLASS+"\"}";
+        Envelope928 envelope1 = mapper.readValue(successCase, Envelope928.class);
+        assertNotNull(envelope1);
+        assertEquals(Payload928.class, envelope1._payload.getClass());
+
+        // and then re-ordered case that was problematic
+        final String failCase = "{\"class\":\""+CLASS+"\",\"payload\":{\"something\":\"test\"}}";
+        Envelope928 envelope2 = mapper.readValue(failCase, Envelope928.class);
+        assertNotNull(envelope2);
+        assertEquals(Payload928.class, envelope2._payload.getClass());
     }
 }

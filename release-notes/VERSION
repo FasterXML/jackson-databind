@@ -13,6 +13,7 @@ Project: jackson-databind
 #913: ObjectMapper.copy does not preserve MappingJsonFactory features
  (reported, fixed by Daniel W)
 #922: ObjectMapper.copy() does not preserve _registeredModuleTypes
+#928: Problem deserializing External Type Id if type id comes before POJO
 
 2.6.1 (09-Aug-2015)
 

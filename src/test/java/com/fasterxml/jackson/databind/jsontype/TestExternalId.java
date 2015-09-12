@@ -238,11 +238,12 @@ public class TestExternalId extends BaseMapTest
 
     // [databind#928]
     static class Envelope928 {
-        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.EXTERNAL_PROPERTY, property="class")
-        Object payload;
+        Object _payload;
 
-        public Envelope928(@JsonProperty("payload") Object payload) {
-            this.payload = payload;
+        public Envelope928(@JsonProperty("payload")
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.EXTERNAL_PROPERTY, property="class")
+        Object payload) {
+            _payload = payload;
         }
     }
 
@@ -487,12 +488,12 @@ public class TestExternalId extends BaseMapTest
         final String successCase = "{\"payload\":{\"something\":\"test\"},\"class\":\""+CLASS+"\"}";
         Envelope928 envelope1 = mapper.readValue(successCase, Envelope928.class);
         assertNotNull(envelope1);
-        assertEquals(Payload928.class, envelope1.payload.getClass());
+        assertEquals(Payload928.class, envelope1._payload.getClass());
 
         // and then re-ordered case that was problematic
         final String failCase = "{\"class\":\""+CLASS+"\",\"payload\":{\"something\":\"test\"}}";
         Envelope928 envelope2 = mapper.readValue(failCase, Envelope928.class);
         assertNotNull(envelope2);
-        assertEquals(Payload928.class, envelope2.payload.getClass());
+        assertEquals(Payload928.class, envelope2._payload.getClass());
     }
 }

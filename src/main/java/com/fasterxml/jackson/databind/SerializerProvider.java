@@ -728,8 +728,11 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Method called to get a Typeserialize to use for accessing Type Information for a given Java class
+     * Method called to get the {@link TypeSerializer} to use for including Type Id necessary
+     * for serializing for the given Java class.
      * Useful for schema generators.
+     *
+     * @since 2.6
      */
     public TypeSerializer findTypeSerializer(JavaType javaType) throws JsonMappingException {
         return _serializerFactory.createTypeSerializer(_config, javaType);

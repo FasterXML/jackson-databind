@@ -35,8 +35,8 @@ public class AtomicReferenceSerializer
     }
     
     @Override
-    public void serialize(AtomicReference<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-        provider.defaultSerializeValue(value.get(), jgen);
+    public void serialize(AtomicReference<?> value, JsonGenerator g, SerializerProvider provider) throws IOException, JsonGenerationException {
+        provider.defaultSerializeValue(value.get(), g);
     }
 
     @Override

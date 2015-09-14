@@ -435,10 +435,11 @@ public abstract class SettableBeanProperty
     /**
      * Method for accessing index of the creator property: for other
      * types of properties will simply return -1.
+     * 20.06.2015 bojanv55 - had a problem when returning -1 when deser. ref. object
      * 
      * @since 2.1
      */
-    public int getCreatorIndex() { return -1; }
+    public int getCreatorIndex() { return _propertyIndex; }
     
     /**
      * Accessor for id of injectable value, if this bean property supports

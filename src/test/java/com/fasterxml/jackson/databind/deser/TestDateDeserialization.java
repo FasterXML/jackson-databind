@@ -182,6 +182,30 @@ public class TestDateDeserialization
         assertEquals(20, c.get(Calendar.MINUTE));
         assertEquals(30, c.get(Calendar.SECOND));
         assertEquals(450, c.get(Calendar.MILLISECOND));
+
+        // 14-Sep-2015, tatu: Colon for timezone offset is optional, verify
+        inputStr = "1997-07-16T19:20:30.45+0100";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(1997, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(19 - 1, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(20, c.get(Calendar.MINUTE));
+        assertEquals(30, c.get(Calendar.SECOND));
+        assertEquals(450, c.get(Calendar.MILLISECOND));
+
+        // plus may also just have hour part
+        inputStr = "1997-07-16T19:20:30.45+01";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(1997, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(19 - 1, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(20, c.get(Calendar.MINUTE));
+        assertEquals(30, c.get(Calendar.SECOND));
+        assertEquals(450, c.get(Calendar.MILLISECOND));
     }
 
     public void testISO8601MissingSeconds() throws Exception
@@ -189,7 +213,7 @@ public class TestDateDeserialization
         String inputStr;
         Date inputDate;
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-    
+
         inputStr = "1997-07-16T19:20+01:00";
         inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
         c.setTime(inputDate);
@@ -199,7 +223,29 @@ public class TestDateDeserialization
         assertEquals(19 - 1, c.get(Calendar.HOUR_OF_DAY));
         assertEquals(0, c.get(Calendar.SECOND));
         assertEquals(0, c.get(Calendar.MILLISECOND));
-}
+
+        // 14-Sep-2015, tatu: Colon for timezone offset is optional, verify
+        inputStr = "1997-07-16T19:20+0200";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(1997, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(19 - 2, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(0, c.get(Calendar.MILLISECOND));
+
+        // or just hour
+        inputStr = "1997-07-16T19:20+04";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(1997, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(19 - 4, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(0, c.get(Calendar.MILLISECOND));
+    }
 
     public void testDateUtilISO8601NoTimezone() throws Exception
     {
@@ -351,6 +397,7 @@ public class TestDateDeserialization
         for (String inputStr : new String[] {
                "2010-06-28T23:34:22Z",
                "2010-06-28T23:34:22+0000",
+               "2010-06-28T23:34:22+00:00",
                "2010-06-28T23:34:22+00",
         }) {
             Date inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);

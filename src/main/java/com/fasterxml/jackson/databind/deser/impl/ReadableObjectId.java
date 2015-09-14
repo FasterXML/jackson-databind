@@ -110,7 +110,16 @@ public class ReadableObjectId
     {
         return false;
     }
-    
+
+    /**
+     * Allow access to the resolver in case anybody wants to use it directly in
+     * DeserializationContext::tryToResolveUnresolvedObjectId.
+     * @return The registered resolver
+     */
+    public ObjectIdResolver getResolver() {
+        return _resolver;
+    }
+
     @Override
     public String toString() {
         return String.valueOf(_key);

@@ -118,12 +118,23 @@ public abstract class DefaultDeserializationContext
             _objectIdResolvers.add(resolver);
         }
 
-        ReadableObjectId entry = new ReadableObjectId(key);
+        ReadableObjectId entry = createReadableObjectId(key);
         entry.setResolver(resolver);
         _objectIds.put(key, entry);
         return entry;
     }
-    
+
+    /**
+     * Factory method to create a new instance of ReadableObjectId or its
+     * subclass. It is ment to be overriden when custom ReadableObjectId is
+     * needed for tryToResolveUnresolvedObjectId.
+     * @param key The key to associate with the new ReadableObjectId
+     * @return New ReadableObjectId instance
+     */
+    protected ReadableObjectId createReadableObjectId(IdKey key) {
+        return new ReadableObjectId(key);
+    }
+
     @Deprecated // since 2.4
     @Override
     public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen) {

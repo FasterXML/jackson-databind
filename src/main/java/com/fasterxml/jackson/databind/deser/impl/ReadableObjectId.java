@@ -112,9 +112,13 @@ public class ReadableObjectId
     }
 
     /**
-     * Allow access to the resolver in case anybody wants to use it directly in
-     * DeserializationContext::tryToResolveUnresolvedObjectId.
+     * Allow access to the resolver in case anybody wants to use it directly, for
+     * examples from 
+     * {@link com.fasterxml.jackson.databind.deser.DefaultDeserializationContext#tryToResolveUnresolvedObjectId}.
+     *
      * @return The registered resolver
+     * 
+     * @since 2.7
      */
     public ObjectIdResolver getResolver() {
         return _resolver;

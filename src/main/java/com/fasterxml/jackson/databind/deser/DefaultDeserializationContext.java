@@ -125,11 +125,16 @@ public abstract class DefaultDeserializationContext
     }
 
     /**
-     * Factory method to create a new instance of ReadableObjectId or its
-     * subclass. It is ment to be overriden when custom ReadableObjectId is
-     * needed for tryToResolveUnresolvedObjectId.
+     * Overridable factory method to create a new instance of ReadableObjectId or its
+     * subclass. It is meant to be overridden when custom ReadableObjectId is
+     * needed for {@link #tryToResolveUnresolvedObjectId}.
+     * Default implementation simply constructs default {@link ReadableObjectId} with
+     * given <code>key</code>.
+     * 
      * @param key The key to associate with the new ReadableObjectId
      * @return New ReadableObjectId instance
+     *
+     * @since 2.7
      */
     protected ReadableObjectId createReadableObjectId(IdKey key) {
         return new ReadableObjectId(key);

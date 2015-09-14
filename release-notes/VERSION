@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)
+#933:Close some gaps to allow using the tryToResolveUnresolved flows
 
 2.6.2 (not yet released)
 

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.2 (not yet released)
+2.6.2 (14-Sep-2015)
 
 #894: When using withFactory on ObjectMapper, the created Factory has a TypeParser
   which still has the original Factory

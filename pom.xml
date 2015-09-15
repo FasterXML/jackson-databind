@@ -75,7 +75,7 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.6.1</version>
+      <version>2.6.2</version>
     </dependency>
 
     <!-- and for testing we need a few libraries

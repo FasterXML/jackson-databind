@@ -43,7 +43,11 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+<<<<<<< HEAD
       <version>2.7.0-SNAPSHOT</version>
+=======
+      <version>2.6.2</version>
+>>>>>>> 2.6
     </dependency>
 
     <!-- and for testing we need a few libraries

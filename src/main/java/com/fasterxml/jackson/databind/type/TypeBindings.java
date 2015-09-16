@@ -115,11 +115,6 @@ public class TypeBindings
         return _bindings.size();
     }
 
-    @Deprecated // since 2.6, remove from 2.7
-    public JavaType findType(String name) {
-        return findType(name, true);
-    }
-
     public JavaType findType(String name, boolean mustFind)
     {
         if (_bindings == null) {

@@ -13,22 +13,12 @@ public abstract class TypeBase
     extends JavaType
     implements JsonSerializable
 {
-    private static final long serialVersionUID = -3581199092426900829L;
+    private static final long serialVersionUID = 1;
 
     /**
      * Lazily initialized external representation of the type
      */
     volatile transient String _canonicalName;
-
-    /**
-     * @deprecated Since 2.2 use method that takes 'asStatic' argument
-     */
-    @Deprecated
-    protected TypeBase(Class<?> raw, int hash,
-            Object valueHandler, Object typeHandler)
-    {
-        this(raw, hash, valueHandler, typeHandler, false);
-    }
 
     /**
      * Main constructor to use by extending classes.

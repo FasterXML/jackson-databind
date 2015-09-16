@@ -61,6 +61,11 @@ public final class TypeFactory
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(Long.TYPE);
 
     /**
+     * @since 2.7
+     */
+    protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(Object.class);
+
+    /**
      * Since type resolution can be expensive (specifically when resolving
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
@@ -861,10 +866,11 @@ public final class TypeFactory
     {
         // Very first thing: small set of core types we know well:
         if (clz == String.class) return CORE_TYPE_STRING;
+        if (clz == Object.class) return CORE_TYPE_OBJECT; // since 2.7
         if (clz == Boolean.TYPE) return CORE_TYPE_BOOL;
         if (clz == Integer.TYPE) return CORE_TYPE_INT;
         if (clz == Long.TYPE) return CORE_TYPE_LONG;
-        
+
         // Barring that, we may have recently constructed an instance:
         ClassKey key = new ClassKey(clz);
         JavaType result = _typeCache.get(key); // ok, cache object is synced
@@ -872,7 +878,7 @@ public final class TypeFactory
             return result;
         }
 
-        // If context was needed, weed do:
+        // If context was needed, we'd do:
         /*
         if (context == null) {
             context = new TypeBindings(this, cls);
@@ -1160,9 +1166,15 @@ public final class TypeFactory
         }
         return _unknownType();
     }
-    
+
     protected JavaType _unknownType() {
-        return new SimpleType(Object.class);
+        /* 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
+         *    This may have been due to potential mutability of the instance; but that
+         *    should not be issue any more, and creation is somewhat wasteful. So let's
+         *    try reusing singleton/flyweight instance.
+         */
+//        return new SimpleType(Object.class);
+        return CORE_TYPE_OBJECT;
     }
 
     /*

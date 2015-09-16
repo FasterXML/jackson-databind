@@ -45,16 +45,6 @@ public class SimpleType // note: until 2.6 was final
     }
 
     /**
-     * @deprecated Since 2.5 use variant that takes one more argument
-     */
-    @Deprecated
-    protected SimpleType(Class<?> cls, String[] typeNames, JavaType[] typeParams,
-            Object valueHandler, Object typeHandler, boolean asStatic)
-    {
-        this(cls, typeNames, typeParams, valueHandler, typeHandler, asStatic, null);
-    }
-
-    /**
      * 
      * @param parametersFrom Interface or abstract class implemented by this type,
      *   and for which type parameters apply. It may be <code>cls</code> itself,

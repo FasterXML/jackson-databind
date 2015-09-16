@@ -141,23 +141,9 @@ public class JacksonAnnotationIntrospector
         JsonIgnoreType ignore = _findAnnotation(ac, JsonIgnoreType.class);
         return (ignore == null) ? null : ignore.value();
     }
-
-    /**
-     * @deprecated (since 2.3) Use {@link #findFilterId(Annotated)} instead
-     */
-    @Deprecated
-    @Override
-    public Object findFilterId(AnnotatedClass ac) {
-        return _findFilterId(ac);
-    }
-    
+ 
     @Override
     public Object findFilterId(Annotated a) {
-        return _findFilterId(a);
-    }
-
-    protected final Object _findFilterId(Annotated a)
-    {
         JsonFilter ann = _findAnnotation(a, JsonFilter.class);
         if (ann != null) {
             String id = ann.value();

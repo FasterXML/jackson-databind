@@ -152,17 +152,6 @@ public class AnnotationIntrospectorPair
         return result;
     }
 
-    @Deprecated
-    @Override
-    public Object findFilterId(AnnotatedClass ac)
-    {
-        Object id = _primary.findFilterId(ac);
-        if (id == null) {
-            id = _secondary.findFilterId(ac);
-        }
-        return id;
-    }
-
     @Override
     public Object findFilterId(Annotated ann)
     {

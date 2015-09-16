@@ -262,12 +262,6 @@ public abstract class AnnotationIntrospector
     public Boolean isIgnorableType(AnnotatedClass ac) { return null; }
 
     /**
-     * @deprecated Since 2.3: use the one that takes generic {@link Annotated}
-     */
-    @Deprecated
-    public Object findFilterId(AnnotatedClass ac) { return findFilterId((Annotated) ac); }
-
-    /**
      * Method for finding if annotated class has associated filter; and if so,
      * to return id that is used to locate filter.
      * 

@@ -7,8 +7,7 @@ import com.fasterxml.jackson.databind.annotation.*;
 
 /**
  * Unit tests for verifying that field-backed properties can also be
- * deserialized (since version 1.1) as well as
- * setter-accessible properties.
+ * deserialized as well as setter-accessible properties.
  */
 public class TestFieldDeserialization
     extends BaseMapTest
@@ -69,6 +68,7 @@ public class TestFieldDeserialization
         @JsonProperty("x")
         protected int myX = 10;
 
+        @SuppressWarnings("hiding")
         public int y = 11;
     }
     

@@ -120,6 +120,7 @@ public final class MethodProperty
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {
+            // 15-Sep-2015, tatu: How coud we get a ref to JsonParser?
             _throwAsIOE(e, value);
         }
     }
@@ -131,6 +132,7 @@ public final class MethodProperty
             Object result = _setter.invoke(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
+            // 15-Sep-2015, tatu: How coud we get a ref to JsonParser?
             _throwAsIOE(e, value);
             return null;
         }

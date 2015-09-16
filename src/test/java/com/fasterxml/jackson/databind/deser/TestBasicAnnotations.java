@@ -87,7 +87,7 @@ public class TestBasicAnnotations
     static class BeanWithDeserialize {
         @JsonDeserialize protected int a;
     }
-    
+
     /*
     /**********************************************************
     /* Other helper classes
@@ -162,7 +162,7 @@ public class TestBasicAnnotations
         assertEquals(3, bean.a);
     }
 
-    // [Issue#442]
+    // [databind#442]
     public void testIssue442PrivateUnwrapped() throws Exception
     {
         Issue442Bean bean = MAPPER.readValue("{\"i\":5}", Issue442Bean.class);

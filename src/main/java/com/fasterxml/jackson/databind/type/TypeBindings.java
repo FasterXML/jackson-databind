@@ -101,7 +101,7 @@ public class TypeBindings
     public JavaType resolveType(Type type) {
         return _typeFactory._constructType(type, this);
     }
-    
+
     /*
     /**********************************************************
     /* Accesors
@@ -119,7 +119,7 @@ public class TypeBindings
     public JavaType findType(String name) {
         return findType(name, true);
     }
-    
+
     public JavaType findType(String name, boolean mustFind)
     {
         if (_bindings == null) {
@@ -133,12 +133,12 @@ public class TypeBindings
             return UNBOUND;
         }
         if (_parentBindings != null) {
-            return _parentBindings.findType(name);
+            return _parentBindings.findType(name, mustFind);
         }
         // nothing found, so...
         // Should we throw an exception or just return null?
-        
-        /* [JACKSON-499] 18-Feb-2011, tatu: There are some tricky type bindings within
+
+        /* 18-Feb-2011, tatu: There are some tricky type bindings within
          *   java.util, such as HashMap$KeySet; so let's punt the problem
          *   (honestly not sure what to do -- they are unbound for good, I think)
          */

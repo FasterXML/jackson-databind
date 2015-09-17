@@ -54,16 +54,23 @@ public final class TypeFactory
     // // // Let's assume that a small set of core primitive/basic types
     // // // will not be modified, and can be freely shared to streamline
     // // // parts of processing
-    
-    protected final static SimpleType CORE_TYPE_STRING = new SimpleType(String.class);
-    protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(Boolean.TYPE);
-    protected final static SimpleType CORE_TYPE_INT = new SimpleType(Integer.TYPE);
-    protected final static SimpleType CORE_TYPE_LONG = new SimpleType(Long.TYPE);
+
+    private final static Class<?> CLS_STRING = String.class;
+    private final static Class<?> CLS_OBJECT = Object.class;
+
+    private final static Class<?> CLS_BOOL = Boolean.TYPE;
+    private final static Class<?> CLS_INT = Integer.TYPE;
+    private final static Class<?> CLS_LONG = Long.TYPE;
+
+    protected final static SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);
+    protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
+    protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
+    protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
 
     /**
      * @since 2.7
      */
-    protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(Object.class);
+    protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
 
     /**
      * Since type resolution can be expensive (specifically when resolving
@@ -667,7 +674,7 @@ public final class TypeFactory
      * should only be used if caller really knows what it's doing...
      */
     public JavaType uncheckedSimpleType(Class<?> cls) {
-        return new SimpleType(cls);
+        return _constructSimple(cls);
     }
     
     /**
@@ -865,15 +872,14 @@ public final class TypeFactory
     protected JavaType _fromClass(Class<?> clz, TypeBindings context)
     {
         // Very first thing: small set of core types we know well:
-        if (clz == String.class) return CORE_TYPE_STRING;
-        if (clz == Object.class) return CORE_TYPE_OBJECT; // since 2.7
-        if (clz == Boolean.TYPE) return CORE_TYPE_BOOL;
-        if (clz == Integer.TYPE) return CORE_TYPE_INT;
-        if (clz == Long.TYPE) return CORE_TYPE_LONG;
+        JavaType result = _findWellKnownSimple(clz);
+        if (result != null) {
+            return result;
+        }
 
         // Barring that, we may have recently constructed an instance:
         ClassKey key = new ClassKey(clz);
-        JavaType result = _typeCache.get(key); // ok, cache object is synced
+        result = _typeCache.get(key); // ok, cache object is synced
         if (result != null) {
             return result;
         }
@@ -892,7 +898,8 @@ public final class TypeFactory
              * point in doing so (T extends Enum<T>) etc.
              */
         } else if (clz.isEnum()) {
-            result = new SimpleType(clz);
+            // NOTE: already checked for cached types, so instantiate directly
+            result = _newSimpleType(clz);
             /* Maps and Collections aren't quite as hot; problem is, due
              * to type erasure we often do not know typing and can only assume
              * base Object.
@@ -920,7 +927,8 @@ public final class TypeFactory
                 }
                 result = constructSimpleType(clz, Map.Entry.class, new JavaType[] { kt, vt });
             } else {
-                result = new SimpleType(clz);
+                // NOTE: already checked for cached types, so instantiate directly
+                result = _newSimpleType(clz);
             }
         }
         _typeCache.put(key, result); // cache object syncs
@@ -937,7 +945,7 @@ public final class TypeFactory
             return ArrayType.construct(_constructType(clz.getComponentType(), null), null, null);
         }
         if (clz.isEnum()) { // ditto for enums
-            return new SimpleType(clz);
+            return _constructSimple(clz);
         }
         if (Map.class.isAssignableFrom(clz)) {
             // First: if we do have param types, use them
@@ -957,7 +965,7 @@ public final class TypeFactory
             return _collectionType(clz);
         }
         if (paramTypes.size() == 0) {
-            return new SimpleType(clz);
+            return _constructSimple(clz);
         }
         // Hmmh. Does this actually occur?
         JavaType[] pt = paramTypes.toArray(new JavaType[paramTypes.size()]);
@@ -1047,9 +1055,9 @@ public final class TypeFactory
         }
         
         if (paramCount == 0) { // no generics
-            return new SimpleType(rawType);
+            return _constructSimple(rawType);
         }
-        return constructSimpleType(rawType, pt);
+        return constructSimpleType(rawType, rawType, pt);
     }
 
     protected JavaType _fromArrayType(GenericArrayType type, TypeBindings context)
@@ -1173,8 +1181,25 @@ public final class TypeFactory
          *    should not be issue any more, and creation is somewhat wasteful. So let's
          *    try reusing singleton/flyweight instance.
          */
-//        return new SimpleType(Object.class);
+//        return _constructSimple(Object.class);
         return CORE_TYPE_OBJECT;
+    }
+
+    /*
+    /**********************************************************
+    /* Overridable helper methods
+    /**********************************************************
+     */
+
+    /**
+     * Factory method that is to create a new {@link SimpleType} with no
+     * checks whatsoever. Default implementation calls the single argument
+     * constructor of {@link SimpleType}.
+     *
+     * @since 2.7
+     */
+    protected JavaType _newSimpleType(Class<?> raw) {
+        return new SimpleType(raw);
     }
 
     /*
@@ -1182,6 +1207,38 @@ public final class TypeFactory
     /* Helper methods
     /**********************************************************
      */
+
+    /**
+     * Helper method called to see if requested, non-generic-parameterized
+     * type is one of common, "well-known" types, instances of which are
+     * pre-constructed and do not need dynamic caching.
+     *
+     * @since 2.7
+     */
+    protected JavaType _findWellKnownSimple(Class<?> clz) {
+        if (clz.isPrimitive()) {
+            if (clz == CLS_BOOL) return CORE_TYPE_BOOL;
+            if (clz == CLS_INT) return CORE_TYPE_INT;
+            if (clz == CLS_LONG) return CORE_TYPE_LONG;
+        } else {
+            if (clz == CLS_STRING) return CORE_TYPE_STRING;
+            if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT; // since 2.7
+        }
+        return null;
+    }
+    
+    /**
+     * Factory method to call when no special {@link JavaType} is needed,
+     * no generic parameters are passed. Default implementation may check
+     * pre-constructed values for "well-known" types, but if none found
+     * will simply call {@link #_newSimpleType}
+     *
+     * @since 2.7
+     */
+    protected JavaType _constructSimple(Class<?> raw) {
+        JavaType result = _findWellKnownSimple(raw);
+        return (result == null) ? _newSimpleType(raw) : result;
+    }
 
     /**
      * Helper method used to find inheritance (implements, extends) path

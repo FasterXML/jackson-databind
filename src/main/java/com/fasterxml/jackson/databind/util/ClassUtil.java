@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -33,7 +34,7 @@ public final class ClassUtil
         _addSuperTypes(cls, endBefore, result, false);
         return result;
     }
-    
+
     private static void _addSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself) {
         if (cls == endBefore || cls == null || cls == Object.class) { return; }
         if (addClassItself) {
@@ -42,12 +43,12 @@ public final class ClassUtil
             }
             result.add(cls);
         }
-        for (Class<?> intCls : cls.getInterfaces()) {
+        for (Class<?> intCls : _interfaces(cls)) {
             _addSuperTypes(intCls, endBefore, result, true);
         }
         _addSuperTypes(cls.getSuperclass(), endBefore, result, true);
     }
-    
+
     /*
     /**********************************************************
     /* Class type detection methods
@@ -242,6 +243,44 @@ public final class ClassUtil
             throw (RuntimeException) prob;
         }
         throw new ClassNotFoundException(prob.getMessage(), prob);
+    }
+
+    /*
+    /**********************************************************
+    /* Caching access to class annotations, hierarchy (2.7+)
+    /**********************************************************
+     */
+
+    /* 17-Sep-2015, tatu: Although access methods should not be significant
+     *   problems for most proper usage, they may become problematic if
+     *   ObjectMapper has to be re-created; and especially so on Android.
+     *   So let's do somewhat aggressive caching.
+     */
+
+    private final static LRUMap<Class<?>,Class<?>[]> sInterfaces = new LRUMap<Class<?>,Class<?>[]>(32, 32);
+
+    private final static LRUMap<Class<?>,Annotation[]> sClassAnnotations = new LRUMap<Class<?>,Annotation[]>(32, 32);
+
+    /**
+     * @since 2.7
+     */
+    public static Annotation[] findClassAnnotations(Class<?> cls)
+    {
+        Annotation[] result = sClassAnnotations.get(cls);
+        if (result == null) {
+            result = cls.getDeclaredAnnotations();
+            sClassAnnotations.putIfAbsent(cls, result);
+        }
+        return result;
+    }
+
+    private static Class<?>[] _interfaces(Class<?> src) {
+        Class<?>[] result = sInterfaces.get(src);
+        if (result == null) {
+            result = src.getInterfaces();
+            sInterfaces.putIfAbsent(src, result);
+        }
+        return result;
     }
     
     /*
@@ -616,7 +655,7 @@ public final class ClassUtil
         return (cls.getEnclosingClass() != null)
                 && !Modifier.isStatic(cls.getModifiers());
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes

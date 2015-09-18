@@ -307,13 +307,15 @@ public final class AnnotatedClass
                 _addClassMixIns(_classAnnotations, _class, _primaryMixIn);
             }
             // first, annotations from the class itself:
-            _addAnnotationsIfNotPresent(_classAnnotations, _class.getDeclaredAnnotations());
+            _addAnnotationsIfNotPresent(_classAnnotations,
+                    ClassUtil.findClassAnnotations(_class));
     
             // and then from super types
             for (Class<?> cls : _superTypes) {
                 // and mix mix-in annotations in-between
                 _addClassMixIns(_classAnnotations, cls);
-                _addAnnotationsIfNotPresent(_classAnnotations, cls.getDeclaredAnnotations());
+                _addAnnotationsIfNotPresent(_classAnnotations,
+                        ClassUtil.findClassAnnotations(cls));
             }
             /* and finally... any annotations there might be for plain
              * old Object.class: separate because for all other purposes
@@ -504,7 +506,7 @@ public final class AnnotatedClass
             return;
         }
         // Ok, first: annotations from mix-in class itself:
-        _addAnnotationsIfNotPresent(annotations, mixin.getDeclaredAnnotations());
+        _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(mixin));
 
         /* And then from its supertypes, if any. But note that we will
          * only consider super-types up until reaching the masked
@@ -514,7 +516,7 @@ public final class AnnotatedClass
          * as that would inverse precedence of annotations.
          */
         for (Class<?> parent : ClassUtil.findSuperTypes(mixin, toMask)) {
-            _addAnnotationsIfNotPresent(annotations, parent.getDeclaredAnnotations());
+            _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(parent));
         }
     }
 
@@ -923,7 +925,7 @@ public final class AnnotatedClass
 
     private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
     {
-        for (Annotation a : bundle.annotationType().getDeclaredAnnotations()) {
+        for (Annotation a : ClassUtil.findClassAnnotations(bundle.annotationType())) {
             // minor optimization: by-pass 2 common JDK meta-annotations
             if ((a instanceof Target) || (a instanceof Retention)) {
                 continue;

@@ -73,13 +73,17 @@ public class JacksonAnnotationIntrospector
             Field f = value.getClass().getField(value.name());
             if (f != null) {
                 JsonProperty prop = f.getAnnotation(JsonProperty.class);
-                String n = prop.value();
-                if (n != null && !n.isEmpty()) {
-                    return n;
+                if (prop != null) {
+                    String n = prop.value();
+                    if (n != null && !n.isEmpty()) {
+                        return n;
+                    }
                 }
             }
-        } catch (Exception e) {
-            // no such field, or access; neither which we can do much about
+        } catch (SecurityException e) {
+            // 17-Sep-2015, tatu: Anything we could/should do here?
+        } catch (NoSuchFieldException e) {
+            // 17-Sep-2015, tatu: should not really happen. But... can we do anything?
         }
         return value.name();
     }

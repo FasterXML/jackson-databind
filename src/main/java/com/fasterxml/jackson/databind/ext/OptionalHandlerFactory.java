@@ -7,6 +7,12 @@ import com.fasterxml.jackson.databind.ser.Serializers;
 /**
  * Helper class used for isolating details of handling optional+external types
  * (javax.xml classes) from standard factories that offer them.
+ *<p>
+ * Note that 2.7 changed handling to slightly less dynamic, to avoid having to
+ * traverse class hierarchy, which turned to be a performance issue in
+ * certain cases. Since DOM classes are assumed to exist on all Java 1.6
+ * environments (yes, even on Android/GAE), this part could be simplified by
+ * slightly less dynamic lookups.
  */
 public class OptionalHandlerFactory implements java.io.Serializable
 {
@@ -22,11 +28,30 @@ public class OptionalHandlerFactory implements java.io.Serializable
     private final static String DESERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLDeserializers";
 
     // Plus we also have a single serializer for DOM Node:
-    private final static String CLASS_NAME_DOM_NODE = "org.w3c.dom.Node";
-    private final static String CLASS_NAME_DOM_DOCUMENT = "org.w3c.dom.Node";
+//    private final static String CLASS_NAME_DOM_NODE = "org.w3c.dom.Node";
+//    private final static String CLASS_NAME_DOM_DOCUMENT = "org.w3c.dom.Document";
     private final static String SERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMSerializer";
     private final static String DESERIALIZER_FOR_DOM_DOCUMENT = "com.fasterxml.jackson.databind.ext.DOMDeserializer$DocumentDeserializer";
     private final static String DESERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMDeserializer$NodeDeserializer";
+    
+    // // Since 2.7, we will assume DOM classes are always found, both due to JDK 1.6 minimum
+    // // and because Android (and presumably GAE) have these classes
+
+    private final static Class<?> CLASS_DOM_NODE;
+    private final static Class<?> CLASS_DOM_DOCUMENT;
+
+    static {
+        Class<?> doc = null, node = null;
+        try {
+            node = org.w3c.dom.Node.class;
+            doc = org.w3c.dom.Document.class;
+        } catch (Exception e) {
+            // not optimal but will do
+            System.err.println("ERROR: could not load DOM Node and/or Document classes");
+        }
+        CLASS_DOM_NODE = node;
+        CLASS_DOM_DOCUMENT = doc;
+    }
     
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
     
@@ -41,14 +66,14 @@ public class OptionalHandlerFactory implements java.io.Serializable
     public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
             BeanDescription beanDesc)
     {
-        Class<?> rawType = type.getRawClass();
-        String className = rawType.getName();
-        String factoryName;
-        
-        if (doesImplement(rawType, CLASS_NAME_DOM_NODE)) {
+        final Class<?> rawType = type.getRawClass();
+
+        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
             return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE);
         }
-        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSupertypeStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
+        String className = rawType.getName();
+        String factoryName;
+        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
             factoryName = SERIALIZERS_FOR_JAVAX_XML;
         } else {
             return null;
@@ -65,17 +90,19 @@ public class OptionalHandlerFactory implements java.io.Serializable
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        Class<?> rawType = type.getRawClass();
+        final Class<?> rawType = type.getRawClass();
+
+        if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
+            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE);
+        }
+        if ((CLASS_DOM_DOCUMENT != null) && CLASS_DOM_DOCUMENT.isAssignableFrom(rawType)) {
+            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_DOCUMENT);
+        }
         String className = rawType.getName();
         String factoryName;
-        
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
-                || hasSupertypeStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
+                || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
             factoryName = DESERIALIZERS_FOR_JAVAX_XML;
-        } else if (doesImplement(rawType, CLASS_NAME_DOM_DOCUMENT)) {
-            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_DOCUMENT);
-        } else if (doesImplement(rawType, CLASS_NAME_DOM_NODE)) {
-            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE);
         } else {
             return null;
         }
@@ -101,66 +128,22 @@ public class OptionalHandlerFactory implements java.io.Serializable
         catch (Exception e) { }
         return null;
     }
-    
-    private boolean doesImplement(Class<?> actualType, String classNameToImplement)
-    {
-        for (Class<?> type = actualType; type != null; type = type.getSuperclass()) {
-            if (type.getName().equals(classNameToImplement)) {
-                return true;
-            }
-            // or maybe one of super-interfaces
-            if (hasInterface(type, classNameToImplement)) {
-                return true;
-            }
-        }
-        return false;
-    }
-        
-    private boolean hasInterface(Class<?> type, String interfaceToImplement)
-    {
-        Class<?>[] interfaces = type.getInterfaces();
-        for (Class<?> iface : interfaces) {
-            if (iface.getName().equals(interfaceToImplement)) {
-                return true;
-            }
-        }
-        // maybe super-interface?
-        for (Class<?> iface : interfaces) {
-            if (hasInterface(iface, interfaceToImplement)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    private boolean hasSupertypeStartingWith(Class<?> rawType, String prefix)
+    /**
+     * Since 2.7 we only need to check for class extension, as all implemented
+     * types are classes, not interfaces. This has performance implications for
+     * some cases, as we do not need to go over interfaces implemented, just
+     * superclasses
+     * 
+     * @since 2.7
+     */
+    private boolean hasSuperClassStartingWith(Class<?> rawType, String prefix)
     {
-        // first, superclasses
         for (Class<?> supertype = rawType.getSuperclass(); supertype != null; supertype = supertype.getSuperclass()) {
+            if (supertype == Object.class) {
+                return false;
+            }
             if (supertype.getName().startsWith(prefix)) {
-                return true;
-            }
-        }
-        // then interfaces
-        for (Class<?> cls = rawType; cls != null; cls = cls.getSuperclass()) {
-            if (hasInterfaceStartingWith(cls, prefix)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasInterfaceStartingWith(Class<?> type, String prefix)
-    {
-        Class<?>[] interfaces = type.getInterfaces();
-        for (Class<?> iface : interfaces) {
-            if (iface.getName().startsWith(prefix)) {
-                return true;
-            }
-        }
-        // maybe super-interface?
-        for (Class<?> iface : interfaces) {
-            if (hasInterfaceStartingWith(iface, prefix)) {
                 return true;
             }
         }

@@ -30,11 +30,29 @@ public class JacksonAnnotationIntrospector
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Since introspection of annotation types is a performance issue in some
+     * use cases (rare, but do exist), let's try a simple cache to reduce
+     * need for actual meta-annotation introspection.
+     *<p>
+     * Non-final only because it needs to be re-created after deserialization.
+     *
+     * @since 2.7
+     */
+    protected transient LRUMap<Class<?>,Boolean> _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
+    
     public JacksonAnnotationIntrospector() { }
 
     @Override
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
+    }
+
+    protected Object readResolve() {
+        if (_annotationsInside == null) {
+            _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
+        }
+        return this;
     }
 
     /*
@@ -49,7 +67,13 @@ public class JacksonAnnotationIntrospector
      */
     @Override
     public boolean isAnnotationBundle(Annotation ann) {
-        return ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null;
+        Class<?> type = ann.annotationType();
+        Boolean b = _annotationsInside.get(type);
+        if (b == null) {
+            b = type.getAnnotation(JacksonAnnotationsInside.class) != null;
+            _annotationsInside.putIfAbsent(type, b);
+        }
+        return b.booleanValue();
     }
 
     /*

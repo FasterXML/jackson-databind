@@ -257,9 +257,13 @@ public final class ClassUtil
      *   So let's do somewhat aggressive caching.
      */
 
-    private final static LRUMap<Class<?>,Class<?>[]> sInterfaces = new LRUMap<Class<?>,Class<?>[]>(32, 32);
+    private final static Constructor<?>[] NO_CTORS = new Constructor<?>[0];
 
-    private final static LRUMap<Class<?>,Annotation[]> sClassAnnotations = new LRUMap<Class<?>,Annotation[]>(32, 32);
+    private final static LRUMap<Class<?>,Class<?>[]> sInterfaces = new LRUMap<Class<?>,Class<?>[]>(40, 40);
+
+    private final static LRUMap<Class<?>,Annotation[]> sClassAnnotations = new LRUMap<Class<?>,Annotation[]>(24, 24);
+
+    private final static LRUMap<Class<?>,Constructor<?>[]> sConstructors = new LRUMap<Class<?>,Constructor<?>[]>(24, 24);
 
     /**
      * @since 2.7
@@ -274,6 +278,25 @@ public final class ClassUtil
         return result;
     }
 
+    /**
+     * @since 2.7
+     */
+    public static Constructor<?>[] findConstructors(Class<?> cls)
+    {
+        Constructor<?>[] result = sConstructors.get(cls);
+        if (result == null) {
+            // Note: can NOT skip abstract classes as they may be used with mix-ins
+            // and for regular use shouldn't really matter.
+            if (cls.isInterface()) {
+                result = NO_CTORS;
+            } else {
+                result = cls.getDeclaredConstructors();
+            }
+            sConstructors.putIfAbsent(cls, result);
+        }
+        return result;
+    }
+    
     private static Class<?>[] _interfaces(Class<?> src) {
         Class<?>[] result = sInterfaces.get(src);
         if (result == null) {

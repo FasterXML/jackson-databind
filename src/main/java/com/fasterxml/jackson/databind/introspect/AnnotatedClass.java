@@ -336,7 +336,7 @@ public final class AnnotatedClass
     {
         // Then see which constructors we have
         List<AnnotatedConstructor> constructors = null;
-        Constructor<?>[] declaredCtors = _class.getDeclaredConstructors();
+        Constructor<?>[] declaredCtors = ClassUtil.findConstructors(_class);
         for (Constructor<?> ctor : declaredCtors) {
             if (ctor.getParameterTypes().length == 0) {
                 _defaultConstructor = _constructConstructor(ctor, true);
@@ -530,7 +530,7 @@ public final class AnnotatedClass
     {
         MemberKey[] ctorKeys = null;
         int ctorCount = (_constructors == null) ? 0 : _constructors.size();
-        for (Constructor<?> ctor : mixin.getDeclaredConstructors()) {
+        for (Constructor<?> ctor : ClassUtil.findConstructors(mixin)) {
             if (ctor.getParameterTypes().length == 0) {
                 if (_defaultConstructor != null) {
                     _addMixOvers(ctor, _defaultConstructor, false);
@@ -770,6 +770,7 @@ public final class AnnotatedClass
         }
         Annotation[][] paramAnns = ctor.getParameterAnnotations();
         int paramCount = ctor.getParameterTypes().length;
+
         /* [JACKSON-701]: Looks like JDK has discrepancy, whereas annotations for implicit 'this'
          * (for non-static inner classes) are NOT included, but type is? Strange, sounds like
          * a bug. Alas, we can't really fix that...

@@ -4,6 +4,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for resolving type parameters for given class
@@ -138,8 +139,7 @@ public class TypeBindings
          *   (honestly not sure what to do -- they are unbound for good, I think)
          */
         if (_contextClass != null) {
-            Class<?> enclosing = _contextClass.getEnclosingClass();
-            if (enclosing != null) {
+            if (ClassUtil.hasEnclosingClass(_contextClass)) {
                 // [JACKSON-572]: Actually, let's skip this for all non-static inner classes
                 //   (which will also cover 'java.util' type cases...
                 if (!Modifier.isStatic(_contextClass.getModifiers())) {
@@ -148,10 +148,10 @@ public class TypeBindings
 
                 // ... so this piece of code should not be needed any more
                 /*
-                Package pkg = enclosing.getPackage();
-                if (pkg != null) {
+                String pkgName = ClassUtil.getPackageName(enclosing);
+                if (pkgName != null) {
                     // as per [JACKSON-533], also include "java.util.concurrent":
-                    if (pkg.getName().startsWith("java.util")) {
+                    if (pkgName.startsWith("java.util")) {
                         return UNBOUND;
                     }
                 }

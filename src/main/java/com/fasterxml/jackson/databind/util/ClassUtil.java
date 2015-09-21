@@ -87,7 +87,7 @@ public final class ClassUtil
          */
         try {
             // one more: method locals, anonymous, are not good:
-            if (type.getEnclosingMethod() != null) {
+            if (hasEnclosingMethod(type)) {
                 return "local/anonymous";
             }
             
@@ -96,8 +96,8 @@ public final class ClassUtil
              * happens to be enclosing... but that gets convoluted)
              */
             if (!allowNonStatic) {
-                if (type.getEnclosingClass() != null) {
-                    if (!Modifier.isStatic(type.getModifiers())) {
+                if (!Modifier.isStatic(type.getModifiers())) {
+                    if (hasEnclosingClass(type)) {
                         return "non-static member class";
                     }
                 }
@@ -116,11 +116,11 @@ public final class ClassUtil
         // as above, GAE has some issues...
         try {
             // one more: method locals, anonymous, are not good:
-            if (type.getEnclosingMethod() != null) {
+            if (hasEnclosingMethod(type)) {
                 return null;
             }
             if (!Modifier.isStatic(type.getModifiers())) {
-                return type.getEnclosingClass();
+                return getEnclosingClass(type);
             }
         } catch (SecurityException e) { }
         catch (NullPointerException e) { }
@@ -247,7 +247,7 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Caching access to class annotations, hierarchy (2.7+)
+    /* Caching access to class metadata, added in 2.7
     /**********************************************************
      */
 
@@ -259,51 +259,67 @@ public final class ClassUtil
 
     private final static Constructor<?>[] NO_CTORS = new Constructor<?>[0];
 
-    private final static LRUMap<Class<?>,Class<?>[]> sInterfaces = new LRUMap<Class<?>,Class<?>[]>(40, 40);
-
-    private final static LRUMap<Class<?>,Annotation[]> sClassAnnotations = new LRUMap<Class<?>,Annotation[]>(24, 24);
-
-    private final static LRUMap<Class<?>,Constructor<?>[]> sConstructors = new LRUMap<Class<?>,Constructor<?>[]>(24, 24);
+    private final static LRUMap<Class<?>,ClassMetadata> sCached = new LRUMap<Class<?>,ClassMetadata>(48, 48);    
 
     /**
      * @since 2.7
      */
-    public static Annotation[] findClassAnnotations(Class<?> cls)
-    {
-        Annotation[] result = sClassAnnotations.get(cls);
-        if (result == null) {
-            result = cls.getDeclaredAnnotations();
-            sClassAnnotations.putIfAbsent(cls, result);
-        }
-        return result;
+    public static String getPackageName(Class<?> cls) {
+        return _getMetadata(cls).getPackageName();
     }
 
     /**
      * @since 2.7
      */
-    public static Constructor<?>[] findConstructors(Class<?> cls)
+    public static boolean hasEnclosingClass(Class<?> cls) {
+        return _getMetadata(cls).getEnclosingClass() != null;
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getEnclosingClass(Class<?> cls) {
+        return _getMetadata(cls).getEnclosingClass();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static boolean hasEnclosingMethod(Class<?> cls) {
+        return _getMetadata(cls).hasEnclosingMethod();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Annotation[] findClassAnnotations(Class<?> cls) {
+        return _getMetadata(cls).getDeclaredAnnotations();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Constructor<?>[] findConstructors(Class<?> cls) {
+        return _getMetadata(cls).getConstructors();
+    }
+
+    private static Class<?>[] _interfaces(Class<?> cls) {
+        return _getMetadata(cls).getInterfaces();
+    }
+
+    private static ClassMetadata _getMetadata(Class<?> cls)
     {
-        Constructor<?>[] result = sConstructors.get(cls);
-        if (result == null) {
-            // Note: can NOT skip abstract classes as they may be used with mix-ins
-            // and for regular use shouldn't really matter.
-            if (cls.isInterface()) {
-                result = NO_CTORS;
-            } else {
-                result = cls.getDeclaredConstructors();
+        ClassMetadata md = sCached.get(cls);
+        if (md == null) {
+            md = new ClassMetadata(cls);
+            // tiny optimization, but in case someone concurrently constructed it,
+            // let's use that instance, to reduce extra concurrent work.
+            ClassMetadata old = sCached.putIfAbsent(cls, md);
+            if (old != null) {
+                md = old;
             }
-            sConstructors.putIfAbsent(cls, result);
         }
-        return result;
-    }
-    
-    private static Class<?>[] _interfaces(Class<?> src) {
-        Class<?>[] result = sInterfaces.get(src);
-        if (result == null) {
-            result = src.getInterfaces();
-            sInterfaces.putIfAbsent(src, result);
-        }
-        return result;
+        return md;
     }
     
     /*
@@ -675,8 +691,8 @@ public final class ClassUtil
     }
 
     public static boolean isNonStaticInnerClass(Class<?> cls) {
-        return (cls.getEnclosingClass() != null)
-                && !Modifier.isStatic(cls.getModifiers());
+        return !Modifier.isStatic(cls.getModifiers())
+                && hasEnclosingClass(cls);
     }
 
     /*
@@ -758,5 +774,123 @@ public final class ClassUtil
     	    }
     	    return found;
     	}
+    }
+
+    /*
+    /**********************************************************
+    /* Helper class for caching
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.7
+     */
+    private final static class ClassMetadata
+    {
+        private final Class<?> _forClass;
+
+        private Class<?> _enclosingClass;
+        private Boolean _hasEnclosingMethod;
+        private String _packageName;
+
+        private Class<?>[] _interfaces;
+        private Annotation[] _annotations;
+        private Constructor<?>[] _constructors;
+
+        private final boolean _isInterface;
+        
+        public ClassMetadata(Class<?> forClass) {
+            _forClass = forClass;
+            _isInterface = forClass.isInterface();
+        }
+
+        /*
+        public Class<?> getSuperclass() {
+            return _isInterface ? null : _forClass.getSuperclass();
+        }
+
+        public boolean isInteface() {
+            return _isInterface;
+        }
+        */
+
+        public String getPackageName() {
+            String name = _packageName;
+            if (name == null) {
+                Package pkg = _forClass.getPackage();
+                name = (pkg == null) ? null : pkg.getName();
+                if (name == null) {
+                    name = "";
+                }
+                _packageName = name;
+            }
+            return (name == "") ? null : name;
+        }
+
+        public Class<?> getEnclosingClass() {
+            Class<?> enc = _enclosingClass;
+            if (enc == null) {
+                enc = _forClass.getEnclosingClass();
+                if (enc == null) {
+                    // Need marker to indicate "none", so:
+                    enc = _forClass;
+                }
+                _enclosingClass = enc;
+            }
+            if (enc == _forClass) {
+                return null;
+            }
+            return enc;
+        }
+
+        public boolean hasEnclosingMethod() {
+            Boolean b = _hasEnclosingMethod;
+            if (b == null) {
+                b = _forClass.getEnclosingMethod() != null;
+                _hasEnclosingMethod = b;
+            }
+            return b.booleanValue();
+        }
+        
+        public Class<?>[] getInterfaces() {
+            // 19-Sep-2015, tatu: Bit of performance improvement, after finding this
+            //   in profile; maybe 5% in "wasteful" deserialization case
+
+            Class<?>[] result = _interfaces;
+            if (result == null) {
+                result = _forClass.getInterfaces();
+                _interfaces = result;
+            }
+            return result;
+        }
+
+        public Annotation[] getDeclaredAnnotations() {
+            // 19-Sep-2015, tatu: Modest performance improvement, after finding this
+            //   in profile; maybe 2-3% in "wasteful" deserialization case
+            
+            Annotation[] result = _annotations;
+            if (result == null) {
+                result = _forClass.getDeclaredAnnotations();
+                _annotations = result;
+            }
+            return result;
+        }
+
+        public Constructor<?>[] getConstructors() {
+            // 19-Sep-2015, tatu: Some performance improvement, after finding this
+            //   in profile; maybe 8-10% in "wasteful" deserialization case
+            Constructor<?>[] result = _constructors;
+            if (result == null) {
+                // Note: can NOT skip abstract classes as they may be used with mix-ins
+                // and for regular use shouldn't really matter.
+                if (_isInterface) {
+                    result = NO_CTORS;
+                } else {
+                    result = _forClass.getDeclaredConstructors();
+                }
+                _constructors = result;
+            }
+            return result;
+        }
     }
 }

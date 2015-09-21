@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Checked exception used to signal fatal problems with mapping of
@@ -101,9 +102,9 @@ public class JsonMappingException
              * butt-ugly for arrays. So let's use getSimpleName() instead;
              * but have to prepend package name too.
              */
-            Package pkg = cls.getPackage();
-            if (pkg != null) {
-                sb.append(pkg.getName());
+            String pkgName = ClassUtil.getPackageName(cls);
+            if (pkgName != null) {
+                sb.append(pkgName);
                 sb.append('.');
             }
             sb.append(cls.getSimpleName());

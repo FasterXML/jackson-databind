@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LRUMap;
 
 public class BasicClassIntrospector
@@ -254,9 +255,8 @@ public class BasicClassIntrospector
             return false;
         }
         Class<?> raw = type.getRawClass();
-        Package pkg = raw.getPackage();
-        if (pkg != null) {
-            String pkgName = pkg.getName();
+        String pkgName = ClassUtil.getPackageName(raw);
+        if (pkgName != null) {
             if (pkgName.startsWith("java.lang")
                     || pkgName.startsWith("java.util")) {
                 /* 23-Sep-2014, tatu: Should we be conservative here (minimal number

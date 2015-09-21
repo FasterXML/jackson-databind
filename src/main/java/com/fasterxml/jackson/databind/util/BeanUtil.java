@@ -159,15 +159,14 @@ public class BeanUtil
          */
         Class<?> compType = rt.getComponentType();
         // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
-        Package pkg = compType.getPackage();
-        if (pkg != null) {
-            String pname = pkg.getName();
-            if (pname.contains(".cglib")) {
-                if (pname.startsWith("net.sf.cglib")
+        String pkgName = ClassUtil.getPackageName(compType);
+        if (pkgName != null) {
+            if (pkgName.contains(".cglib")) {
+                if (pkgName.startsWith("net.sf.cglib")
                     // also, as per [JACKSON-177]
-                    || pname.startsWith("org.hibernate.repackage.cglib")
+                    || pkgName.startsWith("org.hibernate.repackage.cglib")
                     // and [core#674]
-                    || pname.startsWith("org.springframework.cglib")
+                    || pkgName.startsWith("org.springframework.cglib")
                         ) {
                     return true;
                 }
@@ -183,8 +182,8 @@ public class BeanUtil
     protected static boolean isGroovyMetaClassSetter(AnnotatedMethod am)
     {
         Class<?> argType = am.getRawParameterType(0);
-        Package pkg = argType.getPackage();
-        if (pkg != null && pkg.getName().startsWith("groovy.lang")) {
+        String pkgName = ClassUtil.getPackageName(argType);
+        if (pkgName != null && pkgName.startsWith("groovy.lang")) {
             return true;
         }
         return false;
@@ -199,8 +198,8 @@ public class BeanUtil
         if (rt == null || rt.isArray()) {
             return false;
         }
-        Package pkg = rt.getPackage();
-        if (pkg != null && pkg.getName().startsWith("groovy.lang")) {
+        String pkgName = ClassUtil.getPackageName(rt);
+        if (pkgName != null && pkgName.startsWith("groovy.lang")) {
             return true;
         }
         return false;

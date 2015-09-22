@@ -814,6 +814,7 @@ public final class ClassUtil
         private final Class<?> _forClass;
 
         private String _packageName;
+        private Boolean _hasEnclosingMethod;
 
         private Class<?>[] _interfaces;
         private Annotation[] _annotations;
@@ -838,9 +839,9 @@ public final class ClassUtil
             return (name == "") ? null : name;
         }
 
+        // 19-Sep-2015, tatu: Bit of performance improvement, after finding this
+        //   in profile; maybe 5% in "wasteful" deserialization case
         public Class<?>[] getInterfaces() {
-            // 19-Sep-2015, tatu: Bit of performance improvement, after finding this
-            //   in profile; maybe 5% in "wasteful" deserialization case
 
             Class<?>[] result = _interfaces;
             if (result == null) {
@@ -850,10 +851,9 @@ public final class ClassUtil
             return result;
         }
 
+        // 19-Sep-2015, tatu: Modest performance improvement, after finding this
+        //   in profile; maybe 2-3% in "wasteful" deserialization case
         public Annotation[] getDeclaredAnnotations() {
-            // 19-Sep-2015, tatu: Modest performance improvement, after finding this
-            //   in profile; maybe 2-3% in "wasteful" deserialization case
-            
             Annotation[] result = _annotations;
             if (result == null) {
                 result = isObjectOrPrimitive() ? NO_ANNOTATIONS : _forClass.getDeclaredAnnotations();
@@ -862,9 +862,9 @@ public final class ClassUtil
             return result;
         }
 
+        // 19-Sep-2015, tatu: Some performance improvement, after finding this
+        //   in profile; maybe 8-10% in "wasteful" deserialization case
         public Ctor[] getConstructors() {
-            // 19-Sep-2015, tatu: Some performance improvement, after finding this
-            //   in profile; maybe 8-10% in "wasteful" deserialization case
             Ctor[] result = _constructors;
             if (result == null) {
                 // Note: can NOT skip abstract classes as they may be used with mix-ins
@@ -884,6 +884,7 @@ public final class ClassUtil
             return result;
         }
 
+        // 21-Spe-2015, tatu: Surprisingly significant improvement (+10%)...
         public Field[] getDeclaredFields() {
             Field[] fields = _fields;
             if (fields == null) {
@@ -893,6 +894,7 @@ public final class ClassUtil
             return fields;
         }
 
+        // 21-Spe-2015, tatu: Surprisingly significant improvement (+30%)...
         public Method[] getDeclaredMethods() {
             Method[] methods = _methods;
             if (methods == null) {
@@ -901,14 +903,25 @@ public final class ClassUtil
             }
             return methods;
         }
-        
+
+        // Prominently listed on profiling when not cached, improvement
+        // modest, 1-2% range; but at least is measurable so keep it
+        public boolean hasEnclosingMethod() {
+            Boolean b = _hasEnclosingMethod;
+            if (b == null) {
+                b = isObjectOrPrimitive() ? Boolean.FALSE : Boolean.valueOf(_forClass.getEnclosingMethod() != null);
+                _hasEnclosingMethod = b;
+            }
+            return b.booleanValue();
+        }
+
         private boolean isObjectOrPrimitive() {
             return (_forClass == CLS_OBJECT) || _forClass.isPrimitive();
         }
 
         /* And then we have a bunch of accessors that did show up in profiling
          * of "wasteful" cases, but for which caching did not yield non-trivial
-         * improvements (for tests, at most 1% improvement)
+         * improvements (for tests less than 1% improvement)
          */
         
         // Caching does not seem worthwhile, as per profiling
@@ -920,11 +933,21 @@ public final class ClassUtil
         public Class<?> getEnclosingClass() {
             return isObjectOrPrimitive() ? null : _forClass.getEnclosingClass();
         }
-
-        // Caching does not seem worthwhile, as per profiling
-        public boolean hasEnclosingMethod() {
-            return isObjectOrPrimitive() ?false : (_forClass.getEnclosingMethod() != null);
+        /*
+        private Class<?> _enclosingClass;
+        public Class<?> getEnclosingClass() {
+            Class<?> cls = _enclosingClass;
+            if (cls == null) {
+                cls = isObjectOrPrimitive() ? null : _forClass.getEnclosingClass();
+                // NOTE: need a marker for common case of `null`:
+                if (cls == null) {
+                    cls = _forClass;
+                }
+                _enclosingClass = cls;
+            }
+            return (cls == _forClass) ? null : cls;
         }
+        */
 
     }
 

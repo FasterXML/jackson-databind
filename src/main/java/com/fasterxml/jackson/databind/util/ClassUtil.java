@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 public final class ClassUtil
 {
+    private final static Class<?> CLS_OBJECT = Object.class;
+
     /*
     /**********************************************************
     /* Methods that deal with inheritance
@@ -29,7 +31,7 @@ public final class ClassUtil
     public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore) {
         return findSuperTypes(cls, endBefore, new ArrayList<Class<?>>(8));
     }
-    
+
     public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result) {
         _addSuperTypes(cls, endBefore, result, false);
         return result;
@@ -97,7 +99,7 @@ public final class ClassUtil
              */
             if (!allowNonStatic) {
                 if (!Modifier.isStatic(type.getModifiers())) {
-                    if (hasEnclosingClass(type)) {
+                    if (getEnclosingClass(type) != null) {
                         return "non-static member class";
                     }
                 }
@@ -123,7 +125,6 @@ public final class ClassUtil
                 return getEnclosingClass(type);
             }
         } catch (SecurityException e) { }
-        catch (NullPointerException e) { }
         return null;
     }
     
@@ -269,27 +270,6 @@ public final class ClassUtil
     /**
      * @since 2.7
      */
-    public static Class<?> getDeclaringClass(Class<?> cls) {
-        return _getMetadata(cls).getDeclaringClass();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static boolean hasEnclosingClass(Class<?> cls) {
-        return _getMetadata(cls).getEnclosingClass() != null;
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Class<?> getEnclosingClass(Class<?> cls) {
-        return _getMetadata(cls).getEnclosingClass();
-    }
-
-    /**
-     * @since 2.7
-     */
     public static boolean hasEnclosingMethod(Class<?> cls) {
         return _getMetadata(cls).hasEnclosingMethod();
     }
@@ -322,6 +302,33 @@ public final class ClassUtil
         return _getMetadata(cls).getConstructors();
     }
 
+    // // // Then methods that do NOT cache access but were considered
+    // // // (and could be added to do caching if it was proven effective)
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getDeclaringClass(Class<?> cls) {
+        // Caching does not seem worthwhile, as per profiling
+        return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Type getGenericSuperclass(Class<?> cls) {
+        return cls.getGenericSuperclass();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getEnclosingClass(Class<?> cls) {
+        // Caching does not seem worthwhile, as per profiling
+        return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();
+    }
+
+    
     private static Class<?>[] _interfaces(Class<?> cls) {
         return _getMetadata(cls).getInterfaces();
     }
@@ -711,7 +718,14 @@ public final class ClassUtil
 
     public static boolean isNonStaticInnerClass(Class<?> cls) {
         return !Modifier.isStatic(cls.getModifiers())
-                && hasEnclosingClass(cls);
+                && (getEnclosingClass(cls) != null);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static boolean isObjectOrPrimitive(Class<?> cls) {
+        return (cls == CLS_OBJECT) || cls.isPrimitive();
     }
 
     /*
@@ -923,32 +937,11 @@ public final class ClassUtil
          * of "wasteful" cases, but for which caching did not yield non-trivial
          * improvements (for tests less than 1% improvement)
          */
-        
-        // Caching does not seem worthwhile, as per profiling
-        public Class<?> getDeclaringClass() {
-            return isObjectOrPrimitive() ? null : _forClass.getDeclaringClass();
-        }
 
         // Caching does not seem worthwhile, as per profiling
-        public Class<?> getEnclosingClass() {
-            return isObjectOrPrimitive() ? null : _forClass.getEnclosingClass();
-        }
-        /*
-        private Class<?> _enclosingClass;
-        public Class<?> getEnclosingClass() {
-            Class<?> cls = _enclosingClass;
-            if (cls == null) {
-                cls = isObjectOrPrimitive() ? null : _forClass.getEnclosingClass();
-                // NOTE: need a marker for common case of `null`:
-                if (cls == null) {
-                    cls = _forClass;
-                }
-                _enclosingClass = cls;
-            }
-            return (cls == _forClass) ? null : cls;
-        }
-        */
-
+//        public Type getGenericSuperclass();
+//        public Class<?> getDeclaringClass();
+//        public Class<?> getEnclosingClass();
     }
 
     /**
@@ -988,6 +981,7 @@ public final class ClassUtil
             return _ctor.getDeclaringClass();
         }
 
+        // Modest boost: maybe 1%?
         public Annotation[] getDeclaredAnnotations() {
             Annotation[] result = _annotations;
             if (result == null) {
@@ -997,6 +991,7 @@ public final class ClassUtil
             return result;
         }
 
+        // Modest boost: maybe 1%?
         public  Annotation[][] getParameterAnnotations() {
             Annotation[][] result = _paramAnnotations;
             if (result == null) {

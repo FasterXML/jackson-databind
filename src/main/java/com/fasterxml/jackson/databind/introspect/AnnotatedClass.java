@@ -824,8 +824,13 @@ public final class AnnotatedClass
 
     protected AnnotatedMethod _constructCreatorMethod(Method m)
     {
+        final int paramCount = m.getParameterTypes().length;
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(this, m, _emptyAnnotationMap(), _emptyAnnotationMaps(m.getParameterTypes().length));
+            return new AnnotatedMethod(this, m, _emptyAnnotationMap(), _emptyAnnotationMaps(paramCount));
+        }
+        if (paramCount == 0) { // common enough we can slightly optimize
+            return new AnnotatedMethod(this, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
+                    NO_ANNOTATION_MAPS);
         }
         return new AnnotatedMethod(this, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
                                    _collectRelevantAnnotations(m.getParameterAnnotations()));

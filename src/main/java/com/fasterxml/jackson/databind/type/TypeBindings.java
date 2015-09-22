@@ -139,7 +139,7 @@ public class TypeBindings
          *   (honestly not sure what to do -- they are unbound for good, I think)
          */
         if (_contextClass != null) {
-            if (ClassUtil.hasEnclosingClass(_contextClass)) {
+            if (ClassUtil.getEnclosingClass(_contextClass) != null) {
                 // [JACKSON-572]: Actually, let's skip this for all non-static inner classes
                 //   (which will also cover 'java.util' type cases...
                 if (!Modifier.isStatic(_contextClass.getModifiers())) {
@@ -318,7 +318,7 @@ public class TypeBindings
             return;
         }
         // but even if it's not a parameterized type, its super types may be:
-        _resolveBindings(raw.getGenericSuperclass());
+        _resolveBindings(ClassUtil.getGenericSuperclass(raw));
         for (Type intType : raw.getGenericInterfaces()) {
             _resolveBindings(intType);
         }

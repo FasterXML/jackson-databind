@@ -1263,7 +1263,7 @@ public final class TypeFactory
             return current;
         }
         // Otherwise, keep on going down the rat hole...
-        Type parent = raw.getGenericSuperclass();
+        Type parent = ClassUtil.getGenericSuperclass(raw);
         if (parent != null) {
             HierarchicType sup = _findSuperClassChain(parent, target);
             if (sup != null) {
@@ -1316,7 +1316,7 @@ public final class TypeFactory
             }
         }
         // and then super-class if any
-        Type parent = raw.getGenericSuperclass();
+        Type parent = ClassUtil.getGenericSuperclass(raw);
         if (parent != null) {
             HierarchicType sup = _findSuperInterfaceChain(parent, target);
             if (sup != null) {

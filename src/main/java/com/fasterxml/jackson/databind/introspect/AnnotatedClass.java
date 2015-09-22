@@ -561,7 +561,7 @@ public final class AnnotatedClass
         MemberKey[] methodKeys = null;
         int methodCount = _creatorMethods.size();
 
-        for (Method m : mixin.getDeclaredMethods()) {
+        for (Method m : ClassUtil.getDeclaredMethods(mixin)) {
             if (!Modifier.isStatic(m.getModifiers())) {
                 continue;
             }
@@ -642,7 +642,7 @@ public final class AnnotatedClass
         parents.add(mixInCls);
         ClassUtil.findSuperTypes(mixInCls, targetClass, parents);
         for (Class<?> mixin : parents) {
-            for (Method m : mixin.getDeclaredMethods()) {
+            for (Method m : ClassUtil.getDeclaredMethods(mixin)) {
                 if (!_isIncludableMemberMethod(m)) {
                     continue;
                 }
@@ -1042,12 +1042,12 @@ public final class AnnotatedClass
     protected Method[] _findClassMethods(Class<?> cls)
     {
         try {
-            return cls.getDeclaredMethods();
+            return ClassUtil.getDeclaredMethods(cls);
         } catch (final NoClassDefFoundError ex) {
             // One of the methods had a class that was not found in the cls.getClassLoader.
             // Maybe the developer was nice and has a different class loader for this context.
             final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            if(loader == null){
+            if (loader == null){
                 // Nope... this is going to end poorly
                 throw ex;
             }

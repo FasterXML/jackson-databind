@@ -304,6 +304,13 @@ public final class ClassUtil
     /**
      * @since 2.7
      */
+    public static Method[] getDeclaredMethods(Class<?> cls) {
+        return _getMetadata(cls).getDeclaredMethods();
+    }
+
+    /**
+     * @since 2.7
+     */
     public static Annotation[] findClassAnnotations(Class<?> cls) {
         return _getMetadata(cls).getDeclaredAnnotations();
     }
@@ -812,6 +819,7 @@ public final class ClassUtil
         private Annotation[] _annotations;
         private Ctor[] _constructors;
         private Field[] _fields;
+        private  Method[] _methods;
 
         public ClassMetadata(Class<?> forClass) {
             _forClass = forClass;
@@ -885,6 +893,15 @@ public final class ClassUtil
             return fields;
         }
 
+        public Method[] getDeclaredMethods() {
+            Method[] methods = _methods;
+            if (methods == null) {
+                methods = _forClass.getDeclaredMethods();
+                _methods = methods;
+            }
+            return methods;
+        }
+        
         private boolean isObjectOrPrimitive() {
             return (_forClass == CLS_OBJECT) || _forClass.isPrimitive();
         }

@@ -824,6 +824,24 @@ public abstract class AnnotationIntrospector
         return value.name();
     }
 
+    /**
+     * Method for efficiently figuring out which if given set of <code>Enum</code> values
+     * have explicitly defined name. Method will overwrite entries in incoming <code>names</code>
+     * array with explicit names found, if any, leaving other entries unmodified.
+     *<p>
+     * Default implementation will simply delegate to {@link #findEnumValue}, which is close
+     * enough, although unfortunately NOT 100% equivalent (as it will also consider <code>name()</code>
+     * to give explicit value).
+     *
+     * @since 2.7
+     */
+    public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+        for (int i = 0, len = enumValues.length; i < len; ++i) {
+            names[i] = findEnumValue(enumValues[i]);
+        }
+        return names;
+    }
+
     /*
     /**********************************************************
     /* Deserialization: general annotations

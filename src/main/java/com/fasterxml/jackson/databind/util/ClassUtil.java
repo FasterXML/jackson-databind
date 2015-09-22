@@ -257,8 +257,6 @@ public final class ClassUtil
      *   So let's do somewhat aggressive caching.
      */
 
-    private final static Constructor<?>[] NO_CTORS = new Constructor<?>[0];
-
     private final static LRUMap<Class<?>,ClassMetadata> sCached = new LRUMap<Class<?>,ClassMetadata>(48, 48);    
 
     /**
@@ -266,6 +264,13 @@ public final class ClassUtil
      */
     public static String getPackageName(Class<?> cls) {
         return _getMetadata(cls).getPackageName();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getDeclaringClass(Class<?> cls) {
+        return _getMetadata(cls).getDeclaringClass();
     }
 
     /**
@@ -287,6 +292,13 @@ public final class ClassUtil
      */
     public static boolean hasEnclosingMethod(Class<?> cls) {
         return _getMetadata(cls).hasEnclosingMethod();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Field[] getDeclaredFields(Class<?> cls) {
+        return _getMetadata(cls).getDeclaredFields();
     }
 
     /**
@@ -750,7 +762,7 @@ public final class ClassUtil
     	{
     	    Field found = null;
     	    // First: let's see if we can find exact match:
-    	    Field[] fields = fromClass.getDeclaredFields();
+    	    Field[] fields = getDeclaredFields(fromClass);
     	    for (Field f : fields) {
     	        if (expectedName.equals(f.getName()) && f.getType() == type) {
     	            found = f;
@@ -787,8 +799,14 @@ public final class ClassUtil
      */
     private final static class ClassMetadata
     {
+        private final static Class<?> CLS_OBJECT = Object.class;
+
+        private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
+        private final static Constructor<?>[] NO_CTORS = new Constructor<?>[0];
+
         private final Class<?> _forClass;
 
+        private Class<?> _declaringClass;
         private Class<?> _enclosingClass;
         private Boolean _hasEnclosingMethod;
         private String _packageName;
@@ -796,6 +814,7 @@ public final class ClassUtil
         private Class<?>[] _interfaces;
         private Annotation[] _annotations;
         private Constructor<?>[] _constructors;
+        private Field[] _fields;
 
         private final boolean _isInterface;
         
@@ -827,10 +846,26 @@ public final class ClassUtil
             return (name == "") ? null : name;
         }
 
+        public Class<?> getDeclaringClass() {
+            Class<?> decl = _declaringClass;
+            if (decl == null) {
+                decl =  isObjectOrPrimitive() ? null : _forClass.getDeclaringClass();
+                if (decl == null) {
+                    // Need marker to indicate "none", so:
+                    decl = _forClass;
+                }
+                _declaringClass = decl;
+            }
+            if (decl == _forClass) {
+                return null;
+            }
+            return decl;
+        }
+
         public Class<?> getEnclosingClass() {
             Class<?> enc = _enclosingClass;
             if (enc == null) {
-                enc = _forClass.getEnclosingClass();
+                enc = isObjectOrPrimitive() ? null : _forClass.getEnclosingClass();
                 if (enc == null) {
                     // Need marker to indicate "none", so:
                     enc = _forClass;
@@ -846,12 +881,12 @@ public final class ClassUtil
         public boolean hasEnclosingMethod() {
             Boolean b = _hasEnclosingMethod;
             if (b == null) {
-                b = _forClass.getEnclosingMethod() != null;
+                b = isObjectOrPrimitive() ? Boolean.FALSE : (_forClass.getEnclosingMethod() != null);
                 _hasEnclosingMethod = b;
             }
             return b.booleanValue();
         }
-        
+
         public Class<?>[] getInterfaces() {
             // 19-Sep-2015, tatu: Bit of performance improvement, after finding this
             //   in profile; maybe 5% in "wasteful" deserialization case
@@ -870,7 +905,7 @@ public final class ClassUtil
             
             Annotation[] result = _annotations;
             if (result == null) {
-                result = _forClass.getDeclaredAnnotations();
+                result = isObjectOrPrimitive() ? NO_ANNOTATIONS : _forClass.getDeclaredAnnotations();
                 _annotations = result;
             }
             return result;
@@ -883,7 +918,7 @@ public final class ClassUtil
             if (result == null) {
                 // Note: can NOT skip abstract classes as they may be used with mix-ins
                 // and for regular use shouldn't really matter.
-                if (_isInterface) {
+                if (_isInterface || isObjectOrPrimitive()) {
                     result = NO_CTORS;
                 } else {
                     result = _forClass.getDeclaredConstructors();
@@ -891,6 +926,19 @@ public final class ClassUtil
                 _constructors = result;
             }
             return result;
+        }
+
+        public Field[] getDeclaredFields() {
+            Field[] fields = _fields;
+            if (fields == null) {
+                fields = _forClass.getDeclaredFields();
+                _fields = fields;
+            }
+            return fields;
+        }
+
+        private boolean isObjectOrPrimitive() {
+            return (_forClass == CLS_OBJECT) || _forClass.isPrimitive();
         }
     }
 }

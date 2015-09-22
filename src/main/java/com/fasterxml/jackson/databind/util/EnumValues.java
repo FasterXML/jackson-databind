@@ -43,17 +43,22 @@ public final class EnumValues
     public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
         // Enum types with per-instance sub-classes need special handling
-        Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
-        Enum<?>[] values = cls.getEnumConstants();
-        if (values != null) {
-            SerializableString[] textual = new SerializableString[values.length];
-            for (Enum<?> en : values) {
-                String value = config.getAnnotationIntrospector().findEnumValue(en);
-                textual[en.ordinal()] = config.compileString(value);
-            }
-            return new EnumValues(enumClass, textual);
+        Class<? extends Enum<?>> enumCls = ClassUtil.findEnumType(enumClass);
+        Enum<?>[] enumValues = enumCls.getEnumConstants();
+        if (enumValues == null) {
+            throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
         }
-        throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
+        String[] names = config.getAnnotationIntrospector().findEnumValues(enumCls, enumValues, new String[enumValues.length]);
+        SerializableString[] textual = new SerializableString[enumValues.length];
+        for (int i = 0, len = enumValues.length; i < len; ++i) {
+            Enum<?> en = enumValues[i];
+            String name = names[i];
+            if (name == null) {
+                name = en.name();
+            }
+            textual[en.ordinal()] = config.compileString(name);
+        }
+        return new EnumValues(enumClass, textual);
     }
 
     public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)

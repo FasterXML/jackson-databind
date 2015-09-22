@@ -519,6 +519,14 @@ public class AnnotationIntrospectorPair
         return (r == null) ? _secondary.findEnumValue(value) : r;
     }        
 
+    @Override
+    public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+        // reverse order to give _primary higher precedence
+        names = _secondary.findEnumValues(enumType, enumValues, names);
+        names = _primary.findEnumValues(enumType, enumValues, names);
+        return names;
+    }
+    
     // // // Deserialization: general annotations
 
     @Override

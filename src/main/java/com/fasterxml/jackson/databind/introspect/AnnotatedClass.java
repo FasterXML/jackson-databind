@@ -689,7 +689,7 @@ public final class AnnotatedClass
              *    we otherwise get into trouble...
              */
             fields = _findFields(parent, fields);
-            for (Field f : c.getDeclaredFields()) {
+            for (Field f : ClassUtil.getDeclaredFields(c)) {
                 // static fields not included (transients are at this point, filtered out later)
                 if (!_isIncludableField(f)) {
                     continue;
@@ -727,7 +727,7 @@ public final class AnnotatedClass
         parents.add(mixInCls);
         ClassUtil.findSuperTypes(mixInCls, targetClass, parents);
         for (Class<?> mixin : parents) {
-            for (Field mixinField : mixin.getDeclaredFields()) {
+            for (Field mixinField : ClassUtil.getDeclaredFields(mixin)) {
                 // there are some dummy things (static, synthetic); better ignore
                 if (!_isIncludableField(mixinField)) {
                     continue;
@@ -768,19 +768,24 @@ public final class AnnotatedClass
         if (defaultCtor) {
             return new AnnotatedConstructor(this, ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), null);
         }
-        Annotation[][] paramAnns = ctor.getParameterAnnotations();
         int paramCount = ctor.getParameterTypes().length;
 
         /* [JACKSON-701]: Looks like JDK has discrepancy, whereas annotations for implicit 'this'
          * (for non-static inner classes) are NOT included, but type is? Strange, sounds like
          * a bug. Alas, we can't really fix that...
          */
+        if (paramCount == 0) { // no-arg default constructors, can simplify slightly
+            return new AnnotatedConstructor(this, ctor,
+                    _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), NO_ANNOTATION_MAPS);
+        }
         // Also: [JACKSON-757] (enum value constructors)
-        AnnotationMap[] resolvedAnnotations = null;
+        AnnotationMap[] resolvedAnnotations;
+        Annotation[][] paramAnns = ctor.getParameterAnnotations();
         if (paramCount != paramAnns.length) {
             // Limits of the work-around (to avoid hiding real errors):
             // first, only applicable for member classes and then either:
 
+            resolvedAnnotations = null;
             Class<?> dc = ctor.getDeclaringClass();
             // (a) is enum, which have two extra hidden params (name, index)
             if (dc.isEnum() && (paramCount == paramAnns.length + 2)) {

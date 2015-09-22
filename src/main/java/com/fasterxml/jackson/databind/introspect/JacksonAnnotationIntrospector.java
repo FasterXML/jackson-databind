@@ -112,6 +112,36 @@ public class JacksonAnnotationIntrospector
         return value.name();
     }
 
+    @Override
+    public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+        HashMap<String,String> expl = null;
+        for (Field f : ClassUtil.getDeclaredFields(enumType)) {
+            if (!f.isEnumConstant()) {
+                continue;
+            }
+            JsonProperty prop = f.getAnnotation(JsonProperty.class);
+            if (prop == null) {
+                continue;
+            }
+            String n = prop.value();
+            if (n.isEmpty()) {
+                continue;
+            }
+            if (expl == null) {
+                expl = new HashMap<String,String>();
+            }
+            expl.put(f.getName(), n);
+        }
+        // and then stitch them together if and as necessary
+        if (expl != null) {
+            for (int i = 0, end = enumValues.length; i < end; ++i) {
+                String defName = enumValues[i].name();
+                names[i] = expl.get(defName);
+            }
+        }
+        return names;
+    }
+
     /*
     /**********************************************************
     /* General class annotations

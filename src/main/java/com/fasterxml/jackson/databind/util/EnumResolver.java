@@ -36,9 +36,14 @@ public class EnumResolver implements java.io.Serializable
         if (enumValues == null) {
             throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
         }
+        String[] names = ai.findEnumValues(enumCls, enumValues, new String[enumValues.length]);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
-        for (Enum<?> e : enumValues) {
-            map.put(ai.findEnumValue(e), e);
+        for (int i = 0, len = enumValues.length; i < len; ++i) {
+            String name = names[i];
+            if (name == null) {
+                name = enumValues[i].name();
+            }
+            map.put(name, enumValues[i]);
         }
         return new EnumResolver(enumCls, enumValues, map);
     }

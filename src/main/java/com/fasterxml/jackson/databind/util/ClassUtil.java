@@ -311,7 +311,7 @@ public final class ClassUtil
     /**
      * @since 2.7
      */
-    public static Constructor<?>[] findConstructors(Class<?> cls) {
+    public static Ctor[] getConstructors(Class<?> cls) {
         return _getMetadata(cls).getConstructors();
     }
 
@@ -790,7 +790,7 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Helper class for caching
+    /* Helper classed used for caching
     /**********************************************************
      */
 
@@ -802,36 +802,20 @@ public final class ClassUtil
         private final static Class<?> CLS_OBJECT = Object.class;
 
         private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
-        private final static Constructor<?>[] NO_CTORS = new Constructor<?>[0];
+        private final static Ctor[] NO_CTORS = new Ctor[0];
 
         private final Class<?> _forClass;
 
-        private Class<?> _declaringClass;
-        private Class<?> _enclosingClass;
-        private Boolean _hasEnclosingMethod;
         private String _packageName;
 
         private Class<?>[] _interfaces;
         private Annotation[] _annotations;
-        private Constructor<?>[] _constructors;
+        private Ctor[] _constructors;
         private Field[] _fields;
 
-        private final boolean _isInterface;
-        
         public ClassMetadata(Class<?> forClass) {
             _forClass = forClass;
-            _isInterface = forClass.isInterface();
         }
-
-        /*
-        public Class<?> getSuperclass() {
-            return _isInterface ? null : _forClass.getSuperclass();
-        }
-
-        public boolean isInteface() {
-            return _isInterface;
-        }
-        */
 
         public String getPackageName() {
             String name = _packageName;
@@ -844,47 +828,6 @@ public final class ClassUtil
                 _packageName = name;
             }
             return (name == "") ? null : name;
-        }
-
-        public Class<?> getDeclaringClass() {
-            Class<?> decl = _declaringClass;
-            if (decl == null) {
-                decl =  isObjectOrPrimitive() ? null : _forClass.getDeclaringClass();
-                if (decl == null) {
-                    // Need marker to indicate "none", so:
-                    decl = _forClass;
-                }
-                _declaringClass = decl;
-            }
-            if (decl == _forClass) {
-                return null;
-            }
-            return decl;
-        }
-
-        public Class<?> getEnclosingClass() {
-            Class<?> enc = _enclosingClass;
-            if (enc == null) {
-                enc = isObjectOrPrimitive() ? null : _forClass.getEnclosingClass();
-                if (enc == null) {
-                    // Need marker to indicate "none", so:
-                    enc = _forClass;
-                }
-                _enclosingClass = enc;
-            }
-            if (enc == _forClass) {
-                return null;
-            }
-            return enc;
-        }
-
-        public boolean hasEnclosingMethod() {
-            Boolean b = _hasEnclosingMethod;
-            if (b == null) {
-                b = isObjectOrPrimitive() ? Boolean.FALSE : (_forClass.getEnclosingMethod() != null);
-                _hasEnclosingMethod = b;
-            }
-            return b.booleanValue();
         }
 
         public Class<?>[] getInterfaces() {
@@ -911,17 +854,22 @@ public final class ClassUtil
             return result;
         }
 
-        public Constructor<?>[] getConstructors() {
+        public Ctor[] getConstructors() {
             // 19-Sep-2015, tatu: Some performance improvement, after finding this
             //   in profile; maybe 8-10% in "wasteful" deserialization case
-            Constructor<?>[] result = _constructors;
+            Ctor[] result = _constructors;
             if (result == null) {
                 // Note: can NOT skip abstract classes as they may be used with mix-ins
                 // and for regular use shouldn't really matter.
-                if (_isInterface || isObjectOrPrimitive()) {
+                if (_forClass.isInterface() || isObjectOrPrimitive()) {
                     result = NO_CTORS;
                 } else {
-                    result = _forClass.getDeclaredConstructors();
+                    Constructor<?>[] rawCtors = _forClass.getDeclaredConstructors();
+                    final int len = rawCtors.length;
+                    result = new Ctor[len];
+                    for (int i = 0; i < len; ++i) {
+                        result[i] = new Ctor(rawCtors[i]);
+                    }
                 }
                 _constructors = result;
             }
@@ -939,6 +887,83 @@ public final class ClassUtil
 
         private boolean isObjectOrPrimitive() {
             return (_forClass == CLS_OBJECT) || _forClass.isPrimitive();
+        }
+
+        /* And then we have a bunch of accessors that did show up in profiling
+         * of "wasteful" cases, but for which caching did not yield non-trivial
+         * improvements (for tests, at most 1% improvement)
+         */
+        
+        // Caching does not seem worthwhile, as per profiling
+        public Class<?> getDeclaringClass() {
+            return isObjectOrPrimitive() ? null : _forClass.getDeclaringClass();
+        }
+
+        // Caching does not seem worthwhile, as per profiling
+        public Class<?> getEnclosingClass() {
+            return isObjectOrPrimitive() ? null : _forClass.getEnclosingClass();
+        }
+
+        // Caching does not seem worthwhile, as per profiling
+        public boolean hasEnclosingMethod() {
+            return isObjectOrPrimitive() ?false : (_forClass.getEnclosingMethod() != null);
+        }
+
+    }
+
+    /**
+     * Value class used for caching Constructor declarations; used because
+     * caching done by JDK appears to be somewhat inefficient for some use cases.
+     *
+     * @since 2.7
+     */
+    public final static class Ctor
+    {
+        public final Constructor<?> _ctor;
+
+        private Annotation[] _annotations;
+
+        private  Annotation[][] _paramAnnotations;
+        
+        private int _paramCount = -1;
+        
+        public Ctor(Constructor<?> ctor) {
+            _ctor = ctor;
+        }
+
+        public Constructor<?> getConstructor() {
+            return _ctor;
+        }
+
+        public int getParamCount() {
+            int c = _paramCount;
+            if (c < 0) {
+                c = _ctor.getParameterTypes().length;
+                _paramCount = c;
+            }
+            return c;
+        }
+
+        public Class<?> getDeclaringClass() {
+            return _ctor.getDeclaringClass();
+        }
+
+        public Annotation[] getDeclaredAnnotations() {
+            Annotation[] result = _annotations;
+            if (result == null) {
+                result = _ctor.getDeclaredAnnotations();
+                _annotations = result;
+            }
+            return result;
+        }
+
+        public  Annotation[][] getParameterAnnotations() {
+            Annotation[][] result = _paramAnnotations;
+            if (result == null) {
+                result = _ctor.getParameterAnnotations();
+                _paramAnnotations = result;
+            }
+            return result;
         }
     }
 }

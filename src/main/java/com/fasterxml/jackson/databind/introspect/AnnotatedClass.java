@@ -336,15 +336,15 @@ public final class AnnotatedClass
     {
         // Then see which constructors we have
         List<AnnotatedConstructor> constructors = null;
-        Constructor<?>[] declaredCtors = ClassUtil.findConstructors(_class);
-        for (Constructor<?> ctor : declaredCtors) {
-            if (ctor.getParameterTypes().length == 0) {
-                _defaultConstructor = _constructConstructor(ctor, true);
+        ClassUtil.Ctor[] declaredCtors = ClassUtil.getConstructors(_class);
+        for (ClassUtil.Ctor ctor : declaredCtors) {
+            if (ctor.getParamCount() == 0) {
+                _defaultConstructor = _constructDefaultConstructor(ctor);
             } else {
                 if (constructors == null) {
                     constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
                 }
-                constructors.add(_constructConstructor(ctor, false));
+                constructors.add(_constructNonDefaultConstructor(ctor));
             }
         }
         if (constructors == null) {
@@ -530,7 +530,8 @@ public final class AnnotatedClass
     {
         MemberKey[] ctorKeys = null;
         int ctorCount = (_constructors == null) ? 0 : _constructors.size();
-        for (Constructor<?> ctor : ClassUtil.findConstructors(mixin)) {
+        for (ClassUtil.Ctor ctor0 : ClassUtil.getConstructors(mixin)) {
+            Constructor<?> ctor = ctor0.getConstructor();
             if (ctor.getParameterTypes().length == 0) {
                 if (_defaultConstructor != null) {
                     _addMixOvers(ctor, _defaultConstructor, false);
@@ -760,22 +761,29 @@ public final class AnnotatedClass
         return new AnnotatedMethod(this, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()), null);
     }
 
-    protected AnnotatedConstructor _constructConstructor(Constructor<?> ctor, boolean defaultCtor)
+    protected AnnotatedConstructor _constructDefaultConstructor(ClassUtil.Ctor ctor)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedConstructor(this, ctor, _emptyAnnotationMap(), _emptyAnnotationMaps(ctor.getParameterTypes().length));
+            return new AnnotatedConstructor(this, ctor.getConstructor(), _emptyAnnotationMap(), NO_ANNOTATION_MAPS);
         }
-        if (defaultCtor) {
-            return new AnnotatedConstructor(this, ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), null);
+        return new AnnotatedConstructor(this, ctor.getConstructor(),
+                _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), NO_ANNOTATION_MAPS);
+    }
+
+    protected AnnotatedConstructor _constructNonDefaultConstructor(ClassUtil.Ctor ctor)
+    {
+        final int paramCount = ctor.getParamCount();
+        if (_annotationIntrospector == null) { // when annotation processing is disabled
+            return new AnnotatedConstructor(this, ctor.getConstructor(),
+                    _emptyAnnotationMap(), _emptyAnnotationMaps(paramCount));
         }
-        int paramCount = ctor.getParameterTypes().length;
 
         /* [JACKSON-701]: Looks like JDK has discrepancy, whereas annotations for implicit 'this'
          * (for non-static inner classes) are NOT included, but type is? Strange, sounds like
          * a bug. Alas, we can't really fix that...
          */
         if (paramCount == 0) { // no-arg default constructors, can simplify slightly
-            return new AnnotatedConstructor(this, ctor,
+            return new AnnotatedConstructor(this, ctor.getConstructor(),
                     _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), NO_ANNOTATION_MAPS);
         }
         // Also: [JACKSON-757] (enum value constructors)
@@ -810,7 +818,7 @@ public final class AnnotatedClass
         } else {
             resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
         }
-        return new AnnotatedConstructor(this, ctor,
+        return new AnnotatedConstructor(this, ctor.getConstructor(),
                 _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), resolvedAnnotations);
     }
 

@@ -124,6 +124,8 @@ public class BeanDeserializer
             if (_vanillaProcessing) {
                 return vanillaDeserialize(p, ctxt, p.nextToken());
             }
+            // 23-Sep-2015, tatu: This is wrong at some many levels, but for now... it is
+            //    what it is, including "expected behavior".
             p.nextToken();
             if (_objectIdReader != null) {
                 return deserializeWithObjectId(p, ctxt);

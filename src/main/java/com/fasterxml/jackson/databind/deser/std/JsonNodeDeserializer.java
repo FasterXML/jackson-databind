@@ -92,14 +92,15 @@ public class JsonNodeDeserializer
         public static ObjectDeserializer getInstance() { return _instance; }
         
         @Override
-        public ObjectNode deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            if (jp.getCurrentToken() == JsonToken.START_OBJECT) {
-                jp.nextToken();
-                return deserializeObject(jp, ctxt, ctxt.getNodeFactory());
+            if (p.isExpectedStartObjectToken() || p.hasToken(JsonToken.FIELD_NAME)) {
+                return deserializeObject(p, ctxt, ctxt.getNodeFactory());
             }
-            if (jp.getCurrentToken() == JsonToken.FIELD_NAME) {
-                return deserializeObject(jp, ctxt, ctxt.getNodeFactory());
+            // 23-Sep-2015, tatu: Ugh. We may also be given END_OBJECT (similar to FIELD_NAME),
+            //    if caller has advanced to the first token of Object, but for empty Object
+            if (p.hasToken(JsonToken.END_OBJECT)) {
+                return ctxt.getNodeFactory().objectNode();
             }
             throw ctxt.mappingException(ObjectNode.class);
          }
@@ -117,11 +118,10 @@ public class JsonNodeDeserializer
         public static ArrayDeserializer getInstance() { return _instance; }
         
         @Override
-        public ArrayNode deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            if (jp.isExpectedStartArrayToken()) {
-                return deserializeArray(jp, ctxt, ctxt.getNodeFactory());
+            if (p.isExpectedStartArrayToken()) {
+                return deserializeArray(p, ctxt, ctxt.getNodeFactory());
             }
             throw ctxt.mappingException(ArrayNode.class);
         }

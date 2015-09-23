@@ -47,11 +47,12 @@ public class RecursiveType938Test extends BaseMapTest
         assertNotNull(t);
         assertEquals(ImmutablePair.class, t.getRawClass());
 
-        /*
         List<ImmutablePair<String, Double>> list = new ArrayList<ImmutablePair<String, Double>>();
         list.add(ImmutablePair.of("Hello World!", 123d));
         String json = MAPPER.writeValueAsString(list);
+
         assertNotNull(json);
-        */
+
+        // can not deserialize with current definition, however
     }
 }

@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.6.3 (not yet released)
 
-#938: Regression: StackOverflowError with with 2.6.x (2.5.4 works fine)
+#938: Regression: `StackOverflowError` with recursive types that contain `Map.Entry`
  (reported by jloisel@github)
 
 2.6.2 (14-Sep-2015)

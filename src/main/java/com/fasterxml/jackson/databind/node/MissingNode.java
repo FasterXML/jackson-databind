@@ -95,4 +95,9 @@ public final class MissingNode
         // toString() should never return null
         return "";
     }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
 }

@@ -53,4 +53,9 @@ public final class NullNode
     {
         return (o == this);
     }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
 }

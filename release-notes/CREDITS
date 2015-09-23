@@ -318,6 +318,11 @@ Daniel Walker (dsw2127@github)
    `MappingJsonFactory` features
    (2.6.2)
 
+Sadayuki Furuhashi (frsyuki@github)
+  * Reported #941: Deserialization from "{}" to ObjectNode field causes
+    "out of END_OBJECT token" error
+   (2.6.3)
+
 David Haraburda (dharaburda@github)
   * Contributed #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
    (2.7.0)

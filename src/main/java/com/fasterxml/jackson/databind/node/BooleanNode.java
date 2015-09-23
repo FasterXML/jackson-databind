@@ -78,6 +78,11 @@ public class BooleanNode
     }
 
     @Override
+    public int hashCode() {
+        return Boolean.valueOf(_value).hashCode();
+    }
+
+    @Override
     public boolean equals(Object o)
     {
         /* 11-Mar-2013, tatu: Apparently ClassLoaders can manage to load

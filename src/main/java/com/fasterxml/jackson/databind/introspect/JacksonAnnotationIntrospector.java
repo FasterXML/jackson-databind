@@ -67,6 +67,10 @@ public class JacksonAnnotationIntrospector
      */
     @Override
     public boolean isAnnotationBundle(Annotation ann) {
+        // 22-Sep-2015, tatu: Caching here has modest effect on JavaSE, and only
+        //   mostly in degenerate cases where introspection used more often than
+        //   it should (like recreating ObjectMapper once per read/write).
+        //   But it may be more beneficial on platforms like Android (should verify)
         Class<?> type = ann.annotationType();
         Boolean b = _annotationsInside.get(type);
         if (b == null) {

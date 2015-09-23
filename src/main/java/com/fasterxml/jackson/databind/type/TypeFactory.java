@@ -179,7 +179,7 @@ public final class TypeFactory
      * Getters
      */
     public ClassLoader getClassLoader() {
-    	return _classLoader;
+        return _classLoader;
     }
     
     /*

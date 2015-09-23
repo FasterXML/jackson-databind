@@ -820,8 +820,6 @@ public final class ClassUtil
      */
     private final static class ClassMetadata
     {
-        private final static Class<?> CLS_OBJECT = Object.class;
-
         private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
         private final static Ctor[] NO_CTORS = new Ctor[0];
 

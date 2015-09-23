@@ -224,22 +224,27 @@ public class BeanUtil
         if (end == offset) { // empty name, nope
             return null;
         }
-        // otherwise, lower case initial chars
-        StringBuilder sb = null;
-        for (int i = offset; i < end; ++i) {
-            char upper = basename.charAt(i);
-            char lower = Character.toLowerCase(upper);
-            if (upper == lower) {
+        // next check: is the first character upper case? If not, return as is
+        char c = basename.charAt(offset);
+        char d = Character.toLowerCase(c);
+        
+        if (c == d) {
+            return basename.substring(offset);
+        }
+        // otherwise, lower case initial chars. Common case first, just one char
+        StringBuilder sb = new StringBuilder(end - offset);
+        sb.append(d);
+        int i = offset+1;
+        for (; i < end; ++i) {
+            c = basename.charAt(i);
+            d = Character.toLowerCase(c);
+            if (c == d) {
+                sb.append(basename, i, end);
                 break;
             }
-            if (sb == null) {
-                int l = end-offset;
-                sb = new StringBuilder(l);
-                sb.append(basename, offset, end);
-            }
-            sb.setCharAt(i-offset, lower);
+            sb.append(d);
         }
-        return (sb == null) ? basename.substring(offset) : sb.toString();
+        return sb.toString();
     }
 
     /**

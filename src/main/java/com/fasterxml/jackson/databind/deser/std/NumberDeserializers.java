@@ -178,7 +178,7 @@ public class NumberDeserializers
             return _parseBoolean(j, ctxt);
         }
 
-        // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
+        // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
         // (is it an error to even call this version?)
         @Override
         public Boolean deserializeWithType(JsonParser p, DeserializationContext ctxt,
@@ -309,7 +309,7 @@ public class NumberDeserializers
             return _parseInteger(p, ctxt);
         }
 
-        // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
+        // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
         // (is it an error to even call this version?)
         @Override
         public Integer deserializeWithType(JsonParser p, DeserializationContext ctxt,
@@ -386,7 +386,7 @@ public class NumberDeserializers
             return _parseDouble(jp, ctxt);
         }
 
-        // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
+        // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
         // (is it an error to even call this version?)
         @Override
         public Double deserializeWithType(JsonParser jp, DeserializationContext ctxt,
@@ -400,7 +400,7 @@ public class NumberDeserializers
      * For type <code>Number.class</code>, we can just rely on type
      * mappings that plain {@link JsonParser#getNumberValue} returns.
      *<p>
-     * Since 1.5, there is one additional complication: some numeric
+     * There is one additional complication: some numeric
      * types (specifically, int/Integer and double/Double) are "non-typed";
      * meaning that they will NEVER be output with type information.
      * But other numeric types may need such type information.

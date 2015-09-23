@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Implementation of {@link Iterator} for Empty collections.
- * While JDK has an implementation starting with 1.7, we need this
+ * While JDK has an implementation starting with JDK 1.7 / Java 7, we need this
  * class until then.
  * 
  * @since 2.2 (before, we had embedded instances)

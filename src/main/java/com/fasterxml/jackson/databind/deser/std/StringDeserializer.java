@@ -62,7 +62,7 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
         throw ctxt.mappingException(_valueClass, curr);
     }
 
-    // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
+    // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
     // (is it an error to even call this version?)
     @Override
     public String deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {

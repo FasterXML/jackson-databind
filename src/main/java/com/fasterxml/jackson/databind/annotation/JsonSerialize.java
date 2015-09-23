@@ -222,8 +222,7 @@ public @interface JsonSerialize
          * <li>For Java arrays, empty arrays are ones with length of 0
          *   </li>
          * <li>For Java {@link java.lang.String}s, <code>length()</code> is called,
-         *   and return value of 0 indicates empty String (note that <code>String.isEmpty()</code>
-         *   was added in Java 1.6 and as such can not be used by Jackson
+         *   and return value of 0 indicates empty String
          *   </li>
          * </ul>
          *  For other types, non-null values are to be included.

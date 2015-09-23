@@ -80,15 +80,15 @@ public abstract class BasicDeserializerFactory
         _collectionFallbacks.put(SortedSet.class.getName(), TreeSet.class);
         _collectionFallbacks.put(Queue.class.getName(), LinkedList.class);
 
-        // then 1.6 types:
-        /* 17-May-2013, tatu: [Issue#216] Should be fine to use straight Class references EXCEPT
-         *   that some godforsaken platforms (... looking at you, Android) do not
+        // then JDK 1.6 types:
+        /* 17-May-2013, tatu: [databind#216] Should be fine to use straight Class references EXCEPT
+         *   that some god-forsaken platforms (... looking at you, Android) do not
          *   include these. So, use "soft" references...
          */
         _collectionFallbacks.put("java.util.Deque", LinkedList.class);
         _collectionFallbacks.put("java.util.NavigableSet", TreeSet.class);
     }
-    
+
     /*
     /**********************************************************
     /* Config
@@ -100,7 +100,7 @@ public abstract class BasicDeserializerFactory
      * factory), new version created via copy-constructor (fluent-style)
      */
     protected final DeserializerFactoryConfig _factoryConfig;
-    
+
     /*
     /**********************************************************
     /* Life cycle

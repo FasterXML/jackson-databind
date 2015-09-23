@@ -1068,8 +1068,8 @@ public final class AnnotatedClass
             try {
                 contextClass = loader.loadClass(cls.getName());
             } catch (ClassNotFoundException e) {
-                // !!! TODO: 08-May-2015, tatu: Chain appropriately once we have JDK7 as baseline
-                //ex.addSuppressed(e); Not until 1.7
+                // !!! TODO: 08-May-2015, tatu: Chain appropriately once we have JDK 1.7/Java7 as baseline
+                //ex.addSuppressed(e); Not until Jackson 2.7
                throw ex;
             }
             return contextClass.getDeclaredMethods(); // Cross fingers

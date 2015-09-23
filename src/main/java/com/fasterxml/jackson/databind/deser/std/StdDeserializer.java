@@ -808,10 +808,9 @@ public abstract class StdDeserializer<T>
      */
     protected final static double parseDouble(String numStr) throws NumberFormatException
     {
-        // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
-        // for now, MIN_VALUE, since MIN_NORMAL is JDK 1.6
+        // avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
         if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {
-            return Double.MIN_VALUE;
+            return Double.MIN_NORMAL; // since 2.7; was MIN_VALUE prior
         }
         return Double.parseDouble(numStr);
     }
@@ -937,7 +936,7 @@ public abstract class StdDeserializer<T>
      * 
      * @param type Type of property to deserialize
      * @param property Actual property object (field, method, constuctor parameter) used
-     *     for passing deserialized values; provided so deserializer can be contextualized if necessary (since 1.7)
+     *     for passing deserialized values; provided so deserializer can be contextualized if necessary
      */
     protected JsonDeserializer<Object> findDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)

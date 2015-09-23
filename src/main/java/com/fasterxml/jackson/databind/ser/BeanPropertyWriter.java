@@ -326,7 +326,7 @@ public class BeanPropertyWriter extends PropertyWriter
 
         _serializer = base._serializer;
         _nullSerializer = base._nullSerializer;
-        // one more thing: copy internal settings, if any (since 1.7)
+        // one more thing: copy internal settings, if any
         if (base._internalSettings != null) {
             _internalSettings = new HashMap<Object,Object>(base._internalSettings);
         }

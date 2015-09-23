@@ -116,7 +116,7 @@ public class BeanDeserializerFactory
          * (defaulting, materialization)
          */
         if (type.isAbstract()) {
-            // [JACKSON-41] (v1.6): Let's make it possible to materialize abstract types.
+            // Let's make it possible to materialize abstract types.
             JavaType concreteType = materializeAbstractType(ctxt, type, beanDesc);
             if (concreteType != null) {
                 /* important: introspect actual implementation (abstract class or

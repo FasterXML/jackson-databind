@@ -18,7 +18,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
 {
     private static final long serialVersionUID = 1;
 
-    /* 1.6.1+ To make 2 main "optional" handler groups (javax.xml.stream)
+    /* To make 2 main "optional" handler groups (javax.xml.stream)
      * more dynamic, we better only figure out handlers completely dynamically, if and
      * when they are needed. To do this we need to assume package prefixes.
      */

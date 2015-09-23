@@ -111,7 +111,7 @@ public abstract class AnnotationIntrospector
 
     /*
     /**********************************************************
-    /* Access to possibly chained introspectors (1.7)
+    /* Access to possibly chained introspectors
     /**********************************************************
      */
 

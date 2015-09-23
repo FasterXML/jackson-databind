@@ -55,13 +55,11 @@ public final class CollectionType
         return new CollectionType(rawType, elemT, null, null, false);
     }
 
-    // Since 1.7:
     @Override
     public CollectionType withTypeHandler(Object h) {
         return new CollectionType(_class, _elementType, _valueHandler, h, _asStatic);
     }
 
-    // Since 1.7:
     @Override
     public CollectionType withContentTypeHandler(Object h)
     {

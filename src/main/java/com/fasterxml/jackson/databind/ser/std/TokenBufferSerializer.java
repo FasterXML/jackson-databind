@@ -28,7 +28,7 @@ public class TokenBufferSerializer
 
     @Override
     public void serialize(TokenBuffer value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+            throws IOException
     {
         value.serialize(jgen);
     }
@@ -39,16 +39,13 @@ public class TokenBufferSerializer
      * we do know when serializing, but not necessarily when deserializing!)
      * One possibility would be to check the current token, and use that to
      * determine if we would output JSON Array, Object or scalar value.
-     * Jackson 1.5 did NOT include any type information; but this seems wrong,
-     * and so 1.6 WILL include type information.
      *<p>
      * Note that we just claim it is scalar; this should work ok and is simpler
      * than doing introspection on both serialization and deserialization.
      */
     @Override
     public final void serializeWithType(TokenBuffer value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+            TypeSerializer typeSer) throws IOException
     {
         typeSer.writeTypePrefixForScalar(value, jgen);
         serialize(value, jgen, provider);
@@ -58,10 +55,8 @@ public class TokenBufferSerializer
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
-        /* 01-Jan-2010, tatu: Not 100% sure what we should say here:
-         *   type is basically not known. This seems closest
-         *   approximation
-         */
+        // Not 100% sure what we should say here: type is basically not known.
+        // This seems like closest approximation
         return createSchemaNode("any", true);
     }
     
@@ -69,10 +64,8 @@ public class TokenBufferSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        /* 01-Jan-2010, tatu: Not 100% sure what we should say here:
-         *   type is basically not known. This seems closest
-         *   approximation
-         */
+        // Not 100% sure what we should say here: type is basically not known.
+        // This seems like closest approximation
         visitor.expectAnyFormat(typeHint);
     }
 }    

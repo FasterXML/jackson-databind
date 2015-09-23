@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.3 (not yet released)
+
+#938: Regression: StackOverflowError with with 2.6.x (2.5.4 works fine)
+ (reported by jloisel@github)
+
 2.6.2 (14-Sep-2015)
 
 #894: When using withFactory on ObjectMapper, the created Factory has a TypeParser

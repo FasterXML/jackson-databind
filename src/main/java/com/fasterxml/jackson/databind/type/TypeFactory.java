@@ -369,6 +369,24 @@ public final class TypeFactory
         return findTypeParameters(raw, expType, new TypeBindings(this, type));
     }
 
+    /**
+     * @since 2.7
+     */
+    public JavaType[] findTypeParameters(JavaType type, Class<?> expType, TypeBindings bindings)
+    {
+        if (expType == type.getParameterSource()) {
+            int count = type.containedTypeCount();
+            if (count == 0) return null;
+            JavaType[] result = new JavaType[count];
+            for (int i = 0; i < count; ++i) {
+                result[i] = type.containedType(i);
+            }
+            return result;
+        }
+        Class<?> raw = type.getRawClass();
+        return findTypeParameters(raw, expType, bindings);
+    }
+
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
         return findTypeParameters(clz, expType, new TypeBindings(this, clz));
     }
@@ -989,6 +1007,8 @@ public final class TypeFactory
         if (Map.class.isAssignableFrom(rawType)) {
             // 19-Mar-2015, tatu: Looks like 2nd arg ought to be Map.class, but that causes fails
             JavaType subtype = constructSimpleType(rawType, rawType, pt);
+            // 23-Sep-2015, tatu: and why do we not pass 3rd arg of 'context'? Won't help, it seems,
+            //   plus causes other issues. Sigh.
             JavaType[] mapParams = findTypeParameters(subtype, Map.class);
             if (mapParams.length != 2) {
                 throw new IllegalArgumentException("Could not find 2 type parameters for Map class "+rawType.getName()+" (found "+mapParams.length+")");
@@ -1013,8 +1033,9 @@ public final class TypeFactory
                     rt = pt[0];
                 }
             } else {
-                JavaType[] pts = findTypeParameters(rawType, AtomicReference.class);
-                if (pts != null && pts.length != 1) {
+                JavaType subtype = constructSimpleType(rawType, rawType, pt);
+                JavaType[] pts = findTypeParameters(subtype, AtomicReference.class, context);
+                if (pts != null && pts.length == 1) {
                     rt = pts[0];
                 }
             }
@@ -1029,8 +1050,11 @@ public final class TypeFactory
                     vt = pt[1];
                 }
             } else {
-                JavaType[] pts = findTypeParameters(rawType, Map.Entry.class);
-                if (pts != null && pts.length != 2) {
+                // 23-Sep-2015, tatu: Must be careful here; type resolution can NOT be done
+                //    directly quite yet. Instead, need to do indirectly...
+                JavaType subtype = constructSimpleType(rawType, rawType, pt);
+                JavaType[] pts = findTypeParameters(subtype, Map.Entry.class, context);
+                if (pts != null && pts.length == 2) {
                     kt = pts[0];
                     vt = pts[1];
                 }

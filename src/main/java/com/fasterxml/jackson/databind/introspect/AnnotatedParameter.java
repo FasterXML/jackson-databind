@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Member;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -84,16 +81,6 @@ public final class AnnotatedParameter
      */
     @Override
     public String getName() { return ""; }
-
-    /**
-     * Accessor for annotations; all annotations associated with parameters
-     * are properly passed and accessible.
-     */
-    @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls)
-    {
-        return (_annotations == null) ? null : _annotations.get(acls);
-    }
 
     @Override
     public Type getGenericType() {

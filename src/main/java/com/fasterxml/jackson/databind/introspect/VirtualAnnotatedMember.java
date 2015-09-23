@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 
 /**
@@ -54,11 +53,6 @@ public class VirtualAnnotatedMember extends AnnotatedMember
 
     @Override
     public String getName() { return _name; }
-
-    @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return null;
-    }
 
     @Override
     public Type getGenericType() {

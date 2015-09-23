@@ -1,10 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -72,11 +68,6 @@ public final class AnnotatedField
 
     @Override
     public String getName() { return _field.getName(); }
-
-    @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return (_annotations == null) ? null : _annotations.get(acls);
-    }
 
     @Override
     public Type getGenericType() {

@@ -178,6 +178,14 @@ public final class AnnotatedClass
     }
 
     @Override
+    public boolean hasAnnotation(Class<?> acls) {
+        if (_classAnnotations == null) {
+            resolveClassAnnotations();
+        }
+        return _classAnnotations.has(acls);
+    }
+    
+    @Override
     public Type getGenericType() {
         return _class;
     }

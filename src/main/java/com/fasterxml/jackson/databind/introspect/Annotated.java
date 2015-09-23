@@ -19,10 +19,8 @@ public abstract class Annotated
     
     public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
 
-    public final <A extends Annotation> boolean hasAnnotation(Class<A> acls) {
-        return getAnnotation(acls) != null;
-    }
-    
+    public abstract boolean hasAnnotation(Class<?> acls);
+
     /**
      * Fluent factory method that will construct a new instance that uses specified
      * instance annotations instead of currently configured ones.

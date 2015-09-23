@@ -82,7 +82,23 @@ public abstract class AnnotatedMember
     public AnnotatedClass getContextClass() {
         return _context;
     }
-    
+
+    @Override
+    public final <A extends Annotation> A getAnnotation(Class<A> acls) {
+        if (_annotations == null) {
+            return null;
+        }
+        return _annotations.get(acls);
+    }
+
+    @Override
+    public final boolean hasAnnotation(Class<?> acls) {
+        if (_annotations == null) {
+            return false;
+        }
+        return _annotations.has(acls);
+    }
+
     @Override
     public Iterable<Annotation> annotations() {
         if (_annotations == null) {

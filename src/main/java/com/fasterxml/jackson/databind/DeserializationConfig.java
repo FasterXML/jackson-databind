@@ -717,14 +717,13 @@ public final class DeserializationConfig
      */
     public void initialize(JsonParser p) {
         if (_parserFeaturesToChange != 0) {
-            int orig = p.getFeatureMask();
-            int newFlags = (orig & ~_parserFeaturesToChange) | _parserFeatures;
-            if (orig != newFlags) {
-                p.setFeatureMask(newFlags);
-            }
+            p.overrideStdFeatures(_parserFeatures, _parserFeaturesToChange);
+        }
+        if (_formatReadFeaturesToChange != 0) {
+            p.overrideFormatFeatures(_formatReadFeatures, _formatReadFeaturesToChange);
         }
     }
-    
+
     /*
     /**********************************************************
     /* MapperConfig implementation

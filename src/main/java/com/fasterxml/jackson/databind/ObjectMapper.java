@@ -3770,9 +3770,8 @@ public class ObjectMapper
             // and then we must get something...
             t = p.nextToken();
             if (t == null) {
-                /* [JACKSON-546] Throw mapping exception, since it's failure to map,
-                 *   not an actual parsing problem
-                 */
+                // Throw mapping exception, since it's failure to map,
+                //   not an actual parsing problem
                 throw JsonMappingException.from(p, "No content to map due to end-of-input");
             }
         }

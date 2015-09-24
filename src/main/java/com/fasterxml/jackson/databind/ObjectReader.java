@@ -477,10 +477,63 @@ public class ObjectReader
 
     /*
     /**********************************************************
+    /* Life-cycle, fluent factory methods for FormatFeature (2.7)
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature enabled.
+     *
+     * @since 2.7
+     */
+    public ObjectReader with(FormatFeature feature) {
+        return _with(_config.with(feature));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features enabled.
+     *
+     * @since 2.7
+     */
+    public ObjectReader withFeatures(FormatFeature... features) {
+        return _with(_config.withFeatures(features));
+    }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature disabled.
+     *
+     * @since 2.7
+     */
+    public ObjectReader without(FormatFeature feature) {
+        return _with(_config.without(feature)); 
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features disabled.
+     *
+     * @since 2.7
+     */
+    public ObjectReader withoutFeatures(FormatFeature... features) {
+        return _with(_config.withoutFeatures(features));
+    }
+    
+    /*
+    /**********************************************************
     /* Life-cycle, fluent factory methods, other
     /**********************************************************
      */
 
+    /**
+     * Mutant factory method that will construct a new instance that has
+     * specified underlying {@link DeserializationConfig}.
+     *<p>
+     * NOTE: use of this method is not recommended, as there are many other
+     * re-configuration methods available.
+     */
     public ObjectReader with(DeserializationConfig config) {
         return _with(config);
     }    

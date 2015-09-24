@@ -314,7 +314,7 @@ public class ObjectWriter
 
     /*
     /**********************************************************
-    /* Life-cycle, fluent factories for JsonGenerator.Feature
+    /* Life-cycle, fluent factories for JsonGenerator.Feature (2.5)
     /**********************************************************
      */
 
@@ -350,6 +350,44 @@ public class ObjectWriter
         return (newConfig == _config) ? this : _new(this, newConfig);
     }
 
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories for FormatFeature (2.7)
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.7
+     */
+    public ObjectWriter with(FormatFeature feature)  {
+        SerializationConfig newConfig = _config.with(feature);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public ObjectWriter withFeatures(FormatFeature... features) {
+        SerializationConfig newConfig = _config.withFeatures(features);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public ObjectWriter without(FormatFeature feature) {
+        SerializationConfig newConfig = _config.without(feature);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public ObjectWriter withoutFeatures(FormatFeature... features) {
+        SerializationConfig newConfig = _config.withoutFeatures(features);
+        return (newConfig == _config) ? this : _new(this, newConfig);
+    }
+    
     /*
     /**********************************************************
     /* Life-cycle, fluent factories, type-related

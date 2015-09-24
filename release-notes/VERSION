@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.7.0 (not yet released)
 
+#819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)
 #933:Close some gaps to allow using the tryToResolveUnresolved flows

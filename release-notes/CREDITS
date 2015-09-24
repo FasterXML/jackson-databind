@@ -322,3 +322,7 @@ Sadayuki Furuhashi (frsyuki@github)
   * Reported #941: Deserialization from "{}" to ObjectNode field causes
     "out of END_OBJECT token" error
    (2.6.3)
+
+Sergio Mira (Sergio-Mira@github)
+  * Contributed #940: Add missing `hashCode()` implementations for `JsonNode` types that did not have them
+   (2.6.3)

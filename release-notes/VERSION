@@ -8,10 +8,10 @@ Project: jackson-databind
 
 #938: Regression: `StackOverflowError` with recursive types that contain `Map.Entry`
  (reported by jloisel@github)
-#941: Deserialization from "{}" to ObjectNode field causes "out of END_OBJECT token" error
- (reported by Sadayuki F)
 #940: Add missing `hashCode()` implementations for `JsonNode` types that did not have them
  (contributed by Sergio M)
+#941: Deserialization from "{}" to ObjectNode field causes "out of END_OBJECT token" error
+ (reported by Sadayuki F)
 
 2.6.2 (14-Sep-2015)
 

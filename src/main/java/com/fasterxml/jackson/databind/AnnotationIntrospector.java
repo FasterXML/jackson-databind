@@ -231,8 +231,7 @@ public abstract class AnnotationIntrospector
      *   false if for deserialization
      */
     public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
-        // !!! Change direction in 2.7 or later
-        return findPropertiesToIgnore(ac);
+        return null;
     }
 
     /**
@@ -240,7 +239,8 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public String[] findPropertiesToIgnore(Annotated ac) {
-        return null;
+        // Changed in 2.7 to call from old to new; with 2.6 was opposite
+        return findPropertiesToIgnore(ac, true);
     }
     
     /**

@@ -22,8 +22,7 @@ public final class NullNode
     public static NullNode getInstance() { return instance; }
 
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.NULL;
     }
 
@@ -42,20 +41,19 @@ public final class NullNode
     */
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws IOException
     {
-        provider.defaultSerializeNull(jg);
+        provider.defaultSerializeNull(g);
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         return (o == this);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return JsonNodeType.NULL.ordinal();
     }
 }

@@ -90,14 +90,13 @@ public final class MissingNode
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         // toString() should never return null
         return "";
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return JsonNodeType.MISSING.ordinal();
     }
 }

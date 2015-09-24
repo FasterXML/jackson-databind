@@ -326,3 +326,7 @@ Sadayuki Furuhashi (frsyuki@github)
 David Haraburda (dharaburda@github)
   * Contributed #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
    (2.7.0)
+
+Sergio Mira (Sergio-Mira@github)
+  * Contributed #940: Add missing `hashCode()` implementations for `JsonNode` types that did not have them
+   (2.6.3)

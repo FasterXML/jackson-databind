@@ -517,7 +517,7 @@ public final class DeserializationConfig
         int newMask = _parserFeaturesToChange | feature.getMask();
         return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
+                    newSet, newMask,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
 
@@ -538,7 +538,7 @@ public final class DeserializationConfig
         }
         return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
+                    newSet, newMask,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
     
@@ -554,7 +554,7 @@ public final class DeserializationConfig
         int newMask = _parserFeaturesToChange | feature.getMask();
         return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
+                    newSet, newMask,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
 
@@ -575,7 +575,7 @@ public final class DeserializationConfig
         }
         return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
+                    newSet, newMask,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
 

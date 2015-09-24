@@ -129,5 +129,5 @@ public class IntNode
     }
 
     @Override
-        public int hashCode() { return _value; }
+    public int hashCode() { return _value; }
 }

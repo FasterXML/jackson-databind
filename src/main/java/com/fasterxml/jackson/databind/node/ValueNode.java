@@ -45,6 +45,8 @@ public abstract class ValueNode
         typeSer.writeTypeSuffixForScalar(this, jg);
     }
 
+    @Override public abstract int hashCode();
+
     /*
     /**********************************************************************
     /* Base impls for standard methods

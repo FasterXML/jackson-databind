@@ -36,7 +36,10 @@ public abstract class BaseJsonNode
         }
         return value;
     }
-    
+
+    // Also, force (re)definition (2.7)
+    @Override public abstract int hashCode();
+
     /*
     /**********************************************************
     /* Support for traversal-as-stream

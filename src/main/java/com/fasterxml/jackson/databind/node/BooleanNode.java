@@ -71,15 +71,13 @@ public class BooleanNode
     }
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
-    {
-        jg.writeBoolean(_value);
+    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+        g.writeBoolean(_value);
     }
 
     @Override
     public int hashCode() {
-        return Boolean.valueOf(_value).hashCode();
+        return _value ? 3 : 1;
     }
 
     @Override

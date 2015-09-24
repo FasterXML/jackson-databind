@@ -1387,16 +1387,23 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
-        BeanDescription beanDesc = config.introspect(type);
-        JsonDeserializer<?> des = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
-        if (des != null) {
-            return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, des);
-        }
         Class<?> enumClass = type.getRawClass();
-        // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
-        if (custom != null) {
-            return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
+
+        BeanDescription beanDesc = config.introspect(type);
+        // 24-Sep-2015, bim: a key deserializer is the preferred thing.
+        KeyDeserializer des = findKeyDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+        if (des != null) {
+            return des;
+        } else {
+            // 24-Sep-2015, bim: if no key deser, look for enum deserializer first, then a plain deser.
+            JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
+            if (custom != null) {
+                return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
+            }
+            JsonDeserializer<?> valueDesForKey = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+            if (valueDesForKey != null) {
+                return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
+            }
         }
 
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
@@ -1726,6 +1733,22 @@ public abstract class BasicDeserializerFactory
             return null;
         }
         return ctxt.deserializerInstance(ann, deserDef);
+    }
+
+    /**
+     * Helper method called to check if a class or method
+     * has annotation that tells which class to use for deserialization.
+     * Returns null if no such annotation found.
+     */
+    protected KeyDeserializer findKeyDeserializerFromAnnotation(DeserializationContext ctxt,
+                                                                      Annotated ann)
+            throws JsonMappingException
+    {
+        Object deserDef = ctxt.getAnnotationIntrospector().findKeyDeserializer(ann);
+        if (deserDef == null) {
+            return null;
+        }
+        return ctxt.keyDeserializerInstance(ann, deserDef);
     }
 
     /**

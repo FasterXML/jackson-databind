@@ -30,7 +30,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
             this.y = y;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

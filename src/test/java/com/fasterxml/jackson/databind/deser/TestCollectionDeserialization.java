@@ -37,6 +37,9 @@ public class TestCollectionDeserialization
 
     static class XBean {
         public int x;
+
+        public XBean() { }
+        public XBean(int x) { this.x = x; }
     }
 
     // [Issue#199]
@@ -280,5 +283,23 @@ public class TestCollectionDeserialization
         } catch (RuntimeException exc) {
             assertEquals("I want to catch this exception", exc.getMessage());
         }
+    }
+
+    // And then a round-trip test for singleton collections
+    public void testSingletonCollections() throws Exception
+    {
+        final TypeReference<?> xbeanListType = new TypeReference<List<XBean>>() { };
+
+        String json = MAPPER.writeValueAsString(Collections.singleton(new XBean(3)));
+        Collection<XBean> result = MAPPER.readValue(json, xbeanListType);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(3, result.iterator().next().x);
+
+        json = MAPPER.writeValueAsString(Collections.singletonList(new XBean(28)));
+        result = MAPPER.readValue(json, xbeanListType);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(28, result.iterator().next().x);
     }
 }

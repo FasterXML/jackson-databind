@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.TestCollectionDeserialization.XBean;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 @SuppressWarnings("serial")
@@ -576,7 +577,21 @@ public class TestMapDeserialization
         assertEquals("123", props.getProperty("b"));
         assertEquals("true", props.getProperty("c"));
     }
-    
+
+    // JDK singletonMap
+    public void testSingletonMapRoundtrip() throws Exception
+    {
+        final TypeReference<?> type = new TypeReference<Map<String,IntWrapper>>() { };
+
+        String json = MAPPER.writeValueAsString(Collections.singletonMap("value", new IntWrapper(5)));
+        Map<String,IntWrapper> result = MAPPER.readValue(json, type);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        IntWrapper w = result.get("value");
+        assertNotNull(w);
+        assertEquals(5, w.i);
+    }
+
     /*
     /**********************************************************
     /* Error tests

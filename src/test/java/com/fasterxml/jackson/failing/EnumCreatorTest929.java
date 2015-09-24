@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.*;
 
 public class EnumCreatorTest929 extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
-
     static enum MyEnum
     {
         A, B, C;
@@ -20,6 +18,8 @@ public class EnumCreatorTest929 extends BaseMapTest
         }
     }
     
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     // for [databind#929]
     public void testMultiArgEnumCreator() throws Exception
     {

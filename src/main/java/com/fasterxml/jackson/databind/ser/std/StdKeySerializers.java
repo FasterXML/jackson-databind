@@ -71,18 +71,11 @@ public class StdKeySerializers
         }
         return DEFAULT_KEY_SERIALIZER;
     }
-    
-    /**
-     * @deprecated Since 2.5
-     */
-    @Deprecated
-    public static JsonSerializer<Object> getStdKeySerializer(JavaType keyType) {
-        return getStdKeySerializer(null, keyType.getRawClass(), true);
-    }
 
     /**
      * @deprecated since 2.7
      */
+    @Deprecated
     public static JsonSerializer<Object> getDefault() {
         return DEFAULT_KEY_SERIALIZER;
     }
@@ -140,36 +133,6 @@ public class StdKeySerializers
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
             g.writeFieldName((String) value);
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Deprecated implementations: to be removed in future
-    /**********************************************************
-     */
-
-    @Deprecated // since 2.6; remove from 2.7 or later
-    public static class DateKeySerializer extends StdSerializer<Date> {
-        protected final static JsonSerializer<?> instance = new DateKeySerializer();
-
-        public DateKeySerializer() { super(Date.class); }
-        
-        @Override
-        public void serialize(Date value, JsonGenerator g, SerializerProvider provider) throws IOException {
-            provider.defaultSerializeDateKey(value, g);
-        }
-    }
-
-    @Deprecated // since 2.6; remove from 2.7 or later
-    public static class CalendarKeySerializer extends StdSerializer<Calendar> {
-        protected final static JsonSerializer<?> instance = new CalendarKeySerializer();
-
-        public CalendarKeySerializer() { super(Calendar.class); }
-
-        @Override
-        public void serialize(Calendar value, JsonGenerator g, SerializerProvider provider) throws IOException {
-            provider.defaultSerializeDateKey(value.getTimeInMillis(), g);
         }
     }
 }

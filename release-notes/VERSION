@@ -19,6 +19,8 @@ Project: jackson-databind
  (contributed by Sergio M)
 #941: Deserialization from "{}" to ObjectNode field causes "out of END_OBJECT token" error
  (reported by Sadayuki F)
+#944: Failure to use custom deserializer for key deserializer
+ (contributed by Benson M)
 
 2.6.2 (14-Sep-2015)
 

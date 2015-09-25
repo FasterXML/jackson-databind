@@ -141,6 +141,8 @@ Benson Margulies:
    (2.4.0)
   * Reported #601: ClassCastException for a custom serializer for enum key in `EnumMap`
    (2.4.4)
+  * Contributed 944: Failure to use custom deserializer for key deserializer
+   (2.6.3)
 
 Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK

@@ -3,11 +3,9 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -207,6 +205,14 @@ public class TestEnumSerialization
             }
         }
     }
+
+    protected static enum LC749Enum {
+        A, B, C;
+        private LC749Enum() { }
+        @Override
+        public String toString() { return name().toLowerCase(); }
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -383,6 +389,31 @@ public class TestEnumSerialization
     public void testCustomEnumMapKeySerializer() throws Exception {
         String json = MAPPER.writeValueAsString(new MyBean661("abc"));
         assertEquals(aposToQuotes("{'X-FOO':'abc'}"), json);
+    }
+
+    // [databind#749]
+
+    public void testEnumMapSerDefault() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
+        m.put(LC749Enum.A, "value");
+        assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));
+    }
+    
+    public void testEnumMapSerDisableToString() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter w = mapper.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
+        m.put(LC749Enum.A, "value");
+        assertEquals("{\"A\":\"value\"}", w.writeValueAsString(m));
+    }
+    
+    public void testEnumMapSerEnableToString() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter w = mapper.writer().with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+        EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
+        m.put(LC749Enum.A, "value");
+        assertEquals("{\"a\":\"value\"}", w.writeValueAsString(m));
     }
 }
 

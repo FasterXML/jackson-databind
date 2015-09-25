@@ -13,6 +13,8 @@ Project: jackson-databind
 
 2.6.3 (not yet released)
 
+#749: `EnumMap` serialization ignores `SerializationFeature.WRITE_ENUMS_USING_TO_STRING`
+ (reported by scubasau@github)
 #938: Regression: `StackOverflowError` with recursive types that contain `Map.Entry`
  (reported by jloisel@github)
 #940: Add missing `hashCode()` implementations for `JsonNode` types that did not have them

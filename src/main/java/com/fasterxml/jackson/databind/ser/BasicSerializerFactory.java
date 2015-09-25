@@ -237,13 +237,13 @@ public abstract class BasicSerializerFactory
                         }
                         ser = new JsonValueSerializer(m, delegate);
                     } else {
-                        ser = StdKeySerializers.getDefault();
+                        ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                     }
                 }
             }
         }
         
-        // [Issue#120]: Allow post-processing
+        // [databind#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyKeySerializer(config, keyType, beanDesc, ser);

@@ -26,6 +26,10 @@ public class StdKeySerializers
     public static JsonSerializer<Object> getStdKeySerializer(SerializationConfig config,
             Class<?> rawKeyType, boolean useDefault)
     {
+        // 24-Sep-2015, tatu: Important -- should ONLY consider types for which `@JsonValue`
+        //    can not be used, since caller has not yet checked for that annotation
+        //    This is why Enum types are not handled here quite yet
+
         if (rawKeyType != null) {
             if (rawKeyType == String.class) {
                 return DEFAULT_STRING_SERIALIZER;
@@ -43,14 +47,31 @@ public class StdKeySerializers
             if (Calendar.class.isAssignableFrom(rawKeyType)) {
                 return new Default(Default.TYPE_CALENDAR, rawKeyType);
             }
-            // other types we know convert properly with 'toString()'?
+            // other JDK types we know convert properly with 'toString()'?
             if (rawKeyType == java.util.UUID.class) {
                 return new Default(Default.TYPE_TO_STRING, rawKeyType);
             }
+
         }
         return useDefault ? DEFAULT_KEY_SERIALIZER : null;
     }
 
+    /**
+     * Method called if no specified key serializer was located; will return a
+     * "default" key serializer.
+     *
+     * @since 2.7
+     */
+    public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
+            Class<?> rawKeyType) {
+        if (rawKeyType != null) {
+            if (rawKeyType.isEnum()) {
+                return new Default(Default.TYPE_ENUM, rawKeyType);
+            }
+        }
+        return DEFAULT_KEY_SERIALIZER;
+    }
+    
     /**
      * @deprecated Since 2.5
      */
@@ -59,10 +80,13 @@ public class StdKeySerializers
         return getStdKeySerializer(null, keyType.getRawClass(), true);
     }
 
+    /**
+     * @deprecated since 2.7
+     */
     public static JsonSerializer<Object> getDefault() {
         return DEFAULT_KEY_SERIALIZER;
     }
-    
+
     /*
     /**********************************************************
     /* Standard implementations used
@@ -73,7 +97,8 @@ public class StdKeySerializers
         final static int TYPE_DATE = 1;
         final static int TYPE_CALENDAR = 2;
         final static int TYPE_CLASS = 3;
-        final static int TYPE_TO_STRING = 4;
+        final static int TYPE_ENUM = 4;
+        final static int TYPE_TO_STRING = 5;
 
         protected final int _typeId;
         
@@ -83,20 +108,27 @@ public class StdKeySerializers
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
             switch (_typeId) {
             case TYPE_DATE:
-                provider.defaultSerializeDateKey((Date)value, jgen);
+                provider.defaultSerializeDateKey((Date)value, g);
                 break;
             case TYPE_CALENDAR:
-                provider.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), jgen);
+                provider.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), g);
                 break;
             case TYPE_CLASS:
-                jgen.writeFieldName(((Class<?>)value).getName());
+                g.writeFieldName(((Class<?>)value).getName());
+                break;
+            case TYPE_ENUM:
+                {
+                    String str = provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                            ? value.toString() : ((Enum<?>) value).name();
+                    g.writeFieldName(str);
+                }
                 break;
             case TYPE_TO_STRING:
             default:
-                jgen.writeFieldName(value.toString());
+                g.writeFieldName(value.toString());
             }
         }
     }
@@ -106,11 +138,11 @@ public class StdKeySerializers
         public StringKeySerializer() { super(String.class, false); }
 
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            jgen.writeFieldName((String) value);
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+            g.writeFieldName((String) value);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Deprecated implementations: to be removed in future
@@ -124,8 +156,8 @@ public class StdKeySerializers
         public DateKeySerializer() { super(Date.class); }
         
         @Override
-        public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            provider.defaultSerializeDateKey(value, jgen);
+        public void serialize(Date value, JsonGenerator g, SerializerProvider provider) throws IOException {
+            provider.defaultSerializeDateKey(value, g);
         }
     }
 
@@ -134,10 +166,10 @@ public class StdKeySerializers
         protected final static JsonSerializer<?> instance = new CalendarKeySerializer();
 
         public CalendarKeySerializer() { super(Calendar.class); }
-        
+
         @Override
-        public void serialize(Calendar value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            provider.defaultSerializeDateKey(value.getTimeInMillis(), jgen);
+        public void serialize(Calendar value, JsonGenerator g, SerializerProvider provider) throws IOException {
+            provider.defaultSerializeDateKey(value.getTimeInMillis(), g);
         }
     }
 }

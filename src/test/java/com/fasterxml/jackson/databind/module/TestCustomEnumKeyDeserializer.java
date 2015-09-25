@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.*;
@@ -106,27 +105,6 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         }
     }
 
-    static class TestEnumModule extends SimpleModule {
-
-        public TestEnumModule() {
-            super(Version.unknownVersion());
-        }
-
-        @Override
-        public void setupModule(SetupContext context) {
-            context.setMixInAnnotations(TestEnum.class, TestEnumMixin.class);
-            SimpleSerializers keySerializers = new SimpleSerializers();
-            keySerializers.addSerializer(new TestEnumKeySerializer());
-            context.addKeySerializers(keySerializers);
-        }
-
-        public static ObjectMapper setupObjectMapper(ObjectMapper mapper) {
-            final TestEnumModule module = new TestEnumModule();
-            mapper.registerModule(module);
-            return mapper;
-        }
-    }
-
     static class Bean {
         private File rootDirectory;
         private String licenseString;
@@ -157,6 +135,20 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         }
     }
 
+    static class TestEnumModule extends SimpleModule {
+        public TestEnumModule() {
+            super(Version.unknownVersion());
+        }
+
+        @Override
+        public void setupModule(SetupContext context) {
+            context.setMixInAnnotations(TestEnum.class, TestEnumMixin.class);
+            SimpleSerializers keySerializers = new SimpleSerializers();
+            keySerializers.addSerializer(new TestEnumKeySerializer());
+            context.addKeySerializers(keySerializers);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -169,10 +161,11 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         ObjectMapper plainObjectMapper = new ObjectMapper();
         JsonNode tree = plainObjectMapper.readTree(aposToQuotes("{'red' : [ 'a', 'b']}"));
 
-        ObjectMapper fancyObjectMapper = TestEnumModule.setupObjectMapper(new ObjectMapper());
+        ObjectMapper fancyObjectMapper = new ObjectMapper().registerModule(new TestEnumModule());
+
         // this line is might throw with Jackson 2.6.2.
-        Map<TestEnum, Set<String>> map = fancyObjectMapper.convertValue(tree, new TypeReference<Map<TestEnum, Set<String>>>() {
-        });
+        Map<TestEnum, Set<String>> map = fancyObjectMapper.convertValue(tree,
+                new TypeReference<Map<TestEnum, Set<String>>>() { } );
         assertNotNull(map);
     }
 
@@ -181,15 +174,18 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 //    public void testWithTree749() throws Exception
     public void withTree749() throws Exception
     {
+        ObjectMapper mapper = new ObjectMapper().registerModule(new TestEnumModule());
+
         Map<KeyEnum, Object> inputMap = new LinkedHashMap<KeyEnum, Object>();
         Map<TestEnum, Map<String, String>> replacements = new LinkedHashMap<TestEnum, Map<String, String>>();
         Map<String, String> reps = new LinkedHashMap<String, String>();
         reps.put("1", "one");
         replacements.put(TestEnum.GREEN, reps);
         inputMap.put(KeyEnum.replacements, replacements);
-        ObjectMapper mapper = TestEnumModule.setupObjectMapper(new ObjectMapper());
+
         JsonNode tree = mapper.valueToTree(inputMap);
         ObjectNode ob = (ObjectNode) tree;
+
         JsonNode inner = ob.get("replacements");
         String firstFieldName = inner.fieldNames().next();
         assertEquals("green", firstFieldName);

@@ -328,3 +328,7 @@ Sadayuki Furuhashi (frsyuki@github)
 Sergio Mira (Sergio-Mira@github)
   * Contributed #940: Add missing `hashCode()` implementations for `JsonNode` types that did not have them
    (2.6.3)
+
+Andreas Piebe (anpieber@github)
+  * Reported #939: Regression: DateConversionError in 2.6.x	
+   (2.6.3)

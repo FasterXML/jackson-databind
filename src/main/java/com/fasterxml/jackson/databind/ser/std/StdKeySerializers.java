@@ -83,6 +83,7 @@ public class StdKeySerializers
     /**
      * @deprecated since 2.7
      */
+    @Deprecated
     public static JsonSerializer<Object> getDefault() {
         return DEFAULT_KEY_SERIALIZER;
     }

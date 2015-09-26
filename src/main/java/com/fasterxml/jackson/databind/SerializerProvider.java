@@ -997,14 +997,13 @@ public abstract class SerializerProvider
      * Note: date here means "full" date, that is, date AND time, as per
      * Java convention (and not date-only values like in SQL)
      */
-    public final void defaultSerializeDateValue(long timestamp, JsonGenerator jgen)
+    public final void defaultSerializeDateValue(long timestamp, JsonGenerator gen)
         throws IOException
     {
-        // [JACKSON-87]: Support both numeric timestamps and textual
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
-            jgen.writeNumber(timestamp);
+            gen.writeNumber(timestamp);
         } else {
-            jgen.writeString(_dateFormat().format(new Date(timestamp)));
+            gen.writeString(_dateFormat().format(new Date(timestamp)));
         }
     }
 
@@ -1015,10 +1014,8 @@ public abstract class SerializerProvider
      * Note: date here means "full" date, that is, date AND time, as per
      * Java convention (and not date-only values like in SQL)
      */
-    public final void defaultSerializeDateValue(Date date, JsonGenerator gen)
-        throws IOException
+    public final void defaultSerializeDateValue(Date date, JsonGenerator gen) throws IOException
     {
-        // [JACKSON-87]: Support both numeric timestamps and textual
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             gen.writeNumber(date.getTime());
         } else {
@@ -1031,8 +1028,7 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(long timestamp, JsonGenerator gen)
-        throws IOException
+    public void defaultSerializeDateKey(long timestamp, JsonGenerator gen) throws IOException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             gen.writeFieldName(String.valueOf(timestamp));
@@ -1242,11 +1238,14 @@ public abstract class SerializerProvider
          */
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();
-        // 11-Jun-2015, tatu: Plus caller may have actually changed default TimeZone to use
+        // [databind#939]: 26-Sep-2015, tatu: With 2.6, formatter has been (pre)configured
+        // with TimeZone, so we should NOT try overriding it unlike with earlier versions
+        /*
         TimeZone tz = getTimeZone();
         if (tz != df.getTimeZone()) {
             df.setTimeZone(tz);
         }
+        */
         return df;
     }
 }

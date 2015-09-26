@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.util.*;
-import java.text.ParsePosition;
 import java.text.ParseException;
+import java.text.ParsePosition;
+import java.util.*;
 
 /**
  * Utilities methods for manipulating dates in iso8601 format. This is much much faster and GC friendly than using SimpleDateFormat so
@@ -200,9 +200,15 @@ public class ISO8601Utils
                     char c = date.charAt(offset);
                     if (c != 'Z' && c != '+' && c != '-') {
                         seconds = parseInt(date, offset, offset += 2);
+                        if (seconds > 59 && seconds < 63) seconds = 59; // truncate up to 3 leap seconds
                         // milliseconds can be optional in the format
                         if (checkOffset(date, offset, '.')) {
-                            milliseconds = parseInt(date, offset += 1, offset += 3);
+                            offset += 1;
+                            int endOffset = indexOfNonDigit(date, offset + 1); // assume at least one digit
+                            int parseEndOffset = Math.min(endOffset, offset + 3); // parse up to 3 digits
+                            int fraction = parseInt(date, offset, parseEndOffset);
+                            milliseconds = (int) (Math.pow(10, 3 - (parseEndOffset - offset)) * fraction);
+                            offset = endOffset;
                         }
                     }
                 }
@@ -339,5 +345,16 @@ public class ISO8601Utils
             buffer.append('0');
         }
         buffer.append(strValue);
+    }
+
+    /**
+     * Returns the index of the first character in the string that is not a digit, starting at offset.
+     */
+    private static int indexOfNonDigit(String string, int offset) {
+        for (int i = offset; i < string.length(); i++) {
+            char c = string.charAt(i);
+            if (c < '0' || c > '9') return i;
+        }
+        return string.length();
     }
 }

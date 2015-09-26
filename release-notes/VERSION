@@ -17,6 +17,8 @@ Project: jackson-databind
  (reported by scubasau@github)
 #938: Regression: `StackOverflowError` with recursive types that contain `Map.Entry`
  (reported by jloisel@github)
+#939: Regression: DateConversionError in 2.6.x 
+ (reported by Andreas P, anpieber@github)
 #940: Add missing `hashCode()` implementations for `JsonNode` types that did not have them
  (contributed by Sergio M)
 #941: Deserialization from "{}" to ObjectNode field causes "out of END_OBJECT token" error

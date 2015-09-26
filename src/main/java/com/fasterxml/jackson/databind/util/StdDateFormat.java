@@ -149,7 +149,7 @@ public class StdDateFormat
         if (tz == null) {
             tz = DEFAULT_TIMEZONE;
         }
-        if (tz.equals(_timezone)) {
+        if ((tz == _timezone) || tz.equals(_timezone)) {
             return this;
         }
         return new StdDateFormat(tz, _locale);

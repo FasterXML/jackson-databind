@@ -26,6 +26,16 @@ public final class BaseSettings
     // for 2.6
     private static final long serialVersionUID = 1L;
 
+    /**
+     * We will use a default TimeZone as the baseline.
+     */
+    private static final TimeZone DEFAULT_TIMEZONE = 
+            //  TimeZone.getDefault()
+            /* [databind#915] 26-Sep-2015, tatu: Should be UTC, plan to change
+             * it so for 2.7
+             */
+            TimeZone.getTimeZone("GMT");
+    
     /*
     /**********************************************************
     /* Configuration settings; introspection, related
@@ -109,11 +119,11 @@ public final class BaseSettings
     protected final Locale _locale;
 
     /**
-     * Default {@link java.util.TimeZone} used with serialization formats.
-     * Default value is {@link TimeZone#getDefault()}, which is typically the
-     * local time zone (unless overridden for JVM).
+     * Default {@link java.util.TimeZone} used with serialization formats,
+     * if (and only if!) explicitly set by use; otherwise `null` to indicate
+     * "use default", which currently (Jackson 2.6) means "GMT"
      *<p>
-     * Note that if a new value is set, time zone is also assigned to
+     * Note that if a new value is set, timezone is also assigned to
      * {@link #_dateFormat} of this object.
      */
     protected final TimeZone _timeZone;
@@ -231,6 +241,11 @@ public final class BaseSettings
         if (_dateFormat == df) {
             return this;
         }
+        // 26-Sep-2015, tatu: Related to [databind#939], let's try to force TimeZone if
+        //   (but only if!) it has been set explicitly.
+        if ((df != null) && hasExplicitTimeZone()) {
+            df = _force(df, _timeZone);
+        }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64);
@@ -264,14 +279,11 @@ public final class BaseSettings
         if (tz == null) {
             throw new IllegalArgumentException();
         }
-        DateFormat df = _dateFormat;
-        if (df instanceof StdDateFormat) {
-            df = ((StdDateFormat) df).withTimeZone(tz);
-        } else {
-            // we don't know if original format might be shared; better create a clone:
-            df = (DateFormat) df.clone();
-            df.setTimeZone(tz);
+        if (tz == _timeZone) {
+            return this;
         }
+        
+        DateFormat df = _force(_dateFormat, tz);
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
@@ -334,10 +346,39 @@ public final class BaseSettings
     }
 
     public TimeZone getTimeZone() {
-        return _timeZone;
+        TimeZone tz = _timeZone;
+        return (tz == null) ? DEFAULT_TIMEZONE : tz;
     }
 
+    /**
+     * Accessor that may be called to determine whether this settings object
+     * has been explicitly configured with a TimeZone (true), or is still
+     * relying on the default settings (false).
+     *
+     * @since 2.7
+     */
+    public boolean hasExplicitTimeZone() {
+        return (_timeZone != null);
+    }
+    
     public Base64Variant getBase64Variant() {
         return _defaultBase64;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    private DateFormat _force(DateFormat df, TimeZone tz)
+    {
+        if (df instanceof StdDateFormat) {
+            return ((StdDateFormat) df).withTimeZone(tz);
+        }
+        // we don't know if original format might be shared; better create a clone:
+        df = (DateFormat) df.clone();
+        df.setTimeZone(tz);
+        return df;
     }
 }

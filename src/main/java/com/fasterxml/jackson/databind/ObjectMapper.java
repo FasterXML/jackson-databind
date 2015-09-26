@@ -276,8 +276,7 @@ public class ObjectMapper
             STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
-//            TimeZone.getDefault()
-            TimeZone.getTimeZone("GMT"),
+            null, // to indicate "use default TimeZone"
             Base64Variants.getDefaultVariant() // 2.1
     );
 

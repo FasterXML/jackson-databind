@@ -838,13 +838,13 @@ public class BeanPropertyWriter extends PropertyWriter
         }
         _depositSchemaProperty(propertiesNode, schemaNode);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
@@ -861,7 +861,7 @@ public class BeanPropertyWriter extends PropertyWriter
         }
         return result.serializer;
     }
-    
+
     /**
      * Method that can be used to access value of the property this
      * Object describes, from given bean instance.

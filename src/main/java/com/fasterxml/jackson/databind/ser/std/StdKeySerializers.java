@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 @SuppressWarnings("serial")
 public class StdKeySerializers
@@ -30,28 +31,31 @@ public class StdKeySerializers
         //    can not be used, since caller has not yet checked for that annotation
         //    This is why Enum types are not handled here quite yet
 
-        if (rawKeyType != null) {
-            if (rawKeyType == String.class) {
-                return DEFAULT_STRING_SERIALIZER;
-            }
-            if (rawKeyType == Object.class || rawKeyType.isPrimitive()
-                    || Number.class.isAssignableFrom(rawKeyType)) {
-                return DEFAULT_KEY_SERIALIZER;
-            }
-            if (rawKeyType == Class.class) {
-                return new Default(Default.TYPE_CLASS, rawKeyType);
-            }
-            if (Date.class.isAssignableFrom(rawKeyType)) {
-                return new Default(Default.TYPE_DATE, rawKeyType);
-            }
-            if (Calendar.class.isAssignableFrom(rawKeyType)) {
-                return new Default(Default.TYPE_CALENDAR, rawKeyType);
-            }
-            // other JDK types we know convert properly with 'toString()'?
-            if (rawKeyType == java.util.UUID.class) {
-                return new Default(Default.TYPE_TO_STRING, rawKeyType);
-            }
+        // [databind#943: Use a dynamic key serializer if we are not given actual
+        // type declaration
+        if ((rawKeyType == null) || (rawKeyType == Object.class)) {
+            // !!! TODO
+            return new Dynamic();
+        }
 
+        if (rawKeyType == String.class) {
+            return DEFAULT_STRING_SERIALIZER;
+        }
+        if (rawKeyType.isPrimitive() || Number.class.isAssignableFrom(rawKeyType)) {
+            return DEFAULT_KEY_SERIALIZER;
+        }
+        if (rawKeyType == Class.class) {
+            return new Default(Default.TYPE_CLASS, rawKeyType);
+        }
+        if (Date.class.isAssignableFrom(rawKeyType)) {
+            return new Default(Default.TYPE_DATE, rawKeyType);
+        }
+        if (Calendar.class.isAssignableFrom(rawKeyType)) {
+            return new Default(Default.TYPE_CALENDAR, rawKeyType);
+        }
+        // other JDK types we know convert properly with 'toString()'?
+        if (rawKeyType == java.util.UUID.class) {
+            return new Default(Default.TYPE_TO_STRING, rawKeyType);
         }
         return useDefault ? DEFAULT_KEY_SERIALIZER : null;
     }
@@ -86,6 +90,14 @@ public class StdKeySerializers
     /**********************************************************
      */
 
+    /**
+     * This is a "chameleon" style multi-type key serializer for simple
+     * standard JDK types.
+     *<p>
+     * TODO: Should (but does not yet) support re-configuring format used for
+     * {@link java.util.Date} and {@link java.util.Calendar} key serializers,
+     * as well as alternative configuration of Enum key serializers.
+     */
     public static class Default extends StdSerializer<Object> {
         final static int TYPE_DATE = 1;
         final static int TYPE_CALENDAR = 2;
@@ -126,6 +138,55 @@ public class StdKeySerializers
         }
     }
 
+    /**
+     * Key serializer used when key type is not known statically, and actual key
+     * serializer needs to be dynamically located.
+     */
+    public static class Dynamic extends StdSerializer<Object>
+    {
+        // Important: MUST be transient, to allow serialization of key serializer itself
+        protected transient PropertySerializerMap _dynamicSerializers;
+        
+        public Dynamic() {
+            super(String.class, false);
+            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+        }
+
+        Object readResolve() {
+            // Since it's transient, and since JDK serialization by-passes ctor, need this:
+            _dynamicSerializers = PropertySerializerMap.emptyForProperties();
+            return this;
+        }
+
+        @Override
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
+                throws IOException {
+            Class<?> cls = value.getClass();
+            PropertySerializerMap m = _dynamicSerializers;
+            JsonSerializer<Object> ser = m.serializerFor(cls);
+            if (ser == null) {
+                ser = _findAndAddDynamic(m, cls, provider);
+            }
+            ser.serialize(value, g, provider);
+        }
+
+        protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+                Class<?> type, SerializerProvider provider) throws JsonMappingException
+        {
+            PropertySerializerMap.SerializerAndMapResult result =
+                    // null -> for now we won't keep ref or pass BeanProperty; could change
+                    map.findAndAddKeySerializer(type, provider, null);
+            // did we get a new map of serializers? If so, start using it
+            if (map != result.map) {
+                _dynamicSerializers = result.map;
+            }
+            return result.serializer;
+        }
+    }
+
+    /**
+     * Simple and fast key serializer when keys are Strings.
+     */
     public static class StringKeySerializer extends StdSerializer<Object>
     {
         public StringKeySerializer() { super(String.class, false); }

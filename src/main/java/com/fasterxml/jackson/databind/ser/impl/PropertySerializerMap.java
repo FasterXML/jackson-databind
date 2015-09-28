@@ -130,6 +130,22 @@ public abstract class PropertySerializerMap
     }
 
     /**
+     * Method called if initial lookup fails, when looking for a key
+     * serializer (possible attached indirectly to a property)
+     * Will both find serializer
+     * and construct new map instance if warranted, and return both.
+     * 
+     * @since 2.7
+     */
+    public final SerializerAndMapResult findAndAddKeySerializer(Class<?> type,
+            SerializerProvider provider, BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> serializer = provider.findKeySerializer(type, property);
+        return new SerializerAndMapResult(serializer, newWith(type, serializer));
+    }
+    
+    /**
      * Method that can be used to 'register' a serializer that caller has resolved
      * without help of this map.
      * 

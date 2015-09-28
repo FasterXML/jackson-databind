@@ -23,6 +23,8 @@ Project: jackson-databind
  (contributed by Sergio M)
 #941: Deserialization from "{}" to ObjectNode field causes "out of END_OBJECT token" error
  (reported by Sadayuki F)
+#943: Incorrect serialization of enum map key
+ (reported by Benson M)
 #944: Failure to use custom deserializer for key deserializer
  (contributed by Benson M)
 #949: Report the offending substring when number parsing fails

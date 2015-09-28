@@ -188,6 +188,6 @@ public class TestKeySerializers extends BaseMapTest
         stuff.put(AbcLC.B, Integer.valueOf(3));
         stuff.put(new UCString("foo"), Integer.valueOf(4));
         String json = MAPPER.writeValueAsString(stuff);
-        assertEquals("{'b':3,'FOO':4}", aposToQuotes(json));
+        assertEquals(aposToQuotes("{'b':3,'FOO':4}"), json);
     }
 }

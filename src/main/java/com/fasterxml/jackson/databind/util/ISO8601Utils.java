@@ -311,14 +311,14 @@ public class ISO8601Utils
         if (i < endIndex) {
             digit = Character.digit(value.charAt(i++), 10);
             if (digit < 0) {
-                throw new NumberFormatException("Invalid number: " + value);
+                throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
             }
             result = -digit;
         }
         while (i < endIndex) {
             digit = Character.digit(value.charAt(i++), 10);
             if (digit < 0) {
-                throw new NumberFormatException("Invalid number: " + value);
+                throw new NumberFormatException("Invalid number: " + value.substring(beginIndex, endIndex));
             }
             result *= 10;
             result -= digit;

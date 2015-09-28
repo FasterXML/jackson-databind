@@ -336,3 +336,7 @@ Sergio Mira (Sergio-Mira@github)
 Andreas Piebe (anpieber@github)
   * Reported #939: Regression: DateConversionError in 2.6.x	
    (2.6.3)
+
+Jesse Wilson (swankjesse@github)
+  * Contributed #949: Report the offending substring when number parsing fails
+   (2.6.3)

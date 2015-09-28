@@ -25,6 +25,8 @@ Project: jackson-databind
  (reported by Sadayuki F)
 #944: Failure to use custom deserializer for key deserializer
  (contributed by Benson M)
+#949: Report the offending substring when number parsing fails
+ (contributed by Jesse W)
 
 2.6.2 (14-Sep-2015)
 

@@ -16,8 +16,8 @@ public class TestKeySerializers extends BaseMapTest
     public static class KarlSerializer extends JsonSerializer<String>
     {
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeFieldName("Karl");
+        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeFieldName("Karl");
         }
     }
 
@@ -42,6 +42,15 @@ public class TestKeySerializers extends BaseMapTest
         A, B, C
     }
 
+    enum AbcLC {
+        A, B, C;
+
+        @JsonValue
+        public String toLC() {
+            return name().toLowerCase();
+        }
+    }
+    
     static class ABCKeySerializer extends JsonSerializer<ABC> {
         @Override
         public void serialize(ABC value, JsonGenerator jgen,
@@ -77,27 +86,41 @@ public class TestKeySerializers extends BaseMapTest
         }
     }
 
+    static class UCString {
+        private String value;
+
+        public UCString(String v) {
+            value = v.toUpperCase();
+        }
+
+        @JsonValue
+        public String asString() {
+            return value;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testNotKarl() throws IOException {
-        final ObjectMapper mapper = new ObjectMapper();
-        final String serialized = mapper.writeValueAsString(new NotKarlBean());
+        final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
     }
 
     public void testKarl() throws IOException {
-        final ObjectMapper mapper = new ObjectMapper();
-        final String serialized = mapper.writeValueAsString(new KarlBean());
+        final String serialized = MAPPER.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", serialized);
     }
 
     // [Issue#75]: caching of KeySerializers
     public void testBoth() throws IOException
     {
+        // Let's NOT use shared one, to ensure caching starts from clean slate
         final ObjectMapper mapper = new ObjectMapper();
         final String value1 = mapper.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", value1);
@@ -108,6 +131,7 @@ public class TestKeySerializers extends BaseMapTest
     // Test custom key serializer for enum
     public void testCustomForEnum() throws IOException
     {
+        // can not use shared mapper as we are registering a module
         final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -155,5 +179,15 @@ public class TestKeySerializers extends BaseMapTest
         String json = mapper.writerFor(new TypeReference<Map<ABC,BAR<?>>>() {})
                 .writeValueAsString(stuff);
         assertEquals("{\"xxxB\":\"bar\"}", json);
+    }
+
+    // [databind#943]
+    public void testDynamicMapKeys() throws Exception
+    {
+        Map<Object,Integer> stuff = new LinkedHashMap<Object,Integer>();
+        stuff.put(AbcLC.B, Integer.valueOf(3));
+        stuff.put(new UCString("foo"), Integer.valueOf(4));
+        String json = MAPPER.writeValueAsString(stuff);
+        assertEquals("{'b':3,'FOO':4}", aposToQuotes(json));
     }
 }

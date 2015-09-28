@@ -751,13 +751,21 @@ public abstract class SerializerProvider
      * Note that the serializer itself can be called with instances
      * of any Java object, but not nulls.
      */
-    public JsonSerializer<Object> findKeySerializer(JavaType keyType,
-            BeanProperty property)
+    public JsonSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
         throws JsonMappingException
     {
         JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, _keySerializer);
         // 25-Feb-2011, tatu: As per [JACKSON-519], need to ensure contextuality works here, too
         return _handleContextualResolvable(ser, property);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public JsonSerializer<Object> findKeySerializer(Class<?> rawKeyType, BeanProperty property)
+        throws JsonMappingException
+    {
+        return findKeySerializer(_config.constructType(rawKeyType), property);
     }
 
     /*

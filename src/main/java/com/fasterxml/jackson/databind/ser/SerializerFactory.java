@@ -72,7 +72,7 @@ public abstract class SerializerFactory
      * be output as <code>JsonToken.FIELD_NAME</code>) for Map that has specified declared
      * key type, and is for specified property (or, if property is null, as root value)
      * 
-     * @param baseType Declared type for Map keys
+     * @param type Declared type for Map keys
      * @param defaultImpl Default key serializer implementation to use, if no custom ones
      *    are found (may be null)
      * 
@@ -80,6 +80,6 @@ public abstract class SerializerFactory
      *   serializer is to be used)
      */
     public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
-            JavaType baseType, JsonSerializer<Object> defaultImpl)
+            JavaType type, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;
 }

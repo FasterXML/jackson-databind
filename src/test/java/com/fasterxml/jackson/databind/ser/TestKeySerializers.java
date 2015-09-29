@@ -7,9 +7,12 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.module.SimpleSerializers;
+import org.junit.Test;
 
 public class TestKeySerializers extends BaseMapTest
 {
@@ -139,6 +142,37 @@ public class TestKeySerializers extends BaseMapTest
 
         String json = mapper.writeValueAsString(new ABCMapWrapper());
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
+    }
+
+    @JsonSerialize(keyUsing = ABCKeySerializer.class)
+    public static enum ABCMixin { }
+
+    public static enum Outer {
+        inner;
+    }
+
+    public void testCustomEnumInnerMapKey() {
+        Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
+        Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
+        Map<String, String> innerMap = new HashMap<String, String>();
+        innerMap.put("one", "1");
+        map.put(ABC.A, innerMap);
+        outerMap.put(Outer.inner, map);
+        final ObjectMapper mapper = new ObjectMapper();
+        SimpleModule mod = new SimpleModule("test") {
+            @Override
+            public void setupModule(SetupContext context) {
+                context.setMixInAnnotations(ABC.class, ABCMixin.class);
+                SimpleSerializers keySerializers = new SimpleSerializers();
+                keySerializers.addSerializer(ABC.class, new ABCKeySerializer());
+                context.addKeySerializers(keySerializers);
+            }
+        };
+        mapper.registerModule(mod);
+        JsonNode tree = mapper.convertValue(outerMap, JsonNode.class);
+        JsonNode innerNode = tree.get("inner");
+        String key = innerNode.fieldNames().next();
+        assertEquals("xxxA", key);
     }
 
     // [databind#838]

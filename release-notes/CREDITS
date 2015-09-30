@@ -336,3 +336,7 @@ Andreas Pieber (anpieber@github)
 Jesse Wilson (swankjesse@github)
   * Contributed #949: Report the offending substring when number parsing fails
    (2.6.3)
+
+Warren Bloomer (stormboy@github)
+  * Reported #942: Handle null type id for polymorphic values that use external type id
+   (2.6.3)

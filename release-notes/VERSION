@@ -16,6 +16,8 @@ Project: jackson-databind
  (contributed by Sergio M)
 #941: Deserialization from "{}" to ObjectNode field causes "out of END_OBJECT token" error
  (reported by Sadayuki F)
+#942: Handle null type id for polymorphic values that use external type id
+ (reported by Warren B, stormboy@github)
 #943: Incorrect serialization of enum map key
  (reported by Benson M)
 #944: Failure to use custom deserializer for key deserializer

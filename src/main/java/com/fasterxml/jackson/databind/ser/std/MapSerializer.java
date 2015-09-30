@@ -335,7 +335,7 @@ public class MapSerializer
         if (ser == null) {
             ser = _valueSerializer;
         }
-        // [Issue#124]: May have a content converter
+        // [databind#124]: May have a content converter
         ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
@@ -533,6 +533,7 @@ public class MapSerializer
             Object valueElem = entry.getValue();
             // First, serialize key
             Object keyElem = entry.getKey();
+
             if (keyElem == null) {
                 provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
             } else {

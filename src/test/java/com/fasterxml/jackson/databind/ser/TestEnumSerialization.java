@@ -55,9 +55,11 @@ public class TestEnumSerialization
             name = n;
         }
 
-        @JsonValue
         @Override
         public String toString() { return name; }
+
+        @JsonValue
+        public String external() { return "value:"+name; }
     }
     
     protected static interface ToStringMixin {
@@ -254,7 +256,7 @@ public class TestEnumSerialization
 
     public void testEnumsWithJsonValue() throws Exception
     {
-        assertEquals("\"bar\"", MAPPER.writeValueAsString(EnumWithJsonValue.B));
+        assertEquals("\"value:bar\"", MAPPER.writeValueAsString(EnumWithJsonValue.B));
     }
 
     public void testEnumsWithJsonValueUsingMixin() throws Exception
@@ -271,11 +273,9 @@ public class TestEnumSerialization
         EnumMap<EnumWithJsonValue,String> input = new EnumMap<EnumWithJsonValue,String>(EnumWithJsonValue.class);
         input.put(EnumWithJsonValue.B, "x");
         // 24-Sep-2015, tatu: SHOULD actually use annotated method, as per:
-//        assertEquals("{\"bar\":\"x\"}", MAPPER.writeValueAsString(input));
-        // but currently (2.6) will just rely on default serialization, via name()
-        assertEquals("{\"B\":\"x\"}", MAPPER.writeValueAsString(input));
+        assertEquals("{\"value:bar\":\"x\"}", MAPPER.writeValueAsString(input));
     }
-    
+
     /**
      * Test for ensuring that @JsonSerializable is used with Enum types as well
      * as with any other types.

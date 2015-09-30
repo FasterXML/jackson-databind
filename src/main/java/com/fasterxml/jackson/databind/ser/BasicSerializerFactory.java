@@ -770,22 +770,6 @@ public abstract class BasicSerializerFactory
         if (ser == null) {
             ser = findSerializerByAnnotations(prov, type, beanDesc); // (2) Annotations
             if (ser == null) {
-                // 08-Nov-2014, tatu: As per [databind#601], better just use default Map serializer
-                /*
-                if (EnumMap.class.isAssignableFrom(type.getRawClass())
-                        && ((keySerializer == null) || ClassUtil.isJacksonStdImpl(keySerializer))) {
-                    JavaType keyType = type.getKeyType();
-                    // Need to find key enum values...
-                    EnumValues enums = null;
-                    if (keyType.isEnumType()) { // non-enum if we got it as type erased class (from instance)
-                        @SuppressWarnings("unchecked")
-                        Class<Enum<?>> enumClass = (Class<Enum<?>>) keyType.getRawClass();
-                        enums = EnumValues.construct(config, enumClass);
-                    }
-                    ser = new EnumMapSerializer(type.getContentType(), staticTyping, enums,
-                        elementTypeSerializer, elementValueSerializer);
-                } else {
-                */
                 Object filterId = findFilterId(config, beanDesc);
                 AnnotationIntrospector ai = config.getAnnotationIntrospector();
                 MapSerializer mapSer = MapSerializer.construct(ai.findPropertiesToIgnore(beanDesc.getClassInfo(), true),

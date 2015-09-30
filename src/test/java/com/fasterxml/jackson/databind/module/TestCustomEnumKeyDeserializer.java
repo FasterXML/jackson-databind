@@ -1,4 +1,3 @@
-
 package com.fasterxml.jackson.databind.module;
 
 import java.io.File;
@@ -83,12 +82,13 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         }
 
         @Override
-        public TestEnum deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            String code = jp.getText();
+        public TestEnum deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            String code = p.getText();
             try {
                 return TestEnum.lookup(code);
             } catch (IllegalArgumentException e) {
-                throw new InvalidFormatException("Undefined ISO-639 language code", jp.getCurrentLocation(), code, TestEnum.class);
+                throw InvalidFormatException.from(p, "Undefined ISO-639 language code",
+                        code, TestEnum.class);
             }
         }
     }

@@ -34,10 +34,8 @@ public class StdKeySerializers
         // [databind#943: Use a dynamic key serializer if we are not given actual
         // type declaration
         if ((rawKeyType == null) || (rawKeyType == Object.class)) {
-            // !!! TODO
             return new Dynamic();
         }
-
         if (rawKeyType == String.class) {
             return DEFAULT_STRING_SERIALIZER;
         }
@@ -69,6 +67,13 @@ public class StdKeySerializers
     public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
             Class<?> rawKeyType) {
         if (rawKeyType != null) {
+            // 29-Sep-2015, tatu: Odd case here, of `Enum`, which we may get for `EnumMap`; not sure
+            //   if that is a bug or feature. Regardless, it seems to require dynamic handling
+            //   (compared to getting actual fully typed Enum).
+            //  Note that this might even work from the earlier point, but let's play it safe for now
+            if (rawKeyType == Enum.class) {
+                return new Dynamic();
+            }
             if (rawKeyType.isEnum()) {
                 return new Default(Default.TYPE_ENUM, rawKeyType);
             }
@@ -160,7 +165,8 @@ public class StdKeySerializers
 
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
-                throws IOException {
+                throws IOException
+        {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
             JsonSerializer<Object> ser = m.serializerFor(cls);

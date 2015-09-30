@@ -338,5 +338,7 @@ Andreas Pieber (anpieber@github)
    (2.6.3)
 
 Jesse Wilson (swankjesse@github)
+  * Contributed #948: Support leap seconds, any number of millisecond digits for ISO-8601 Dates.
+   (2.6.3)
   * Contributed #949: Report the offending substring when number parsing fails
    (2.6.3)

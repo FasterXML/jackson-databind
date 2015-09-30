@@ -207,7 +207,17 @@ public class ISO8601Utils
                             int endOffset = indexOfNonDigit(date, offset + 1); // assume at least one digit
                             int parseEndOffset = Math.min(endOffset, offset + 3); // parse up to 3 digits
                             int fraction = parseInt(date, offset, parseEndOffset);
-                            milliseconds = (int) (Math.pow(10, 3 - (parseEndOffset - offset)) * fraction);
+                            // compensate for "missing" digits
+                            switch (parseEndOffset - offset) { // number of digits parsed
+                            case 2:
+                                milliseconds = fraction * 10;
+                                break;
+                            case 1:
+                                milliseconds = fraction * 100;
+                                break;
+                            default:
+                                milliseconds = fraction;
+                            }
                             offset = endOffset;
                         }
                     }
@@ -357,4 +367,44 @@ public class ISO8601Utils
         }
         return string.length();
     }
+
+    public static void main(String[] args)
+    {
+        final int REPS = 250000;
+        while (true) {
+            long start = System.currentTimeMillis();
+            int resp = test1(REPS, 3);
+            long msecs = System.currentTimeMillis() - start;
+            System.out.println("Pow ("+resp+") -> "+msecs+" ms");
+
+            start = System.currentTimeMillis();
+            resp = test2(REPS, 3);
+            msecs = System.currentTimeMillis() - start;
+            System.out.println("Iter ("+resp+") -> "+msecs+" ms");
+        }
+    }
+
+    static int test1(int reps, int pow)
+    {
+        int resp = 3;
+        while (--reps >= 0) {
+            resp = (int) Math.pow(10, pow);
+        }
+        return resp;
+    }
+
+    static int test2(int reps, int pow)
+    {
+        int resp = 3;
+        while (--reps >= 0) {
+            resp = 10;
+            int p = pow;
+
+            while (--p > 0) {
+                resp *= 10;
+            }
+        }
+        return resp;
+    }
 }
+

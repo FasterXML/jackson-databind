@@ -9,7 +9,9 @@ Project: jackson-databind
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)
-#933:Close some gaps to allow using the tryToResolveUnresolved flows
+#933: Close some gaps to allow using the tryToResolveUnresolved flows
+#948: Support leap seconds, any number of millisecond digits for ISO-8601 Dates.
+ (contributed by Jesse W)
 
 2.6.3 (not yet released)
 

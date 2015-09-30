@@ -23,7 +23,7 @@ public class TestExternalId extends BaseMapTest
         }
     }
 
-    // for [Issue#96]
+    // for [databind#96]
     static class ExternalBeanWithDefault
     {
         @JsonTypeInfo(use=Id.CLASS, include=As.EXTERNAL_PROPERTY, property="extType",
@@ -158,8 +158,6 @@ public class TestExternalId extends BaseMapTest
         public Base getBase() { return base; }
     }
 
-    // [JACKSON-831]: should allow a property to map id to as well
-    
     interface Pet {}
 
     static class Dog implements Pet {
@@ -182,7 +180,7 @@ public class TestExternalId extends BaseMapTest
         }
     }    
 
-    // for [Issue#118]
+    // for [databind#118]
     static class ExternalTypeWithNonPOJO {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 property = "type",
@@ -199,7 +197,7 @@ public class TestExternalId extends BaseMapTest
         public ExternalTypeWithNonPOJO(Object o) { value = o; }
     }    
 
-    // for [Issue#119]
+    // for [databind#119]
     static class AsValueThingy {
         public long rawDate;
 
@@ -279,6 +277,20 @@ public class TestExternalId extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         assertEquals("{\"extType\":\"funk\",\"i\":3}",
                 mapper.writeValueAsString(new FunkyExternalBean()));
+    }
+
+    // for [databind#942]
+    public void testExternalTypeIdWithNull() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerSubtypes(ValueBean.class);
+        ExternalBean b;
+        b = mapper.readValue(aposToQuotes("{'bean':null,'extType':'vbean'}"),
+                ExternalBean.class);
+        assertNotNull(b);
+        b = mapper.readValue(aposToQuotes("{'extType':'vbean','bean':null}"),
+                ExternalBean.class);
+        assertNotNull(b);
     }
 
     /*

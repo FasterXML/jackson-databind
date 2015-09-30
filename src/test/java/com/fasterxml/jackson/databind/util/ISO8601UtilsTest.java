@@ -1,13 +1,14 @@
 package com.fasterxml.jackson.databind.util;
 
+import com.fasterxml.jackson.databind.BaseMapTest;
+
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-
-import com.fasterxml.jackson.databind.BaseMapTest;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @see ISO8601Utils
@@ -125,5 +126,77 @@ public class ISO8601UtilsTest extends BaseMapTest {
 
         d = ISO8601Utils.parse("2007-08-13T21:51+02:00", new ParsePosition(0));
         assertEquals(dateZeroSecondAndMillis, d);
+    }
+
+    public void testParseRfc3339Examples() throws java.text.ParseException {
+        // Two digit milliseconds.
+        Date d = ISO8601Utils.parse("1985-04-12T23:20:50.52Z", new ParsePosition(0));
+        assertEquals(newDate(1985, 4, 12, 23, 20, 50, 520, 0), d);
+
+        d = ISO8601Utils.parse("1996-12-19T16:39:57-08:00", new ParsePosition(0));
+        assertEquals(newDate(1996, 12, 19, 16, 39, 57, 0, -8 * 60), d);
+
+        // Truncated leap second.
+        d = ISO8601Utils.parse("1990-12-31T23:59:60Z", new ParsePosition(0));
+        assertEquals(newDate(1990, 12, 31, 23, 59, 59, 0, 0), d);
+
+        // Truncated leap second.
+        d = ISO8601Utils.parse("1990-12-31T15:59:60-08:00", new ParsePosition(0));
+        assertEquals(newDate(1990, 12, 31, 15, 59, 59, 0, -8 * 60), d);
+
+        // Two digit milliseconds.
+        d = ISO8601Utils.parse("1937-01-01T12:00:27.87+00:20", new ParsePosition(0));
+        assertEquals(newDate(1937, 1, 1, 12, 0, 27, 870, 20), d);
+    }
+
+    public void testFractionalSeconds() throws java.text.ParseException {
+        Date d = ISO8601Utils.parse("1970-01-01T00:00:00.9Z", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 900, 0), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.09Z", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 90, 0), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.009Z", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 9, 0), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.0009Z", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 0, 0), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.2147483647Z", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 214, 0), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.2147483648Z", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 214, 0), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.9+02:00", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 900, 2 * 60), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.09+02:00", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 90, 2 * 60), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.009+02:00", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 9, 2 * 60), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.0009+02:00", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 0, 2 * 60), d);
+
+        d = ISO8601Utils.parse("1970-01-01T00:00:00.2147483648+02:00", new ParsePosition(0));
+        assertEquals(newDate(1970, 1, 1, 0, 0, 0, 214, 2 * 60), d);
+    }
+
+    public void testDecimalWithoutDecimalPointButNoFractionalSeconds() throws java.text.ParseException {
+        try {
+            ISO8601Utils.parse("1970-01-01T00:00:00.Z", new ParsePosition(0));
+            fail();
+        } catch (ParseException expected) {
+        }
+    }
+
+    private Date newDate(int year, int month, int day, int hour,
+                         int minute, int second, int millis, int timezoneOffsetMinutes) {
+        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        calendar.set(year, month - 1, day, hour, minute, second);
+        calendar.set(Calendar.MILLISECOND, millis);
+        return new Date(calendar.getTimeInMillis() - TimeUnit.MINUTES.toMillis(timezoneOffsetMinutes));
     }
 }

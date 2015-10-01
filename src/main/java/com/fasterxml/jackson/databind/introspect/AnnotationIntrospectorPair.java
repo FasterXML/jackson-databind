@@ -312,6 +312,7 @@ public class AnnotationIntrospectorPair
                 ? r : _secondary.findNullSerializer(a);
     }
     
+    @Deprecated
     @Override
     public JsonInclude.Include findSerializationInclusion(Annotated a,
             JsonInclude.Include defValue)
@@ -322,12 +323,13 @@ public class AnnotationIntrospectorPair
         return defValue;
     }
 
+    @Deprecated
     @Override
     public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
     {
         // note: call secondary first, to give lower priority
-        defValue = _secondary.findSerializationInclusion(a, defValue);
-        defValue = _primary.findSerializationInclusion(a, defValue);
+        defValue = _secondary.findSerializationInclusionForContent(a, defValue);
+        defValue = _primary.findSerializationInclusionForContent(a, defValue);
         return defValue;
     }
 

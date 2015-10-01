@@ -5,7 +5,9 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -327,8 +329,9 @@ public class MapSerializer
             if (serDef != null) {
                 ser = provider.serializerInstance(propertyAcc, serDef);
             }
-            JsonInclude.Include incl = intr.findSerializationInclusionForContent(propertyAcc, null);
-            if (incl != null) {
+            JsonInclude.Value inclV = intr.findPropertyInclusion(propertyAcc);
+            JsonInclude.Include incl = inclV.getContentInclusion();
+            if (incl != null && incl != JsonInclude.Include.USE_DEFAULTS) {
                 suppressableValue = incl;
             }
         }

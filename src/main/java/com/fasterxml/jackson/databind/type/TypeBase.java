@@ -57,7 +57,7 @@ public abstract class TypeBase
     
     /*
     /**********************************************************
-    /* JsonSerializableWithType base implementation
+    /* JsonSerializable base implementation
     /**********************************************************
      */
 

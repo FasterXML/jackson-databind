@@ -531,11 +531,15 @@ public class POJOPropertyBuilder
 
     @Override
     public JsonInclude.Include findInclusion() {
-        if (_annotationIntrospector == null) {
-            return null;
+        if (_annotationIntrospector != null) {
+            AnnotatedMember a = getAccessor();
+            JsonInclude.Value inclV = _annotationIntrospector.findPropertyInclusion(a);
+            JsonInclude.Include incl = inclV.getValueInclusion();
+            if (incl != null && incl != JsonInclude.Include.USE_DEFAULTS) {
+                return incl;
+            }
         }
-        AnnotatedMember am = getAccessor();
-        return _annotationIntrospector.findSerializationInclusion(am, null);
+        return null;
     }
 
     public JsonProperty.Access findAccess() {

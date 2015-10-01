@@ -706,7 +706,10 @@ public abstract class AnnotationIntrospector
      *
      * @return Enumerated value indicating which properties to include
      *   in serialization
+     * 
+     * @deprecated Since 2.7 Use {@link #findPropertyInclusion} instead
      */
+    @Deprecated // since 2.7
     public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
         return defValue;
     }
@@ -717,23 +720,24 @@ public abstract class AnnotationIntrospector
      * NOTE: this is NOT called for POJO properties, or array/Collection elements.
      * 
      * @since 2.5
+     * 
+     * @deprecated Since 2.7 Use {@link #findPropertyInclusion} instead
      */
+    @Deprecated // since 2.7
     public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue) {
         return defValue;
     }
 
-    // // // Forwards compatibility: added in 2.6 BUT NOT YET USED until 2.7
-
     /**
-     * NOTE: introduced in 2.6 but NOT YET USED by core databind until 2.7
+     * Method for checking inclusion criteria for a type (Class) or property (yes, method
+     * name is bit unfortunate -- not just for properties!).
+     * In case of class, acts as the default for properties POJO contains; for properties
+     * acts as override for class defaults and possible global defaults.
      *
      * @since 2.6
      */
     public JsonInclude.Value findPropertyInclusion(Annotated a) {
-        JsonInclude.Include def = JsonInclude.Include.USE_DEFAULTS;
-        JsonInclude.Include vi = findSerializationInclusion(a, def);
-        JsonInclude.Include ci = findSerializationInclusionForContent(a, def);
-        return JsonInclude.Value.construct(vi, ci);
+        return JsonInclude.Value.empty();
     }
 
     /*

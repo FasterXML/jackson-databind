@@ -49,58 +49,62 @@ public abstract class BasicSerializerFactory
      * about ClassLoader used to load them. Rather, we can just
      * use the class name, and keep things simple and efficient.
      */
-    protected final static HashMap<String, JsonSerializer<?>> _concrete =
-        new HashMap<String, JsonSerializer<?>>();
+    protected final static HashMap<String, JsonSerializer<?>> _concrete;
     
     /**
      * Actually it may not make much sense to eagerly instantiate all
      * kinds of serializers: so this Map actually contains class references,
      * not instances
      */
-    protected final static HashMap<String, Class<? extends JsonSerializer<?>>> _concreteLazy =
-        new HashMap<String, Class<? extends JsonSerializer<?>>>();
+    protected final static HashMap<String, Class<? extends JsonSerializer<?>>> _concreteLazy;
     
     static {
+        HashMap<String, Class<? extends JsonSerializer<?>>> concLazy
+            = new HashMap<String, Class<? extends JsonSerializer<?>>>();
+        HashMap<String, JsonSerializer<?>> concrete
+            = new HashMap<String, JsonSerializer<?>>();
+
+        
         /* String and string-like types (note: date types explicitly
          * not included -- can use either textual or numeric serialization)
          */
-        _concrete.put(String.class.getName(), new StringSerializer());
+        concrete.put(String.class.getName(), new StringSerializer());
         final ToStringSerializer sls = ToStringSerializer.instance;
-        _concrete.put(StringBuffer.class.getName(), sls);
-        _concrete.put(StringBuilder.class.getName(), sls);
-        _concrete.put(Character.class.getName(), sls);
-        _concrete.put(Character.TYPE.getName(), sls);
+        concrete.put(StringBuffer.class.getName(), sls);
+        concrete.put(StringBuilder.class.getName(), sls);
+        concrete.put(Character.class.getName(), sls);
+        concrete.put(Character.TYPE.getName(), sls);
 
         // Primitives/wrappers for primitives (primitives needed for Beans)
-        NumberSerializers.addAll(_concrete);
-        _concrete.put(Boolean.TYPE.getName(), new BooleanSerializer(true));
-        _concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
+        NumberSerializers.addAll(concrete);
+        concrete.put(Boolean.TYPE.getName(), new BooleanSerializer(true));
+        concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
 
         // Other numbers, more complicated
-        _concrete.put(BigInteger.class.getName(), new NumberSerializer(BigInteger.class));
-        _concrete.put(BigDecimal.class.getName(),new NumberSerializer(BigDecimal.class));
+        concrete.put(BigInteger.class.getName(), new NumberSerializer(BigInteger.class));
+        concrete.put(BigDecimal.class.getName(),new NumberSerializer(BigDecimal.class));
 
         // Other discrete non-container types:
         // First, Date/Time zoo:
-        _concrete.put(Calendar.class.getName(), CalendarSerializer.instance);
+        concrete.put(Calendar.class.getName(), CalendarSerializer.instance);
         DateSerializer dateSer = DateSerializer.instance;
-        _concrete.put(java.util.Date.class.getName(), dateSer);
+        concrete.put(java.util.Date.class.getName(), dateSer);
         // note: timestamps are very similar to java.util.Date, thus serialized as such
-        _concrete.put(java.sql.Timestamp.class.getName(), dateSer);
+        concrete.put(java.sql.Timestamp.class.getName(), dateSer);
         
         // leave some of less commonly used ones as lazy, no point in proactive construction
-        _concreteLazy.put(java.sql.Date.class.getName(), SqlDateSerializer.class);
-        _concreteLazy.put(java.sql.Time.class.getName(), SqlTimeSerializer.class);
+        concLazy.put(java.sql.Date.class.getName(), SqlDateSerializer.class);
+        concLazy.put(java.sql.Time.class.getName(), SqlTimeSerializer.class);
 
         // And then other standard non-structured JDK types
         for (Map.Entry<Class<?>,Object> en : StdJdkSerializers.all()) {
             Object value = en.getValue();
             if (value instanceof JsonSerializer<?>) {
-                _concrete.put(en.getKey().getName(), (JsonSerializer<?>) value);
+                concrete.put(en.getKey().getName(), (JsonSerializer<?>) value);
             } else if (value instanceof Class<?>) {
                 @SuppressWarnings("unchecked")
                 Class<? extends JsonSerializer<?>> cls = (Class<? extends JsonSerializer<?>>) value;
-                _concreteLazy.put(en.getKey().getName(), cls);
+                concLazy.put(en.getKey().getName(), cls);
             } else { // should never happen, but:
                 throw new IllegalStateException("Internal error: unrecognized value of type "+en.getClass().getName());
             }
@@ -108,7 +112,10 @@ public abstract class BasicSerializerFactory
 
         // Jackson-specific type(s)
         // (Q: can this ever be sub-classed?)
-        _concreteLazy.put(TokenBuffer.class.getName(), TokenBufferSerializer.class);
+        concLazy.put(TokenBuffer.class.getName(), TokenBufferSerializer.class);
+
+        _concrete = concrete;
+        _concreteLazy = concLazy;
     }
 
     /*
@@ -379,7 +386,7 @@ public abstract class BasicSerializerFactory
     {
         Class<?> raw = type.getRawClass();
         
-        // Then check for optional/external serializers [JACKSON-386]
+        // Then check for optional/external serializers 
         JsonSerializer<?> ser = findOptionalStdSerializer(prov, type, beanDesc, staticTyping);
         if (ser != null) {
             return ser;

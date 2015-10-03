@@ -12,6 +12,7 @@ Project: jackson-databind
 #933: Close some gaps to allow using the tryToResolveUnresolved flows
 #948: Support leap seconds, any number of millisecond digits for ISO-8601 Dates.
  (contributed by Jesse W)
+#957: Merge `datatype-jdk7` stuff in (java.nio.file.Path handling)
 
 2.6.3 (not yet released)
 

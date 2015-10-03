@@ -76,7 +76,7 @@ public abstract class BaseMapTest
     {
         public List<T> list;
 
-        public ListWrapper(T... values) {
+        public ListWrapper(@SuppressWarnings("unchecked") T... values) {
             list = new ArrayList<T>();
             for (T value : values) {
                 list.add(value);

@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Tests to ensure that we can handle 1.6-only types, even if
  * registrations are done without direct refs
  */
-public class TestJDK16OnlyTypes extends com.fasterxml.jackson.databind.BaseMapTest
+public class TestJdk16Types extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    // for [Issue#216]
+    // for [databind#216]
     public void test16Types() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();

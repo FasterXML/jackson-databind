@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-parent</artifactId>
-    <version>2.6.1</version>
+    <version>2.7.0-rc1-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -24,6 +24,14 @@
   </scm>
 
   <properties>
+    <!-- Sigh. Looks like we need this, for now (Jackson 2.6)
+        ... but COMPILE using Java7 JDK...
+        Why? Because it appears that otherwise we will get mysterious class load failures
+        from Mockito tests. Ugh.
+      -->
+    <javac.src.version>1.6</javac.src.version>
+    <javac.target.version>1.6</javac.target.version>
+
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- but imports should work fine with defaults -->
@@ -53,27 +61,21 @@
    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.3</version>
       <scope>test</scope>
    </dependency>
    <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>1.6.2</version>
+      <version>1.6.3</version>
       <scope>test</scope>
    </dependency>
     <!-- For testing TestNoClassDefFoundDeserializer -->
     <dependency>
       <groupId>javax.measure</groupId>
       <artifactId>jsr-275</artifactId>
-      <version>0.9.2</version>
+      <version>1.0.0</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>18.0</version>
-        <scope>test</scope>
     </dependency>
   </dependencies>
 

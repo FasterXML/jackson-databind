@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * Helper class used for isolating details of handling optional+external types
@@ -13,6 +14,8 @@ import com.fasterxml.jackson.databind.ser.Serializers;
  * certain cases. Since DOM classes are assumed to exist on all Java 1.6
  * environments (yes, even on Android/GAE), this part could be simplified by
  * slightly less dynamic lookups.
+ *<p>
+ * Also with 2.7 we are supporting JDK 1.7/Java 7 type(s).
  */
 public class OptionalHandlerFactory implements java.io.Serializable
 {
@@ -33,7 +36,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
     private final static String SERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMSerializer";
     private final static String DESERIALIZER_FOR_DOM_DOCUMENT = "com.fasterxml.jackson.databind.ext.DOMDeserializer$DocumentDeserializer";
     private final static String DESERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMDeserializer$NodeDeserializer";
-    
+
+    private final static String DESERIALIZER_FOR_PATH = "com.fasterxml.jackson.databind.ext.PathDeserializer";
+
     // // Since 2.7, we will assume DOM classes are always found, both due to JDK 1.6 minimum
     // // and because Android (and presumably GAE) have these classes
 
@@ -47,10 +52,26 @@ public class OptionalHandlerFactory implements java.io.Serializable
             doc = org.w3c.dom.Document.class;
         } catch (Exception e) {
             // not optimal but will do
-            System.err.println("ERROR: could not load DOM Node and/or Document classes");
+            System.err.println("WARNING: could not load DOM Node and/or Document classes");
         }
         CLASS_DOM_NODE = node;
         CLASS_DOM_DOCUMENT = doc;
+    }
+
+    // // But Java7 type(s) may or may not be; dynamic lookup should be fine, still
+    // // (note: also assume it comes from JDK so that ClassLoader issues with OSGi
+    // // can, I hope, be avoided?)
+    
+    private final static Class<?> CLASS_JAVA7_PATH;
+    static {
+        Class<?> cls = null;
+        try {
+            cls = Class.forName("java.nio.file.Path");
+        } catch (Exception e) {
+            // not optimal but will do
+            System.err.println("WARNING: could not load Java7 Path class");
+        }
+        CLASS_JAVA7_PATH = cls;
     }
     
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
@@ -68,6 +89,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         final Class<?> rawType = type.getRawClass();
 
+        if ((CLASS_JAVA7_PATH != null) && CLASS_JAVA7_PATH.isAssignableFrom(rawType)) {
+            return ToStringSerializer.instance;
+        }
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
             return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE);
         }
@@ -92,6 +116,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         final Class<?> rawType = type.getRawClass();
 
+        if ((CLASS_JAVA7_PATH != null) && CLASS_JAVA7_PATH.isAssignableFrom(rawType)) {
+            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_PATH);
+        }
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
             return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE);
         }

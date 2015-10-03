@@ -706,11 +706,11 @@ public class POJOPropertyBuilder
         }
     }
 
-    private AnnotationMap _mergeAnnotations(int index, Linked<? extends AnnotatedMember>... nodes)
+    private AnnotationMap _mergeAnnotations(int index,
+            Linked<? extends AnnotatedMember>... nodes)
     {
         AnnotationMap ann = _getAllAnnotations(nodes[index]);
-        ++index;
-        for (; index < nodes.length; ++index) {
+        while (++index < nodes.length) {
             if (nodes[index] != null) {
               return AnnotationMap.merge(ann, _mergeAnnotations(index, nodes));
             }

@@ -4,8 +4,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.util.EmptyIterator;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for aggregating information about a single
@@ -359,7 +360,7 @@ public class POJOPropertyBuilder
     @Override
     public Iterator<AnnotatedParameter> getConstructorParameters() {
         if (_ctorParameters == null) {
-            return EmptyIterator.instance();
+            return ClassUtil.emptyIterator();
         }
         return new MemberIterator<AnnotatedParameter>(_ctorParameters);
     }

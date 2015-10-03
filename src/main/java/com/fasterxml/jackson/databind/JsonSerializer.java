@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.util.EmptyIterator;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -255,7 +256,7 @@ public abstract class JsonSerializer<T>
      * @since 2.6
      */
     public Iterator<PropertyWriter> properties() {
-        return EmptyIterator.instance();
+        return ClassUtil.emptyIterator();
     }
 
     /*

@@ -281,7 +281,7 @@ public class SimpleBeanPropertyDefinition
     public Iterator<AnnotatedParameter> getConstructorParameters() {
         AnnotatedParameter param = getConstructorParameter();
         if (param == null) {
-            return EmptyIterator.instance();
+            return ClassUtil.emptyIterator();
         }
         return Collections.singleton(param).iterator();
     }

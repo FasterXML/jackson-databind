@@ -3,8 +3,9 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.util.EmptyIterator;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**
@@ -146,7 +147,7 @@ public abstract class BeanPropertyDefinition
      * @since 2.5
      */
     public Iterator<AnnotatedParameter> getConstructorParameters() {
-        return EmptyIterator.instance();
+        return ClassUtil.emptyIterator();
     }
     
     /**

@@ -12,6 +12,19 @@ public final class ClassUtil
 
     /*
     /**********************************************************
+    /* Simple factory methods
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.7
+     */
+    public static <T> Iterator<T> emptyIterator() {
+        return Collections.emptyIterator();
+    }
+
+    /*
+    /**********************************************************
     /* Methods that deal with inheritance
     /**********************************************************
      */
@@ -136,7 +149,7 @@ public final class ClassUtil
      */
     public static boolean isProxyType(Class<?> type)
     {
-        // As per [Issue#57], should NOT disqualify JDK proxy:
+        // As per [databind#57], should NOT disqualify JDK proxy:
         /*
         // Then: well-known proxy (etc) classes
         if (Proxy.isProxyClass(type)) {

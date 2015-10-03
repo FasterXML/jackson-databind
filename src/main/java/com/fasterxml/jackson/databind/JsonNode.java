@@ -8,7 +8,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.util.EmptyIterator;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Base class for all JSON nodes, which form the basis of JSON
@@ -180,7 +180,7 @@ public abstract class JsonNode
 
     @Override
     public Iterator<String> fieldNames() {
-        return EmptyIterator.instance();
+        return ClassUtil.emptyIterator();
     }
 
     /**
@@ -759,7 +759,7 @@ public abstract class JsonNode
      * For other types of nodes, returns empty iterator.
      */
     public Iterator<JsonNode> elements() {
-        return EmptyIterator.instance();
+        return ClassUtil.emptyIterator();
     }
 
     /**
@@ -767,15 +767,15 @@ public abstract class JsonNode
      *   object nodes; empty iterator (no contents) for other types
      */
     public Iterator<Map.Entry<String, JsonNode>> fields() {
-        return EmptyIterator.instance();
+        return ClassUtil.emptyIterator();
     }
-    
+
     /*
     /**********************************************************
     /* Public API, find methods
     /**********************************************************
      */
-    
+
     /**
      * Method for finding a JSON Object field with specified name in this
      * node or its child nodes, and returning value it has.

@@ -377,7 +377,7 @@ public class BeanDeserializerFactory
                     am.getGenericParameterType(0));
             if (prop != null) {
                 /* 21-Aug-2011, tatus: We may actually have found 'cause' property
-                 *   to set (with new 1.9 code)... but let's replace it just in case,
+                 *   to set... but let's replace it just in case,
                  *   otherwise can end up with odd errors.
                  */
                 builder.addOrReplaceProperty(prop, true);
@@ -386,14 +386,14 @@ public class BeanDeserializerFactory
 
         // And also need to ignore "localizedMessage"
         builder.addIgnorable("localizedMessage");
-        // [JACKSON-794]: JDK 7 also added "getSuppressed", skip if we have such data:
+        // Java 7 also added "getSuppressed", skip if we have such data:
         builder.addIgnorable("suppressed");
         /* As well as "message": it will be passed via constructor,
          * as there's no 'setMessage()' method
         */
         builder.addIgnorable("message");
 
-        // [JACKSON-440]: update builder now that all information is in?
+        // update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 builder = mod.updateBuilder(config, beanDesc, builder);
@@ -408,7 +408,7 @@ public class BeanDeserializerFactory
             deserializer = new ThrowableDeserializer((BeanDeserializer) deserializer);
         }
 
-        // [JACKSON-440]: may have modifier(s) that wants to modify or replace serializer we just built:
+        // may have modifier(s) that wants to modify or replace serializer we just built:
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deserializer = mod.modifyDeserializer(config, beanDesc, deserializer);

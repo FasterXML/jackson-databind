@@ -297,7 +297,7 @@ public abstract class BeanSerializerBase
             if (prop.hasSerializer()) {
                 continue;
             }
-            // [Issue#124]: allow use of converters
+            // [databind#124]: allow use of converters
             JsonSerializer<Object> ser = findConvertingSerializer(provider, prop);
             if (ser == null) {
                 // Was the serialization type hard-coded? If so, use it

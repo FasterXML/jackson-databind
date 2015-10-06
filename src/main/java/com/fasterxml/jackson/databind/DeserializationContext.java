@@ -753,6 +753,7 @@ public abstract class DeserializationContext
     public <T> T readValue(JsonParser p, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findRootValueDeserializer(type);
         if (deser == null) {
+            throw mappingException("Could not find JsonDeserializer for type %s", type);
         }
         return (T) deser.deserialize(p, this);
     }
@@ -776,11 +777,13 @@ public abstract class DeserializationContext
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
-            
+            String propName = (prop == null) ? "NULL" : ("'"+prop.getName()+"'");
+            throw mappingException("Could not find JsonDeserializer for type %s (via property %s)",
+                    type, propName);
         }
         return (T) deser.deserialize(p, this);
     }
-    
+
     /*
     /**********************************************************
     /* Methods for problem handling, reporting

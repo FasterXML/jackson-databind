@@ -30,7 +30,7 @@ public final class FieldProperty
      * construction of objects.
      */
     final protected transient Field _field;
-    
+
     public FieldProperty(BeanPropertyDefinition propDef, JavaType type,
             TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedField field)
     {

@@ -114,4 +114,15 @@ public class NewSchemaTest extends BaseMapTest
                         ));
         assertEquals(exp, values);
     }
+
+    // [2.7]: Ensure JsonValueFormat serializes/deserializes as expected
+    public void testJsonValueFormatHandling() throws Exception
+    {
+        // first: serialize using 'toString()', not name
+        final String EXP = quote("host-name");
+        assertEquals(EXP, MAPPER.writeValueAsString(JsonValueFormat.HOST_NAME));
+
+        // and second, deserialize ok from that as well
+        assertSame(JsonValueFormat.HOST_NAME, MAPPER.readValue(EXP, JsonValueFormat.class));
+    }
 }

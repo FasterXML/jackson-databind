@@ -15,6 +15,7 @@
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>http://github.com/FasterXML/jackson</url>
+  <inceptionYear>2008</inceptionYear>
 
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>

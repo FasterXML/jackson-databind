@@ -24,10 +24,10 @@
   </scm>
 
   <properties>
-    <!-- Sigh. Looks like we need this, for now (Jackson 2.6)
-        ... but COMPILE using Java7 JDK...
-        Why? Because it appears that otherwise we will get mysterious class load failures
-        from Mockito tests. Ugh.
+    <!-- Ok, so, Jackson 2.7 require JDK 1.7 (except for annotations/streaming). But
+        we do not have strict need for Java 7 bytecode. And, unfortunately, it looks
+        like we have some issues with Mockito tests if we try to go "full 1.7"...
+        So that is why... this:
       -->
     <javac.src.version>1.6</javac.src.version>
     <javac.target.version>1.6</javac.target.version>

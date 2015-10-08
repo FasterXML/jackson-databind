@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -347,7 +346,8 @@ public abstract class SettableBeanProperty
     }
 
     @Override
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+            SerializerProvider provider)
         throws JsonMappingException
     {
         if (isRequired()) {

@@ -144,12 +144,17 @@ public interface BeanProperty extends Named
      * Note that not all implementations support traversal with this
      * method; those that do not should throw
      * {@link UnsupportedOperationException}.
+     *<p>
+     * NOTE: Starting with 2.7, takes explicit {@link SerializerProvider}
+     * argument to reduce the need to rely on provider visitor may or may not
+     * have assigned.
      * 
      * @param objectVisitor Visitor to used as the callback handler
      * 
-     * @since 2.2
+     * @since 2.2 (although signature did change in 2.7)
      */
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+            SerializerProvider provider)
         throws JsonMappingException;
 
     /*
@@ -256,7 +261,8 @@ public interface BeanProperty extends Named
          * visited. Rather, other implementations should handle it.
          */
         @Override
-        public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor) {
+        public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+                SerializerProvider provider) {
             throw new UnsupportedOperationException("Instances of "+getClass().getName()+" should not get visited");
         }
     }

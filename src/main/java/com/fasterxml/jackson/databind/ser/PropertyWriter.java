@@ -152,9 +152,9 @@ public abstract class PropertyWriter
      * POJO introspection.
      */
     @Override
-    public abstract void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+    public abstract void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+            SerializerProvider provider)
         throws JsonMappingException;
-
 
     /**
      * Legacy method called for JSON Schema generation; should not be called by new code

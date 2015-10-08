@@ -151,9 +151,9 @@ public class UnwrappingBeanPropertyWriter
      */
 
     @Override
-    public void depositSchemaProperty(final JsonObjectFormatVisitor visitor)
-            throws JsonMappingException {
-        SerializerProvider provider = visitor.getProvider();
+    public void depositSchemaProperty(final JsonObjectFormatVisitor visitor,
+            SerializerProvider provider) throws JsonMappingException
+    {
         JsonSerializer<Object> ser = provider
                 .findValueSerializer(this.getType(), this)
                 .unwrappingSerializer(_nameTransformer);
@@ -169,7 +169,7 @@ public class UnwrappingBeanPropertyWriter
                 }
             }, this.getType());
         } else {
-            super.depositSchemaProperty(visitor);
+            super.depositSchemaProperty(visitor, provider);
         }
     }
 

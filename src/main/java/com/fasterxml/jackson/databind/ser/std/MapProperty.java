@@ -26,6 +26,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 public class MapProperty extends PropertyWriter
 {
+    private static final long serialVersionUID = 1L;
+
     protected final TypeSerializer _typeSerializer;
 
     protected final BeanProperty _property;
@@ -122,11 +124,12 @@ public class MapProperty extends PropertyWriter
      */
     
     @Override
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+            SerializerProvider provider)
         throws JsonMappingException
     {
         if (_property != null) {
-            _property.depositSchemaProperty(objectVisitor);
+            _property.depositSchemaProperty(objectVisitor, provider);
         }
     }
 

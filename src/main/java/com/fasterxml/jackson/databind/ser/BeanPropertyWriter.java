@@ -7,11 +7,9 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -750,7 +748,8 @@ public class BeanPropertyWriter
 
     // Also part of BeanProperty implementation
     @Override
-    public void depositSchemaProperty(JsonObjectFormatVisitor v)
+    public void depositSchemaProperty(JsonObjectFormatVisitor v,
+            SerializerProvider provider)
         throws JsonMappingException
     {
         if (v != null) {

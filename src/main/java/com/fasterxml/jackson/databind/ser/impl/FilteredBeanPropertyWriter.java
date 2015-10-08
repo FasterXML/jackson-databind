@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -81,6 +83,16 @@ public abstract class FilteredBeanPropertyWriter
                 _delegate.serializeAsPlaceholder(bean, jgen, prov);
             }
         }
+
+        @Override
+        public void depositSchemaProperty(JsonObjectFormatVisitor v,
+                SerializerProvider provider) throws JsonMappingException
+        {
+            Class<?> activeView = provider.getActiveView();
+            if (activeView == null || _view.isAssignableFrom(activeView)) {
+                super.depositSchemaProperty(v, provider);
+            }
+        }
     }
 
     private final static class MultiView
@@ -150,6 +162,23 @@ public abstract class FilteredBeanPropertyWriter
                 }
             }
             _delegate.serializeAsElement(bean, jgen, prov);
+        }
+
+        @Override
+        public void depositSchemaProperty(JsonObjectFormatVisitor v,
+                SerializerProvider provider) throws JsonMappingException
+        {
+            Class<?> activeView = provider.getActiveView();
+            if (activeView != null) {
+                int i = 0, len = _views.length;
+                for (; i < len; ++i) {
+                    if (_views[i].isAssignableFrom(activeView)) break;
+                }
+                if (i == len) { // not match? Just don't deposit
+                    return;
+                }
+            }
+            super.depositSchemaProperty(v, provider);
         }
     }
 }

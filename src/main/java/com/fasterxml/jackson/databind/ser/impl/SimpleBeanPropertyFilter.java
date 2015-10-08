@@ -189,7 +189,7 @@ public class SimpleBeanPropertyFilter
         throws JsonMappingException
     {
         if (include(writer)) {
-            writer.depositSchemaProperty(objectVisitor);
+            writer.depositSchemaProperty(objectVisitor, provider);
         }
     }
 
@@ -238,7 +238,7 @@ public class SimpleBeanPropertyFilter
             SerializerProvider provider) throws JsonMappingException 
     {
         if (include(writer)) {
-            writer.depositSchemaProperty(objectVisitor);
+            writer.depositSchemaProperty(objectVisitor, provider);
         }
     }
 

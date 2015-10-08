@@ -659,7 +659,7 @@ public abstract class BeanSerializerBase
      */
 
     protected void serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         final BeanPropertyWriter[] props;
         if (_filteredProps != null && provider.getActiveView() != null) {
@@ -790,15 +790,28 @@ public abstract class BeanSerializerBase
         if (objectVisitor == null) {
             return;
         }
+        final SerializerProvider provider = visitor.getProvider();
         if (_propertyFilterId != null) {
             PropertyFilter filter = findPropertyFilter(visitor.getProvider(),
                     _propertyFilterId, null);
-            for (int i = 0; i < _props.length; i++) {
-                filter.depositSchemaProperty(_props[i], objectVisitor, visitor.getProvider());
+            for (int i = 0, end = _props.length; i < end; ++i) {
+                filter.depositSchemaProperty(_props[i], objectVisitor, provider);
             }
         } else {
-            for (int i = 0; i < _props.length; i++) {
-                _props[i].depositSchemaProperty(objectVisitor);
+            Class<?> view = ((_filteredProps == null) || (provider == null))
+                    ? null : provider.getActiveView();
+            final BeanPropertyWriter[] props;
+            if (view != null) {
+                props = _filteredProps;
+            } else {
+                props = _props;
+            }
+
+            for (int i = 0, end = props.length; i < end; ++i) {
+                BeanPropertyWriter prop = props[i];
+                if (prop != null) { // may be filtered out unconditionally
+                    prop.depositSchemaProperty(objectVisitor, provider);
+                }
             }
         }
     }

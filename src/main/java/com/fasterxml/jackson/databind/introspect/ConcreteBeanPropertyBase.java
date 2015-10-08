@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.PropertyMetadata;
@@ -72,4 +73,17 @@ public abstract class ConcreteBeanPropertyBase
         }
         return (f == NO_FORMAT) ? null : f;
     }
+
+    @Override
+    public JsonInclude.Value findPropertyInclusion(AnnotationIntrospector intr) {
+        // 08-Oct-2015, tatu: Unlike with Format, let's not cache locally here, for now
+        if (intr != null) {
+            AnnotatedMember member = getMember();
+            if (member != null) {
+                return intr.findPropertyInclusion(member);
+            }
+        }
+        return null;
+    }
+
 }

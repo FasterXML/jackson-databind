@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -132,6 +133,16 @@ public interface BeanProperty extends Named
      */
     public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr);
 
+    /**
+     * Convenience method that is roughly equivalent to
+     *<pre>
+     *   return intr.findPropertyInclusion(getMember());
+     *</pre>
+     *
+     * @since 2.7
+     */
+    public JsonInclude.Value findPropertyInclusion(AnnotationIntrospector intr);
+
     /*
     /**********************************************************
     /* Schema/introspection support
@@ -233,6 +244,11 @@ public interface BeanProperty extends Named
 
         @Override
         public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
+            return null;
+        }
+
+        @Override
+        public JsonInclude.Value findPropertyInclusion(AnnotationIntrospector intr) {
             return null;
         }
 

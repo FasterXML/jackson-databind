@@ -6,11 +6,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -35,25 +36,17 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * synchronization issues.
  */
 @JacksonStdImpl // since 2.6. NOTE: sub-classes typically are not
-public class BeanPropertyWriter extends PropertyWriter
-    implements BeanProperty,
-        java.io.Serializable // since 2.6.2
+public class BeanPropertyWriter
+    extends PropertyWriter // which extends `ConcreteBeanPropertyBase`
+    implements java.io.Serializable // since 2.6.2
 {
-    // as of 2.6.2
-    private static final long serialVersionUID = 4603296144163950020L;
+    // As of 2.7
+    private static final long serialVersionUID = 6986604589507872243L;
 
     /**
      * Marker object used to indicate "do not serialize if empty"
      */
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
-
-    /**
-     * Marker we use to indicate case where we have done format lookup,
-     * but found nothing; marker used to avoid having to repeat such lookups.
-     *
-     * @since 2.6
-     */
-    protected final static JsonFormat.Value NO_FORMAT = new JsonFormat.Value();
 
     /*
     /**********************************************************
@@ -108,20 +101,13 @@ public class BeanPropertyWriter extends PropertyWriter
      * do not serialize. At all.
      */
     protected final transient Annotations _contextAnnotations;
-    
+
     /**
      * Additional information about property
      *
      * @since 2.3
      */
     protected final PropertyMetadata _metadata;
-
-    /**
-     * Lazily accessed value for per-property format override definition.
-     * 
-     * @since 2.6
-     */
-    protected transient JsonFormat.Value _format;
 
     /*
     /**********************************************************
@@ -487,17 +473,6 @@ public class BeanPropertyWriter extends PropertyWriter
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
-    }
-    
-    @Override
-    public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-        JsonFormat.Value f = _format;
-        if (f == null) { // not yet looked up, do that
-            f = ((intr == null) || (_member == null)) ? null
-                    : intr.findFormat(_member);
-            _format = (f == null) ? NO_FORMAT : f;
-        }
-        return (f == NO_FORMAT) ? null : f;
     }
 
     @Override public AnnotatedMember getMember() { return _member; }

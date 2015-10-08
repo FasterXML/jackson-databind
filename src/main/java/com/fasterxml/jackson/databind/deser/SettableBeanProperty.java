@@ -3,12 +3,13 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.ConcreteBeanPropertyBase;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -24,8 +25,8 @@ import com.fasterxml.jackson.databind.util.ViewMatcher;
  */
 @SuppressWarnings("serial")
 public abstract class SettableBeanProperty
-    implements BeanProperty,
-        java.io.Serializable
+    extends ConcreteBeanPropertyBase
+    implements java.io.Serializable
 {
     /**
      * To avoid nasty NPEs, let's use a placeholder for _valueDeserializer,
@@ -363,17 +364,6 @@ public abstract class SettableBeanProperty
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _contextAnnotations.get(acls);
-    }
-
-    @Override
-    public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-        if (intr != null) {
-            AnnotatedMember m = getMember();
-            if (m != null) {
-                return intr.findFormat(m);
-            }
-        }
-        return null;
     }
 
     @Override

@@ -5,14 +5,18 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Helper class needed to support flexible filtering of Map properties
@@ -30,14 +34,6 @@ public class MapProperty extends PropertyWriter
 
     protected JsonSerializer<Object> _keySerializer, _valueSerializer;
 
-    /**
-     * @deprecated since 2.4
-     */
-    @Deprecated // since 2.4
-    public MapProperty(TypeSerializer typeSer) {
-        this(typeSer, null);
-    }
-    
     public MapProperty(TypeSerializer typeSer, BeanProperty prop)
     {
         _typeSerializer = typeSer;
@@ -80,55 +76,88 @@ public class MapProperty extends PropertyWriter
     }
     
     @Override
-    public void serializeAsField(Object value, JsonGenerator jgen,
+    public void serializeAsField(Object value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
-        _keySerializer.serialize(_key, jgen, provider);
+        _keySerializer.serialize(_key, gen, provider);
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(value, jgen, provider);
+            _valueSerializer.serialize(value, gen, provider);
         } else {
-            _valueSerializer.serializeWithType(value, jgen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(value, gen, provider, _typeSerializer);
         }
     }
 
     @Override
-    public void serializeAsOmittedField(Object value, JsonGenerator jgen,
+    public void serializeAsOmittedField(Object value, JsonGenerator gen,
             SerializerProvider provider) throws Exception
     {
-        if (!jgen.canOmitFields()) {
-            jgen.writeOmittedField(getName());
+        if (!gen.canOmitFields()) {
+            gen.writeOmittedField(getName());
         }
     }
 
     @Override
-    public void serializeAsElement(Object value, JsonGenerator jgen,
+    public void serializeAsElement(Object value, JsonGenerator gen,
             SerializerProvider provider) throws Exception
     {
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(value, jgen, provider);
+            _valueSerializer.serialize(value, gen, provider);
         } else {
-            _valueSerializer.serializeWithType(value, jgen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(value, gen, provider, _typeSerializer);
         }
     }
     
     @Override
-    public void serializeAsPlaceholder(Object value, JsonGenerator jgen,
+    public void serializeAsPlaceholder(Object value, JsonGenerator gen,
             SerializerProvider provider) throws Exception
     {
-        jgen.writeNull();
+        gen.writeNull();
     }
 
+    /*
+    /**********************************************************
+    /* Rest of BeanProperty, nop
+    /**********************************************************
+     */
+    
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
         throws JsonMappingException
     {
-        // !!! TODO
+        if (_property != null) {
+            _property.depositSchemaProperty(objectVisitor);
+        }
     }
 
     @Override
     @Deprecated
     public void depositSchemaProperty(ObjectNode propertiesNode,
             SerializerProvider provider) throws JsonMappingException {
-        // !!! TODO
+        // nothing to do here
+   }
+
+    @Override
+    public JavaType getType() {
+        return (_property == null) ? TypeFactory.unknownType() : _property.getType();
+    }
+
+    @Override
+    public PropertyName getWrapperName() {
+        return (_property == null) ? null : _property.getWrapperName();
+    }
+
+    @Override
+    public PropertyMetadata getMetadata() {
+        return (_property == null) ? null : _property.getMetadata();
+    }
+
+    @Override
+    public boolean isRequired() {
+        return (_property == null) ? false : _property.isRequired();
+    }
+
+    @Override
+    public AnnotatedMember getMember() {
+        return (_property == null) ? null : _property.getMember();
     }
 }

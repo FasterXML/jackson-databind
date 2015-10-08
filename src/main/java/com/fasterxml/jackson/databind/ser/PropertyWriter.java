@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.ConcreteBeanPropertyBase;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @since 2.3
  */
 public abstract class PropertyWriter
+    extends ConcreteBeanPropertyBase // since 2.7
 {
     /*
     /**********************************************************
@@ -23,8 +25,10 @@ public abstract class PropertyWriter
     /**********************************************************
      */
 
+    @Override
     public abstract String getName();
 
+    @Override
     public abstract PropertyName getFullName();
 
     /**
@@ -61,6 +65,7 @@ public abstract class PropertyWriter
      * 
      * @since 2.5
      */
+    @Override
     public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
 
     /**
@@ -70,6 +75,7 @@ public abstract class PropertyWriter
      * 
      * @since 2.5
      */
+    @Override
     public abstract <A extends Annotation> A getContextAnnotation(Class<A> acls);
 
     /*
@@ -129,6 +135,7 @@ public abstract class PropertyWriter
      * Traversal method used for things like JSON Schema generation, or
      * POJO introspection.
      */
+    @Override
     public abstract void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
         throws JsonMappingException;
 

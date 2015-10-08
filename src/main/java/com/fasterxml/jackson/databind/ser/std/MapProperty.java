@@ -36,6 +36,7 @@ public class MapProperty extends PropertyWriter
 
     public MapProperty(TypeSerializer typeSer, BeanProperty prop)
     {
+        super((prop == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL : prop.getMetadata());
         _typeSerializer = typeSer;
         _property = prop;
     }
@@ -144,16 +145,6 @@ public class MapProperty extends PropertyWriter
     @Override
     public PropertyName getWrapperName() {
         return (_property == null) ? null : _property.getWrapperName();
-    }
-
-    @Override
-    public PropertyMetadata getMetadata() {
-        return (_property == null) ? null : _property.getMetadata();
-    }
-
-    @Override
-    public boolean isRequired() {
-        return (_property == null) ? false : _property.isRequired();
     }
 
     @Override

@@ -78,6 +78,14 @@ public interface BeanProperty extends Named
      */
     public boolean isRequired();
 
+    /**
+     * Accessor for checking whether there is an actual physical property
+     * behind this property abstraction or not.
+     * 
+     * @since 2.7
+     */
+    public boolean isVirtual();
+
     /*
     /**********************************************************
     /* Access to annotation information
@@ -238,6 +246,7 @@ public interface BeanProperty extends Named
          * 
          * @since 2.5
          */
+        @Override
         public boolean isVirtual() { return false; }
 
         /**

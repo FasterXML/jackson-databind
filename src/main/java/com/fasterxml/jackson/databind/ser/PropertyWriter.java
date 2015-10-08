@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.introspect.ConcreteBeanPropertyBase;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,7 +19,22 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class PropertyWriter
     extends ConcreteBeanPropertyBase // since 2.7
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
+    protected PropertyWriter(PropertyMetadata md) {
+        super(md);
+    }
+
+    protected PropertyWriter(BeanPropertyDefinition propDef) {
+        super(propDef.getMetadata());
+    }
+
+    protected PropertyWriter(PropertyWriter base) {
+        super(base);
+    }
+
     /*
     /**********************************************************
     /* Metadata access

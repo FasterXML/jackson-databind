@@ -74,15 +74,6 @@ public abstract class SettableBeanProperty
      */
     protected final TypeDeserializer _valueTypeDeserializer;
 
-    /**
-     * Additional optional property metadata, such as whether
-     * property is required, and whether there is additional
-     * human-readable description
-     * 
-     * @since 2.3
-     */
-    protected final PropertyMetadata _metadata;
-
     /*
     /**********************************************************
     /* Configuration that is not yet immutable; generally assigned
@@ -152,6 +143,7 @@ public abstract class SettableBeanProperty
             TypeDeserializer typeDeser, Annotations contextAnnotations,
             PropertyMetadata metadata)
     {
+        super(metadata);
         // 09-Jan-2009, tatu: Intern()ing makes sense since Jackson parsed
         //  field names are (usually) interned too, hence lookups will be faster.
         // 23-Oct-2009, tatu: should this be disabled wrt [JACKSON-180]?
@@ -164,7 +156,6 @@ public abstract class SettableBeanProperty
         }
         _type = type;
         _wrapperName = wrapper;
-        _metadata = metadata;
         _contextAnnotations = contextAnnotations;
         _viewMatcher = null;
 
@@ -184,6 +175,7 @@ public abstract class SettableBeanProperty
     protected SettableBeanProperty(PropertyName propName, JavaType type, 
             PropertyMetadata metadata, JsonDeserializer<Object> valueDeser)
     {
+        super(metadata);
         // as with above ctor, intern()ing probably fine
         if (propName == null) {
             _propName = PropertyName.NO_NAME;
@@ -192,7 +184,6 @@ public abstract class SettableBeanProperty
         }
         _type = type;
         _wrapperName = null;
-        _metadata = metadata;
         _contextAnnotations = null;
         _viewMatcher = null;
         _valueTypeDeserializer = null;
@@ -204,10 +195,10 @@ public abstract class SettableBeanProperty
      */
     protected SettableBeanProperty(SettableBeanProperty src)
     {
+        super(src);
         _propName = src._propName;
         _type = src._type;
         _wrapperName = src._wrapperName;
-        _metadata = src._metadata;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -222,10 +213,10 @@ public abstract class SettableBeanProperty
     @SuppressWarnings("unchecked")
     protected SettableBeanProperty(SettableBeanProperty src, JsonDeserializer<?> deser)
     {
+        super(src);
         _propName = src._propName;
         _type = src._type;
         _wrapperName = src._wrapperName;
-        _metadata = src._metadata;
         _contextAnnotations = src._contextAnnotations;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _managedReferenceName = src._managedReferenceName;
@@ -239,20 +230,15 @@ public abstract class SettableBeanProperty
         _viewMatcher = src._viewMatcher;
     }
 
-    @Deprecated // since 2.3
-    protected SettableBeanProperty(SettableBeanProperty src, String newName) {
-        this(src, new PropertyName(newName));
-    }
-    
     /**
      * Copy-with-deserializer-change constructor for sub-classes to use.
      */
     protected SettableBeanProperty(SettableBeanProperty src, PropertyName newName)
     {
+        super(src);
         _propName = newName;
         _type = src._type;
         _wrapperName = src._wrapperName;
-        _metadata = src._metadata;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -340,13 +326,7 @@ public abstract class SettableBeanProperty
     public PropertyName getFullName() {
         return _propName;
     }
-    
-    @Override
-    public boolean isRequired() { return _metadata.isRequired(); }
 
-    @Override
-    public PropertyMetadata getMetadata() { return _metadata; }
-    
     @Override
     public JavaType getType() { return _type; }
 

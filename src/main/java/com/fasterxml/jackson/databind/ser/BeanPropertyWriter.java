@@ -102,13 +102,6 @@ public class BeanPropertyWriter
      */
     protected final transient Annotations _contextAnnotations;
 
-    /**
-     * Additional information about property
-     *
-     * @since 2.3
-     */
-    protected final PropertyMetadata _metadata;
-
     /*
     /**********************************************************
     /* Settings for accessing property value to serialize
@@ -221,12 +214,12 @@ public class BeanPropertyWriter
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue)
     {
+        super(propDef);
         _member = member;
         _contextAnnotations = contextAnnotations;
 
         _name = new SerializedString(propDef.getName());
         _wrapperName = propDef.getWrapperName();
-        _metadata = propDef.getMetadata();
         _includeInViews = propDef.findViews();
 
         _declaredType = declaredType;
@@ -261,12 +254,12 @@ public class BeanPropertyWriter
      * @since 2.5
      */
     protected BeanPropertyWriter() {
+        super(PropertyMetadata.STD_REQUIRED_OR_OPTIONAL);
         _member = null;
         _contextAnnotations = null;
 
         _name = null;
         _wrapperName = null;
-        _metadata = null;
         _includeInViews = null;
 
         _declaredType = null;
@@ -295,6 +288,7 @@ public class BeanPropertyWriter
      */
     protected BeanPropertyWriter(BeanPropertyWriter base, PropertyName name)
     {
+        super(base);
         /* 02-Dec-2014, tatu: This is a big mess, alas, what with dependency
          *   to MapperConfig to encode, and Afterburner having heartburn
          *   for SerializableString (vs SerializedString).
@@ -323,10 +317,10 @@ public class BeanPropertyWriter
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
-        _metadata = base._metadata;
     }
 
     protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name) {
+        super(base);
         _name = name;
         _wrapperName = base._wrapperName;
 
@@ -347,7 +341,6 @@ public class BeanPropertyWriter
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
-        _metadata = base._metadata;
     }
 
     public BeanPropertyWriter rename(NameTransformer transformer) {
@@ -460,8 +453,6 @@ public class BeanPropertyWriter
 
     @Override public JavaType getType() { return _declaredType; }
     @Override public PropertyName getWrapperName() { return _wrapperName; }
-    @Override public boolean isRequired() { return _metadata.isRequired(); }
-    @Override public PropertyMetadata getMetadata() { return _metadata; }
 
     // Note: also part of 'PropertyWriter'
     @Override
@@ -482,16 +473,6 @@ public class BeanPropertyWriter
         propertiesNode.set(getName(), schemaNode);
     }
 
-    /**
-     * Note: will be defined in {@link BeanProperty}; as of now is not yet.
-     *<p>
-     * TODO: move to {@link BeanProperty} in near future, once all standard
-     * implementations define it.
-     * 
-     * @since 2.5
-     */
-    public boolean isVirtual() { return false; }
-    
     /*
     /**********************************************************
     /* Managing and accessing of opaque internal settings

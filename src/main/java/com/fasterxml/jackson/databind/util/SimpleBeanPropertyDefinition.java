@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.introspect.*;
 public class SimpleBeanPropertyDefinition
     extends BeanPropertyDefinition
 {
-	protected final AnnotationIntrospector _introspector;
+    protected final AnnotationIntrospector _introspector;
 
-	/**
+    /**
      * Member that defines logical property. Assumption is that it
      * should be a 'simple' accessor; meaning a zero-argument getter,
      * single-argument setter or constructor parameter.
@@ -43,7 +43,7 @@ public class SimpleBeanPropertyDefinition
     /**
      * @since 2.5
      */
-    protected final JsonInclude.Include _inclusion;
+    protected final JsonInclude.Value _inclusion;
 
     /**
      * @deprecated Since 2.5 use <code>_fullName</code> instead.
@@ -57,25 +57,18 @@ public class SimpleBeanPropertyDefinition
     /**********************************************************
      */
 
-    /**
-     * @since 2.2 Use {@link #construct} instead
-     */
-    @Deprecated
-    public SimpleBeanPropertyDefinition(AnnotatedMember member) {
-        this(member, member.getName(), null);
-    }
-
-    /**
-     * @since 2.2 Use {@link #construct} instead
-     */
-    @Deprecated
-    public SimpleBeanPropertyDefinition(AnnotatedMember member, String name) {
-        this(member, new PropertyName(name), null, null, null);
-    }
-
     protected SimpleBeanPropertyDefinition(AnnotatedMember member, PropertyName fullName,
             AnnotationIntrospector intr, PropertyMetadata metadata,
             JsonInclude.Include inclusion)
+    {
+        this(member, fullName, intr, metadata,
+                ((inclusion == null) || (inclusion == JsonInclude.Include.USE_DEFAULTS)
+                        ? EMPTY_INCLUDE : JsonInclude.Value.construct(inclusion, null)));
+    }
+    
+    protected SimpleBeanPropertyDefinition(AnnotatedMember member, PropertyName fullName,
+            AnnotationIntrospector intr, PropertyMetadata metadata,
+            JsonInclude.Value inclusion)
     {
         _introspector = intr;
         _member = member;
@@ -91,7 +84,7 @@ public class SimpleBeanPropertyDefinition
     @Deprecated
     protected SimpleBeanPropertyDefinition(AnnotatedMember member, String name,
     		AnnotationIntrospector intr) {
-        this(member, new PropertyName(name), intr, null, null);
+        this(member, new PropertyName(name), intr, null, EMPTY_INCLUDE);
     }
 
     /**
@@ -101,7 +94,7 @@ public class SimpleBeanPropertyDefinition
     		AnnotatedMember member) {
         return new SimpleBeanPropertyDefinition(member, PropertyName.construct(member.getName()),
                 (config == null) ? null : config.getAnnotationIntrospector(),
-                        null, null);
+                        null, EMPTY_INCLUDE);
     }
 
     /**
@@ -112,7 +105,7 @@ public class SimpleBeanPropertyDefinition
     		AnnotatedMember member, String name) {
         return new SimpleBeanPropertyDefinition(member, PropertyName.construct(name),
                 (config == null) ? null : config.getAnnotationIntrospector(),
-                        null, null);
+                        null, EMPTY_INCLUDE);
     }
 
     /**
@@ -120,7 +113,7 @@ public class SimpleBeanPropertyDefinition
      */
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
             AnnotatedMember member, PropertyName name) {
-        return construct(config, member, name, null, null);
+        return construct(config, member, name, null, EMPTY_INCLUDE);
     }
 
     /**
@@ -129,6 +122,17 @@ public class SimpleBeanPropertyDefinition
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
             AnnotatedMember member, PropertyName name, PropertyMetadata metadata,
             JsonInclude.Include inclusion) {
+          return new SimpleBeanPropertyDefinition(member, name,
+                  (config == null) ? null : config.getAnnotationIntrospector(),
+                          metadata, inclusion);
+    }
+    
+    /**
+     * @since 2.7
+     */
+    public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
+            AnnotatedMember member, PropertyName name, PropertyMetadata metadata,
+            JsonInclude.Value inclusion) {
           return new SimpleBeanPropertyDefinition(member, name,
                   (config == null) ? null : config.getAnnotationIntrospector(),
                           metadata, inclusion);
@@ -178,7 +182,7 @@ public class SimpleBeanPropertyDefinition
     /**
      * @since 2.5
      */
-    public BeanPropertyDefinition withInclusion(JsonInclude.Include inclusion) {
+    public BeanPropertyDefinition withInclusion(JsonInclude.Value inclusion) {
         if (_inclusion == inclusion) {
             return this;
         }
@@ -227,7 +231,7 @@ public class SimpleBeanPropertyDefinition
     }
 
     @Override
-    public JsonInclude.Include findInclusion() {
+    public JsonInclude.Value findInclusion() {
         return _inclusion;
     }
 

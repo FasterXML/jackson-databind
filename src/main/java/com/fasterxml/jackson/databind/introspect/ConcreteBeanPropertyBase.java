@@ -18,14 +18,6 @@ public abstract class ConcreteBeanPropertyBase
     private static final long serialVersionUID = 1;
 
     /**
-     * Marker we use to indicate case where we have done format lookup,
-     * but found nothing; marker used to avoid having to repeat such lookups.
-     *
-     * @since 2.6
-     */
-    protected final static JsonFormat.Value NO_FORMAT = new JsonFormat.Value();
-
-    /**
      * Additional information about property
      *
      * @since 2.3
@@ -68,22 +60,22 @@ public abstract class ConcreteBeanPropertyBase
                 }
             }
             if (f == null) {
-                f = NO_FORMAT;
+                f = EMPTY_FORMAT;
             }
         }
-        return (f == NO_FORMAT) ? null : f;
+        return f;
     }
 
     @Override
     public JsonInclude.Value findPropertyInclusion(AnnotationIntrospector intr) {
         // 08-Oct-2015, tatu: Unlike with Format, let's not cache locally here, for now
+        JsonInclude.Value v = null;
         if (intr != null) {
             AnnotatedMember member = getMember();
             if (member != null) {
-                return intr.findPropertyInclusion(member);
+                v = intr.findPropertyInclusion(member);
             }
         }
-        return null;
+        return (v == null) ? JsonInclude.Value.empty() : v;
     }
-
 }

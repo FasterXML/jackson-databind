@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -30,6 +31,9 @@ import com.fasterxml.jackson.databind.util.Named;
  */
 public interface BeanProperty extends Named
 {
+    public final static JsonFormat.Value EMPTY_FORMAT = new JsonFormat.Value();
+    public final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
+
     /**
      * Method to get logical name of the property
      */
@@ -180,6 +184,7 @@ public interface BeanProperty extends Named
      */
     public static class Std implements BeanProperty
     {
+
         protected final PropertyName _name;
         protected final JavaType _type;
         protected final PropertyName _wrapperName;
@@ -244,12 +249,24 @@ public interface BeanProperty extends Named
 
         @Override
         public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-            return null;
+            if ((_member != null) && (intr != null)) {
+                JsonFormat.Value v = intr.findFormat(_member);
+                if (v != null) {
+                    return v;
+                }
+            }
+            return EMPTY_FORMAT;
         }
 
         @Override
         public JsonInclude.Value findPropertyInclusion(AnnotationIntrospector intr) {
-            return null;
+            if ((_member != null) && (intr != null)) {
+                JsonInclude.Value v = intr.findPropertyInclusion(_member);
+                if (v != null) {
+                    return v;
+                }
+            }
+            return EMPTY_INCLUDE;
         }
 
         @Override public String getName() { return _name.getSimpleName(); }

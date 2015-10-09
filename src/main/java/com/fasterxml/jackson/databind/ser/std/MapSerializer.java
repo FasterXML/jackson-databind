@@ -329,7 +329,7 @@ public class MapSerializer
             if (serDef != null) {
                 ser = provider.serializerInstance(propertyAcc, serDef);
             }
-            JsonInclude.Value inclV = intr.findPropertyInclusion(propertyAcc);
+            JsonInclude.Value inclV = property.findPropertyInclusion(intr);
             JsonInclude.Include incl = inclV.getContentInclusion();
             if (incl != null && incl != JsonInclude.Include.USE_DEFAULTS) {
                 suppressableValue = incl;

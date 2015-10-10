@@ -80,17 +80,17 @@ public class AsArrayTypeDeserializer
      * deserialization.
      */
     @SuppressWarnings("resource")
-    protected Object _deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object _deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
-        if (jp.canReadTypeId()) {
-            Object typeId = jp.getTypeId();
+        if (p.canReadTypeId()) {
+            Object typeId = p.getTypeId();
             if (typeId != null) {
-                return _deserializeWithNativeTypeId(jp, ctxt, typeId);
+                return _deserializeWithNativeTypeId(p, ctxt, typeId);
             }
         }
-        boolean hadStartArray = jp.isExpectedStartArrayToken();
-        String typeId = _locateTypeId(jp, ctxt);
+        boolean hadStartArray = p.isExpectedStartArrayToken();
+        String typeId = _locateTypeId(p, ctxt);
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         // Minor complication: we may need to merge type id in?
         if (_typeIdVisible
@@ -98,19 +98,19 @@ public class AsArrayTypeDeserializer
                 //   internal and external properties
                 //  TODO: but does it need to be injected in external case? Why not?
                 && !_usesExternalId()
-                && jp.getCurrentToken() == JsonToken.START_OBJECT) {
+                && p.getCurrentToken() == JsonToken.START_OBJECT) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
             TokenBuffer tb = new TokenBuffer(null, false);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);
             tb.writeString(typeId);
-            jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
-            jp.nextToken();
+            p = JsonParserSequence.createFlattened(tb.asParser(p), p);
+            p.nextToken();
         }
-        Object value = deser.deserialize(jp, ctxt);
+        Object value = deser.deserialize(p, ctxt);
         // And then need the closing END_ARRAY
-        if (hadStartArray && jp.nextToken() != JsonToken.END_ARRAY) {
-            throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
+        if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {
+            throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY,
                     "expected closing END_ARRAY after type information and deserialized value");
         }
         return value;

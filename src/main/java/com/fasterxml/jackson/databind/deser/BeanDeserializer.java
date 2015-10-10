@@ -430,7 +430,7 @@ public class BeanDeserializer
             }
             // Ok then, let's collect the whole field; name and value
             if (unknown == null) {
-                unknown = new TokenBuffer(p);
+                unknown = new TokenBuffer(p, ctxt);
             }
             unknown.writeFieldName(propName);
             unknown.copyCurrentStructure(p);
@@ -522,7 +522,7 @@ public class BeanDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithUnwrapped(p, ctxt);
         }
-        TokenBuffer tokens = new TokenBuffer(p);
+        TokenBuffer tokens = new TokenBuffer(p, ctxt);
         tokens.writeStartObject();
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
@@ -581,7 +581,7 @@ public class BeanDeserializer
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         }
-        TokenBuffer tokens = new TokenBuffer(p);
+        TokenBuffer tokens = new TokenBuffer(p, ctxt);
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
@@ -624,7 +624,7 @@ public class BeanDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        TokenBuffer tokens = new TokenBuffer(p);
+        TokenBuffer tokens = new TokenBuffer(p, ctxt);
         tokens.writeStartObject();
 
         JsonToken t = p.getCurrentToken();
@@ -780,7 +780,7 @@ public class BeanDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        TokenBuffer tokens = new TokenBuffer(p);
+        TokenBuffer tokens = new TokenBuffer(p, ctxt);
         tokens.writeStartObject();
 
         JsonToken t = p.getCurrentToken();

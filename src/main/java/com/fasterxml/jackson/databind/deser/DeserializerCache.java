@@ -486,7 +486,7 @@ public final class DeserializerCache
             Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType());
             if (keyClass != null) {
                 // illegal to use on non-Maps
-                if (!(type instanceof MapLikeType)) {
+                if (!type.isMapLikeType()) {
                     throw JsonMappingException.from(ctxt.getParser(), "Illegal key-type annotation: type "+type+" is not a Map(-like) type");
                 }
                 try {

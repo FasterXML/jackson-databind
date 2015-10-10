@@ -37,7 +37,7 @@ public class AttributePropertyWriter
 
     protected AttributePropertyWriter(String attrName, BeanPropertyDefinition propDef,
             Annotations contextAnnotations, JavaType declaredType,
-            JsonInclude.Include inclusion)
+            JsonInclude.Value inclusion)
     {
         super(propDef, contextAnnotations, declaredType,
                 /* value serializer */ null, /* type serializer */ null, /* ser type */ null,

@@ -531,16 +531,15 @@ public class POJOPropertyBuilder
     }
 
     @Override
-    public JsonInclude.Include findInclusion() {
+    public JsonInclude.Value findInclusion() {
         if (_annotationIntrospector != null) {
             AnnotatedMember a = getAccessor();
-            JsonInclude.Value inclV = _annotationIntrospector.findPropertyInclusion(a);
-            JsonInclude.Include incl = inclV.getValueInclusion();
-            if (incl != null && incl != JsonInclude.Include.USE_DEFAULTS) {
-                return incl;
+            JsonInclude.Value v =  _annotationIntrospector.findPropertyInclusion(a);
+            if (v != null) {
+                return v;
             }
         }
-        return null;
+        return JsonInclude.Value.empty();
     }
 
     public JsonProperty.Access findAccess() {

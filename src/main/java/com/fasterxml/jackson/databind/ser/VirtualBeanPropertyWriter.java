@@ -52,7 +52,7 @@ public abstract class VirtualBeanPropertyWriter
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
             Annotations contextAnnotations, JavaType declaredType,
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-            JsonInclude.Include inclusion)
+            JsonInclude.Value inclusion)
     {
         super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
                 ser, typeSer, serType,
@@ -67,16 +67,25 @@ public abstract class VirtualBeanPropertyWriter
         super(base, name);
     }
 
-    protected static boolean _suppressNulls(JsonInclude.Include inclusion) {
-        return (inclusion != JsonInclude.Include.ALWAYS);
+    protected static boolean _suppressNulls(JsonInclude.Value inclusion) {
+        if (inclusion == null) {
+            return false;
+        }
+        JsonInclude.Include incl = inclusion.getValueInclusion();
+        return (incl != JsonInclude.Include.ALWAYS) && (incl != JsonInclude.Include.USE_DEFAULTS);
     }
 
-    protected static Object _suppressableValue(JsonInclude.Include inclusion) {
-        if ((inclusion == JsonInclude.Include.NON_EMPTY)
-                || (inclusion == JsonInclude.Include.NON_EMPTY)) {
-            return MARKER_FOR_EMPTY;
+    protected static Object _suppressableValue(JsonInclude.Value inclusion) {
+        if (inclusion == null) {
+            return false;
         }
-        return null;
+        JsonInclude.Include incl = inclusion.getValueInclusion();
+        if ((incl == JsonInclude.Include.ALWAYS)
+                || (incl == JsonInclude.Include.NON_NULL)
+                || (incl == JsonInclude.Include.USE_DEFAULTS)) {
+            return null;
+        }
+        return MARKER_FOR_EMPTY;
     }
 
     /*

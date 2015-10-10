@@ -89,9 +89,8 @@ public class PropertyBuilder
         Object valueToSuppress = null;
         boolean suppressNulls = false;
 
-        JsonInclude.Include inclusion = propDef.findInclusion();
-        if ((inclusion == null)
-                || (inclusion == JsonInclude.Include.USE_DEFAULTS)) { // since 2.6
+        JsonInclude.Include inclusion = propDef.findInclusion().getValueInclusion();
+        if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // since 2.6
             inclusion = _defaultInclusion;
             if (inclusion == null) {
                 inclusion = JsonInclude.Include.ALWAYS;

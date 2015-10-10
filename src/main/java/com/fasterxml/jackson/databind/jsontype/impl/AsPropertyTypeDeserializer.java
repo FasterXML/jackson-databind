@@ -93,7 +93,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
                 return _deserializeTypedForId(jp, ctxt, tb);
             }
             if (tb == null) {
-                tb = new TokenBuffer(null, false);
+                tb = new TokenBuffer(jp, ctxt);
             }
             tb.writeFieldName(name);
             tb.copyCurrentStructure(jp);
@@ -108,7 +108,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         if (_typeIdVisible) { // need to merge id back in JSON input?
             if (tb == null) {
-                tb = new TokenBuffer(null, false);
+                tb = new TokenBuffer(jp, ctxt);
             }
             tb.writeFieldName(jp.getCurrentName());
             tb.writeString(typeId);

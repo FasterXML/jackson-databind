@@ -70,6 +70,14 @@ public class TokenBuffer
      * @since 2.3
      */
     protected boolean _mayHaveNativeIds;
+
+    /**
+     * Flag set during construction, if use of {@link BigDecimal} is to be forced
+     * on all floating-point values.
+     *
+     * @since 2.7
+     */
+    protected boolean _forceBigDecimal;
     
     /*
     /**********************************************************
@@ -160,19 +168,36 @@ public class TokenBuffer
     /**
      * @since 2.3
      */
-    public TokenBuffer(JsonParser jp)
+    public TokenBuffer(JsonParser p) {
+        this(p, null);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
-        _objectCodec = jp.getCodec();
+        _objectCodec = p.getCodec();
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
         _writeContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
-        _hasNativeTypeIds = jp.canReadTypeId();
-        _hasNativeObjectIds = jp.canReadObjectId();
+        _hasNativeTypeIds = p.canReadTypeId();
+        _hasNativeObjectIds = p.canReadObjectId();
         _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
+        _forceBigDecimal = (ctxt == null) ? false
+                : ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
     }
-    
+
+    /**
+     * @since 2.7
+     */
+    public TokenBuffer forceUseOfBigDecimal(boolean b) {
+        _forceBigDecimal = b;
+        return this;
+    }
+
     @Override
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
@@ -899,12 +924,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void copyCurrentEvent(JsonParser jp) throws IOException
+    public void copyCurrentEvent(JsonParser p) throws IOException
     {
         if (_mayHaveNativeIds) {
-            _checkNativeIds(jp);
+            _checkNativeIds(p);
         }
-        switch (jp.getCurrentToken()) {
+        switch (p.getCurrentToken()) {
         case START_OBJECT:
             writeStartObject();
             break;
@@ -918,37 +943,46 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeEndArray();
             break;
         case FIELD_NAME:
-            writeFieldName(jp.getCurrentName());
+            writeFieldName(p.getCurrentName());
             break;
         case VALUE_STRING:
-            if (jp.hasTextCharacters()) {
-                writeString(jp.getTextCharacters(), jp.getTextOffset(), jp.getTextLength());
+            if (p.hasTextCharacters()) {
+                writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
             } else {
-                writeString(jp.getText());
+                writeString(p.getText());
             }
             break;
         case VALUE_NUMBER_INT:
-            switch (jp.getNumberType()) {
+            switch (p.getNumberType()) {
             case INT:
-                writeNumber(jp.getIntValue());
+                writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeNumber(jp.getBigIntegerValue());
+                writeNumber(p.getBigIntegerValue());
                 break;
             default:
-                writeNumber(jp.getLongValue());
+                writeNumber(p.getLongValue());
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            switch (jp.getNumberType()) {
-            case BIG_DECIMAL:
-                writeNumber(jp.getDecimalValue());
-                break;
-            case FLOAT:
-                writeNumber(jp.getFloatValue());
-                break;
-            default:
-                writeNumber(jp.getDoubleValue());
+            if (_forceBigDecimal) {
+                /* 10-Oct-2015, tatu: Ideally we would first determine whether underlying
+                 *   number is already decoded into a number (in which case might as well
+                 *   access as number); or is still retained as text (in which case we
+                 *   should further defer decoding that may not need BigDecimal):
+                 */
+                writeNumber(p.getDecimalValue());
+            } else {
+                switch (p.getNumberType()) {
+                case BIG_DECIMAL:
+                    writeNumber(p.getDecimalValue());
+                    break;
+                case FLOAT:
+                    writeNumber(p.getFloatValue());
+                    break;
+                default:
+                    writeNumber(p.getDoubleValue());
+                }
             }
             break;
         case VALUE_TRUE:
@@ -961,7 +995,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeNull();
             break;
         case VALUE_EMBEDDED_OBJECT:
-            writeObject(jp.getEmbeddedObject());
+            writeObject(p.getEmbeddedObject());
             break;
         default:
             throw new RuntimeException("Internal error: should never end up through this code path");
@@ -1166,8 +1200,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**********************************************************
          */
         
-        public JsonToken peekNextToken()
-            throws IOException, JsonParseException
+        public JsonToken peekNextToken() throws IOException
         {
             // closed? nothing more to peek, either
             if (_closed) return null;
@@ -1356,7 +1389,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          */
 
         @Override
-        public BigInteger getBigIntegerValue() throws IOException, JsonParseException
+        public BigInteger getBigIntegerValue() throws IOException
         {
             Number n = getNumberValue();
             if (n instanceof BigInteger) {
@@ -1370,7 +1403,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public BigDecimal getDecimalValue() throws IOException, JsonParseException
+        public BigDecimal getDecimalValue() throws IOException
         {
             Number n = getNumberValue();
             if (n instanceof BigDecimal) {
@@ -1389,17 +1422,17 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public double getDoubleValue() throws IOException, JsonParseException {
+        public double getDoubleValue() throws IOException {
             return getNumberValue().doubleValue();
         }
 
         @Override
-        public float getFloatValue() throws IOException, JsonParseException {
+        public float getFloatValue() throws IOException {
             return getNumberValue().floatValue();
         }
 
         @Override
-        public int getIntValue() throws IOException, JsonParseException
+        public int getIntValue() throws IOException
         {
             // optimize common case:
             if (_currToken == JsonToken.VALUE_NUMBER_INT) {
@@ -1409,12 +1442,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public long getLongValue() throws IOException, JsonParseException {
+        public long getLongValue() throws IOException {
             return getNumberValue().longValue();
         }
 
         @Override
-        public NumberType getNumberType() throws IOException, JsonParseException
+        public NumberType getNumberType() throws IOException
         {
             Number n = getNumberValue();
             if (n instanceof Integer) return NumberType.INT;
@@ -1428,7 +1461,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public final Number getNumberValue() throws IOException, JsonParseException {
+        public final Number getNumberValue() throws IOException {
             _checkIsNumber();
             Object value = _currentObject();
             if (value instanceof Number) {
@@ -1497,8 +1530,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public int readBinaryValue(Base64Variant b64variant, OutputStream out)
-            throws IOException, JsonParseException
+        public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException
         {
             byte[] data = getBinaryValue(b64variant);
             if (data != null) {

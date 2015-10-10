@@ -42,6 +42,8 @@ INCOMPATIBILITIES:
  (contributed by Benson M)
 #949: Report the offending substring when number parsing fails
  (contributed by Jesse W)
+#965: BigDecimal values via @JsonTypeInfo/@JsonSubTypes get rounded
+ (reported by gmjabs@github)
 
 2.6.2 (14-Sep-2015)
 

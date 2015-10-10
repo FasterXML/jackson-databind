@@ -88,7 +88,7 @@ public class ExternalTypeHandler
      * 
      * @return True, if the given property was properly handled
      */
-    public boolean handlePropertyValue(JsonParser jp, DeserializationContext ctxt,
+    public boolean handlePropertyValue(JsonParser p, DeserializationContext ctxt,
             String propName, Object bean) throws IOException
     {
         Integer I = _nameToPropertyIndex.get(propName);
@@ -99,13 +99,13 @@ public class ExternalTypeHandler
         ExtTypedProperty prop = _properties[index];
         boolean canDeserialize;
         if (prop.hasTypePropertyName(propName)) {
-            _typeIds[index] = jp.getText();
-            jp.skipChildren();
+            _typeIds[index] = p.getText();
+            p.skipChildren();
             canDeserialize = (bean != null) && (_tokens[index] != null);
         } else {
             @SuppressWarnings("resource")
-            TokenBuffer tokens = new TokenBuffer(jp);
-            tokens.copyCurrentStructure(jp);
+            TokenBuffer tokens = new TokenBuffer(p, ctxt);
+            tokens.copyCurrentStructure(p);
             _tokens[index] = tokens;
             canDeserialize = (bean != null) && (_typeIds[index] != null);
         }
@@ -116,7 +116,7 @@ public class ExternalTypeHandler
             String typeId = _typeIds[index];
             // clear stored data, to avoid deserializing+setting twice:
             _typeIds[index] = null;
-            _deserializeAndSet(jp, ctxt, bean, index, typeId);
+            _deserializeAndSet(p, ctxt, bean, index, typeId);
             _tokens[index] = null;
         }
         return true;
@@ -228,8 +228,7 @@ public class ExternalTypeHandler
         if (t == JsonToken.VALUE_NULL) {
             return null;
         }
-
-        TokenBuffer merged = new TokenBuffer(p);
+        TokenBuffer merged = new TokenBuffer(p, ctxt);
         merged.writeStartArray();
         merged.writeString(typeId);
         merged.copyCurrentStructure(p2);
@@ -255,7 +254,7 @@ public class ExternalTypeHandler
             _properties[index].getProperty().set(bean, null);
             return;
         }
-        TokenBuffer merged = new TokenBuffer(p);
+        TokenBuffer merged = new TokenBuffer(p, ctxt);
         merged.writeStartArray();
         merged.writeString(typeId);
         

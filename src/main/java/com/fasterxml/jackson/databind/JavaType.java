@@ -398,7 +398,7 @@ public abstract class JavaType
      * @since 2.6
      */
     public boolean hasValueHandler() { return _valueHandler != null; }
-    
+
     /*
     /**********************************************************
     /* Support for producing signatures

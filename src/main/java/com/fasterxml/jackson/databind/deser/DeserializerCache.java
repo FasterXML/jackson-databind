@@ -469,38 +469,17 @@ public final class DeserializerCache
             Annotated a, JavaType type)
         throws JsonMappingException
     {
-        // first: let's check class for the instance itself:
+        // first: type refinement(s)?
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Class<?> subclass = intr.findDeserializationType(a, type);
-        if (subclass != null) {
-            try {
-                type = ctxt.getTypeFactory().constructSpecializedType(type, subclass);
-            } catch (IllegalArgumentException iae) {
-                throw JsonMappingException.from(ctxt,
-                        "Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), iae);
-            }
+        if (intr != null) {
+            type = intr.refineDeserializationType(ctxt.getConfig(), a, type);
         }
-
-        // then key class
-        if (type.isContainerType()) {
-            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType());
-            if (keyClass != null) {
-                // illegal to use on non-Maps
-                if (!type.isMapLikeType()) {
-                    throw JsonMappingException.from(ctxt.getParser(), "Illegal key-type annotation: type "+type+" is not a Map(-like) type");
-                }
-                try {
-                    type = ((MapLikeType) type).narrowKey(keyClass);
-                } catch (IllegalArgumentException iae) {
-                    throw JsonMappingException.from(ctxt,
-                            "Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage(), iae);
-                }
-            }
+        // then key/value handlers  (annotated deserializers)?
+        if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
-            /* 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
-             *   (not 100% why or how, but this does seem to get called more than once, which
-             *   is not good: for now, let's just avoid errors)
-             */
+            // 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
+            //   (not 100% why or how, but this does seem to get called more than once, which
+            //   is not good: for now, let's just avoid errors)
             if (keyType != null && keyType.getValueHandler() == null) {
                 Object kdDef = intr.findKeyDeserializer(a);
                 if (kdDef != null) {
@@ -511,19 +490,9 @@ public final class DeserializerCache
                     }
                 }
             }            
-            
-            // and finally content class; only applicable to structured types
-            Class<?> cc = intr.findDeserializationContentType(a, type.getContentType());
-            if (cc != null) {
-                try {
-                    type = type.narrowContentsBy(cc);
-                } catch (IllegalArgumentException iae) {
-                    throw JsonMappingException.from(ctxt,
-                            "Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage(), iae);
-                }
-            }
-            // ... as well as deserializer for contents:
-            JavaType contentType = type.getContentType();
+        }
+        JavaType contentType = type.getContentType();
+        if (contentType != null) {
             if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
                 Object cdDef = intr.findContentDeserializer(a);
                 if (cdDef != null) {

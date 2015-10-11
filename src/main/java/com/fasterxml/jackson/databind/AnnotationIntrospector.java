@@ -7,10 +7,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
-
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -21,6 +19,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -890,51 +889,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method for accessing annotated type definition that a
-     * method can have, to be used as the type for serialization
-     * instead of the runtime type.
-     * Type must be a narrowing conversion
-     * (i.e.subtype of declared type).
-     * Declared return type of the method is also considered acceptable.
-     *
-     * @param baseType Assumed type before considering annotations
-     *
-     * @return Class to use for deserialization instead of declared type
-     */
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
-        return null;
-    }
-
-    /**
-     * Method for accessing additional narrowing type definition that a
-     * method can have, to define more specific key type to use.
-     * It should be only be used with {@link java.util.Map} types.
-     * 
-     * @param baseKeyType Assumed key type before considering annotations
-     *
-     * @return Class specifying more specific type to use instead of
-     *   declared type, if annotation found; null if not
-     */
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
-        return null;
-    }
-
-    /**
-     * Method for accessing additional narrowing type definition that a
-     * method can have, to define more specific content type to use;
-     * content refers to Map values and Collection/array elements.
-     * It should be only be used with Map, Collection and array types.
-     * 
-     * @param baseContentType Assumed content (value) type before considering annotations
-     *
-     * @return Class specifying more specific type to use instead of
-     *   declared type, if annotation found; null if not
-     */
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
-        return null;
-    }
-
-    /**
      * Method for finding {@link Converter} that annotated entity
      * (property or class) has indicated to be used as part of
      * deserialization.
@@ -981,7 +935,123 @@ public abstract class AnnotationIntrospector
     public Object findDeserializationContentConverter(AnnotatedMember a) {
         return null;
     }
+
+    /*
+    /**********************************************************
+    /* Deserialization: type refinements
+    /**********************************************************
+     */
+
+    /**
+     * Method called to find out possible type refinements to use
+     * for deserialization.
+     *
+     * @since 2.7
+     */
+    public JavaType refineDeserializationType(final MapperConfig<?> config,
+            final Annotated a, final JavaType baseType) throws JsonMappingException
+    {
+        JavaType type = baseType;
+        
+        // 10-Oct-2015, tatu: For 2.7, we'll need to delegate back to
+        //    now-deprecated secondary methods; this because while
+        //    direct sub-class not yet retrofitted may only override
+        //    those methods. With 2.8 or later we may consider removal
+        //    of these methods
+
+        
+        // Ok: start by refining the main type itself; common to all types
+        Class<?> contentClass = findDeserializationType(a, type);
+        if ((contentClass != null) && !type.hasRawClass(contentClass)) {
+            try {
+                type = config.getTypeFactory().constructSpecializedType(type, contentClass);
+            } catch (IllegalArgumentException iae) {
+                throw new JsonMappingException(null,
+                        String.format("Failed to narrow type %s with annotation (value %s), from '%s': %s",
+                                type, contentClass.getName(), a.getName(), iae.getMessage()),
+                                iae);
+            }
+        }
+        // Then further processing for container types
+
+        // First, key type (for Maps, Map-like types):
+        if (type.isMapLikeType()) {
+            Class<?> keyClass = findDeserializationKeyType(a, type.getKeyType());
+            if (keyClass != null) {
+                try {
+                    type = ((MapLikeType) type).narrowKey(keyClass);
+                } catch (IllegalArgumentException iae) {
+                    throw new JsonMappingException(null,
+                            String.format("Failed to narrow key type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                    type, keyClass.getName(), a.getName(), iae.getMessage()),
+                                    iae);
+                }
+            }
+        }
+        if (type.getContentType() != null) { // collection[like], map[like], array, reference
+            // And then value types for all containers:
+           Class<?> valueClass = findDeserializationContentType(a, type.getContentType());
+           if (valueClass != null) {
+               try {
+                   type = type.narrowContentsBy(valueClass);
+               } catch (IllegalArgumentException iae) {
+                   throw new JsonMappingException(null,
+                           String.format("Failed to narrow value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                   type, valueClass.getName(), a.getName(), iae.getMessage()),
+                                   iae);
+               }
+           }
+        }
+        return type;
+    }
     
+    /**
+     * Method for accessing annotated type definition that a
+     * property can have, to be used as the type for deserialization
+     * instead of the static (declared) type.
+     * Type is usually narrowing conversion (i.e.subtype of declared type).
+     * Declared return type of the method is also considered acceptable.
+     *
+     * @param baseType Assumed type before considering annotations
+     *
+     * @return Class to use for deserialization instead of declared type
+     */
+    @Deprecated
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
+        return null;
+    }
+    
+    /**
+     * Method for accessing additional narrowing type definition that a
+     * method can have, to define more specific key type to use.
+     * It should be only be used with {@link java.util.Map} types.
+     * 
+     * @param baseKeyType Assumed key type before considering annotations
+     *
+     * @return Class specifying more specific type to use instead of
+     *   declared type, if annotation found; null if not
+     */
+    @Deprecated
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
+        return null;
+    }
+
+    /**
+     * Method for accessing additional narrowing type definition that a
+     * method can have, to define more specific content type to use;
+     * content refers to Map values and Collection/array elements.
+     * It should be only be used with Map, Collection and array types.
+     * 
+     * @param baseContentType Assumed content (value) type before considering annotations
+     *
+     * @return Class specifying more specific type to use instead of
+     *   declared type, if annotation found; null if not
+     */
+    @Deprecated
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Deserialization: class annotations

@@ -111,7 +111,7 @@ public class CollectionLikeType extends TypeBase
 
     @Override
     public boolean isCollectionLikeType() { return true; }
-    
+
     @Override
     public JavaType getContentType() { return _elementType; }
 

@@ -551,24 +551,6 @@ public class AnnotationIntrospectorPair
         return _isExplicitClassOrOb(r, JsonDeserializer.None.class)
                 ? r : _secondary.findContentDeserializer(am);
     }
-    
-    @Override
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
-        Class<?> r = _primary.findDeserializationType(am, baseType);
-        return (r != null) ? r : _secondary.findDeserializationType(am, baseType);
-    }
-
-    @Override
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
-        Class<?> result = _primary.findDeserializationKeyType(am, baseKeyType);
-        return (result == null) ? _secondary.findDeserializationKeyType(am, baseKeyType) : result;
-    }
-
-    @Override
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
-        Class<?> result = _primary.findDeserializationContentType(am, baseContentType);
-        return (result == null) ? _secondary.findDeserializationContentType(am, baseContentType) : result;
-    }
 
     @Override
     public Object findDeserializationConverter(Annotated a) {
@@ -580,6 +562,38 @@ public class AnnotationIntrospectorPair
     public Object findDeserializationContentConverter(AnnotatedMember a) {
         Object ob = _primary.findDeserializationContentConverter(a);
         return (ob == null) ? _secondary.findDeserializationContentConverter(a) : ob;
+    }
+
+    // // // Deserialization: type refinements
+
+    // since 2.7
+    @Override
+    public JavaType refineDeserializationType(MapperConfig<?> config,
+            Annotated a, JavaType baseType) throws JsonMappingException
+    {
+        JavaType t = _primary.refineDeserializationType(config, a, baseType);
+        return _primary.refineDeserializationType(config, a, t);
+    }
+
+    @Override
+    @Deprecated
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
+        Class<?> r = _primary.findDeserializationType(am, baseType);
+        return (r != null) ? r : _secondary.findDeserializationType(am, baseType);
+    }
+
+    @Override
+    @Deprecated
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
+        Class<?> result = _primary.findDeserializationKeyType(am, baseKeyType);
+        return (result == null) ? _secondary.findDeserializationKeyType(am, baseKeyType) : result;
+    }
+
+    @Override
+    @Deprecated
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
+        Class<?> result = _primary.findDeserializationContentType(am, baseContentType);
+        return (result == null) ? _secondary.findDeserializationContentType(am, baseContentType) : result;
     }
     
     // // // Deserialization: class annotations

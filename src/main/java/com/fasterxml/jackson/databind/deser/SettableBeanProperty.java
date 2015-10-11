@@ -542,7 +542,8 @@ public abstract class SettableBeanProperty
         return _throwAsIOE((JsonParser) null, e);
     }
 
-    @Deprecated // since 2.7
+    // 10-Oct-2015, tatu: _Should_ be deprecated, too, but its remaining
+    //   callers can not actually provide a JsonParser
     protected void _throwAsIOE(Exception e, Object value) throws IOException {
         _throwAsIOE((JsonParser) null, e, value);
     }

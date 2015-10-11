@@ -99,11 +99,40 @@ public class ReferenceType extends SimpleType
                 _valueHandler, _typeHandler, _asStatic);
     }
 
+    @Override
+    public JavaType narrowContentsBy(Class<?> contentClass)
+    {
+        // Can do a quick check first:
+        if (contentClass == _referencedType.getRawClass()) {
+            return this;
+        }
+        return new ReferenceType(_class,
+                _referencedType.narrowBy(contentClass),
+                _valueHandler, _typeHandler, _asStatic);
+    }
+
+    @Override
+    public JavaType widenContentsBy(Class<?> contentClass)
+    {
+        // Can do a quick check first:
+        if (contentClass == _referencedType.getRawClass()) {
+            return this;
+        }
+        return new ReferenceType(_class,
+                _referencedType.widenBy(contentClass),
+                _valueHandler, _typeHandler, _asStatic);
+    }
+
     /*
     /**********************************************************
-    /* Extended API
+    /* Public API overrides
     /**********************************************************
      */
+
+    @Override
+    public JavaType getContentType() {
+        return _referencedType;
+    }
     
     @Override
     public JavaType getReferencedType() {
@@ -115,12 +144,6 @@ public class ReferenceType extends SimpleType
         return true;
     }
     
-    /*
-    /**********************************************************
-    /* Public API overrides
-    /**********************************************************
-     */
-
     @Override
     public int containedTypeCount() {
         return 1;

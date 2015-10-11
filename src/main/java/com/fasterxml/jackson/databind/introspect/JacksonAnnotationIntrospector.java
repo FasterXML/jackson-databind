@@ -849,25 +849,6 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
-        JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
-        return (ann == null) ? null : _classIfExplicit(ann.as());
-    }
-
-    @Override
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
-        JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
-        return (ann == null) ? null : _classIfExplicit(ann.keyAs());
-    }
-
-    @Override
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
-    {
-        JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
-        return (ann == null) ? null : _classIfExplicit(ann.contentAs());
-    }
-
-    @Override
     public Object findDeserializationConverter(Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
@@ -881,6 +862,31 @@ public class JacksonAnnotationIntrospector
         return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);
     }
 
+    /*
+    /**********************************************************
+    /* Deserialization: type modifications
+    /**********************************************************
+     */
+
+    @Override
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
+    {
+        JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
+        return (ann == null) ? null : _classIfExplicit(ann.contentAs());
+    }
+    
+    @Override
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
+        JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
+        return (ann == null) ? null : _classIfExplicit(ann.as());
+    }
+
+    @Override
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
+        JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
+        return (ann == null) ? null : _classIfExplicit(ann.keyAs());
+    }
+    
     /*
     /**********************************************************
     /* Deserialization: Class annotations

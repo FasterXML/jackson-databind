@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 public class TestSimpleAtomicTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
@@ -45,7 +47,12 @@ public class TestSimpleAtomicTypes
         public SimpleWrapper() { }
         public SimpleWrapper(Object o) { value = new AtomicReference<Object>(o); }
     }
-    
+
+    static class RefiningWrapper {
+        @JsonDeserialize(contentAs=BigDecimal.class)
+        public AtomicReference<Serializable> value;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -126,5 +133,20 @@ public class TestSimpleAtomicTypes
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude
                 .Include.NON_EMPTY);
         assertEquals("{}", mapper.writeValueAsString(input));
+    }
+
+    public void testTypeRefinement() throws Exception
+    {
+        RefiningWrapper input = new RefiningWrapper();
+        BigDecimal bd = new BigDecimal("0.25");
+        input.value = new AtomicReference<Serializable>(bd);
+        String json = MAPPER.writeValueAsString(input);
+
+        // so far so good. But does it come back as expected?
+        RefiningWrapper result = MAPPER.readValue(json, RefiningWrapper.class);
+        assertNotNull(result.value);
+        Object ob = result.value.get();
+        assertEquals(BigDecimal.class, ob.getClass());
+        assertEquals(bd, ob);
     }
 }

@@ -978,58 +978,6 @@ public abstract class BasicSerializerFactory
     /* Other helper methods
     /**********************************************************
      */
-    
-    /**
-     * Helper method used to encapsulate details of annotation-based type coercion
-     */
-    @SuppressWarnings("unchecked")
-    protected <T extends JavaType> T modifyTypeByAnnotation(SerializationConfig config,
-            Annotated a, T type)
-    {
-        // first: let's check class for the instance itself:
-        Class<?> superclass = config.getAnnotationIntrospector().findSerializationType(a);
-        if (superclass != null) {
-            try {
-                type = (T) type.widenBy(superclass);
-            } catch (IllegalArgumentException iae) {
-                throw new IllegalArgumentException("Failed to widen type "+type+" with concrete-type annotation (value "+superclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage());
-            }
-        }
-        return modifySecondaryTypesByAnnotation(config, a, type);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static <T extends JavaType> T modifySecondaryTypesByAnnotation(SerializationConfig config,
-            Annotated a, T type)
-    {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        // then key class
-        if (type.isContainerType()) {
-            Class<?> keyClass = intr.findSerializationKeyType(a, type.getKeyType());
-            if (keyClass != null) {
-                // illegal to use on non-Maps
-                if (!(type instanceof MapType)) {
-                    throw new IllegalArgumentException("Illegal key-type annotation: type "+type+" is not a Map type");
-                }
-                try {
-                    type = (T) ((MapType) type).widenKey(keyClass);
-                } catch (IllegalArgumentException iae) {
-                    throw new IllegalArgumentException("Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage());
-                }
-            }
-            
-            // and finally content class; only applicable to structured types
-            Class<?> cc = intr.findSerializationContentType(a, type.getContentType());
-            if (cc != null) {
-                try {
-                    type = (T) type.widenContentsBy(cc);
-                } catch (IllegalArgumentException iae) {
-                    throw new IllegalArgumentException("Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage());
-                }
-            }
-        }
-        return type;
-    }
 
     /**
      * Helper method called to try to find whether there is an annotation in the

@@ -345,24 +345,6 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Class<?> findSerializationType(Annotated a) {
-        Class<?> r = _primary.findSerializationType(a);
-        return (r == null) ? _secondary.findSerializationType(a) : r;
-    }
-
-    @Override
-    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
-        Class<?> r = _primary.findSerializationKeyType(am, baseType);
-        return (r == null) ? _secondary.findSerializationKeyType(am, baseType) : r;
-    }
-
-    @Override
-    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
-        Class<?> r = _primary.findSerializationContentType(am, baseType);
-        return (r == null) ? _secondary.findSerializationContentType(am, baseType) : r;
-    }
-    
-    @Override
     public JsonSerialize.Typing findSerializationTyping(Annotated a) {
         JsonSerialize.Typing r = _primary.findSerializationTyping(a);
         return (r == null) ? _secondary.findSerializationTyping(a) : r;
@@ -471,6 +453,38 @@ public class AnnotationIntrospectorPair
         return JsonProperty.Access.AUTO;
     }
 
+    // // // Serialization: type refinements
+
+    // since 2.7
+    @Override
+    public JavaType refineSerializationType(MapperConfig<?> config,
+            Annotated a, JavaType baseType) throws JsonMappingException
+    {
+        JavaType t = _secondary.refineSerializationType(config, a, baseType);
+        return _primary.refineSerializationType(config, a, t);
+    }
+    
+    @Override
+    @Deprecated
+    public Class<?> findSerializationType(Annotated a) {
+        Class<?> r = _primary.findSerializationType(a);
+        return (r == null) ? _secondary.findSerializationType(a) : r;
+    }
+
+    @Override
+    @Deprecated
+    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
+        Class<?> r = _primary.findSerializationKeyType(am, baseType);
+        return (r == null) ? _secondary.findSerializationKeyType(am, baseType) : r;
+    }
+
+    @Override
+    @Deprecated
+    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
+        Class<?> r = _primary.findSerializationContentType(am, baseType);
+        return (r == null) ? _secondary.findSerializationContentType(am, baseType) : r;
+    }
+    
     // // // Serialization: class annotations
 
     @Override
@@ -571,10 +585,10 @@ public class AnnotationIntrospectorPair
     public JavaType refineDeserializationType(MapperConfig<?> config,
             Annotated a, JavaType baseType) throws JsonMappingException
     {
-        JavaType t = _primary.refineDeserializationType(config, a, baseType);
+        JavaType t = _secondary.refineDeserializationType(config, a, baseType);
         return _primary.refineDeserializationType(config, a, t);
     }
-
+    
     @Override
     @Deprecated
     public Class<?> findDeserializationType(Annotated am, JavaType baseType) {

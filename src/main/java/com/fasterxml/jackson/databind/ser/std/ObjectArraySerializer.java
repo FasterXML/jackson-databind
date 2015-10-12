@@ -173,7 +173,7 @@ public class ObjectArraySerializer
     /* Accessors
     /**********************************************************
      */
-        
+
     @Override
     public JavaType getContentType() {
         return _elementType;

@@ -198,7 +198,7 @@ public abstract class AnnotationIntrospector
     public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
         return objectIdInfo;
     }
-    
+
     /*
     /**********************************************************
     /* General class annotations
@@ -596,43 +596,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method for accessing annotated type definition that a
-     * method/field can have, to be used as the type for serialization
-     * instead of the runtime type.
-     * Type returned (if any) needs to be widening conversion (super-type).
-     * Declared return type of the method is also considered acceptable.
-     *
-     * @return Class to use instead of runtime type
-     */
-    public Class<?> findSerializationType(Annotated a) {
-        return null;
-    }
-
-    /**
-     * Method for finding possible widening type definition that a property
-     * value can have, to define less specific key type to use for serialization.
-     * It should be only be used with {@link java.util.Map} types.
-     * 
-     * @return Class specifying more general type to use instead of
-     *   declared type, if annotation found; null if not
-     */
-    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
-        return null;
-    }
-
-    /**
-     * Method for finding possible widening type definition that a property
-     * value can have, to define less specific key type to use for serialization.
-     * It should be only used with structured types (arrays, collections, maps).
-     * 
-     * @return Class specifying more general type to use instead of
-     *   declared type, if annotation found; null if not
-     */
-    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
-        return null;
-    }
-    
-    /**
      * Method for accessing declared typing mode annotated (if any).
      * This is used for type detection, unless more granular settings
      * (such as actual exact type; or serializer to use which means
@@ -737,6 +700,123 @@ public abstract class AnnotationIntrospector
      */
     public JsonInclude.Value findPropertyInclusion(Annotated a) {
         return JsonInclude.Value.empty();
+    }
+
+    /*
+    /**********************************************************
+    /* Serialization: type refinements
+    /**********************************************************
+     */
+
+    /**
+     * Method for accessing annotated type definition that a
+     * method/field can have, to be used as the type for serialization
+     * instead of the runtime type.
+     * Type returned (if any) needs to be widening conversion (super-type).
+     * Declared return type of the method is also considered acceptable.
+     *
+     * @return Class to use instead of runtime type
+     *
+     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
+     */
+    @Deprecated // since 2.7
+    public Class<?> findSerializationType(Annotated a) {
+        return null;
+    }
+
+    /**
+     * Method for finding possible widening type definition that a property
+     * value can have, to define less specific key type to use for serialization.
+     * It should be only be used with {@link java.util.Map} types.
+     * 
+     * @return Class specifying more general type to use instead of
+     *   declared type, if annotation found; null if not
+     *
+     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
+     */
+    @Deprecated // since 2.7
+    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
+        return null;
+    }
+
+    /**
+     * Method for finding possible widening type definition that a property
+     * value can have, to define less specific key type to use for serialization.
+     * It should be only used with structured types (arrays, collections, maps).
+     * 
+     * @return Class specifying more general type to use instead of
+     *   declared type, if annotation found; null if not
+     *
+     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
+     */
+    @Deprecated // since 2.7
+    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
+        return null;
+    }
+
+    /**
+     * Method called to find out possible type refinements to use
+     * for deserialization.
+     *
+     * @since 2.7
+     */
+    public JavaType refineSerializationType(final MapperConfig<?> config,
+            final Annotated a, final JavaType baseType) throws JsonMappingException
+    {
+        JavaType type = baseType;
+        
+        // 10-Oct-2015, tatu: For 2.7, we'll need to delegate back to
+        //    now-deprecated secondary methods; this because while
+        //    direct sub-class not yet retrofitted may only override
+        //    those methods. With 2.8 or later we may consider removal
+        //    of these methods
+
+        
+        // Ok: start by refining the main type itself; common to all types
+        Class<?> serClass = findSerializationType(a);
+        if ((serClass != null) && !type.hasRawClass(serClass)) {
+            try {
+                // 11-Oct-2015, tatu: For deser, we call `TypeFactory.constructSpecializedType()`,
+                //   may be needed here too in future?
+                type = type.widenBy(serClass);
+            } catch (IllegalArgumentException iae) {
+                throw new JsonMappingException(null,
+                        String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",
+                                type, serClass.getName(), a.getName(), iae.getMessage()),
+                                iae);
+            }
+        }
+        // Then further processing for container types
+
+        // First, key type (for Maps, Map-like types):
+        if (type.isMapLikeType()) {
+            Class<?> keyClass = findSerializationKeyType(a, type.getKeyType());
+            if (keyClass != null) {
+                try {
+                    type = ((MapLikeType) type).widenKey(keyClass);
+                } catch (IllegalArgumentException iae) {
+                    throw new JsonMappingException(null,
+                            String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                    type, keyClass.getName(), a.getName(), iae.getMessage()),
+                                    iae);
+                }
+            }
+        }
+        if (type.getContentType() != null) { // collection[like], map[like], array, reference
+            // And then value types for all containers:
+           Class<?> valueClass = findSerializationContentType(a, type.getContentType());
+           if (valueClass != null) {
+               try {
+                   type = type.widenContentsBy(valueClass);
+               } catch (IllegalArgumentException iae) {
+                   throw new JsonMappingException(null,
+                           String.format("Failed to widen value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                   type, valueClass.getName(), a.getName(), iae.getMessage()),
+                                   iae);
+               }
+           }
+        }
+        return type;
     }
 
     /*

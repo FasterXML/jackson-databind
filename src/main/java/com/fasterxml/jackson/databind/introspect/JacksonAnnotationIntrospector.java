@@ -609,6 +609,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated
     public Class<?> findSerializationType(Annotated am)
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
@@ -616,6 +617,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated
     public Class<?> findSerializationKeyType(Annotated am, JavaType baseType)
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
@@ -623,6 +625,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated
     public Class<?> findSerializationContentType(Annotated am, JavaType baseType)
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);

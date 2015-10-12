@@ -163,14 +163,17 @@ public class PropertyBuilder
      * If neither can be used (no annotations, dynamic typing), returns null.
      */
     protected JavaType findSerializationType(Annotated a, boolean useStaticTyping, JavaType declaredType)
+        throws JsonMappingException
     {
-        // [JACKSON-120]: Check to see if serialization type is fixed
-        Class<?> serClass = _annotationIntrospector.findSerializationType(a);
-        if (serClass != null) {
+        JavaType secondary = _annotationIntrospector.refineSerializationType(_config, a, declaredType);
+        // 11-Oct-2015, tatu: As of 2.7, not 100% sure following checks are needed. But keeping
+        //    for now, just in case
+        if (secondary != declaredType) {
+            Class<?> serClass = secondary.getRawClass();
             // Must be a super type to be usable
             Class<?> rawDeclared = declaredType.getRawClass();
             if (serClass.isAssignableFrom(rawDeclared)) {
-                declaredType = declaredType.widenBy(serClass);
+                ; // fine as is
             } else {
                 /* 18-Nov-2010, tatu: Related to fixing [JACKSON-416], an issue with such
                  *   check is that for deserialization more specific type makes sense;
@@ -181,27 +184,17 @@ public class PropertyBuilder
                 if (!rawDeclared.isAssignableFrom(serClass)) {
                     throw new IllegalArgumentException("Illegal concrete-type annotation for method '"+a.getName()+"': class "+serClass.getName()+" not a super-type of (declared) class "+rawDeclared.getName());
                 }
-                /* 03-Dec-2010, tatu: Actually, ugh, to resolve [JACKSON-415] may further relax this
+                /* 03-Dec-2010, tatu: Actually, ugh, we may need to further relax this
                  *   and actually accept subtypes too for serialization. Bit dangerous in theory
                  *   but need to trust user here...
                  */
-                declaredType = _config.constructSpecializedType(declaredType, serClass);
             }
-            useStaticTyping = true;
-        }
-
-        // Should not have to do static method but...
-        JavaType secondary = BasicSerializerFactory.modifySecondaryTypesByAnnotation(_config, a, declaredType);
-        if (secondary != declaredType) {
-            useStaticTyping = true;
             declaredType = secondary;
+            useStaticTyping = true;
         }
-        
-        /* [JACKSON-114]: if using static typing, declared type is known
-         * to be the type...
-         */
+        // If using static typing, declared type is known to be the type...
         JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(a);
-        if (typing != null && typing != JsonSerialize.Typing.DEFAULT_TYPING) {
+        if ((typing != null) && (typing != JsonSerialize.Typing.DEFAULT_TYPING)) {
             useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
         }
         return useStaticTyping ? declaredType : null;

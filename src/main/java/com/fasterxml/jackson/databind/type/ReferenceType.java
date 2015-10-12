@@ -99,6 +99,9 @@ public class ReferenceType extends SimpleType
                 _valueHandler, _typeHandler, _asStatic);
     }
 
+    // no need to override _widen() since it by default just calls _narrow() anyway
+//    protected JavaType _widen(Class<?> subclass)
+
     @Override
     public JavaType narrowContentsBy(Class<?> contentClass)
     {

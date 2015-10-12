@@ -137,8 +137,10 @@ public class BeanSerializerFactory
             return (JsonSerializer<Object>) ser;
         }
         boolean staticTyping;
-        // Next: we may have annotations that further define types to use...
-        JavaType type = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), origType);
+        // Next: we may have annotations that further indicate actual type to use (a super type)
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        JavaType type = (intr == null) ? origType
+                : intr.refineSerializationType(config, beanDesc.getClassInfo(), origType);
         if (type == origType) { // no changes, won't force static typing
             staticTyping = false;
         } else { // changes; assume static typing; plus, need to re-introspect if class differs
@@ -154,7 +156,7 @@ public class BeanSerializerFactory
         }
         JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
         
-        // One more twist, as per [Issue#288]; probably need to get new BeanDesc
+        // One more twist, as per [databind#288]; probably need to get new BeanDesc
         if (!delegateType.hasRawClass(type.getRawClass())) {
             beanDesc = config.introspect(delegateType);
             // [#359]: explicitly check (again) for @JsonSerializer...

@@ -402,8 +402,8 @@ public class JacksonAnnotationIntrospector
         /* First: let's ensure property is a container type: caller should have
          * verified but just to be sure
          */
-        if (!containerType.isContainerType()) {
-            throw new IllegalArgumentException("Must call method with a container type (got "+containerType+")");
+        if (containerType.getContentType() == null) {
+            throw new IllegalArgumentException("Must call method with a container or reference type (got "+containerType+")");
         }
         return _findTypeResolver(config, am, containerType);
     }
@@ -563,6 +563,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated
     public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
@@ -869,12 +870,14 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
+    @Deprecated
     public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
     {
         JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.contentAs());
     }
     
+    @Deprecated
     @Override
     public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
         JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
@@ -882,6 +885,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated
     public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
         JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.keyAs());

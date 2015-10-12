@@ -69,6 +69,7 @@ public class TestMapFiltering extends BaseMapTest
         }
 
         @Override
+        @Deprecated
         public void depositSchemaProperty(PropertyWriter writer,
                 ObjectNode propertiesNode, SerializerProvider provider)
                 throws JsonMappingException {

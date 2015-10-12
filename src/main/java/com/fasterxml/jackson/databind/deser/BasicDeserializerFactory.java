@@ -1819,9 +1819,14 @@ public abstract class BasicDeserializerFactory
             BeanDescription beanDesc, JavaType type, AnnotatedMember member)
         throws JsonMappingException
     {
-        // [JACKSON-154]: Also need to handle keyUsing, contentUsing
-        if (type.isContainerType()) {
-            AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr == null) {
+            return type;
+        }
+        
+        // Also need to handle keyUsing, contentUsing
+
+        if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
             if (keyType != null) {
                 Object kdDef = intr.findKeyDeserializer(member);
@@ -1831,7 +1836,9 @@ public abstract class BasicDeserializerFactory
                     keyType = type.getKeyType(); // just in case it's used below
                 }
             }
-            // and all container types have content types...
+        }
+
+        if (type.getContentType() != null) { // container type or reference type
             Object cdDef = intr.findContentDeserializer(member);
             JsonDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
             if (cd != null) {
@@ -1875,7 +1882,7 @@ public abstract class BasicDeserializerFactory
             }
             return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor);
         }
-        // [JACKSON-212]: may need to use Enum.toString()
+        // May need to use Enum.toString()
         if (config.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
             return EnumResolver.constructUnsafeUsingToString(enumClass);
         }

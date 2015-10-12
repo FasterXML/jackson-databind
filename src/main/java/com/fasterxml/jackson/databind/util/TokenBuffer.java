@@ -550,11 +550,19 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
+    @Deprecated
     public JsonGenerator setFeatureMask(int mask) {
         _generatorFeatures = mask;
         return this;
     }
-    
+
+    @Override
+    public JsonGenerator overrideStdFeatures(int values, int mask) {
+        int oldState = getFeatureMask();
+        _generatorFeatures = (oldState & ~mask) | (values & mask);
+        return this;
+    }
+
     @Override
     public JsonGenerator useDefaultPrettyPrinter() {
         // No-op: we don't indent

@@ -1015,6 +1015,8 @@ public abstract class AnnotationIntrospector
      * @param baseType Assumed type before considering annotations
      *
      * @return Class to use for deserialization instead of declared type
+     *
+     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
      */
     @Deprecated
     public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
@@ -1030,6 +1032,8 @@ public abstract class AnnotationIntrospector
      *
      * @return Class specifying more specific type to use instead of
      *   declared type, if annotation found; null if not
+     *
+     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
      */
     @Deprecated
     public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
@@ -1046,6 +1050,8 @@ public abstract class AnnotationIntrospector
      *
      * @return Class specifying more specific type to use instead of
      *   declared type, if annotation found; null if not
+     *
+     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
      */
     @Deprecated
     public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {

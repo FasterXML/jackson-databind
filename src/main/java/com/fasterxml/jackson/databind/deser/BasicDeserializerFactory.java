@@ -1772,12 +1772,12 @@ public abstract class BasicDeserializerFactory
             Annotated a, T type)
         throws JsonMappingException
     {
-        // first: type refinement(s)?
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            type = (T) intr.refineDeserializationType(ctxt.getConfig(), a, type);
+        if (intr == null) {
+            return type;
         }
-        // then key/value handlers  (annotated deserializers)?
+
+        // First, deserializers for key/value types?
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
             // 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
@@ -1803,9 +1803,11 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
+        // then: type refinement(s)?
+        type = (T) intr.refineDeserializationType(ctxt.getConfig(), a, type);
         return type;
     }
-    
+
     /**
      * Helper method used to resolve method return types and field
      * types. The main trick here is that the containing bean may

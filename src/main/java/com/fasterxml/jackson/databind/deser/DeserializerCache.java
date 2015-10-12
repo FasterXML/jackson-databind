@@ -469,11 +469,13 @@ public final class DeserializerCache
             Annotated a, JavaType type)
         throws JsonMappingException
     {
-        // first: type refinement(s)?
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null) {
-            type = intr.refineDeserializationType(ctxt.getConfig(), a, type);
+        if (intr == null) {
+            return type;
         }
+
+        // First things first: find explicitly annotated deserializer(s)
+
         // then key/value handlers  (annotated deserializers)?
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
@@ -511,6 +513,11 @@ public final class DeserializerCache
                 }
             }
         }
+
+        // And after handlers, possible type refinements
+        // (note: could possibly avoid this if explicit deserializer was invoked?)
+        type = intr.refineDeserializationType(ctxt.getConfig(), a, type);
+        
         return type;
     }
 

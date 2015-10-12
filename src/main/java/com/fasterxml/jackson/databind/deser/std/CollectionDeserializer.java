@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -235,6 +234,9 @@ public class CollectionDeserializer
             (valueDes.getObjectIdReader() == null) ? null :
                 new CollectionReferringAccumulator(_collectionType.getContentType().getRawClass(), result);
 
+        if(ctxt.isEnabled(DeserializationFeature.CLEAR_EXISTING_COLLECTION_OR_MAP_BEFORE_DESERIALIZATION)){
+            result.clear();
+        }
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
@@ -308,6 +310,9 @@ public class CollectionDeserializer
         } catch (Exception e) {
             // note: pass Object.class, not Object[].class, as we need element type for error info
             throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
+        }
+        if(ctxt.isEnabled(DeserializationFeature.CLEAR_EXISTING_COLLECTION_OR_MAP_BEFORE_DESERIALIZATION)){
+            result.clear();
         }
         result.add(value);
         return result;

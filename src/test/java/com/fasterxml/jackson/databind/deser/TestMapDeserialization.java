@@ -67,6 +67,14 @@ public class TestMapDeserialization
         public List<ITestType> testTypes;
     }
 
+    public static class MapContainer{
+        private final Map<String, String> map = new HashMap<String, String>();
+
+        public Map<String, String> getMap() {
+            return map;
+        }
+    }
+
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
     public static interface ITestType { }
 
@@ -618,5 +626,26 @@ public class TestMapDeserialization
             // instead, should get this exception:
             verifyException(e, "no default constructor found");
         }
+    }
+
+    public void testClearMapBeforeDeser() throws Exception{
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.CAN_OVERRIDE_FINAL_COLLECTION_OR_MAP_INSTANCE);
+        mapper.enable(DeserializationFeature.CLEAR_EXISTING_COLLECTION_OR_MAP_BEFORE_DESERIALIZATION);
+
+        MapContainer container = new MapContainer();
+
+        String json = mapper.writeValueAsString(container);
+
+        container.getMap().put("foo", "foo");
+        mapper.readerForUpdating(container).readValue(json);
+        assertTrue(container.getMap().isEmpty());
+
+        container.getMap().put("foo", "foo");
+        container.getMap().put("bar", "bar");
+        json = mapper.writeValueAsString(container);
+        container.getMap().clear();
+        mapper.readerForUpdating(container).readValue(json);
+        assertTrue(container.getMap().size() == 2);
     }
 }

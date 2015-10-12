@@ -51,6 +51,14 @@ public class TestCollectionDeserialization
         public Iterable<XBean> nums;
     }
 
+    static class FinalListX {
+        public final List<XBean> values = new ArrayList<XBean>();
+
+        public List<XBean> getValues() {
+            return values;
+        }
+    }
+
     static class KeyListBean {
         public List<Key> keys;
     }
@@ -266,7 +274,8 @@ public class TestCollectionDeserialization
         mapper.enable(DeserializationFeature.WRAP_EXCEPTIONS);
 
         try {
-            mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
+            mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {
+            });
         } catch (JsonMappingException exc) {
             assertEquals("I want to catch this exception", exc.getOriginalMessage());
         } catch (RuntimeException exc) {
@@ -277,7 +286,8 @@ public class TestCollectionDeserialization
         mapperNoWrap.disable(DeserializationFeature.WRAP_EXCEPTIONS);
 
         try {
-            mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
+            mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {
+            });
         } catch (JsonMappingException exc) {
             fail("It should not have wrapped the RuntimeException.");
         } catch (RuntimeException exc) {
@@ -301,5 +311,36 @@ public class TestCollectionDeserialization
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(28, result.iterator().next().x);
+    }
+
+    /**
+     * https://github.com/FasterXML/jackson-databind/issues/966
+     * @throws Exception
+     */
+    public void testClearCollectionBeforeDeser() throws Exception{
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.CAN_OVERRIDE_FINAL_COLLECTION_OR_MAP_INSTANCE);
+        mapper.enable(DeserializationFeature.CLEAR_EXISTING_COLLECTION_OR_MAP_BEFORE_DESERIALIZATION);
+
+        FinalListX finalListAsIterableX = new FinalListX();
+        String json = mapper.writeValueAsString(finalListAsIterableX);
+
+        List<XBean> listInstance = finalListAsIterableX.values;
+        finalListAsIterableX.values.add(new XBean(1));
+
+        mapper.readerForUpdating(finalListAsIterableX).readValue(json);
+        assertTrue(finalListAsIterableX.values.isEmpty());
+        assertTrue(finalListAsIterableX.values == listInstance);
+
+        finalListAsIterableX.values.add(new XBean(1));
+        finalListAsIterableX.values.add(new XBean(2));
+
+        json = mapper.writeValueAsString(finalListAsIterableX);
+
+        finalListAsIterableX.values.add(new XBean(3));
+
+        mapper.readerForUpdating(finalListAsIterableX).readValue(json);
+        assertTrue(finalListAsIterableX.values.size() == 2);
+        assertTrue(finalListAsIterableX.values == listInstance);
     }
 }

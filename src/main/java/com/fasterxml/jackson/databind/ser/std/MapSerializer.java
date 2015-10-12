@@ -344,8 +344,7 @@ public class MapSerializer
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             // 20-Aug-2013, tatu: Need to avoid trying to access serializer for java.lang.Object tho
-            if ((_valueTypeIsStatic && !_valueType.isJavaLangObject())
-                    || hasContentTypeAnnotation(provider, property)) {
+            if (_valueTypeIsStatic && !_valueType.isJavaLangObject()) {
                 ser = provider.findValueSerializer(_valueType, property);
             }
         } else {

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -134,10 +133,15 @@ public abstract class ContainerSerializer<T>
      * and need to statically find the serializer.
      * 
      * @since 2.1
+     *
+     * @deprecated Since 2.7: should not be needed; should be enough to see if
+     *     type has 'isStatic' modifier
      */
+    @Deprecated
     protected boolean hasContentTypeAnnotation(SerializerProvider provider,
             BeanProperty property)
     {
+        /*
         if (property != null) {
             AnnotationIntrospector intr = provider.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
@@ -147,6 +151,7 @@ public abstract class ContainerSerializer<T>
                 }
             }
         }
+        */
         return false;
     }
 }

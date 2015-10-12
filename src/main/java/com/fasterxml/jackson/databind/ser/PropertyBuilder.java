@@ -189,15 +189,20 @@ public class PropertyBuilder
                  *   but need to trust user here...
                  */
             }
-            declaredType = secondary;
             useStaticTyping = true;
+            declaredType = secondary;
         }
         // If using static typing, declared type is known to be the type...
         JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(a);
         if ((typing != null) && (typing != JsonSerialize.Typing.DEFAULT_TYPING)) {
             useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
         }
-        return useStaticTyping ? declaredType : null;
+        if (useStaticTyping) {
+            // 11-Oct-2015, tatu: Make sure JavaType also "knows" static-ness...
+            return declaredType.withStaticTyping();
+            
+        }
+        return null;
     }
 
     /*

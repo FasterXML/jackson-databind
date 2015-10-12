@@ -199,9 +199,7 @@ public abstract class AsArraySerializerBase<T>
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             if (_elementType != null) {
-                // 20-Aug-2013, tatu: Need to avoid trying to access serializer for java.lang.Object tho
-                if ((_staticTyping && !_elementType.isJavaLangObject())
-                        || hasContentTypeAnnotation(provider, property)) {
+                if (_staticTyping && !_elementType.isJavaLangObject()) {
                     ser = provider.findValueSerializer(_elementType, property);
                 }
             }

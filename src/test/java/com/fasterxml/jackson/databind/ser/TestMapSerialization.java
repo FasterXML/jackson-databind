@@ -48,7 +48,7 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
     
-    // [#335]
+    // [databind#335]
     static class MapOrderingBean {
         @JsonPropertyOrder(alphabetic=true)
         public LinkedHashMap<String,Integer> map;
@@ -62,7 +62,7 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
-    // [Databind#565]: Support ser/deser of Map.Entry
+    // [databind#565]: Support ser/deser of Map.Entry
     static class StringIntMapEntry implements Map.Entry<String,Integer> {
         public final String k;
         public final Integer v;

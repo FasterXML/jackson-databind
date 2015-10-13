@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -29,12 +28,10 @@ public class TestMapSerialization extends BaseMapTest
     {
         @Override
         public void serialize(Map<String,String> value,
-                              JsonGenerator jgen,
-                              SerializerProvider provider)
-            throws IOException
+                JsonGenerator gen, SerializerProvider provider) throws IOException
         {
             // just use standard Map.toString(), output as JSON String
-            jgen.writeString(value.toString());
+            gen.writeString(value.toString());
         }
     }
 
@@ -94,42 +91,6 @@ public class TestMapSerialization extends BaseMapTest
             value = new StringIntMapEntry(k, v);
         }
     }
-    
-    // [databind#527]
-    static class NoNullValuesMapContainer {
-        @JsonInclude(content=JsonInclude.Include.NON_NULL)
-        public Map<String,String> stuff = new LinkedHashMap<String,String>();
-        
-        public NoNullValuesMapContainer add(String key, String value) {
-            stuff.put(key, value);
-            return this;
-        }
-    }
-
-    // [databind#527]
-    @JsonInclude(content=JsonInclude.Include.NON_NULL)
-    static class NoNullsStringMap extends LinkedHashMap<String,String> {
-        public NoNullsStringMap add(String key, String value) {
-            put(key, value);
-            return this;
-        }
-    }
-
-    @JsonInclude(content=JsonInclude.Include.NON_ABSENT)
-    static class NoAbsentStringMap extends LinkedHashMap<String, AtomicReference<?>> {
-        public NoAbsentStringMap add(String key, Object value) {
-            put(key, new AtomicReference<Object>(value));
-            return this;
-        }
-    }
-    
-    @JsonInclude(content=JsonInclude.Include.NON_EMPTY)
-    static class NoEmptyStringsMap extends LinkedHashMap<String,String> {
-        public NoEmptyStringsMap add(String key, String value) {
-            put(key, value);
-            return this;
-        }
-    }
 
     // for [databind#47]
     public static class Wat
@@ -179,26 +140,12 @@ public class TestMapSerialization extends BaseMapTest
         assertEquals(aposToQuotes("{'a':1}"), json);
     }
 
-    // Test [JACKSON-220]
     public void testMapSerializer() throws IOException
     {
         assertEquals("\"{a=b, c=d}\"", MAPPER.writeValueAsString(new PseudoMap("a", "b", "c", "d")));
     }
 
-    // Test [JACKSON-314]
-    public void testMapNullSerialization() throws IOException
-    {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,String> map = new HashMap<String,String>();
-        map.put("a", null);
-        // by default, should output null-valued entries:
-        assertEquals("{\"a\":null}", m.writeValueAsString(map));
-        // but not if explicitly asked not to (note: config value is dynamic here)
-        m.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
-        assertEquals("{}", m.writeValueAsString(map));
-    }
-
-    // [JACKSON-499], problems with map entries, values
+    // problems with map entries, values
     public void testMapKeyValueSerialization() throws IOException
     {
         Map<String,String> map = new HashMap<String,String>();
@@ -274,44 +221,6 @@ public class TestMapSerialization extends BaseMapTest
         StringIntMapEntryWrapper input = new StringIntMapEntryWrapper("answer", 42);
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'value':{'answer':42}}"), json);
-    }        
-    
-    // [databind#527]
-    public void testNonNullValueMap() throws IOException
-    {
-        String json = MAPPER.writeValueAsString(new NoNullsStringMap()
-            .add("a", "foo")
-            .add("b", null)
-            .add("c", "bar"));
-        assertEquals(aposToQuotes("{'a':'foo','c':'bar'}"), json);
-    }
-
-    // [databind#527]
-    public void testNonEmptyValueMap() throws IOException
-    {
-        String json = MAPPER.writeValueAsString(new NoEmptyStringsMap()
-            .add("a", "foo")
-            .add("b", "bar")
-            .add("c", ""));
-        assertEquals(aposToQuotes("{'a':'foo','b':'bar'}"), json);
-    }
-
-    public void testNonAbsentValueMap() throws IOException
-    {
-        String json = MAPPER.writeValueAsString(new NoAbsentStringMap()
-            .add("a", "foo")
-            .add("b", null));
-        assertEquals(aposToQuotes("{'a':'foo'}"), json);
-    }
-    
-    // [databind#527]
-    public void testNonNullValueMapViaProp() throws IOException
-    {
-        String json = MAPPER.writeValueAsString(new NoNullValuesMapContainer()
-            .add("a", "foo")
-            .add("b", null)
-            .add("c", "bar"));
-        assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
     }
 
     // [databind#47]

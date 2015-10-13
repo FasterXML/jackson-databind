@@ -184,13 +184,11 @@ public abstract class BeanDescription
     /**********************************************************
      */
 
-    public abstract JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue);
-
     /**
-     * @since 2.5
+     * @since 2.7
      */
-    public abstract JsonInclude.Include findSerializationInclusionForContent(JsonInclude.Include defValue);
-    
+    public abstract JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue);
+
     /**
      * Method for checking what is the expected format for POJO, as
      * defined by defaults and possible annotations.

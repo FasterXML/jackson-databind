@@ -42,6 +42,10 @@ public final class SerializationConfig
     // since 2.6
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
 
+    // since 2.7
+    // Default is "USE_DEFAULTS, USE_DEFAULTS"
+    protected final static JsonInclude.Value DEFAULT_INCLUSION = JsonInclude.Value.empty();
+    
     /*
     /**********************************************************
     /* Configured helper objects
@@ -112,8 +116,11 @@ public final class SerializationConfig
      * Default settings is to include all regardless of value; can be
      * changed to only include non-null properties, or properties
      * with non-default values.
+     *<p>
+     * NOTE: type changed in 2.7, to include both value and content
+     * inclusion options./
      */
-    protected JsonInclude.Include _serializationInclusion = null;
+    protected final JsonInclude.Value _serializationInclusion;
 
     /*
     /**********************************************************
@@ -136,8 +143,9 @@ public final class SerializationConfig
         _generatorFeaturesToChange = 0;
         _formatWriteFeatures = 0;
         _formatWriteFeaturesToChange = 0;
+        _serializationInclusion = DEFAULT_INCLUSION;
     }
-    
+
     private SerializationConfig(SerializationConfig src, SubtypeResolver str)
     {
         super(src, str);
@@ -206,7 +214,7 @@ public final class SerializationConfig
         _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
-    private SerializationConfig(SerializationConfig src, JsonInclude.Include incl)
+    private SerializationConfig(SerializationConfig src, JsonInclude.Value incl)
     {
         super(src);
         _serFeatures = src._serFeatures;
@@ -732,10 +740,24 @@ public final class SerializationConfig
         return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
     }
 
+    /**
+     * @deprecated Since 2.7 use {@link #withPropertyInclusion} instead
+     */
+    @Deprecated
     public SerializationConfig withSerializationInclusion(JsonInclude.Include incl) {
-        return (_serializationInclusion == incl) ? this:  new SerializationConfig(this, incl);
+        return withPropertyInclusion(DEFAULT_INCLUSION.withValueInclusion(incl));
     }
 
+    /**
+     * @since 2.7
+     */
+    public SerializationConfig withPropertyInclusion(JsonInclude.Value incl) {
+        if (_serializationInclusion.equals(incl)) {
+            return this;
+        }
+        return new SerializationConfig(this, incl);
+    }
+    
     /**
      * @since 2.6
      */
@@ -899,14 +921,24 @@ public final class SerializationConfig
         return _serFeatures;
     }
 
+    /**
+     * @deprecated Since 2.7 use {@link #getPropertyInclusion} instead
+     */
+    @Deprecated
     public JsonInclude.Include getSerializationInclusion()
     {
-        if (_serializationInclusion != null) {
-            return _serializationInclusion;
-        }
-        return JsonInclude.Include.ALWAYS;
+        JsonInclude.Include incl = _serializationInclusion.getValueInclusion();
+        return (incl == JsonInclude.Include.USE_DEFAULTS) ? JsonInclude.Include.ALWAYS : incl;
     }
 
+    /**
+     * @since 2.7
+     */
+    public JsonInclude.Value getPropertyInclusion()
+    {
+        return _serializationInclusion;
+    }
+    
     /**
      * Method for getting provider used for locating filters given
      * id (which is usually provided with filter annotations).

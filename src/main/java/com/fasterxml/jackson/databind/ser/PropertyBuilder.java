@@ -22,7 +22,7 @@ public class PropertyBuilder
      * properties are collected; possibly overridden on
      * per-property basis.
      */
-    final protected JsonInclude.Include _defaultInclusion;
+    final protected JsonInclude.Value _defaultInclusion;
 
     final protected AnnotationIntrospector _annotationIntrospector;
 
@@ -38,7 +38,7 @@ public class PropertyBuilder
     {
         _config = config;
         _beanDesc = beanDesc;
-        _defaultInclusion = beanDesc.findSerializationInclusion(config.getSerializationInclusion());
+        _defaultInclusion = beanDesc.findPropertyInclusion(config.getPropertyInclusion());
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -89,6 +89,13 @@ public class PropertyBuilder
         Object valueToSuppress = null;
         boolean suppressNulls = false;
 
+        JsonInclude.Value inclV = _defaultInclusion.withOverrides(propDef.findInclusion());
+        JsonInclude.Include inclusion = inclV.getValueInclusion();
+        if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // should not occur but...
+            inclusion = JsonInclude.Include.ALWAYS;
+        }
+
+        /*
         JsonInclude.Include inclusion = propDef.findInclusion().getValueInclusion();
         if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // since 2.6
             inclusion = _defaultInclusion;
@@ -96,6 +103,8 @@ public class PropertyBuilder
                 inclusion = JsonInclude.Include.ALWAYS;
             }
         }
+        */
+
         switch (inclusion) {
         case NON_DEFAULT:
             valueToSuppress = getDefaultValue(propDef.getName(), am);

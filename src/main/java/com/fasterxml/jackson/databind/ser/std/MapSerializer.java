@@ -320,7 +320,7 @@ public class MapSerializer
         Object suppressableValue = _suppressableValue;
 
         // First: if we have a property, may have property-annotation overrides
-        if (propertyAcc != null && intr != null) {
+        if ((propertyAcc != null) && (intr != null)) {
             Object serDef = intr.findKeySerializer(propertyAcc);
             if (serDef != null) {
                 keySer = provider.serializerInstance(propertyAcc, serDef);
@@ -331,7 +331,7 @@ public class MapSerializer
             }
             JsonInclude.Value inclV = property.findPropertyInclusion(intr);
             JsonInclude.Include incl = inclV.getContentInclusion();
-            if (incl != null && incl != JsonInclude.Include.USE_DEFAULTS) {
+            if ((incl != null) && (incl != JsonInclude.Include.USE_DEFAULTS)) {
                 suppressableValue = incl;
             }
         }

@@ -374,24 +374,11 @@ public class BasicBeanDescription extends BeanDescription
      * and per-class annotation (highest priority).
      */
     @Override
-    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue) {
+    public JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue) {
         if (_annotationIntrospector != null) {
-            JsonInclude.Value inclV = _annotationIntrospector.findPropertyInclusion(_classInfo);
-            JsonInclude.Include incl = inclV.getValueInclusion();
-            if (incl != null && incl != JsonInclude.Include.USE_DEFAULTS) {
-                return incl;
-            }
-        }
-        return defValue;
-    }
-
-    @Override
-    public JsonInclude.Include findSerializationInclusionForContent(JsonInclude.Include defValue) {
-        if (_annotationIntrospector != null) {
-            JsonInclude.Value inclV = _annotationIntrospector.findPropertyInclusion(_classInfo);
-            JsonInclude.Include incl = inclV.getContentInclusion();
-            if (incl != null && incl != JsonInclude.Include.USE_DEFAULTS) {
-                return incl;
+            JsonInclude.Value incl = _annotationIntrospector.findPropertyInclusion(_classInfo);
+            if (incl != null) {
+                return defValue.withOverrides(incl);
             }
         }
         return defValue;

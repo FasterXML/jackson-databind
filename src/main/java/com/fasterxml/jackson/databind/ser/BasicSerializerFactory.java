@@ -810,23 +810,26 @@ public abstract class BasicSerializerFactory
             JavaType contentType, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        JsonInclude.Include incl = beanDesc.findSerializationInclusionForContent(null);
-
-        if (incl != null) {
-            switch (incl) {
-            case NON_DEFAULT:
-                // 19-Oct-2014, tatu: Not sure what this'd mean; so take it to mean "NON_EMPTY"...
-                incl = JsonInclude.Include.NON_EMPTY;
-                break;
-            default:
-                // all other modes actually good as is, unless we'll find better ways
-                break;
-            }
-            return incl;
+        JsonInclude.Value inclV = beanDesc.findPropertyInclusion(config.getPropertyInclusion());
+        
+        if (inclV == null) {
+            return null;
         }
-        return null;
+        JsonInclude.Include incl = inclV.getContentInclusion();
+        switch (incl) {
+        case USE_DEFAULTS: // means "dunno"
+            return null;
+        case NON_DEFAULT:
+            // 19-Oct-2014, tatu: Not sure what this'd mean; so take it to mean "NON_EMPTY"...
+            incl = JsonInclude.Include.NON_EMPTY;
+            break;
+        default:
+            // all other modes actually good as is, unless we'll find better ways
+            break;
+        }
+        return incl;
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods, for Arrays

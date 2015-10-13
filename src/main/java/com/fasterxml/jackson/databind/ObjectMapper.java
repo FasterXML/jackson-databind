@@ -1270,12 +1270,25 @@ public class ObjectMapper
         // arbitrary choice but let's do:
         return _serializationConfig.getPropertyNamingStrategy();
     }
-    
+
     /**
-     * Method for setting default POJO property inclusion strategy for serialization.
+     * Convenience method, equivalent to calling:
+     *<pre>
+     *  setPropertyInclusion(JsonInclude.Value.construct(incl, Include.ALWAYS));
+     *</pre>
      */
     public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
-        _serializationConfig = _serializationConfig.withSerializationInclusion(incl);
+        setPropertyInclusion(JsonInclude.Value.construct(incl, JsonInclude.Include.USE_DEFAULTS));
+        return this;
+    }
+
+    /**
+     * Method for setting default POJO property inclusion strategy for serialization.
+     *
+     * @since 2.7
+     */
+    public ObjectMapper setPropertyInclusion(JsonInclude.Value incl) {
+        _serializationConfig = _serializationConfig.withPropertyInclusion(incl);
         return this;
     }
 

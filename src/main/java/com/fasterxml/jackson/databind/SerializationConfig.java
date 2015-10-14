@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.*;
@@ -824,18 +825,9 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
-    /* MapperConfig implementation/overrides
+    /* MapperConfig implementation/overrides: introspection
     /**********************************************************
      */
-
-    @Override
-    public boolean useRootWrapping()
-    {
-        if (_rootName != null) { // empty String disables wrapping; non-empty enables
-            return !_rootName.isEmpty();
-        }
-        return isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-    }
 
     @Override
     public AnnotationIntrospector getAnnotationIntrospector()
@@ -884,10 +876,52 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
+    /* Configuration: default settings with per-type overrides
+    /**********************************************************
+     */
+    
+    /**
+     * @deprecated Since 2.7 use {@link #getDefaultPropertyInclusion} instead
+     */
+    @Deprecated
+    public JsonInclude.Include getSerializationInclusion()
+    {
+        JsonInclude.Include incl = _serializationInclusion.getValueInclusion();
+        return (incl == JsonInclude.Include.USE_DEFAULTS) ? JsonInclude.Include.ALWAYS : incl;
+    }
+
+    @Override
+    public JsonInclude.Value getDefaultPropertyInclusion() {
+        return _serializationInclusion;
+    }
+
+    @Override
+    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
+        // !!! TODO: per-type defaults
+        return _serializationInclusion;
+    }
+
+    @Override
+    public JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
+        // !!! TODO: per-type defaults
+        return EMPTY_FORMAT;
+    }
+    
+    /*
+    /**********************************************************
     /* Configuration: other
     /**********************************************************
      */
 
+    @Override
+    public boolean useRootWrapping()
+    {
+        if (_rootName != null) { // empty String disables wrapping; non-empty enables
+            return !_rootName.isEmpty();
+        }
+        return isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+    }
+    
     public final boolean isEnabled(SerializationFeature f) {
         return (_serFeatures & f.getMask()) != 0;
     }
@@ -921,24 +955,6 @@ public final class SerializationConfig
         return _serFeatures;
     }
 
-    /**
-     * @deprecated Since 2.7 use {@link #getPropertyInclusion} instead
-     */
-    @Deprecated
-    public JsonInclude.Include getSerializationInclusion()
-    {
-        JsonInclude.Include incl = _serializationInclusion.getValueInclusion();
-        return (incl == JsonInclude.Include.USE_DEFAULTS) ? JsonInclude.Include.ALWAYS : incl;
-    }
-
-    /**
-     * @since 2.7
-     */
-    public JsonInclude.Value getPropertyInclusion()
-    {
-        return _serializationInclusion;
-    }
-    
     /**
      * Method for getting provider used for locating filters given
      * id (which is usually provided with filter annotations).

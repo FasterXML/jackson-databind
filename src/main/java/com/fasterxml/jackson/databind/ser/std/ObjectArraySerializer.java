@@ -144,7 +144,7 @@ public class ObjectArraySerializer
                     ser = provider.serializerInstance(m, serDef);
                 }
             }
-            JsonFormat.Value format = property.findFormatOverrides(intr);
+            JsonFormat.Value format = property.findPropertyFormat(provider.getConfig(), _handledType);
             if (format != null) {
                 unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
             }

@@ -39,6 +39,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     private static final long serialVersionUID = 1L; // since 2.5
 
     /**
+     * @since 2.7
+     */
+    protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
+
+    /**
+     * @since 2.7
+     */
+    protected final static JsonFormat.Value EMPTY_FORMAT = JsonFormat.Value.empty();
+
+    /**
      * Set of shared mapper features enabled.
      */
     protected final int _mapperFeatures;
@@ -295,7 +305,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
         return getTypeFactory().constructSpecializedType(baseType, subclass);
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: introspection support
@@ -331,6 +341,37 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract BeanDescription introspectDirectClassAnnotations(JavaType type);
 
+    /*
+    /**********************************************************
+    /* Configuration: default settings with per-type overrides
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for default property inclusion to use for serialization,
+     * used unless overridden by per-type or per-property overrides.
+     *
+     * @since 2.7
+     */
+    public abstract JsonInclude.Value getDefaultPropertyInclusion();
+
+    /**
+     * Accessor for default property inclusion to use for serialization,
+     * considering possible per-type override for given base type.
+     *
+     * @since 2.7
+     */
+    public abstract JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType);
+
+    /**
+     * Accessor for default format settings to use for serialization (and, to a degree
+     * deserialization), considering baseline settings and per-type defaults
+     * for given base type (if any).
+     *
+     * @since 2.7
+     */
+    public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
+    
     /*
     /**********************************************************
     /* Configuration: other
@@ -403,7 +444,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @since 2.6
      */
     public abstract PropertyName findRootName(Class<?> rawRootType);
-    
+
     /*
     /**********************************************************
     /* Methods for instantiating handlers

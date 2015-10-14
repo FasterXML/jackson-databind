@@ -94,8 +94,7 @@ public abstract class ArraySerializerBase<T>
 
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
-            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-            JsonFormat.Value format = property.findFormatOverrides(intr);
+            JsonFormat.Value format = property.findPropertyFormat(provider.getConfig(), _handledType);
             if (format != null) {
                 unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
                 if (unwrapSingle != _unwrapSingle) {

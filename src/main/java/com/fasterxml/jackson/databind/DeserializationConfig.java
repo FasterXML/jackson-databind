@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.*;
@@ -726,10 +728,10 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************
-    /* MapperConfig implementation
+    /* MapperConfig implementation/overrides: introspection
     /**********************************************************
      */
-    
+
     /**
      * Method for getting {@link AnnotationIntrospector} configured
      * to introspect annotation values used for configuration.
@@ -746,15 +748,6 @@ public final class DeserializationConfig
         return NopAnnotationIntrospector.instance;
     }
 
-    @Override
-    public boolean useRootWrapping()
-    {
-        if (_rootName != null) { // empty String disables wrapping; non-empty enables
-            return !_rootName.isEmpty();
-        }
-        return isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE);
-    }
-    
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
@@ -788,6 +781,44 @@ public final class DeserializationConfig
             vchecker = vchecker.withFieldVisibility(Visibility.NONE);
         }
         return vchecker;
+    }
+
+    /*
+    /**********************************************************
+    /* Configuration: default settings with per-type overrides
+    /**********************************************************
+     */
+    
+    // property inclusion not used on deserialization yet (2.7): may be added in future
+    @Override
+    public JsonInclude.Value getDefaultPropertyInclusion() {
+        return EMPTY_INCLUDE;
+    }
+
+    @Override
+    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
+        return EMPTY_INCLUDE;
+    }
+
+    @Override
+    public JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
+        // !!! TODO: per-type defaults
+        return EMPTY_FORMAT;
+    }
+
+    /*
+    /**********************************************************
+    /* MapperConfig implementation/overrides: other
+    /**********************************************************
+     */
+
+    @Override
+    public boolean useRootWrapping()
+    {
+        if (_rootName != null) { // empty String disables wrapping; non-empty enables
+            return !_rootName.isEmpty();
+        }
+        return isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE);
     }
 
     public final boolean isEnabled(DeserializationFeature f) {

@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -134,18 +134,30 @@ public interface BeanProperty extends Named
      *</pre>
      *
      * @since 2.6
+     * 
+     * @deprecated since 2.7 
      */
+    @Deprecated
     public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr);
 
     /**
-     * Convenience method that is roughly equivalent to
-     *<pre>
-     *   return intr.findPropertyInclusion(getMember());
-     *</pre>
+     * Helper method used to look up format settings applicable to this property,
+     * considering both possible per-type configuration settings
      *
      * @since 2.7
      */
-    public JsonInclude.Value findPropertyInclusion(AnnotationIntrospector intr);
+    public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType);
+    
+    /**
+     * Convenience method that is roughly equivalent to
+     *<pre>
+     *   return config.getAnnotationIntrospector().findPropertyInclusion(getMember());
+     *</pre>
+     * but also considers global default settings for inclusion
+     *
+     * @since 2.7
+     */
+    public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
 
     /*
     /**********************************************************
@@ -248,6 +260,7 @@ public interface BeanProperty extends Named
         }
 
         @Override
+        @Deprecated
         public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
             if ((_member != null) && (intr != null)) {
                 JsonFormat.Value v = intr.findFormat(_member);
@@ -259,14 +272,32 @@ public interface BeanProperty extends Named
         }
 
         @Override
-        public JsonInclude.Value findPropertyInclusion(AnnotationIntrospector intr) {
-            if ((_member != null) && (intr != null)) {
-                JsonInclude.Value v = intr.findPropertyInclusion(_member);
-                if (v != null) {
-                    return v;
-                }
+        public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
+            JsonFormat.Value v0 = config.getDefaultPropertyFormat(baseType);
+            AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            if ((intr == null) || (_member == null)) {
+                return v0;
             }
-            return EMPTY_INCLUDE;
+            JsonFormat.Value v = intr.findFormat(_member);
+            if (v == null) {
+                return v0;
+            }
+            return v0.withOverrides(v);
+        }
+        
+        @Override
+        public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
+        {
+            JsonInclude.Value v0 = config.getDefaultPropertyInclusion(baseType);
+            AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            if ((intr == null) || (_member == null)) {
+                return v0;
+            }
+            JsonInclude.Value v = intr.findPropertyInclusion(_member);
+            if (v == null) {
+                return v0;
+            }
+            return v0.withOverrides(v);
         }
 
         @Override public String getName() { return _name.getSimpleName(); }

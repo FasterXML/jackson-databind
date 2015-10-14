@@ -810,7 +810,7 @@ public abstract class BasicSerializerFactory
             JavaType contentType, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        JsonInclude.Value inclV = beanDesc.findPropertyInclusion(config.getPropertyInclusion());
+        JsonInclude.Value inclV = beanDesc.findPropertyInclusion(config.getDefaultPropertyInclusion());
         
         if (inclV == null) {
             return null;

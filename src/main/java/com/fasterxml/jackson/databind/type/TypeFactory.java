@@ -263,7 +263,7 @@ public final class TypeFactory
     }
     
     protected Class<?> classForName(String name) throws ClassNotFoundException {
-    	return Class.forName(name);
+        return Class.forName(name);
     }
 
     protected Class<?> _findPrimitive(String className)
@@ -485,14 +485,14 @@ public final class TypeFactory
     public JavaType constructType(TypeReference<?> typeRef) {
         return _constructType(typeRef.getType(), null);
     }
-    
-    public JavaType constructType(Type type, Class<?> context) {
-        TypeBindings b = (context == null) ? null : new TypeBindings(this, context);
+
+    public JavaType constructType(Type type, Class<?> contextType) {
+        TypeBindings b = (contextType == null) ? null : new TypeBindings(this, contextType);
         return _constructType(type, b);
     }
 
-    public JavaType constructType(Type type, JavaType context) {
-        TypeBindings b = (context == null) ? null : new TypeBindings(this, context);
+    public JavaType constructType(Type type, JavaType contextType) {
+        TypeBindings b = (contextType == null) ? null : new TypeBindings(this, contextType);
         return _constructType(type, b);
     }
     
@@ -501,29 +501,29 @@ public final class TypeFactory
      * as Java typing returned from <code>getGenericXxx</code> methods
      * (usually for a return or argument type).
      */
-    protected JavaType _constructType(Type type, TypeBindings context)
+    protected JavaType _constructType(Type type, TypeBindings bindings)
     {
         JavaType resultType;
 
         // simple class?
         if (type instanceof Class<?>) {
-            resultType = _fromClass((Class<?>) type, context);
+            resultType = _fromClass((Class<?>) type, bindings);
         }
         // But if not, need to start resolving.
         else if (type instanceof ParameterizedType) {
-            resultType = _fromParamType((ParameterizedType) type, context);
+            resultType = _fromParamType((ParameterizedType) type, bindings);
         }
         else if (type instanceof JavaType) { // [Issue#116]
             return (JavaType) type;
         }
         else if (type instanceof GenericArrayType) {
-            resultType = _fromArrayType((GenericArrayType) type, context);
+            resultType = _fromArrayType((GenericArrayType) type, bindings);
         }
         else if (type instanceof TypeVariable<?>) {
-            resultType = _fromVariable((TypeVariable<?>) type, context);
+            resultType = _fromVariable((TypeVariable<?>) type, bindings);
         }
         else if (type instanceof WildcardType) {
-            resultType = _fromWildcard((WildcardType) type, context);
+            resultType = _fromWildcard((WildcardType) type, bindings);
         } else {
             // sanity check
             throw new IllegalArgumentException("Unrecognized Type: "+((type == null) ? "[null]" : type.toString()));
@@ -534,7 +534,7 @@ public final class TypeFactory
          */
         if (_modifiers != null && !resultType.isContainerType()) {
             for (TypeModifier mod : _modifiers) {
-                resultType = mod.modifyType(resultType, type, context, this);
+                resultType = mod.modifyType(resultType, type, bindings, this);
             }
         }
         return resultType;
@@ -884,10 +884,10 @@ public final class TypeFactory
      */
 
     /**
-     * @param context Mapping of formal parameter declarations (for generic
+     * @param bindings Mapping of formal parameter declarations (for generic
      *   types) into actual types
      */
-    protected JavaType _fromClass(Class<?> clz, TypeBindings context)
+    protected JavaType _fromClass(Class<?> clz, TypeBindings bindings)
     {
         // Very first thing: small set of core types we know well:
         JavaType result = _findWellKnownSimple(clz);
@@ -902,10 +902,10 @@ public final class TypeFactory
             return result;
         }
 
-        // If context was needed, we'd do:
+        // If bindings were needed, we'd do:
         /*
-        if (context == null) {
-            context = new TypeBindings(this, cls);
+        if (bindings == null) {
+            bindings = new TypeBindings(this, cls);
         }
         */
 
@@ -994,7 +994,7 @@ public final class TypeFactory
      * This method deals with parameterized types, that is,
      * first class generic classes.
      */
-    protected JavaType _fromParamType(ParameterizedType type, TypeBindings context)
+    protected JavaType _fromParamType(ParameterizedType type, TypeBindings bindings)
     {
         /* First: what is the actual base type? One odd thing
          * is that 'getRawType' returns Type, not Class<?> as
@@ -1013,7 +1013,7 @@ public final class TypeFactory
         } else {
             pt = new JavaType[paramCount];
             for (int i = 0; i < paramCount; ++i) {
-                pt[i] = _constructType(args[i], context);
+                pt[i] = _constructType(args[i], bindings);
             }
         }
 
@@ -1048,7 +1048,7 @@ public final class TypeFactory
                 }
             } else {
                 JavaType subtype = constructSimpleType(rawType, rawType, pt);
-                JavaType[] pts = findTypeParameters(subtype, AtomicReference.class, context);
+                JavaType[] pts = findTypeParameters(subtype, AtomicReference.class, bindings);
                 if (pts != null && pts.length == 1) {
                     rt = pts[0];
                 }
@@ -1067,7 +1067,7 @@ public final class TypeFactory
                 // 23-Sep-2015, tatu: Must be careful here; type resolution can NOT be done
                 //    directly quite yet. Instead, need to do indirectly...
                 JavaType subtype = constructSimpleType(rawType, rawType, pt);
-                JavaType[] pts = findTypeParameters(subtype, Map.Entry.class, context);
+                JavaType[] pts = findTypeParameters(subtype, Map.Entry.class, bindings);
                 if (pts != null && pts.length == 2) {
                     kt = pts[0];
                     vt = pts[1];
@@ -1084,26 +1084,26 @@ public final class TypeFactory
         return constructSimpleType(rawType, rawType, pt);
     }
 
-    protected JavaType _fromArrayType(GenericArrayType type, TypeBindings context)
+    protected JavaType _fromArrayType(GenericArrayType type, TypeBindings bindings)
     {
-        JavaType compType = _constructType(type.getGenericComponentType(), context);
+        JavaType compType = _constructType(type.getGenericComponentType(), bindings);
         return ArrayType.construct(compType, null, null);
     }
 
-    protected JavaType _fromVariable(TypeVariable<?> type, TypeBindings context)
+    protected JavaType _fromVariable(TypeVariable<?> type, TypeBindings bindings)
     {
         final String name = type.getName();
         // 19-Mar-2015: Without context, all we can check are bounds.
-        if (context == null) {
+        if (bindings == null) {
             // And to prevent infinite loops, now need this:
-            context = new TypeBindings(this, (Class<?>) null);
+            bindings = new TypeBindings(this, (Class<?>) null);
         } else {
             // Ok: here's where context might come in handy!
             /* 19-Mar-2015, tatu: As per [databind#609], may need to allow
              *   unresolved type variables to handle some cases where bounds
              *   are enough. Let's hope it does not hide real fail cases.
              */
-            JavaType actualType = context.findType(name, false);
+            JavaType actualType = bindings.findType(name, false);
             if (actualType != null) {
                 return actualType;
             }
@@ -1129,11 +1129,11 @@ public final class TypeFactory
          *   (T extends Comparable<T>). Need to add "placeholder"
          *   for resolution to catch those.
          */
-        context._addPlaceholder(name);
-        return _constructType(bounds[0], context);
+        bindings._addPlaceholder(name);
+        return _constructType(bounds[0], bindings);
     }
 
-    protected JavaType _fromWildcard(WildcardType type, TypeBindings context)
+    protected JavaType _fromWildcard(WildcardType type, TypeBindings bindings)
     {
         /* Similar to challenges with TypeVariable, we may have
          * multiple upper bounds. But it is also possible that if
@@ -1143,7 +1143,7 @@ public final class TypeFactory
          * For now, we won't try anything more advanced; above is
          * just for future reference.
          */
-        return _constructType(type.getUpperBounds()[0], context);
+        return _constructType(type.getUpperBounds()[0], bindings);
     }
 
     private JavaType _mapType(Class<?> rawClass)
@@ -1178,7 +1178,8 @@ public final class TypeFactory
         return CollectionType.construct(rawClass, typeParams[0]);
     }    
 
-    protected JavaType _resolveVariableViaSubTypes(HierarchicType leafType, String variableName, TypeBindings bindings)
+    protected JavaType _resolveVariableViaSubTypes(HierarchicType leafType, String variableName,
+            TypeBindings bindings)
     {
         // can't resolve raw types; possible to have as-of-yet-unbound types too:
         if (leafType != null && leafType.isGeneric()) {

@@ -22,6 +22,11 @@ public class TypeBindings
      * Factory to use for constructing resolved related types.
      */
     protected final TypeFactory _typeFactory;
+
+    /**
+     * @since 2.7
+     */
+    protected final ClassStack _classStack;
     
     /**
      * Context type used for resolving all types, if specified. May be null,
@@ -60,14 +65,14 @@ public class TypeBindings
     /**********************************************************
      */
     
-    public TypeBindings(TypeFactory typeFactory, Class<?> cc)
+    public TypeBindings(TypeFactory typeFactory, ClassStack stack, Class<?> cc)
     {
-        this(typeFactory, null, cc, null);
+        this(typeFactory, null, stack, cc, null);
     }
 
-    public TypeBindings(TypeFactory typeFactory, JavaType type)
+    public TypeBindings(TypeFactory typeFactory, ClassStack stack, JavaType type)
     {
-        this(typeFactory, null, type.getRawClass(), type);
+        this(typeFactory, null, stack, type.getRawClass(), type);
     }
 
     /**
@@ -77,14 +82,15 @@ public class TypeBindings
      * contextual (class-defined) ones.
      */
     public TypeBindings childInstance() {
-        return new TypeBindings(_typeFactory, this, _contextClass, _contextType);
+        return new TypeBindings(_typeFactory, this, _classStack, _contextClass, _contextType);
     }
 
-    private TypeBindings(TypeFactory tf, TypeBindings parent,
+    private TypeBindings(TypeFactory tf, TypeBindings parent, ClassStack stack,
             Class<?> cc, JavaType type)
     {
         _typeFactory = tf;
         _parentBindings = parent;
+        _classStack = stack;
         _contextClass = cc;
         _contextType = type;
     }
@@ -96,11 +102,11 @@ public class TypeBindings
      */
 
     public JavaType resolveType(Class<?> cls) {
-        return _typeFactory._constructType(cls, this);
+        return _typeFactory._constructType(_classStack, cls, this);
     }
 
     public JavaType resolveType(Type type) {
-        return _typeFactory._constructType(type, this);
+        return _typeFactory._constructType(_classStack, type, this);
     }
 
     /*
@@ -108,13 +114,6 @@ public class TypeBindings
     /* Accesors
     /**********************************************************
      */
-
-    public int getBindingCount() {
-        if (_bindings == null) {
-            _resolve();
-        }
-        return _bindings.size();
-    }
 
     public JavaType findType(String name, boolean mustFind)
     {
@@ -201,6 +200,14 @@ public class TypeBindings
     /* Internal methods
     /**********************************************************
      */
+
+    // Only for tests!
+    protected int getBindingCount() {
+        if (_bindings == null) {
+            _resolve();
+        }
+        return _bindings.size();
+    }
     
     protected void _resolve()
     {
@@ -259,7 +266,7 @@ public class TypeBindings
                     // first: add a placeholder to prevent infinite loops
                     _addPlaceholder(name);
                     // then resolve type
-                    _bindings.put(name, _typeFactory._constructType(args[i], this));
+                    _bindings.put(name, _typeFactory._constructType(_classStack, args[i], this));
                 }
             }
             raw = (Class<?>)pt.getRawType();
@@ -306,7 +313,7 @@ public class TypeBindings
                         if (typeParams != null && typeParams.length > i) {
                             _bindings.put(name, typeParams[i]);
                         } else {
-                            _bindings.put(name, _typeFactory._constructType(varType, this));
+                            _bindings.put(name, _typeFactory._constructType(_classStack, varType, this));
                         }
                     }
                 }

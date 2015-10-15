@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.JavaType;
 /**
  * Simple recursive-descent parser for parsing canonical {@link JavaType}
  * representations and constructing type instances.
- * 
- * @author tatu
  */
 public class TypeParser
     implements java.io.Serializable
@@ -28,8 +26,7 @@ public class TypeParser
         return (f == _factory) ? this : new TypeParser(f);
     }
 
-    public JavaType parse(String canonical)
-        throws IllegalArgumentException
+    public JavaType parse(String canonical) throws IllegalArgumentException
     {
         canonical = canonical.trim();
         MyTokenizer tokens = new MyTokenizer(canonical);
@@ -48,16 +45,19 @@ public class TypeParser
             throw _problem(tokens, "Unexpected end-of-string");
         }
         Class<?> base = findClass(tokens.nextToken(), tokens);
+        // no context to pass, I think
+        ClassStack context = null;
+
         // either end (ok, non generic type), or generics
         if (tokens.hasMoreTokens()) {
             String token = tokens.nextToken();
             if ("<".equals(token)) {
-                return _factory._fromParameterizedClass(base, parseTypes(tokens));
+                return _factory._fromParameterizedClass(context, base, parseTypes(tokens));
             }
             // can be comma that separates types, or closing '>'
             tokens.pushBack(token);
         }
-        return _factory._fromClass(base, null);
+        return _factory._fromClass(context, base, null);
     }
 
     protected List<JavaType> parseTypes(MyTokenizer tokens)

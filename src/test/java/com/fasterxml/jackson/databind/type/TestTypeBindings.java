@@ -42,7 +42,7 @@ public class TestTypeBindings
          * known as 'Object.class' (via lower bound)
          */
         TypeFactory tf = TypeFactory.defaultInstance();
-        TypeBindings b = new TypeBindings(tf, AbstractType.class);
+        TypeBindings b = new TypeBindings(tf, null, AbstractType.class);
         assertEquals(2, b.getBindingCount());
         JavaType obType = tf.constructType(Object.class);
         assertEquals(obType, b.findType("A", true));
@@ -53,7 +53,7 @@ public class TestTypeBindings
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         // concrete class does have bindings however
-        TypeBindings b = new TypeBindings(tf, LongStringType.class);
+        TypeBindings b = new TypeBindings(tf, null, LongStringType.class);
         assertEquals(2, b.getBindingCount());
         assertEquals(tf.constructType(Long.class), b.findType("A", true));
         assertEquals(tf.constructType(String.class), b.findType("B", true));

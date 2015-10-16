@@ -838,7 +838,8 @@ public abstract class BasicDeserializerFactory
                 metadata = PropertyMetadata.construct(req, desc, idx, def);
             }
         }
-            
+        // 15-Oct-2015, tatu: Not 100% if context needed; removing it does not make any
+        //    existing unit tests fail. Still seems like the right thing to do.
         JavaType t0 = config.getTypeFactory().constructType(param.getParameterType(), beanDesc.bindingsForBeanType());
         BeanProperty.Std property = new BeanProperty.Std(name, t0,
                 intr.findWrapperName(param),

@@ -487,6 +487,7 @@ public final class TypeFactory
         return _constructType(null, typeRef.getType(), null);
     }
 
+    /*
     public JavaType constructType(Type type, Class<?> contextType) {
         TypeBindings b = (contextType == null) ? null : new TypeBindings(this, null, contextType);
         return _constructType(null, type, b);
@@ -496,6 +497,7 @@ public final class TypeFactory
         TypeBindings b = (contextType == null) ? null : new TypeBindings(this, null, contextType);
         return _constructType(null, type, b);
     }
+    */
     
     /**
      * Factory method that can be used if type information is passed

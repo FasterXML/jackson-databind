@@ -5,10 +5,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -16,7 +18,6 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -287,7 +288,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *</pre>
      */
     public final JavaType constructType(Class<?> cls) {
-        return getTypeFactory().constructType(cls, (TypeBindings) null);
+        return getTypeFactory().constructType(cls);
     }
 
     /**
@@ -299,7 +300,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *</pre>
      */
     public final JavaType constructType(TypeReference<?> valueTypeRef) {
-        return getTypeFactory().constructType(valueTypeRef.getType(), (TypeBindings) null);
+        return getTypeFactory().constructType(valueTypeRef.getType());
     }
 
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {

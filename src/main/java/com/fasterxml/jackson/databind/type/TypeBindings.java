@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class TypeBindings
 {
     private final static JavaType[] NO_TYPES = new JavaType[0];
-    
+
     /**
      * Marker to use for (temporarily) unbound references.
      */
@@ -144,17 +144,6 @@ public class TypeBindings
                 if (!Modifier.isStatic(_contextClass.getModifiers())) {
                     return UNBOUND;
                 }
-
-                // ... so this piece of code should not be needed any more
-                /*
-                String pkgName = ClassUtil.getPackageName(enclosing);
-                if (pkgName != null) {
-                    // as per [JACKSON-533], also include "java.util.concurrent":
-                    if (pkgName.startsWith("java.util")) {
-                        return UNBOUND;
-                    }
-                }
-                */
             }
         }
 
@@ -258,9 +247,8 @@ public class TypeBindings
                     if (_bindings == null) {
                         _bindings = new LinkedHashMap<String,JavaType>();
                     } else {
-                        /* 24-Mar-2010, tatu: Better ensure that we do not overwrite something
-                         *  collected earlier (since we descend towards super-classes):
-                         */
+                        // 24-Mar-2010, tatu: Better ensure that we do not overwrite something
+                        //  collected earlier (since we descend towards super-classes):
                         if (_bindings.containsKey(name)) continue;
                     }
                     // first: add a placeholder to prevent infinite loops

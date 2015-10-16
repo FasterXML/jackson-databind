@@ -40,14 +40,8 @@ public class MappingIteratorDeserializer
             DeserializationContext ctxt) throws IOException,
             JsonProcessingException
     {
-System.err.println("DEBUG: token/0 == "+p.getCurrentToken());
-        
         MappingIterator<Object> mit = new MappingIterator<Object>(_valueType, p, ctxt,
                 _valueDeserializer, false, null);
-
-System.err.println("DEBUG: token/1 == "+p.getCurrentToken());
-        
         return mit;
     }
-
 }

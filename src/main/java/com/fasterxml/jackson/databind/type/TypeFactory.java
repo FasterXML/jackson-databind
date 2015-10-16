@@ -1013,16 +1013,12 @@ public final class TypeFactory
     protected JavaType _fromParamType(ClassStack context, ParameterizedType type,
             TypeBindings bindings)
     {
-        /* First: what is the actual base type? One odd thing
-         * is that 'getRawType' returns Type, not Class<?> as
-         * one might expect. But let's assume it is always of
-         * type Class: if not, need to add more code to resolve
-         * it to Class.
-         */
+        // First: what is the actual base type? One odd thing is that 'getRawType'
+        // returns Type, not Class<?> as one might expect. But let's assume it is
+        // always of type Class: if not, need to add more code to resolve it to Class.        
         Class<?> rawType = (Class<?>) type.getRawType();
         Type[] args = type.getActualTypeArguments();
         int paramCount = (args == null) ? 0 : args.length;
-
         JavaType[] pt;
         
         if (paramCount == 0) {

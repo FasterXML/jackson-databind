@@ -16,27 +16,64 @@ public class ReferenceType extends SimpleType
 
     protected final JavaType _referencedType;
 
-    protected ReferenceType(Class<?> cls, JavaType refType,
+    protected ReferenceType(Class<?> cls, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInts, JavaType refType,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, refType.hashCode(),
+        super(cls, bindings, superClass, superInts, refType.hashCode(),
                 valueHandler, typeHandler, asStatic);
         _referencedType = refType;
     }
 
-    public static ReferenceType construct(Class<?> cls, JavaType refType,
-            Object valueHandler, Object typeHandler)
+    /**
+     * @since 2.7
+     */
+    protected ReferenceType(TypeBase base, JavaType refType)
     {
-        return new ReferenceType(cls, refType, null, null, false);
+        super(base);
+        _referencedType = refType;
+    }
+
+    /**
+     * Factory method that can be used to "upgrade" a basic type into collection-like
+     * one; usually done via {@link TypeModifier}
+     *
+     * @since 2.7
+     */
+    public static ReferenceType upgradeFrom(JavaType baseType, JavaType refType) {
+        // 19-Oct-2015, tatu: Not sure if and how other types could be used as base;
+        //    will cross that bridge if and when need be
+        if (baseType instanceof TypeBase) {
+            return new ReferenceType((TypeBase) baseType, refType);
+        }
+        throw new IllegalArgumentException("Can not upgrade from an instance of "+baseType.getClass());
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static ReferenceType construct(Class<?> cls, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInts, JavaType refType)
+    {
+        return new ReferenceType(cls, bindings, superClass, superInts,
+                refType, null, null, false);
+    }
+
+    @Deprecated // since 2.7
+    public static ReferenceType construct(Class<?> cls, JavaType refType) {
+        return new ReferenceType(cls, TypeBindings.emptyBindings(),
+                // !!! TODO: missing supertypes
+                null, null, refType, null, null, false);
     }                                   
-    
+
     @Override
     public ReferenceType withTypeHandler(Object h)
     {
         if (h == _typeHandler) {
             return this;
         }
-        return new ReferenceType(_class, _referencedType, _valueHandler, h, _asStatic);
+        return new ReferenceType(_class, _bindings,
+                _superClass, _superInterfaces, _referencedType, _valueHandler, h, _asStatic);
     }
 
     @Override
@@ -45,7 +82,8 @@ public class ReferenceType extends SimpleType
         if (h == _referencedType.<Object>getTypeHandler()) {
             return this;
         }
-        return new ReferenceType(_class, _referencedType.withTypeHandler(h),
+        return new ReferenceType(_class, _bindings,
+                _superClass, _superInterfaces, _referencedType.withTypeHandler(h),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -54,7 +92,8 @@ public class ReferenceType extends SimpleType
         if (h == _valueHandler) {
             return this;
         }
-        return new ReferenceType(_class, _referencedType, h, _typeHandler,_asStatic);
+        return new ReferenceType(_class, _bindings,
+                _superClass, _superInterfaces, _referencedType, h, _typeHandler,_asStatic);
     }
 
     @Override
@@ -62,7 +101,8 @@ public class ReferenceType extends SimpleType
         if (h == _referencedType.<Object>getValueHandler()) {
             return this;
         }
-        return new ReferenceType(_class, _referencedType.withValueHandler(h),
+        return new ReferenceType(_class, _bindings,
+                _superClass, _superInterfaces, _referencedType.withValueHandler(h),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -71,8 +111,17 @@ public class ReferenceType extends SimpleType
         if (_asStatic) {
             return this;
         }
-        return new ReferenceType(_class, _referencedType.withStaticTyping(),
+        return new ReferenceType(_class, _bindings,
+                _superClass, _superInterfaces, _referencedType.withStaticTyping(),
                  _valueHandler, _typeHandler, true);
+    }
+
+    @Override
+    public JavaType refine(Class<?> rawType, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces) {
+        return new ReferenceType(rawType, _bindings,
+                _superClass, _superInterfaces, _referencedType,
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -95,7 +144,8 @@ public class ReferenceType extends SimpleType
     protected JavaType _narrow(Class<?> subclass)
     {
         // Should we check that there is a sub-class relationship?
-        return new ReferenceType(subclass, _referencedType,
+        return new ReferenceType(subclass, _bindings,
+                _superClass, _superInterfaces, _referencedType,
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -109,8 +159,8 @@ public class ReferenceType extends SimpleType
         if (contentClass == _referencedType.getRawClass()) {
             return this;
         }
-        return new ReferenceType(_class,
-                _referencedType.narrowBy(contentClass),
+        return new ReferenceType(_class, _bindings,
+                _superClass, _superInterfaces, _referencedType.narrowBy(contentClass),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -121,8 +171,8 @@ public class ReferenceType extends SimpleType
         if (contentClass == _referencedType.getRawClass()) {
             return this;
         }
-        return new ReferenceType(_class,
-                _referencedType.widenBy(contentClass),
+        return new ReferenceType(_class, _bindings,
+                _superClass, _superInterfaces, _referencedType.widenBy(contentClass),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -146,28 +196,7 @@ public class ReferenceType extends SimpleType
     public boolean isReferenceType() {
         return true;
     }
-    
-    @Override
-    public int containedTypeCount() {
-        return 1;
-    }
 
-    @Override
-    public JavaType containedType(int index) {
-        return (index == 0) ? _referencedType : null;
-    }
-
-    @Override
-    public String containedTypeName(int index) {
-        return (index == 0) ? "T" : null;
-    }
-
-    @Override
-    public Class<?> getParameterSource() {
-        // Hmmh. For now, assume it's the raw type
-        return _class;
-    }
-    
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);

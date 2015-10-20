@@ -7,7 +7,11 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.type.TypeBindings;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -29,6 +33,11 @@ public final class AnnotatedClass
     final protected Class<?> _class;
 
     /**
+     * @since 2.7
+     */
+    final protected TypeBindings _bindings;
+
+    /**
      * Ordered set of super classes and interfaces of the
      * class itself: included in order of precedence
      */
@@ -41,6 +50,11 @@ public final class AnnotatedClass
      */
     final protected AnnotationIntrospector _annotationIntrospector;
 
+    /**
+     * @since 2.7
+     */
+    final protected TypeFactory _typeFactory;
+    
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
@@ -110,13 +124,16 @@ public final class AnnotatedClass
      * Constructor will not do any initializations, to allow for
      * configuring instances differently depending on use cases
      */
-    private AnnotatedClass(Class<?> cls, List<Class<?>> superTypes,
-            AnnotationIntrospector aintr, MixInResolver mir,
+    private AnnotatedClass(Class<?> cls, TypeBindings bindings,
+            List<Class<?>> superTypes,
+            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
             AnnotationMap classAnnotations)
     {
         _class = cls;
+        _bindings = bindings;
         _superTypes = superTypes;
         _annotationIntrospector = aintr;
+        _typeFactory = tf;
         _mixInResolver = mir;
         _primaryMixIn = (_mixInResolver == null) ? null
             : _mixInResolver.findMixInClassFor(_class);
@@ -125,32 +142,66 @@ public final class AnnotatedClass
 
     @Override
     public AnnotatedClass withAnnotations(AnnotationMap ann) {
-        return new AnnotatedClass(_class, _superTypes,
-                _annotationIntrospector, _mixInResolver, ann);
+        return new AnnotatedClass(_class, _bindings, _superTypes,
+                _annotationIntrospector, _mixInResolver, _typeFactory, ann);
     }
-    
+
     /**
      * Factory method that instantiates an instance. Returned instance
      * will only be initialized with class annotations, but not with
      * any method information.
+     * 
+     * @since 2.7
      */
-    public static AnnotatedClass construct(Class<?> cls,
-            AnnotationIntrospector aintr, MixInResolver mir)
-    {
-        return new AnnotatedClass(cls,
-                ClassUtil.findSuperTypes(cls, null), aintr, mir, null);
+    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
+        AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
+                ? config.getAnnotationIntrospector() : null;
+        Class<?> raw = type.getRawClass();
+        return new AnnotatedClass(raw, type.getBindings(),
+                ClassUtil.findSuperTypes(raw, null), intr, (MixInResolver) config, config.getTypeFactory(), null);
     }
 
+    /**
+     * @since 2.7
+     */
+    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config,
+            MixInResolver mir)
+    {
+        AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
+                ? config.getAnnotationIntrospector() : null;
+        Class<?> raw = type.getRawClass();
+        return new AnnotatedClass(raw, type.getBindings(),
+                ClassUtil.findSuperTypes(raw, null), intr, mir, config.getTypeFactory(), null);
+    }
+    
     /**
      * Method similar to {@link #construct}, but that will NOT include
      * information from supertypes; only class itself and any direct
      * mix-ins it may have.
      */
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls,
-            AnnotationIntrospector aintr, MixInResolver mir)
+    public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls, MapperConfig<?> config)
     {
-        return new AnnotatedClass(cls,
-                Collections.<Class<?>>emptyList(), aintr, mir, null);
+        if (config == null) {
+            return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+                    Collections.<Class<?>>emptyList(), null, null, null, null);
+        }
+        AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
+                ? config.getAnnotationIntrospector() : null;
+        return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+                Collections.<Class<?>>emptyList(), intr, (MixInResolver) config, config.getTypeFactory(), null);
+    }
+
+    public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls, MapperConfig<?> config,
+            MixInResolver mir)
+    {
+        if (config == null) {
+            return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+                    Collections.<Class<?>>emptyList(), null, null, null, null);
+        }
+        AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
+                ? config.getAnnotationIntrospector() : null;
+        return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+                Collections.<Class<?>>emptyList(), intr, mir, config.getTypeFactory(), null);
     }
     
     /*
@@ -210,7 +261,14 @@ public final class AnnotatedClass
         }
         return _classAnnotations;
     }
-    
+
+    @Override
+    public JavaType getType() {
+        // 16-Oct-2015, tatu: Does this make any sense? Technically doable but
+//        return _typeFactory.constructType(_class, _bindings);
+        throw new UnsupportedOperationException("Should not be called on AnnotatedClass");
+    }
+
     /*
     /**********************************************************
     /* Public API, generic accessors
@@ -300,6 +358,13 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
+    /**
+     * @since 2.7
+     */
+    public JavaType resolveMemberType(Type type) {
+        return _typeFactory.constructType(type, _bindings);
+    }
+    
     /**
      * Initialization method that will recursively collect Jackson
      * annotations for this class and all super classes and

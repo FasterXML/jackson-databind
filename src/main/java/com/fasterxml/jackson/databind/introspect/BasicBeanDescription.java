@@ -244,12 +244,9 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
-    public TypeBindings bindingsForBeanType()
-    {
-        if (_bindings == null) {
-            _bindings = new TypeBindings(_config.getTypeFactory(), null, _type);
-        }
-        return _bindings;
+    @Deprecated // since 2.7
+    public TypeBindings bindingsForBeanType() {
+        return _type.getBindings();
     }
 
     @Override
@@ -257,7 +254,7 @@ public class BasicBeanDescription extends BeanDescription
         if (jdkType == null) {
             return null;
         }
-        return bindingsForBeanType().resolveType(jdkType);
+        return _config.getTypeFactory().constructType(jdkType, _type.getBindings());
     }
 
     @Override

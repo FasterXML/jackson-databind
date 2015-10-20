@@ -671,7 +671,7 @@ public class BeanDeserializerFactory
             setter.fixAccess(); // to ensure we can call it
         }
         // we know it's a 2-arg method, second arg is the value
-        JavaType type = beanDesc.bindingsForBeanType().resolveType(setter.getGenericParameterType(1));
+        JavaType type = beanDesc.resolveType(setter.getGenericParameterType(1));
         BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(setter.getName()),
                 type, null, beanDesc.getClassAnnotations(), setter,
                 PropertyMetadata.STD_OPTIONAL);
@@ -766,14 +766,8 @@ public class BeanDeserializerFactory
         if (ctxt.canOverrideAccessModifiers()) {
             getter.fixAccess();
         }
-
-        /* 26-Jan-2012, tatu: Alas, this complication is still needed to handle
-         *   (or at least work around) local type declarations...
-         */
-        JavaType type = getter.getType(beanDesc.bindingsForBeanType());
-        /* First: does the Method specify the deserializer to use?
-         * If so, let's use it.
-         */
+        JavaType type = getter.getType();
+        // First: does the Method specify the deserializer to use? If so, let's use it.
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter);
         type = modifyTypeByAnnotation(ctxt, getter, type);
         // As per [Issue#501], need full resolution:

@@ -188,30 +188,13 @@ public class TestJacksonAnnotationIntrospector
 
     public void testJsonTypeResolver() throws Exception
     {
-        JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(TypeResolverBean.class, ai, null);
-        JavaType baseType = TypeFactory.defaultInstance().constructType(TypeResolverBean.class);
         ObjectMapper mapper = new ObjectMapper();
+        JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(TypeResolverBean.class, mapper.getSerializationConfig());
+        JavaType baseType = TypeFactory.defaultInstance().constructType(TypeResolverBean.class);
         TypeResolverBuilder<?> rb = ai.findTypeResolver(mapper.getDeserializationConfig(), ac, baseType);
         assertNotNull(rb);
         assertSame(DummyBuilder.class, rb.getClass());
-    }    
-
-    /**
-     * Tests to ensure that {@link JsonIgnoreType} is detected as expected
-     * by the standard introspector.
-     * 
-     * @since 1.7
-     */
-    public void testIgnoredType() throws Exception
-    {
-        JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClass.construct(IgnoredType.class, ai, null);
-        assertEquals(Boolean.TRUE, ai.isIgnorableType(ac));
-
-        // also, should inherit as expected
-        ac = AnnotatedClass.construct(IgnoredSubType.class, ai, null);
-        assertEquals(Boolean.TRUE, ai.isIgnorableType(ac));
     }
 
     public void testEnumHandling() throws Exception

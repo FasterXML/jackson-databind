@@ -69,4 +69,18 @@ public final class ClassStack
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ClassStack (self-refs: ")
+            .append((_selfRefs == null) ? "0" : String.valueOf(_selfRefs.size()))
+            .append(')')
+                    ;
+        for (ClassStack curr = this; curr != null; curr = curr._parent) {
+            sb.append(' ').append(curr._current.getName());
+        }
+        sb.append(']');
+        return sb.toString();
+    }
 }

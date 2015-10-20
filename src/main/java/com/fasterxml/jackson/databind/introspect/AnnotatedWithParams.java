@@ -2,12 +2,8 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeBindings;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Intermediate base class that encapsulates features that
@@ -60,7 +56,7 @@ public abstract class AnnotatedWithParams
     {
         _paramAnnotations[index] = ann;
         return getParameter(index);
-    }    
+    }
 
     /*
     /**********************************************************
@@ -68,6 +64,7 @@ public abstract class AnnotatedWithParams
     /**********************************************************
      */
 
+    /*
     protected JavaType getType(TypeBindings bindings, TypeVariable<?>[] typeParams)
     {
         // [JACKSON-468] Need to consider local type binding declarations too...
@@ -86,6 +83,7 @@ public abstract class AnnotatedWithParams
         }
         return bindings.resolveType(getGenericType());
     }
+    */
 
     /*
     /**********************************************************
@@ -118,8 +116,8 @@ public abstract class AnnotatedWithParams
      * Method called to fully resolve type of one of parameters, given
      * specified type variable bindings.
      */
-    public final JavaType resolveParameterType(int index, TypeBindings bindings) {
-        return bindings.resolveType(getGenericParameterType(index));
+    public final JavaType resolveParameterType(int index) {
+        return _context.resolveMemberType(getGenericParameterType(index));
     }
     
     public final int getAnnotationCount() { return _annotations.size(); }

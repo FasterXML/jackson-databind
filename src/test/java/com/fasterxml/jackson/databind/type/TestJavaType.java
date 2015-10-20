@@ -132,12 +132,9 @@ public class TestJavaType
     public void testArrayType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType arrayT = ArrayType.construct(tf.constructType(String.class), null, null);
+        JavaType arrayT = ArrayType.construct(tf.constructType(String.class), null);
         assertNotNull(arrayT);
         assertTrue(arrayT.isContainerType());
-
-        // NOPs:
-        assertSame(arrayT, arrayT.narrowContentsBy(String.class));
 
         assertNotNull(arrayT.toString());
 
@@ -145,8 +142,8 @@ public class TestJavaType
         assertFalse(arrayT.equals(null));
         assertFalse(arrayT.equals("xyz"));
 
-        assertTrue(arrayT.equals(ArrayType.construct(tf.constructType(String.class), null, null)));
-        assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null, null)));
+        assertTrue(arrayT.equals(ArrayType.construct(tf.constructType(String.class), null)));
+        assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null)));
 
         // Also, must NOT try to create using simple type
         try {

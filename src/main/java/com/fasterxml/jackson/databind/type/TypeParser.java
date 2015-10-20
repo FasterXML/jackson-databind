@@ -45,19 +45,19 @@ public class TypeParser
             throw _problem(tokens, "Unexpected end-of-string");
         }
         Class<?> base = findClass(tokens.nextToken(), tokens);
-        // no context to pass, I think
-        ClassStack context = null;
 
         // either end (ok, non generic type), or generics
         if (tokens.hasMoreTokens()) {
             String token = tokens.nextToken();
             if ("<".equals(token)) {
-                return _factory._fromParameterizedClass(context, base, parseTypes(tokens));
+                List<JavaType> parameterTypes = parseTypes(tokens);
+                TypeBindings b = TypeBindings.create(base, parameterTypes);
+                return _factory._fromClass(null, base, b);
             }
             // can be comma that separates types, or closing '>'
             tokens.pushBack(token);
         }
-        return _factory._fromClass(context, base, null);
+        return _factory._fromClass(null, base, null);
     }
 
     protected List<JavaType> parseTypes(MyTokenizer tokens)

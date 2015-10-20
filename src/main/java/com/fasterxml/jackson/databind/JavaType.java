@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.reflect.Modifier;
 
 import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -80,7 +81,21 @@ public abstract class JavaType
         _typeHandler = typeHandler;
         _asStatic = asStatic;
     }
-    
+
+    /**
+     * Copy-constructor used when refining/upgrading type instances.
+     *
+     * @since 2.7
+     */
+    protected JavaType(JavaType base) 
+    {
+        _class = base._class;
+        _hash = base._hash;
+        _valueHandler = base._valueHandler;
+        _typeHandler = base._typeHandler;
+        _asStatic = base._asStatic;
+    }
+
     /**
      * "Copy method" that will construct a new instance that is identical to
      * this instance, except that it will have specified type handler assigned.
@@ -210,7 +225,18 @@ public abstract class JavaType
     public abstract JavaType narrowContentsBy(Class<?> contentClass);
 
     public abstract JavaType widenContentsBy(Class<?> contentClass);
-    
+
+    /**
+     * Mutant factory method that will try to create and return a sub-type instance
+     * for known parameterized types; for other types will return `null` to indicate
+     * that no just refinement makes necessary sense, without trying to detect
+     * special status through implemented interfaces.
+     *
+     * @since 2.7
+     */
+    public abstract JavaType refine(Class<?> rawType, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces);
+
     /*
     /**********************************************************
     /* Implementation of ResolvedType API
@@ -336,19 +362,23 @@ public abstract class JavaType
 
     @Override // since 2.6
     public JavaType getReferencedType() { return null; }
-    
-    @Override
-    public int containedTypeCount() { return 0; }
 
     @Override
-    public JavaType containedType(int index) { return null; }
+    public abstract int containedTypeCount();
+
+    @Override
+    public abstract JavaType containedType(int index);
        
+    @Deprecated // since 2.7
     @Override
-    public String containedTypeName(int index) { return null; }
+    public abstract String containedTypeName(int index);
 
+    @Deprecated // since 2.7
     @Override
-    public abstract Class<?> getParameterSource();
-    
+    public Class<?> getParameterSource() {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Extended API beyond ResolvedType
@@ -375,6 +405,30 @@ public abstract class JavaType
         JavaType t = containedType(index);
         return (t == null)  ? TypeFactory.unknownType() : t;
     }
+
+    /**
+     * @since 2.7
+     */
+    public abstract TypeBindings getBindings();
+
+    /**
+     * Method that may be called to find representation of given type
+     * within type hierarchy of this type: either this type (if this
+     * type has given erased type), one of its supertypes that has the
+     * erased types, or null if target is neither this type or any of its
+     * supertypes.
+     *
+     * @since 2.7
+     */
+    public abstract JavaType findSuperType(Class<?> erasedTarget);
+
+    /**
+     * Method that may be used to find paramaterization this type has for
+     * given type-erased generic target type.
+     *
+     * @since 2.7
+     */
+    public abstract JavaType[] findTypeParameters(Class<?> expType);
 
     /*
     /**********************************************************

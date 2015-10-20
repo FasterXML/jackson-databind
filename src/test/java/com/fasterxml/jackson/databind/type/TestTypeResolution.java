@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.io.Serializable;
 import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,12 +21,22 @@ public class TestTypeResolution extends BaseMapTest
     static class LongList extends GenericList2<Long> { }
     static class MyLongList<T> extends LongList { }
 
+    static class Range<E extends Comparable<E>> implements Serializable
+    {
+         public Range(E start, E end) { }
+    }
+
+    static class DoubleRange extends Range<Double> {
+        public DoubleRange() { super(null, null); }
+        public DoubleRange(Double s, Double e) { super(s, e); }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
+
     public void testMaps()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -36,19 +47,38 @@ public class TestTypeResolution extends BaseMapTest
         assertEquals(tf.constructType(Long.class), type.getContentType());        
     }
 
-    public void testList()
+    public void testListViaTypeRef()
     {
-        JavaType t;
-
         TypeFactory tf = TypeFactory.defaultInstance();
-        t = tf.constructType(new TypeReference<MyLongList<Integer>>() {});
+        JavaType t = tf.constructType(new TypeReference<MyLongList<Integer>>() {});
         CollectionType type = (CollectionType) t;
         assertSame(MyLongList.class, type.getRawClass());
         assertEquals(tf.constructType(Long.class), type.getContentType());        
+    }
 
-        t = tf.constructType(LongList.class);
-        type = (CollectionType) t;
+    public void testListViaClass()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType t = tf.constructType(LongList.class);
+        JavaType type = (CollectionType) t;
         assertSame(LongList.class, type.getRawClass());
         assertEquals(tf.constructType(Long.class), type.getContentType());        
+    }
+
+    public void testGeneric()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+
+        // First, via simple sub-class
+        JavaType t = tf.constructType(DoubleRange.class);
+        JavaType rangeParams = t.findSuperType(Range.class);
+        assertEquals(1, rangeParams.containedTypeCount());
+        assertEquals(Double.class, rangeParams.containedType(0).getRawClass());
+
+        // then using TypeRef
+        t = tf.constructType(new TypeReference<DoubleRange>() { });
+        rangeParams = t.findSuperType(Range.class);
+        assertEquals(1, rangeParams.containedTypeCount());
+        assertEquals(Double.class, rangeParams.containedType(0).getRawClass());
     }
 }

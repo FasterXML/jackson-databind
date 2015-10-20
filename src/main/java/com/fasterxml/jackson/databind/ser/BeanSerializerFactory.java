@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
-import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -401,7 +401,7 @@ public class BeanSerializerFactory
             if (config.canOverrideAccessModifiers()) {
                 anyGetter.fixAccess();
             }
-            JavaType type = anyGetter.getType(beanDesc.bindingsForBeanType());
+            JavaType type = anyGetter.getType();
             // copied from BasicSerializerFactory.buildMapSerializer():
             boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
@@ -560,10 +560,9 @@ public class BeanSerializerFactory
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
         
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
-        TypeBindings typeBind = beanDesc.bindingsForBeanType();
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
-            // [JACKSON-762]: type id? Requires special handling:
+            // Type id? Requires special handling:
             if (property.isTypeId()) {
                 if (accessor != null) { // only add if we can access... but otherwise?
                     if (config.canOverrideAccessModifiers()) {
@@ -579,9 +578,9 @@ public class BeanSerializerFactory
                 continue;
             }
             if (accessor instanceof AnnotatedMethod) {
-                result.add(_constructWriter(prov, property, typeBind, pb, staticTyping, (AnnotatedMethod) accessor));
+                result.add(_constructWriter(prov, property, pb, staticTyping, (AnnotatedMethod) accessor));
             } else {
-                result.add(_constructWriter(prov, property, typeBind, pb, staticTyping, (AnnotatedField) accessor));
+                result.add(_constructWriter(prov, property, pb, staticTyping, (AnnotatedField) accessor));
             }
         }
         return result;
@@ -746,7 +745,7 @@ public class BeanSerializerFactory
      * given member (field or method).
      */
     protected BeanPropertyWriter _constructWriter(SerializerProvider prov,
-            BeanPropertyDefinition propDef, TypeBindings typeContext,
+            BeanPropertyDefinition propDef,
             PropertyBuilder pb, boolean staticTyping, AnnotatedMember accessor)
         throws JsonMappingException
     {
@@ -754,7 +753,7 @@ public class BeanSerializerFactory
         if (prov.canOverrideAccessModifiers()) {
             accessor.fixAccess();
         }
-        JavaType type = accessor.getType(typeContext);
+        JavaType type = accessor.getType();
         BeanProperty.Std property = new BeanProperty.Std(name, type, propDef.getWrapperName(),
                 pb.getClassAnnotations(), accessor, propDef.getMetadata());
 

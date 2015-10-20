@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
- * Failing test related to [Issue#76]
+ * Failing test related to [databind#76]
  */
-public class TestJavaType76 extends BaseMapTest
+public class JavaType76Test extends BaseMapTest
 {
     @SuppressWarnings("serial")
     static class HashTree<K, V> extends HashMap<K, HashTree<K, V>> { }

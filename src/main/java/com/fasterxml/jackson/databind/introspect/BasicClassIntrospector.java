@@ -30,25 +30,25 @@ public class BasicClassIntrospector
     
     protected final static BasicBeanDescription STRING_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(String.class, null, null);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(String.class, null);
         STRING_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(String.class), ac);
     }
     protected final static BasicBeanDescription BOOLEAN_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Boolean.TYPE, null, null);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Boolean.TYPE, null);
         BOOLEAN_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Boolean.TYPE), ac);
     }
     protected final static BasicBeanDescription INT_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Integer.TYPE, null, null);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Integer.TYPE, null);
         INT_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Integer.TYPE), ac);
     }
     protected final static BasicBeanDescription LONG_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Long.TYPE, null, null);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Long.TYPE, null);
         LONG_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Long.TYPE), ac);
     }
-    
+
     /*
     /**********************************************************
     /* Life cycle
@@ -86,7 +86,7 @@ public class BasicClassIntrospector
         if (desc == null) {
             // As per [Databind#550], skip full introspection for some of standard
             // structured types as well
-            desc = _findStdJdkCollectionDesc(cfg, type, r);
+            desc = _findStdJdkCollectionDesc(cfg, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forSerialization(collectProperties(cfg,
                         type, r, true, "set"));
@@ -106,7 +106,7 @@ public class BasicClassIntrospector
         if (desc == null) {
             // As per [Databind#550], skip full introspection for some of standard
             // structured types as well
-            desc = _findStdJdkCollectionDesc(cfg, type, r);
+            desc = _findStdJdkCollectionDesc(cfg, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forDeserialization(collectProperties(cfg,
                         		type, r, false, "set"));
@@ -139,7 +139,7 @@ public class BasicClassIntrospector
 
             // As per [Databind#550], skip full introspection for some of standard
             // structured types as well
-            desc = _findStdJdkCollectionDesc(cfg, type, r);
+            desc = _findStdJdkCollectionDesc(cfg, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forDeserialization(
             		collectProperties(cfg, type, r, false, "set"));
@@ -150,17 +150,15 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public BasicBeanDescription forClassAnnotations(MapperConfig<?> cfg,
+    public BasicBeanDescription forClassAnnotations(MapperConfig<?> config,
             JavaType type, MixInResolver r)
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
             desc = _cachedFCA.get(type);
             if (desc == null) {
-                boolean useAnnotations = cfg.isAnnotationProcessingEnabled();
-                AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(),
-                        (useAnnotations ? cfg.getAnnotationIntrospector() : null), r);
-                desc = BasicBeanDescription.forOtherUse(cfg, type, ac);
+                AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
+                desc = BasicBeanDescription.forOtherUse(config, type, ac);
                 _cachedFCA.put(type, desc);
             }
         }
@@ -168,16 +166,13 @@ public class BasicClassIntrospector
     }
 
     @Override
-    public BasicBeanDescription forDirectClassAnnotations(MapperConfig<?> cfg,
+    public BasicBeanDescription forDirectClassAnnotations(MapperConfig<?> config,
             JavaType type, MixInResolver r)
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
-            boolean useAnnotations = cfg.isAnnotationProcessingEnabled();
-            AnnotationIntrospector ai =  cfg.getAnnotationIntrospector();
-            AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(type.getRawClass(),
-                    (useAnnotations ? ai : null), r);
-            desc = BasicBeanDescription.forOtherUse(cfg, type, ac);
+            AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(type.getRawClass(), config, r);
+            desc = BasicBeanDescription.forOtherUse(config, type, ac);
         }
         return desc;
     }
@@ -192,9 +187,7 @@ public class BasicClassIntrospector
             JavaType type, MixInResolver r, boolean forSerialization,
             String mutatorPrefix)
     {
-        boolean useAnnotations = config.isAnnotationProcessingEnabled();
-        AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(),
-                (useAnnotations ? config.getAnnotationIntrospector() : null), r);
+        AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }
     
@@ -203,7 +196,7 @@ public class BasicClassIntrospector
     {
         boolean useAnnotations = config.isAnnotationProcessingEnabled();
         AnnotationIntrospector ai = useAnnotations ? config.getAnnotationIntrospector() : null;
-        AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(), ai, r);
+        AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
         JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
         String mutatorPrefix = (builderConfig == null) ? "with" : builderConfig.withPrefix;
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
@@ -271,12 +264,10 @@ public class BasicClassIntrospector
         return false;
     }
 
-    protected BasicBeanDescription _findStdJdkCollectionDesc(MapperConfig<?> cfg,
-            JavaType type, MixInResolver r)
+    protected BasicBeanDescription _findStdJdkCollectionDesc(MapperConfig<?> cfg, JavaType type)
     {
         if (_isStdJDKCollection(type)) {
-            AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(),
-                    (cfg.isAnnotationProcessingEnabled() ? cfg.getAnnotationIntrospector() : null), r);
+            AnnotatedClass ac = AnnotatedClass.construct(type, cfg);
             return BasicBeanDescription.forOtherUse(cfg, type, ac);
         }
         return null;

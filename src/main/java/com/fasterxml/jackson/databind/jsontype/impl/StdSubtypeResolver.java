@@ -67,7 +67,7 @@ public class StdSubtypeResolver
             for (NamedType subtype : _registeredSubtypes) {
                 // is it a subtype of root type?
                 if (rawBase.isAssignableFrom(subtype.getType())) { // yes
-                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), config);
                     _collectAndResolve(curr, subtype, config, ai, collected);
                 }
             }
@@ -77,13 +77,13 @@ public class StdSubtypeResolver
         Collection<NamedType> st = ai.findSubtypes(property);
         if (st != null) {
             for (NamedType nt : st) {
-                AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(nt.getType(), ai, config);
+                AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(nt.getType(), config);
                 _collectAndResolve(ac, nt, config, ai, collected);
             }            
         }
         
         NamedType rootType = new NamedType(rawBase, null);
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, ai, config);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, config);
             
         // and finally subtypes via annotations from base type (recursively)
         _collectAndResolve(ac, rootType, config, ai, collected);
@@ -103,7 +103,7 @@ public class StdSubtypeResolver
             for (NamedType subtype : _registeredSubtypes) {
                 // is it a subtype of root type?
                 if (rawBase.isAssignableFrom(subtype.getType())) { // yes
-                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), config);
                     _collectAndResolve(curr, subtype, config, ai, subtypes);
                 }
             }
@@ -133,14 +133,14 @@ public class StdSubtypeResolver
 
         // start with lowest-precedence, which is from type hierarchy
         NamedType rootType = new NamedType(rawBase, null);
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, ai, config);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, config);
         _collectAndResolveByTypeId(ac, rootType, config, typesHandled, byName);
         
         // then with definitions from property
         Collection<NamedType> st = ai.findSubtypes(property);
         if (st != null) {
             for (NamedType nt : st) {
-                ac = AnnotatedClass.constructWithoutSuperTypes(nt.getType(), ai, config);
+                ac = AnnotatedClass.constructWithoutSuperTypes(nt.getType(), config);
                 _collectAndResolveByTypeId(ac, nt, config, typesHandled, byName);
             }            
         }
@@ -150,7 +150,7 @@ public class StdSubtypeResolver
             for (NamedType subtype : _registeredSubtypes) {
                 // is it a subtype of root type?
                 if (rawBase.isAssignableFrom(subtype.getType())) { // yes
-                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), config);
                     _collectAndResolveByTypeId(curr, subtype, config, typesHandled, byName);
                 }
             }
@@ -173,8 +173,7 @@ public class StdSubtypeResolver
             for (NamedType subtype : _registeredSubtypes) {
                 // is it a subtype of root type?
                 if (rawBase.isAssignableFrom(subtype.getType())) { // yes
-                    final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), config);
                     _collectAndResolveByTypeId(curr, subtype, config, typesHandled, byName);
                 }
             }
@@ -241,7 +240,7 @@ public class StdSubtypeResolver
         Collection<NamedType> st = ai.findSubtypes(annotatedType);
         if (st != null && !st.isEmpty()) {
             for (NamedType subtype : st) {
-                AnnotatedClass subtypeClass = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                AnnotatedClass subtypeClass = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), config);
                 _collectAndResolve(subtypeClass, subtype, config, ai, collectedSubtypes);
             }
         }
@@ -271,7 +270,7 @@ public class StdSubtypeResolver
             Collection<NamedType> st = ai.findSubtypes(annotatedType);
             if (st != null && !st.isEmpty()) {
                 for (NamedType subtype : st) {
-                    AnnotatedClass subtypeClass = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    AnnotatedClass subtypeClass = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), config);
                     _collectAndResolveByTypeId(subtypeClass, subtype, config, typesHandled, byName);
                 }
             }

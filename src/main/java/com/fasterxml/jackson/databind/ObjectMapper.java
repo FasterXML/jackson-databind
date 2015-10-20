@@ -253,7 +253,11 @@ public class ObjectMapper
      */
     
     // Quick little shortcut, to avoid having to use global TypeFactory instance...
-    private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
+    // 19-Oct-2015, tatu: Not sure if this is really safe to do; let's at least allow
+    //   some amount of introspection
+    private final static JavaType JSON_NODE_TYPE =
+            SimpleType.constructUnsafe(JsonNode.class);
+//            TypeFactory.defaultInstance().constructType(JsonNode.class);
 
     // 16-May-2009, tatu: Ditto ^^^
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();

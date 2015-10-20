@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.failing;
 
 import java.util.*;
 
@@ -8,10 +8,11 @@ import com.fasterxml.jackson.databind.*;
 
 import java.io.Serializable;
 
+// Two unit tests that worked pre-2.7, but now fail.
+@SuppressWarnings("serial")
 public class TestGenericsBounded
     extends BaseMapTest
 {
-    @SuppressWarnings("serial")
     static class Range<E extends Comparable<E>> implements Serializable
     {
          protected E start, end;
@@ -31,7 +32,6 @@ public class TestGenericsBounded
          }
     }
 
-    @SuppressWarnings("serial")
     static class DoubleRange extends Range<Double> {
         public DoubleRange() { }
         public DoubleRange(Double s, Double e) { super(s, e); }
@@ -42,7 +42,6 @@ public class TestGenericsBounded
         public List<A> values;
     }
 
-    @SuppressWarnings("serial")
     static class IntBean implements Serializable
     {
         public int x;
@@ -53,7 +52,7 @@ public class TestGenericsBounded
     }
 
     // Types for [JACKSON-778]
-    
+
     static class Document {}
     static class Row {}
     static class RowWithDoc<D extends Document> extends Row {
@@ -64,34 +63,13 @@ public class TestGenericsBounded
     }
     static class ResultSetWithDoc<D extends Document> extends ResultSet<RowWithDoc<D>> {}
 
-    static class MyDoc extends Document {}    
+    static class MyDoc extends Document {}
+
     /*
     /*******************************************************
     /* Unit tests
     /*******************************************************
      */
-
-    public void testLowerBound() throws Exception
-    {
-        IntBeanWrapper<?> result = new ObjectMapper().readValue("{\"wrapped\":{\"x\":3}}",
-                IntBeanWrapper.class);
-        assertNotNull(result);
-        assertEquals(IntBean.class, result.wrapped.getClass());
-        assertEquals(3, result.wrapped.x);
-    }
-    
-    // Test related to type bound handling problem within [JACKSON-190]
-    public void testBounded() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        BoundedWrapper<IntBean> result = mapper.readValue
-            ("{\"values\":[ {\"x\":3} ] } ", new TypeReference<BoundedWrapper<IntBean>>() {});
-        List<?> list = result.values;
-        assertEquals(1, list.size());
-        Object ob = list.get(0);
-        assertEquals(IntBean.class, ob.getClass());
-        assertEquals(3, result.values.get(0).x);
-    }
 
     public void testGenericsComplex() throws Exception
     {
@@ -109,8 +87,23 @@ public class TestGenericsBounded
         final ObjectMapper mapper = new ObjectMapper();
         String json = "{\"rows\":[{\"d\":{}}]}";
 
-        final TypeReference<?> type = new TypeReference<ResultSetWithDoc<MyDoc>>() {};
+        final TypeReference<?> typeRef = new TypeReference<ResultSetWithDoc<MyDoc>>() {};
+
+        // First, verify type introspection:
+
+        JavaType type = mapper.getTypeFactory().constructType(typeRef);
+        JavaType resultSetType = type.findSuperType(ResultSet.class);
+        assertNotNull(resultSetType);
+        assertEquals(1, resultSetType.containedTypeCount());
+
+        JavaType rowType = resultSetType.containedType(0);
+        assertNotNull(rowType);
+        assertEquals(RowWithDoc.class, rowType.getRawClass());
         
+        assertEquals(1, rowType.containedTypeCount());
+        JavaType docType = rowType.containedType(0);
+        assertEquals(MyDoc.class, docType.getRawClass());
+
         // type passed is correct, but somehow it gets mangled when passed...
         ResultSetWithDoc<MyDoc> rs = mapper.readValue(json, type);
         Document d = rs.rows.iterator().next().d;

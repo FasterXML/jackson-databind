@@ -2,9 +2,6 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
 
-
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedConstructor
@@ -79,17 +76,6 @@ public final class AnnotatedConstructor
         return _constructor.getDeclaringClass();
     }
 
-    // note: copied verbatim from AnnotatedMethod; hard to generalize
-    /**
-     * As per [JACKSON-468], we need to also allow declaration of local
-     * type bindings; mostly it will allow defining bounds.
-     */
-    @Override
-    public JavaType getType(TypeBindings bindings)
-    {
-        return getType(bindings, _constructor.getTypeParameters());
-    }
-    
     /*
     /**********************************************************
     /* Extended API

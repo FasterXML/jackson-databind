@@ -187,20 +187,20 @@ public class TestTypeModifiers extends BaseMapTest
             return new MyCollectionLikeType(value);
         }        
     }
-    
+
     static class MyTypeModifier extends TypeModifier
     {
         @Override
-        public JavaType modifyType(JavaType type, Type jdkType, TypeBindings context, TypeFactory typeFactory)
+        public JavaType modifyType(JavaType type, Type jdkType, TypeBindings bindings, TypeFactory typeFactory)
         {
-            Class<?> raw = type.getRawClass();
-            if (MapMarker.class.isAssignableFrom(raw)) {
-                JavaType[] params = typeFactory.findTypeParameters(type, MapMarker.class);
-                return typeFactory.constructMapLikeType(raw, params[0], params[1]);
-            }
-            if (CollectionMarker.class.isAssignableFrom(raw)) {
-                JavaType[] params = typeFactory.findTypeParameters(type, CollectionMarker.class);
-                return typeFactory.constructCollectionLikeType(raw, params[0]);
+            if (!type.isContainerType()) { // not 100% required, minor optimization
+                Class<?> raw = type.getRawClass();
+                if (raw == MapMarker.class) {
+                    return MapLikeType.upgradeFrom(type, type.containedType(0), type.containedType(1));
+                }
+                if (raw == CollectionMarker.class) {
+                    return CollectionLikeType.upgradeFrom(type, type.containedType(0));
+                }
             }
             return type;
         }
@@ -215,10 +215,11 @@ public class TestTypeModifiers extends BaseMapTest
     /**
      * Basic test for ensuring that we can get "xxx-like" types recognized.
      */
-    public void testLikeTypeConstruction() throws Exception
+    public void testMapLikeTypeConstruction() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
+
         JavaType type = mapper.constructType(MyMapLikeType.class);
         assertTrue(type.isMapLikeType());
         // also, must have resolved type info
@@ -228,10 +229,16 @@ public class TestTypeModifiers extends BaseMapTest
         param = ((MapLikeType) type).getContentType();
         assertNotNull(param);
         assertSame(Integer.class, param.getRawClass());
-        
-        type = mapper.constructType(MyCollectionLikeType.class);
+    }
+    
+    public void testCollectionLikeTypeConstruction() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new MyTypeModifier()));
+
+        JavaType type = mapper.constructType(MyCollectionLikeType.class);
         assertTrue(type.isCollectionLikeType());
-        param = ((CollectionLikeType) type).getContentType();
+        JavaType param = ((CollectionLikeType) type).getContentType();
         assertNotNull(param);
         assertSame(Integer.class, param.getRawClass());
     }

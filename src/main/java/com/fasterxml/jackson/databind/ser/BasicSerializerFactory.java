@@ -399,12 +399,15 @@ public abstract class BasicSerializerFactory
             return DateSerializer.instance;
         }
         if (Map.Entry.class.isAssignableFrom(raw)) {
+            // 18-Oct-2015, tatu: With 2.7, need to dig type info:
+            JavaType mapEntryType = type.findSuperType(Map.Entry.class);
+            
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
-            JavaType kt = type.containedType(0);
+            JavaType kt = mapEntryType.containedType(0);
             if (kt == null) {
                 kt = TypeFactory.unknownType();
             }
-            JavaType vt = type.containedType(1);
+            JavaType vt = mapEntryType.containedType(1);
             if (vt == null) {
                 vt = TypeFactory.unknownType();
             }

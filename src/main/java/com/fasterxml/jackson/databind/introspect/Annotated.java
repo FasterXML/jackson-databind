@@ -5,7 +5,6 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 
@@ -16,7 +15,7 @@ import com.fasterxml.jackson.databind.type.TypeBindings;
 public abstract class Annotated
 {
     protected Annotated() { }
-    
+
     public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
 
     public abstract boolean hasAnnotation(Class<?> acls);
@@ -34,7 +33,7 @@ public abstract class Annotated
     public final Annotated withFallBackAnnotationsFrom(Annotated annotated) {
         return withAnnotations(AnnotationMap.merge(getAllAnnotations(), annotated.getAllAnnotations()));
     }
-    
+
     /**
      * Method that can be used to find actual JDK element that this instance
      * represents. It is non-null, except for method/constructor parameters
@@ -53,9 +52,17 @@ public abstract class Annotated
     /**
      * Full generic type of the annotated element; definition
      * of what exactly this means depends on sub-class.
+     *
+     * @since 2.7
      */
-    public JavaType getType(TypeBindings context) {
-        return context.resolveType(getGenericType());
+    public abstract JavaType getType();
+
+    /**
+     * @deprecated Since 2.7 Use {@link #getType()} instead
+     */
+    @Deprecated
+    public final JavaType getType(TypeBindings bogus) {
+        return getType();
     }
 
     /**

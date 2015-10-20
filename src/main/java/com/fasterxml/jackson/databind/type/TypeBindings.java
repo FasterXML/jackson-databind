@@ -4,334 +4,308 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for resolving type parameters for given class
  */
 public class TypeBindings
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
+    private final static String[] NO_STRINGS = new String[0];
+
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
-    /**
-     * Marker to use for (temporarily) unbound references.
-     */
-    public final static JavaType UNBOUND = new SimpleType(Object.class);
+    private final static TypeBindings EMPTY = new TypeBindings(NO_STRINGS, NO_TYPES, null);
 
     /**
-     * Factory to use for constructing resolved related types.
+     * Array of type (type variable) names.
      */
-    protected final TypeFactory _typeFactory;
+    private final String[] _names;
 
     /**
-     * @since 2.7
+     * Types matching names
      */
-    protected final ClassStack _classStack;
+    private final JavaType[] _types;
+
+    /**
+     * Names of potentially unresolved type variables.
+     *
+     * @since 2.3
+     */
+    private final String[] _unboundVariables;
     
-    /**
-     * Context type used for resolving all types, if specified. May be null,
-     * in which case {@link #_contextClass} is used instead.
-     */
-    protected final JavaType _contextType;
-
-    /**
-     * Specific class to use for resolving all types, for methods and fields
-     * class and its superclasses and -interfaces contain.
-     */
-    protected final Class<?> _contextClass;
-
-    /**
-     * Lazily-instantiated bindings of resolved type parameters
-     */
-    protected Map<String,JavaType> _bindings;
-
-    /**
-     * Also: we may temporarily want to mark certain named types
-     * as resolved (but without exact type); if so, we'll just store
-     * names here.
-     */
-    protected HashSet<String> _placeholders;
-
-    /**
-     * Sometimes it is necessary to allow hierarchic resolution of types: specifically
-     * in cases where there are local bindings (for methods, constructors). If so,
-     * we'll just use simple delegation model.
-     */
-    private final TypeBindings _parentBindings;
-
+    private final int _hashCode;
+    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
-    public TypeBindings(TypeFactory typeFactory, ClassStack stack, Class<?> cc)
+    private TypeBindings(String[] names, JavaType[] types, String[] uvars)
     {
-        this(typeFactory, null, stack, cc, null);
+        _names = (names == null) ? NO_STRINGS : names;
+        _types = (types == null) ? NO_TYPES : types;
+        if (_names.length != _types.length) {
+            throw new IllegalArgumentException("Mismatching names ("+_names.length+"), types ("+_types.length+")");
+        }
+        int h = 1;
+        for (int i = 0, len = _types.length; i < len; ++i) {
+            h += _types[i].hashCode();
+        }
+        _unboundVariables = uvars;
+        _hashCode = h;
     }
 
-    public TypeBindings(TypeFactory typeFactory, ClassStack stack, JavaType type)
-    {
-        this(typeFactory, null, stack, type.getRawClass(), type);
+    public static TypeBindings emptyBindings() {
+        return EMPTY;
+    }
+
+    // Let's just canonicalize serialized EMPTY back to static instance, if need be
+    protected Object readResolve() {
+        if ((_names == null) || (_names.length == 0)) {
+            return EMPTY;
+        }
+        return this;
     }
 
     /**
-     * Constructor used to create "child" instances; mostly to
-     * allow delegation from explicitly defined local overrides
-     * (local type variables for methods, constructors) to
-     * contextual (class-defined) ones.
+     * Factory method for constructing bindings for given class using specified type
+     * parameters.
      */
-    public TypeBindings childInstance() {
-        return new TypeBindings(_typeFactory, this, _classStack, _contextClass, _contextType);
-    }
-
-    private TypeBindings(TypeFactory tf, TypeBindings parent, ClassStack stack,
-            Class<?> cc, JavaType type)
+    public static TypeBindings create(Class<?> erasedType, List<JavaType> typeList)
     {
-        _typeFactory = tf;
-        _parentBindings = parent;
-        _classStack = stack;
-        _contextClass = cc;
-        _contextType = type;
+        JavaType[] types = (typeList == null || typeList.isEmpty()) ?
+                NO_TYPES : typeList.toArray(new JavaType[typeList.size()]);
+        return create(erasedType, types);
     }
 
-    /*
-    /**********************************************************
-    /* Pass-through type resolution methods
-    /**********************************************************
-     */
-
-    public JavaType resolveType(Class<?> cls) {
-        return _typeFactory._constructType(_classStack, cls, this);
-    }
-
-    public JavaType resolveType(Type type) {
-        return _typeFactory._constructType(_classStack, type, this);
-    }
-
-    /*
-    /**********************************************************
-    /* Accesors
-    /**********************************************************
-     */
-
-    public JavaType findType(String name, boolean mustFind)
+    public static TypeBindings create(Class<?> erasedType, JavaType[] types)
     {
-        if (_bindings == null) {
-            _resolve();
+        if (types == null) {
+            types = NO_TYPES;
         }
-        JavaType t = _bindings.get(name);
-        if (t != null) {
-            return t;
-        }
-        if (_placeholders != null && _placeholders.contains(name)) {
-            return UNBOUND;
-        }
-        if (_parentBindings != null) {
-            return _parentBindings.findType(name, mustFind);
-        }
-        // nothing found, so...
-        // Should we throw an exception or just return null?
-
-        /* 18-Feb-2011, tatu: There are some tricky type bindings within
-         *   java.util, such as HashMap$KeySet; so let's punt the problem
-         *   (honestly not sure what to do -- they are unbound for good, I think)
-         */
-        if (_contextClass != null) {
-            if (ClassUtil.getEnclosingClass(_contextClass) != null) {
-                // [JACKSON-572]: Actually, let's skip this for all non-static inner classes
-                //   (which will also cover 'java.util' type cases...
-                if (!Modifier.isStatic(_contextClass.getModifiers())) {
-                    return UNBOUND;
-                }
+        TypeVariable<?>[] vars = erasedType.getTypeParameters();
+        String[] names;
+        if (vars == null || vars.length == 0) {
+            names = NO_STRINGS;
+        } else {
+            int len = vars.length;
+            names = new String[len];
+            for (int i = 0; i < len; ++i) {
+                names[i] = vars[i].getName();
             }
         }
+        // Check here to give better error message
+        if (names.length != types.length) {
+            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+                   +" with "+types.length+" type parameter"
+                   +((types.length == 1) ? "" : "s")+": class expects "+names.length);
+        }
+        return new TypeBindings(names, types, null);
+    }
 
-        if (!mustFind) {
+    public static TypeBindings create(Class<?> erasedType, JavaType typeArg1)
+    {
+        TypeVariable<?>[] vars = erasedType.getTypeParameters();
+        int varLen = (vars == null) ? 0 : vars.length;
+        if (varLen != 1) {
+            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+                    +" with 1 type parameter: class expects "+varLen);
+        }
+        return new TypeBindings(new String[] { vars[0].getName() },
+                new JavaType[] { typeArg1 }, null);
+    }
+    
+    /**
+     * Alternate factory method that may be called if it is possible that type
+     * does or does not require type parameters; this is mostly useful for
+     * collection- and map-like types.
+     */
+    public static TypeBindings createIfNeeded(Class<?> erasedType, JavaType typeArg1)
+    {
+        TypeVariable<?>[] vars = erasedType.getTypeParameters();
+        int varLen = (vars == null) ? 0 : vars.length;
+        if (varLen == 0) {
+            return EMPTY;
+        }
+        if (varLen != 1) {
+            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+                    +" with 1 type parameter: class expects "+varLen);
+        }
+        return new TypeBindings(new String[] { vars[0].getName() },
+                new JavaType[] { typeArg1 }, null);
+    }
+    
+    /**
+     * Alternate factory method that may be called if it is possible that type
+     * does or does not require type parameters; this is mostly useful for
+     * collection- and map-like types.
+     */
+    public static TypeBindings createIfNeeded(Class<?> erasedType, JavaType[] types)
+    {
+        TypeVariable<?>[] vars = erasedType.getTypeParameters();
+        if (vars == null || vars.length == 0) {
+            return EMPTY;
+        }
+        if (types == null) {
+            types = NO_TYPES;
+        }
+        int len = vars.length;
+        String[] names = new String[len];
+        for (int i = 0; i < len; ++i) {
+            names[i] = vars[i].getName();
+        }
+        // Check here to give better error message
+        if (names.length != types.length) {
+            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+                   +" with "+types.length+" type parameter"
+                   +((types.length == 1) ? "" : "s")+": class expects "+names.length);
+        }
+        return new TypeBindings(names, types, null);
+    }
+    
+    /**
+     * Method for creating an instance that has same bindings as this object,
+     * plus an indicator for additional type variable that may be unbound within
+     * this context; this is needed to resolve recursive self-references.
+     * 
+     * @since 1.3 (renamed from "withAdditionalBinding" in 1.2)
+     */
+    public TypeBindings withUnboundVariable(String name)
+    {
+        int len = (_unboundVariables == null) ? 0 : _unboundVariables.length;
+        String[] names =  (len == 0)
+                ? new String[1] : Arrays.copyOf(_unboundVariables, len+1);
+        names[len] = name;
+        return new TypeBindings(_names, _types, names);
+    }
+
+    /*
+    /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
+    
+    /**
+     * Find type bound to specified name, if there is one; returns bound type if so, null if not.
+     */
+    public JavaType findBoundType(String name)
+    {
+        for (int i = 0, len = _names.length; i < len; ++i) {
+            if (name.equals(_names[i])) {
+                return _types[i];
+            }
+        }
+        return null;
+    }
+
+    public boolean isEmpty() {
+        return (_types.length == 0);
+    }
+    
+    /**
+     * Returns number of bindings contained
+     */
+    public int size() { 
+        return _types.length;
+    }
+
+    public String getBoundName(int index)
+    {
+        if (index < 0 || index >= _names.length) {
             return null;
         }
-        
-        String className;
-        if (_contextClass != null) {
-            className = _contextClass.getName();
-        } else if (_contextType != null) {
-            className = _contextType.toString();
-        } else {
-            className = "UNKNOWN";
-        }
-        throw new IllegalArgumentException("Type variable '"+name
-                +"' can not be resolved (with context of class "+className+")");
-        //t = UNBOUND;                
+        return _names[index];
     }
 
-    public void addBinding(String name, JavaType type)
+    public JavaType getBoundType(int index)
     {
-        // note: emptyMap() is unmodifiable, hence second check is needed:
-        if (_bindings == null || _bindings.size() == 0) {
-            _bindings = new LinkedHashMap<String,JavaType>();
+        if (index < 0 || index >= _types.length) {
+            return null;
         }
-        _bindings.put(name, type);
+        return _types[index];
     }
 
-    public JavaType[] typesAsArray()
+    /**
+     * Accessor for getting bound types in declaration order
+     */
+    public List<JavaType> getTypeParameters()
     {
-        if (_bindings == null) {
-            _resolve();
+        if (_types.length == 0) {
+            return Collections.emptyList();
         }
-        if (_bindings.size() == 0) {
-            return NO_TYPES;
+        return Arrays.asList(_types);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public boolean hasUnbound(String name) {
+        if (_unboundVariables != null) {
+            for (int i = _unboundVariables.length; --i >= 0; ) {
+                if (name.equals(_unboundVariables[i])) {
+                    return true;
+                }
+            }
         }
-        return _bindings.values().toArray(new JavaType[_bindings.size()]);
+        return false;
+    }
+
+    /*
+    /**********************************************************************
+    /* Standard methods
+    /**********************************************************************
+     */
+    
+    @Override public String toString()
+    {
+        if (_types.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append('<');
+        for (int i = 0, len = _types.length; i < len; ++i) {
+            if (i > 0) {
+                sb.append(',');
+            }
+//            sb = _types[i].appendBriefDescription(sb);
+            String sig = _types[i].getGenericSignature();
+            sb.append(sig);
+        }
+        sb.append('>');
+        return sb.toString();
+    }
+
+    @Override public int hashCode() { return _hashCode; }
+
+    @Override public boolean equals(Object o)
+    {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        TypeBindings other = (TypeBindings) o;
+        int len = _types.length;
+        if (len != other.size()) {
+            return false;
+        }
+        JavaType[] otherTypes = other._types;
+        for (int i = 0; i < len; ++i) {
+            if (!otherTypes[i].equals(_types[i])) {
+                return false;
+            }
+        }
+        return true;
     }
     
     /*
-    /**********************************************************
-    /* Internal methods
-    /**********************************************************
+    /**********************************************************************
+    /* Package accessible methods
+    /**********************************************************************
      */
 
-    // Only for tests!
-    protected int getBindingCount() {
-        if (_bindings == null) {
-            _resolve();
-        }
-        return _bindings.size();
-    }
-    
-    protected void _resolve()
-    {
-        _resolveBindings(_contextClass);
-
-        // finally: may have root level type info too
-        if (_contextType != null) {
-            int count = _contextType.containedTypeCount();
-            if (count > 0) {
-                for (int i = 0; i < count; ++i) {
-                    String name = _contextType.containedTypeName(i);
-                    JavaType type = _contextType.containedType(i);
-                    addBinding(name, type);
-                }
-            }
-        }
-
-        // nothing bound? mark with empty map to prevent further calls
-        if (_bindings == null) {
-            _bindings = Collections.emptyMap();
-        }
-    }
-
-    public void _addPlaceholder(String name) {
-        if (_placeholders == null) {
-            _placeholders = new HashSet<String>();
-        }
-        _placeholders.add(name);
-    }
-
-    protected void _resolveBindings(Type t)
-    {
-        if (t == null) return;
-
-        Class<?> raw;
-        if (t instanceof ParameterizedType) {
-            ParameterizedType pt = (ParameterizedType) t;
-            Type[] args = pt.getActualTypeArguments();
-            if (args  != null && args.length > 0) {
-                Class<?> rawType = (Class<?>) pt.getRawType();    
-                TypeVariable<?>[] vars = rawType.getTypeParameters();
-                if (vars.length != args.length) {
-                    throw new IllegalArgumentException("Strange parametrized type (in class "+rawType.getName()+"): number of type arguments != number of type parameters ("+args.length+" vs "+vars.length+")");
-                }
-                for (int i = 0, len = args.length; i < len; ++i) {
-                    TypeVariable<?> var = vars[i];
-                    String name = var.getName();
-                    if (_bindings == null) {
-                        _bindings = new LinkedHashMap<String,JavaType>();
-                    } else {
-                        // 24-Mar-2010, tatu: Better ensure that we do not overwrite something
-                        //  collected earlier (since we descend towards super-classes):
-                        if (_bindings.containsKey(name)) continue;
-                    }
-                    // first: add a placeholder to prevent infinite loops
-                    _addPlaceholder(name);
-                    // then resolve type
-                    _bindings.put(name, _typeFactory._constructType(_classStack, args[i], this));
-                }
-            }
-            raw = (Class<?>)pt.getRawType();
-        } else if (t instanceof Class<?>) {
-            raw = (Class<?>) t;
-            /* [JACKSON-677]: If this is an inner class then the generics are defined on the 
-             * enclosing class so we have to check there as well.  We don't
-             * need to call getEnclosingClass since anonymous classes declare 
-             * generics
-             */
-            Class<?> decl = ClassUtil.getDeclaringClass(raw);
-            /* 08-Feb-2013, tatu: Except that if context is also super-class, we must
-             *   skip it; context will be checked anyway, and we'd get StackOverflow if
-             *   we went there.
-             */
-            if (decl != null && !decl.isAssignableFrom(raw)) {
-                _resolveBindings(decl);
-            }
-
-            /* 24-Mar-2010, tatu: Can not have true generics definitions, but can
-             *   have lower bounds ("<T extends BeanBase>") in declaration itself
-             */
-            TypeVariable<?>[] vars = raw.getTypeParameters();
-            if (vars != null && vars.length > 0) {
-                JavaType[] typeParams = null;
-
-                if (_contextType != null && raw.isAssignableFrom(_contextType.getRawClass())) {
-                    typeParams = _typeFactory.findTypeParameters(_contextType, raw);
-                }
-
-                for (int i = 0; i < vars.length; i++) {
-                    TypeVariable<?> var = vars[i];
-
-                    String name = var.getName();
-                    Type varType = var.getBounds()[0];
-                    if (varType != null) {
-                        if (_bindings == null) {
-                            _bindings = new LinkedHashMap<String,JavaType>();
-                        } else { // and no overwriting...
-                            if (_bindings.containsKey(name)) continue;
-                        }
-                        _addPlaceholder(name); // to prevent infinite loops
-
-                        if (typeParams != null && typeParams.length > i) {
-                            _bindings.put(name, typeParams[i]);
-                        } else {
-                            _bindings.put(name, _typeFactory._constructType(_classStack, varType, this));
-                        }
-                    }
-                }
-            }
-        } else { // probably can't be any of these... so let's skip for now
-            //if (type instanceof GenericArrayType) {
-            //if (type instanceof TypeVariable<?>) {
-            // if (type instanceof WildcardType) {
-            return;
-        }
-        // but even if it's not a parameterized type, its super types may be:
-        _resolveBindings(ClassUtil.getGenericSuperclass(raw));
-        for (Type intType : raw.getGenericInterfaces()) {
-            _resolveBindings(intType);
-        }
-    }
-
-    @Override
-    public String toString()
-    {
-        if (_bindings == null) {
-            _resolve();
-        }
-        StringBuilder sb = new StringBuilder("[TypeBindings for ");
-        if (_contextType != null) {
-            sb.append(_contextType.toString());
-        } else {
-            sb.append(_contextClass.getName());
-        }
-        sb.append(": ").append(_bindings).append("]");
-        return sb.toString();
+    protected JavaType[] typeParameterArray() {
+        return _types;
     }
 }

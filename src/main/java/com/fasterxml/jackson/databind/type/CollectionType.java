@@ -16,15 +16,43 @@ public final class CollectionType
     /**********************************************************
      */
 
-    private CollectionType(Class<?> collT, JavaType elemT,
+    private CollectionType(Class<?> collT, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInts, JavaType elemT,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(collT,  elemT, valueHandler, typeHandler, asStatic);
+        super(collT, bindings, superClass, superInts, elemT, valueHandler, typeHandler, asStatic);
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected CollectionType(TypeBase base, JavaType elemT) {
+        super(base, elemT);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static CollectionType construct(Class<?> rawType, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInts, JavaType elemT) {
+        // nominally component types will be just Object.class
+        return new CollectionType(rawType, bindings, superClass, superInts, elemT,
+                null, null, false);
+    }
+    
+    @Deprecated // since 2.7
+    public static CollectionType construct(Class<?> rawType, JavaType elemT) {
+        // nominally component types will be just Object.class
+        return new CollectionType(rawType, null,
+                // !!! TODO: Wrong, does have supertypes, but:
+                null, null, elemT,
+                null, null, false);
     }
 
     @Override
     protected JavaType _narrow(Class<?> subclass) {
-        return new CollectionType(subclass, _elementType, null, null, _asStatic);
+        return new CollectionType(subclass, _bindings,
+                _superClass, _superInterfaces, _elementType, null, null, _asStatic);
     }
 
     @Override
@@ -34,7 +62,8 @@ public final class CollectionType
         if (contentClass == _elementType.getRawClass()) {
             return this;
         }
-        return new CollectionType(_class, _elementType.narrowBy(contentClass),
+        return new CollectionType(_class, _bindings,
+                _superClass, _superInterfaces, _elementType.narrowBy(contentClass),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -45,36 +74,35 @@ public final class CollectionType
         if (contentClass == _elementType.getRawClass()) {
             return this;
         }
-        return new CollectionType(_class, _elementType.widenBy(contentClass),
+        return new CollectionType(_class, _bindings,
+                _superClass, _superInterfaces, _elementType.widenBy(contentClass),
                 _valueHandler, _typeHandler, _asStatic);
-    }
-    
-    public static CollectionType construct(Class<?> rawType, JavaType elemT)
-    {
-        // nominally component types will be just Object.class
-        return new CollectionType(rawType, elemT, null, null, false);
     }
 
     @Override
     public CollectionType withTypeHandler(Object h) {
-        return new CollectionType(_class, _elementType, _valueHandler, h, _asStatic);
+        return new CollectionType(_class, _bindings,
+                _superClass, _superInterfaces, _elementType, _valueHandler, h, _asStatic);
     }
 
     @Override
     public CollectionType withContentTypeHandler(Object h)
     {
-        return new CollectionType(_class, _elementType.withTypeHandler(h),
+        return new CollectionType(_class, _bindings,
+                _superClass, _superInterfaces, _elementType.withTypeHandler(h),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
     public CollectionType withValueHandler(Object h) {
-        return new CollectionType(_class, _elementType, h, _typeHandler, _asStatic);
+        return new CollectionType(_class, _bindings,
+                _superClass, _superInterfaces, _elementType, h, _typeHandler, _asStatic);
     }
 
     @Override
     public  CollectionType withContentValueHandler(Object h) {
-        return new CollectionType(_class, _elementType.withValueHandler(h),
+        return new CollectionType(_class, _bindings,
+                _superClass, _superInterfaces, _elementType.withValueHandler(h),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -83,21 +111,19 @@ public final class CollectionType
         if (_asStatic) {
             return this;
         }
-        return new CollectionType(_class, _elementType.withStaticTyping(),
+        return new CollectionType(_class, _bindings,
+                _superClass, _superInterfaces, _elementType.withStaticTyping(),
                 _valueHandler, _typeHandler, true);
     }
 
-    /*
-    /**********************************************************
-    /* Overridden accessors
-    /**********************************************************
-     */
-    
     @Override
-    public Class<?> getParameterSource() {
-        return java.util.Collection.class;
+    public JavaType refine(Class<?> rawType, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces) {
+        return new CollectionType(rawType, _bindings,
+                _superClass, _superInterfaces, _elementType,
+                _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     /*
     /**********************************************************
     /* Standard methods

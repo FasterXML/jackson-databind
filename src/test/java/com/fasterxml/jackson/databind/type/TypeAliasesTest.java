@@ -1,15 +1,16 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestTypeAliases
+/**
+ * Unit tests for more complicated type definitions where type name
+ * aliasing can confuse naive resolution algorithms.
+ */
+public class TypeAliasesTest
     extends BaseMapTest
 {
-
-    // Helper types for [JACKSON-743]
-    
     public static abstract class Base<T> {
         public T inconsequential = null;
     }
@@ -28,9 +29,8 @@ public class TestTypeAliases
     /*******************************************************
      */
 
-
-    // Reproducing issue 743
-    public void testResolution743() throws Exception
+    // Reproducing [databind#743]
+    public void testAliasResolutionIssue743() throws Exception
     {
         String s3 = "{\"dataObj\" : [ \"one\", \"two\", \"three\" ] }";
         ObjectMapper m = new ObjectMapper();

@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 import java.util.Collections;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -61,6 +62,11 @@ public abstract class AnnotatedMember
      * "owner" may be a sub-type of "declaring class".
      */
     public abstract Class<?> getDeclaringClass();
+
+    @Override
+    public JavaType getType() {
+        return _context.resolveMemberType(getGenericType());
+    }
 
     public abstract Member getMember();
 

@@ -26,35 +26,44 @@ public final class ArrayType
      */
     protected final Object _emptyArray;
 
-    protected ArrayType(JavaType componentType, Object emptyInstance,
+    protected ArrayType(JavaType componentType, TypeBindings bindings, Object emptyInstance,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(emptyInstance.getClass(), componentType.hashCode(),
+        // No super-class, interfaces, for now
+        super(emptyInstance.getClass(), bindings, null, null,
+                componentType.hashCode(),
                 valueHandler, typeHandler, asStatic);
         _componentType = componentType;
         _emptyArray = emptyInstance;
     }
 
-    public static ArrayType construct(JavaType componentType,
-            Object valueHandler, Object typeHandler)
-    {
-        /* This is bit messy: there is apparently no other way to
-         * reconstruct actual concrete/raw array class from component
-         * type, than to construct an instance, get class (same is
-         * true for GenericArracyType as well; hence we won't bother
-         * passing that in).
-         */
+    public static ArrayType construct(JavaType componentType, TypeBindings bindings) {
+        return construct(componentType, bindings, null, null);
+    }
+
+    public static ArrayType construct(JavaType componentType, TypeBindings bindings,
+            Object valueHandler, Object typeHandler) {
+        // Figuring out raw class for generic array is actually bit tricky...
         Object emptyInstance = Array.newInstance(componentType.getRawClass(), 0);
-        return new ArrayType(componentType, emptyInstance, null, null, false);
-    }                                   
+        return new ArrayType(componentType, bindings, emptyInstance, valueHandler, typeHandler, false);
+    }
     
+    /**
+     * @since 2.7
+     */
+    public ArrayType withOverriddenComponentType(JavaType componentType) {
+        Object emptyInstance = Array.newInstance(componentType.getRawClass(), 0);
+        return new ArrayType(componentType, _bindings, emptyInstance,
+                _valueHandler, _typeHandler, _asStatic);
+    }
+
     @Override
     public ArrayType withTypeHandler(Object h)
     {
         if (h == _typeHandler) {
             return this;
         }
-        return new ArrayType(_componentType, _emptyArray, _valueHandler, h, _asStatic);
+        return new ArrayType(_componentType, _bindings, _emptyArray, _valueHandler, h, _asStatic);
     }
 
     @Override
@@ -63,7 +72,7 @@ public final class ArrayType
         if (h == _componentType.<Object>getTypeHandler()) {
             return this;
         }
-        return new ArrayType(_componentType.withTypeHandler(h), _emptyArray,
+        return new ArrayType(_componentType.withTypeHandler(h), _bindings, _emptyArray,
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -72,7 +81,7 @@ public final class ArrayType
         if (h == _valueHandler) {
             return this;
         }
-        return new ArrayType(_componentType, _emptyArray, h, _typeHandler,_asStatic);
+        return new ArrayType(_componentType, _bindings, _emptyArray, h, _typeHandler,_asStatic);
     }
 
     @Override
@@ -80,7 +89,7 @@ public final class ArrayType
         if (h == _componentType.<Object>getValueHandler()) {
             return this;
         }
-        return new ArrayType(_componentType.withValueHandler(h), _emptyArray,
+        return new ArrayType(_componentType.withValueHandler(h), _bindings, _emptyArray,
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -89,13 +98,8 @@ public final class ArrayType
         if (_asStatic) {
             return this;
         }
-        return new ArrayType(_componentType.withStaticTyping(),
+        return new ArrayType(_componentType.withStaticTyping(), _bindings,
                 _emptyArray, _valueHandler, _typeHandler, true);
-    }
-
-    @Override
-    protected String buildCanonicalName() {
-        return _class.getName();
     }
 
     /*
@@ -109,27 +113,8 @@ public final class ArrayType
      * it is not even allowed.
      */
     @Override
-    protected JavaType _narrow(Class<?> subclass)
-    {
-        /* Ok: need a bit of indirection here. First, must replace component
-         * type (and check that it is compatible), then re-construct.
-         */
-        if (!subclass.isArray()) { // sanity check, should never occur
-            throw new IllegalArgumentException("Incompatible narrowing operation: trying to narrow "+toString()+" to class "+subclass.getName());
-        }
-        /* Hmmh. This is an awkward back reference... but seems like the
-         * only simple way to do it.
-         */
-        Class<?> newCompClass = subclass.getComponentType();
-        /* 14-Mar-2011, tatu: it gets even worse, as we do not have access to
-         *   currently configured TypeFactory. This could theoretically cause
-         *   problems (when narrowing from array of Objects, to array of non-standard
-         *   Maps, for example); but for now need to defer solving this until
-         *   it actually becomes a real problem, not just potential one.
-         *   (famous last words?)
-         */
-        JavaType newCompType = TypeFactory.defaultInstance().constructType(newCompClass);
-        return construct(newCompType, _valueHandler, _typeHandler);
+    protected JavaType _narrow(Class<?> subclass) {
+        return _reportUnsupported();
     }
 
     /**
@@ -137,27 +122,35 @@ public final class ArrayType
      * but ultimately they are interchangeable.
      */
     @Override
-    public JavaType narrowContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
+    public JavaType narrowContentsBy(Class<?> contentClass) {
         if (contentClass == _componentType.getRawClass()) {
             return this;
         }
-        return construct(_componentType.narrowBy(contentClass),
+        return construct(_componentType.narrowBy(contentClass), _bindings,
                 _valueHandler, _typeHandler);
     }
 
     @Override
-    public JavaType widenContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
+    public JavaType widenContentsBy(Class<?> contentClass) {
         if (contentClass == _componentType.getRawClass()) {
             return this;
         }
-        return construct(_componentType.widenBy(contentClass),
+        return construct(_componentType.narrowBy(contentClass), _bindings,
                 _valueHandler, _typeHandler);
     }
-    
+
+    // Should not be called, as array types in Java are not extensible; but
+    // let's not freak out even if it is called?
+    @Override
+    public JavaType refine(Class<?> contentClass, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces) {
+        return null;
+    }
+
+    private JavaType _reportUnsupported() {
+        throw new UnsupportedOperationException("Can not narrow or widen array types");
+    }
+
     /*
     /**********************************************************
     /* Overridden methods
@@ -188,28 +181,7 @@ public final class ArrayType
         // arrays are not parameterized, but element type may be:
         return _componentType.hasGenericTypes();
     }
-    
-    /**
-     * Not sure what symbolic name is used internally, if any;
-     * let's follow naming of Collection types here.
-     * Should not really matter since array types have no
-     * super types.
-     */
-    @Override
-    public String containedTypeName(int index) {
-        if (index == 0) return "E";
-        return null;
-    }
 
-    /**
-     * No parameterization for array types themselves; element type
-     * may obviously have parameterization.
-     */
-    @Override
-    public Class<?> getParameterSource() {
-        return null;
-    }
-    
     /*
     /**********************************************************
     /* Public API
@@ -222,13 +194,6 @@ public final class ArrayType
     @Override
     public JavaType getContentType() { return  _componentType; }
 
-    @Override
-    public int containedTypeCount() { return 1; }
-    @Override
-    public JavaType containedType(int index) {
-            return (index == 0) ? _componentType : null;
-    }
-    
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {
         sb.append('[');

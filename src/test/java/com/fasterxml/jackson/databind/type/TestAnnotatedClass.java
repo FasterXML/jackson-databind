@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.databind.type;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 /**
  * Unit test for verifying that {@link AnnotatedClass}
@@ -73,8 +76,11 @@ public class TestAnnotatedClass
 
     public void testFieldIntrospection()
     {
+        ObjectMapper mapper = new ObjectMapper();
         // null -> no mix-in annotations
-        AnnotatedClass ac = AnnotatedClass.construct(FieldBean.class, new JacksonAnnotationIntrospector(), null);
+        SerializationConfig config = mapper.getSerializationConfig();
+        JavaType t = mapper.constructType(FieldBean.class);
+        AnnotatedClass ac = AnnotatedClass.construct(t, config);
         // AnnotatedClass does not ignore non-visible fields, yet
         assertEquals(2, ac.getFieldCount());
         for (AnnotatedField f : ac.fields()) {

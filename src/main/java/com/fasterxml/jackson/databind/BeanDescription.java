@@ -79,7 +79,10 @@ public abstract class BeanDescription
      * Accessor for type bindings that may be needed to fully resolve
      * types of member object, such as return and argument types of
      * methods and constructors, and types of fields.
+     *
+     * @deprecated Since 2.7, use {@link #resolveType(java.lang.reflect.Type)} instead.
      */
+    @Deprecated
     public abstract TypeBindings bindingsForBeanType();
 
     /**

@@ -15,25 +15,6 @@ public class SimpleType // note: until 2.6 was final
 {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * In case there are resolved type parameters, this field stores reference
-     * to that type. It must be {@link #getRawClass()} or its supertype.
-     * 
-     * @since 2.5
-     */
-    protected final Class<?> _typeParametersFor;
-    
-    /**
-     * Generic type arguments for this type.
-     */
-    protected final JavaType[] _typeParameters;
-
-    /**
-     * Names of generic type arguments for this type; will
-     * match values in {@link #_typeParameters}
-     */
-    protected final String[] _typeNames;
-    
     /*
     /**********************************************************
     /* Life-cycle
@@ -41,7 +22,22 @@ public class SimpleType // note: until 2.6 was final
      */
 
     protected SimpleType(Class<?> cls) {
-        this(cls, null, null, null, null, false, null);
+        this(cls, TypeBindings.emptyBindings(), null, null);
+    }
+
+    protected SimpleType(Class<?> cls, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInts) {
+        this(cls, bindings, superClass, superInts, null, null, false);
+    }
+
+    /**
+     * Simple copy-constructor, usually used when upgrading/refining a simple type
+     * into more specialized type.
+     *
+     * @since 2.7
+     */
+    protected SimpleType(TypeBase base) {
+        super(base);
     }
 
     /**
@@ -50,20 +46,12 @@ public class SimpleType // note: until 2.6 was final
      *   and for which type parameters apply. It may be <code>cls</code> itself,
      *   but more commonly it is one of its supertypes.
      */
-    protected SimpleType(Class<?> cls,
-            String[] typeNames, JavaType[] typeParams,
-            Object valueHandler, Object typeHandler, boolean asStatic,
-            Class<?> parametersFrom)
+    protected SimpleType(Class<?> cls, TypeBindings bindings, // probably wrong
+            JavaType superClass, JavaType[] superInts,
+            Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, 0, valueHandler, typeHandler, asStatic);
-        if (typeNames == null || typeNames.length == 0) {
-            _typeNames = null;
-            _typeParameters = null;
-        } else {
-            _typeNames = typeNames;
-            _typeParameters = typeParams;
-        }
-        _typeParametersFor = parametersFrom;
+        super(cls, bindings, superClass, superInts,
+                0, valueHandler, typeHandler, asStatic);
     }
 
     /**
@@ -71,13 +59,12 @@ public class SimpleType // note: until 2.6 was final
      * 
      * @since 2.6
      */
-    protected SimpleType(Class<?> cls, int extraHash,
+    protected SimpleType(Class<?> cls, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInts, int extraHash,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, extraHash, valueHandler, typeHandler, asStatic);
-        _typeNames = null;
-        _typeParameters = null;
-        _typeParametersFor = cls;
+        super(cls, bindings, superClass, superInts, 
+                extraHash, valueHandler, typeHandler, asStatic);
     }
     
     /**
@@ -87,15 +74,17 @@ public class SimpleType // note: until 2.6 was final
      * not in same package
      */
     public static SimpleType constructUnsafe(Class<?> raw) {
-        return new SimpleType(raw, null, null, null, null, false, null);
+        return new SimpleType(raw, null,
+                // 18-Oct-2015, tatu: Should be ok to omit possible super-types, right?
+                null, null, null, null, false);
     }
 
     @Override
     protected JavaType _narrow(Class<?> subclass)
     {
         // Should we check that there is a sub-class relationship?
-        return new SimpleType(subclass, _typeNames, _typeParameters, _valueHandler, _typeHandler,
-                _asStatic, _typeParametersFor);
+        return new SimpleType(subclass, _bindings, _superClass, _superInterfaces,
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -131,9 +120,8 @@ public class SimpleType // note: until 2.6 was final
     }
 
     @Override
-    public SimpleType withTypeHandler(Object h)
-    {
-        return new SimpleType(_class, _typeNames, _typeParameters, _valueHandler, h, _asStatic, _typeParametersFor);
+    public SimpleType withTypeHandler(Object h) {
+        return new SimpleType(_class, _bindings, _superClass, _superInterfaces, _valueHandler, h, _asStatic);
     }
 
     @Override
@@ -147,7 +135,7 @@ public class SimpleType // note: until 2.6 was final
         if (h == _valueHandler) {
             return this;
         }
-        return new SimpleType(_class, _typeNames, _typeParameters, h, _typeHandler, _asStatic, _typeParametersFor);
+        return new SimpleType(_class, _bindings, _superClass, _superInterfaces, h, _typeHandler, _asStatic);
     }
     
     @Override
@@ -158,22 +146,29 @@ public class SimpleType // note: until 2.6 was final
 
     @Override
     public SimpleType withStaticTyping() {
-        return _asStatic ? this : new SimpleType(_class,
-                _typeNames, _typeParameters, _valueHandler, _typeHandler, true, _typeParametersFor);
+        return _asStatic ? this : new SimpleType(_class, _bindings,
+                _superClass, _superInterfaces, _valueHandler, _typeHandler, true);
     }
 
+    @Override
+    public JavaType refine(Class<?> rawType, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces) {
+        // SimpleType means something not-specialized, so:
+        return null;
+    }
+    
     @Override
     protected String buildCanonicalName()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
-        if (_typeParameters != null && _typeParameters.length > 0) {
+
+        final int count = _bindings.size();
+        if (count > 0) {
             sb.append('<');
-            boolean first = true;
-            for (JavaType t : _typeParameters) {
-                if (first) {
-                    first = false;
-                } else {
+            for (int i = 0; i < count; ++i) {
+                JavaType t = containedType(i);
+                if (i > 0) {
                     sb.append(',');
                 }
                 sb.append(t.toCanonical());
@@ -182,7 +177,7 @@ public class SimpleType // note: until 2.6 was final
         }
         return sb.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Public API
@@ -191,35 +186,7 @@ public class SimpleType // note: until 2.6 was final
 
     @Override
     public boolean isContainerType() { return false; }
-    
-    @Override
-    public int containedTypeCount() {
-        return (_typeParameters == null) ? 0 : _typeParameters.length;
-    }
 
-    @Override
-    public JavaType containedType(int index)
-    {
-        if (index < 0 || _typeParameters == null || index >= _typeParameters.length) {
-            return null;
-        }
-        return _typeParameters[index];
-    }
-
-    @Override
-    public String containedTypeName(int index)
-    {
-        if (index < 0 || _typeNames == null || index >= _typeNames.length) {
-            return null;
-        }
-        return _typeNames[index];
-    }
-
-    @Override
-    public Class<?> getParameterSource() {
-        return _typeParametersFor;
-    }
-    
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
@@ -229,10 +196,12 @@ public class SimpleType // note: until 2.6 was final
     public StringBuilder getGenericSignature(StringBuilder sb)
     {
         _classSignature(_class, sb, false);
-        if (_typeParameters != null) {
+
+        final int count = _bindings.size();
+        if (count > 0) {
             sb.append('<');
-            for (JavaType param : _typeParameters) {
-                sb = param.getGenericSignature(sb);
+            for (int i = 0; i < count; ++i) {
+                sb = containedType(i).getGenericSignature(sb);
             }
             sb.append('>');
         }
@@ -267,19 +236,8 @@ public class SimpleType // note: until 2.6 was final
         if (other._class != this._class) return false;
 
         // And finally, generic bindings, if any
-        JavaType[] p1 = _typeParameters;
-        JavaType[] p2 = other._typeParameters;
-        if (p1 == null) {
-            return (p2 == null) || p2.length == 0;
-        }
-        if (p2 == null) return false;
-
-        if (p1.length != p2.length) return false;
-        for (int i = 0, len = p1.length; i < len; ++i) {
-            if (!p1[i].equals(p2[i])) {
-                return false;
-            }
-        }
-        return true;
+        TypeBindings b1 = _bindings;
+        TypeBindings b2 = other._bindings;
+        return b1.equals(b2);
     }
 }

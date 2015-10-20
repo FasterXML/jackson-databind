@@ -4,16 +4,12 @@ import java.io.IOException;
 import java.lang.reflect.Member;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -97,8 +93,7 @@ public class CreatorCollector
                     }
                 }
             }
-            TypeBindings bindings = _beanDesc.bindingsForBeanType();
-            delegateType = bindings.resolveType(_creators[C_DELEGATE].getGenericParameterType(ix));
+            delegateType = _beanDesc.resolveType(_creators[C_DELEGATE].getGenericParameterType(ix));
         }
 
         final JavaType type = _beanDesc.getType();

@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -68,6 +67,9 @@ public class TestTypeFactory
     static class StringListBean {
         public GenericList<String> value;
     }
+
+    static class CollectionLike<E> { }
+    static class MapLike<K,V> { }
     
     /*
     /**********************************************************
@@ -181,9 +183,11 @@ public class TestTypeFactory
         assertEquals(MapType.class, t.getClass());
         assertSame(Properties.class, t.getRawClass());
 
+        MapType mt = (MapType) t;
+
         // so far so good. But how about parameterization?
-        assertSame(String.class, ((MapType) t).getKeyType().getRawClass());
-        assertSame(String.class, ((MapType) t).getContentType().getRawClass());
+        assertSame(String.class, mt.getKeyType().getRawClass());
+        assertSame(String.class, mt.getContentType().getRawClass());
     }
     
     public void testIterator()
@@ -201,6 +205,7 @@ public class TestTypeFactory
      * Test for verifying that parametric types can be constructed
      * programmatically
      */
+    @SuppressWarnings("deprecation")
     public void testParametricTypes()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -228,6 +233,7 @@ public class TestTypeFactory
         assertEquals(1, custom.containedTypeCount());
         assertEquals(strC, custom.containedType(0));
         assertNull(custom.containedType(1));
+
         // should also be able to access variable name:
         assertEquals("X", custom.containedTypeName(0));
 
@@ -236,14 +242,14 @@ public class TestTypeFactory
             // Maps must take 2 type parameters, not just one
             tf.constructParametrizedType(Map.class, Map.class, strC);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Need exactly 2 parameter types for Map types");
+            verifyException(e, "Can not create TypeBindings for class java.util.Map");
         }
 
         try {
             // Type only accepts one type param
             tf.constructParametrizedType(SingleArgGeneric.class, SingleArgGeneric.class, strC, strC);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "expected 1 parameters, was given 2");
+            verifyException(e, "Can not create TypeBindings for class ");
         }
     }
 
@@ -364,9 +370,10 @@ public class TestTypeFactory
         MapType mapType = (MapType) type;
         assertEquals(tf.constructType(String.class), mapType.getKeyType());
         assertEquals(tf.constructType(Long.class), mapType.getContentType());
-
+        
         type = tf.constructType(MapInterface.class);
         mapType = (MapType) type;
+
         assertEquals(tf.constructType(String.class), mapType.getKeyType());
         assertEquals(tf.constructType(Integer.class), mapType.getContentType());
 
@@ -469,13 +476,14 @@ public class TestTypeFactory
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         JavaType t = tf.constructType(StringIntMapEntry.class);
-        assertTrue(t.hasGenericTypes());
-        assertEquals(2, t.containedTypeCount());
-        assertEquals(String.class, t.containedType(0).getRawClass());
-        assertEquals(Integer.class, t.containedType(1).getRawClass());
-        // NOTE: no key/content types, at least not as of 2.5
+        JavaType mapEntryType = t.findSuperType(Map.Entry.class);
+        assertNotNull(mapEntryType);
+        assertTrue(mapEntryType.hasGenericTypes());
+        assertEquals(2, mapEntryType.containedTypeCount());
+        assertEquals(String.class, mapEntryType.containedType(0).getRawClass());
+        assertEquals(Integer.class, mapEntryType.containedType(1).getRawClass());
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests: construction of "raw" types
@@ -488,8 +496,12 @@ public class TestTypeFactory
         JavaType type = tf.constructRawCollectionType(ArrayList.class);
         assertTrue(type.isContainerType());
         assertEquals(TypeFactory.unknownType(), type.getContentType());
+        type = tf.constructRawCollectionLikeType(CollectionLike.class); // must have type vars
+        assertTrue(type.isCollectionLikeType());
+        assertEquals(TypeFactory.unknownType(), type.getContentType());
 
-        type = tf.constructRawCollectionLikeType(String.class); // class doesn't really matter
+        // actually, should also allow "no type vars" case
+        type = tf.constructRawCollectionLikeType(String.class);
         assertTrue(type.isCollectionLikeType());
         assertEquals(TypeFactory.unknownType(), type.getContentType());
     }
@@ -502,7 +514,13 @@ public class TestTypeFactory
         assertEquals(TypeFactory.unknownType(), type.getKeyType());
         assertEquals(TypeFactory.unknownType(), type.getContentType());
 
-        type = tf.constructRawMapLikeType(String.class); // class doesn't really matter
+        type = tf.constructRawMapLikeType(MapLike.class); // must have type vars
+        assertTrue(type.isMapLikeType());
+        assertEquals(TypeFactory.unknownType(), type.getKeyType());
+        assertEquals(TypeFactory.unknownType(), type.getContentType());
+
+        // actually, should also allow "no type vars" case
+        type = tf.constructRawMapLikeType(String.class);
         assertTrue(type.isMapLikeType());
         assertEquals(TypeFactory.unknownType(), type.getKeyType());
         assertEquals(TypeFactory.unknownType(), type.getContentType());
@@ -535,13 +553,14 @@ public class TestTypeFactory
         assertSame(t2, tf.moreSpecificType(t2, t1));
     }
 
-    // [Issue#489]
+    // [databind#489]
     public void testCacheClearing()
     {
         TypeFactory tf = TypeFactory.defaultInstance().withModifier(null);
         assertEquals(0, tf._typeCache.size());
         tf.constructType(getClass());
-        assertEquals(1, tf._typeCache.size());
+        // 19-Oct-2015, tatu: This is pretty fragile but
+        assertEquals(6, tf._typeCache.size());
         tf.clearCache();
         assertEquals(0, tf._typeCache.size());
     }

@@ -15,6 +15,22 @@ public abstract class TypeBase
 {
     private static final long serialVersionUID = 1;
 
+    private final static TypeBindings NO_BINDINGS = TypeBindings.emptyBindings();
+    private final static JavaType[] NO_TYPES = new JavaType[0];
+
+    protected final JavaType _superClass;
+
+    protected final JavaType[] _superInterfaces;
+    
+    /**
+     * Bindings in effect for this type instance; possibly empty.
+     * Needed when resolving types declared in members of this type
+     * (if any).
+     *
+     * @since 2.7
+     */
+    protected final TypeBindings _bindings;
+    
     /**
      * Lazily initialized external representation of the type
      */
@@ -23,10 +39,26 @@ public abstract class TypeBase
     /**
      * Main constructor to use by extending classes.
      */
-    protected TypeBase(Class<?> raw, int hash,
+    protected TypeBase(Class<?> raw, TypeBindings bindings, JavaType superClass, JavaType[] superInts,
+            int hash,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
         super(raw, hash, valueHandler, typeHandler, asStatic);
+        _bindings = (bindings == null) ? NO_BINDINGS : bindings;
+        _superClass = superClass;
+        _superInterfaces = superInts;
+    }
+
+    /**
+     * Copy-constructor used when refining/upgrading type instances.
+     *
+     * @since 2.7
+     */
+    protected TypeBase(TypeBase base) {
+        super(base);
+        _superClass = base._superClass;
+        _superInterfaces = base._superInterfaces;
+        _bindings = base._bindings;
     }
 
     @Override
@@ -38,8 +70,10 @@ public abstract class TypeBase
         }
         return str;
     }
-    
-    protected abstract String buildCanonicalName();
+
+    protected String buildCanonicalName() {
+        return _class.getName();
+    }
 
     @Override
     public abstract StringBuilder getGenericSignature(StringBuilder sb);
@@ -54,6 +88,61 @@ public abstract class TypeBase
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getTypeHandler() { return (T) _typeHandler; }
+
+    @Override
+    public TypeBindings getBindings() {
+        return _bindings;
+    }
+
+    @Override
+    public int containedTypeCount() {
+        return _bindings.size();
+    }
+
+    @Override
+    public JavaType containedType(int index) {
+        return _bindings.getBoundType(index);
+    }
+
+    @Override
+    public String containedTypeName(int index) {
+        return _bindings.getBoundName(index);
+    }
+
+    @Override
+    public final JavaType findSuperType(Class<?> rawTarget)
+    {
+        if (rawTarget == _class) {
+            return this;
+        }
+        // Check super interfaces first:
+        if (rawTarget.isInterface() && (_superInterfaces != null)) {
+            for (int i = 0, count = _superInterfaces.length; i < count; ++i) {
+                JavaType type = _superInterfaces[i].findSuperType(rawTarget);
+                if (type != null) {
+                    return type;
+                }
+            }
+        }
+        // and if not found, super class and its supertypes
+        if (_superClass != null) {
+            JavaType type = _superClass.findSuperType(rawTarget);
+            if (type != null) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public JavaType[] findTypeParameters(Class<?> expType)
+    {
+        JavaType match = findSuperType(expType);
+        if (match == null) {
+            return NO_TYPES;
+        }
+        return match.getBindings().typeParameterArray();
+    }
     
     /*
     /**********************************************************
@@ -62,22 +151,22 @@ public abstract class TypeBase
      */
 
     @Override
-    public void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonProcessingException
     {
-        typeSer.writeTypePrefixForScalar(this, jgen);
-        this.serialize(jgen, provider);
-        typeSer.writeTypeSuffixForScalar(this, jgen);
+        typeSer.writeTypePrefixForScalar(this, gen);
+        this.serialize(gen, provider);
+        typeSer.writeTypeSuffixForScalar(this, gen);
     }
 
     @Override
-    public void serialize(JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(JsonGenerator gen, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {
-        jgen.writeString(toCanonical());
+        gen.writeString(toCanonical());
     } 
-    
+
     /*
     /**********************************************************
     /* Methods for sub-classes to use

@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public abstract class BaseMapTest
     extends BaseTest
@@ -119,7 +120,7 @@ public abstract class BaseMapTest
 
     /*
     /**********************************************************
-    /* Additional assert methods
+    /* Factory methods
     /**********************************************************
      */
 
@@ -141,6 +142,12 @@ public abstract class BaseMapTest
         return SHARED_MAPPER.readerFor(cls);
     }
 
+    // @since 2.7
+    protected TypeFactory newTypeFactory() {
+        // this is a work-around; no null modifier added
+        return TypeFactory.defaultInstance().withModifier(null);
+    }
+    
     /*
     /**********************************************************
     /* Additional assert methods

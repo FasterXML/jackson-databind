@@ -286,61 +286,6 @@ public class TestTypeFactory
 
     /*
     /**********************************************************
-    /* Unit tests: low-level inheritance resolution
-    /**********************************************************
-     */
-
-    public void testSuperTypeDetectionClass()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        HierarchicType sub = tf._findSuperTypeChain(MyStringIntMap.class, HashMap.class);
-        assertNotNull(sub);
-        assertEquals(2, _countSupers(sub));
-        assertSame(MyStringIntMap.class, sub.getRawClass());
-        HierarchicType sup = sub.getSuperType();
-        assertSame(MyStringXMap.class, sup.getRawClass());
-        HierarchicType sup2 = sup.getSuperType();
-        assertSame(HashMap.class, sup2.getRawClass());
-        assertNull(sup2.getSuperType());
-    }
-
-    public void testSuperTypeDetectionInterface()
-    {
-        // List first
-        TypeFactory tf = TypeFactory.defaultInstance();
-        HierarchicType sub = tf._findSuperTypeChain(MyList.class, List.class);
-        assertNotNull(sub);
-        assertEquals(2, _countSupers(sub));
-        assertSame(MyList.class, sub.getRawClass());
-        HierarchicType sup = sub.getSuperType();
-        assertSame(IntermediateList.class, sup.getRawClass());
-        HierarchicType sup2 = sup.getSuperType();
-        assertSame(List.class, sup2.getRawClass());
-        assertNull(sup2.getSuperType());
-        
-        // Then Map
-        sub = tf._findSuperTypeChain(MyMap.class, Map.class);
-        assertNotNull(sub);
-        assertEquals(2, _countSupers(sub));
-        assertSame(MyMap.class, sub.getRawClass());
-        sup = sub.getSuperType();
-        assertSame(IntermediateMap.class, sup.getRawClass());
-        sup2 = sup.getSuperType();
-        assertSame(Map.class, sup2.getRawClass());
-        assertNull(sup2.getSuperType());
-    }
-
-    private int _countSupers(HierarchicType t)
-    {
-        int depth = 0;
-        for (HierarchicType sup = t.getSuperType(); sup != null; sup = sup.getSuperType()) {
-            ++depth;
-        }
-        return depth;
-    }
-
-    /*
-    /**********************************************************
     /* Unit tests: map/collection type parameter resolution
     /**********************************************************
      */
@@ -354,6 +299,35 @@ public class TestTypeFactory
         assertEquals(tf.constructType(Boolean.class), mapType.getContentType());
     }
 
+    // since 2.7
+    public void testMapTypesRefined()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType type = tf.constructType(new TypeReference<Map<String,List<Integer>>>() { });
+        MapType mapType = (MapType) type;
+        assertEquals(Map.class, mapType.getRawClass());
+        assertEquals(String.class, mapType.getKeyType().getRawClass());
+        assertEquals(List.class, mapType.getContentType().getRawClass());
+        assertEquals(Integer.class, mapType.getContentType().getContentType().getRawClass());
+
+        // No super-class, since it's an interface:
+        assertNull(type.getSuperClass());
+        
+        // But then refine to reflect sub-classing
+        JavaType subtype = tf.constructSpecializedType(type, LinkedHashMap.class);
+        assertEquals(LinkedHashMap.class, subtype.getRawClass());
+        assertEquals(String.class, subtype.getKeyType().getRawClass());
+        assertEquals(List.class, subtype.getContentType().getRawClass());
+        assertEquals(Integer.class, subtype.getContentType().getContentType().getRawClass());
+
+        // but with refinement, should have non-null super class
+        /*
+        JavaType superType = subtype.getSuperClass();
+        assertNotNull(superType);
+        assertEquals(HashMap.class, superType.getRawClass());
+        */
+    }
+    
     public void testMapTypesRaw()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -448,17 +422,6 @@ public class TestTypeFactory
     /* Unit tests: handling of specific JDK types
     /**********************************************************
      */
-
-    public void testAtomicArrayRefParameterDetection()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType type = tf.constructType(new TypeReference<AtomicReference<long[]>>() { });
-        HierarchicType sub = tf._findSuperTypeChain(type.getRawClass(), AtomicReference.class);
-        assertNotNull(sub);
-        assertEquals(0, _countSupers(sub));
-        assertTrue(AtomicReference.class.isAssignableFrom(type.getRawClass()));
-        assertNull(sub.getSuperType());
-    }
 
     public void testAtomicArrayRefParameters()
     {

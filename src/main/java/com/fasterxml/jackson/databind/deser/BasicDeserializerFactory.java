@@ -6,9 +6,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.core.JsonLocation;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -980,13 +978,12 @@ public abstract class BasicDeserializerFactory
         JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
 
-        // Then optional type info (1.5): if type has been resolved, we may already know type deserializer:
+        // Then optional type info: if type has been resolved, we may already know type deserializer:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
             contentTypeDeser = findTypeDeserializer(config, contentType);
         }
-
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> deser = _findCustomCollectionDeserializer(type,
                 config, beanDesc, contentTypeDeser, contentDeser);
@@ -999,7 +996,7 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
-        
+
         /* One twist: if we are being asked to instantiate an interface or
          * abstract Collection, we need to either find something that implements
          * the thing, or give up.
@@ -1013,7 +1010,7 @@ public abstract class BasicDeserializerFactory
             if (type.isInterface() || type.isAbstract()) {
                 CollectionType implType = _mapAbstractCollectionType(type, config);
                 if (implType == null) {
-                    // [Issue#292]: Actually, may be fine, but only if polymorphich deser enabled
+                    // [databind#292]: Actually, may be fine, but only if polymorphich deser enabled
                     if (type.getTypeHandler() == null) {
                         throw new IllegalArgumentException("Can not find a deserializer for non-concrete Collection type "+type);
                     }
@@ -1221,7 +1218,7 @@ public abstract class BasicDeserializerFactory
 
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl: Enum deserializers
+    /* JsonDeserializerFactory impl: other types
     /**********************************************************
      */
     
@@ -1238,7 +1235,7 @@ public abstract class BasicDeserializerFactory
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
         if (deser == null) {
-            // [JACKSON-193] May have @JsonCreator for static factory method:
+            // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
                 if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
                     int argCount = factory.getParameterCount();
@@ -1254,13 +1251,13 @@ public abstract class BasicDeserializerFactory
                             +enumClass.getName()+")");
                 }
             }
-            // [JACKSON-749] Also, need to consider @JsonValue, if one found
+            // Need to consider @JsonValue if one found
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod()));
             }
         }
 
-        // and then new with 2.2: ability to post-process it too (Issue#120)
+        // and then post-process it too
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyEnumDeserializer(config, type, beanDesc, deser);
@@ -1268,13 +1265,7 @@ public abstract class BasicDeserializerFactory
         }
         return deser;
     }
-    
-    /*
-    /**********************************************************
-    /* JsonDeserializerFactory impl: Tree deserializers
-    /**********************************************************
-     */
-    
+
     @Override
     public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
             JavaType nodeType, BeanDescription beanDesc)
@@ -1290,7 +1281,47 @@ public abstract class BasicDeserializerFactory
         }
         return JsonNodeDeserializer.getDeserializer(nodeClass);
     }
-    
+
+    @Override
+    public JsonDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
+            ReferenceType type, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        JavaType contentType = type.getContentType();
+        // Very first thing: is deserializer hard-coded for elements?
+        JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
+        final DeserializationConfig config = ctxt.getConfig();
+
+        // Then optional type info: if type has been resolved, we may already know type deserializer:
+        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
+        if (contentTypeDeser == null) { // or if not, may be able to find:
+            contentTypeDeser = findTypeDeserializer(config, contentType);
+        }
+        JsonDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDesc,
+                contentTypeDeser, contentDeser);
+        if (deser == null) {
+            // Just one referential type as of JDK 1.7 / Java 7: AtomicReference (Java 8 adds Optional)
+            if (AtomicReference.class.isAssignableFrom(type.getRawClass())) {
+                JavaType referencedType = type.getReferencedType();
+                /*
+                TypeDeserializer vts = findTypeDeserializer(ctxt.getConfig(), referencedType);
+                BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
+                JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
+                */
+                return new AtomicReferenceDeserializer(referencedType, contentTypeDeser, deser);
+            }
+        }
+        if (deser != null) {
+            // and then post-process
+            if (_factoryConfig.hasDeserializerModifiers()) {
+                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                    deser = mod.modifyReferenceDeserializer(config, type, beanDesc, deser);
+                }
+            }
+        }
+        return deser;
+    }
+
     /*
     /**********************************************************
     /* JsonDeserializerFactory impl (partial): type deserializers
@@ -1319,7 +1350,7 @@ public abstract class BasicDeserializerFactory
         } else {
             subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config, ac);
         }
-        // [JACKSON-505]: May need to figure out default implementation, if none found yet
+        // May need to figure out default implementation, if none found yet
         // (note: check for abstract type is not 100% mandatory, more of an optimization)
         if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
             JavaType defaultType = mapAbstractType(config, baseType);
@@ -1526,17 +1557,6 @@ public abstract class BasicDeserializerFactory
         if (rawType == CLASS_STRING || rawType == CLASS_CHAR_BUFFER) {
             return StringDeserializer.instance;
         }
-        
-        if (type.isReferenceType()) {
-            JavaType referencedType = type.getReferencedType();
-            if (AtomicReference.class.isAssignableFrom(rawType)) {
-                TypeDeserializer vts = findTypeDeserializer(ctxt.getConfig(), referencedType);
-                BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
-                JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
-                return new AtomicReferenceDeserializer(referencedType, vts, deser);
-            }
-            // Hmmh. Should we continue here for unknown referential types?
-        }
         if (rawType == CLASS_ITERABLE) {
             // [Issue#199]: Can and should 'upgrade' to a Collection type:
             TypeFactory tf = ctxt.getTypeFactory();
@@ -1597,14 +1617,27 @@ public abstract class BasicDeserializerFactory
     /**********************************************************
      */
 
-    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
-            DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+    protected JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
+            DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config,
-                    beanDesc, elementTypeDeserializer, elementDeserializer);
+            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+
+    protected JsonDeserializer<?> _findCustomReferenceDeserializer(ReferenceType type,
+            DeserializationConfig config, BeanDescription beanDesc,
+            TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findReferenceDeserializer(type, config, beanDesc,
+                    contentTypeDeserializer, contentDeserializer);
             if (deser != null) {
                 return deser;
             }
@@ -1626,6 +1659,21 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
+    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
+            DeserializationConfig config, BeanDescription beanDesc,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config,
+                    beanDesc, elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+    
     protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
@@ -1701,19 +1749,6 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
-    protected JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
-            DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
-    }
-    
     /*
     /**********************************************************
     /* Helper methods, value/content/key type introspection

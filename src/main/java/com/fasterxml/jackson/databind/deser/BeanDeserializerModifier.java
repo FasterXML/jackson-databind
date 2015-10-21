@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.ReferenceType;
 
 /**
  * Abstract class that defines API for objects that can be registered
@@ -96,6 +97,22 @@ public abstract class BeanDeserializerModifier
      */
 
     /**
+     * @since 2.2
+     */
+    public JsonDeserializer<?> modifyEnumDeserializer(DeserializationConfig config,
+            JavaType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
+
+    /**
+     * @since 2.7
+     */
+    public JsonDeserializer<?> modifyReferenceDeserializer(DeserializationConfig config,
+            ReferenceType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
+
+    /**
      * Method called by {@link DeserializerFactory} after it has constructed the
      * standard deserializer for given
      * {@link ArrayType}
@@ -149,14 +166,6 @@ public abstract class BeanDeserializerModifier
         return deserializer;
     }
 
-    /**
-     * @since 2.2
-     */
-    public JsonDeserializer<?> modifyEnumDeserializer(DeserializationConfig config,
-            JavaType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
-        return deserializer;
-    }
-    
     /**
      * Method called by {@link DeserializerFactory} after it has constructed the
      * standard key deserializer for given key type.

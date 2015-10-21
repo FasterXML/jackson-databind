@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.type.*;
 public class SimpleDeserializers
    implements Deserializers, java.io.Serializable
 {
-    private static final long serialVersionUID = -3006673354353448880L;
+    private static final long serialVersionUID = 1L;
 
     protected HashMap<ClassKey,JsonDeserializer<?>> _classMappings = null;
 
@@ -134,6 +134,24 @@ public class SimpleDeserializers
     }
 
     @Override
+    public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
+            DeserializationConfig config, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(nodeType));
+    }
+    
+    @Override
+    public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
+            DeserializationConfig config, BeanDescription beanDesc,
+            TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
+        throws JsonMappingException {
+        // 21-Oct-2015, tatu: Unlikely this will really get used (reference types need more
+        //    work, simple registration probably not sufficient). But whatever.
+        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(refType.getRawClass()));
+    }
+    
+    @Override
     public JsonDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
@@ -153,13 +171,5 @@ public class SimpleDeserializers
         throws JsonMappingException
     {
         return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
-    }
-    
-    @Override
-    public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
-            DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(nodeType));
     }
 }

@@ -120,12 +120,30 @@ public abstract class DeserializerFactory
     /**
      * Method called to create a deserializer that will use specified Builder
      * class for building value instances.
-     * 
-     * @since 2.0
      */
     public abstract JsonDeserializer<Object> createBuilderBasedDeserializer(
     		DeserializationContext ctxt, JavaType type, BeanDescription beanDesc,
     		Class<?> builderClass)
+        throws JsonMappingException;
+
+
+    public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
+            JavaType type, BeanDescription beanDesc)
+        throws JsonMappingException;
+
+    /**
+     * @since 2.7
+     */
+    public abstract JsonDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
+            ReferenceType type, BeanDescription beanDesc)
+        throws JsonMappingException;
+    
+    /**
+     * Method called to create and return a deserializer that can construct
+     * JsonNode(s) from JSON content.
+     */
+    public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException;
     
     /**
@@ -146,10 +164,6 @@ public abstract class DeserializerFactory
     public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
             CollectionLikeType type, BeanDescription beanDesc)
         throws JsonMappingException;
-    
-    public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
             MapType type, BeanDescription beanDesc)
@@ -157,14 +171,6 @@ public abstract class DeserializerFactory
 
     public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
             MapLikeType type, BeanDescription beanDesc)
-        throws JsonMappingException;
-
-    /**
-     * Method called to create and return a deserializer that can construct
-     * JsonNode(s) from JSON content.
-     */
-    public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
-            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     /**

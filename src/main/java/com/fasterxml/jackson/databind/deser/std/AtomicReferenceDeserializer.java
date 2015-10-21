@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -40,6 +39,9 @@ public class AtomicReferenceDeserializer
     }
 
     public AtomicReferenceDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+        if ((valueDeser == _valueDeserializer) && (typeDeser == _valueTypeDeserializer)) {
+            return this;
+        }
         return new AtomicReferenceDeserializer(_referencedType, typeDeser, valueDeser);
     }
 
@@ -59,33 +61,42 @@ public class AtomicReferenceDeserializer
     {
         JsonDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _valueTypeDeserializer;
+
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_referencedType, property);
+        } else { // otherwise directly assigned, probably not contextual yet:
+            deser = ctxt.handleSecondaryContextualization(deser, property, _referencedType);
         }
         if (typeDeser != null) {
             typeDeser = typeDeser.forProperty(property);
-        }
-        if ((deser == _valueDeserializer) && (typeDeser == _valueTypeDeserializer)) {
-            return this;
         }
         return withResolved(typeDeser, deser);
     }
 
     @Override
-    public AtomicReference<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public AtomicReference<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         /* 06-Nov-2013, tatu: Looks like the only way to make polymorphic deser to work
          *   correctly is to add support here; problem being that handler is not available
          *   for nominal type of AtomicReference but only "contained" type...
          */
         if (_valueTypeDeserializer != null) {
-            return new AtomicReference<Object>(_valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer));
+            return new AtomicReference<Object>(_valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer));
         }
-        return new AtomicReference<Object>(_valueDeserializer.deserialize(jp, ctxt));
+        return new AtomicReference<Object>(_valueDeserializer.deserialize(p, ctxt));
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException {
-        return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer) throws IOException
+    {
+        final JsonToken t = p.getCurrentToken();
+        if (t == JsonToken.VALUE_NULL) { // can this actually happen?
+            return getNullValue(ctxt);
+        }
+        // "Natural" types (String, Long, Boolean, Double) are tricky, so need this:
+        if (t != null && t.isScalarValue()) {
+            return deserialize(p, ctxt);
+        }
+        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 }

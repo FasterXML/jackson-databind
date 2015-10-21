@@ -397,6 +397,9 @@ public final class DeserializerCache
                 }
             }
         }
+        if (type.isReferenceType()) {
+            return factory.createReferenceDeserializer(ctxt, (ReferenceType) type, beanDesc);
+        }
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
             return factory.createTreeDeserializer(config, type, beanDesc);
         }

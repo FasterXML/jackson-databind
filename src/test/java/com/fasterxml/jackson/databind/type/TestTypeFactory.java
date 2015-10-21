@@ -273,8 +273,7 @@ public class TestTypeFactory
         // But then refine to reflect sub-classing
         JavaType subtype = tf.constructSpecializedType(type, ArrayList.class);
         assertEquals(ArrayList.class, subtype.getRawClass());
-        assertEquals(List.class, subtype.getContentType().getRawClass());
-        assertEquals(Long.class, type.getContentType().getRawClass());
+        assertEquals(Long.class, subtype.getContentType().getRawClass());
 
         // but with refinement, should have non-null super class
         JavaType superType = subtype.getSuperClass();

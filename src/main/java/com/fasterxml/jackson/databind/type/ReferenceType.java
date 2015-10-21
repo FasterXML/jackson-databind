@@ -41,6 +41,9 @@ public class ReferenceType extends SimpleType
      * @since 2.7
      */
     public static ReferenceType upgradeFrom(JavaType baseType, JavaType refType) {
+        if (refType == null) {
+            throw new IllegalArgumentException("Missing referencedType");
+        }
         // 19-Oct-2015, tatu: Not sure if and how other types could be used as base;
         //    will cross that bridge if and when need be
         if (baseType instanceof TypeBase) {

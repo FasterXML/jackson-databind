@@ -69,6 +69,9 @@ public class TestConfig
         assertFalse(cfg.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS));
 
         assertTrue(cfg.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+
+        assertTrue(cfg.isEnabled(DeserializationFeature.CAN_OVERRIDE_FINAL_COLLECTION_OR_MAP_INSTANCE));
+        assertFalse(cfg.isEnabled(DeserializationFeature.CLEAR_EXISTING_COLLECTION_OR_MAP_BEFORE_DESERIALIZATION));
     }
 
     public void testOverrideIntrospectors()

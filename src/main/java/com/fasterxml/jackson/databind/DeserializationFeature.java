@@ -402,8 +402,30 @@ public enum DeserializationFeature implements ConfigFeature
      * 
      * @since 2.1
      */
-    EAGER_DESERIALIZER_FETCH(true)
-    
+    EAGER_DESERIALIZER_FETCH(true),
+
+    /**
+     * Feature that determine whether the deserialization process is allowed
+     * to replace a final collection or map instance field value.
+     * Set to false, it allows to maintain collection or map specific implementation
+     * by taking advantage of the mutability nature of most collection and map implementations.
+     *
+     * Feature is enabled by default for backward compatibility
+     *
+     * @since 2.7
+     */
+    CAN_OVERRIDE_FINAL_COLLECTION_OR_MAP_INSTANCE(true),
+
+    /**
+     * Feature that determine wether the map and collection deserializer should
+     * clear a potentially provided instance - of collection or map - before performing
+     * modifications on the given instance.
+     *
+     * Feature is disabled by default
+     *
+     * @since 2.7
+     */
+    CLEAR_EXISTING_COLLECTION_OR_MAP_BEFORE_DESERIALIZATION(false)
     ;
 
     private final boolean _defaultState;

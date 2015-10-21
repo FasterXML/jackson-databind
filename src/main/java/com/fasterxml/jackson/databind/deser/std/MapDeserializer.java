@@ -358,6 +358,9 @@ public class MapDeserializer
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
             throw ctxt.mappingException(getMapClass());
         }
+        if(ctxt.isEnabled(DeserializationFeature.CLEAR_EXISTING_COLLECTION_OR_MAP_BEFORE_DESERIALIZATION)){
+            result.clear();
+        }
         if (_standardStringKey) {
             _readAndBindStringMap(p, ctxt, result);
             return result;

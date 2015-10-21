@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -483,6 +484,7 @@ public class BeanDeserializerFactory
         }
         final boolean useGettersAsSetters = (ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
                 && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
+        final boolean canOverrideFinalCollectionMap = ctxt.isEnabled(DeserializationFeature.CAN_OVERRIDE_FINAL_COLLECTION_OR_MAP_INSTANCE);
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
@@ -506,9 +508,15 @@ public class BeanDeserializerFactory
                 Type propertyType = propDef.getSetter().getGenericParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
             } else if (propDef.hasField()) {
-                Type propertyType = propDef.getField().getGenericType();
-                prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-            } else if (useGettersAsSetters && propDef.hasGetter()) {
+                Class<?> rawPropertyType = propDef.getField().getRawType();
+                boolean isCollectionOrMap = Collection.class.isAssignableFrom(rawPropertyType) || Map.class.isAssignableFrom(rawPropertyType);
+                if(!isCollectionOrMap || !Modifier.isFinal(propDef.getField().getModifiers()) || canOverrideFinalCollectionMap){
+                    Type propertyType = propDef.getField().getGenericType();
+                    prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
+                }
+            }
+
+            if (prop == null && useGettersAsSetters && propDef.hasGetter()) {
                 /* As per [JACKSON-88], may also need to consider getters
                  * for Map/Collection properties; but with lowest precedence
                  */

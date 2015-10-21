@@ -164,7 +164,7 @@ public class MapLikeType extends TypeBase
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
-        return new MapLikeType(rawType, _bindings,
+        return new MapLikeType(rawType, bindings,
                 superClass, superInterfaces, _keyType, _valueType,
                 _valueHandler, _typeHandler, _asStatic);
     }

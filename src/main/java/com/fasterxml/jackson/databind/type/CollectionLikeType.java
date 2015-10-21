@@ -164,6 +164,16 @@ public class CollectionLikeType extends TypeBase
     public JavaType getContentType() { return _elementType; }
 
     @Override
+    public Object getContentValueHandler() {
+        return _elementType.getValueHandler();
+    }
+
+    @Override
+    public Object getContentTypeHandler() {
+        return _elementType.getTypeHandler();
+    }    
+
+    @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }

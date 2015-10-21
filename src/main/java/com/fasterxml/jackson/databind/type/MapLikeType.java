@@ -202,6 +202,16 @@ public class MapLikeType extends TypeBase
     public JavaType getContentType() { return _valueType; }
 
     @Override
+    public Object getContentValueHandler() {
+        return _valueType.getValueHandler();
+    }
+
+    @Override
+    public Object getContentTypeHandler() {
+        return _valueType.getTypeHandler();
+    }
+
+    @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }

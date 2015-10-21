@@ -212,7 +212,7 @@ public final class TypeFactory
         if (t instanceof Class<?>) {
             return (Class<?>) t;
         }
-        // Shouldbe able to optimize bit more in future...
+        // Should be able to optimize bit more in future...
         return defaultInstance().constructType(t).getRawClass();
     }
 
@@ -304,6 +304,7 @@ public final class TypeFactory
         if (baseType.getRawClass() == subclass) {
             return baseType;
         }
+
         // Currently mostly SimpleType instances can become something else
         if (baseType instanceof SimpleType) {
             // and only if subclass is an array, Collection or Map
@@ -379,10 +380,18 @@ public final class TypeFactory
         return match.getBindings().typeParameterArray();
     }
 
+    /**
+     * @deprecated Since 2.7 resolve raw type first, then find type parameters
+     */
+    @Deprecated // since 2.7    
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType, TypeBindings bindings) {
         return findTypeParameters(constructType(clz, bindings), expType);
     }
     
+    /**
+     * @deprecated Since 2.7 resolve raw type first, then find type parameters
+     */
+    @Deprecated // since 2.7    
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
         return findTypeParameters(constructType(clz), expType);
     }
@@ -1053,8 +1062,6 @@ public final class TypeFactory
             // super-type if refinement is all that is needed?
             else if (superClass != null) {
                 result = superClass.refine(rawType, bindings, superClass, superInterfaces);
-            } else {
-                result = null;
             }
             // if not, perhaps we are now resolving a well-known class or interface?
             if (result == null) {
@@ -1118,27 +1125,6 @@ public final class TypeFactory
         if (rawType == AtomicReference.class) {
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
-        // 18-Oct-2015, tatu: Since there is no special JavaType, should/need NOT
-        //    handle `Map.Entry` here anymore with 2.7
-/*        
-        if (rawType == Map.Entry.class) {
-            JavaType kt, vt;
-
-            List<JavaType> typeParams = bindings.getTypeParameters();
-            // ok to have no types ("raw")
-            switch (typeParams.size()) {
-            case 0: // acceptable?
-                kt = vt = _unknownType();
-                break;
-            case 2:
-                kt = typeParams.get(0);
-                vt = typeParams.get(1);
-                break;
-            default:
-                throw new IllegalArgumentException("Strange Map.Entry type "+rawType.getName()+": can not determine type parameters");
-            }
-        }
-*/
         return null;
     }
 
@@ -1220,125 +1206,5 @@ public final class TypeFactory
          * For now, we won't try anything more advanced; above is just for future reference.
          */
         return _fromAny(context, type.getUpperBounds()[0], bindings);
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    /**
-     * Helper method used to find inheritance (implements, extends) path
-     * between given types, if one exists (caller generally checks before
-     * calling this method). Returned type represents given <b>subtype</b>,
-     * with supertype linkage extending to <b>supertype</b>.
-     */
-    protected HierarchicType  _findSuperTypeChain(Class<?> subtype, Class<?> supertype)
-    {
-        // If super-type is a class (not interface), bit simpler
-        if (supertype.isInterface()) {
-            return _findSuperInterfaceChain(subtype, supertype);
-        }
-        return _findSuperClassChain(subtype, supertype);
-    }
-
-    protected HierarchicType _findSuperClassChain(Type currentType, Class<?> target)
-    {
-        HierarchicType current = new HierarchicType(currentType);
-        Class<?> raw = current.getRawClass();
-        if (raw == target) {
-            return current;
-        }
-        // Otherwise, keep on going down the rat hole...
-        Type parent = ClassUtil.getGenericSuperclass(raw);
-        if (parent != null) {
-            HierarchicType sup = _findSuperClassChain(parent, target);
-            if (sup != null) {
-                sup.setSubType(current);
-                current.setSuperType(sup);
-                return current;
-            }
-        }
-        return null;
-    }
-
-    protected HierarchicType _findSuperInterfaceChain(Type currentType, Class<?> target)
-    {
-        HierarchicType current = new HierarchicType(currentType);
-        Class<?> raw = current.getRawClass();
-        if (raw == target) {
-            return new HierarchicType(currentType);
-        }
-        // Otherwise, keep on going down the rat hole; first implemented interfaces
-        /* 16-Aug-2011, tatu: Minor optimization based on profiled hot spot; let's
-         *   try caching certain commonly needed cases
-         */
-        if (raw == HashMap.class) {
-            if (target == Map.class) {
-                return _hashMapSuperInterfaceChain(current);
-            }
-        }
-        if (raw == ArrayList.class) {
-            if (target == List.class) {
-                return _arrayListSuperInterfaceChain(current);
-            }
-        }
-        return _doFindSuperInterfaceChain(current, target);
-    }
-    
-    protected HierarchicType _doFindSuperInterfaceChain(HierarchicType current, Class<?> target)
-    {
-        Class<?> raw = current.getRawClass();
-        Type[] parents = raw.getGenericInterfaces();
-        // as long as there are superclasses
-        // and unless we have already seen the type (<T extends X<T>>)
-        if (parents != null) {
-            for (Type parent : parents) {
-                HierarchicType sup = _findSuperInterfaceChain(parent, target);
-                if (sup != null) {
-                    sup.setSubType(current);
-                    current.setSuperType(sup);
-                    return current;
-                }
-            }
-        }
-        // and then super-class if any
-        Type parent = ClassUtil.getGenericSuperclass(raw);
-        if (parent != null) {
-            HierarchicType sup = _findSuperInterfaceChain(parent, target);
-            if (sup != null) {
-                sup.setSubType(current);
-                current.setSuperType(sup);
-                return current;
-            }
-        }
-        return null;
-    }
-
-    protected synchronized HierarchicType _hashMapSuperInterfaceChain(HierarchicType current)
-    {
-        if (_cachedHashMapType == null) {
-            HierarchicType base = current.deepCloneWithoutSubtype();
-            _doFindSuperInterfaceChain(base, Map.class);
-            _cachedHashMapType = base.getSuperType();
-        }
-        HierarchicType t = _cachedHashMapType.deepCloneWithoutSubtype();
-        current.setSuperType(t);
-        t.setSubType(current);
-        return current;
-    }
-
-    protected synchronized HierarchicType _arrayListSuperInterfaceChain(HierarchicType current)
-    {
-        if (_cachedArrayListType == null) {
-            HierarchicType base = current.deepCloneWithoutSubtype();
-            _doFindSuperInterfaceChain(base, List.class);
-            _cachedArrayListType = base.getSuperType();
-        }
-        HierarchicType t = _cachedArrayListType.deepCloneWithoutSubtype();
-        current.setSuperType(t);
-        t.setSubType(current);
-        return current;
     }
 }

@@ -466,6 +466,16 @@ public abstract class JavaType
     public <T> T getTypeHandler() { return (T) _typeHandler; }
 
     /**
+     * @since 2.7
+     */
+    public Object getContentValueHandler() { return null; }
+
+    /**
+     * @since 2.7
+     */
+    public Object getContentTypeHandler() { return null; }    
+
+    /**
      * @since 2.6
      */
     public boolean hasValueHandler() { return _valueHandler != null; }

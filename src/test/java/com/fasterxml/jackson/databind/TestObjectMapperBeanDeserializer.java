@@ -323,4 +323,11 @@ public class TestObjectMapperBeanDeserializer
             ;
         }
     }
+
+    public void testObject() throws Exception
+    {
+        MAPPER.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        assertEquals(true, MAPPER.canSerialize(Object.class));
+        assertEquals("{}", MAPPER.writeValueAsString(new Object()));
+    }
 }

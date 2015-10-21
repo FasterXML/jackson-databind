@@ -854,7 +854,7 @@ public abstract class SerializerProvider
      * @since 2.5
      */
     public boolean isUnknownTypeSerializer(JsonSerializer<?> ser) {
-        if ((ser == _unknownTypeSerializer) || (ser == null)) {
+        if (ser == null) {
             return true;
         }
         // 23-Apr-2015, tatu: "empty" serializer is trickier; needs to consider

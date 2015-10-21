@@ -301,10 +301,47 @@ public final class TypeFactory
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
     {
         // simple optimization to avoid costly introspection if type-erased type does NOT differ
-        if (baseType.getRawClass() == subclass) {
+        final Class<?> rawBase = baseType.getRawClass();
+        if (rawBase == subclass) {
             return baseType;
         }
 
+        JavaType newType;
+
+        // also: if we start from untyped, not much to save
+        if (rawBase == Object.class) {
+            newType = _fromClass(null, subclass, TypeBindings.emptyBindings());
+        } else {
+            if (!rawBase.isAssignableFrom(subclass)) {
+                throw new IllegalArgumentException("Class "+subclass.getName()+" not subtype of "+baseType);
+            }
+            
+            // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
+            //    a way to fully resolve and merge hierarchies; but that gets expensive
+            //    so let's, for now, try to create close-enough approximation that
+            //    is not 100% same, structurally, but has equivalent information for
+            //    our specific neeeds.
+            if (baseType.isInterface()) {
+                newType = baseType.refine(subclass, TypeBindings.emptyBindings(), null,
+                        new JavaType[] { baseType });
+            } else {
+                newType = baseType.refine(subclass, TypeBindings.emptyBindings(), baseType,
+                        NO_TYPES);
+            }
+            // Only SimpleType returns null, but if so just resolve regularly
+            if (newType == null) {
+                // But otherwise gets bit tricky, as we need to partially resolve the type hierarchy
+                // (hopefully passing null Class for root is ok)
+                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());        
+            }
+        }
+        // except possibly handlers
+//      newType = newType.withHandlersFrom(baseType);
+        return newType;
+
+        // 20-Oct-2015, tatu: Old simplistic approach
+        
+        /*
         // Currently mostly SimpleType instances can become something else
         if (baseType instanceof SimpleType) {
             // and only if subclass is an array, Collection or Map
@@ -345,6 +382,7 @@ public final class TypeFactory
 
         // otherwise regular narrowing should work just fine
         return baseType.narrowBy(subclass);
+        */
     }
 
     /**
@@ -725,7 +763,7 @@ public final class TypeFactory
     }
 
     /**
-     * @since 2.5 -- but probably deprecated in 2.7 or 2.8 (not needed with 2.7)
+     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
      */
     public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
             JavaType... parameterTypes)
@@ -734,7 +772,7 @@ public final class TypeFactory
     }
 
     /**
-     * @since 2.5 -- but probably deprecated in 2.7 or 2.8 (not needed with 2.7)
+     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
      */
     public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
             Class<?>... parameterClasses)
@@ -1078,7 +1116,7 @@ public final class TypeFactory
         context.resolveSelfReferences(result);
 
         if (key != null) {
-            _typeCache.put(key, result); // cache object syncs
+            _typeCache.putIfAbsent(key, result); // cache object syncs
         }
         return result;
     }
@@ -1151,16 +1189,17 @@ public final class TypeFactory
     protected JavaType _fromParamType(ClassStack context, ParameterizedType ptype,
             TypeBindings parentBindings)
     {
+        // 20-Oct-2015, tatu: Assumption here is we'll always get Class, not one of other Types
+        Class<?> rawType = (Class<?>) ptype.getRawType();
+
         // First: what is the actual base type? One odd thing is that 'getRawType'
         // returns Type, not Class<?> as one might expect. But let's assume it is
         // always of type Class: if not, need to add more code to resolve it to Class.        
         Type[] args = ptype.getActualTypeArguments();
         int paramCount = (args == null) ? 0 : args.length;
         JavaType[] pt;
-        Class<?> rawType = (Class<?>) ptype.getRawType();
-
         TypeBindings newBindings;        
-        
+
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
         } else {

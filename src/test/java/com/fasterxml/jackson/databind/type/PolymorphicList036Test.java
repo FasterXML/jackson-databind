@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
 
 // For [databind#936], losing parametric type information it seems
-public class PolymorphicListTest936 extends BaseMapTest
+public class PolymorphicList036Test extends BaseMapTest
 {
     // note: would prefer using CharSequence, but while abstract, that's deserialized
     // just fine as ... String

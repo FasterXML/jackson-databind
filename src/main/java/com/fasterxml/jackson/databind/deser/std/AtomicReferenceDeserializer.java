@@ -65,7 +65,7 @@ public class AtomicReferenceDeserializer
         if (typeDeser != null) {
             typeDeser = typeDeser.forProperty(property);
         }
-        if (deser == _valueDeserializer && typeDeser == _valueTypeDeserializer) {
+        if ((deser == _valueDeserializer) && (typeDeser == _valueTypeDeserializer)) {
             return this;
         }
         return withResolved(typeDeser, deser);
@@ -84,8 +84,8 @@ public class AtomicReferenceDeserializer
     }
 
     @Override
-    public Object[] deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException {
-        return (Object[]) typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
     }
 }

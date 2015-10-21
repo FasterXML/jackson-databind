@@ -156,7 +156,7 @@ public class ReferenceType extends SimpleType
     public JavaType narrowContentsBy(Class<?> contentClass)
     {
         // Can do a quick check first:
-        if (contentClass == _referencedType.getRawClass()) {
+        if (_referencedType.hasRawClass(contentClass)) {
             return this;
         }
         return new ReferenceType(_class, _bindings,

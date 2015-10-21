@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -313,11 +312,6 @@ public abstract class BasicSerializerFactory
     {
         Class<?> raw = type.getRawClass();
         String clsName = raw.getName();
-        if (type.isReferenceType()) {
-            if (type.isTypeOrSubTypeOf(AtomicReference.class)) {
-                return new AtomicReferenceSerializer((ReferenceType) type);
-            }
-        }
         JsonSerializer<?> ser = _concrete.get(clsName);
         if (ser == null) {
             Class<? extends JsonSerializer<?>> serClass = _concreteLazy.get(clsName);
@@ -1005,7 +999,7 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method called to try to find whether there is an annotation in the
      * class that indicates content ("value") serializer to use.
-     * If so, will try to instantiate key serializer and return it; otherwise returns null.
+     * If so, will try to instantiate value serializer and return it; otherwise returns null.
      */
     protected JsonSerializer<Object> _findContentSerializer(SerializerProvider prov,
             Annotated a)

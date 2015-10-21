@@ -43,7 +43,7 @@ public abstract class AsArraySerializerBase<T>
      * @since 2.6
      */
     protected final Boolean _unwrapSingle;
-    
+
     /**
      * Type serializer used for values, if any.
      */

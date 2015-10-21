@@ -136,7 +136,6 @@ public class CollectionSerializer
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);
                     if (serializer == null) {
-                        // To fix [JACKSON-508]
                         if (_elementType.hasGenericTypes()) {
                             serializer = _findAndAddDynamic(serializers,
                                     provider.constructSpecializedType(_elementType, cc), provider);
@@ -154,7 +153,6 @@ public class CollectionSerializer
                 ++i;
             } while (it.hasNext());
         } catch (Exception e) {
-            // [JACKSON-55] Need to add reference information
             wrapAndThrow(provider, e, value, i);
         }
     }
@@ -181,7 +179,6 @@ public class CollectionSerializer
                     }
                     ++i;
                 } catch (Exception e) {
-                    // [JACKSON-55] Need to add reference information
                     wrapAndThrow(provider, e, value, i);
                 }
             } while (it.hasNext());

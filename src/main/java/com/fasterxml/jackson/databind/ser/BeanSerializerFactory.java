@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -15,8 +15,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
+import com.fasterxml.jackson.databind.ser.std.AtomicReferenceSerializer;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
+import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -181,29 +183,23 @@ public class BeanSerializerFactory
         if (type.isContainerType()) {
             if (!staticTyping) {
                 staticTyping = usesStaticTyping(config, beanDesc, null);
-                // [Issue#23]: Need to figure out how to force passed parameterization
-                //  to stick...
-                /*
-                if (property == null) {
-                    JavaType t = origType.getContentType();
-                    if (t != null && !t.hasRawClass(Object.class)) {
-                        staticTyping = true;
-                    }
-                }
-                */
             }
-            // 03-Aug-2012, tatu: As per [Issue#40], may require POJO serializer...
+            // 03-Aug-2012, tatu: As per [databind#40], may require POJO serializer...
             ser =  buildContainerSerializer(prov, type, beanDesc, staticTyping);
             // Will return right away, since called method does post-processing:
             if (ser != null) {
                 return ser;
             }
         } else {
-            // Modules may provide serializers of POJO types:
-            for (Serializers serializers : customSerializers()) {
-                ser = serializers.findSerializer(config, type, beanDesc);
-                if (ser != null) {
-                    break;
+            if (type.isReferenceType()) {
+                ser = findReferenceSerializer(prov, (ReferenceType) type, beanDesc, staticTyping);
+            } else {
+                // Modules may provide serializers of POJO types:
+                for (Serializers serializers : customSerializers()) {
+                    ser = serializers.findSerializer(config, type, beanDesc);
+                    if (ser != null) {
+                        break;
+                    }
                 }
             }
             // 25-Jun-2015, tatu: Then JsonSerializable, @JsonValue etc. NOTE! Prior to 2.6,
@@ -260,18 +256,47 @@ public class BeanSerializerFactory
      * Method that will try to construct a {@link BeanSerializer} for
      * given class. Returns null if no properties are found.
      */
-    public JsonSerializer<Object> findBeanSerializer(SerializerProvider prov, JavaType type, BeanDescription beanDesc)
+    public JsonSerializer<Object> findBeanSerializer(SerializerProvider prov, JavaType type,
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         // First things first: we know some types are not beans...
         if (!isPotentialBeanType(type.getRawClass())) {
             // 03-Aug-2012, tatu: Except we do need to allow serializers for Enums,
-            //   as per [Issue#24]
+            //   as per [databind#24]
             if (!type.isEnumType()) {
                 return null;
             }
         }
         return constructBeanSerializer(prov, beanDesc);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public JsonSerializer<?> findReferenceSerializer(SerializerProvider prov, ReferenceType refType,
+            BeanDescription beanDesc, boolean staticTyping)
+        throws JsonMappingException
+    {
+        JavaType contentType = refType.getContentType(); 
+        TypeSerializer contentTypeSerializer = contentType.getTypeHandler();
+        final SerializationConfig config = prov.getConfig();
+        if (contentTypeSerializer == null) {
+            contentTypeSerializer = createTypeSerializer(config, contentType);
+        }
+        JsonSerializer<Object> contentSerializer = contentType.getValueHandler();
+        for (Serializers serializers : customSerializers()) {
+            JsonSerializer<?> ser = serializers.findReferenceSerializer(config, refType, beanDesc,
+                    contentTypeSerializer, contentSerializer);
+            if (ser != null) {
+                return ser;
+            }
+        }
+        if (refType.isTypeOrSubTypeOf(AtomicReference.class)) {
+            return new AtomicReferenceSerializer(refType, staticTyping,
+                    contentTypeSerializer, contentSerializer);
+        }
+        return null;
     }
 
     /**

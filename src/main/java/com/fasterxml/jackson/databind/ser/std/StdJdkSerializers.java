@@ -39,8 +39,8 @@ public class StdJdkSerializers
         sers.put(Locale.class, sls);
 
         sers.put(Locale.class, sls);
-        
-        // then atomic types (note: AtomicReference needs better handling)
+
+        // then atomic types (note: AtomicReference defined elsewhere)
         sers.put(AtomicBoolean.class, AtomicBooleanSerializer.class);
         sers.put(AtomicInteger.class, AtomicIntegerSerializer.class);
         sers.put(AtomicLong.class, AtomicLongSerializer.class);

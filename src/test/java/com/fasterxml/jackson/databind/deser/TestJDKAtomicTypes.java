@@ -4,14 +4,11 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.*;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class TestSimpleAtomicTypes
+public class TestJDKAtomicTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
@@ -51,6 +48,26 @@ public class TestSimpleAtomicTypes
     static class RefiningWrapper {
         @JsonDeserialize(contentAs=BigDecimal.class)
         public AtomicReference<Serializable> value;
+    }
+
+    // Additional tests for improvements with [databind#932]
+
+    static class UnwrappingRefParent {
+        @JsonUnwrapped(prefix = "XX.")
+        public AtomicReference<Child> child = new AtomicReference<Child>(new Child());
+    }
+
+    static class Child {
+        public String name = "Bob";
+    }
+
+    static class Parent {
+        private Child child = new Child();
+
+        @JsonUnwrapped
+        public Child getChild() {
+             return child;
+        }
     }
 
     /*
@@ -148,5 +165,13 @@ public class TestSimpleAtomicTypes
         Object ob = result.value.get();
         assertEquals(BigDecimal.class, ob.getClass());
         assertEquals(bd, ob);
+    }
+
+    // [databind#932]: support unwrapping too
+    public void testWithUnwrapping() throws Exception
+    {
+         String jsonExp = aposToQuotes("{'XX.name':'Bob'}");
+         String jsonAct = MAPPER.writeValueAsString(new UnwrappingRefParent());
+         assertEquals(jsonExp, jsonAct);
     }
 }

@@ -45,7 +45,7 @@ public class CollectionLikeType extends TypeBase
     }
 
     /**
-     * @deprecated Since 2.7, use {@link #upgrade} for constructing instances, given
+     * @deprecated Since 2.7, use {@link #upgradeFrom} for constructing instances, given
      *    pre-resolved {@link SimpleType}.
      */
     @Deprecated // since 2.7
@@ -144,7 +144,7 @@ public class CollectionLikeType extends TypeBase
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
         return new CollectionLikeType(rawType, _bindings,
-                _superClass, _superInterfaces, _elementType,
+                superClass, superInterfaces, _elementType,
                 _valueHandler, _typeHandler, _asStatic);
     }
     

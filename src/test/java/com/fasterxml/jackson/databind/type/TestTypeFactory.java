@@ -121,60 +121,6 @@ public class TestTypeFactory
         }
     }
 
-    public void testCollections()
-    {
-        // Ok, first: let's test what happens when we pass 'raw' Collection:
-        TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType t = tf.constructType(ArrayList.class);
-        assertEquals(CollectionType.class, t.getClass());
-        assertSame(ArrayList.class, t.getRawClass());
-
-        // And then the proper way
-        t = tf.constructType(new TypeReference<ArrayList<String>>() { });
-        assertEquals(CollectionType.class, t.getClass());
-        assertSame(ArrayList.class, t.getRawClass());
-
-        JavaType elemType = ((CollectionType) t).getContentType();
-        assertNotNull(elemType);
-        assertSame(SimpleType.class, elemType.getClass());
-        assertSame(String.class, elemType.getRawClass());
-
-        // And alternate method too
-        t = tf.constructCollectionType(ArrayList.class, String.class);
-        assertEquals(CollectionType.class, t.getClass());
-        assertSame(String.class, ((CollectionType) t).getContentType().getRawClass());
-    }
-
-    public void testMaps()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        // Ok, first: let's test what happens when we pass 'raw' Map:
-        JavaType t = tf.constructType(HashMap.class);
-        assertEquals(MapType.class, t.getClass());
-        assertSame(HashMap.class, t.getRawClass());
-
-        // Then explicit construction
-        t = tf.constructMapType(TreeMap.class, String.class, Integer.class);
-        assertEquals(MapType.class, t.getClass());
-        assertSame(String.class, ((MapType) t).getKeyType().getRawClass());
-        assertSame(Integer.class, ((MapType) t).getContentType().getRawClass());
-
-        // And then with TypeReference
-        t = tf.constructType(new TypeReference<HashMap<String,Integer>>() { });
-        assertEquals(MapType.class, t.getClass());
-        assertSame(HashMap.class, t.getRawClass());
-        MapType mt = (MapType) t;
-        assertEquals(tf.constructType(String.class), mt.getKeyType());
-        assertEquals(tf.constructType(Integer.class), mt.getContentType());
-
-        t = tf.constructType(new TypeReference<LongValuedMap<Boolean>>() { });
-        assertEquals(MapType.class, t.getClass());
-        assertSame(LongValuedMap.class, t.getRawClass());
-        mt = (MapType) t;
-        assertEquals(tf.constructType(Boolean.class), mt.getKeyType());
-        assertEquals(tf.constructType(Long.class), mt.getContentType());
-    }
-
     // [databind#810]: Fake Map type for Properties as <String,String>
     public void testProperties()
     {
@@ -286,72 +232,138 @@ public class TestTypeFactory
 
     /*
     /**********************************************************
-    /* Unit tests: low-level inheritance resolution
+    /* Unit tests: collection type parameter resolution
     /**********************************************************
      */
 
-    public void testSuperTypeDetectionClass()
+    public void testCollections()
     {
+        // Ok, first: let's test what happens when we pass 'raw' Collection:
         TypeFactory tf = TypeFactory.defaultInstance();
-        HierarchicType sub = tf._findSuperTypeChain(MyStringIntMap.class, HashMap.class);
-        assertNotNull(sub);
-        assertEquals(2, _countSupers(sub));
-        assertSame(MyStringIntMap.class, sub.getRawClass());
-        HierarchicType sup = sub.getSuperType();
-        assertSame(MyStringXMap.class, sup.getRawClass());
-        HierarchicType sup2 = sup.getSuperType();
-        assertSame(HashMap.class, sup2.getRawClass());
-        assertNull(sup2.getSuperType());
-    }
+        JavaType t = tf.constructType(ArrayList.class);
+        assertEquals(CollectionType.class, t.getClass());
+        assertSame(ArrayList.class, t.getRawClass());
 
-    public void testSuperTypeDetectionInterface()
-    {
-        // List first
-        TypeFactory tf = TypeFactory.defaultInstance();
-        HierarchicType sub = tf._findSuperTypeChain(MyList.class, List.class);
-        assertNotNull(sub);
-        assertEquals(2, _countSupers(sub));
-        assertSame(MyList.class, sub.getRawClass());
-        HierarchicType sup = sub.getSuperType();
-        assertSame(IntermediateList.class, sup.getRawClass());
-        HierarchicType sup2 = sup.getSuperType();
-        assertSame(List.class, sup2.getRawClass());
-        assertNull(sup2.getSuperType());
-        
-        // Then Map
-        sub = tf._findSuperTypeChain(MyMap.class, Map.class);
-        assertNotNull(sub);
-        assertEquals(2, _countSupers(sub));
-        assertSame(MyMap.class, sub.getRawClass());
-        sup = sub.getSuperType();
-        assertSame(IntermediateMap.class, sup.getRawClass());
-        sup2 = sup.getSuperType();
-        assertSame(Map.class, sup2.getRawClass());
-        assertNull(sup2.getSuperType());
-    }
+        // And then the proper way
+        t = tf.constructType(new TypeReference<ArrayList<String>>() { });
+        assertEquals(CollectionType.class, t.getClass());
+        assertSame(ArrayList.class, t.getRawClass());
 
-    private int _countSupers(HierarchicType t)
+        JavaType elemType = ((CollectionType) t).getContentType();
+        assertNotNull(elemType);
+        assertSame(SimpleType.class, elemType.getClass());
+        assertSame(String.class, elemType.getRawClass());
+
+        // And alternate method too
+        t = tf.constructCollectionType(ArrayList.class, String.class);
+        assertEquals(CollectionType.class, t.getClass());
+        assertSame(String.class, ((CollectionType) t).getContentType().getRawClass());
+    }
+    
+    // since 2.7
+    public void testCollectionTypesRefined()
     {
-        int depth = 0;
-        for (HierarchicType sup = t.getSuperType(); sup != null; sup = sup.getSuperType()) {
-            ++depth;
-        }
-        return depth;
+        TypeFactory tf = newTypeFactory();
+        JavaType type = tf.constructType(new TypeReference<List<Long>>() { });
+        assertEquals(List.class, type.getRawClass());
+        assertEquals(Long.class, type.getContentType().getRawClass());
+        // No super-class, since it's an interface:
+        assertNull(type.getSuperClass());
+
+        // But then refine to reflect sub-classing
+        JavaType subtype = tf.constructSpecializedType(type, ArrayList.class);
+        assertEquals(ArrayList.class, subtype.getRawClass());
+        assertEquals(Long.class, subtype.getContentType().getRawClass());
+
+        // but with refinement, should have non-null super class
+        // 20-Oct-2015, tatu: For now refinement does not faithfully replicate the
+        //    structure, it only retains most important information. Here it means
+        //    that actually existing super-classes are skipped, and only original
+        //    type is linked as expected
+        /*
+        JavaType superType = subtype.getSuperClass();
+        assertNotNull(superType);
+        assertEquals(AbstractList.class, superType.getRawClass());
+        */
     }
 
     /*
     /**********************************************************
-    /* Unit tests: map/collection type parameter resolution
+    /* Unit tests: map type parameter resolution
     /**********************************************************
      */
-
-    public void testMapTypesSimple()
+    
+    public void testMaps()
     {
-        TypeFactory tf = TypeFactory.defaultInstance();
+        TypeFactory tf = newTypeFactory();
+
+        // Ok, first: let's test what happens when we pass 'raw' Map:
+        JavaType t = tf.constructType(HashMap.class);
+        assertEquals(MapType.class, t.getClass());
+        assertSame(HashMap.class, t.getRawClass());
+
+        // Then explicit construction
+        t = tf.constructMapType(TreeMap.class, String.class, Integer.class);
+        assertEquals(MapType.class, t.getClass());
+        assertSame(String.class, ((MapType) t).getKeyType().getRawClass());
+        assertSame(Integer.class, ((MapType) t).getContentType().getRawClass());
+
+        // And then with TypeReference
+        t = tf.constructType(new TypeReference<HashMap<String,Integer>>() { });
+        assertEquals(MapType.class, t.getClass());
+        assertSame(HashMap.class, t.getRawClass());
+        MapType mt = (MapType) t;
+        assertEquals(tf.constructType(String.class), mt.getKeyType());
+        assertEquals(tf.constructType(Integer.class), mt.getContentType());
+
+        t = tf.constructType(new TypeReference<LongValuedMap<Boolean>>() { });
+        assertEquals(MapType.class, t.getClass());
+        assertSame(LongValuedMap.class, t.getRawClass());
+        mt = (MapType) t;
+        assertEquals(tf.constructType(Boolean.class), mt.getKeyType());
+        assertEquals(tf.constructType(Long.class), mt.getContentType());
+
         JavaType type = tf.constructType(new TypeReference<Map<String,Boolean>>() { });
         MapType mapType = (MapType) type;
         assertEquals(tf.constructType(String.class), mapType.getKeyType());
         assertEquals(tf.constructType(Boolean.class), mapType.getContentType());
+    }
+
+    // since 2.7
+    public void testMapTypesRefined()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType type = tf.constructType(new TypeReference<Map<String,List<Integer>>>() { });
+        MapType mapType = (MapType) type;
+        assertEquals(Map.class, mapType.getRawClass());
+        assertEquals(String.class, mapType.getKeyType().getRawClass());
+        assertEquals(List.class, mapType.getContentType().getRawClass());
+        assertEquals(Integer.class, mapType.getContentType().getContentType().getRawClass());
+        // No super-class, since it's an interface:
+        assertNull(type.getSuperClass());
+        
+        // But then refine to reflect sub-classing
+        JavaType subtype = tf.constructSpecializedType(type, LinkedHashMap.class);
+        assertEquals(LinkedHashMap.class, subtype.getRawClass());
+        assertEquals(String.class, subtype.getKeyType().getRawClass());
+        assertEquals(List.class, subtype.getContentType().getRawClass());
+        assertEquals(Integer.class, subtype.getContentType().getContentType().getRawClass());
+
+        // but with refinement, should have non-null super class
+        // 20-Oct-2015, tatu: For now refinement does not faithfully replicate the
+        //    structure, it only retains most important information. Here it means
+        //    that actually existing super-classes are skipped, and only original
+        //    type is linked as expected
+
+        /*
+        JavaType superType = subtype.getSuperClass();
+        assertNotNull(superType);
+        assertEquals(HashMap.class, superType.getRawClass());
+        // which also should have proper typing
+        assertEquals(String.class, superType.getKeyType().getRawClass());
+        assertEquals(List.class, superType.getContentType().getRawClass());
+        assertEquals(Integer.class, superType.getContentType().getContentType().getRawClass());
+        */
     }
 
     public void testMapTypesRaw()
@@ -448,17 +460,6 @@ public class TestTypeFactory
     /* Unit tests: handling of specific JDK types
     /**********************************************************
      */
-
-    public void testAtomicArrayRefParameterDetection()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType type = tf.constructType(new TypeReference<AtomicReference<long[]>>() { });
-        HierarchicType sub = tf._findSuperTypeChain(type.getRawClass(), AtomicReference.class);
-        assertNotNull(sub);
-        assertEquals(0, _countSupers(sub));
-        assertTrue(AtomicReference.class.isAssignableFrom(type.getRawClass()));
-        assertNull(sub.getSuperType());
-    }
 
     public void testAtomicArrayRefParameters()
     {

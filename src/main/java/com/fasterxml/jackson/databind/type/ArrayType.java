@@ -195,6 +195,16 @@ public final class ArrayType
     public JavaType getContentType() { return  _componentType; }
 
     @Override
+    public Object getContentValueHandler() {
+        return _componentType.getValueHandler();
+    }
+
+    @Override
+    public Object getContentTypeHandler() {
+        return _componentType.getTypeHandler();
+    }
+
+    @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {
         sb.append('[');
         return _componentType.getGenericSignature(sb);

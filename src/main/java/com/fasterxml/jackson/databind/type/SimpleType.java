@@ -40,13 +40,7 @@ public class SimpleType // note: until 2.6 was final
         super(base);
     }
 
-    /**
-     * 
-     * @param parametersFrom Interface or abstract class implemented by this type,
-     *   and for which type parameters apply. It may be <code>cls</code> itself,
-     *   but more commonly it is one of its supertypes.
-     */
-    protected SimpleType(Class<?> cls, TypeBindings bindings, // probably wrong
+    protected SimpleType(Class<?> cls, TypeBindings bindings,
             JavaType superClass, JavaType[] superInts,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
@@ -82,6 +76,9 @@ public class SimpleType // note: until 2.6 was final
     @Override
     protected JavaType _narrow(Class<?> subclass)
     {
+        if (_class == subclass) {
+            return this;
+        }
         // Should we check that there is a sub-class relationship?
         return new SimpleType(subclass, _bindings, _superClass, _superInterfaces,
                 _valueHandler, _typeHandler, _asStatic);
@@ -121,6 +118,9 @@ public class SimpleType // note: until 2.6 was final
 
     @Override
     public SimpleType withTypeHandler(Object h) {
+        if (_typeHandler == h) {
+            return this;
+        }
         return new SimpleType(_class, _bindings, _superClass, _superInterfaces, _valueHandler, h, _asStatic);
     }
 

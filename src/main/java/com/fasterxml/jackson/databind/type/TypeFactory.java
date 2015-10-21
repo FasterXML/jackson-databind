@@ -212,7 +212,7 @@ public final class TypeFactory
         if (t instanceof Class<?>) {
             return (Class<?>) t;
         }
-        // Shouldbe able to optimize bit more in future...
+        // Should be able to optimize bit more in future...
         return defaultInstance().constructType(t).getRawClass();
     }
 
@@ -301,9 +301,47 @@ public final class TypeFactory
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
     {
         // simple optimization to avoid costly introspection if type-erased type does NOT differ
-        if (baseType.getRawClass() == subclass) {
+        final Class<?> rawBase = baseType.getRawClass();
+        if (rawBase == subclass) {
             return baseType;
         }
+
+        JavaType newType;
+
+        // also: if we start from untyped, not much to save
+        if (rawBase == Object.class) {
+            newType = _fromClass(null, subclass, TypeBindings.emptyBindings());
+        } else {
+            if (!rawBase.isAssignableFrom(subclass)) {
+                throw new IllegalArgumentException("Class "+subclass.getName()+" not subtype of "+baseType);
+            }
+            
+            // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
+            //    a way to fully resolve and merge hierarchies; but that gets expensive
+            //    so let's, for now, try to create close-enough approximation that
+            //    is not 100% same, structurally, but has equivalent information for
+            //    our specific neeeds.
+            if (baseType.isInterface()) {
+                newType = baseType.refine(subclass, TypeBindings.emptyBindings(), null,
+                        new JavaType[] { baseType });
+            } else {
+                newType = baseType.refine(subclass, TypeBindings.emptyBindings(), baseType,
+                        NO_TYPES);
+            }
+            // Only SimpleType returns null, but if so just resolve regularly
+            if (newType == null) {
+                // But otherwise gets bit tricky, as we need to partially resolve the type hierarchy
+                // (hopefully passing null Class for root is ok)
+                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());        
+            }
+        }
+        // except possibly handlers
+//      newType = newType.withHandlersFrom(baseType);
+        return newType;
+
+        // 20-Oct-2015, tatu: Old simplistic approach
+        
+        /*
         // Currently mostly SimpleType instances can become something else
         if (baseType instanceof SimpleType) {
             // and only if subclass is an array, Collection or Map
@@ -344,6 +382,7 @@ public final class TypeFactory
 
         // otherwise regular narrowing should work just fine
         return baseType.narrowBy(subclass);
+        */
     }
 
     /**
@@ -379,10 +418,18 @@ public final class TypeFactory
         return match.getBindings().typeParameterArray();
     }
 
+    /**
+     * @deprecated Since 2.7 resolve raw type first, then find type parameters
+     */
+    @Deprecated // since 2.7    
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType, TypeBindings bindings) {
         return findTypeParameters(constructType(clz, bindings), expType);
     }
     
+    /**
+     * @deprecated Since 2.7 resolve raw type first, then find type parameters
+     */
+    @Deprecated // since 2.7    
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
         return findTypeParameters(constructType(clz), expType);
     }
@@ -716,7 +763,7 @@ public final class TypeFactory
     }
 
     /**
-     * @since 2.5 -- but probably deprecated in 2.7 or 2.8 (not needed with 2.7)
+     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
      */
     public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
             JavaType... parameterTypes)
@@ -725,7 +772,7 @@ public final class TypeFactory
     }
 
     /**
-     * @since 2.5 -- but probably deprecated in 2.7 or 2.8 (not needed with 2.7)
+     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
      */
     public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
             Class<?>... parameterClasses)
@@ -1053,8 +1100,6 @@ public final class TypeFactory
             // super-type if refinement is all that is needed?
             else if (superClass != null) {
                 result = superClass.refine(rawType, bindings, superClass, superInterfaces);
-            } else {
-                result = null;
             }
             // if not, perhaps we are now resolving a well-known class or interface?
             if (result == null) {
@@ -1071,7 +1116,7 @@ public final class TypeFactory
         context.resolveSelfReferences(result);
 
         if (key != null) {
-            _typeCache.put(key, result); // cache object syncs
+            _typeCache.putIfAbsent(key, result); // cache object syncs
         }
         return result;
     }
@@ -1118,27 +1163,6 @@ public final class TypeFactory
         if (rawType == AtomicReference.class) {
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
-        // 18-Oct-2015, tatu: Since there is no special JavaType, should/need NOT
-        //    handle `Map.Entry` here anymore with 2.7
-/*        
-        if (rawType == Map.Entry.class) {
-            JavaType kt, vt;
-
-            List<JavaType> typeParams = bindings.getTypeParameters();
-            // ok to have no types ("raw")
-            switch (typeParams.size()) {
-            case 0: // acceptable?
-                kt = vt = _unknownType();
-                break;
-            case 2:
-                kt = typeParams.get(0);
-                vt = typeParams.get(1);
-                break;
-            default:
-                throw new IllegalArgumentException("Strange Map.Entry type "+rawType.getName()+": can not determine type parameters");
-            }
-        }
-*/
         return null;
     }
 
@@ -1165,16 +1189,17 @@ public final class TypeFactory
     protected JavaType _fromParamType(ClassStack context, ParameterizedType ptype,
             TypeBindings parentBindings)
     {
+        // 20-Oct-2015, tatu: Assumption here is we'll always get Class, not one of other Types
+        Class<?> rawType = (Class<?>) ptype.getRawType();
+
         // First: what is the actual base type? One odd thing is that 'getRawType'
         // returns Type, not Class<?> as one might expect. But let's assume it is
         // always of type Class: if not, need to add more code to resolve it to Class.        
         Type[] args = ptype.getActualTypeArguments();
         int paramCount = (args == null) ? 0 : args.length;
         JavaType[] pt;
-        Class<?> rawType = (Class<?>) ptype.getRawType();
-
         TypeBindings newBindings;        
-        
+
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
         } else {
@@ -1220,125 +1245,5 @@ public final class TypeFactory
          * For now, we won't try anything more advanced; above is just for future reference.
          */
         return _fromAny(context, type.getUpperBounds()[0], bindings);
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    /**
-     * Helper method used to find inheritance (implements, extends) path
-     * between given types, if one exists (caller generally checks before
-     * calling this method). Returned type represents given <b>subtype</b>,
-     * with supertype linkage extending to <b>supertype</b>.
-     */
-    protected HierarchicType  _findSuperTypeChain(Class<?> subtype, Class<?> supertype)
-    {
-        // If super-type is a class (not interface), bit simpler
-        if (supertype.isInterface()) {
-            return _findSuperInterfaceChain(subtype, supertype);
-        }
-        return _findSuperClassChain(subtype, supertype);
-    }
-
-    protected HierarchicType _findSuperClassChain(Type currentType, Class<?> target)
-    {
-        HierarchicType current = new HierarchicType(currentType);
-        Class<?> raw = current.getRawClass();
-        if (raw == target) {
-            return current;
-        }
-        // Otherwise, keep on going down the rat hole...
-        Type parent = ClassUtil.getGenericSuperclass(raw);
-        if (parent != null) {
-            HierarchicType sup = _findSuperClassChain(parent, target);
-            if (sup != null) {
-                sup.setSubType(current);
-                current.setSuperType(sup);
-                return current;
-            }
-        }
-        return null;
-    }
-
-    protected HierarchicType _findSuperInterfaceChain(Type currentType, Class<?> target)
-    {
-        HierarchicType current = new HierarchicType(currentType);
-        Class<?> raw = current.getRawClass();
-        if (raw == target) {
-            return new HierarchicType(currentType);
-        }
-        // Otherwise, keep on going down the rat hole; first implemented interfaces
-        /* 16-Aug-2011, tatu: Minor optimization based on profiled hot spot; let's
-         *   try caching certain commonly needed cases
-         */
-        if (raw == HashMap.class) {
-            if (target == Map.class) {
-                return _hashMapSuperInterfaceChain(current);
-            }
-        }
-        if (raw == ArrayList.class) {
-            if (target == List.class) {
-                return _arrayListSuperInterfaceChain(current);
-            }
-        }
-        return _doFindSuperInterfaceChain(current, target);
-    }
-    
-    protected HierarchicType _doFindSuperInterfaceChain(HierarchicType current, Class<?> target)
-    {
-        Class<?> raw = current.getRawClass();
-        Type[] parents = raw.getGenericInterfaces();
-        // as long as there are superclasses
-        // and unless we have already seen the type (<T extends X<T>>)
-        if (parents != null) {
-            for (Type parent : parents) {
-                HierarchicType sup = _findSuperInterfaceChain(parent, target);
-                if (sup != null) {
-                    sup.setSubType(current);
-                    current.setSuperType(sup);
-                    return current;
-                }
-            }
-        }
-        // and then super-class if any
-        Type parent = ClassUtil.getGenericSuperclass(raw);
-        if (parent != null) {
-            HierarchicType sup = _findSuperInterfaceChain(parent, target);
-            if (sup != null) {
-                sup.setSubType(current);
-                current.setSuperType(sup);
-                return current;
-            }
-        }
-        return null;
-    }
-
-    protected synchronized HierarchicType _hashMapSuperInterfaceChain(HierarchicType current)
-    {
-        if (_cachedHashMapType == null) {
-            HierarchicType base = current.deepCloneWithoutSubtype();
-            _doFindSuperInterfaceChain(base, Map.class);
-            _cachedHashMapType = base.getSuperType();
-        }
-        HierarchicType t = _cachedHashMapType.deepCloneWithoutSubtype();
-        current.setSuperType(t);
-        t.setSubType(current);
-        return current;
-    }
-
-    protected synchronized HierarchicType _arrayListSuperInterfaceChain(HierarchicType current)
-    {
-        if (_cachedArrayListType == null) {
-            HierarchicType base = current.deepCloneWithoutSubtype();
-            _doFindSuperInterfaceChain(base, List.class);
-            _cachedArrayListType = base.getSuperType();
-        }
-        HierarchicType t = _cachedArrayListType.deepCloneWithoutSubtype();
-        current.setSuperType(t);
-        t.setSubType(current);
-        return current;
     }
 }

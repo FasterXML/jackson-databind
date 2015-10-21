@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 public class TestConvertingSerializer357
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    // [Issue#357]
+    // [databind#357]
     static class Value { }
 
     static class ListWrapper {
@@ -29,7 +29,7 @@ public class TestConvertingSerializer357
     /**********************************************************
      */
 
-    // [Issue#357]
+    // [databind#357]
     public void testConverterForList357() throws Exception {
         String json = objectWriter().writeValueAsString(new ListWrapper());
         assertEquals("{\"list\":[[\"Hello world!\"]]}", json);

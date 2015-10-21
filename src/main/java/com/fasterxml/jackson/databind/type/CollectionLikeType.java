@@ -45,7 +45,7 @@ public class CollectionLikeType extends TypeBase
     }
 
     /**
-     * @deprecated Since 2.7, use {@link #upgrade} for constructing instances, given
+     * @deprecated Since 2.7, use {@link #upgradeFrom} for constructing instances, given
      *    pre-resolved {@link SimpleType}.
      */
     @Deprecated // since 2.7
@@ -143,8 +143,8 @@ public class CollectionLikeType extends TypeBase
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
-        return new CollectionLikeType(rawType, _bindings,
-                _superClass, _superInterfaces, _elementType,
+        return new CollectionLikeType(rawType, bindings,
+                superClass, superInterfaces, _elementType,
                 _valueHandler, _typeHandler, _asStatic);
     }
     
@@ -162,6 +162,16 @@ public class CollectionLikeType extends TypeBase
 
     @Override
     public JavaType getContentType() { return _elementType; }
+
+    @Override
+    public Object getContentValueHandler() {
+        return _elementType.getValueHandler();
+    }
+
+    @Override
+    public Object getContentTypeHandler() {
+        return _elementType.getTypeHandler();
+    }    
 
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {

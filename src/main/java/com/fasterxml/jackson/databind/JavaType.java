@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
@@ -423,6 +424,22 @@ public abstract class JavaType
     public abstract JavaType findSuperType(Class<?> erasedTarget);
 
     /**
+     * Accessor for finding fully resolved parent class of this type,
+     * if it has one; null if not.
+     *
+     * @since 2.7
+     */
+    public abstract JavaType getSuperClass();
+
+    /**
+     * Accessor for finding fully resolved interfaces this type implements,
+     * if any; empty array if none.
+     *
+     * @since 2.7
+     */
+    public abstract List<JavaType> getInterfaces();
+
+    /**
      * Method that may be used to find paramaterization this type has for
      * given type-erased generic target type.
      *
@@ -447,6 +464,16 @@ public abstract class JavaType
      */
     @SuppressWarnings("unchecked")
     public <T> T getTypeHandler() { return (T) _typeHandler; }
+
+    /**
+     * @since 2.7
+     */
+    public Object getContentValueHandler() { return null; }
+
+    /**
+     * @since 2.7
+     */
+    public Object getContentTypeHandler() { return null; }    
 
     /**
      * @since 2.6

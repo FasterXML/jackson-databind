@@ -23,22 +23,21 @@ public abstract class StdConverter<IN,OUT>
     public abstract OUT convert(IN value);
 
     @Override
-    public JavaType getInputType(TypeFactory typeFactory)
-    {
-        JavaType[] types = typeFactory.findTypeParameters(getClass(), Converter.class);
-        if (types == null || types.length < 2) {
-            throw new IllegalStateException("Can not find OUT type parameter for Converter of type "+getClass().getName());
-        }
-        return types[0];
+    public JavaType getInputType(TypeFactory typeFactory) {
+        return _findConverterType(typeFactory).containedType(0);
     }
 
     @Override
-    public JavaType getOutputType(TypeFactory typeFactory)
-    {
-        JavaType[] types = typeFactory.findTypeParameters(getClass(), Converter.class);
-        if (types == null || types.length < 2) {
+    public JavaType getOutputType(TypeFactory typeFactory) {
+        return _findConverterType(typeFactory).containedType(1);
+    }
+
+    protected JavaType _findConverterType(TypeFactory tf) {
+        JavaType thisType = tf.constructType(getClass());
+        JavaType convType = thisType.findSuperType(Converter.class);
+        if (convType == null || convType.containedTypeCount() < 2) {
             throw new IllegalStateException("Can not find OUT type parameter for Converter of type "+getClass().getName());
         }
-        return types[1];
+        return convType;
     }
 }

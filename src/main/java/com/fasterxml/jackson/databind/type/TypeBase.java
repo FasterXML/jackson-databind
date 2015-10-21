@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.type;
 
 import java.io.IOException;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializable;
-import com.fasterxml.jackson.databind.SerializerProvider;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public abstract class TypeBase
@@ -105,10 +105,30 @@ public abstract class TypeBase
     }
 
     @Override
+    @Deprecated
     public String containedTypeName(int index) {
         return _bindings.getBoundName(index);
     }
 
+    @Override
+    public JavaType getSuperClass() {
+        return _superClass;
+    }
+
+    @Override
+    public List<JavaType> getInterfaces() {
+        if (_superInterfaces == null) {
+            return Collections.emptyList();
+        }
+        switch (_superInterfaces.length) {
+        case 0:
+            return Collections.emptyList();
+        case 1:
+            return Collections.singletonList(_superInterfaces[0]);
+        }
+        return Arrays.asList(_superInterfaces);
+    }
+    
     @Override
     public final JavaType findSuperType(Class<?> rawTarget)
     {

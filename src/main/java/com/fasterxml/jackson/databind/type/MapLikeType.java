@@ -164,8 +164,8 @@ public class MapLikeType extends TypeBase
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
-        return new MapLikeType(rawType, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType,
+        return new MapLikeType(rawType, bindings,
+                superClass, superInterfaces, _keyType, _valueType,
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -200,6 +200,16 @@ public class MapLikeType extends TypeBase
 
     @Override
     public JavaType getContentType() { return _valueType; }
+
+    @Override
+    public Object getContentValueHandler() {
+        return _valueType.getValueHandler();
+    }
+
+    @Override
+    public Object getContentTypeHandler() {
+        return _valueType.getTypeHandler();
+    }
 
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {

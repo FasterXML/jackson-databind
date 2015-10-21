@@ -123,7 +123,7 @@ public class ReferenceType extends SimpleType
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
         return new ReferenceType(rawType, _bindings,
-                _superClass, _superInterfaces, _referencedType,
+                superClass, superInterfaces, _referencedType,
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -159,7 +159,7 @@ public class ReferenceType extends SimpleType
     public JavaType narrowContentsBy(Class<?> contentClass)
     {
         // Can do a quick check first:
-        if (contentClass == _referencedType.getRawClass()) {
+        if (_referencedType.hasRawClass(contentClass)) {
             return this;
         }
         return new ReferenceType(_class, _bindings,

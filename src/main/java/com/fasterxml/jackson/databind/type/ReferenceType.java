@@ -120,7 +120,7 @@ public class ReferenceType extends SimpleType
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
         return new ReferenceType(rawType, _bindings,
-                _superClass, _superInterfaces, _referencedType,
+                superClass, superInterfaces, _referencedType,
                 _valueHandler, _typeHandler, _asStatic);
     }
 

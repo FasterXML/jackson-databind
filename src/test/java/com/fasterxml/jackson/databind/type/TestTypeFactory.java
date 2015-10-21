@@ -321,13 +321,15 @@ public class TestTypeFactory
         assertEquals(Integer.class, subtype.getContentType().getContentType().getRawClass());
 
         // but with refinement, should have non-null super class
-        /*
         JavaType superType = subtype.getSuperClass();
         assertNotNull(superType);
         assertEquals(HashMap.class, superType.getRawClass());
-        */
+        // which also should have proper typing
+        assertEquals(String.class, superType.getKeyType().getRawClass());
+        assertEquals(List.class, superType.getContentType().getRawClass());
+        assertEquals(Integer.class, superType.getContentType().getContentType().getRawClass());
     }
-    
+
     public void testMapTypesRaw()
     {
         TypeFactory tf = TypeFactory.defaultInstance();

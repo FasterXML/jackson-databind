@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -75,14 +76,10 @@ public class AtomicReferenceDeserializer
 
     @Override
     public AtomicReference<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        /* 06-Nov-2013, tatu: Looks like the only way to make polymorphic deser to work
-         *   correctly is to add support here; problem being that handler is not available
-         *   for nominal type of AtomicReference but only "contained" type...
-         */
-        if (_valueTypeDeserializer != null) {
-            return new AtomicReference<Object>(_valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer));
-        }
-        return new AtomicReference<Object>(_valueDeserializer.deserialize(p, ctxt));
+        Object contents = (_valueTypeDeserializer == null)
+                ? _valueDeserializer.deserialize(p, ctxt)
+                : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        return new AtomicReference<Object>(contents);
     }
 
     @Override
@@ -93,10 +90,13 @@ public class AtomicReferenceDeserializer
         if (t == JsonToken.VALUE_NULL) { // can this actually happen?
             return getNullValue(ctxt);
         }
-        // "Natural" types (String, Long, Boolean, Double) are tricky, so need this:
-        if (t != null && t.isScalarValue()) {
+        // 22-Oct-2015, tatu: This handling is probably not needed (or is wrong), but
+        //   could be result of older (pre-2.7) Jackson trying to serialize natural types.
+        //  Because of this, let's allow for now, unless proven problematic
+        if ((t != null) && t.isScalarValue()) {
             return deserialize(p, ctxt);
         }
+        // andn this is what should really happen
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 }

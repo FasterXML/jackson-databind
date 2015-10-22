@@ -261,7 +261,9 @@ public class AtomicReferenceSerializer
     {
         Object value = ref.get();
         if (value == null) {
-            provider.defaultSerializeNull(g);
+            if (_unwrapper == null) {
+                provider.defaultSerializeNull(g);
+            }
             return;
         }
         JsonSerializer<Object> ser = _valueSerializer;
@@ -282,14 +284,16 @@ public class AtomicReferenceSerializer
     {
         Object value = ref.get();
         if (value == null) {
-            provider.defaultSerializeNull(g);
+            if (_unwrapper == null) {
+                provider.defaultSerializeNull(g);
+            }
             return;
         }
-        JsonSerializer<Object> ser = _valueSerializer;
-        if (ser == null) {
-            ser = _findCachedSerializer(provider, value.getClass());
-        }
-        ser.serializeWithType(value, g, provider, typeSer);
+
+        // Otherwise apply type-prefix/suffix, otherwise std serialize:
+        typeSer.writeTypePrefixForScalar(ref, g);
+        serialize(ref, g, provider);
+        typeSer.writeTypeSuffixForScalar(ref, g);
     }
 
     /*

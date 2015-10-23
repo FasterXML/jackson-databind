@@ -818,7 +818,7 @@ public final class SerializationConfig
             }
             g.overrideStdFeatures(newFlags, mask);
         }
-        if (_formatWriteFeatures != 0) {
+        if (_formatWriteFeaturesToChange != 0) {
             g.overrideFormatFeatures(_formatWriteFeatures, _formatWriteFeaturesToChange);
         }
     }

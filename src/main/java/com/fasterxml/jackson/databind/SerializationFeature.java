@@ -322,13 +322,13 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * NOTE: since this feature typically requires use of
      * {@link com.fasterxml.jackson.core.JsonGenerator#writeNumber(String)}
-     * ot may cause compatibility problems since not all {@link com.fasterxml.jackson.core.JsonGenerator}
+     * it may cause compatibility problems since not all {@link com.fasterxml.jackson.core.JsonGenerator}
      * implementations support such mode of output: usually only text-based formats
      * support it.
      *<p>
      * Feature is disabled by default.
      * 
-     * @deprecated Since 2.5: use {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} directly
+     * @deprecated Since 2.5: use {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} instead
      *    (using {@link ObjectWriter#with(com.fasterxml.jackson.core.JsonGenerator.Feature)}).
      */
     @Deprecated // since 2.5

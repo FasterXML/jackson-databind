@@ -398,6 +398,8 @@ public class ObjectMapper
      * @since 2.5
      */
     protected Set<Object> _registeredModuleTypes;
+
+    private final DefaultModuleLoader defaultModuleLoader = new DefaultModuleLoader();
     
     /*
     /**********************************************************
@@ -549,6 +551,8 @@ public class ObjectMapper
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
+
+        registerModules(defaultModuleLoader.getAvailableDefaultModules());
     }
 
     /**

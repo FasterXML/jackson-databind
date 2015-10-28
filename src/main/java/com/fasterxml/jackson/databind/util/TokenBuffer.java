@@ -436,7 +436,7 @@ public class TokenBuffer
             copyCurrentStructure(p);
             return this;
         }
-        /* 28-Oct-2014, tatu: As per #592, need to support a special case of starting from
+        /* 28-Oct-2014, tatu: As per [databind#592], need to support a special case of starting from
          *    FIELD_NAME, which is taken to mean that we are missing START_OBJECT, but need
          *    to assume one did exist.
          */
@@ -669,7 +669,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         if (text == null) {
             writeNull();
         } else {
-            _append(JsonToken.VALUE_STRING, text);
+            _appendValue(JsonToken.VALUE_STRING, text);
         }
     }
 
@@ -683,7 +683,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         if (text == null) {
             writeNull();
         } else {
-            _append(JsonToken.VALUE_STRING, text);
+            _appendValue(JsonToken.VALUE_STRING, text);
         }
     }
     
@@ -728,7 +728,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     @Override
     public void writeRawValue(String text) throws IOException {
-        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
+        _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
     }
 
     @Override
@@ -736,12 +736,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         if (offset > 0 || len != text.length()) {
             text = text.substring(offset, offset+len);
         }
-        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
+        _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
     }
 
     @Override
     public void writeRawValue(char[] text, int offset, int len) throws IOException {
-        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new String(text, offset, len));
+        _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, new String(text, offset, len));
     }
 
     /*
@@ -752,27 +752,27 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     @Override
     public void writeNumber(short i) throws IOException {
-        _append(JsonToken.VALUE_NUMBER_INT, Short.valueOf(i));
+        _appendValue(JsonToken.VALUE_NUMBER_INT, Short.valueOf(i));
     }
 
     @Override
     public void writeNumber(int i) throws IOException {
-        _append(JsonToken.VALUE_NUMBER_INT, Integer.valueOf(i));
+        _appendValue(JsonToken.VALUE_NUMBER_INT, Integer.valueOf(i));
     }
 
     @Override
     public void writeNumber(long l) throws IOException {
-        _append(JsonToken.VALUE_NUMBER_INT, Long.valueOf(l));
+        _appendValue(JsonToken.VALUE_NUMBER_INT, Long.valueOf(l));
     }
 
     @Override
     public void writeNumber(double d) throws IOException {
-        _append(JsonToken.VALUE_NUMBER_FLOAT, Double.valueOf(d));
+        _appendValue(JsonToken.VALUE_NUMBER_FLOAT, Double.valueOf(d));
     }
 
     @Override
     public void writeNumber(float f) throws IOException {
-        _append(JsonToken.VALUE_NUMBER_FLOAT, Float.valueOf(f));
+        _appendValue(JsonToken.VALUE_NUMBER_FLOAT, Float.valueOf(f));
     }
 
     @Override
@@ -780,7 +780,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         if (dec == null) {
             writeNull();
         } else {
-            _append(JsonToken.VALUE_NUMBER_FLOAT, dec);
+            _appendValue(JsonToken.VALUE_NUMBER_FLOAT, dec);
         }
     }
 
@@ -789,7 +789,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         if (v == null) {
             writeNull();
         } else {
-            _append(JsonToken.VALUE_NUMBER_INT, v);
+            _appendValue(JsonToken.VALUE_NUMBER_INT, v);
         }
     }
 
@@ -798,17 +798,17 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /* 03-Dec-2010, tatu: related to [JACKSON-423], should try to keep as numeric
          *   identity as long as possible
          */
-        _append(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
+        _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
     }
 
     @Override
     public void writeBoolean(boolean state) throws IOException {
-        _append(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
+        _appendValue(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
     }
 
     @Override
     public void writeNull() throws IOException {
-        _append(JsonToken.VALUE_NULL);
+        _appendValue(JsonToken.VALUE_NULL);
     }
 
     /*
@@ -826,7 +826,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
         Class<?> raw = value.getClass();
         if (raw == byte[].class || (value instanceof RawValue)) {
-            _append(JsonToken.VALUE_EMBEDDED_OBJECT, value);
+            _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, value);
             return;
         }
         if (_objectCodec == null) {
@@ -834,7 +834,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
              *   err out, or just embed? For now, do latter.
              */
 //          throw new JsonMappingException("No ObjectCodec configured for TokenBuffer, writeObject() called");
-            _append(JsonToken.VALUE_EMBEDDED_OBJECT, value);
+            _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, value);
         } else {
             _objectCodec.writeValue(this, value);
         }
@@ -850,7 +850,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         if (_objectCodec == null) {
             // as with 'writeObject()', is codec optional?
-            _append(JsonToken.VALUE_EMBEDDED_OBJECT, node);
+            _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, node);
         } else {
             _objectCodec.writeTree(this, node);
         }
@@ -1082,6 +1082,46 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
     }
 
+    /**
+     * Similar to {@link #_append(JsonToken)} but also updates context with
+     * knowledge that a scalar value was written
+     *
+     * @since 2.6.4
+     */
+    protected final void _appendValue(JsonToken type)
+    {
+        _writeContext.writeValue();
+        Segment next = _hasNativeId
+                ? _last.append(_appendAt, type, _objectId, _typeId)
+                : _last.append(_appendAt, type);
+        if (next == null) {
+            ++_appendAt;
+        } else {
+            _last = next;
+            _appendAt = 1; // since we added first at 0
+        }
+    }
+
+    /**
+     * Similar to {@link #_append(JsonToken,Object)} but also updates context with
+     * knowledge that a scalar value was written
+     *
+     * @since 2.6.4
+     */
+    protected final void _appendValue(JsonToken type, Object value)
+    {
+        _writeContext.writeValue();
+        Segment next = _hasNativeId
+                ? _last.append(_appendAt, type, value, _objectId, _typeId)
+                : _last.append(_appendAt, type, value);
+        if (next == null) {
+            ++_appendAt;
+        } else {
+            _last = next;
+            _appendAt = 1;
+        }
+    }
+    
     protected final void _appendRaw(int rawType, Object value)
     {
         Segment next = _hasNativeId

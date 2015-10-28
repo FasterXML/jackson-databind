@@ -211,6 +211,8 @@ Ludevik@github:
 Antibrumm@github:
   * Reported #691: Jackson 2.5.0. NullSerializer for MapProperty failing
    (2.5.2)
+  * Reported #984: JsonStreamContexts are not build the same way for write.. and convert methods
+   (2.6.4)
 
 Shumpei Akai (flexfrank@github)
   * Reported #703: Multiple calls to ObjectMapper#canSerialize(Object.class) returns different values

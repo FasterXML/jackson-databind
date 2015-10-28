@@ -27,6 +27,11 @@ INCOMPATIBILITIES:
 - While unlikely to be problematic, #959 above required an addition of `SerializerProvider`
   argument for `depositSchemaProperty()` method `BeanProperty` and `PropertyWriter` interfaces
 
+2.6.4 (not yet released)
+
+#984: JsonStreamContexts are not build the same way for write.. and convert methods
+ (reported by Antibrumm@github)
+
 2.6.3 (12-Oct-2015)
 
 #749: `EnumMap` serialization ignores `SerializationFeature.WRITE_ENUMS_USING_TO_STRING`

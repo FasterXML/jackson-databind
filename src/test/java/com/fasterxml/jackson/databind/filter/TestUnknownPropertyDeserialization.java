@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.filter;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
@@ -115,6 +114,11 @@ public class TestUnknownPropertyDeserialization
         public Map<String,Integer> values;
     }
 
+    // [databind#987]
+    static class Bean987 {
+        public String aProperty;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -122,13 +126,12 @@ public class TestUnknownPropertyDeserialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     /**
      * By default we should just get an exception if an unknown property
      * is encountered
      */
-    public void testUnknownHandlingDefault()
-        throws Exception
+    public void testUnknownHandlingDefault() throws Exception
     {
         try {
             MAPPER.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
@@ -141,8 +144,7 @@ public class TestUnknownPropertyDeserialization
      * Test that verifies that it is possible to ignore unknown properties using
      * {@link DeserializationProblemHandler}.
      */
-    public void testUnknownHandlingIgnoreWithHandler()
-        throws Exception
+    public void testUnknownHandlingIgnoreWithHandler() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.clearProblemHandlers();
@@ -158,8 +160,7 @@ public class TestUnknownPropertyDeserialization
      * Test that verifies that it is possible to ignore unknown properties using
      * {@link DeserializationProblemHandler} and an ObjectReader.
      */
-    public void testUnknownHandlingIgnoreWithHandlerAndObjectReader()
-        throws Exception
+    public void testUnknownHandlingIgnoreWithHandlerAndObjectReader() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.clearProblemHandlers();
@@ -174,8 +175,7 @@ public class TestUnknownPropertyDeserialization
      * Test for checking that it is also possible to simply suppress
      * error reporting for unknown properties.
      */
-    public void testUnknownHandlingIgnoreWithFeature()
-        throws Exception
+    public void testUnknownHandlingIgnoreWithFeature() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -191,8 +191,7 @@ public class TestUnknownPropertyDeserialization
         assertEquals(-1, result._b);
     }
 
-    public void testWithClassIgnore()
-        throws Exception
+    public void testWithClassIgnore() throws Exception
     {
         IgnoreSome result = MAPPER.readValue("{ \"a\":1,\"b\":2,\"c\":\"x\",\"d\":\"y\"}",
                 IgnoreSome.class);
@@ -267,5 +266,22 @@ public class TestUnknownPropertyDeserialization
         assertNotNull(result.values);
         assertEquals(1, result.values.size());
         assertEquals(Integer.valueOf(2), result.values.get("y"));
+    }
+
+    public void testIssue987() throws Exception
+    {
+        ObjectMapper jsonMapper = new ObjectMapper();
+        jsonMapper.addHandler(new DeserializationProblemHandler() {
+            @Override
+            public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p, JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) throws IOException, JsonProcessingException {
+                p.skipChildren();
+                return true;
+            }
+        });
+
+        String input = "[{\"aProperty\":\"x\",\"unknown\":{\"unknown\":{}}}]";
+        List<Bean987> deserializedList = jsonMapper.readValue(input,
+                new TypeReference<List<Bean987>>() { });
+        assertEquals(1, deserializedList.size());
     }
 }

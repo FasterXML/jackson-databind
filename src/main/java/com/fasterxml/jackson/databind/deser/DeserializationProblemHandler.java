@@ -12,16 +12,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * This is the class that can be registered (via
  * {@link DeserializationConfig} object owner by
- * {@link ObjectMapper}) to get calledn when a potentially
+ * {@link ObjectMapper}) to get called when a potentially
  * recoverable problem is encountered during deserialization
  * process. Handlers can try to resolve the problem, throw
- * an exception or do nothing.
+ * an exception or just skip the content.
  *<p>
  * Default implementations for all methods implemented minimal
  * "do nothing" functionality, which is roughly equivalent to
  * not having a registered listener at all. This allows for
  * only implemented handler methods one is interested in, without
  * handling other cases.
+ *<p>
+ * NOTE: it is typically <b>NOT</b> acceptable to simply do nothing,
+ * because this will result in unprocessed tokens being left in
+ * token stream (read via {@link JsonParser}, in case a structured
+ * (JSON Object or JSON Array) value is being pointed to by parser.
  */
 public abstract class DeserializationProblemHandler
 {

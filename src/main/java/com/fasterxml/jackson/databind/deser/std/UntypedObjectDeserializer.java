@@ -216,6 +216,9 @@ public class UntypedObjectDeserializer
         switch (p.getCurrentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:
+            // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
+            //    if caller has advanced to the first token of Object, but for empty Object
+        case JsonTokenId.ID_END_OBJECT:
             if (_mapDeserializer != null) {
                 return _mapDeserializer.deserialize(p, ctxt);
             }
@@ -269,7 +272,6 @@ public class UntypedObjectDeserializer
             return null;
 
 //        case JsonTokenId.ID_END_ARRAY: // invalid
-//        case JsonTokenId.ID_END_OBJECT: // invalid
         default:
         }
         throw ctxt.mappingException(Object.class);
@@ -314,7 +316,6 @@ public class UntypedObjectDeserializer
             if (_numberDeserializer != null) {
                 return _numberDeserializer.deserialize(p, ctxt);
             }
-            // For [JACKSON-72], see above
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                 return p.getDecimalValue();
             }
@@ -400,12 +401,11 @@ public class UntypedObjectDeserializer
             }
             key1 = null;
         }
-
-        // minor optimization; let's handle 1 and 2 entry cases separately
         if (key1 == null) {
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<String,Object>(2);
         }
+        // minor optimization; let's handle 1 and 2 entry cases separately
         // 24-Mar-2015, tatu: Ideally, could use one of 'nextXxx()' methods, but for
         //   that we'd need new method(s) in JsonDeserializer. So not quite yet.
         p.nextToken();
@@ -488,7 +488,7 @@ public class UntypedObjectDeserializer
             case JsonTokenId.ID_START_OBJECT:
                 {
                     JsonToken t = p.nextToken();
-                    if (t  == JsonToken.END_OBJECT) {
+                    if (t == JsonToken.END_OBJECT) {
                         return new LinkedHashMap<String,Object>(2);
                     }
                 }
@@ -533,8 +533,12 @@ public class UntypedObjectDeserializer
             case JsonTokenId.ID_NULL: // should not get this but...
                 return null;
 
+            case JsonTokenId.ID_END_OBJECT:
+                // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
+                //    if caller has advanced to the first token of Object, but for empty Object
+                return new LinkedHashMap<String,Object>(2);
+
             //case JsonTokenId.ID_END_ARRAY: // invalid
-            //case JsonTokenId.ID_END_OBJECT: // invalid
             default:
                 throw ctxt.mappingException(Object.class);
             }

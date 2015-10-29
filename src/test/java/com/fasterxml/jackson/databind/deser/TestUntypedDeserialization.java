@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -90,12 +91,23 @@ public class TestUntypedDeserialization
             return map;
         }
     }
+
+    static class Untyped989 {
+        protected Object value;
+        
+        @JsonCreator // delegating
+        public Untyped989(Object v) {
+            value = v;
+        }
+    }
     
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     @SuppressWarnings("unchecked")
     public void testSampleDoc() throws Exception
@@ -105,7 +117,7 @@ public class TestUntypedDeserialization
         /* To get "untyped" Mapping (to Maps, Lists, instead of beans etc),
          * we'll specify plain old Object.class as the target.
          */
-        Object root = new ObjectMapper().readValue(JSON, Object.class);
+        Object root = MAPPER.readValue(JSON, Object.class);
 
         assertType(root, Map.class);
         Map<?,?> rootMap = (Map<?,?>) root;
@@ -154,8 +166,7 @@ public class TestUntypedDeserialization
     public void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
-        final ObjectMapper mapper = new ObjectMapper();
-        Object root = mapper.readValue(aposToQuotes("{'a':3,'b':[1,2]}"),
+        Object root = MAPPER.readValue(aposToQuotes("{'a':3,'b':[1,2]}"),
                 Object.class);
         assertTrue(root instanceof Map<?,?>);
         Map<?,?> map = (Map<?,?>) root;
@@ -168,7 +179,7 @@ public class TestUntypedDeserialization
         assertEquals(Integer.valueOf(2), l.get(1));
     }
     
-    // [JACKSON-839]: allow 'upgrade' of big integers into Long, BigInteger
+    // Allow 'upgrade' of big integers into Long, BigInteger
     public void testObjectSerializeWithLong() throws IOException
     {
         final ObjectMapper mapper = new ObjectMapper();
@@ -238,5 +249,21 @@ public class TestUntypedDeserialization
         Map<?,?> map = (Map<?,?>) ob;
         assertEquals(1, map.size());
         assertEquals("Ytrue", map.get("a"));
+    }
+
+    public void testNestedUntyped989() throws IOException
+    {
+        Untyped989 pojo;
+        ObjectReader r = MAPPER.readerFor(Untyped989.class);
+
+        pojo = r.readValue("[]");
+        assertTrue(pojo.value instanceof List);
+        pojo = r.readValue("[{}]");
+        assertTrue(pojo.value instanceof List);
+        
+        pojo = r.readValue("{}");
+        assertTrue(pojo.value instanceof Map);
+        pojo = r.readValue("{\"a\":[]}");
+        assertTrue(pojo.value instanceof Map);
     }
 }

@@ -348,3 +348,7 @@ Jesse Wilson (swankjesse@github)
 Warren Bloomer (stormboy@github)
   * Reported #942: Handle null type id for polymorphic values that use external type id
    (2.6.3)
+
+Ievgen Pianov (pyanoveugen@github)
+  * Reported #989: Deserialization from "{}" to java.lang.Object causes "out of END_OBJECT token" error
+   (2.6.3)

@@ -31,6 +31,8 @@ INCOMPATIBILITIES:
 
 #984: JsonStreamContexts are not build the same way for write.. and convert methods
  (reported by Antibrumm@github)
+#989: Deserialization from "{}" to java.lang.Object causes "out of END_OBJECT token" error
+ (reported by Ievgen P)
 
 2.6.3 (12-Oct-2015)
 

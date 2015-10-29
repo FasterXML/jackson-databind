@@ -85,24 +85,6 @@ public final class TypeFactory
     protected final LRUMap<ClassKey, JavaType> _typeCache = new LRUMap<ClassKey, JavaType>(16, 100);
 
     /*
-     * Looks like construction of {@link JavaType} instances can be
-     * a bottleneck, esp. for root-level Maps, so we better do bit
-     * of low-level component caching here...
-     */
-
-    /**
-     * Lazily constructed copy of type hierarchy from {@link java.util.HashMap}
-     * to its supertypes.
-     */
-    protected transient HierarchicType _cachedHashMapType;
-
-    /**
-     * Lazily constructed copy of type hierarchy from {@link java.util.ArrayList}
-     * to its supertypes.
-     */
-    protected transient HierarchicType _cachedArrayListType;
-
-    /*
     /**********************************************************
     /* Configuration
     /**********************************************************
@@ -117,7 +99,7 @@ public final class TypeFactory
     protected final TypeParser _parser;
     
     /**
-     * ClassLoader used by this factory (Issue #624)
+     * ClassLoader used by this factory [databind#624].
      */
     protected final ClassLoader _classLoader;
 

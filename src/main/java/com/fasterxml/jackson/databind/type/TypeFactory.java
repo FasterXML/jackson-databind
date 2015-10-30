@@ -291,12 +291,53 @@ public final class TypeFactory
         JavaType newType;
 
         // also: if we start from untyped, not much to save
-        if (rawBase == Object.class) {
-            newType = _fromClass(null, subclass, TypeBindings.emptyBindings());
-        } else {
+        do { // bogus loop to be able to break
+            if (rawBase == Object.class) {
+                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());
+                break;
+            }
             if (!rawBase.isAssignableFrom(subclass)) {
                 throw new IllegalArgumentException("Class "+subclass.getName()+" not subtype of "+baseType);
             }
+            // A few special cases where we can simplify handling:
+
+            // (1) Original target type has no generics -- just resolve subtype
+            // (2) Sub-class does not take type parameters -- just resolve subtype
+            if (baseType.getBindings().isEmpty()
+                    || (subclass.getTypeParameters().length == 0)) {
+                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
+                break;
+            }
+            // (3) A small set of "well-known" List/Map subtypes where can take a short-cut
+            if (baseType.isContainerType()) {
+                if (baseType.isMapLikeType()) {
+                    if ((subclass == HashMap.class)
+                            || (subclass == LinkedHashMap.class)
+                            || (subclass == EnumMap.class)
+                            || (subclass == TreeMap.class)) {
+                        newType = _fromClass(null, subclass,
+                                TypeBindings.create(subclass, baseType.getKeyType(), baseType.getContentType()));
+                        break;
+                    }
+                } else if (baseType.isCollectionLikeType()) {
+                    if ((subclass == ArrayList.class)
+                            || (subclass == LinkedList.class)
+                            || (subclass == HashSet.class)
+                            || (subclass == TreeSet.class)) {
+                        newType = _fromClass(null, subclass,
+                                TypeBindings.create(subclass, baseType.getContentType()));
+                        break;
+                    }
+                    // 29-Oct-2015, tatu: One further shortcut: there are variants of `EnumSet`,
+                    //    but they are impl details and we basically do not care...
+                    if (rawBase == EnumSet.class) {
+                        return baseType;
+                    }
+                }
+            }
+
+            // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
+            // !!! TODO
             
             // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
             //    a way to fully resolve and merge hierarchies; but that gets expensive
@@ -316,7 +357,8 @@ public final class TypeFactory
                 // (hopefully passing null Class for root is ok)
                 newType = _fromClass(null, subclass, TypeBindings.emptyBindings());        
             }
-        }
+        } while (false);
+
         // except possibly handlers
 //      newType = newType.withHandlersFrom(baseType);
         return newType;

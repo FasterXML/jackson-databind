@@ -118,6 +118,18 @@ public class TypeBindings
         return new TypeBindings(new String[] { vars[0].getName() },
                 new JavaType[] { typeArg1 }, null);
     }
+
+    public static TypeBindings create(Class<?> erasedType, JavaType typeArg1, JavaType typeArg2)
+    {
+        TypeVariable<?>[] vars = erasedType.getTypeParameters();
+        int varLen = (vars == null) ? 0 : vars.length;
+        if (varLen != 2) {
+            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+                    +" with 2 type parameters: class expects "+varLen);
+        }
+        return new TypeBindings(new String[] { vars[0].getName(), vars[1].getName() },
+                new JavaType[] { typeArg1, typeArg2 }, null);
+    }
     
     /**
      * Alternate factory method that may be called if it is possible that type

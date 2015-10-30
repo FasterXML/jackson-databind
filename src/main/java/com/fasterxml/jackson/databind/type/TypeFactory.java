@@ -49,7 +49,7 @@ public final class TypeFactory
 
     /*
     /**********************************************************
-    /* Caching
+    /* Constants for "well-known" classes
     /**********************************************************
      */
 
@@ -60,9 +60,19 @@ public final class TypeFactory
     private final static Class<?> CLS_STRING = String.class;
     private final static Class<?> CLS_OBJECT = Object.class;
 
+    private final static Class<?> CLS_COMPARABLE = Comparable.class;
+    private final static Class<?> CLS_CLASS = Class.class;
+    private final static Class<?> CLS_ENUM = Enum.class;
+
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
     private final static Class<?> CLS_LONG = Long.TYPE;
+
+    /*
+    /**********************************************************
+    /* Cached pre-constructed JavaType instances
+    /**********************************************************
+     */
 
     // note: these are primitive, hence no super types
     protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
@@ -71,11 +81,33 @@ public final class TypeFactory
 
     // and as to String... well, for now, ignore its super types
     protected final static SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);
-    
+
+    // @since 2.7
+    protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
+
     /**
+     * Cache {@link Comparable} because it is both parameteric (relatively costly to
+     * resolve) and mostly useless (no special handling), better handle directly
+     *
      * @since 2.7
      */
-    protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
+    protected final static SimpleType CORE_TYPE_COMPARABLE = new SimpleType(CLS_COMPARABLE);
+
+    /**
+     * Cache {@link Enum} because it is parametric AND self-referential (costly to
+     * resolve) and useless in itself (no special handling).
+     *
+     * @since 2.7
+     */
+    protected final static SimpleType CORE_TYPE_ENUM = new SimpleType(CLS_ENUM);
+
+    /**
+     * Cache {@link Class} because it is nominally parametric, but has no really
+     * useful information.
+     *
+     * @since 2.7
+     */
+    protected final static SimpleType CORE_TYPE_CLASS = new SimpleType(CLS_CLASS);
 
     /**
      * Since type resolution can be expensive (specifically when resolving
@@ -338,7 +370,7 @@ public final class TypeFactory
 
             // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
             // !!! TODO
-            
+
             // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
             //    a way to fully resolve and merge hierarchies; but that gets expensive
             //    so let's, for now, try to create close-enough approximation that
@@ -1213,8 +1245,20 @@ public final class TypeFactory
     protected JavaType _fromParamType(ClassStack context, ParameterizedType ptype,
             TypeBindings parentBindings)
     {
-        // 20-Oct-2015, tatu: Assumption here is we'll always get Class, not one of other Types
+        // Assumption here is we'll always get Class, not one of other Types
         Class<?> rawType = (Class<?>) ptype.getRawType();
+
+        // 29-Oct-2015, tatu: For performance reasons, let's streamline handling of
+        //   couple of not-so-useful parametric types
+        if (rawType == CLS_ENUM) {
+            return CORE_TYPE_ENUM;
+        }
+        if (rawType == CLS_COMPARABLE) {
+            return CORE_TYPE_COMPARABLE;
+        }
+        if (rawType == CLS_CLASS) {
+            return CORE_TYPE_CLASS;
+        }
 
         // First: what is the actual base type? One odd thing is that 'getRawType'
         // returns Type, not Class<?> as one might expect. But let's assume it is

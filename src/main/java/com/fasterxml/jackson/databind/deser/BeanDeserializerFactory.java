@@ -499,7 +499,7 @@ public class BeanDeserializerFactory
         for (BeanPropertyDefinition propDef : propDefs) {
             SettableBeanProperty prop = null;
             /* 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
-             *   we need to do linkage (as per [Issue#318]), and so need to start with
+             *   we need to do linkage (as per [databind#318]), and so need to start with
              *   other types, and only then create constructor parameter, if any.
              */
             if (propDef.hasSetter()) {
@@ -509,7 +509,7 @@ public class BeanDeserializerFactory
                 Type propertyType = propDef.getField().getGenericType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
             } else if (useGettersAsSetters && propDef.hasGetter()) {
-                /* As per [JACKSON-88], may also need to consider getters
+                /* May also need to consider getters
                  * for Map/Collection properties; but with lowest precedence
                  */
                 AnnotatedMethod getter = propDef.getGetter();
@@ -652,7 +652,7 @@ public class BeanDeserializerFactory
                     m.fixAccess(); // to ensure we can call it
                 }
                 builder.addInjectable(PropertyName.construct(m.getName()),
-                        beanDesc.resolveType(m.getGenericType()),
+                        m.getType(),
                         beanDesc.getClassAnnotations(), m, entry.getKey());
             }
         }

@@ -68,8 +68,13 @@ public abstract class Annotated
     /**
      * Full generic type of the annotated element; definition
      * of what exactly this means depends on sub-class.
+     *
+     * @deprecated Since 2.7 should instead use {@link #getType()}
      */
-    public abstract Type getGenericType();
+    @Deprecated
+    public Type getGenericType() {
+        return getType().getRawClass();
+    }
 
     /**
      * "Raw" type (type-erased class) of the annotated element; definition

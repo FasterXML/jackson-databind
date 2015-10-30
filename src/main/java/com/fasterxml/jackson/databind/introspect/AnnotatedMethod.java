@@ -199,7 +199,11 @@ public final class AnnotatedMethod
     public Class<?> getRawReturnType() {
         return _method.getReturnType();
     }
-    
+
+    /**
+     * @deprecated Since 2.7
+     */
+    @Deprecated
     public Type getGenericReturnType() {
         return _method.getGenericReturnType();
     }

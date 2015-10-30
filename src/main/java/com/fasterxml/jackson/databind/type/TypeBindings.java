@@ -19,6 +19,19 @@ public class TypeBindings
 
     private final static TypeBindings EMPTY = new TypeBindings(NO_STRINGS, NO_TYPES, null);
 
+    // // // Pre-resolved instances for minor optimizations
+
+    // 30-Oct-2015, tatu: Surprising, but looks like type parameters access can be bit of
+    //    a hot spot. So avoid for a small number of common generic types
+    
+    private final static TypeVariable<?>[] VARS_ABSTRACT_LIST = AbstractList.class.getTypeParameters();
+    private final static TypeVariable<?>[] VARS_COLLECTION = Collection.class.getTypeParameters();
+    private final static TypeVariable<?>[] VARS_ITERABLE = Iterable.class.getTypeParameters();
+    private final static TypeVariable<?>[] VARS_LIST = List.class.getTypeParameters();
+    private final static TypeVariable<?>[] VARS_MAP = Map.class.getTypeParameters();
+    
+    // // // Actual member information
+    
     /**
      * Array of type (type variable) names.
      */
@@ -86,7 +99,13 @@ public class TypeBindings
     {
         if (types == null) {
             types = NO_TYPES;
+        } else switch (types.length) {
+        case 1:
+            return create(erasedType, types[0]);
+        case 2:
+            return create(erasedType, types[0], types[1]);
         }
+        
         TypeVariable<?>[] vars = erasedType.getTypeParameters();
         String[] names;
         if (vars == null || vars.length == 0) {
@@ -109,7 +128,21 @@ public class TypeBindings
 
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1)
     {
-        TypeVariable<?>[] vars = erasedType.getTypeParameters();
+        // 30-Oct-2015, tatu: Minor optimization for relatively common cases
+        TypeVariable<?>[] vars;
+        if (erasedType == Collection.class) {
+            vars = VARS_COLLECTION;
+        } else if (erasedType == List.class) {
+            vars = VARS_LIST;
+        } else if (erasedType == Map.class) {
+            vars = VARS_MAP;
+        } else if (erasedType == AbstractList.class) {
+            vars = VARS_ABSTRACT_LIST;
+        } else if (erasedType == Iterable.class) {
+            vars = VARS_ITERABLE;
+        } else {
+            vars = erasedType.getTypeParameters();
+        }
         int varLen = (vars == null) ? 0 : vars.length;
         if (varLen != 1) {
             throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()

@@ -114,7 +114,7 @@ public final class TypeFactory
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final LRUMap<ClassKey, JavaType> _typeCache = new LRUMap<ClassKey, JavaType>(16, 100);
+    protected final LRUMap<Class<?>, JavaType> _typeCache = new LRUMap<Class<?>, JavaType>(16, 100);
 
     /*
     /**********************************************************
@@ -334,13 +334,11 @@ public final class TypeFactory
             // A few special cases where we can simplify handling:
 
             // (1) Original target type has no generics -- just resolve subtype
-            // (2) Sub-class does not take type parameters -- just resolve subtype
-            if (baseType.getBindings().isEmpty()
-                    || (subclass.getTypeParameters().length == 0)) {
+            if (baseType.getBindings().isEmpty()) {
                 newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
                 break;
             }
-            // (3) A small set of "well-known" List/Map subtypes where can take a short-cut
+            // (2) A small set of "well-known" List/Map subtypes where can take a short-cut
             if (baseType.isContainerType()) {
                 if (baseType.isMapLikeType()) {
                     if ((subclass == HashMap.class)
@@ -366,6 +364,11 @@ public final class TypeFactory
                         return baseType;
                     }
                 }
+            }
+            // (3) Sub-class does not take type parameters -- just resolve subtype
+            if (subclass.getTypeParameters().length == 0) {
+                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
+                break;
             }
 
             // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
@@ -1100,14 +1103,12 @@ public final class TypeFactory
 
         // !!! TODO 16-Oct-2015, tatu: For now let's only cached non-parameterized; otherwise
         //     need better cache key
-        if ((bindings == null) || bindings.isEmpty()) { 
-            key = new ClassKey(rawType);
-            result = _typeCache.get(key); // ok, cache object is synced
+        boolean cachable = (bindings == null) || bindings.isEmpty();
+        if (cachable) {
+            result = _typeCache.get(rawType); // ok, cache object is synced
             if (result != null) {
                 return result;
             }
-        } else {
-            key = null;
         }
 
         // 15-Oct-2015, tatu: recursive reference?
@@ -1171,15 +1172,15 @@ public final class TypeFactory
         }
         context.resolveSelfReferences(result);
 
-        if (key != null) {
-            _typeCache.putIfAbsent(key, result); // cache object syncs
+        if (cachable) {
+            _typeCache.putIfAbsent(rawType, result); // cache object syncs
         }
         return result;
     }
 
     protected JavaType _resolveSuperClass(ClassStack context, Class<?> rawType, TypeBindings parentBindings)
     {
-        Type parent = rawType.getGenericSuperclass();
+        Type parent = ClassUtil.getGenericSuperclass(rawType);
         if (parent == null) {
             return null;
         }
@@ -1188,7 +1189,7 @@ public final class TypeFactory
 
     protected JavaType[] _resolveSuperInterfaces(ClassStack context, Class<?> rawType, TypeBindings parentBindings)
     {
-        Type[] types = rawType.getGenericInterfaces();
+        Type[] types = ClassUtil.getGenericInterfaces(rawType);
         if (types == null || types.length == 0) {
             return NO_TYPES;
         }

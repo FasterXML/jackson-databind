@@ -336,6 +336,13 @@ public final class ClassUtil
     /**
      * @since 2.7
      */
+    public static Type[] getGenericInterfaces(Class<?> cls) {
+        return _getMetadata(cls).getGenericInterfaces();
+    }
+    
+    /**
+     * @since 2.7
+     */
     public static Class<?> getEnclosingClass(Class<?> cls) {
         // Caching does not seem worthwhile, as per profiling
         return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();
@@ -842,10 +849,12 @@ public final class ClassUtil
         private Boolean _hasEnclosingMethod;
 
         private Class<?>[] _interfaces;
+        private Type[] _genericInterfaces;
+
         private Annotation[] _annotations;
         private Ctor[] _constructors;
         private Field[] _fields;
-        private  Method[] _methods;
+        private Method[] _methods;
 
         public ClassMetadata(Class<?> forClass) {
             _forClass = forClass;
@@ -867,11 +876,20 @@ public final class ClassUtil
         // 19-Sep-2015, tatu: Bit of performance improvement, after finding this
         //   in profile; maybe 5% in "wasteful" deserialization case
         public Class<?>[] getInterfaces() {
-
             Class<?>[] result = _interfaces;
             if (result == null) {
                 result = _forClass.getInterfaces();
                 _interfaces = result;
+            }
+            return result;
+        }
+
+        // 30-Oct-2015, tatu: Minor performance boost too (5% or less)
+        public Type[] getGenericInterfaces() {
+            Type[] result = _genericInterfaces;
+            if (result == null) {
+                result = _forClass.getGenericInterfaces();
+                _genericInterfaces = result;
             }
             return result;
         }

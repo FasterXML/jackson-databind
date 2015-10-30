@@ -621,14 +621,9 @@ public final class ClassUtil
         try {
             ao.setAccessible(true);
         } catch (SecurityException se) {
-            /* 17-Apr-2009, tatu: Related to [JACKSON-101]: this can fail on
-             *    platforms like EJB and Google App Engine); so let's
-             *    only fail if we really needed it...
-             */
-            if (!ao.isAccessible()) {
-                Class<?> declClass = member.getDeclaringClass();
-                throw new IllegalArgumentException("Can not access "+member+" (from class "+declClass.getName()+"; failed to set access: "+se.getMessage());
-            }
+            // Can't force accessibility per security policy so just continue until we actually try
+            // to access/invoke the field/method/constructor in which case it will throw an
+            // IllegalAccessException if not accessible
         }
         //}
     }

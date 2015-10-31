@@ -39,7 +39,7 @@ public class BeanPropertyWriter
     implements java.io.Serializable // since 2.6.2
 {
     // As of 2.7
-    private static final long serialVersionUID = 6986604589507872243L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Marker object used to indicate "do not serialize if empty"
@@ -568,7 +568,23 @@ public class BeanPropertyWriter
     public Class<?> getRawSerializationType() {
         return (_cfgSerializationType == null) ? null : _cfgSerializationType.getRawClass();
     }
+
+    /*
+    public JavaType getFullPropertyType() {
+        if (_accessorMethod != null) {
+            return _accessorMethod.getType()
+        }
+        if (_field != null) {
+            return _field.getType();
+        }
+        return null;
+    }
+    */
     
+    /**
+     * @deprecated Since 2.7, to be removed from 2.8
+     */
+    @Deprecated
     public Class<?> getPropertyType() {
         return (_accessorMethod != null) ? _accessorMethod.getReturnType() : _field.getType();
     }
@@ -577,7 +593,10 @@ public class BeanPropertyWriter
      * Get the generic property type of this property writer.
      *
      * @return The property type, or null if not found.
+     *
+     * @deprecated Since 2.7, to be removed from 2.8
      */
+    @Deprecated
     public Type getGenericPropertyType() {
         if (_accessorMethod != null) {
             return _accessorMethod.getGenericReturnType();
@@ -778,7 +797,7 @@ public class BeanPropertyWriter
     {
         JavaType propType = getSerializationType();
         // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
-        Type hint = (propType == null) ? getGenericPropertyType() : propType.getRawClass();
+        Type hint = (propType == null) ? getType() : propType.getRawClass();
         JsonNode schemaNode;
         // Maybe it already has annotated/statically configured serializer?
         JsonSerializer<Object> ser = getSerializer();

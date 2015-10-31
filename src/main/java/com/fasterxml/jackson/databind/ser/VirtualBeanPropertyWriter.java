@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.lang.reflect.Type;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -97,16 +97,6 @@ public abstract class VirtualBeanPropertyWriter
     @Override
     public boolean isVirtual() { return true; }
 
-    @Override
-    public Class<?> getPropertyType() {
-        return _declaredType.getRawClass();
-    }
-
-    @Override
-    public Type getGenericPropertyType() {
-        return getPropertyType();
-    }
-
     /*
     /**********************************************************
     /* Abstract methods for sub-classes to define
@@ -120,7 +110,7 @@ public abstract class VirtualBeanPropertyWriter
      * may choose to not even use this method (by overriding {@link #serializeAsField})
      * and define a bogus implementation.
      */
-    protected abstract Object value(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception;
+    protected abstract Object value(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception;
 
     /**
      * Contextualization method called on a newly constructed virtual bean property.

@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
 
+import com.fasterxml.jackson.databind.JavaType;
+
 /**
  * Placeholder used by virtual properties as placeholder for
  * underlying {@link AnnotatedMember}.
@@ -58,7 +60,12 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     public Class<?> getRawType() {
         return _rawType;
     }
-    
+
+    @Override
+    public JavaType getType() {
+        return _context.resolveMemberType(_rawType);
+    }
+
     /*
     /**********************************************************
     /* AnnotatedMember impl

@@ -68,6 +68,11 @@ public final class AnnotatedConstructor
     public String getName() { return _constructor.getName(); }
 
     @Override
+    public JavaType getType() {
+        return _context.resolveMemberType(getRawType());
+    }
+    
+    @Override
     public Class<?> getRawType() {
         return _constructor.getDeclaringClass();
     }

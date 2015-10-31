@@ -82,15 +82,15 @@ public final class AnnotatedParameter
     public String getName() { return ""; }
 
     @Override
-    public Type getGenericType() {
-        return _type;
-    }
-
-    @Override
     public Class<?> getRawType() {
         return _type.getRawClass();
     }
 
+    @Override
+    public JavaType getType() {
+        return _context.resolveMemberType(_type);
+    }
+    
     /*
     /**********************************************************
     /* AnnotatedMember extras

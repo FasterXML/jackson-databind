@@ -235,11 +235,6 @@ public final class AnnotatedClass
         }
         return _classAnnotations.has(acls);
     }
-    
-    @Override
-    public Type getGenericType() {
-        return _class;
-    }
 
     @Override
     public Class<?> getRawType() {

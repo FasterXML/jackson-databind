@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -70,15 +71,15 @@ public final class AnnotatedField
     public String getName() { return _field.getName(); }
 
     @Override
-    public Type getGenericType() {
-        return _field.getGenericType();
-    }
-
-    @Override
     public Class<?> getRawType() {
         return _field.getType();
     }
-    
+
+    @Override
+    public JavaType getType() {
+        return _context.resolveMemberType(_field.getGenericType());
+    }
+
     /*
     /**********************************************************
     /* AnnotatedMember impl

@@ -55,11 +55,6 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     public String getName() { return _name; }
 
     @Override
-    public Type getGenericType() {
-        return _rawType;
-    }
-
-    @Override
     public Class<?> getRawType() {
         return _rawType;
     }

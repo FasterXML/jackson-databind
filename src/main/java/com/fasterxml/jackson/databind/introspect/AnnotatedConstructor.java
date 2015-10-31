@@ -68,12 +68,6 @@ public final class AnnotatedConstructor
     public String getName() { return _constructor.getName(); }
 
     @Override
-    @Deprecated
-    public Type getGenericType() {
-        return getRawType();
-    }
-
-    @Override
     public Class<?> getRawType() {
         return _constructor.getDeclaringClass();
     }
@@ -103,14 +97,6 @@ public final class AnnotatedConstructor
             return null;
         }
         return _context.resolveMemberType(types[index]);
-    }
-
-    @Override
-    @Deprecated
-    public Type getGenericParameterType(int index)
-    {
-        Type[] types = _constructor.getGenericParameterTypes();
-        return (index >= types.length) ? null : types[index];
     }
 
     @Override

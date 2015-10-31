@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Object that represents method parameters, mostly so that associated
@@ -25,7 +24,7 @@ public final class AnnotatedParameter
     /**
      * JDK type of the parameter, possibly contains generic type information
      */
-    protected final Type _type;
+    protected final JavaType _type;
     
     /**
      * Index of the parameter within argument list
@@ -38,7 +37,7 @@ public final class AnnotatedParameter
     /**********************************************************
      */
 
-    public AnnotatedParameter(AnnotatedWithParams owner, Type type,  AnnotationMap annotations,
+    public AnnotatedParameter(AnnotatedWithParams owner, JavaType type,  AnnotationMap annotations,
             int index)
     {
         super((owner == null) ? null : owner.getContextClass(), annotations);
@@ -88,14 +87,8 @@ public final class AnnotatedParameter
     }
 
     @Override
-    public Class<?> getRawType()
-    {
-        if (_type instanceof Class<?>) {
-            return (Class<?>) _type;
-        }
-        // 14-Mar-2011, tatu: Not optimal, but has to do for now...
-        JavaType t = TypeFactory.defaultInstance().constructType(_type);
-        return t.getRawClass();
+    public Class<?> getRawType() {
+        return _type.getRawClass();
     }
 
     /*

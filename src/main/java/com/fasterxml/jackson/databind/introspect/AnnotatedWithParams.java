@@ -102,7 +102,7 @@ public abstract class AnnotatedWithParams
     }
 
     public final AnnotatedParameter getParameter(int index) {
-        return new AnnotatedParameter(this, getGenericParameterType(index),
+        return new AnnotatedParameter(this, getParameterType(index),
                 getParameterAnnotations(index), index);
     }
 
@@ -116,10 +116,12 @@ public abstract class AnnotatedWithParams
     public abstract JavaType getParameterType(int index);
 
     /**
-     * @deprecated Since 2.7
+     * @deprecated Since 2.7, remove in 2.8
      */
     @Deprecated
-    public abstract Type getGenericParameterType(int index);
+    public final Type getGenericParameterType(int index) {
+        return getRawParameterType(index);
+    }
 
     public final int getAnnotationCount() { return _annotations.size(); }
 

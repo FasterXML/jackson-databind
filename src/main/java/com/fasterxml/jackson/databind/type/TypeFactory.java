@@ -1099,8 +1099,6 @@ public final class TypeFactory
             return result;
         }
         // Barring that, we may have recently constructed an instance:
-        ClassKey key;
-
         // !!! TODO 16-Oct-2015, tatu: For now let's only cached non-parameterized; otherwise
         //     need better cache key
         boolean cachable = (bindings == null) || bindings.isEmpty();

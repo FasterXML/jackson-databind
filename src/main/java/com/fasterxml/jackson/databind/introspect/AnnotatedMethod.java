@@ -200,14 +200,6 @@ public final class AnnotatedMethod
         return _context.resolveMemberType(types[index]);
     }
 
-    @Deprecated
-    @Override
-    public Type getGenericParameterType(int index)
-    {
-        Type[] types = _method.getGenericParameterTypes();
-        return (index >= types.length) ? null : types[index];
-    }
-
     public Class<?> getRawReturnType() {
         return _method.getReturnType();
     }
@@ -223,7 +215,7 @@ public final class AnnotatedMethod
         Class<?> rt = getRawReturnType();
         return (rt != Void.TYPE && rt != Void.class);
     }
-    
+
     /*
     /********************************************************
     /* Other

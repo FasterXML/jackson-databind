@@ -93,7 +93,7 @@ public class CreatorCollector
                     }
                 }
             }
-            delegateType = _beanDesc.resolveType(_creators[C_DELEGATE].getGenericParameterType(ix));
+            delegateType = _creators[C_DELEGATE].getParameterType(ix);
         }
 
         final JavaType type = _beanDesc.getType();

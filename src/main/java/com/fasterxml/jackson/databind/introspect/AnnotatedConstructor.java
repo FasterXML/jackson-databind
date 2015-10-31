@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedConstructor
@@ -67,6 +68,7 @@ public final class AnnotatedConstructor
     public String getName() { return _constructor.getName(); }
 
     @Override
+    @Deprecated
     public Type getGenericType() {
         return getRawType();
     }
@@ -95,6 +97,16 @@ public final class AnnotatedConstructor
     }
 
     @Override
+    public JavaType getParameterType(int index) {
+        Type[] types = _constructor.getGenericParameterTypes();
+        if (index >= types.length) {
+            return null;
+        }
+        return _context.resolveMemberType(types[index]);
+    }
+
+    @Override
+    @Deprecated
     public Type getGenericParameterType(int index)
     {
         Type[] types = _constructor.getGenericParameterTypes();

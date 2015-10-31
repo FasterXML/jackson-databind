@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedMethod
@@ -85,6 +86,7 @@ public final class AnnotatedMethod
      * type is returned here)
      */
     @Override
+    @Deprecated
     public Type getGenericType() {
         return _method.getGenericReturnType();
     }
@@ -190,6 +192,16 @@ public final class AnnotatedMethod
     }
 
     @Override
+    public JavaType getParameterType(int index) {
+        Type[] types = _method.getGenericParameterTypes();
+        if (index >= types.length) {
+            return null;
+        }
+        return _context.resolveMemberType(types[index]);
+    }
+
+    @Deprecated
+    @Override
     public Type getGenericParameterType(int index)
     {
         Type[] types = _method.getGenericParameterTypes();
@@ -198,14 +210,6 @@ public final class AnnotatedMethod
 
     public Class<?> getRawReturnType() {
         return _method.getReturnType();
-    }
-
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated
-    public Type getGenericReturnType() {
-        return _method.getGenericReturnType();
     }
 
     /**

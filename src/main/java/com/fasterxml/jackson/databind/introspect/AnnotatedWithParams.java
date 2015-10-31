@@ -110,16 +110,17 @@ public abstract class AnnotatedWithParams
 
     public abstract Class<?> getRawParameterType(int index);
 
-    public abstract Type getGenericParameterType(int index);
+    /**
+     * @since 2.7
+     */
+    public abstract JavaType getParameterType(int index);
 
     /**
-     * Method called to fully resolve type of one of parameters, given
-     * specified type variable bindings.
+     * @deprecated Since 2.7
      */
-    public final JavaType resolveParameterType(int index) {
-        return _context.resolveMemberType(getGenericParameterType(index));
-    }
-    
+    @Deprecated
+    public abstract Type getGenericParameterType(int index);
+
     public final int getAnnotationCount() { return _annotations.size(); }
 
     /**

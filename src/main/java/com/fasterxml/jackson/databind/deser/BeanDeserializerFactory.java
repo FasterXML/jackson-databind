@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -374,7 +373,7 @@ public class BeanDeserializerFactory
             SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
                     new PropertyName("cause"));
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
-                    am.getGenericParameterType(0));
+                    am.getParameterType(0));
             if (prop != null) {
                 /* 21-Aug-2011, tatus: We may actually have found 'cause' property
                  *   to set... but let's replace it just in case,
@@ -503,10 +502,10 @@ public class BeanDeserializerFactory
              *   other types, and only then create constructor parameter, if any.
              */
             if (propDef.hasSetter()) {
-                Type propertyType = propDef.getSetter().getGenericParameterType(0);
+                JavaType propertyType = propDef.getSetter().getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
             } else if (propDef.hasField()) {
-                Type propertyType = propDef.getField().getGenericType();
+                JavaType propertyType = propDef.getField().getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
             } else if (useGettersAsSetters && propDef.hasGetter()) {
                 /* May also need to consider getters
@@ -606,7 +605,7 @@ public class BeanDeserializerFactory
         }
         return result;
     }
-    
+
     /**
      * Method that will find if bean has any managed- or back-reference properties,
      * and if so add them to bean, to be linked during resolution phase.
@@ -621,20 +620,20 @@ public class BeanDeserializerFactory
             for (Map.Entry<String, AnnotatedMember> en : refs.entrySet()) {
                 String name = en.getKey();
                 AnnotatedMember m = en.getValue();
-                Type genericType;
+                JavaType type;
                 if (m instanceof AnnotatedMethod) {
-                    genericType = ((AnnotatedMethod) m).getGenericParameterType(0);
+                    type = ((AnnotatedMethod) m).getParameterType(0);
                 } else {
-                    genericType = m.getRawType();
+                    type = m.getType();
                 }
                 SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(
                 		ctxt.getConfig(), m);
                 builder.addBackReferenceProperty(name, constructSettableProperty(
-                        ctxt, beanDesc, propDef, genericType));
+                        ctxt, beanDesc, propDef, type));
             }
         }
     }
-    
+
     /**
      * Method called locate all members used for value injection (if any),
      * constructor {@link com.fasterxml.jackson.databind.deser.impl.ValueInjector} instances, and add them to builder.
@@ -671,7 +670,7 @@ public class BeanDeserializerFactory
             setter.fixAccess(); // to ensure we can call it
         }
         // we know it's a 2-arg method, second arg is the value
-        JavaType type = beanDesc.resolveType(setter.getGenericParameterType(1));
+        JavaType type = setter.getParameterType(1);
         BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(setter.getName()),
                 type, null, beanDesc.getClassAnnotations(), setter,
                 PropertyMetadata.STD_OPTIONAL);
@@ -704,7 +703,7 @@ public class BeanDeserializerFactory
      */
     protected SettableBeanProperty constructSettableProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanPropertyDefinition propDef,
-            Type jdkType)
+            JavaType propType0)
         throws JsonMappingException
     {
         // need to ensure method is callable (for non-public)
@@ -713,17 +712,15 @@ public class BeanDeserializerFactory
             mutator.fixAccess();
         }
         // note: this works since we know there's exactly one argument for methods
-        JavaType t0 = beanDesc.resolveType(jdkType);
-
         BeanProperty.Std property = new BeanProperty.Std(propDef.getFullName(),
-                t0, propDef.getWrapperName(),
+                propType0, propDef.getWrapperName(),
                 beanDesc.getClassAnnotations(), mutator, propDef.getMetadata());
-        JavaType type = resolveType(ctxt, beanDesc, t0, mutator);
+        JavaType type = resolveType(ctxt, beanDesc, propType0, mutator);
         // did type change?
-        if (type != t0) {
+        if (type != propType0) {
             property = property.withType(type);
         }
-        
+
         /* First: does the Method specify the deserializer to use?
          * If so, let's use it.
          */

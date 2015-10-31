@@ -33,13 +33,6 @@ public abstract class AnnotatedMember
     // no need to persist
     protected final transient AnnotationMap _annotations;
 
-    /*
-    @Deprecated // since 2.5
-    protected AnnotatedMember(AnnotationMap annotations) {
-        this(null, annotations);
-    }
-    */
-
     protected AnnotatedMember(AnnotatedClass ctxt, AnnotationMap annotations) {
         super();
         _context = ctxt;

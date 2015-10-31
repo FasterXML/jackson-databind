@@ -19,7 +19,7 @@ class DefaultModuleLoader {
 
     List<Module> getAvailableDefaultModules() {
 
-        if (isRuntimeNotJava8Compatible()) {
+        if (!JavaVersion.EIGHT.isAvailable()) {
             return Collections.emptyList();
         }
 
@@ -35,16 +35,6 @@ class DefaultModuleLoader {
         }
 
         return defaultModules;
-    }
-
-    private boolean isRuntimeNotJava8Compatible() {
-
-        try {
-            getClass().getClassLoader().loadClass("java.util.function.Function");
-            return false;
-        } catch (ClassNotFoundException e) {
-            return true;
-        }
     }
 
     private static class DefaultModuleDefinition {

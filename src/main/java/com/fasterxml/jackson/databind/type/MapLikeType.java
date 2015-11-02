@@ -78,17 +78,17 @@ public class MapLikeType extends TypeBase
                 _superClass, _superInterfaces, _keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
     }
 
-    public JavaType narrowKey(Class<?> keySubclass)
-    {
-        // Can do a quick check first:
-        if (keySubclass == _keyType.getRawClass()) {
+    /**
+     * @since 2.7
+     */
+    public MapLikeType withKeyType(JavaType keyType) {
+        if (keyType == _keyType) {
             return this;
         }
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType.narrowBy(keySubclass), _valueType,
-                _valueHandler, _typeHandler, _asStatic);
+        return new MapLikeType(_class, _bindings, _superClass, _superInterfaces,
+                keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
     }
-
+    
     @Override
     public JavaType withContentType(JavaType contentType) {
         if (_valueType == contentType) {
@@ -97,7 +97,7 @@ public class MapLikeType extends TypeBase
         return new MapLikeType(_class, _bindings, _superClass, _superInterfaces,
                 _keyType, contentType, _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     @Override
     public MapLikeType withTypeHandler(Object h) {
         return new MapLikeType(_class, _bindings,
@@ -132,17 +132,6 @@ public class MapLikeType extends TypeBase
         return new MapLikeType(_class, _bindings,
                 _superClass, _superInterfaces, _keyType, _valueType.withStaticTyping(),
                 _valueHandler, _typeHandler, true);
-    }
-
-    /**
-     * @since 2.7
-     */
-    public MapLikeType withKeyType(JavaType keyType) {
-        if (keyType == _keyType) {
-            return this;
-        }
-        return new MapLikeType(_class, _bindings, _superClass, _superInterfaces,
-                keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override

@@ -1064,10 +1064,12 @@ public abstract class AnnotationIntrospector
 
         // First, key type (for Maps, Map-like types):
         if (type.isMapLikeType()) {
-            Class<?> keyClass = findDeserializationKeyType(a, type.getKeyType());
+            JavaType keyType = type.getKeyType();
+            Class<?> keyClass = findDeserializationKeyType(a, keyType);
             if (keyClass != null) {
                 try {
-                    type = ((MapLikeType) type).narrowKey(keyClass);
+                    keyType = tf.constructSpecializedType(keyType, keyClass);
+                    type = ((MapLikeType) type).withKeyType(keyType);
                 } catch (IllegalArgumentException iae) {
                     throw new JsonMappingException(null,
                             String.format("Failed to narrow key type of %s with concrete-type annotation (value %s), from '%s': %s",
@@ -1079,7 +1081,7 @@ public abstract class AnnotationIntrospector
         JavaType contentType = type.getContentType();
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-           Class<?> contentClass = findDeserializationContentType(a, type.getContentType());
+           Class<?> contentClass = findDeserializationContentType(a, contentType);
            if (contentClass != null) {
                try {
                    contentType = tf.constructSpecializedType(contentType, contentClass);

@@ -347,7 +347,7 @@ public class TestValueAnnotations
                 ("{ \"123\" : \"xxx\" }", BrokenMapKeyHolder.class);
             fail("Expected a failure, but got results: "+result);
         } catch (JsonMappingException jme) {
-            verifyException(jme, "is not assignable to");
+            verifyException(jme, "not subtype of");
         }
     }
 

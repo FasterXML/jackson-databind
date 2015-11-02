@@ -59,18 +59,6 @@ public final class CollectionType
     }
 
     @Override
-    public JavaType narrowContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
-        if (contentClass == _elementType.getRawClass()) {
-            return this;
-        }
-        return new CollectionType(_class, _bindings,
-                _superClass, _superInterfaces, _elementType.narrowBy(contentClass),
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
-    @Override
     public JavaType withContentType(JavaType contentType) {
         if (_elementType == contentType) {
             return this;

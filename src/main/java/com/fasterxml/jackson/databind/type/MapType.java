@@ -52,18 +52,6 @@ public final class MapType extends MapLikeType
     }
 
     @Override
-    public JavaType narrowContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
-        if (contentClass == _valueType.getRawClass()) {
-            return this;
-        }
-        return new MapType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType.narrowBy(contentClass),
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
-    @Override
     public JavaType narrowKey(Class<?> keySubclass)
     {
         // Can do a quick check first:

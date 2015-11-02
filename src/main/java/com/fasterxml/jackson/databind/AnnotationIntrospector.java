@@ -1039,7 +1039,8 @@ public abstract class AnnotationIntrospector
             final Annotated a, final JavaType baseType) throws JsonMappingException
     {
         JavaType type = baseType;
-        
+        final TypeFactory tf = config.getTypeFactory();
+
         // 10-Oct-2015, tatu: For 2.7, we'll need to delegate back to
         //    now-deprecated secondary methods; this because while
         //    direct sub-class not yet retrofitted may only override
@@ -1048,14 +1049,14 @@ public abstract class AnnotationIntrospector
 
         
         // Ok: start by refining the main type itself; common to all types
-        Class<?> contentClass = findDeserializationType(a, type);
-        if ((contentClass != null) && !type.hasRawClass(contentClass)) {
+        Class<?> valueClass = findDeserializationType(a, type);
+        if ((valueClass != null) && !type.hasRawClass(valueClass)) {
             try {
-                type = config.getTypeFactory().constructSpecializedType(type, contentClass);
+                type = tf.constructSpecializedType(type, valueClass);
             } catch (IllegalArgumentException iae) {
                 throw new JsonMappingException(null,
                         String.format("Failed to narrow type %s with annotation (value %s), from '%s': %s",
-                                type, contentClass.getName(), a.getName(), iae.getMessage()),
+                                type, valueClass.getName(), a.getName(), iae.getMessage()),
                                 iae);
             }
         }
@@ -1075,16 +1076,18 @@ public abstract class AnnotationIntrospector
                 }
             }
         }
-        if (type.getContentType() != null) { // collection[like], map[like], array, reference
+        JavaType contentType = type.getContentType();
+        if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-           Class<?> valueClass = findDeserializationContentType(a, type.getContentType());
-           if (valueClass != null) {
+           Class<?> contentClass = findDeserializationContentType(a, type.getContentType());
+           if (contentClass != null) {
                try {
-                   type = type.narrowContentsBy(valueClass);
+                   contentType = tf.constructSpecializedType(contentType, contentClass);
+                   type = type.withContentType(contentType);
                } catch (IllegalArgumentException iae) {
                    throw new JsonMappingException(null,
                            String.format("Failed to narrow value type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                   type, valueClass.getName(), a.getName(), iae.getMessage()),
+                                   type, contentClass.getName(), a.getName(), iae.getMessage()),
                                    iae);
                }
            }

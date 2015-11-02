@@ -82,6 +82,7 @@ public abstract class TypeDeserializerBase
              *    not entirely safe... however, since Collections/Maps are
              *    seldom (if ever) base types, may be ok.
              */
+            // 01-Nov-2015, tatu: Actually this is still exactly wrong. Should fix.
             _defaultImpl = baseType.forcedNarrowBy(defaultImpl);
         }
         _property = null;

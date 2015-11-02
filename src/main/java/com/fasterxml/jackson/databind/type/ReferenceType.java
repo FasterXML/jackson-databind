@@ -67,7 +67,16 @@ public class ReferenceType extends SimpleType
         return new ReferenceType(cls, TypeBindings.emptyBindings(),
                 // !!! TODO: missing supertypes
                 null, null, refType, null, null, false);
-    }                                   
+    }
+
+    @Override
+    public JavaType withContentType(JavaType contentType) {
+        if (_referencedType == contentType) {
+            return this;
+        }
+        return new ReferenceType(_class, _bindings, _superClass, _superInterfaces,
+                contentType, _valueHandler, _typeHandler, _asStatic);
+    }
 
     @Override
     public ReferenceType withTypeHandler(Object h)
@@ -149,21 +158,6 @@ public class ReferenceType extends SimpleType
         // Should we check that there is a sub-class relationship?
         return new ReferenceType(subclass, _bindings,
                 _superClass, _superInterfaces, _referencedType,
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
-    // no need to override _widen() since it by default just calls _narrow() anyway
-//    protected JavaType _widen(Class<?> subclass)
-
-    @Override
-    public JavaType narrowContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
-        if (_referencedType.hasRawClass(contentClass)) {
-            return this;
-        }
-        return new ReferenceType(_class, _bindings,
-                _superClass, _superInterfaces, _referencedType.narrowBy(contentClass),
                 _valueHandler, _typeHandler, _asStatic);
     }
 

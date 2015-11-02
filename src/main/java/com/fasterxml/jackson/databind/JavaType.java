@@ -210,8 +210,6 @@ public abstract class JavaType
 
     protected abstract JavaType _narrow(Class<?> subclass);
 
-    public abstract JavaType narrowContentsBy(Class<?> contentClass);
-
     /**
      * Mutant factory method that will try to create and return a sub-type instance
      * for known parameterized types; for other types will return `null` to indicate

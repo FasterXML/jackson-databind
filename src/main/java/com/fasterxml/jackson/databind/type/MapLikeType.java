@@ -78,18 +78,6 @@ public class MapLikeType extends TypeBase
                 _superClass, _superInterfaces, _keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
     }
 
-    @Override
-    public JavaType narrowContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
-        if (contentClass == _valueType.getRawClass()) {
-            return this;
-        }
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType.narrowBy(contentClass),
-               _valueHandler, _typeHandler, _asStatic);
-    }
-
     public JavaType narrowKey(Class<?> keySubclass)
     {
         // Can do a quick check first:

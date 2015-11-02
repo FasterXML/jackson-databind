@@ -84,13 +84,6 @@ public class SimpleType // note: until 2.6 was final
                 _valueHandler, _typeHandler, _asStatic);
     }
 
-    @Override
-    public JavaType narrowContentsBy(Class<?> subclass)
-    {
-        // should never get called
-        throw new IllegalArgumentException("Internal error: SimpleType.narrowContentsBy() should never be called");
-    }
-
     public static SimpleType construct(Class<?> cls)
     {
         /* Let's add sanity checks, just to ensure no

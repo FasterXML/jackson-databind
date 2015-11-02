@@ -74,11 +74,6 @@ public class ResolvedRecursiveType extends TypeBase
     }
 
     @Override
-    public JavaType narrowContentsBy(Class<?> contentClass) {
-        return this;
-    }
-
-    @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
         return null;

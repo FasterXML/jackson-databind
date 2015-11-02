@@ -115,19 +115,6 @@ public final class ArrayType
         return _reportUnsupported();
     }
 
-    /**
-     * For array types, both main type and content type can be modified;
-     * but ultimately they are interchangeable.
-     */
-    @Override
-    public JavaType narrowContentsBy(Class<?> contentClass) {
-        if (contentClass == _componentType.getRawClass()) {
-            return this;
-        }
-        return construct(_componentType.narrowBy(contentClass), _bindings,
-                _valueHandler, _typeHandler);
-    }
-
     // Should not be called, as array types in Java are not extensible; but
     // let's not freak out even if it is called?
     @Override

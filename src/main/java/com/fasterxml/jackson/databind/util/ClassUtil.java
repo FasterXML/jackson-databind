@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 public final class ClassUtil
@@ -40,16 +41,51 @@ public final class ClassUtil
      *
      * @param endBefore Super-type to NOT include in results, if any; when
      *    encountered, will be ignored (and no super types are checked).
+     *
+     * @since 2.7
      */
+    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore) {
+        return findSuperTypes(type, endBefore, new ArrayList<JavaType>(8));
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore, List<JavaType> result) {
+        _addSuperTypes(type, endBefore, result, false);
+        return result;
+    }
+
+    private static void _addSuperTypes(JavaType type, Class<?> endBefore, Collection<JavaType> result, boolean addClassItself) {
+        if (type == null) {
+            return;
+        }
+        final Class<?> cls = type.getRawClass();
+        if (cls == endBefore || cls == Object.class) { return; }
+        if (addClassItself) {
+            if (result.contains(type)) { // already added, no need to check supers
+                return;
+            }
+            result.add(type);
+        }
+        for (JavaType intCls : type.getInterfaces()) {
+            _addSuperTypes(intCls, endBefore, result, true);
+        }
+        _addSuperTypes(type.getSuperClass(), endBefore, result, true);
+    }
+
+    @Deprecated // since 2.7
     public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore) {
         return findSuperTypes(cls, endBefore, new ArrayList<Class<?>>(8));
     }
 
+    @Deprecated // since 2.7
     public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result) {
         _addSuperTypes(cls, endBefore, result, false);
         return result;
     }
 
+    @Deprecated // since 2.7
     private static void _addSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself) {
         if (cls == endBefore || cls == null || cls == Object.class) { return; }
         if (addClassItself) {
@@ -684,7 +720,7 @@ public final class ClassUtil
      * superclass (for enums with instance fields or methods)
      */
     @SuppressWarnings("unchecked")
-	public static Class<? extends Enum<?>> findEnumType(Enum<?> en)
+    public static Class<? extends Enum<?>> findEnumType(Enum<?> en)
     {
         // enums with "body" are sub-classes of the formal type
     	Class<?> ec = en.getClass();

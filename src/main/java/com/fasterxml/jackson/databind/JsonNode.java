@@ -932,9 +932,19 @@ public abstract class JsonNode
      */
     
     /**
+     * Method that will produce developer-readable representation of the
+     * node; which may <b>or may not</b> be as valid JSON.
+     * If you want valid JSON output (or output formatted using one of
+     * other Jackson supported data formats) make sure to use
+     * {@link ObjectMapper} or {@link ObjectWriter} to serialize an
+     * instance, for example:
+     *<pre>
+     *   String json = objectMapper.writeValueAsString(rootNode);
+     *</pre>
      *<p>
-     * Note: marked as abstract to ensure all implementation
-     * classes define it properly.
+     * Note: method defined as abstract to ensure all implementation
+     * classes explicitly implement method, instead of relying
+     * on {@link Object#toString()} definition.
      */
     @Override
     public abstract String toString();

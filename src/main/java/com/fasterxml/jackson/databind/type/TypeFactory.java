@@ -319,7 +319,7 @@ public final class TypeFactory
         if (rawBase == subclass) {
             return baseType;
         }
-
+        
         JavaType newType;
 
         // also: if we start from untyped, not much to save
@@ -329,7 +329,8 @@ public final class TypeFactory
                 break;
             }
             if (!rawBase.isAssignableFrom(subclass)) {
-                throw new IllegalArgumentException("Class "+subclass.getName()+" not subtype of "+baseType);
+                throw new IllegalArgumentException(String.format(
+                        "Class %s not subtype of %s", subclass.getName(), baseType));
             }
             // A few special cases where we can simplify handling:
 
@@ -442,6 +443,38 @@ public final class TypeFactory
         // otherwise regular narrowing should work just fine
         return baseType.narrowBy(subclass);
         */
+    }
+
+    /**
+     * Method similar to {@link #constructSpecializedType}, but that creates a
+     * less-specific type of given type. Usually this is as simple as simply
+     * finding super-type with type erasure of <code>superClass</code>, but
+     * there may be need for some additional work-arounds.
+     *
+     * @param superClass
+     *
+     * @since 2.7
+     */
+    public JavaType constructGeneralizedType(JavaType baseType, Class<?> superClass)
+    {
+        // simple optimization to avoid costly introspection if type-erased type does NOT differ
+        final Class<?> rawBase = baseType.getRawClass();
+        if (rawBase == superClass) {
+            return baseType;
+        }
+        JavaType superType = baseType.findSuperType(superClass);
+        if (superType == null) {
+            // Most likely, caller did not verify sub/super-type relationship
+            if (!superClass.isAssignableFrom(rawBase)) {
+                throw new IllegalArgumentException(String.format(
+                        "Class %s not a super-type of %s", superClass.getName(), baseType));
+            }
+            // 01-Nov-2015, tatu: Should never happen, but ch
+            throw new IllegalArgumentException(String.format(
+                    "Internal error: class %s not included as super-type for %s",
+                    superClass.getName(), baseType));
+        }
+        return superType;
     }
 
     /**
@@ -1137,11 +1170,8 @@ public final class TypeFactory
             if (rawType.isInterface()) {
                 superClass = null;
                 superInterfaces = _resolveSuperInterfaces(context, rawType, bindings);
-            } else if (rawType.isEnum()) {
-                // One simplification: let's not resolve interfaces, just super-classes (if any)
-                superClass = _resolveSuperClass(context, rawType, bindings);
-                superInterfaces = NO_TYPES;
             } else {
+                // Note: even Enums can implement interfaces, so can not drop those
                 superClass = _resolveSuperClass(context, rawType, bindings);
                 superInterfaces = _resolveSuperInterfaces(context, rawType, bindings);
             }

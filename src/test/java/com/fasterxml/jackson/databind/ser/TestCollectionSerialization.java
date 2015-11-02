@@ -34,23 +34,6 @@ public class TestCollectionSerialization
         public EnumMap<Key,String> getMap() { return _map; }
     }
 
-    final static class IterableWrapper
-        implements Iterable<Integer>
-    {
-        List<Integer> _ints = new ArrayList<Integer>();
-
-        public IterableWrapper(int[] values) {
-            for (int i : values) {
-                _ints.add(Integer.valueOf(i));
-            }
-        }
-
-        @Override
-        public Iterator<Integer> iterator() {
-            return _ints.iterator();
-        }
-    }
-
     /**
      * Class needed for testing [JACKSON-220]
      */
@@ -66,13 +49,11 @@ public class TestCollectionSerialization
     static class ListSerializer extends JsonSerializer<List<String>>
     {
         @Override
-        public void serialize(List<String> value,
-                              JsonGenerator jgen,
-                              SerializerProvider provider)
+        public void serialize(List<String> value, JsonGenerator gen, SerializerProvider provider)
             throws IOException
         {
             // just use standard List.toString(), output as JSON String
-            jgen.writeString(value.toString());
+            gen.writeString(value.toString());
         }
     }
 
@@ -85,67 +66,6 @@ public class TestCollectionSerialization
         public String[] empty = new String[0];
     }
 
-    // [JACKSON-689]
-    static class BeanWithIterable {
-        private final ArrayList<String> values = new ArrayList<String>();
-        {
-            values.add("value");
-        }
-
-        public Iterable<String> getValues() { return values; }
-    }
-
-    static class IntIterable implements Iterable<Integer>
-    {
-        @Override
-        public Iterator<Integer> iterator() {
-            return new IntIterator(1, 3);
-        }
-    }
-
-    static class IntIterator implements Iterator<Integer> {
-        int i;
-        final int last;
-
-        public IntIterator(int first, int last) {
-            i = first;
-            this.last = last;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return i <= last;
-        }
-
-        @Override
-        public Integer next() {
-            return i++;
-        }
-
-        @Override
-        public void remove() { }
-
-        public int getX() { return 13; }
-    }
-
-    // [Issue#358]
-    static class A {
-        public String unexpected = "Bye.";
-    }
-
-    static class B {
-        @JsonSerialize(as = Iterable.class, contentUsing = ASerializer.class)
-        public List<A> list = Arrays.asList(new A());
-    }
-    static class ASerializer extends JsonSerializer<A> {
-        @Override
-        public void serialize(A a, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
-            jsonGenerator.writeStartArray();
-            jsonGenerator.writeString("Hello world.");
-            jsonGenerator.writeEndArray();
-        }
-    }
-
     /*
     /**********************************************************
     /* Test methods
@@ -154,8 +74,7 @@ public class TestCollectionSerialization
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testCollections()
-        throws IOException
+    public void testCollections() throws IOException
     {
         // Let's try different collections, arrays etc
         final int entryLen = 98;
@@ -203,8 +122,7 @@ public class TestCollectionSerialization
     }
 
     @SuppressWarnings("resource")
-    public void testBigCollection()
-        throws IOException
+    public void testBigCollection() throws IOException
     {
         final int COUNT = 9999;
         ArrayList<Integer> value = new ArrayList<Integer>();
@@ -247,8 +165,7 @@ public class TestCollectionSerialization
         }
     }
 
-    public void testEnumMap()
-        throws IOException
+    public void testEnumMap() throws IOException
     {
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
         map.put(Key.B, "xyz");
@@ -258,31 +175,10 @@ public class TestCollectionSerialization
         assertEquals("{\"B\":\"xyz\",\"C\":\"abc\"}",json.trim());
     }
 
-    public void testIterator()
-        throws IOException
-    {
-        StringWriter sw = new StringWriter();
-        ArrayList<Integer> l = new ArrayList<Integer>();
-        l.add(1);
-        l.add(-9);
-        l.add(0);
-        MAPPER.writeValue(sw, l.iterator());
-        assertEquals("[1,-9,0]", sw.toString().trim());
-    }
-
-    public void testIterable()
-        throws IOException
-    {
-        StringWriter sw = new StringWriter();
-        MAPPER.writeValue(sw, new IterableWrapper(new int[] { 1, 2, 3 }));
-        assertEquals("[1,2,3]", sw.toString().trim());
-    }
-
     // Test that checks that empty collections are properly serialized
     // when they are Bean properties
     @SuppressWarnings("unchecked")
-    public void testEmptyBeanCollection()
-        throws IOException
+    public void testEmptyBeanCollection() throws IOException
     {
         Collection<Object> x = new ArrayList<Object>();
         x.add("foobar");
@@ -306,8 +202,7 @@ public class TestCollectionSerialization
     }
 
     @SuppressWarnings("unchecked")
-    public void testEmptyBeanEnumMap()
-        throws IOException
+    public void testEmptyBeanEnumMap() throws IOException
     {
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
         EnumMapBean b = new EnumMapBean(map);
@@ -322,8 +217,7 @@ public class TestCollectionSerialization
     }
 
     // Should also be able to serialize null EnumMaps as expected
-    public void testNullBeanEnumMap()
-        throws IOException
+    public void testNullBeanEnumMap() throws IOException
     {
         EnumMapBean b = new EnumMapBean(null);
         Map<String,Object> result = writeAndMap(MAPPER, b);
@@ -355,22 +249,5 @@ public class TestCollectionSerialization
         m.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         assertEquals("{}", m.writeValueAsString(list));
         assertEquals("{}", m.writeValueAsString(array));
-    }
-    
-    // [JACKSON-689], [JACKSON-876]
-    public void testWithIterable() throws IOException
-    {
-        // 689:
-        assertEquals("{\"values\":[\"value\"]}",
-                MAPPER.writeValueAsString(new BeanWithIterable()));
-        // 876:
-        assertEquals("[1,2,3]",
-                MAPPER.writeValueAsString(new IntIterable()));
-    }
-    
-    // [Issue#358]
-    public void testIterable358() throws Exception {
-        String json = MAPPER.writeValueAsString(new B());
-        assertEquals("{\"list\":[[\"Hello world.\"]]}", json);
     }
 }

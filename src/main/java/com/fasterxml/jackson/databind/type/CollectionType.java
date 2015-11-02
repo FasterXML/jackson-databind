@@ -39,7 +39,10 @@ public final class CollectionType
         return new CollectionType(rawType, bindings, superClass, superInts, elemT,
                 null, null, false);
     }
-    
+
+    /**
+     * @deprecated Since 2.7, remove from 2.8
+     */
     @Deprecated // since 2.7
     public static CollectionType construct(Class<?> rawType, JavaType elemT) {
         // nominally component types will be just Object.class

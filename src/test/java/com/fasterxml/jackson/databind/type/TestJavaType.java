@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
 import java.lang.reflect.Method;
-import java.util.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
@@ -100,35 +99,6 @@ public class TestJavaType
         */
     }
 
-    public void testMapType()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType keyT = tf.constructType(String.class);
-        JavaType baseT = tf.constructType(BaseType.class);
-
-        MapType mapT = MapType.construct(Map.class, keyT, baseT);
-        assertNotNull(mapT);
-        assertTrue(mapT.isContainerType());
-
-        // NOPs:
-        assertSame(mapT, mapT.narrowContentsBy(BaseType.class));
-        assertSame(mapT, mapT.narrowKey(String.class));
-
-        assertTrue(mapT.equals(mapT));
-        assertFalse(mapT.equals(null));
-        assertFalse(mapT.equals("xyz"));
-
-        MapType mapT2 = MapType.construct(HashMap.class, keyT, baseT);
-        assertFalse(mapT.equals(mapT2));
-
-        // Also, must use map type constructor, not simple...
-        try {
-            SimpleType.construct(HashMap.class);
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "for a Map");
-        }
-    }
-
     public void testArrayType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -153,34 +123,6 @@ public class TestJavaType
         }
     }
 
-    public void testCollectionType()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        // List<String>
-        JavaType collectionT = CollectionType.construct(List.class, tf.constructType(String.class));
-        assertNotNull(collectionT);
-        assertTrue(collectionT.isContainerType());
-
-        // NOPs:
-        assertSame(collectionT, collectionT.narrowContentsBy(String.class));
-
-        assertNotNull(collectionT.toString());
-
-        assertTrue(collectionT.equals(collectionT));
-        assertFalse(collectionT.equals(null));
-        assertFalse(collectionT.equals("xyz"));
-
-        assertTrue(collectionT.equals(CollectionType.construct(List.class, tf.constructType(String.class))));
-        assertFalse(collectionT.equals(CollectionType.construct(Set.class, tf.constructType(String.class))));
-
-        // Also, must NOT try to create using simple type
-        try {
-            SimpleType.construct(ArrayList.class);
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "for a Collection");
-        }
-    }
-
     public void testEnumType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -201,7 +143,7 @@ public class TestJavaType
         assertEquals(String.class.getName(), key.toString());
     }
 
-    // [Issue#116]
+    // [databind#116]
     public void testJavaTypeAsJLRType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();

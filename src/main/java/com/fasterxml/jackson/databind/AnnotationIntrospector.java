@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.type.MapLikeType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -775,10 +776,11 @@ public abstract class AnnotationIntrospector
         // Ok: start by refining the main type itself; common to all types
         Class<?> serClass = findSerializationType(a);
         if ((serClass != null) && !type.hasRawClass(serClass)) {
+            final TypeFactory tf = config.getTypeFactory();
             try {
                 // 11-Oct-2015, tatu: For deser, we call `TypeFactory.constructSpecializedType()`,
                 //   may be needed here too in future?
-                type = type.widenBy(serClass);
+                type = tf.constructGeneralizedType(type, serClass);
             } catch (IllegalArgumentException iae) {
                 throw new JsonMappingException(null,
                         String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",

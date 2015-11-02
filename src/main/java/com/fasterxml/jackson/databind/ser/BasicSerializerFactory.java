@@ -466,21 +466,21 @@ public abstract class BasicSerializerFactory
     protected final JsonSerializer<?> findSerializerByAddonType(SerializationConfig config,
             JavaType javaType, BeanDescription beanDesc, boolean staticTyping) throws JsonMappingException
     {
-        Class<?> type = javaType.getRawClass();
+        Class<?> rawType = javaType.getRawClass();
 
-        if (Iterator.class.isAssignableFrom(type)) {
+        if (Iterator.class.isAssignableFrom(rawType)) {
             JavaType[] params = config.getTypeFactory().findTypeParameters(javaType, Iterator.class);
             JavaType vt = (params == null || params.length != 1) ?
                     TypeFactory.unknownType() : params[0];
             return buildIteratorSerializer(config, javaType, beanDesc, staticTyping, vt);
         }
-        if (Iterable.class.isAssignableFrom(type)) {
+        if (Iterable.class.isAssignableFrom(rawType)) {
             JavaType[] params = config.getTypeFactory().findTypeParameters(javaType, Iterable.class);
             JavaType vt = (params == null || params.length != 1) ?
                     TypeFactory.unknownType() : params[0];
             return buildIterableSerializer(config, javaType, beanDesc,  staticTyping, vt);
         }
-        if (CharSequence.class.isAssignableFrom(type)) {
+        if (CharSequence.class.isAssignableFrom(rawType)) {
             return ToStringSerializer.instance;
         }
         return null;

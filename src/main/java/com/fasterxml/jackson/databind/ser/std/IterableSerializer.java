@@ -24,7 +24,7 @@ public class IterableSerializer
             Boolean unwrapSingle) {
         super(src, property, vts, valueSerializer, unwrapSingle);
     }
-    
+
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IterableSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);

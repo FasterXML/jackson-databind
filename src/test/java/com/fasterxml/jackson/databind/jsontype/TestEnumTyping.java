@@ -71,7 +71,6 @@ public class TestEnumTyping extends BaseMapTest
     {
         ObjectMapper m = new ObjectMapper();
         String json = m.writeValueAsString(Tag.B);
-        
         EnumInterface result = m.readValue(json, EnumInterface.class);
         assertSame(Tag.B, result);
     }

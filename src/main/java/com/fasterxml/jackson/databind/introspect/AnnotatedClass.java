@@ -33,6 +33,8 @@ public final class AnnotatedClass
     final protected Class<?> _class;
 
     /**
+     * Type bindings to use for members of {@link #_class}.
+     *
      * @since 2.7
      */
     final protected TypeBindings _bindings;
@@ -40,8 +42,10 @@ public final class AnnotatedClass
     /**
      * Ordered set of super classes and interfaces of the
      * class itself: included in order of precedence
+     *<p>
+     * NOTE: changed in 2.7 from List of <code>Class</code>es to List of {@link JavaType}s.
      */
-    final protected List<Class<?>> _superTypes;
+    final protected List<JavaType> _superTypes;
 
     /**
      * Filter used to determine which annotations to gather; used
@@ -125,7 +129,7 @@ public final class AnnotatedClass
      * configuring instances differently depending on use cases
      */
     private AnnotatedClass(Class<?> cls, TypeBindings bindings,
-            List<Class<?>> superTypes,
+            List<JavaType> superTypes,
             AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
             AnnotationMap classAnnotations)
     {
@@ -158,7 +162,8 @@ public final class AnnotatedClass
                 ? config.getAnnotationIntrospector() : null;
         Class<?> raw = type.getRawClass();
         return new AnnotatedClass(raw, type.getBindings(),
-                ClassUtil.findSuperTypes(raw, null), intr, (MixInResolver) config, config.getTypeFactory(), null);
+                ClassUtil.findSuperTypes(type, null), intr,
+                (MixInResolver) config, config.getTypeFactory(), null);
     }
 
     /**
@@ -171,7 +176,8 @@ public final class AnnotatedClass
                 ? config.getAnnotationIntrospector() : null;
         Class<?> raw = type.getRawClass();
         return new AnnotatedClass(raw, type.getBindings(),
-                ClassUtil.findSuperTypes(raw, null), intr, mir, config.getTypeFactory(), null);
+                ClassUtil.findSuperTypes(type, null),
+                intr, mir, config.getTypeFactory(), null);
     }
     
     /**
@@ -183,12 +189,12 @@ public final class AnnotatedClass
     {
         if (config == null) {
             return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
-                    Collections.<Class<?>>emptyList(), null, null, null, null);
+                    Collections.<JavaType>emptyList(), null, null, null, null);
         }
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
-                Collections.<Class<?>>emptyList(), intr, (MixInResolver) config, config.getTypeFactory(), null);
+                Collections.<JavaType>emptyList(), intr, (MixInResolver) config, config.getTypeFactory(), null);
     }
 
     public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls, MapperConfig<?> config,
@@ -196,14 +202,14 @@ public final class AnnotatedClass
     {
         if (config == null) {
             return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
-                    Collections.<Class<?>>emptyList(), null, null, null, null);
+                    Collections.<JavaType>emptyList(), null, null, null, null);
         }
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
-                Collections.<Class<?>>emptyList(), intr, mir, config.getTypeFactory(), null);
+                Collections.<JavaType>emptyList(), intr, mir, config.getTypeFactory(), null);
     }
-    
+
     /*
     /**********************************************************
     /* Annotated impl 
@@ -368,7 +374,7 @@ public final class AnnotatedClass
     private void resolveClassAnnotations()
     {
         _classAnnotations = new AnnotationMap();
-        // [JACKSON-659] Should skip processing if annotation processing disabled
+        // Should skip processing if annotation processing disabled
         if (_annotationIntrospector != null) {
             // add mix-in annotations first (overrides)
             if (_primaryMixIn != null) {
@@ -379,11 +385,11 @@ public final class AnnotatedClass
                     ClassUtil.findClassAnnotations(_class));
     
             // and then from super types
-            for (Class<?> cls : _superTypes) {
+            for (JavaType type : _superTypes) {
                 // and mix mix-in annotations in-between
-                _addClassMixIns(_classAnnotations, cls);
+                _addClassMixIns(_classAnnotations, type);
                 _addAnnotationsIfNotPresent(_classAnnotations,
-                        ClassUtil.findClassAnnotations(cls));
+                        ClassUtil.findClassAnnotations(type.getRawClass()));
             }
             /* and finally... any annotations there might be for plain
              * old Object.class: separate because for all other purposes
@@ -494,11 +500,11 @@ public final class AnnotatedClass
         AnnotatedMethodMap mixins = new AnnotatedMethodMap();
         // first: methods from the class itself
         _addMemberMethods(_class, _memberMethods, _primaryMixIn, mixins);
-        
+
         // and then augment these with annotations from super-types:
-        for (Class<?> cls : _superTypes) {
-            Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(cls);         
-            _addMemberMethods(cls, _memberMethods, mixin, mixins);
+        for (JavaType type : _superTypes) {
+            Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(type.getRawClass());         
+            _addMemberMethods(type.getRawClass(), _memberMethods, mixin, mixins);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)
         if (_mixInResolver != null) {
@@ -560,15 +566,23 @@ public final class AnnotatedClass
      * Helper method for adding any mix-in annotations specified
      * class might have.
      */
-    protected void _addClassMixIns(AnnotationMap annotations, Class<?> toMask)
+    protected void _addClassMixIns(AnnotationMap annotations, JavaType target)
     {
         if (_mixInResolver != null) {
+            final Class<?> toMask = target.getRawClass();
             _addClassMixIns(annotations, toMask, _mixInResolver.findMixInClassFor(toMask));
         }
     }
 
+    protected void _addClassMixIns(AnnotationMap annotations, Class<?> target)
+    {
+        if (_mixInResolver != null) {
+            _addClassMixIns(annotations, target, _mixInResolver.findMixInClassFor(target));
+        }
+    }
+
     protected void _addClassMixIns(AnnotationMap annotations, Class<?> toMask,
-                                   Class<?> mixin)
+            Class<?> mixin)
     {
         if (mixin == null) {
             return;

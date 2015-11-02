@@ -71,17 +71,14 @@ public final class CollectionType
     }
 
     @Override
-    public JavaType widenContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
-        if (contentClass == _elementType.getRawClass()) {
+    public JavaType withContentType(JavaType contentType) {
+        if (_elementType == contentType) {
             return this;
         }
-        return new CollectionType(_class, _bindings,
-                _superClass, _superInterfaces, _elementType.widenBy(contentClass),
-                _valueHandler, _typeHandler, _asStatic);
+        return new CollectionType(_class, _bindings, _superClass, _superInterfaces,
+                contentType, _valueHandler, _typeHandler, _asStatic);
     }
-
+    
     @Override
     public CollectionType withTypeHandler(Object h) {
         return new CollectionType(_class, _bindings,

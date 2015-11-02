@@ -64,17 +64,6 @@ public final class MapType extends MapLikeType
     }
 
     @Override
-    public JavaType widenContentsBy(Class<?> contentClass)
-    {
-        if (contentClass == _valueType.getRawClass()) {
-            return this;
-        }
-        return new MapType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType.widenBy(contentClass),
-                _valueHandler, _typeHandler, _asStatic);
-    }
-    
-    @Override
     public JavaType narrowKey(Class<?> keySubclass)
     {
         // Can do a quick check first:
@@ -86,18 +75,6 @@ public final class MapType extends MapLikeType
                 _valueHandler, _typeHandler, _asStatic);
     }
 
-    @Override
-    public JavaType widenKey(Class<?> keySubclass)
-    {
-        // Can do a quick check first:
-        if (keySubclass == _keyType.getRawClass()) {
-            return this;
-        }
-        return new MapType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType.widenBy(keySubclass), _valueType,
-                _valueHandler, _typeHandler, _asStatic);
-    }
-    
     @Override
     public MapType withTypeHandler(Object h) {
         return new MapType(_class, _bindings,
@@ -135,6 +112,24 @@ public final class MapType extends MapLikeType
                 _valueHandler, _typeHandler, true);
     }
 
+    @Override
+    public JavaType withContentType(JavaType contentType) {
+        if (_valueType == contentType) {
+            return this;
+        }
+        return new MapType(_class, _bindings, _superClass, _superInterfaces,
+                _keyType, contentType, _valueHandler, _typeHandler, _asStatic);
+    }
+    
+    @Override
+    public MapType withKeyType(JavaType keyType) {
+        if (keyType == _keyType) {
+            return this;
+        }
+        return new MapType(_class, _bindings, _superClass, _superInterfaces,
+                keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
+    }
+    
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {

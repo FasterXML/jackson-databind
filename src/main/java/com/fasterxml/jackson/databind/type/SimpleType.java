@@ -91,13 +91,6 @@ public class SimpleType // note: until 2.6 was final
         throw new IllegalArgumentException("Internal error: SimpleType.narrowContentsBy() should never be called");
     }
 
-    @Override
-    public JavaType widenContentsBy(Class<?> subclass)
-    {
-        // should never get called
-        throw new IllegalArgumentException("Internal error: SimpleType.widenContentsBy() should never be called");
-    }
-    
     public static SimpleType construct(Class<?> cls)
     {
         /* Let's add sanity checks, just to ensure no
@@ -116,6 +109,11 @@ public class SimpleType // note: until 2.6 was final
         return new SimpleType(cls);
     }
 
+    @Override
+    public JavaType withContentType(JavaType contentType) {
+        throw new IllegalArgumentException("Simple types have no content types; can not call withContentType()");
+    }
+    
     @Override
     public SimpleType withTypeHandler(Object h) {
         if (_typeHandler == h) {

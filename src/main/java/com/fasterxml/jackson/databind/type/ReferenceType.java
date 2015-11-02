@@ -167,18 +167,6 @@ public class ReferenceType extends SimpleType
                 _valueHandler, _typeHandler, _asStatic);
     }
 
-    @Override
-    public JavaType widenContentsBy(Class<?> contentClass)
-    {
-        // Can do a quick check first:
-        if (contentClass == _referencedType.getRawClass()) {
-            return this;
-        }
-        return new ReferenceType(_class, _bindings,
-                _superClass, _superInterfaces, _referencedType.widenBy(contentClass),
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
     /*
     /**********************************************************
     /* Public API overrides

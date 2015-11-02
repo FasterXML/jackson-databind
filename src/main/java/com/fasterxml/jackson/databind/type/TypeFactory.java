@@ -436,7 +436,7 @@ public final class TypeFactory
                     return baseType;
                 }
                 JavaType componentType = _fromAny(null, rawComp, null);
-                return ((ArrayType) baseType).withOverriddenComponentType(componentType);
+                return ((ArrayType) baseType).withComponentType(componentType);
             }
         }
 

@@ -76,7 +76,6 @@ public class TestJavaType
          * class type otherwise)
          */
         assertSame(baseType, baseType.narrowBy(BaseType.class));
-        assertSame(baseType, baseType.widenBy(BaseType.class));
 
         // Also: no narrowing for simple types (but should there be?)
         try {

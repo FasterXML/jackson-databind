@@ -765,6 +765,7 @@ public abstract class AnnotationIntrospector
             final Annotated a, final JavaType baseType) throws JsonMappingException
     {
         JavaType type = baseType;
+        final TypeFactory tf = config.getTypeFactory();
         
         // 10-Oct-2015, tatu: For 2.7, we'll need to delegate back to
         //    now-deprecated secondary methods; this because while
@@ -776,7 +777,6 @@ public abstract class AnnotationIntrospector
         // Ok: start by refining the main type itself; common to all types
         Class<?> serClass = findSerializationType(a);
         if ((serClass != null) && !type.hasRawClass(serClass)) {
-            final TypeFactory tf = config.getTypeFactory();
             try {
                 // 11-Oct-2015, tatu: For deser, we call `TypeFactory.constructSpecializedType()`,
                 //   may be needed here too in future?
@@ -792,10 +792,12 @@ public abstract class AnnotationIntrospector
 
         // First, key type (for Maps, Map-like types):
         if (type.isMapLikeType()) {
-            Class<?> keyClass = findSerializationKeyType(a, type.getKeyType());
+            JavaType keyType = type.getKeyType();
+            Class<?> keyClass = findSerializationKeyType(a, keyType);
             if (keyClass != null) {
                 try {
-                    type = ((MapLikeType) type).widenKey(keyClass);
+                    keyType = tf.constructGeneralizedType(keyType, keyClass);
+                    type = ((MapLikeType) type).withKeyType(keyType);
                 } catch (IllegalArgumentException iae) {
                     throw new JsonMappingException(null,
                             String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",
@@ -804,16 +806,19 @@ public abstract class AnnotationIntrospector
                 }
             }
         }
-        if (type.getContentType() != null) { // collection[like], map[like], array, reference
+
+        JavaType contentType = type.getContentType();
+        if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-           Class<?> valueClass = findSerializationContentType(a, type.getContentType());
-           if (valueClass != null) {
+           Class<?> contentClass = findSerializationContentType(a, type.getContentType());
+           if (contentClass != null) {
                try {
-                   type = type.widenContentsBy(valueClass);
+                   contentType = tf.constructGeneralizedType(contentType, contentClass);
+                   type = type.withContentType(contentType);
                } catch (IllegalArgumentException iae) {
                    throw new JsonMappingException(null,
                            String.format("Failed to widen value type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                   type, valueClass.getName(), a.getName(), iae.getMessage()),
+                                   type, contentClass.getName(), a.getName(), iae.getMessage()),
                                    iae);
                }
            }

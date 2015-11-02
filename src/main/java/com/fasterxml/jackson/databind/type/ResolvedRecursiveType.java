@@ -39,6 +39,11 @@ public class ResolvedRecursiveType extends TypeBase
     }
 
     @Override
+    public JavaType withContentType(JavaType contentType) {
+        return this;
+    }
+    
+    @Override
     public JavaType withTypeHandler(Object h) {
         return this;
     }
@@ -70,11 +75,6 @@ public class ResolvedRecursiveType extends TypeBase
 
     @Override
     public JavaType narrowContentsBy(Class<?> contentClass) {
-        return this;
-    }
-
-    @Override
-    public JavaType widenContentsBy(Class<?> contentClass) {
         return this;
     }
 

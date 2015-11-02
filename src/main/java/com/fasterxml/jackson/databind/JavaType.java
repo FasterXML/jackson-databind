@@ -106,7 +106,7 @@ public abstract class JavaType
     public abstract JavaType withTypeHandler(Object h);
 
     /**
-     * "Copy method" that will construct a new instance that is identical to
+     * Mutant factory method that will construct a new instance that is identical to
      * this instance, except that its content type will have specified
      * type handler assigned.
      * 
@@ -115,7 +115,7 @@ public abstract class JavaType
     public abstract JavaType withContentTypeHandler(Object h);
 
     /**
-     * "Copy method" that will construct a new instance that is identical to
+     * Mutant factory method that will construct a new instance that is identical to
      * this instance, except that it will have specified value handler assigned.
      * 
      * @return Newly created type instance
@@ -123,12 +123,23 @@ public abstract class JavaType
     public abstract JavaType withValueHandler(Object h);
 
     /**
-     * "Copy method" that will construct a new instance that is identical to
+     * Mutant factory method that will construct a new instance that is identical to
      * this instance, except that it will have specified content value handler assigned.
      * 
      * @return Newly created type instance
      */
     public abstract JavaType withContentValueHandler(Object h);
+
+    /**
+     * Mutant factory method that will construct a new instance that is identical to
+     * this instance, except that it has specified content type, instead of current
+     * one. If content type is already set to given type, <code>this</code> is returned.
+     * 
+     * @return Newly created type instance
+     *
+     * @since 2.7
+     */
+    public abstract JavaType withContentType(JavaType contentType);
 
     /**
      * Method that can be called to get a type instance that indicates
@@ -197,35 +208,9 @@ public abstract class JavaType
         return result;
     }
 
-    /**
-     * Method that can be called to do a "widening" conversions; that is,
-     * to return a type with a raw class that could be assigned from this
-     * type.
-     * If such conversion is not possible, an
-     * {@link IllegalArgumentException} is thrown.
-     * If class is same as the current raw class, instance itself is
-     * returned.
-     */
-    public JavaType widenBy(Class<?> superclass) {
-        // First: if same raw class, just return this instance
-        if (superclass == _class) { return this; }
-        // Otherwise, ensure compatibility
-        _assertSubclass(_class, superclass);
-        return _widen(superclass);
-    }
-
     protected abstract JavaType _narrow(Class<?> subclass);
 
-    /**
-     *<p>
-     * Default implementation is just to call {@link #_narrow}, since
-     * underlying type construction is usually identical
-     */
-    protected JavaType _widen(Class<?> superclass) { return _narrow(superclass); }
-
     public abstract JavaType narrowContentsBy(Class<?> contentClass);
-
-    public abstract JavaType widenContentsBy(Class<?> contentClass);
 
     /**
      * Mutant factory method that will try to create and return a sub-type instance

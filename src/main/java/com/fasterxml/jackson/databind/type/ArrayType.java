@@ -47,13 +47,11 @@ public final class ArrayType
         Object emptyInstance = Array.newInstance(componentType.getRawClass(), 0);
         return new ArrayType(componentType, bindings, emptyInstance, valueHandler, typeHandler, false);
     }
-    
-    /**
-     * @since 2.7
-     */
-    public ArrayType withOverriddenComponentType(JavaType componentType) {
-        Object emptyInstance = Array.newInstance(componentType.getRawClass(), 0);
-        return new ArrayType(componentType, _bindings, emptyInstance,
+
+    @Override
+    public JavaType withContentType(JavaType contentType) {
+        Object emptyInstance = Array.newInstance(contentType.getRawClass(), 0);
+        return new ArrayType(contentType, _bindings, emptyInstance,
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -123,15 +121,6 @@ public final class ArrayType
      */
     @Override
     public JavaType narrowContentsBy(Class<?> contentClass) {
-        if (contentClass == _componentType.getRawClass()) {
-            return this;
-        }
-        return construct(_componentType.narrowBy(contentClass), _bindings,
-                _valueHandler, _typeHandler);
-    }
-
-    @Override
-    public JavaType widenContentsBy(Class<?> contentClass) {
         if (contentClass == _componentType.getRawClass()) {
             return this;
         }

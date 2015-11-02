@@ -107,10 +107,10 @@ public abstract class JavaType
 
     /**
      * Mutant factory method that will construct a new instance that is identical to
-     * this instance, except that its content type will have specified
-     * type handler assigned.
+     * this instance, except that it will have specified content type (element type
+     * for arrays, value type for Maps and so forth) handler assigned.
      * 
-     * @return Newly created type instance
+     * @return Newly created type instance, with given 
      */
     public abstract JavaType withContentTypeHandler(Object h);
 
@@ -131,9 +131,15 @@ public abstract class JavaType
     public abstract JavaType withContentValueHandler(Object h);
 
     /**
-     * Mutant factory method that will construct a new instance that is identical to
+     * Mutant factory method that may be called on structured types
+     * that have a so-called content type (element of arrays, value type
+     * of Maps, referenced type of referential types),
+     * and will construct a new instance that is identical to
      * this instance, except that it has specified content type, instead of current
      * one. If content type is already set to given type, <code>this</code> is returned.
+     * If type does not have a content type (which is the case with
+     * <code>SimpleType</code>), {@link IllegalArgumentException}
+     * will be thrown.
      * 
      * @return Newly created type instance
      *

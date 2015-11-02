@@ -133,7 +133,7 @@ public class TestCollectionDeserialization
         assertEquals("abc", result.get(0));
     }
 
-    // Testing [JACKSON-526], "implicit JSON array" for single-element arrays,
+    // Testing "implicit JSON array" for single-element arrays,
     // mostly produced by Jettison, Badgerfish conversions (from XML)
     @SuppressWarnings("unchecked")
     public void testImplicitArrays() throws Exception
@@ -176,7 +176,7 @@ public class TestCollectionDeserialization
         assertNull(result);
     }
 
-    // [Issue#161]
+    // [databind#161]
     public void testArrayBlockingQueue() throws Exception
     {
         // ok to skip polymorphic type to get Object
@@ -188,7 +188,7 @@ public class TestCollectionDeserialization
         assertEquals(Integer.valueOf(3), q.take());
     }
 
-    // [Issue#199]
+    // [databind#199]
     public void testIterableWithStrings() throws Exception
     {
         String JSON = "{ \"values\":[\"a\",\"b\"]}";
@@ -218,7 +218,7 @@ public class TestCollectionDeserialization
         assertFalse(it.hasNext());
     }
 
-    // for [Issue#506]
+    // for [databind#506]
     public void testArrayIndexForExceptions() throws Exception
     {
         final String OBJECTS_JSON = "[ \"KEY2\", false ]";
@@ -259,7 +259,7 @@ public class TestCollectionDeserialization
         }
     }
 
-    // for [Issue#828]
+    // for [databind#828]
     public void testWrapExceptions() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

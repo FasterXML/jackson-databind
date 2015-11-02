@@ -35,7 +35,6 @@ public final class CollectionType
      */
     public static CollectionType construct(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInts, JavaType elemT) {
-        // nominally component types will be just Object.class
         return new CollectionType(rawType, bindings, superClass, superInts, elemT,
                 null, null, false);
     }

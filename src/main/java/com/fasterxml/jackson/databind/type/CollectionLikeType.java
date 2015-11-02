@@ -45,6 +45,15 @@ public class CollectionLikeType extends TypeBase
     }
 
     /**
+     * @since 2.7
+     */
+    public static CollectionLikeType construct(Class<?> rawType, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInts, JavaType elemT) {
+        return new CollectionLikeType(rawType, bindings, superClass, superInts, elemT,
+                null, null, false);
+    }
+
+    /**
      * @deprecated Since 2.7, use {@link #upgradeFrom} for constructing instances, given
      *    pre-resolved {@link SimpleType}.
      */

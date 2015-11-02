@@ -1245,9 +1245,14 @@ public final class TypeFactory
         if (rawType == Collection.class) {
             return _collectionType(rawType, bindings, superClass, superInterfaces);
         }
+        // and since 2.6 one referential type
         if (rawType == AtomicReference.class) {
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
+        // 01-Nov-2015, tatu: As of 2.7, couple of potential `CollectionLikeType`s (like
+        //    `Iterable`, `Iterator`), and `MapLikeType`s (`Map.Entry`) are not automatically
+        //    detected, related to difficulties in propagating type upwards (Iterable, for
+        //    example, is a weak, tag-on type). They may be detectable in future.
         return null;
     }
 

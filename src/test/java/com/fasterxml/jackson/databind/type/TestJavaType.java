@@ -69,33 +69,6 @@ public class TestJavaType
 
         assertNull(baseType.getContentType());
         assertNull(baseType.getValueHandler());
-
-        /* both narrow and widen just return type itself (exact, not just
-         * equal)
-         * (also note that widen/narrow wouldn't work on basic simple
-         * class type otherwise)
-         */
-        assertSame(baseType, baseType.narrowBy(BaseType.class));
-
-        // Also: no narrowing for simple types (but should there be?)
-        try {
-            baseType.narrowBy(SubType.class);
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "should never be called");
-        }
-
-        // Also, let's try assigning bogus handler
-        /*
-        baseType.setValueHandler("xyz"); // untyped
-        assertEquals("xyz", baseType.getValueHandler());
-        // illegal to re-set
-        try {
-            baseType.setValueHandler("foobar");
-            fail("Shouldn't allow re-setting value handler");
-        } catch (IllegalStateException iae) {
-            verifyException(iae, "Trying to reset");
-        }
-        */
     }
 
     public void testArrayType()

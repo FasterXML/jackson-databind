@@ -159,39 +159,27 @@ public abstract class JavaType
     /* Type coercion fluent factory methods
     /**********************************************************
      */
-    
-    /**
-     * Method that can be called to do a "narrowing" conversions; that is,
-     * to return a type with a raw class that is assignable to the raw
-     * class of this type. If this is not possible, an
-     * {@link IllegalArgumentException} is thrown.
-     * If class is same as the current raw class, instance itself is
-     * returned.
-     */
-    public JavaType narrowBy(Class<?> subclass)
-    {
-        // First: if same raw class, just return this instance
-        if (subclass == _class) { return this; }
-        // Otherwise, ensure compatibility
-        _assertSubclass(subclass, _class);
-        
-        JavaType result = _narrow(subclass);
-        
-        // TODO: these checks should NOT actually be needed; above should suffice:
-        if (_valueHandler != result.<Object>getValueHandler()) {
-            result = result.withValueHandler(_valueHandler);
-        }
-        if (_typeHandler != result.<Object>getTypeHandler()) {
-            result = result.withTypeHandler(_typeHandler);
-        }
-        return result;
-    }
 
     /**
-     * More efficient version of {@link #narrowBy}, called by
-     * internal framework in cases where compatibility checks
-     * are to be skipped.
+     * Mutant factory method that will try to create and return a sub-type instance
+     * for known parameterized types; for other types will return `null` to indicate
+     * that no just refinement makes necessary sense, without trying to detect
+     * special status through implemented interfaces.
+     *
+     * @since 2.7
      */
+    public abstract JavaType refine(Class<?> rawType, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces);
+    
+    /**
+     * Legacy method used for forcing sub-typing of this type into
+     * type specified by specific type erasure.
+     * Deprecated as of 2.7 as such specializations really ought to
+     * go through {@link TypeFactory}, not directly via {@link JavaType}.
+     *
+     * @since 2.7
+     */
+    @Deprecated
     public JavaType forcedNarrowBy(Class<?> subclass)
     {
         if (subclass == _class) { // can still optimize for simple case
@@ -209,17 +197,6 @@ public abstract class JavaType
     }
 
     protected abstract JavaType _narrow(Class<?> subclass);
-
-    /**
-     * Mutant factory method that will try to create and return a sub-type instance
-     * for known parameterized types; for other types will return `null` to indicate
-     * that no just refinement makes necessary sense, without trying to detect
-     * special status through implemented interfaces.
-     *
-     * @since 2.7
-     */
-    public abstract JavaType refine(Class<?> rawType, TypeBindings bindings,
-            JavaType superClass, JavaType[] superInterfaces);
 
     /*
     /**********************************************************
@@ -518,18 +495,6 @@ public abstract class JavaType
      * call chaining
      */
     public abstract StringBuilder getErasedSignature(StringBuilder sb);
-    
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    protected void _assertSubclass(Class<?> subclass, Class<?> superClass) {
-        if (!_class.isAssignableFrom(subclass)) {
-            throw new IllegalArgumentException("Class "+subclass.getName()+" is not assignable to "+_class.getName());
-        }
-    }
 
     /*
     /**********************************************************

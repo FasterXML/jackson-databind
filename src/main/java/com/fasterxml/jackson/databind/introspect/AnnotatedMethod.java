@@ -31,7 +31,7 @@ public final class AnnotatedMethod
     /*****************************************************
      */
 
-    public AnnotatedMethod(AnnotatedClass ctxt, Method method,
+    public AnnotatedMethod(TypeResolutionContext ctxt, Method method,
             AnnotationMap classAnn, AnnotationMap[] paramAnnotations)
     {
         super(ctxt, classAnn, paramAnnotations);
@@ -57,12 +57,12 @@ public final class AnnotatedMethod
      * of this instance, but with different physical {@link Method}.
      */
     public AnnotatedMethod withMethod(Method m) {
-        return new AnnotatedMethod(_context, m, _annotations, _paramAnnotations);
+        return new AnnotatedMethod(_typeContext, m, _annotations, _paramAnnotations);
     }
     
     @Override
     public AnnotatedMethod withAnnotations(AnnotationMap ann) {
-        return new AnnotatedMethod(_context, _method, ann, _paramAnnotations);
+        return new AnnotatedMethod(_typeContext, _method, ann, _paramAnnotations);
     }
 
     /*
@@ -87,7 +87,7 @@ public final class AnnotatedMethod
      */
     @Override
     public JavaType getType() {
-        return _context.resolveMemberType(_method.getGenericReturnType());
+        return _typeContext.resolveType(_method.getGenericReturnType());
     }
 
     /**
@@ -196,7 +196,7 @@ public final class AnnotatedMethod
         if (index >= types.length) {
             return null;
         }
-        return _context.resolveMemberType(types[index]);
+        return _typeContext.resolveType(types[index]);
     }
 
     public Class<?> getRawReturnType() {

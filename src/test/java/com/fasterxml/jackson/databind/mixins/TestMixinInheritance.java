@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestMixinInheritance
     extends BaseMapTest
 {
-    // [Issue-14]
     static class Beano {
         public int ido = 42;
         public String nameo = "Bob";
@@ -56,8 +55,10 @@ public class TestMixinInheritance
         Map<String,Object> result;
         result = writeAndMap(mapper, new Beano());
         assertEquals(2, result.size());
-        assertTrue(result.containsKey("id"));
-        assertTrue(result.containsKey("name"));
+        if (!result.containsKey("id")
+                || !result.containsKey("name")) {
+            fail("Should have both 'id' and 'name', but content = "+result);
+        }
     }
 
     public void testMixinMethodInheritance() throws IOException

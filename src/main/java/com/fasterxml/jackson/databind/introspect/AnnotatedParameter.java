@@ -40,7 +40,7 @@ public final class AnnotatedParameter
     public AnnotatedParameter(AnnotatedWithParams owner, JavaType type,  AnnotationMap annotations,
             int index)
     {
-        super((owner == null) ? null : owner.getContextClass(), annotations);
+        super((owner == null) ? null : owner.getTypeContext(), annotations);
         _owner = owner;
         _type = type;
         _index = index;
@@ -88,9 +88,9 @@ public final class AnnotatedParameter
 
     @Override
     public JavaType getType() {
-        return _context.resolveMemberType(_type);
+        return _typeContext.resolveType(_type);
     }
-    
+
     /*
     /**********************************************************
     /* AnnotatedMember extras

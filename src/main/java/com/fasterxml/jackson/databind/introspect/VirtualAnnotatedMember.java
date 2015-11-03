@@ -27,10 +27,10 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     /**********************************************************
      */
 
-    public VirtualAnnotatedMember(AnnotatedClass contextClass, Class<?> declaringClass,
+    public VirtualAnnotatedMember(TypeResolutionContext typeContext, Class<?> declaringClass,
             String name, Class<?> rawType)
     {
-        super(contextClass, /* AnnotationMap*/ null);
+        super(typeContext, /* AnnotationMap*/ null);
         _declaringClass = declaringClass;
         _rawType = rawType;
         _name = name;
@@ -63,7 +63,7 @@ public class VirtualAnnotatedMember extends AnnotatedMember
 
     @Override
     public JavaType getType() {
-        return _context.resolveMemberType(_rawType);
+        return _typeContext.resolveType(_rawType);
     }
 
     /*

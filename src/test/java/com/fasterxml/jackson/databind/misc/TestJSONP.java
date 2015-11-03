@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.misc;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import com.fasterxml.jackson.databind.util.JSONPObject;
 
 public class TestJSONP
@@ -46,7 +46,7 @@ public class TestJSONP
     {
         ObjectMapper m = new ObjectMapper();
         Object ob = new Impl("abc", "def");
-        JavaType type = TypeFactory.defaultInstance().uncheckedSimpleType(Base.class);
+        JavaType type = m.constructType(Base.class);
         assertEquals("do({\"a\":\"abc\"})",
                 serializeAsString(m, new JSONPObject("do", ob, type)));
     }

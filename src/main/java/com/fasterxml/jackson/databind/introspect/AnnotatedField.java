@@ -34,7 +34,7 @@ public final class AnnotatedField
     /**********************************************************
      */
 
-    public AnnotatedField(AnnotatedClass contextClass, Field field, AnnotationMap annMap)
+    public AnnotatedField(TypeResolutionContext contextClass, Field field, AnnotationMap annMap)
     {
         super(contextClass, annMap);
         _field = field;
@@ -42,7 +42,7 @@ public final class AnnotatedField
     
     @Override
     public AnnotatedField withAnnotations(AnnotationMap ann) {
-        return new AnnotatedField(_context, _field, ann);
+        return new AnnotatedField(_typeContext, _field, ann);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class AnnotatedField
 
     @Override
     public JavaType getType() {
-        return _context.resolveMemberType(_field.getGenericType());
+        return _typeContext.resolveType(_field.getGenericType());
     }
 
     /*

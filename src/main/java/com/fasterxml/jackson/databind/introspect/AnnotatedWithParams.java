@@ -26,7 +26,7 @@ public abstract class AnnotatedWithParams
     /**********************************************************
      */
 
-    protected AnnotatedWithParams(AnnotatedClass ctxt, AnnotationMap annotations, AnnotationMap[] paramAnnotations)
+    protected AnnotatedWithParams(TypeResolutionContext ctxt, AnnotationMap annotations, AnnotationMap[] paramAnnotations)
     {
         super(ctxt, annotations);
         _paramAnnotations = paramAnnotations;

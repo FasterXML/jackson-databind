@@ -26,7 +26,7 @@ public final class AnnotatedConstructor
     /**********************************************************
      */
 
-    public AnnotatedConstructor(AnnotatedClass ctxt, Constructor<?> constructor,
+    public AnnotatedConstructor(TypeResolutionContext ctxt, Constructor<?> constructor,
             AnnotationMap classAnn, AnnotationMap[] paramAnn)
     {
         super(ctxt, classAnn, paramAnn);
@@ -49,7 +49,7 @@ public final class AnnotatedConstructor
     
     @Override
     public AnnotatedConstructor withAnnotations(AnnotationMap ann) {
-        return new AnnotatedConstructor(_context, _constructor, ann, _paramAnnotations);
+        return new AnnotatedConstructor(_typeContext, _constructor, ann, _paramAnnotations);
     }
     
     /*
@@ -69,7 +69,7 @@ public final class AnnotatedConstructor
 
     @Override
     public JavaType getType() {
-        return _context.resolveMemberType(getRawType());
+        return _typeContext.resolveType(getRawType());
     }
     
     @Override
@@ -101,7 +101,7 @@ public final class AnnotatedConstructor
         if (index >= types.length) {
             return null;
         }
-        return _context.resolveMemberType(types[index]);
+        return _typeContext.resolveType(types[index]);
     }
 
     @Override

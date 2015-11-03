@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedClass
     extends Annotated
+    implements TypeResolutionContext
 {
     private final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
 
@@ -25,6 +26,11 @@ public final class AnnotatedClass
     /* Configuration
     /**********************************************************
      */
+
+    /**
+     * @since 2.7
+     */
+    final protected JavaType _type;
 
     /**
      * Class for which annotations apply, and that owns other
@@ -128,12 +134,13 @@ public final class AnnotatedClass
      * Constructor will not do any initializations, to allow for
      * configuring instances differently depending on use cases
      */
-    private AnnotatedClass(Class<?> cls, TypeBindings bindings,
+    private AnnotatedClass(JavaType type, Class<?> rawType, TypeBindings bindings,
             List<JavaType> superTypes,
             AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
             AnnotationMap classAnnotations)
     {
-        _class = cls;
+        _type = type;
+        _class = rawType;
         _bindings = bindings;
         _superTypes = superTypes;
         _annotationIntrospector = aintr;
@@ -146,7 +153,7 @@ public final class AnnotatedClass
 
     @Override
     public AnnotatedClass withAnnotations(AnnotationMap ann) {
-        return new AnnotatedClass(_class, _bindings, _superTypes,
+        return new AnnotatedClass(_type, _class, _bindings, _superTypes,
                 _annotationIntrospector, _mixInResolver, _typeFactory, ann);
     }
 
@@ -161,7 +168,7 @@ public final class AnnotatedClass
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         Class<?> raw = type.getRawClass();
-        return new AnnotatedClass(raw, type.getBindings(),
+        return new AnnotatedClass(type, raw, type.getBindings(),
                 ClassUtil.findSuperTypes(type, null), intr,
                 (MixInResolver) config, config.getTypeFactory(), null);
     }
@@ -175,7 +182,7 @@ public final class AnnotatedClass
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         Class<?> raw = type.getRawClass();
-        return new AnnotatedClass(raw, type.getBindings(),
+        return new AnnotatedClass(type, raw, type.getBindings(),
                 ClassUtil.findSuperTypes(type, null),
                 intr, mir, config.getTypeFactory(), null);
     }
@@ -188,12 +195,12 @@ public final class AnnotatedClass
     public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls, MapperConfig<?> config)
     {
         if (config == null) {
-            return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+            return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
                     Collections.<JavaType>emptyList(), null, null, null, null);
         }
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
-        return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+        return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
                 Collections.<JavaType>emptyList(), intr, (MixInResolver) config, config.getTypeFactory(), null);
     }
 
@@ -201,13 +208,24 @@ public final class AnnotatedClass
             MixInResolver mir)
     {
         if (config == null) {
-            return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+            return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
                     Collections.<JavaType>emptyList(), null, null, null, null);
         }
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
-        return new AnnotatedClass(cls, TypeBindings.emptyBindings(),
+        return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
                 Collections.<JavaType>emptyList(), intr, mir, config.getTypeFactory(), null);
+    }
+
+    /*
+    /**********************************************************
+    /* TypeResolutionContext implementation
+    /**********************************************************
+     */
+
+    @Override
+    public JavaType resolveType(Type type) {
+        return _typeFactory.constructType(type, _bindings);
     }
 
     /*
@@ -266,7 +284,7 @@ public final class AnnotatedClass
     @Override
     public JavaType getType() {
         // 16-Oct-2015, tatu: Does this make any sense? Technically doable but
-//        return _typeFactory.constructType(_class, _bindings);
+//        return _type;
         throw new UnsupportedOperationException("Should not be called on AnnotatedClass");
     }
 
@@ -359,13 +377,6 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    /**
-     * @since 2.7
-     */
-    public JavaType resolveMemberType(Type type) {
-        return _typeFactory.constructType(type, _bindings);
-    }
-    
     /**
      * Initialization method that will recursively collect Jackson
      * annotations for this class and all super classes and
@@ -545,7 +556,7 @@ public final class AnnotatedClass
      */
     private void resolveFields()
     {
-        Map<String,AnnotatedField> foundFields = _findFields(_class, null);
+        Map<String,AnnotatedField> foundFields = _findFields(_type, this, null);
         if (foundFields == null || foundFields.size() == 0) {
             _fields = Collections.emptyList();
         } else {
@@ -740,7 +751,7 @@ public final class AnnotatedClass
                      * just placeholder, can't be called)
                      */
                 } else {
-                    // Well, or, as per [Issue#515], multi-level merge within mixins...
+                    // Well, or, as per [databind#515], multi-level merge within mixins...
                     am = mixIns.find(m);
                     if (am != null) {
                         _addMixUnders(m, am);
@@ -758,21 +769,25 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    protected Map<String,AnnotatedField> _findFields(Class<?> c, Map<String,AnnotatedField> fields)
+    protected Map<String,AnnotatedField> _findFields(JavaType type,
+            TypeResolutionContext typeContext, Map<String,AnnotatedField> fields)
     {
         /* First, a quick test: we only care for regular classes (not
          * interfaces, primitive types etc), except for Object.class.
          * A simple check to rule out other cases is to see if there
          * is a super class or not.
          */
-        Class<?> parent = c.getSuperclass();
+        JavaType parent = type.getSuperClass();
         if (parent != null) {
+            final Class<?> cls = type.getRawClass();
             // Let's add super-class' fields first, then ours.
             /* 21-Feb-2010, tatu: Need to handle masking: as per [JACKSON-226]
              *    we otherwise get into trouble...
              */
-            fields = _findFields(parent, fields);
-            for (Field f : ClassUtil.getDeclaredFields(c)) {
+            fields = _findFields(parent,
+                    new TypeResolutionContext.Basic(_typeFactory, parent.getBindings()),
+                    fields);
+            for (Field f : ClassUtil.getDeclaredFields(cls)) {
                 // static fields not included (transients are at this point, filtered out later)
                 if (!_isIncludableField(f)) {
                     continue;
@@ -785,13 +800,13 @@ public final class AnnotatedClass
                 if (fields == null) {
                     fields = new LinkedHashMap<String,AnnotatedField>();
                 }
-                fields.put(f.getName(), _constructField(f));
+                fields.put(f.getName(), _constructField(f, typeContext));
             }
             // And then... any mix-in overrides?
             if (_mixInResolver != null) {
-                Class<?> mixin = _mixInResolver.findMixInClassFor(c);
+                Class<?> mixin = _mixInResolver.findMixInClassFor(cls);
                 if (mixin != null) {
-                    _addFieldMixIns(parent, mixin, fields);
+                    _addFieldMixIns(mixin, cls, fields);
                 }
             }
         }
@@ -803,12 +818,10 @@ public final class AnnotatedClass
      * into already collected actual fields (from introspected classes and their
      * super-classes)
      */
-    protected void _addFieldMixIns(Class<?> targetClass, Class<?> mixInCls,
+    protected void _addFieldMixIns(Class<?> mixInCls, Class<?> targetClass,
             Map<String,AnnotatedField> fields)
     {
-        List<Class<?>> parents = new ArrayList<Class<?>>();
-        parents.add(mixInCls);
-        ClassUtil.findSuperTypes(mixInCls, targetClass, parents);
+        List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
         for (Class<?> mixin : parents) {
             for (Field mixinField : ClassUtil.getDeclaredFields(mixin)) {
                 // there are some dummy things (static, synthetic); better ignore
@@ -918,12 +931,12 @@ public final class AnnotatedClass
                                    _collectRelevantAnnotations(m.getParameterAnnotations()));
     }
 
-    protected AnnotatedField _constructField(Field f)
+    protected AnnotatedField _constructField(Field f, TypeResolutionContext typeContext)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedField(this, f, _emptyAnnotationMap());
+            return new AnnotatedField(typeContext, f, _emptyAnnotationMap());
         }
-        return new AnnotatedField(this, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
+        return new AnnotatedField(typeContext, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
  
     private AnnotationMap _emptyAnnotationMap() {

@@ -196,9 +196,18 @@ public class SequenceWriter
         return this;
     }
 
+    /**
+     * This method can be removed in the next major release.
+     *
+     * @deprecated use {@link #writeAll(Iterable)} instead.
+     */
     public <C extends Collection<?>> SequenceWriter writeAll(C container) throws IOException
     {
-        for (Object value : container) {
+        return writeAll((Iterable) container);
+    }
+
+    public <I extends Iterable<?>> SequenceWriter writeAll(I iterable) throws IOException {
+        for (Object value : iterable) {
             write(value);
         }
         return this;

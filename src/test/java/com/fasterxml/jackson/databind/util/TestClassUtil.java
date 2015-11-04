@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -57,28 +55,6 @@ public class TestClassUtil
     /**********************************************************
      */
 
-    public void testSuperTypes()
-    {
-        Collection<Class<?>> result = ClassUtil.findSuperTypes(SubClass.class, null);
-        Class<?>[] classes = result.toArray(new Class<?>[result.size()]);
-        Class<?>[] exp = new Class[] {
-            SubInt.class, BaseInt.class,
-            BaseClass.class,
-            Comparable.class
-        };
-        assertArrayEquals(exp, classes);
-    }
-
-    public void testSuperInterfaces()
-    {
-        Collection<Class<?>> result = ClassUtil.findSuperTypes(SubInt.class, null);
-        Class<?>[] classes = result.toArray(new Class<?>[result.size()]);
-        Class<?>[] exp = new Class[] {
-            BaseInt.class
-        };
-        assertArrayEquals(exp, classes);
-    }
-    
     public void testIsConcrete() throws Exception
     {
         assertTrue(ClassUtil.isConcrete(getClass()));

@@ -44,34 +44,26 @@ public final class ClassUtil
      *
      * @since 2.7
      */
-    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore) {
-        return findSuperTypes(type, endBefore, new ArrayList<JavaType>(8));
+    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore,
+            boolean addClassItself) {
+        if ((type == null) || type.hasRawClass(endBefore) || type.hasRawClass(Object.class)) {
+            return Collections.emptyList();
+        }
+        List<JavaType> result = new ArrayList<JavaType>(8);
+        _addSuperTypes(type, endBefore, result, addClassItself);
+        return result;
     }
 
     /**
      * @since 2.7
      */
-    public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore, List<JavaType> result) {
-        _addSuperTypes(type, endBefore, result, false);
+    public static List<Class<?>> findRawSuperTypes(Class<?> cls, Class<?> endBefore, boolean addClassItself) {
+        if ((cls == null) || (cls == endBefore) || (cls == Object.class)) {
+            return Collections.emptyList();
+        }
+        List<Class<?>> result = new ArrayList<Class<?>>(8);
+        _addRawSuperTypes(cls, endBefore, result, addClassItself);
         return result;
-    }
-
-    private static void _addSuperTypes(JavaType type, Class<?> endBefore, Collection<JavaType> result, boolean addClassItself) {
-        if (type == null) {
-            return;
-        }
-        final Class<?> cls = type.getRawClass();
-        if (cls == endBefore || cls == Object.class) { return; }
-        if (addClassItself) {
-            if (result.contains(type)) { // already added, no need to check supers
-                return;
-            }
-            result.add(type);
-        }
-        for (JavaType intCls : type.getInterfaces()) {
-            _addSuperTypes(intCls, endBefore, result, true);
-        }
-        _addSuperTypes(type.getSuperClass(), endBefore, result, true);
     }
 
     /**
@@ -84,7 +76,7 @@ public final class ClassUtil
     public static List<Class<?>> findSuperClasses(Class<?> cls, Class<?> endBefore,
             boolean addClassItself) {
         List<Class<?>> result = new LinkedList<Class<?>>();
-        if (cls != null) {
+        if ((cls != null) && (cls != endBefore))  {
             if (addClassItself) {
                 result.add(cls);
             }
@@ -105,12 +97,31 @@ public final class ClassUtil
 
     @Deprecated // since 2.7
     public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result) {
-        _addSuperTypes(cls, endBefore, result, false);
+        _addRawSuperTypes(cls, endBefore, result, false);
         return result;
     }
 
-    @Deprecated // since 2.7
-    private static void _addSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself) {
+    private static void _addSuperTypes(JavaType type, Class<?> endBefore, Collection<JavaType> result,
+            boolean addClassItself)
+    {
+        if (type == null) {
+            return;
+        }
+        final Class<?> cls = type.getRawClass();
+        if (cls == endBefore || cls == Object.class) { return; }
+        if (addClassItself) {
+            if (result.contains(type)) { // already added, no need to check supers
+                return;
+            }
+            result.add(type);
+        }
+        for (JavaType intCls : type.getInterfaces()) {
+            _addSuperTypes(intCls, endBefore, result, true);
+        }
+        _addSuperTypes(type.getSuperClass(), endBefore, result, true);
+    }
+
+    private static void _addRawSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself) {
         if (cls == endBefore || cls == null || cls == Object.class) { return; }
         if (addClassItself) {
             if (result.contains(cls)) { // already added, no need to check supers
@@ -119,9 +130,9 @@ public final class ClassUtil
             result.add(cls);
         }
         for (Class<?> intCls : _interfaces(cls)) {
-            _addSuperTypes(intCls, endBefore, result, true);
+            _addRawSuperTypes(intCls, endBefore, result, true);
         }
-        _addSuperTypes(cls.getSuperclass(), endBefore, result, true);
+        _addRawSuperTypes(cls.getSuperclass(), endBefore, result, true);
     }
 
     /*

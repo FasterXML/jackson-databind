@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.io.Serializable;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
-
-import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class TestGenericsBounded
@@ -92,4 +91,43 @@ public class TestGenericsBounded
         assertEquals(3, result.values.get(0).x);
     }
 
+    public void testGenericsComplex() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        DoubleRange in = new DoubleRange(-0.5, 0.5);
+        String json = m.writeValueAsString(in);
+        DoubleRange out = m.readValue(json, DoubleRange.class);
+        assertNotNull(out);
+        assertEquals(-0.5, out.start);
+        assertEquals(0.5, out.end);
+    }
+
+    public void testIssue778() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        String json = "{\"rows\":[{\"d\":{}}]}";
+
+        final TypeReference<?> typeRef = new TypeReference<ResultSetWithDoc<MyDoc>>() {};
+
+        // First, verify type introspection:
+
+        JavaType type = mapper.getTypeFactory().constructType(typeRef);
+        JavaType resultSetType = type.findSuperType(ResultSet.class);
+        assertNotNull(resultSetType);
+        assertEquals(1, resultSetType.containedTypeCount());
+
+        JavaType rowType = resultSetType.containedType(0);
+        assertNotNull(rowType);
+        assertEquals(RowWithDoc.class, rowType.getRawClass());
+        
+        assertEquals(1, rowType.containedTypeCount());
+        JavaType docType = rowType.containedType(0);
+        assertEquals(MyDoc.class, docType.getRawClass());
+
+        // type passed is correct, but somehow it gets mangled when passed...
+        ResultSetWithDoc<MyDoc> rs = mapper.readValue(json, type);
+        Document d = rs.rows.iterator().next().d;
+    
+        assertEquals(MyDoc.class, d.getClass()); //expected MyDoc but was Document
+    }
 }

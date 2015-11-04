@@ -173,7 +173,7 @@ public class TestViewSerialization
     }
 
     // [JACKSON-868]
-    public void test() throws IOException
+    public void test868() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);

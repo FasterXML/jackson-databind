@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.seq;
 
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -72,6 +73,17 @@ public class SequenceWriterTest extends BaseMapTest
         .writeAll(new Bean[] { new Bean(-7), new Bean(2) });
         w.close();
         assertEquals(aposToQuotes("[{'a':1},{'a':2},{'a':-7},{'a':2}]"),
+                strw.toString());
+    }
+
+    public void testSimpleIterable() throws Exception {
+        StringWriter strw = new StringWriter();
+        SequenceWriter w = WRITER.writeValuesAsArray(strw);
+        Iterable<Bean> iterable = Arrays.asList(new Bean(3), new Bean(3), new Bean(7));
+        w.write(new Bean(1))
+                .writeAll(iterable);
+        w.close();
+        assertEquals(aposToQuotes("[{'a':1},{'a':3},{'a':3},{'a':7}]"),
                 strw.toString());
     }
 

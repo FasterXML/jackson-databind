@@ -21,15 +21,6 @@ public class TypeBindings
 
     // // // Pre-resolved instances for minor optimizations
 
-    // 30-Oct-2015, tatu: Surprising, but looks like type parameters access can be bit of
-    //    a hot spot. So avoid for a small number of common generic types
-    
-    private final static TypeVariable<?>[] VARS_ABSTRACT_LIST = AbstractList.class.getTypeParameters();
-    private final static TypeVariable<?>[] VARS_COLLECTION = Collection.class.getTypeParameters();
-    private final static TypeVariable<?>[] VARS_ITERABLE = Iterable.class.getTypeParameters();
-    private final static TypeVariable<?>[] VARS_LIST = List.class.getTypeParameters();
-    private final static TypeVariable<?>[] VARS_MAP = Map.class.getTypeParameters();
-    
     // // // Actual member information
     
     /**
@@ -129,20 +120,7 @@ public class TypeBindings
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1)
     {
         // 30-Oct-2015, tatu: Minor optimization for relatively common cases
-        TypeVariable<?>[] vars;
-        if (erasedType == Collection.class) {
-            vars = VARS_COLLECTION;
-        } else if (erasedType == List.class) {
-            vars = VARS_LIST;
-        } else if (erasedType == Map.class) {
-            vars = VARS_MAP;
-        } else if (erasedType == AbstractList.class) {
-            vars = VARS_ABSTRACT_LIST;
-        } else if (erasedType == Iterable.class) {
-            vars = VARS_ITERABLE;
-        } else {
-            vars = erasedType.getTypeParameters();
-        }
+        TypeVariable<?>[] vars = TypeParamStash.paramsFor1(erasedType);
         int varLen = (vars == null) ? 0 : vars.length;
         if (varLen != 1) {
             throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
@@ -154,7 +132,8 @@ public class TypeBindings
 
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1, JavaType typeArg2)
     {
-        TypeVariable<?>[] vars = erasedType.getTypeParameters();
+        // 30-Oct-2015, tatu: Minor optimization for relatively common cases
+        TypeVariable<?>[] vars = TypeParamStash.paramsFor2(erasedType);
         int varLen = (vars == null) ? 0 : vars.length;
         if (varLen != 2) {
             throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
@@ -343,7 +322,7 @@ public class TypeBindings
         }
         return true;
     }
-    
+
     /*
     /**********************************************************************
     /* Package accessible methods
@@ -353,4 +332,67 @@ public class TypeBindings
     protected JavaType[] typeParameterArray() {
         return _types;
     }
+
+    /*
+    /**********************************************************************
+    /* Helper classes
+    /**********************************************************************
+     */
+
+    // 30-Oct-2015, tatu: Surprising, but looks like type parameters access can be bit of
+    //    a hot spot. So avoid for a small number of common generic types. Note that we do
+    //    need both common abstract types and concrete ones; latter for specialization
+
+    /**
+     * Helper class that contains simple logic for avoiding repeated lookups via
+     * {@link Class#getTypeParameters()} as that can be a performance issue for
+     * some use cases (wasteful, usually one-off or not reusing mapper).
+     * Partly isolated to avoid initialization for cases where no generic types are
+     * used.
+     */
+    static class TypeParamStash {
+        private final static TypeVariable<?>[] VARS_ABSTRACT_LIST = AbstractList.class.getTypeParameters();
+        private final static TypeVariable<?>[] VARS_COLLECTION = Collection.class.getTypeParameters();
+        private final static TypeVariable<?>[] VARS_ITERABLE = Iterable.class.getTypeParameters();
+        private final static TypeVariable<?>[] VARS_LIST = List.class.getTypeParameters();
+        private final static TypeVariable<?>[] VARS_ARRAY_LIST = ArrayList.class.getTypeParameters();
+
+        private final static TypeVariable<?>[] VARS_MAP = Map.class.getTypeParameters();
+        private final static TypeVariable<?>[] VARS_HASH_MAP = HashMap.class.getTypeParameters();
+        private final static TypeVariable<?>[] VARS_LINKED_HASH_MAP = LinkedHashMap.class.getTypeParameters();
+
+        public static TypeVariable<?>[] paramsFor1(Class<?> erasedType)
+        {
+            if (erasedType == Collection.class) {
+                return VARS_COLLECTION;
+            }
+            if (erasedType == List.class) {
+                return VARS_LIST;
+            }
+            if (erasedType == ArrayList.class) {
+                return VARS_ARRAY_LIST;
+            }
+            if (erasedType == AbstractList.class) {
+                return VARS_ABSTRACT_LIST;
+            }
+            if (erasedType == Iterable.class) {
+                return VARS_ITERABLE;
+            }
+            return erasedType.getTypeParameters();
+        }    
+
+        public static TypeVariable<?>[] paramsFor2(Class<?> erasedType)
+        {
+            if (erasedType == Map.class) {
+                return VARS_MAP;
+            }
+            if (erasedType == HashMap.class) {
+                return VARS_HASH_MAP;
+            }
+            if (erasedType == LinkedHashMap.class) {
+                return VARS_LINKED_HASH_MAP;
+            }
+            return erasedType.getTypeParameters();
+        }    
+    }    
 }

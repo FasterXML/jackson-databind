@@ -12,6 +12,7 @@ Project: jackson-databind
  (reported by Florian S)
 #432: `StdValueInstantiator` unwraps exceptions, losing context
  (reported by Miles K)
+#497: Add new JsonInclude.Include feature to exclude maps after exclusion removes all elements
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)

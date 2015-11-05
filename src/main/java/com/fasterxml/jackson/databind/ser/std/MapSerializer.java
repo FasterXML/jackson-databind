@@ -100,9 +100,11 @@ public class MapSerializer
     protected final boolean _sortKeys;
 
     /**
-     * Value that indicates suppression mechanism to use; either one of
-     * values of {@link com.fasterxml.jackson.annotation.JsonInclude.Include}, or actual object to compare
-     * against ("default value")
+     * Value that indicates suppression mechanism to use for <b>values contained</b>;
+     * either one of values of {@link com.fasterxml.jackson.annotation.JsonInclude.Include},
+     * or actual object to compare against ("default value").
+     * Note that inclusion value for Map instance itself is handled by caller (POJO
+     * property that refers to the Map value).
      * 
      * @since 2.5
      */
@@ -406,10 +408,53 @@ public class MapSerializer
     public JsonSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
-    
+
     @Override
-    public boolean isEmpty(SerializerProvider prov, Map<?,?> value) {
-        return (value == null) || value.isEmpty();
+    public boolean isEmpty(SerializerProvider prov, Map<?,?> value)
+    {
+        if (value == null || value.isEmpty()) {
+            return true;
+        }
+        // 05-Nove-2015, tatu: Simple cases are cheap, but for recursive
+        //   emptiness checking we actually need to see if values are empty as well.
+        Object supp = this._suppressableValue;
+
+        if ((supp == null) || (supp == JsonInclude.Include.ALWAYS)) {
+            return false;
+        }
+        JsonSerializer<Object> valueSer = _valueSerializer;
+        if (valueSer != null) {
+            for (Object elemValue : value.values()) {
+                if ((elemValue != null) && !valueSer.isEmpty(prov, elemValue)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        // But if not statically known, try this:
+        PropertySerializerMap serializers = _dynamicValueSerializers;
+        for (Object elemValue : value.values()) {
+            if (elemValue == null) {
+                continue;
+            }
+            Class<?> cc = elemValue.getClass();
+            // 05-Nov-2015, tatu: Let's not worry about generic types here, actually;
+            //   unlikely to make any difference, but does add significant overhead
+            valueSer = serializers.serializerFor(cc);
+            if (valueSer == null) {
+                try {
+                    valueSer = _findAndAddDynamic(serializers, cc, prov);
+                } catch (JsonMappingException e) { // Ugh... can not just throw as-is, so...
+                    // 05-Nov-2015, tatu: For now, probably best not to assume empty then
+                    return false;
+                }
+                serializers = _dynamicValueSerializers;
+            }
+            if (!valueSer.isEmpty(prov, elemValue)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

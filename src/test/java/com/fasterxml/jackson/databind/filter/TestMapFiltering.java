@@ -91,7 +91,7 @@ public class TestMapFiltering extends BaseMapTest
             return this;
         }
     }
-    
+
     // [databind#527]
     @JsonInclude(content=JsonInclude.Include.NON_NULL)
     static class NoNullsStringMap extends LinkedHashMap<String,String> {
@@ -109,7 +109,7 @@ public class TestMapFiltering extends BaseMapTest
             return this;
         }
     }
-    
+
     // [databind#527]
     @JsonInclude(content=JsonInclude.Include.NON_EMPTY)
     static class NoEmptyStringsMap extends LinkedHashMap<String,String> {
@@ -118,7 +118,23 @@ public class TestMapFiltering extends BaseMapTest
             return this;
         }
     }
-    
+
+    // [databind#497]: both Map AND contents excluded if empty
+    static class Wrapper497 {
+        @JsonInclude(content=JsonInclude.Include.NON_EMPTY,
+                value=JsonInclude.Include.NON_EMPTY)
+        public StringMap497 values;
+
+        public Wrapper497(StringMap497 v) { values = v; }
+    }
+
+    static class StringMap497 extends LinkedHashMap<String,String> {
+        public StringMap497 add(String key, String value) {
+            put(key, value);
+            return this;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -206,5 +222,22 @@ public class TestMapFiltering extends BaseMapTest
         // but not if explicitly asked not to (note: config value is dynamic here)
         m.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
         assertEquals("{}", m.writeValueAsString(map));
+    }
+
+    // [databind#527]
+    public void testMapWithOnlyEmptyValues() throws IOException
+    {
+        String json;
+
+        // First, non empty:
+        json = MAPPER.writeValueAsString(new Wrapper497(new StringMap497()
+            .add("a", "123")));
+        assertEquals(aposToQuotes("{'values':{'a':'123'}}"), json);
+
+        // then empty
+        json = MAPPER.writeValueAsString(new Wrapper497(new StringMap497()
+            .add("a", "")
+            .add("b", null)));
+        assertEquals(aposToQuotes("{}"), json);
     }
 }

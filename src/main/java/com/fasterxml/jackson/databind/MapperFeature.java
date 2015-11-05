@@ -180,12 +180,13 @@ public enum MapperFeature implements ConfigFeature
      * and may result in slower Reflection calls. Exact impact (if any)
      * depends on Java platform (Java SE, Android) as well as JDK version.
      *<p>
-     * Feature is enabled by default, for legacy reasons.
+     * Feature is enabled by default, for legacy reasons (it was the behavior
+     * until 2.6)
      *
      * @since 2.7
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
-    
+
     /**
      * Feature that determines whether member mutators (fields and
      * setters) may be "pulled in" even if they are not visible,

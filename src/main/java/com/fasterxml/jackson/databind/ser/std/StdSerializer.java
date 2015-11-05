@@ -28,6 +28,18 @@ public abstract class StdSerializer<T>
     extends JsonSerializer<T>
     implements JsonFormatVisitable, SchemaAware, java.io.Serializable
 {
+    /**
+     * Unique key we use to store a temporary lock, to prevent infinite recursion
+     * when resolving content converters (see [databind#357]).
+     *<p>
+     * NOTE: may need to revisit this if nested content converters are needed; if so,
+     * may need to create per-call lock object. But let's start with a simpler
+     * solution for now.
+     *
+     * @since 2.7
+     */
+    private final static Object CONVERTING_CONTENT_CONVERTER_LOCK = new Object();
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -259,16 +271,27 @@ public abstract class StdSerializer<T>
          *   when applying contextual content converter; this is not ideal way,
          *   but should work for most cases.
          */
+        Object ob = provider.getAttribute(CONVERTING_CONTENT_CONVERTER_LOCK);
+        if (ob != null) {
+            return existingSerializer;
+        }
+        
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null && prop != null) {
             AnnotatedMember m = prop.getMember();
             if (m != null) {
-                Object convDef = intr.findSerializationContentConverter(m);
+                provider.setAttribute(CONVERTING_CONTENT_CONVERTER_LOCK, Boolean.TRUE);
+                Object convDef;
+                try {
+                    convDef = intr.findSerializationContentConverter(m);
+                } finally {
+                    provider.setAttribute(CONVERTING_CONTENT_CONVERTER_LOCK, null);
+                }
                 if (convDef != null) {
                     Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
                     // [databind#731]: Should skip if nominally java.lang.Object
-                    if (existingSerializer == null && !delegateType.hasRawClass(Object.class)) {
+                    if ((existingSerializer == null) && !delegateType.isJavaLangObject()) {
                         existingSerializer = provider.findValueSerializer(delegateType);
                     }
                     return new StdDelegatingSerializer(conv, delegateType, existingSerializer);

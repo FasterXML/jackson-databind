@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -149,6 +150,21 @@ public class TestConvertingSerializer
         }
     }
 
+    // [databind#357]
+    static class Value { }
+
+    static class ListWrapper {
+        @JsonSerialize(contentConverter = ValueToStringListConverter.class)
+        public List<Value> list = Arrays.asList(new Value());
+    }
+
+    static class ValueToStringListConverter extends StdConverter<Value, List<String>> {
+        @Override
+        public List<String> convert(Value value) {
+            return Arrays.asList("Hello world!");
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -189,7 +205,7 @@ public class TestConvertingSerializer
         assertEquals("{\"values\":{\"a\":[1,2]}}", json);
     }
 
-    // [Issue#359]
+    // [databind#359]
     public void testIssue359() throws Exception {
         String json = objectWriter().writeValueAsString(new Bean359());
         assertEquals("{\"stuff\":[\"Target\"]}", json);
@@ -201,5 +217,11 @@ public class TestConvertingSerializer
         String json = objectWriter().writeValueAsString(new ConvertingBeanWithUntypedConverter(1, 2));
         // must be  {"a":2,"b":4}
         assertEquals("{\"a\":2,\"b\":4}", json);
+    }
+
+    // [databind#357]
+    public void testConverterForList357() throws Exception {
+        String json = objectWriter().writeValueAsString(new ListWrapper());
+        assertEquals("{\"list\":[[\"Hello world!\"]]}", json);
     }
 }

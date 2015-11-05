@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #76: Problem handling datatypes Recursive type parameters
  (reported by Aram K)
+#357: StackOverflowError with contentConverter that returns array type
+ (reported by Florian S)
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)

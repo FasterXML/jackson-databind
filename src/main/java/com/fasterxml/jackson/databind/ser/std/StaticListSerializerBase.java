@@ -83,7 +83,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         if (ser == null) {
             ser = _serializer;
         }
-        // #124: May have a content converter
+        // [databind#124]: May have a content converter
         ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             ser = provider.findValueSerializer(String.class, property);

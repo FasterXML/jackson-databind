@@ -103,6 +103,8 @@ Seth Pellegrino (jivesoft):
    (2.3.0)
 
 Florian Schoppmann (fschopp@github)
+  * Reported #357: StackOverflowError with contentConverter that returns array type
+   (2.7.0)
   * Reported #358: `IterableSerializer` ignoring	annotated content serializer
    (2.3.1)
   * Reported #359: Converted object not using explicitly annotated serializer

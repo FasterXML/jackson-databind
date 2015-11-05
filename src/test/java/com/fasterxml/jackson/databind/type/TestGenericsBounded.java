@@ -63,15 +63,55 @@ public class TestGenericsBounded
 
     static class MyDoc extends Document {}
 
+    // [databind#537]
+    interface AnnotatedValue<E> {
+        public String getAnnotation();
+        public E getValue();
+    }
+
+    static class AnnotatedValueSimple<E>
+        implements AnnotatedValue<E>
+    {
+        protected E value;
+
+        protected AnnotatedValueSimple() { }
+        public AnnotatedValueSimple(E v) { value = v; }
+
+        @Override
+        public String getAnnotation() { return null; }
+
+        @Override
+        public E getValue() { return value; }
+    }
+
+    static class CbFailing<E extends AnnotatedValue<ID>, ID>
+    {
+        private E item;
+
+        public CbFailing(E item) {
+            this.item = item;
+        }
+
+        public E getItem() {
+            return item;
+        }
+
+        public ID getId() {
+            return item.getValue();
+        }
+    }
+
     /*
     /*******************************************************
     /* Unit tests
     /*******************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testLowerBound() throws Exception
     {
-        IntBeanWrapper<?> result = new ObjectMapper().readValue("{\"wrapped\":{\"x\":3}}",
+        IntBeanWrapper<?> result = MAPPER.readValue("{\"wrapped\":{\"x\":3}}",
                 IntBeanWrapper.class);
         assertNotNull(result);
         assertEquals(IntBean.class, result.wrapped.getClass());
@@ -81,8 +121,7 @@ public class TestGenericsBounded
     // Test related to type bound handling problem within [JACKSON-190]
     public void testBounded() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        BoundedWrapper<IntBean> result = mapper.readValue
+        BoundedWrapper<IntBean> result = MAPPER.readValue
             ("{\"values\":[ {\"x\":3} ] } ", new TypeReference<BoundedWrapper<IntBean>>() {});
         List<?> list = result.values;
         assertEquals(1, list.size());
@@ -93,10 +132,9 @@ public class TestGenericsBounded
 
     public void testGenericsComplex() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         DoubleRange in = new DoubleRange(-0.5, 0.5);
-        String json = m.writeValueAsString(in);
-        DoubleRange out = m.readValue(json, DoubleRange.class);
+        String json = MAPPER.writeValueAsString(in);
+        DoubleRange out = MAPPER.readValue(json, DoubleRange.class);
         assertNotNull(out);
         assertEquals(-0.5, out.start);
         assertEquals(0.5, out.end);
@@ -104,14 +142,13 @@ public class TestGenericsBounded
 
     public void testIssue778() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
         String json = "{\"rows\":[{\"d\":{}}]}";
 
         final TypeReference<?> typeRef = new TypeReference<ResultSetWithDoc<MyDoc>>() {};
 
         // First, verify type introspection:
 
-        JavaType type = mapper.getTypeFactory().constructType(typeRef);
+        JavaType type = MAPPER.getTypeFactory().constructType(typeRef);
         JavaType resultSetType = type.findSuperType(ResultSet.class);
         assertNotNull(resultSetType);
         assertEquals(1, resultSetType.containedTypeCount());
@@ -125,9 +162,18 @@ public class TestGenericsBounded
         assertEquals(MyDoc.class, docType.getRawClass());
 
         // type passed is correct, but somehow it gets mangled when passed...
-        ResultSetWithDoc<MyDoc> rs = mapper.readValue(json, type);
+        ResultSetWithDoc<MyDoc> rs = MAPPER.readValue(json, type);
         Document d = rs.rows.iterator().next().d;
     
         assertEquals(MyDoc.class, d.getClass()); //expected MyDoc but was Document
+    }
+
+    // [databind#537]
+    public void test() throws Exception
+    {
+        AnnotatedValueSimple<Integer> item = new AnnotatedValueSimple<Integer>(5);
+        CbFailing<AnnotatedValueSimple<Integer>, Integer> codebook = new CbFailing<AnnotatedValueSimple<Integer>, Integer>(item);
+        String json = MAPPER.writeValueAsString(codebook);
+        assertNotNull(json);
     }
 }

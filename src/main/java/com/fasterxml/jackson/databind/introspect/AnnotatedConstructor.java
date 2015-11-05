@@ -186,7 +186,7 @@ public final class AnnotatedConstructor
             Constructor<?> ctor = clazz.getDeclaredConstructor(_serialization.args);
             // 06-Oct-2012, tatu: Has "lost" its security override, must force back
             if (!ctor.isAccessible()) {
-                ClassUtil.checkAndFixAccess(ctor);
+                ClassUtil.checkAndFixAccess(ctor, false);
             }
             return new AnnotatedConstructor(null, ctor, null, null);
         } catch (Exception e) {

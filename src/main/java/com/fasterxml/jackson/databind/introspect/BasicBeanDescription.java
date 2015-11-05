@@ -305,7 +305,7 @@ public class BasicBeanDescription extends BeanDescription
             return null;
         }
         if (fixAccess) {
-            ac.fixAccess();
+            ac.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         try {
             return ac.getAnnotated().newInstance();
@@ -319,7 +319,7 @@ public class BasicBeanDescription extends BeanDescription
             throw new IllegalArgumentException("Failed to instantiate bean of type "+_classInfo.getAnnotated().getName()+": ("+t.getClass().getName()+") "+t.getMessage(), t);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Simple accessors, extended

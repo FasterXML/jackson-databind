@@ -164,7 +164,7 @@ public final class AnnotatedField
             Field f = clazz.getDeclaredField(_serialization.name);
             // 06-Oct-2012, tatu: Has "lost" its security override, may need to force back
             if (!f.isAccessible()) {
-                ClassUtil.checkAndFixAccess(f);
+                ClassUtil.checkAndFixAccess(f, false);
             }
             return new AnnotatedField(null, f, null);
         } catch (Exception e) {

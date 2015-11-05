@@ -5,6 +5,7 @@ import java.lang.reflect.Member;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -40,6 +41,11 @@ public class CreatorCollector
     final protected boolean _canFixAccess;
 
     /**
+     * @since 2.7
+     */
+    final protected boolean _forceAccess;
+    
+    /**
      * Set of creators we have collected so far
      * 
      * @since 2.5
@@ -69,10 +75,11 @@ public class CreatorCollector
     /**********************************************************
      */
     
-    public CreatorCollector(BeanDescription beanDesc, boolean canFixAccess)
+    public CreatorCollector(BeanDescription beanDesc, MapperConfig<?> config)
     {
         _beanDesc = beanDesc;
-        _canFixAccess = canFixAccess;
+        _canFixAccess = config.canOverrideAccessModifiers();
+        _forceAccess = config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
     }
 
     public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
@@ -272,7 +279,7 @@ public class CreatorCollector
     private <T extends AnnotatedMember> T _fixAccess(T member)
     {
         if (member != null && _canFixAccess) {
-            ClassUtil.checkAndFixAccess((Member) member.getAnnotated());
+            ClassUtil.checkAndFixAccess((Member) member.getAnnotated(), _forceAccess);
         }
         return member;
     }

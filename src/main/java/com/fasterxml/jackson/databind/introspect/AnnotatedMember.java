@@ -21,10 +21,10 @@ public abstract class AnnotatedMember
     // 19-Dec-2014, tatu: Similarly, assumed NOT to be needed in cases where
     //    owning object (ObjectMapper or relatives) is being JDK-serialized
     /**
-     * Class that was resolved to produce this member instance; either class that declared
-     * the member, or one of its subtypes that inherited it.
-     * 
-     * @since 2.5
+     * Context object needed for resolving generic type associated with this
+     * member (method parameter or return value, or field type).
+     *
+     * @since 2.7
      */
     protected final transient TypeResolutionContext _typeContext;
 
@@ -111,14 +111,30 @@ public abstract class AnnotatedMember
     public final boolean addIfNotPresent(Annotation a) {
         return _annotations.addIfNotPresent(a);
     }
-    
+
     /**
      * Method that can be called to modify access rights, by calling
      * {@link java.lang.reflect.AccessibleObject#setAccessible} on
      * the underlying annotated element.
+     *<p>
+     * Note that caller should verify that
+     * {@link com.fasterxml.jackson.databind.MapperFeature#CAN_OVERRIDE_ACCESS_MODIFIERS}
+     * is enabled before calling this method; as well as pass
+     * <code>force</code> flag appropriately.
+     * 
+     * @since 2.7
      */
+    public final void fixAccess(boolean force) {
+        ClassUtil.checkAndFixAccess(getMember(), force);
+    }
+    
+    /**
+     * @deprecated Since 2.7 use {@link #fixAccess(boolean)} instead
+     */
+    @Deprecated
     public final void fixAccess() {
-        ClassUtil.checkAndFixAccess(getMember());
+//        fixAccess(false);
+        fixAccess(true);
     }
 
     /**

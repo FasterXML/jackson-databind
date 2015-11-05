@@ -293,8 +293,7 @@ public abstract class BasicDeserializerFactory
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        boolean fixAccess = ctxt.canOverrideAccessModifiers();
-        CreatorCollector creators =  new CreatorCollector(beanDesc, fixAccess);
+        CreatorCollector creators =  new CreatorCollector(beanDesc, ctxt.getConfig());
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         
         // need to construct suitable visibility checker:
@@ -1439,9 +1438,10 @@ public abstract class BasicDeserializerFactory
         }
 
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
-        // [JACKSON-193] May have @JsonCreator for static factory method:
+        // May have @JsonCreator for static factory method:
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-            if (config.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
+            if (ai.hasCreatorAnnotation(factory)) {
                 int argCount = factory.getParameterCount();
                 if (argCount == 1) {
                     Class<?> returnType = factory.getRawReturnType();
@@ -1452,7 +1452,8 @@ public abstract class BasicDeserializerFactory
                             throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory+") not suitable, must be java.lang.String");
                         }
                         if (config.canOverrideAccessModifiers()) {
-                            ClassUtil.checkAndFixAccess(factory.getMember());
+                            ClassUtil.checkAndFixAccess(factory.getMember(),
+                                    ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
                         return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory);
                     }
@@ -1914,7 +1915,7 @@ public abstract class BasicDeserializerFactory
         if (jsonValueMethod != null) {
             Method accessor = jsonValueMethod.getAnnotated();
             if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(accessor);
+                ClassUtil.checkAndFixAccess(accessor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor);
         }

@@ -56,7 +56,7 @@ public class StdKeyDeserializers
         Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);
         if (ctor != null) {
             if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(ctor);
+                ClassUtil.checkAndFixAccess(ctor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             return new StdKeyDeserializer.StringCtorKeyDeserializer(ctor);
         }
@@ -66,7 +66,7 @@ public class StdKeyDeserializers
         Method m = beanDesc.findFactoryMethod(String.class);
         if (m != null){
             if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(m);
+                ClassUtil.checkAndFixAccess(m, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             return new StdKeyDeserializer.StringFactoryKeyDeserializer(m);
         }

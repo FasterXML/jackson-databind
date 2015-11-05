@@ -681,12 +681,30 @@ public final class ClassUtil
      */
 
     /**
-     * Method called to check if we can use the passed method or constructor
-     * (wrt access restriction -- public methods can be called, others
-     * usually not); and if not, if there is a work-around for
-     * the problem.
+     * Equivalent to call:
+     *<pre>
+     *   checkAndFixAccess(member, false);
+     *</pre>
+     *
+     * @deprecated Since 2.7 call variant that takes boolean flag.
      */
-    public static void checkAndFixAccess(Member member)
+    @Deprecated
+    public static void checkAndFixAccess(Member member) {
+        checkAndFixAccess(member, false);
+    }
+
+    /**
+     * Method that is called if a {@link Member} may need forced access,
+     * to force a field, method or constructor to be accessible: this
+     * is done by calling {@link AccessibleObject#setAccessible(boolean)}.
+     * 
+     * @param member Accessor to call <code>setAccessible()</code> on.
+     * @param force Whether to always try to make accessor accessible (true),
+     *   or only if needed as per access rights (false)
+     *
+     * @since 2.7
+     */
+    public static void checkAndFixAccess(Member member, boolean force)
     {
         // We know all members are also accessible objects...
         AccessibleObject ao = (AccessibleObject) member;
@@ -697,7 +715,11 @@ public final class ClassUtil
          */
         //if (!ao.isAccessible()) {
         try {
-            ao.setAccessible(true);
+            if (force || 
+                    (!Modifier.isPublic(member.getModifiers())
+                            || !Modifier.isPublic(member.getDeclaringClass().getModifiers()))) {
+                ao.setAccessible(true);
+            }
         } catch (SecurityException se) {
             /* 17-Apr-2009, tatu: Related to [JACKSON-101]: this can fail on
              *    platforms like EJB and Google App Engine); so let's
@@ -710,7 +732,7 @@ public final class ClassUtil
         }
         //}
     }
-
+    
     /*
     /**********************************************************
     /* Enum type detection

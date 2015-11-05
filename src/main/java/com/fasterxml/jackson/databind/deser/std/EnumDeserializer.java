@@ -53,7 +53,8 @@ public class EnumDeserializer
         // note: caller has verified there's just one arg; but we must verify its type
         Class<?> paramClass = factory.getRawParameterType(0);
         if (config.canOverrideAccessModifiers()) {
-            ClassUtil.checkAndFixAccess(factory.getMember());
+            ClassUtil.checkAndFixAccess(factory.getMember(),
+                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         return new FactoryBasedDeserializer(enumClass, factory, paramClass);
     }

@@ -19,6 +19,7 @@ Project: jackson-databind
  (contributed by Jesse W)
 #957: Merge `datatype-jdk7` stuff in (java.nio.file.Path handling)
 #959: Schema generation: consider active view, discard non-included properties
+#997: Add `MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS`
 - Make `JsonValueFormat` (self-)serializable, deserializable, to/from valid external
   value (as per JSON Schema spec)
 

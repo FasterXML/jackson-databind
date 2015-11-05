@@ -148,15 +148,16 @@ public enum MapperFeature implements ConfigFeature
      * modifier settings can be overridden when accessing
      * properties. If enabled, method
      * {@link java.lang.reflect.AccessibleObject#setAccessible}
-     * may be called to enable access to otherwise unaccessible
-     * objects.
+     * may be called to enable access to otherwise unaccessible objects.
      *<p>
-     * Note that this setting usually has significant performance implications,
+     * Note that this setting may have significant performance implications,
      * since access override helps remove costly access checks on each
      * and every Reflection access. If you are considering disabling
      * this feature, be sure to verify performance consequences if usage
      * is performance sensitive.
-     * Especially on standard JavaSE platforms difference is significant.
+     * Also note that performance effects vary between Java platforms
+     * (JavaSE vs Android, for example), as well as JDK versions: older
+     * versions seemed to have more significant performance difference.
      *<p>
      * Conversely, on some platforms, it may be necessary to disable this feature
      * as platform does not allow such calls. For example, when developing
@@ -167,6 +168,24 @@ public enum MapperFeature implements ConfigFeature
      */
     CAN_OVERRIDE_ACCESS_MODIFIERS(true),
 
+    /**
+     * Feature that determines that forces call to
+     * {@link java.lang.reflect.AccessibleObject#setAccessible} even for
+     * <code>public</code> accessors -- that is, even if no such call is
+     * needed from functionality perspective -- if call is allowed
+     * (that is, {@link #CAN_OVERRIDE_ACCESS_MODIFIERS} is set to true).
+     * The main reason to enable this feature is possible performance
+     * improvement as JDK does not have to perform access checks; these
+     * checks are otherwise made for all accessors, including public ones,
+     * and may result in slower Reflection calls. Exact impact (if any)
+     * depends on Java platform (Java SE, Android) as well as JDK version.
+     *<p>
+     * Feature is enabled by default, for legacy reasons.
+     *
+     * @since 2.7
+     */
+    OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
+    
     /**
      * Feature that determines whether member mutators (fields and
      * setters) may be "pulled in" even if they are not visible,

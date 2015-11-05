@@ -420,11 +420,11 @@ public class BeanSerializerFactory
         
         builder.setProperties(props);
         builder.setFilterId(findFilterId(config, beanDesc));
-        
+
         AnnotatedMember anyGetter = beanDesc.findAnyGetter();
         if (anyGetter != null) {
             if (config.canOverrideAccessModifiers()) {
-                anyGetter.fixAccess();
+                anyGetter.fixAccess(config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             JavaType type = anyGetter.getType();
             // copied from BasicSerializerFactory.buildMapSerializer():
@@ -585,19 +585,21 @@ public class BeanSerializerFactory
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
         
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
+        final boolean fixAccess = config.canOverrideAccessModifiers();
+        final boolean forceAccess = fixAccess && config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:
             if (property.isTypeId()) {
                 if (accessor != null) { // only add if we can access... but otherwise?
-                    if (config.canOverrideAccessModifiers()) {
-                        accessor.fixAccess();
+                    if (fixAccess) {
+                        accessor.fixAccess(forceAccess);
                     }
                     builder.setTypeId(accessor);
                 }
                 continue;
             }
-            // [JACKSON-235]: suppress writing of back references
+            // suppress writing of back references
             AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();
             if (refType != null && refType.isBackReference()) {
                 continue;
@@ -776,7 +778,7 @@ public class BeanSerializerFactory
     {
         final PropertyName name = propDef.getFullName();
         if (prov.canOverrideAccessModifiers()) {
-            accessor.fixAccess();
+            accessor.fixAccess(prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         JavaType type = accessor.getType();
         BeanProperty.Std property = new BeanProperty.Std(name, type, propDef.getWrapperName(),

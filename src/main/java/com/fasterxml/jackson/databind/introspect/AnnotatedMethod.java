@@ -255,7 +255,7 @@ public final class AnnotatedMethod
                     _serialization.args);
             // 06-Oct-2012, tatu: Has "lost" its security override, may need to force back
             if (!m.isAccessible()) {
-                ClassUtil.checkAndFixAccess(m);
+                ClassUtil.checkAndFixAccess(m, false);
             }
             return new AnnotatedMethod(null, m, null, null);
         } catch (Exception e) {

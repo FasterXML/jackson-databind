@@ -239,7 +239,7 @@ public abstract class BasicSerializerFactory
                                 rawType, true);
                         Method m = am.getAnnotated();
                         if (config.canOverrideAccessModifiers()) {
-                            ClassUtil.checkAndFixAccess(m);
+                            ClassUtil.checkAndFixAccess(m, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
                         ser = new JsonValueSerializer(m, delegate);
                     } else {
@@ -357,7 +357,7 @@ public abstract class BasicSerializerFactory
         if (valueMethod != null) {
             Method m = valueMethod.getAnnotated();
             if (prov.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(m);
+                ClassUtil.checkAndFixAccess(m, prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod);
             return new JsonValueSerializer(m, ser);

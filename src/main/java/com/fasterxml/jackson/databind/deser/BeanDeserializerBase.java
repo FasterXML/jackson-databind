@@ -760,8 +760,8 @@ public abstract class BeanDeserializerBase
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
                         Class<?>[] paramTypes = ctor.getParameterTypes();
                         if (paramTypes.length == 1 && paramTypes[0] == enclosing) {
-                            if (ctxt.getConfig().canOverrideAccessModifiers()) {
-                                ClassUtil.checkAndFixAccess(ctor);
+                            if (ctxt.canOverrideAccessModifiers()) {
+                                ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }
                             return new InnerClassProperty(prop, ctor);
                         }

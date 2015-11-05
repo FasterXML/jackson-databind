@@ -292,7 +292,7 @@ public class BeanDeserializerFactory
         AnnotatedMethod buildMethod = builderDesc.findMethod(buildMethodName, null);
         if (buildMethod != null) { // note: can't yet throw error; may be given build method
             if (config.canOverrideAccessModifiers()) {
-            	ClassUtil.checkAndFixAccess(buildMethod.getMember());
+            	ClassUtil.checkAndFixAccess(buildMethod.getMember(), config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
         }
         builder.setPOJOBuilder(buildMethod, builderConfig);
@@ -645,10 +645,11 @@ public class BeanDeserializerFactory
         Map<Object, AnnotatedMember> raw = beanDesc.findInjectables();
         if (raw != null) {
             boolean fixAccess = ctxt.canOverrideAccessModifiers();
+            boolean forceAccess = fixAccess && ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
             for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
                 AnnotatedMember m = entry.getValue();
                 if (fixAccess) {
-                    m.fixAccess(); // to ensure we can call it
+                    m.fixAccess(forceAccess); // to ensure we can call it
                 }
                 builder.addInjectable(PropertyName.construct(m.getName()),
                         m.getType(),
@@ -667,7 +668,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         if (ctxt.canOverrideAccessModifiers()) {
-            setter.fixAccess(); // to ensure we can call it
+            setter.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)); // to ensure we can call it
         }
         // we know it's a 2-arg method, second arg is the value
         JavaType type = setter.getParameterType(1);
@@ -709,7 +710,7 @@ public class BeanDeserializerFactory
         // need to ensure method is callable (for non-public)
         AnnotatedMember mutator = propDef.getNonConstructorMutator();
         if (ctxt.canOverrideAccessModifiers()) {
-            mutator.fixAccess();
+            mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         // note: this works since we know there's exactly one argument for methods
         BeanProperty.Std property = new BeanProperty.Std(propDef.getFullName(),
@@ -761,7 +762,7 @@ public class BeanDeserializerFactory
         final AnnotatedMethod getter = propDef.getGetter();
         // need to ensure it is callable now:
         if (ctxt.canOverrideAccessModifiers()) {
-            getter.fixAccess();
+            getter.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         JavaType type = getter.getType();
         // First: does the Method specify the deserializer to use? If so, let's use it.

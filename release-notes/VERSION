@@ -10,6 +10,8 @@ Project: jackson-databind
  (reported by Aram K)
 #357: StackOverflowError with contentConverter that returns array type
  (reported by Florian S)
+#432: `StdValueInstantiator` unwraps exceptions, losing context
+ (reported by Miles K)
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)

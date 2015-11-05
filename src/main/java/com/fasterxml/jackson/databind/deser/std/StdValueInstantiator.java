@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -210,10 +211,8 @@ public class StdValueInstantiator
         }
         try {
             return _defaultCreator.call();
-        } catch (ExceptionInInitializerError e) {
-            throw wrapException(ctxt, e);
-        } catch (Exception e) {
-            throw wrapException(ctxt, e);
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
         }
     }
     
@@ -225,10 +224,8 @@ public class StdValueInstantiator
         }
         try {
             return _withArgsCreator.call(args);
-        } catch (ExceptionInInitializerError e) {
-            throw wrapException(ctxt, e);
-        } catch (Exception e) {
-            throw wrapException(ctxt, e);
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
         }
     }
 
@@ -256,10 +253,8 @@ public class StdValueInstantiator
             }
             // and then try calling with full set of arguments
             return _delegateCreator.call(args);
-        } catch (ExceptionInInitializerError e) {
-            throw wrapException(ctxt, e);
-        } catch (Exception e) {
-            throw wrapException(ctxt, e);
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
         }
     }
     
@@ -268,20 +263,18 @@ public class StdValueInstantiator
     /* Public API implementation; instantiation from JSON scalars
     /**********************************************************
      */
-    
+
     @Override
     public Object createFromString(DeserializationContext ctxt, String value) throws IOException
     {
-        if (_fromStringCreator != null) {
-            try {
-                return _fromStringCreator.call1(value);
-            } catch (Exception e) {
-                throw wrapException(ctxt, e);
-            } catch (ExceptionInInitializerError e) {
-                throw wrapException(ctxt, e);
-            }
+        if (_fromStringCreator == null) {
+            return _createFromStringFallbacks(ctxt, value);
         }
-        return _createFromStringFallbacks(ctxt, value);
+        try {
+            return _fromStringCreator.call1(value);
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
+        }
     }
     
     @Override
@@ -296,10 +289,8 @@ public class StdValueInstantiator
             if (_fromLongCreator != null) {
                 return _fromLongCreator.call1(Long.valueOf(value));
             }
-        } catch (Exception e) {
-            throw wrapException(ctxt, e);
-        } catch (ExceptionInInitializerError e) {
-            throw wrapException(ctxt, e);
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
         }
         throw ctxt.mappingException("Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
                 getValueTypeDesc(), value);
@@ -308,52 +299,46 @@ public class StdValueInstantiator
     @Override
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
     {
-        try {
-            if (_fromLongCreator != null) {
-                return _fromLongCreator.call1(Long.valueOf(value));
-            }
-        } catch (Exception e) {
-            throw wrapException(ctxt, e);
-        } catch (ExceptionInInitializerError e) {
-            throw wrapException(ctxt, e);
+        if (_fromLongCreator == null) {
+            throw ctxt.mappingException("Can not instantiate value of type %s"
+                    +" from Long integral number (%s); no single-long-arg constructor/factory method",
+                    getValueTypeDesc(), value);
         }
-        throw ctxt.mappingException("Can not instantiate value of type %s"
-                +" from Long integral number (%s); no single-long-arg constructor/factory method",
-                getValueTypeDesc(), value);
+        try {
+            return _fromLongCreator.call1(Long.valueOf(value));
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
+        }
     }
 
     @Override
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
     {
-        try {
-            if (_fromDoubleCreator != null) {
-                return _fromDoubleCreator.call1(Double.valueOf(value));
-            }
-        } catch (Exception e) {
-            throw wrapException(ctxt, e);
-        } catch (ExceptionInInitializerError e) {
-            throw wrapException(ctxt, e);
+        if (_fromDoubleCreator == null) {
+            throw ctxt.mappingException("Can not instantiate value of type %s"
+                    +" from Floating-point number (%s); no one-double/Double-arg constructor/factory method",
+                    getValueTypeDesc(), value);
         }
-        throw ctxt.mappingException("Can not instantiate value of type %s"
-                +" from Floating-point number (%s); no one-double/Double-arg constructor/factory method",
-                getValueTypeDesc(), value);
+        try {
+            return _fromDoubleCreator.call1(Double.valueOf(value));
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
+        }
     }
 
     @Override
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException
     {
-        try {
-            if (_fromBooleanCreator != null) {
-                return _fromBooleanCreator.call1(Boolean.valueOf(value));
-            }
-        } catch (Exception e) {
-            throw wrapException(ctxt, e);
-        } catch (ExceptionInInitializerError e) {
-            throw wrapException(ctxt, e);
+        if (_fromBooleanCreator == null) {
+            throw ctxt.mappingException("Can not instantiate value of type %s"
+                    +" from Boolean value (%s); no single-boolean/Boolean-arg constructor/factory method",
+                    getValueTypeDesc(), value);
         }
-        throw ctxt.mappingException("Can not instantiate value of type %s"
-                +" from Boolean value (%s); no single-boolean/Boolean-arg constructor/factory method",
-                getValueTypeDesc(), value);
+        try {
+            return _fromBooleanCreator.call1(Boolean.valueOf(value));
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
+        }
     }
     
     /*
@@ -389,16 +374,18 @@ public class StdValueInstantiator
      */
 
     /**
-     * @deprecated Since 2.7 use method that passes context
+     * @deprecated Since 2.7 call either {@link #unwrapAndWrapException} or
+     *  {@link #wrapAsJsonMappingException}
      */
     @Deprecated // since 2.7
     protected JsonMappingException wrapException(Throwable t)
     {
-        while (t.getCause() != null) {
-            t = t.getCause();
-        }
-        if (t instanceof JsonMappingException) {
-            return (JsonMappingException) t;
+        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
+        //   does so if and until `JsonMappingException` is found.
+        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
+            if (curr instanceof JsonMappingException) {
+                return (JsonMappingException) curr;
+            }
         }
         return new JsonMappingException(null,
                 "Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
@@ -407,15 +394,51 @@ public class StdValueInstantiator
     /**
      * @since 2.7
      */
-    protected JsonMappingException wrapException(DeserializationContext ctxt, Throwable t)
+    protected JsonMappingException unwrapAndWrapException(DeserializationContext ctxt, Throwable t)
     {
-        while (t.getCause() != null) {
-            t = t.getCause();
+        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
+        //   does so if and until `JsonMappingException` is found.
+        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
+            if (curr instanceof JsonMappingException) {
+                return (JsonMappingException) curr;
+            }
         }
+        String msg = String.format("Instantiation of %s value failed (%s): %s",
+                getValueTypeDesc(), t.getClass().getName(), t.getMessage());
+        return JsonMappingException.from(ctxt.getParser(), msg, t);
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected JsonMappingException wrapAsJsonMappingException(DeserializationContext ctxt,
+            Throwable t)
+    {
+        // 05-Nov-2015, tatu: Only avoid wrapping if already a JsonMappingException
         if (t instanceof JsonMappingException) {
             return (JsonMappingException) t;
         }
-        return JsonMappingException.from(ctxt.getParser(),
-                "Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
+        String msg = String.format("Instantiation of %s value failed (%s): %s",
+                getValueTypeDesc(), t.getClass().getName(), t.getMessage());
+        return JsonMappingException.from(ctxt.getParser(), msg, t);
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected JsonMappingException rewrapCtorProblem(DeserializationContext ctxt,
+            Throwable t)
+    {
+        // 05-Nov-2015, tatu: Seems like there are really only 2 useless wrapper errors/exceptions,
+        //    so just peel those, and nothing else
+        if ((t instanceof ExceptionInInitializerError) // from static initialization block
+                || (t instanceof InvocationTargetException) // from constructor/method
+                ) {
+            Throwable cause = t.getCause();
+            if (cause != null) {
+                t = cause;
+            }
+        }
+        return wrapAsJsonMappingException(ctxt, t);
     }
 }

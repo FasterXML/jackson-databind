@@ -169,8 +169,7 @@ public class TestCreators2 extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
-    // for [JACKSON-547]
+
     public void testExceptionFromConstructor() throws Exception
     {
         try {
@@ -185,13 +184,13 @@ public class TestCreators2 extends BaseMapTest
             assertEquals("foobar", t.getMessage());
         }
     }
-    
+
     public void testSimpleConstructor() throws Exception
     {
         HashTest test = MAPPER.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
         assertEquals("custom", test.type);
         assertEquals("abc", new String(test.bytes, "UTF-8"));
-    }    
+    }
 
     // Test for [JACKSON-372]
     public void testMissingPrimitives() throws Exception
@@ -214,7 +213,7 @@ public class TestCreators2 extends BaseMapTest
         assertNotNull(foo);
     }
 
-    // [JACKSON-438]: Catch and rethrow exceptions that Creator methods throw
+    // Catch and rethrow exceptions that Creator methods throw
     public void testJackson438() throws Exception
     {
         try {
@@ -266,7 +265,7 @@ public class TestCreators2 extends BaseMapTest
             verifyException(e, "duplicate creator property \"bar\"");
         }
     }
-    
+
     public void testCreatorMultipleArgumentWithoutAnnotation() throws Exception {
         AutoDetectConstructorBean value = MAPPER.readValue("{\"bar\":\"bar\",\"foo\":\"foo\"}",
                 AutoDetectConstructorBean.class);
@@ -274,7 +273,6 @@ public class TestCreators2 extends BaseMapTest
         assertEquals("foo", value.foo);
     }
 
-    // for [JACKSON-575]
     public void testIgnoredSingleArgCtor() throws Exception
     {
         try {
@@ -294,7 +292,6 @@ public class TestCreators2 extends BaseMapTest
         assertEquals(Integer.valueOf(3), impl.props.get("a"));
     }
 
-    // [JACKSON-700]
     public void testCreatorProperties() throws Exception
     {
         Issue700Bean value = MAPPER.readValue("{ \"item\" : \"foo\" }", Issue700Bean.class);

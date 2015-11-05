@@ -354,3 +354,7 @@ Warren Bloomer (stormboy@github)
 Ievgen Pianov (pyanoveugen@github)
   * Reported #989: Deserialization from "{}" to java.lang.Object causes "out of END_OBJECT token" error
    (2.6.3)
+
+Miles Kaufmann (milesk-amzn@github)
+  * Reported #432: `StdValueInstantiator` unwraps exceptions, losing context
+   (2.7.0)

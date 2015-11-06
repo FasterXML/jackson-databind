@@ -358,3 +358,7 @@ Ievgen Pianov (pyanoveugen@github)
 Miles Kaufmann (milesk-amzn@github)
   * Reported #432: `StdValueInstantiator` unwraps exceptions, losing context
    (2.7.0)
+
+Jirka Kremser (Jiri-Kremser@github)
+  * Suggested #924: SequenceWriter.writeAll() could accept Iterable
+   (2.7.0)

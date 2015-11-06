@@ -16,6 +16,8 @@ Project: jackson-databind
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)
+#924: `SequenceWriter.writeAll()` could accept `Iterable`
+ (suggested by Jiri-Kremser@github(
 #932: Rewrite ser/deser for `AtomicReference`, based on "optional" ser/desers
 #933: Close some gaps to allow using the `tryToResolveUnresolved` flows
 #936: Deserialization into List subtype with JsonCreator no longer works

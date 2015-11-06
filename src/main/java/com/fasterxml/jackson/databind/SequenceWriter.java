@@ -196,6 +196,7 @@ public class SequenceWriter
         return this;
     }
 
+    @Deprecated
     public <C extends Collection<?>> SequenceWriter writeAll(C container) throws IOException
     {
         for (Object value : container) {
@@ -204,6 +205,17 @@ public class SequenceWriter
         return this;
     }
 
+    /**
+     * @since 2.7
+     */
+    public SequenceWriter writeAll(Iterable<?> iterable) throws IOException
+    {
+        for (Object value : iterable) {
+            write(value);
+        }
+        return this;
+    }
+    
     @Override
     public void flush() throws IOException {
         if (!_closed) {

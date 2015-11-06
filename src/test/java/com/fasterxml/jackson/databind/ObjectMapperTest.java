@@ -4,9 +4,9 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.node.*;
@@ -255,12 +255,21 @@ public class ObjectMapperTest extends BaseMapTest
     public void testEmptyBeanSerializability()
     {
         // with default settings, error
-        /*
         assertFalse(MAPPER.writer().with(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .canSerialize(EmptyBean.class));
-                */
         // but with changes
         assertTrue(MAPPER.writer().without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .canSerialize(EmptyBean.class));
+    }
+
+    // for [databind#898]
+    public void testSerializerProviderAccess() throws Exception
+    {
+        // ensure we have "fresh" instance, just in case
+        ObjectMapper mapper = new ObjectMapper();
+        JsonSerializer<?> ser = mapper.getSerializerProviderInstance()
+                .findValueSerializer(Bean.class);
+        assertNotNull(ser);
+        assertEquals(Bean.class, ser.handledType());
     }
 }

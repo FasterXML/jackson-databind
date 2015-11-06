@@ -235,7 +235,7 @@ public abstract class SerializerProvider
     /**
      * Copy-constructor used when making a copy of a blueprint instance.
      * 
-     * @since 2.5.0
+     * @since 2.5
      */
     protected SerializerProvider(SerializerProvider src)
     {

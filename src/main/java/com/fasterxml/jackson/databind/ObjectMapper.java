@@ -1030,16 +1030,36 @@ public class ObjectMapper
     }
 
     /**
-     * Method for setting specific {@link SerializerProvider} to use
-     * for handling caching of {@link JsonSerializer} instances.
+     * Method for setting "blueprint" {@link SerializerProvider} instance
+     * to use as the base for actual provider instances to use for handling
+     * caching of {@link JsonSerializer} instances.
      */
     public ObjectMapper setSerializerProvider(DefaultSerializerProvider p) {
         _serializerProvider = p;
         return this;
     }
 
+    /**
+     * Accessor for the "blueprint" (or, factory) instance, from which instances
+     * are created by calling {@link DefaultSerializerProvider#createInstance}.
+     * Note that returned instance can not be directly used as it is not properly
+     * configured: to get a properly configured instance to call, use
+     * {@link #getSerializerProviderInstance()} instead.
+     */
     public SerializerProvider getSerializerProvider() {
         return _serializerProvider;
+    }
+
+    /**
+     * Accessor for constructing and returning a {@link SerializerProvider}
+     * instance that may be used for accessing serializers. This is same as
+     * calling {@link #getSerializerProvider}, and calling <code>createInstance</code>
+     * on it.
+     *
+     * @since 2.7
+     */
+    public SerializerProvider getSerializerProviderInstance() {
+        return _serializerProvider(_serializationConfig);
     }
 
     /*
@@ -3429,7 +3449,7 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {        
-        // also, as per [Issue-11], consider case for simple cast
+        // also, as per [databind#11], consider case for simple cast
         /* But with caveats: one is that while everything is Object.class, we don't
          * want to "optimize" that out; and the other is that we also do not want
          * to lose conversions of generic types.

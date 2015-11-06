@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class TestJDKAtomicTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     @JsonSubTypes({ @JsonSubTypes.Type(Impl.class) })
     static abstract class Base { }
@@ -75,6 +73,8 @@ public class TestJDKAtomicTypes
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = objectMapper();
     
     public void testAtomicBoolean() throws Exception
     {

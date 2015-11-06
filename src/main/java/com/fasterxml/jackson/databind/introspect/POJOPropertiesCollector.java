@@ -359,7 +359,7 @@ public class POJOPropertiesCollector
                 pn = null;
             } else if (_forSerialization) {
                 /* 18-Aug-2011, tatu: As per existing unit tests, we should only
-                 *   use serialization annotation (@JsonSerializer) when serializing
+                 *   use serialization annotation (@JsonSerialize) when serializing
                  *   fields, and similarly for deserialize-only annotations... so
                  *   no fallbacks in this particular case.
                  */

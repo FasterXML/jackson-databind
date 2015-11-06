@@ -31,10 +31,10 @@ public final class BaseSettings
      */
     private static final TimeZone DEFAULT_TIMEZONE = 
             //  TimeZone.getDefault()
-            /* [databind#915] 26-Sep-2015, tatu: Should be UTC, plan to change
-             * it so for 2.7
+            /* [databind#915] 05-Nov-2015, tatu: Changed to UTC, from earlier
+             * baseline of GMT (up to 2.6)
              */
-            TimeZone.getTimeZone("GMT");
+            TimeZone.getTimeZone("UTC");
     
     /*
     /**********************************************************

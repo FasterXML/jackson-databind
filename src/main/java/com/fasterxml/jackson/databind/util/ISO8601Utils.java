@@ -14,32 +14,36 @@ import java.util.*;
  */
 public class ISO8601Utils
 {
-    /**
-     * ID to represent the 'GMT' string
-     */
+    @Deprecated // since 2.7
     private static final String GMT_ID = "GMT";
 
     /**
-     * @since 2.6
+     * ID to represent the 'UTC' string, default timezone since Jackson 2.7
+     * 
+     * @since 2.7
      */
-//    private static final String UTC_ID = "UTC";
+    private static final String UTC_ID = "UTC";
     
     /**
      * The GMT timezone, prefetched to avoid more lookups.
+     * 
+     * @deprecated Since 2.7 use {@link #TIMEZONE_UTC} instead
      */
+    @Deprecated
     private static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone(GMT_ID);
 
     /**
      * The UTC timezone, prefetched to avoid more lookups.
      * 
-     * @since 2.6
+     * @since 2.7
      */
-//    private static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone(UTC_ID);
+    private static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone(UTC_ID);
 
     /**
-     * Timezone we use for 'Z' in ISO-8601 date/time values.
+     * Timezone we use for 'Z' in ISO-8601 date/time values: since 2.7
+     * {@link #TIMEZONE_UTC}; with earlier versions up to 2.7 was {@link #TIMEZONE_GMT}.
      */
-    private static final TimeZone TIMEZONE_Z = TIMEZONE_GMT;
+    private static final TimeZone TIMEZONE_Z = TIMEZONE_UTC;
     
     /*
     /**********************************************************
@@ -64,13 +68,13 @@ public class ISO8601Utils
      */
 
     /**
-     * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (GMT timezone, no milliseconds precision)
+     * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (default timezone, no milliseconds precision)
      * 
      * @param date the date to format
      * @return the date formatted as 'yyyy-MM-ddThh:mm:ssZ'
      */
     public static String format(Date date) {
-        return format(date, false, TIMEZONE_GMT);
+        return format(date, false, TIMEZONE_UTC);
     }
 
     /**
@@ -81,7 +85,7 @@ public class ISO8601Utils
      * @return the date formatted as 'yyyy-MM-ddThh:mm:ss[.sss]Z'
      */
     public static String format(Date date, boolean millis) {
-        return format(date, millis, TIMEZONE_GMT);
+        return format(date, millis, TIMEZONE_UTC);
     }
 
     /**
@@ -89,7 +93,7 @@ public class ISO8601Utils
      * 
      * @param date the date to format
      * @param millis true to include millis precision otherwise false
-     * @param tz timezone to use for the formatting (GMT will produce 'Z')
+     * @param tz timezone to use for the formatting (UTC will produce 'Z')
      * @return the date formatted as yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
      */
     public static String format(Date date, boolean millis, TimeZone tz) {
@@ -243,9 +247,14 @@ public class ISO8601Utils
                     timezone = TIMEZONE_Z;
                 } else {
                     // 18-Jun-2015, tatu: Looks like offsets only work from GMT, not UTC...
-                    //    not sure why, but it is what it is.
-                    String timezoneId = GMT_ID + timezoneOffset;
+                    //    not sure why, but that's the way it looks. Further, Javadocs for
+                    //    `java.util.TimeZone` specifically instruct use of GMT as base for
+                    //    custom timezones... odd.
+                    String timezoneId = "GMT" + timezoneOffset;
+//                    String timezoneId = "UTC" + timezoneOffset;
+
                     timezone = TimeZone.getTimeZone(timezoneId);
+
                     String act = timezone.getID();
                     if (!act.equals(timezoneId)) {
                         /* 22-Jan-2015, tatu: Looks like canonical version has colons, but we may be given

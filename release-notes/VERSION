@@ -14,6 +14,8 @@ Project: jackson-databind
  (reported by Miles K)
 #497: Add new JsonInclude.Include feature to exclude maps after exclusion removes all elements
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
+#915: ObjectMapper default timezone is GMT, should be UTC
+ (suggested by Infrag@github)
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`
  (contributed by David H)
 #924: `SequenceWriter.writeAll()` could accept `Iterable`

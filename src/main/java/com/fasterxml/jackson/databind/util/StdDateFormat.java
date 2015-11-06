@@ -35,7 +35,7 @@ public class StdDateFormat
 
     /**
      * Same as 'regular' 8601, but handles 'Z' as an alias for "+0000"
-     * (or "GMT")
+     * (or "UTC")
      */
     protected final static String DATE_FORMAT_STR_ISO8601_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
@@ -61,11 +61,12 @@ public class StdDateFormat
     };
 
     /**
-     * By default we use GMT for everything.
+     * By default we use UTC for everything, with Jackson 2.7 and later
+     * (2.6 and earlier relied on GMT)
      */
     private final static TimeZone DEFAULT_TIMEZONE;
     static {
-        DEFAULT_TIMEZONE = TimeZone.getTimeZone("GMT");
+        DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC"); // since 2.7
     }
 
     private final static Locale DEFAULT_LOCALE = Locale.US;
@@ -82,7 +83,7 @@ public class StdDateFormat
      * actual instances more cheaply (avoids re-parsing).
      */
     static {
-        /* Another important thing: let's force use of GMT for
+        /* Another important thing: let's force use of default timezone for
          * baseline DataFormat objects
          */
 
@@ -171,18 +172,6 @@ public class StdDateFormat
     }
 
     /**
-     * Method for getting the globally shared DateFormat instance
-     * that uses GMT timezone and can handle simple ISO-8601
-     * compliant date format.
-     * 
-     * @deprecated Since 2.4 not to be used.
-     */
-    @Deprecated
-    public static DateFormat getBlueprintISO8601Format() {
-        return DATE_FORMAT_ISO8601;
-    }
-
-    /**
      * @deprecated Since 2.4; use variant that takes Locale
      */
     @Deprecated
@@ -199,18 +188,6 @@ public class StdDateFormat
      */
     public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
         return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc);
-    }
-    
-    /**
-     * Method for getting the globally shared DateFormat instance
-     * that uses GMT timezone and can handle RFC-1123
-     * compliant date format.
-     * 
-     * @deprecated Since 2.4 not to be used.
-     */
-    @Deprecated
-    public static DateFormat getBlueprintRFC1123Format() {
-        return DATE_FORMAT_RFC1123;
     }
 
     /**
@@ -367,9 +344,9 @@ public class StdDateFormat
          * timezone  modifiers for ISO-8601. So we need to do some scrubbing.
          */
 
-        /* First: do we have "zulu" format ('Z' == "GMT")? If yes, that's
+        /* First: do we have "zulu" format ('Z' == "UTC")? If yes, that's
          * quite simple because we already set date format timezone to be
-         * GMT, and hence can just strip out 'Z' altogether
+         * UTC, and hence can just strip out 'Z' altogether
          */
         int len = dateStr.length();
         char c = dateStr.charAt(len-1);

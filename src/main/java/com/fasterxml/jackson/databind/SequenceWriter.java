@@ -196,9 +196,9 @@ public class SequenceWriter
         return this;
     }
 
-    @Deprecated
-    public <C extends Collection<?>> SequenceWriter writeAll(C container) throws IOException
-    {
+    // NOTE: redundant wrt variant that takes Iterable, but can not remove or even
+    // deprecate due to backwards-compatibility needs
+    public <C extends Collection<?>> SequenceWriter writeAll(C container) throws IOException {
         for (Object value : container) {
             write(value);
         }

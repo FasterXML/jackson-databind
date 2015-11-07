@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.filter;
 
 import java.io.*;
 
@@ -6,17 +6,19 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.ser.SerializerFactory;
 
-public class TestNullSerialization
+public class NullSerializationTest
     extends BaseMapTest
 {
     static class NullSerializer extends JsonSerializer<Object>
     {
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException
         {
-            jgen.writeString("foobar");
+            gen.writeString("foobar");
         }
     }
 

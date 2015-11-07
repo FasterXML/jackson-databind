@@ -224,7 +224,7 @@ public abstract class BeanDescription
      */
 
     public abstract Map<Object, AnnotatedMember> findInjectables();
-    
+
     /**
      * Method for checking if the POJO type has annotations to
      * indicate that a builder is to be used for instantiating
@@ -237,7 +237,7 @@ public abstract class BeanDescription
      * Method for finding configuration for POJO Builder class.
      */
     public abstract JsonPOJOBuilder.Value findPOJOBuilderConfig();
-    
+
     /**
      * Method called to create a "default instance" of the bean, currently
      * only needed for obtaining default field values which may be used for

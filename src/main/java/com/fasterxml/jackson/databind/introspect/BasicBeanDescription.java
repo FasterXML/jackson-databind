@@ -298,8 +298,7 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
-    public Object instantiateBean(boolean fixAccess)
-    {
+    public Object instantiateBean(boolean fixAccess) {
         AnnotatedConstructor ac = _classInfo.getDefaultConstructor();
         if (ac == null) {
             return null;

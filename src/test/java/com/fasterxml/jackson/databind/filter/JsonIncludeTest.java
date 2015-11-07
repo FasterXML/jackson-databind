@@ -1,9 +1,10 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.filter;
 
 import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -12,15 +13,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * {@link JsonSerialize#include} annotation property work
  * as expected.
  */
-public class TestNullProperties
+public class JsonIncludeTest
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper beans
-    /**********************************************************
-     */
-
     static class SimpleBean
     {
         public String getA() { return "a"; }
@@ -47,6 +42,23 @@ public class TestNullProperties
         public String getB() { return _b; }
     }
 
+    // [databind#998]: Do not require no-arg constructor; but if not, defaults check
+    //    has weaker interpretation
+    @JsonPropertyOrder({ "x", "y", "z" })
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static class NonDefaultBeanXYZ
+    {
+        public int x;
+        public int y = 3;
+        public int z = 7;
+
+        NonDefaultBeanXYZ(int x, int y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+    
     static class MixedBean
     {
         String _a = "a", _b = "b";
@@ -76,11 +88,12 @@ public class TestNullProperties
     /* Unit tests
     /**********************************************************
      */
-    
+
+    final private ObjectMapper MAPPER = new ObjectMapper();
+
     public void testGlobal() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new SimpleBean());
+        Map<String,Object> result = writeAndMap(MAPPER, new SimpleBean());
         assertEquals(2, result.size());
         assertEquals("a", result.get("a"));
         assertNull(result.get("b"));
@@ -89,8 +102,7 @@ public class TestNullProperties
 
     public void testNonNullByClass() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new NoNullsBean());
+        Map<String,Object> result = writeAndMap(MAPPER, new NoNullsBean());
         assertEquals(1, result.size());
         assertFalse(result.containsKey("a"));
         assertNull(result.get("a"));
@@ -100,11 +112,10 @@ public class TestNullProperties
 
     public void testNonDefaultByClass() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         NonDefaultBean bean = new NonDefaultBean();
         // need to change one of defaults
         bean._a = "notA";
-        Map<String,Object> result = writeAndMap(m, bean);
+        Map<String,Object> result = writeAndMap(MAPPER, bean);
         assertEquals(1, result.size());
         assertTrue(result.containsKey("a"));
         assertEquals("notA", result.get("a"));
@@ -112,21 +123,27 @@ public class TestNullProperties
         assertNull(result.get("b"));
     }
 
+    // [databind#998]
+    public void testNonDefaultByClassNoCtor() throws IOException
+    {
+        NonDefaultBeanXYZ bean = new NonDefaultBeanXYZ(1, 2, 0);
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(aposToQuotes("{'x':1,'y':2}"), json);
+    }
+    
     public void testMixedMethod() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-
         MixedBean bean = new MixedBean();
         bean._a = "xyz";
         bean._b = null;
-        Map<String,Object> result = writeAndMap(m, bean);
+        Map<String,Object> result = writeAndMap(MAPPER, bean);
         assertEquals(1, result.size());
         assertEquals("xyz", result.get("a"));
         assertFalse(result.containsKey("b"));
 
         bean._a = "a";
         bean._b = "b";
-        result = writeAndMap(m, bean);
+        result = writeAndMap(MAPPER, bean);
         assertEquals(1, result.size());
         assertEquals("b", result.get("b"));
         assertFalse(result.containsKey("a"));
@@ -134,14 +151,12 @@ public class TestNullProperties
 
     public void testDefaultForEmptyList() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        assertEquals("{}", m.writeValueAsString(new ListBean()));
+        assertEquals("{}", MAPPER.writeValueAsString(new ListBean()));
     }
 
-    // [JACKSON-531]: make NON_DEFAULT work for arrays too
+    // NON_DEFAULT shoud work for arrays too
     public void testNonEmptyDefaultArray() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        assertEquals("{}", m.writeValueAsString(new ArrayBean()));
+        assertEquals("{}", MAPPER.writeValueAsString(new ArrayBean()));
     }
 }

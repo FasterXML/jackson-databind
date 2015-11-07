@@ -14,6 +14,9 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public class PropertyBuilder
 {
+    // @since 2.7
+    private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
+    
     final protected SerializationConfig _config;
     final protected BeanDescription _beanDesc;
 
@@ -222,22 +225,39 @@ public class PropertyBuilder
 
     protected Object getDefaultBean()
     {
-        if (_defaultBean == null) {
+        Object def = _defaultBean;
+        if (def == null) {
             /* If we can fix access rights, we should; otherwise non-public
              * classes or default constructor will prevent instantiation
              */
-            _defaultBean = _beanDesc.instantiateBean(_config.canOverrideAccessModifiers());
-            if (_defaultBean == null) {
+            def = _beanDesc.instantiateBean(_config.canOverrideAccessModifiers());
+            if (def == null) {
+                // 06-Nov-2015, tatu: As per [databind#998], do not fail.
+                /*
                 Class<?> cls = _beanDesc.getClassInfo().getAnnotated();
                 throw new IllegalArgumentException("Class "+cls.getName()+" has no default constructor; can not instantiate default bean value to support 'properties=JsonSerialize.Inclusion.NON_DEFAULT' annotation");
+                 */
+
+                // And use a marker
+                def = NO_DEFAULT_MARKER;
             }
+            _defaultBean = def;
         }
-        return _defaultBean;
+        return (def == NO_DEFAULT_MARKER) ? null : _defaultBean;
     }
 
     protected Object getDefaultValue(String name, AnnotatedMember member)
     {
         Object defaultBean = getDefaultBean();
+        if (defaultBean == null) {
+            // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
+            //   handling for primitives since they are never passed as nulls.
+            Class<?> cls = member.getRawType();
+            if (cls.isPrimitive()) {
+                return ClassUtil.defaultValue(cls);
+            }
+            return null;
+        }
         try {
             return member.getValue(defaultBean);
         } catch (Exception e) {

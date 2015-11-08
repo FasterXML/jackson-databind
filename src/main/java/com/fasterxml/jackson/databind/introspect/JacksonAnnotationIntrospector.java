@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -1004,7 +1005,14 @@ public class JacksonAnnotationIntrospector
     protected boolean _isIgnorable(Annotated a)
     {
         JsonIgnore ann = _findAnnotation(a, JsonIgnore.class);
-        return (ann != null && ann.value());
+        if (ann != null) {
+            return ann.value();
+        }
+        Transient t = _findAnnotation(a, Transient.class);
+        if (t != null) {
+            return t.value();
+        }
+        return false;
     }
 
     protected Class<?> _classIfExplicit(Class<?> cls) {

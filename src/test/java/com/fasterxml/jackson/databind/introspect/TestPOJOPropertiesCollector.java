@@ -237,8 +237,8 @@ public class TestPOJOPropertiesCollector
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testSimple()
     {
         POJOPropertiesCollector coll = collector(MAPPER,

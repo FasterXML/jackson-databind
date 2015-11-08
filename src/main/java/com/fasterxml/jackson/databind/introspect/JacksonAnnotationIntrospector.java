@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.beans.ConstructorProperties;
 import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -779,24 +780,24 @@ public class JacksonAnnotationIntrospector
     @Override
     public PropertyName findNameForSerialization(Annotated a)
     {
-        String name = null;
-
         JsonGetter jg = _findAnnotation(a, JsonGetter.class);
         if (jg != null) {
-            name = jg.value();
-        } else {
-            JsonProperty pann = _findAnnotation(a, JsonProperty.class);
-            if (pann != null) {
-                name = pann.value();
-            } else if (_hasAnnotation(a, JsonSerialize.class)
-                    || _hasAnnotation(a, JsonView.class)
-                    || _hasAnnotation(a, JsonRawValue.class)) {
-                name = "";
-            } else {
-                return null;
-            }
+            return PropertyName.construct(jg.value());
         }
-        return PropertyName.construct(name);
+        JsonProperty pann = _findAnnotation(a, JsonProperty.class);
+        if (pann != null) {
+            return PropertyName.construct(pann.value());
+        }
+        PropertyName ctorName = _findConstructorName(a);
+        if (ctorName != null) {
+            return ctorName;
+        }
+        if (_hasAnnotation(a, JsonSerialize.class)
+                || _hasAnnotation(a, JsonView.class)
+                || _hasAnnotation(a, JsonRawValue.class)) {
+            return PropertyName.USE_DEFAULT;
+        }
+        return null;
     }
 
     @Override
@@ -932,32 +933,33 @@ public class JacksonAnnotationIntrospector
     @Override
     public PropertyName findNameForDeserialization(Annotated a)
     {
-        String name;
-
         // @JsonSetter has precedence over @JsonProperty, being more specific
         // @JsonDeserialize implies that there is a property, but no name
         JsonSetter js = _findAnnotation(a, JsonSetter.class);
         if (js != null) {
-            name = js.value();
-        } else {
-            JsonProperty pann = _findAnnotation(a, JsonProperty.class);
-            if (pann != null) {
-                name = pann.value();
-                /* 22-Apr-2014, tatu: Should figure out a better way to do this, but
-                 *   it's actually bit tricky to do it more efficiently (meta-annotations
-                 *   add more lookups; AnnotationMap costs etc)
-                 */
-            } else if (_hasAnnotation(a, JsonDeserialize.class)
-                    || _hasAnnotation(a, JsonView.class)
-                    || _hasAnnotation(a, JsonUnwrapped.class) // [#442]
-                    || _hasAnnotation(a, JsonBackReference.class)
-                    || _hasAnnotation(a, JsonManagedReference.class)) {
-                    name = "";
-            } else {
-                return null;
-            }
+            return PropertyName.construct(js.value());
         }
-        return PropertyName.construct(name);
+        JsonProperty pann = _findAnnotation(a, JsonProperty.class);
+        if (pann != null) {
+            return PropertyName.construct(pann.value());
+        }
+        PropertyName ctorName = _findConstructorName(a);
+        if (ctorName != null) {
+            return ctorName;
+        }
+        
+        /* 22-Apr-2014, tatu: Should figure out a better way to do this, but
+         *   it's actually bit tricky to do it more efficiently (meta-annotations
+         *   add more lookups; AnnotationMap costs etc)
+         */
+        if (_hasAnnotation(a, JsonDeserialize.class)
+                || _hasAnnotation(a, JsonView.class)
+                || _hasAnnotation(a, JsonUnwrapped.class) // [databind#442]
+                || _hasAnnotation(a, JsonBackReference.class)
+                || _hasAnnotation(a, JsonManagedReference.class)) {
+            return PropertyName.USE_DEFAULT;
+        }
+        return null;
     }
     
     @Override
@@ -987,7 +989,18 @@ public class JacksonAnnotationIntrospector
          * to this method getting called)
          */
          JsonCreator ann = _findAnnotation(a, JsonCreator.class);
-         return (ann != null && ann.mode() != JsonCreator.Mode.DISABLED);
+         if (ann != null) {
+             return (ann.mode() != JsonCreator.Mode.DISABLED);
+         }
+         if (a instanceof AnnotatedConstructor) {
+             ConstructorProperties props = _findAnnotation(a, ConstructorProperties.class);
+             // 08-Nov-2015, tatu: One possible check would be to ensure there is at least
+             //    one name iff constructor has arguments. But seems unnecessary for now.
+             if (props != null) {
+                 return true;
+             }
+         }
+         return false;
     }
 
     @Override
@@ -1035,6 +1048,26 @@ public class JacksonAnnotationIntrospector
             return PropertyName.construct(localName);
         }
         return PropertyName.construct(localName, namespace);
+    }
+
+    protected PropertyName _findConstructorName(Annotated a)
+    {
+        if (a instanceof AnnotatedParameter) {
+            AnnotatedParameter p = (AnnotatedParameter) a;
+            AnnotatedWithParams ctor = p.getOwner();
+
+            if (ctor != null) {
+                ConstructorProperties props = _findAnnotation(ctor, ConstructorProperties.class);
+                if (props != null) {
+                    String[] names = props.value();
+                    int ix = p.getIndex();
+                    if (ix < names.length) {
+                        return PropertyName.construct(names[ix]);
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**

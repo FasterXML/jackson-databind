@@ -1,12 +1,12 @@
 
 package com.fasterxml.jackson.databind.creators;
 
+import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -161,7 +161,17 @@ public class TestCreators2 extends BaseMapTest
 
         public String getItem() { return null; }
     }
-    
+
+    static class Issue905Bean {
+        public int v1, v2;
+
+        @ConstructorProperties({"x", "y"})
+        public Issue905Bean(int a, int b) {
+            v1 = a;
+            v2 = b;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -296,5 +306,14 @@ public class TestCreators2 extends BaseMapTest
     {
         Issue700Bean value = MAPPER.readValue("{ \"item\" : \"foo\" }", Issue700Bean.class);
         assertNotNull(value);
+    }
+
+    // [databind#905]
+    public void testCreatorPropertiesAnnotation() throws Exception
+    {
+        Issue905Bean b = MAPPER.readValue(aposToQuotes("{'y':3,'x':2}"),
+                Issue905Bean.class);
+        assertEquals(2, b.v1);
+        assertEquals(3, b.v2);
     }
 }

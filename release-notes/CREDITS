@@ -371,3 +371,7 @@ Shumpei Akai (flexfrank@github)
   * Reported #978: ObjectMapper#canSerialize(Object.class) returns false even though
    FAIL_ON_EMPTY_BEANS is disabled
    (2.7.0)
+
+Jonas Konrad (yawkat@github)
+  * Suggested #905: Add support for `@ConstructorProperties`
+   (2.7.0)

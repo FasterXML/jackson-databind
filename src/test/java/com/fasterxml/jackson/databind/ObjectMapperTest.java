@@ -242,13 +242,22 @@ public class ObjectMapperTest extends BaseMapTest
                 .writeValueAsString(input));
     }
     
-    // For [databind#703]
+    // For [databind#703], [databind#978]
     public void testNonSerializabilityOfObject()
     {
         ObjectMapper m = new ObjectMapper();
         assertFalse(m.canSerialize(Object.class));
-        // but this used to pass, incorrectly
+        // but this used to pass, incorrectly, second time around
         assertFalse(m.canSerialize(Object.class));
+
+        // [databind#978]: Different answer if empty Beans ARE allowed
+        m = new ObjectMapper();
+        m.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        assertTrue(m.canSerialize(Object.class));
+        assertTrue(MAPPER.writer().without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .canSerialize(Object.class));
+        assertFalse(MAPPER.writer().with(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .canSerialize(Object.class));
     }
 
     // for [databind#756]

@@ -31,6 +31,8 @@ Project: jackson-databind
  (contributed by Jesse W)
 #957: Merge `datatype-jdk7` stuff in (java.nio.file.Path handling)
 #959: Schema generation: consider active view, discard non-included properties
+#978: ObjectMapper#canSerialize(Object.class) returns false even though FAIL_ON_EMPTY_BEANS is disabled
+ (reported by Shumpei A)
 #997: Add `MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS`
 #998: Allow use of `NON_DEFAULT` for POJOs without default constructor
 - Make `JsonValueFormat` (self-)serializable, deserializable, to/from valid external

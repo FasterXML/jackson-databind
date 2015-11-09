@@ -163,12 +163,18 @@ public class TestCreators2 extends BaseMapTest
     }
 
     static class Issue905Bean {
-        public int v1, v2;
+        // 08-Nov-2015, tatu: Note that in real code we would most likely use same
+        //    names for properties; but here we use different name on purpose to
+        //    ensure that Jackson has no way of binding JSON properties "x" and "y"
+        //    using any other mechanism than via `@ConstructorProperties` annotation
+        public int _x, _y;
 
         @ConstructorProperties({"x", "y"})
+        // Same as above; use differing local parameter names so that parameter name
+        // introspection can not be used as the source of property names.
         public Issue905Bean(int a, int b) {
-            v1 = a;
-            v2 = b;
+            _x = a;
+            _y = b;
         }
     }
 
@@ -313,7 +319,7 @@ public class TestCreators2 extends BaseMapTest
     {
         Issue905Bean b = MAPPER.readValue(aposToQuotes("{'y':3,'x':2}"),
                 Issue905Bean.class);
-        assertEquals(2, b.v1);
-        assertEquals(3, b.v2);
+        assertEquals(2, b._x);
+        assertEquals(3, b._y);
     }
 }

@@ -97,6 +97,20 @@ public class TestNamingStrategyStd extends BaseMapTest
         public ObjectNode json;
     }    
 
+    static class ExplicitBean {
+        @JsonProperty("firstName")
+        String userFirstName = "Peter";
+        @JsonProperty("lastName")
+        String userLastName = "Venkman";
+        @JsonProperty
+        String userAge = "35";
+    }
+
+    @JsonNaming()
+    static class DefaultNaming {
+        public int someValue = 3;
+    }
+    
     /*
     /**********************************************************
     /* Set up
@@ -318,15 +332,6 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("bing", result.json.path("baz").asText());
     }
 
-    static class ExplicitBean {
-      @JsonProperty("firstName")
-      String userFirstName = "Peter";
-      @JsonProperty("lastName")
-      String userLastName = "Venkman";
-      @JsonProperty
-      String userAge = "35";
-    }
-
     public void testExplicitRename() throws Exception {
       ObjectMapper m = new ObjectMapper();
       m.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
@@ -352,6 +357,13 @@ public class TestNamingStrategyStd extends BaseMapTest
       assertEquals("Egon", bean.userFirstName);
       assertEquals("Spengler", bean.userLastName);
       assertEquals("32", bean.userAge);
+    }
 
+    // Also verify that "no naming strategy" should be ok
+    public void testExplicitNoNaming() throws Exception
+    {
+        ObjectMapper mapper = objectMapper();
+        String json = mapper.writeValueAsString(new DefaultNaming());
+        assertEquals(aposToQuotes("{'someValue':3}"), json);
     }
 }

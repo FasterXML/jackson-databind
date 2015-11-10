@@ -1008,6 +1008,11 @@ public class POJOPropertiesCollector
                     +namingDef.getClass().getName()+"; expected type PropertyNamingStrategy or Class<PropertyNamingStrategy> instead");
         }
         Class<?> namingClass = (Class<?>)namingDef;
+        // 09-Nov-2015, tatu: Need to consider pseudo-value of STD, which means "use default"
+        if (namingClass == PropertyNamingStrategy.class) {
+            return null;
+        }
+        
         if (!PropertyNamingStrategy.class.isAssignableFrom(namingClass)) {
             throw new IllegalStateException("AnnotationIntrospector returned Class "
                     +namingClass.getName()+"; expected Class<PropertyNamingStrategy>");

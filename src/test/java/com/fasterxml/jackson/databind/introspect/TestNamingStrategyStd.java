@@ -3,25 +3,16 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * Unit tests to verify functioning of 
- * {@link PropertyNamingStrategy#CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES} 
- * and
- * {@link PropertyNamingStrategy#PASCAL_CASE_TO_CAMEL_CASE } 
- * inside the context of an ObjectMapper.
- * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1,
- * as per [JACKSON-63].
+ * Unit tests to verify functioning of standard {@link PropertyNamingStrategy}
+ * implementations Jackson includes out of the box.
  */
 public class TestNamingStrategyStd extends BaseMapTest
 {
@@ -110,14 +101,21 @@ public class TestNamingStrategyStd extends BaseMapTest
     static class DefaultNaming {
         public int someValue = 3;
     }
-    
+
+    static class FirstNameBean {
+        public String firstName;
+
+        protected FirstNameBean() { }
+        public FirstNameBean(String n) { firstName = n; }
+    }
+
     /*
     /**********************************************************
     /* Set up
     /**********************************************************
      */
 
-    public static List<Object[]> NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
+    public static List<Object[]> SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
                 {null, null},
                 {"", ""},
                 {"a", "a"},
@@ -176,32 +174,29 @@ public class TestNamingStrategyStd extends BaseMapTest
     {
         super.setUp();
         _lcWithUndescoreMapper = new ObjectMapper();
-        _lcWithUndescoreMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        _lcWithUndescoreMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
     }
     
     /*
     /**********************************************************
-    /* Test methods for CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+    /* Test methods for SNAKE_CASE
     /**********************************************************
      */
 
     /**
      * Unit test to verify translations of 
-     * {@link PropertyNamingStrategy#CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES} 
+     * {@link PropertyNamingStrategy#SNAKE_CASE} 
      * outside the context of an ObjectMapper.
-     * CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES was added in Jackson 1.9, 
-     * as per [JACKSON-598].
      */
-    @Test
     public void testLowerCaseStrategyStandAlone()
     {
-        for (Object[] pair : NAME_TRANSLATIONS) {
-            String translatedJavaName = PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES.nameForField(null, null,
+        for (Object[] pair : SNAKE_CASE_NAME_TRANSLATIONS) {
+            String translatedJavaName = PropertyNamingStrategy.SNAKE_CASE.nameForField(null, null,
                     (String) pair[0]);
             assertEquals((String) pair[1], translatedJavaName);
         }
     }
-    
+
     public void testLowerCaseTranslations() throws Exception
     {
         // First serialize
@@ -256,34 +251,32 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("from7user", result.from7user);
         assertEquals("_x", result._x);
     }
-    
+
     /*
     /**********************************************************
-    /* Test methods for PASCAL_CASE_TO_CAMEL_CASE (added in 2.1)
+    /* Test methods for UPPER_CAMEL_CASE
     /**********************************************************
      */
 
     /**
      * Unit test to verify translations of 
-     * {@link PropertyNamingStrategy#PASCAL_CASE_TO_CAMEL_CASE } 
+     * {@link PropertyNamingStrategy#UPPER_CAMEL_CASE } 
      * outside the context of an ObjectMapper.
-     * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1.0, 
-     * as per [JACKSON-63].
      */
     public void testPascalCaseStandAlone()
     {
-        String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+        String translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
     	        (null, null, "userName");
         assertEquals("UserName", translatedJavaName);
 
-        translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+        translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
                 (null, null, "User");
         assertEquals("User", translatedJavaName);
 
-        translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+        translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
                 (null, null, "user");
         assertEquals("User", translatedJavaName);
-        translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+        translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
                 (null, null, "x");
         assertEquals("X", translatedJavaName);
     }
@@ -294,7 +287,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testIssue428PascalWithOverrides() throws Exception {
 
         String json = new ObjectMapper()
-                            .setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
+                            .setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
                             .writeValueAsString(new Bean428());
         
         if (!json.contains(quote("fooBar"))) {
@@ -302,6 +295,12 @@ public class TestNamingStrategyStd extends BaseMapTest
         }
     }
 
+    /*
+    /**********************************************************
+    /* Test methods for LOWER_CASE
+    /**********************************************************
+     */
+    
     /**
      * For [databind#461]
      */
@@ -314,13 +313,52 @@ public class TestNamingStrategyStd extends BaseMapTest
                 m.writeValueAsString(input));
     }
 
+    /*
+    /**********************************************************
+    /* Test methods for KEBAB_CASE
+    /**********************************************************
+     */
+    
+    public void testKebabCaseStrategyStandAlone()
+    {
+        assertEquals("some-value",
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "someValue"));
+        assertEquals("some-value",
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeValue"));
+        assertEquals("url",
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URL"));
+        assertEquals("url-stuff",
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "URLStuff"));
+        assertEquals("some-url-stuff",
+                PropertyNamingStrategy.KEBAB_CASE.nameForField(null, null, "SomeURLStuff"));
+    }
+    
+    public void testSimpleKebabCase() throws Exception
+    {
+        final FirstNameBean input = new FirstNameBean("Bob");
+        ObjectMapper m = new ObjectMapper()
+                .setPropertyNamingStrategy(PropertyNamingStrategy.KEBAB_CASE);
+
+        assertEquals(aposToQuotes("{'first-name':'Bob'}"), m.writeValueAsString(input));
+
+        FirstNameBean result = m.readValue(aposToQuotes("{'first-name':'Billy'}"),
+                FirstNameBean.class);
+        assertEquals("Billy", result.firstName);
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, other
+    /**********************************************************
+     */
+    
     /**
      * Test [databind#815], problems with ObjectNode, naming strategy
      */
     public void testNamingWithObjectNode() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE);
+        ObjectMapper m = new ObjectMapper()
+            .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CASE);
         ClassWithObjectNodeField result =
             m.readValue(
                 "{ \"id\": \"1\", \"json\": { \"foo\": \"bar\", \"baz\": \"bing\" } }",
@@ -332,16 +370,17 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("bing", result.json.path("baz").asText());
     }
 
-    public void testExplicitRename() throws Exception {
+    public void testExplicitRename() throws Exception
+    {
       ObjectMapper m = new ObjectMapper();
-      m.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+      m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
       m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
       // by default, renaming will not take place on explicitly named fields
       assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
           m.writeValueAsString(new ExplicitBean()));
 
       m = new ObjectMapper();
-      m.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+      m.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
       m.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
       m.enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING);
       // w/ feature enabled, ALL property names should get re-written

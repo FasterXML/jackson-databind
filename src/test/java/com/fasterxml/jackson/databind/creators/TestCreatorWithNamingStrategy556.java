@@ -58,7 +58,7 @@ public class TestCreatorWithNamingStrategy556
     }
     
     private final ObjectMapper MAPPER = new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
+            .setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
             ;
     {
         MAPPER.setAnnotationIntrospector(new MyParamIntrospector());

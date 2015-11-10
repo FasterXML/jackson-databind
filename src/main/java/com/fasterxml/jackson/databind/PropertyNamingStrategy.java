@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
  * Methods are passed information about POJO member for which name is needed,
  * as well as default name that would be used if no custom strategy was used.
  *<p>
- * Default implementation returns suggested ("default") name unmodified.
+ * Default (empty) implementation returns suggested ("default") name unmodified.
  *<p>
  * Note that the strategy is guaranteed to be called once per logical property
  * (which may be represented by multiple members; such as pair of a getter and
@@ -66,7 +66,16 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * @since 2.4
      */
     public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy();
-    
+
+    /**
+     * Naming convention used in languages like Lisp, where words are in lower-case
+     * letters, separated by hyphens.
+     * See {@link KebabCaseStrategy} for details.
+     * 
+     * @since 2.7
+     */
+    public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy();
+
     /*
     /**********************************************************
     /* API
@@ -341,6 +350,53 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
         }
     }
 
+    /**
+     * Naming strategy similar to {@link SnakeCaseStrategy}, but instead of underscores
+     * as separators, uses hyphens. Naming convention traditionally used for languages
+     * like Lisp.
+     *
+     * @since 2.7
+     */
+    public static class KebabCaseStrategy extends PropertyNamingStrategyBase
+    {
+        @Override
+        public String translate(String input)
+        {
+            if (input == null) return input; // garbage in, garbage out
+            int length = input.length();
+            if (length == 0) {
+                return input;
+            }
+
+            StringBuilder result = new StringBuilder(length + (length >> 1));
+
+            int upperCount = 0;
+
+            for (int i = 0; i < length; ++i) {
+                char ch = input.charAt(i);
+                char lc = Character.toLowerCase(ch);
+                
+                if (lc == ch) { // lower-case letter means we can get new word
+                    // but need to check for multi-letter upper-case (acronym), where assumption
+                    // is that the last upper-case char is start of a new word
+                    if (upperCount > 1) {
+                        // so insert hyphen before the last character now
+                        result.insert(result.length() - 1, '-');
+                    }
+                    upperCount = 0;
+                } else {
+                    // Otherwise starts new word, unless beginning of string
+                    if ((upperCount == 0) && (i > 0)) {
+                        result.append('-');
+                    }
+                    ++upperCount;
+                }
+                result.append(lc);
+            }
+            return result.toString();
+        }
+    }
+    
     /*
     /**********************************************************
     /* Deprecated variants, aliases

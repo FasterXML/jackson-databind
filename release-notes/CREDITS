@@ -359,19 +359,23 @@ Miles Kaufmann (milesk-amzn@github)
   * Reported #432: `StdValueInstantiator` unwraps exceptions, losing context
    (2.7.0)
 
+Thomas Mortagne (tmortagne@github)
+  * Suggested #857: Add support for java.beans.Transient
+   (2.7.0)
+
+Jonas Konrad (yawkat@github)
+  * Suggested #905: Add support for `@ConstructorProperties`
+   (2.7.0)
+
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
    (2.7.0)
 
-Thomas Mortagne (tmortagne@github)
-  * Suggested #857: Add support for java.beans.Transient
+Daniel Mischler (danielmischler@github)
+  * Requested #963: Add PropertyNameStrategy `KEBAB_CASE`
    (2.7.0)
 
 Shumpei Akai (flexfrank@github)
   * Reported #978: ObjectMapper#canSerialize(Object.class) returns false even though
    FAIL_ON_EMPTY_BEANS is disabled
-   (2.7.0)
-
-Jonas Konrad (yawkat@github)
-  * Suggested #905: Add support for `@ConstructorProperties`
    (2.7.0)

@@ -42,7 +42,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper()
             .setAnnotationIntrospector(new MyParamIntrospector())
-            .setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES)
+            .setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
             ;
         XY value = mapper.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);

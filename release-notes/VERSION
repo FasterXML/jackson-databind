@@ -19,6 +19,9 @@ Project: jackson-databind
 #898: Add `ObjectMapper.getSerializerProviderInstance()`
 #905: Add support for `@ConstructorProperties`
  (requested by Jonas K)
+#909: Rename PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES as SNAKE_CASE,
+   PASCAL_CASE_TO_CAMEL_CASE as UPPER_CAMEL_CASE
+ (suggested by marcottedan@github)
 #915: ObjectMapper default timezone is GMT, should be UTC
  (suggested by Infrag@github)
 #918: Add `MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING`

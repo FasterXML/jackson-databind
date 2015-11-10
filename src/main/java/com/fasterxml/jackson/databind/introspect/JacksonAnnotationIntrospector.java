@@ -224,14 +224,14 @@ public class JacksonAnnotationIntrospector
     {
         JsonNaming ann = _findAnnotation(ac, JsonNaming.class);
         return (ann == null) ? null : ann.value();
-    } 
+    }
 
     /*
     /**********************************************************
     /* Property auto-detection
     /**********************************************************
      */
-    
+
     @Override
     public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
         VisibilityChecker<?> checker)

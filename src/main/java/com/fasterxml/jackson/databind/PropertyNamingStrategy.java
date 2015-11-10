@@ -27,24 +27,40 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
  * characters).
  */
 @SuppressWarnings("serial")
-public abstract class PropertyNamingStrategy
+public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     implements java.io.Serializable
 {
     /**
-     * See {@link LowerCaseWithUnderscoresStrategy} for details.
+     * Naming convention used in languages like C, where words are in lower-case
+     * letters, separated by underscores.
+     * See {@link SnakeCaseStrategy} for details.
+     *
+     * @since 2.7 (was formerly called {@link #CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES})
      */
-    public static final PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES =
-        new LowerCaseWithUnderscoresStrategy();
+    public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy();
 
     /**
+     * Naming convention used in languages like Pascal, where words are capitalized
+     * and no separator is used between words.
      * See {@link PascalCaseStrategy} for details.
-     * 
-     * @since 2.1
+     *
+     * @since 2.7 (was formerly called {@link #PASCAL_CASE_TO_CAMEL_CASE})
      */
-    public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE =
-        new PascalCaseStrategy();
+    public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy();
 
     /**
+     * Naming convention used in Java, where words other than first are capitalized
+     * and no separator is used between words. Since this is the native Java naming convention,
+     * naming strategy will not do any transformation between names in data (JSON) and
+     * POJOS.
+     *
+     * @since 2.7 (was formerly called {@link #PASCAL_CASE_TO_CAMEL_CASE})
+     */
+    public static final PropertyNamingStrategy LOWER_CAMEL_CASE = new PropertyNamingStrategy();
+    
+    /**
+     * Naming convention in which all words of the logical name are in lower case, and
+     * no separator is used between words.
      * See {@link LowerCaseStrategy} for details.
      * 
      * @since 2.4
@@ -226,8 +242,10 @@ public abstract class PropertyNamingStrategy
      * (the first of two underscores was removed)</li>
      * <li>&quot;user__name&quot; is translated to &quot;user__name&quot;
      * (unchanged, with two underscores)</li></ul>
+     *
+     * @since 2.7 (was previously called }
      */
-    public static class LowerCaseWithUnderscoresStrategy extends PropertyNamingStrategyBase
+    public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
     {
         @Override
         public String translate(String input)
@@ -277,9 +295,9 @@ public abstract class PropertyNamingStrategy
      * Java property names to JSON element names.
      * <ul><li>&quot;userName&quot; is translated to &quot;UserName&quot;</li></ul>
      * 
-     * @since 2.1
+     * @since 2.7 (was formerly called {@link PascalCaseStrategy})
      */
-    public static class PascalCaseStrategy extends PropertyNamingStrategyBase
+    public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
     {
         /**
          * Converts camelCase to PascalCase
@@ -322,4 +340,35 @@ public abstract class PropertyNamingStrategy
             return input.toLowerCase();
         }
     }
+
+    /*
+    /**********************************************************
+    /* Deprecated variants, aliases
+    /**********************************************************
+     */
+    
+    /**
+     * @deprecated Since 2.7 use {@link #SNAKE_CASE} instead;
+     */
+    @Deprecated // since 2.7
+    public static final PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES = SNAKE_CASE;
+
+    /**
+     * @deprecated Since 2.7 use {@link #UPPER_CAMEL_CASE} instead;
+     */
+    @Deprecated // since 2.7
+    public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE = UPPER_CAMEL_CASE;
+
+    /**
+     * @deprecated In 2.7 use {@link SnakeCaseStrategy} instead
+     */
+    @Deprecated
+    public static class LowerCaseWithUnderscoresStrategy extends SnakeCaseStrategy {}
+
+    /**
+     * @deprecated In 2.7 use {@link SnakeCaseStrategy} instead
+     */
+    @Deprecated
+    public static class PascalCaseStrategy extends UpperCamelCaseStrategy {}
 }
+

@@ -818,7 +818,11 @@ public abstract class BasicSerializerFactory
             return null;
         case NON_DEFAULT:
             // 19-Oct-2014, tatu: Not sure what this'd mean; so take it to mean "NON_EMPTY"...
-            incl = JsonInclude.Include.NON_EMPTY;
+            // 11-Nov-2015, tatu: With 2.6, we did indeed revert to "NON_EMPTY", but that did
+            //    not go well, so with 2.7, we'll do this instead...
+            //   But not 100% sure if we ought to call new `JsonSerializer.findDefaultValue()`;
+            //   to do that, would need to locate said serializer
+//            incl = JsonInclude.Include.NON_EMPTY;
             break;
         default:
             // all other modes actually good as is, unless we'll find better ways

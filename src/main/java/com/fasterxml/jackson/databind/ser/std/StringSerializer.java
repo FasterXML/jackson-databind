@@ -43,10 +43,10 @@ public final class StringSerializer
         String str = (String) value;
         return (str == null) || (str.length() == 0);
     }
-    
+
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeString((String) value);
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        gen.writeString((String) value);
     }
 
     @Override

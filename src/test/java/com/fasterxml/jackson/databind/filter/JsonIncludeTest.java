@@ -59,13 +59,13 @@ public class JsonIncludeTest
         }
     }
     
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class MixedBean
     {
         String _a = "a", _b = "b";
 
         MixedBean() { }
 
-        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
         public String getA() { return _a; }
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -73,16 +73,52 @@ public class JsonIncludeTest
     }
 
     // to ensure that default values work for collections as well
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class ListBean {
-        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
         public List<String> strings = new ArrayList<String>();
     }
-    
+
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class ArrayBean {
         public int[] ints = new int[] { 1, 2 };
     }
 
+    // Test to ensure that default exclusion works for fields too
+    @JsonPropertyOrder({ "i1", "i2" })
+    static class DefaultIntBean {
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+        public int i1;
+
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+        public Integer i2;
+
+        public DefaultIntBean(int i1, Integer i2) {
+            this.i1 = i1;
+            this.i2 = i2;
+        }
+    }
+
+    static class NonEmptyString {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public String value;
+
+        public NonEmptyString(String v) { value = v; }
+    }
+
+    static class NonEmptyInt {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public int value;
+
+        public NonEmptyInt(int v) { value = v; }
+    }
+
+    static class NonEmptyDouble {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public double value;
+
+        public NonEmptyDouble(double v) { value = v; }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -158,5 +194,41 @@ public class JsonIncludeTest
     public void testNonEmptyDefaultArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new ArrayBean()));
+    }
+
+    public void testDefaultForIntegers() throws IOException
+    {
+        assertEquals("{}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
+        assertEquals("{\"i2\":1}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(1))));
+        assertEquals("{\"i1\":3}", MAPPER.writeValueAsString(new DefaultIntBean(3, Integer.valueOf(0))));
+    }
+
+    public void testEmptyInclusionScalars() throws IOException
+    {
+        ObjectMapper defMapper = MAPPER;
+        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+        // First, Strings
+        StringWrapper str = new StringWrapper("");
+        assertEquals("{\"str\":\"\"}", defMapper.writeValueAsString(str));
+        assertEquals("{}", inclMapper.writeValueAsString(str));
+        assertEquals("{}", inclMapper.writeValueAsString(new StringWrapper()));
+
+        assertEquals("{\"value\":\"x\"}", defMapper.writeValueAsString(new NonEmptyString("x")));
+        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyString("")));
+
+        // Then numbers
+        // 11-Nov-2015, tatu: As of Jackson 2.7, scalars should NOT be considered empty,
+        //   except for wrappers if they are `null`
+        assertEquals("{\"value\":12}", defMapper.writeValueAsString(new NonEmptyInt(12)));
+        assertEquals("{\"value\":0}", defMapper.writeValueAsString(new NonEmptyInt(0)));
+
+        assertEquals("{\"value\":1.25}", defMapper.writeValueAsString(new NonEmptyDouble(1.25)));
+        assertEquals("{\"value\":0.0}", defMapper.writeValueAsString(new NonEmptyDouble(0.0)));
+
+        
+        IntWrapper zero = new IntWrapper(0);
+        assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
+        assertEquals("{\"i\":0}", inclMapper.writeValueAsString(zero));
     }
 }

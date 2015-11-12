@@ -111,7 +111,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null) || (value.size() == 0);
     }
-    
+
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("array", true).set("items", contentSchema());

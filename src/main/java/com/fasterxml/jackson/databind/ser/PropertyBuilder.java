@@ -32,8 +32,11 @@ public class PropertyBuilder
     /**
      * If a property has serialization inclusion value of
      * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT},
-     * we need to know the default value of the bean, to know if property value
+     * we may need to know the default value of the bean, to know if property value
      * equals default one.
+     *<p>
+     * NOTE: only used if enclosing class defines NON_DEFAULT, but NOT if it is the
+     * global default OR per-property override.
      */
     protected Object _defaultBean;
 
@@ -110,7 +113,17 @@ public class PropertyBuilder
 
         switch (inclusion) {
         case NON_DEFAULT:
-            valueToSuppress = getDefaultValue(propDef.getName(), am);
+            // 11-Nov-2015, tatu: This is tricky because semantics differ between cases,
+            //    so that if enclosing class has this, we may need to values of property,
+            //    whereas for global defaults OR per-property overrides, we have more
+            //    static definition. Sigh.
+            // First: case of class specifying it; try to find POJO property defaults
+            JavaType t = (serializationType == null) ? declaredType : serializationType;
+            if (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT) {
+                valueToSuppress = getPropertyDefaultValue(propDef.getName(), am, t);
+            } else {
+                valueToSuppress = getDefaultValue(t);
+            }
             if (valueToSuppress == null) {
                 suppressNulls = true;
             } else {
@@ -118,6 +131,7 @@ public class PropertyBuilder
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
                 }
             }
+
             break;
         case NON_ABSENT: // new with 2.6, to support Guava/JDK8 Optionals
             // always suppress nulls
@@ -246,17 +260,24 @@ public class PropertyBuilder
         return (def == NO_DEFAULT_MARKER) ? null : _defaultBean;
     }
 
-    protected Object getDefaultValue(String name, AnnotatedMember member)
+    /**
+     * Accessor used to find out "default value" for given property, to use for
+     * comparing values to serialize, to determine whether to exclude value from serialization with
+     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_EMPTY}.
+     * This method is called when we specifically want to know default value within context
+     * of a POJO, when annotation is within containing class, and not for property or
+     * defined as global baseline.
+     *<p>
+     * Note that returning of pseudo-type 
+     *
+     * @since 2.7
+     */
+    protected Object getPropertyDefaultValue(String name, AnnotatedMember member,
+            JavaType type)
     {
         Object defaultBean = getDefaultBean();
         if (defaultBean == null) {
-            // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
-            //   handling for primitives since they are never passed as nulls.
-            Class<?> cls = member.getRawType();
-            if (cls.isPrimitive()) {
-                return ClassUtil.defaultValue(cls);
-            }
-            return null;
+            return getDefaultValue(type);
         }
         try {
             return member.getValue(defaultBean);
@@ -265,6 +286,38 @@ public class PropertyBuilder
         }
     }
 
+    /**
+     * Accessor used to find out "default value" to use for comparing values to
+     * serialize, to determine whether to exclude value from serialization with
+     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
+     *<p>
+     * Default logic is such that for primitives and wrapper types for primitives, expected
+     * defaults (0 for `int` and `java.lang.Integer`) are returned; for Strings, empty String,
+     * and for structured (Maps, Collections, arrays) and reference types, criteria
+     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
+     * is used.
+     *
+     * @since 2.7
+     */
+    protected Object getDefaultValue(JavaType type)
+    {
+        // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
+        //   handling for primitives since they are never passed as nulls.
+        Class<?> cls = type.getRawClass();
+
+        Class<?> prim = ClassUtil.primitiveType(cls);
+        if (prim != null) {
+            return ClassUtil.defaultValue(prim);
+        }
+        if (type.isContainerType() || type.isReferenceType()) {
+            return JsonInclude.Include.NON_EMPTY;
+        }
+        if (cls == String.class) {
+            return "";
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Helper methods for exception handling

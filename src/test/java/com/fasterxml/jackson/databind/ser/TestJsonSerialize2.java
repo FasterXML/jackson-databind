@@ -105,27 +105,6 @@ public class TestJsonSerialize2
         }
     }
 
-    static class NonEmptyString {
-        @JsonInclude(JsonInclude.Include.NON_EMPTY)
-        public String value;
-
-        public NonEmptyString(String v) { value = v; }
-    }
-
-    static class NonEmptyInt {
-        @JsonInclude(JsonInclude.Include.NON_EMPTY)
-        public int value;
-
-        public NonEmptyInt(int v) { value = v; }
-    }
-
-    static class NonEmptyDouble {
-        @JsonInclude(JsonInclude.Include.NON_EMPTY)
-        public double value;
-
-        public NonEmptyDouble(double v) { value = v; }
-    }
-    
     static class NullBean
     {
         @JsonSerialize(using=NullSerializer.class)
@@ -216,32 +195,6 @@ public class TestJsonSerialize2
         assertEquals("{\"array\":[]}", defMapper.writeValueAsString(array));
         assertEquals("{}", inclMapper.writeValueAsString(array));
         assertEquals("{}", inclMapper.writeValueAsString(new ArrayWrapper<Integer>(null)));
-    }
-
-    public void testEmptyInclusionScalars() throws IOException
-    {
-        ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-        // First, Strings
-        StringWrapper str = new StringWrapper("");
-        assertEquals("{\"str\":\"\"}", defMapper.writeValueAsString(str));
-        assertEquals("{}", inclMapper.writeValueAsString(str));
-        assertEquals("{}", inclMapper.writeValueAsString(new StringWrapper()));
-
-        assertEquals("{\"value\":\"x\"}", defMapper.writeValueAsString(new NonEmptyString("x")));
-        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyString("")));
-
-        // Then numbers
-        assertEquals("{\"value\":12}", defMapper.writeValueAsString(new NonEmptyInt(12)));
-        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyInt(0)));
-
-        assertEquals("{\"value\":1.25}", defMapper.writeValueAsString(new NonEmptyDouble(1.25)));
-        assertEquals("{}", defMapper.writeValueAsString(new NonEmptyDouble(0.0)));
-
-        IntWrapper zero = new IntWrapper(0);
-        assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
-        assertEquals("{}", inclMapper.writeValueAsString(zero));
     }
 
     public void testNullSerializer() throws Exception

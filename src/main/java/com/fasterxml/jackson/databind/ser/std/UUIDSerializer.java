@@ -23,12 +23,6 @@ public class UUIDSerializer
     public UUIDSerializer() { super(UUID.class); }
 
     @Override
-    @Deprecated // since 2.5
-    public boolean isEmpty(UUID value) {
-        return isEmpty(null, value);
-    }
-
-    @Override
     public boolean isEmpty(SerializerProvider prov, UUID value)
     {
         if (value == null) {

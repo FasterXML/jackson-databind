@@ -673,7 +673,46 @@ public final class ClassUtil
         }
         throw new IllegalArgumentException("Class "+primitiveType.getName()+" is not a primitive type");
     }
-    
+
+    /**
+     * Method that can be used to find primitive type for given class if (but only if)
+     * it is either wrapper type or primitive type; returns `null` if type is neither.
+     *
+     * @since 2.7
+     */
+    public static Class<?> primitiveType(Class<?> type)
+    {
+        if (type.isPrimitive()) {
+            return type;
+        }
+        
+        if (type == Integer.class) {
+            return Integer.TYPE;
+        }
+        if (type == Long.class) {
+            return Long.TYPE;
+        }
+        if (type == Boolean.class) {
+            return Boolean.TYPE;
+        }
+        if (type == Double.class) {
+            return Double.TYPE;
+        }
+        if (type == Float.class) {
+            return Float.TYPE;
+        }
+        if (type == Byte.class) {
+            return Byte.TYPE;
+        }
+        if (type == Short.class) {
+            return Short.TYPE;
+        }
+        if (type == Character.class) {
+            return Character.TYPE;
+        }
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Access checking/handling methods

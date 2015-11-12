@@ -34,6 +34,8 @@ Project: jackson-databind
  (reported by adamjoeldavis@github)
 #948: Support leap seconds, any number of millisecond digits for ISO-8601 Dates.
  (contributed by Jesse W)
+#952: Revert non-empty handling of primitive numbers wrt `NON_EMPTY`; make
+  `NON_DEFAULT` use extended criteria
 #957: Merge `datatype-jdk7` stuff in (java.nio.file.Path handling)
 #959: Schema generation: consider active view, discard non-included properties
 #963: Add PropertyNameStrategy `KEBAB_CASE`

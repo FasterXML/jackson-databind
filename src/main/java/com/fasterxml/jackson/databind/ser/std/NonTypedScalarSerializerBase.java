@@ -26,10 +26,10 @@ public abstract class NonTypedScalarSerializerBase<T>
     }
     
     @Override
-    public final void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
+    public final void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
         // no type info, just regular serialization
-        serialize(value, jgen, provider);            
+        serialize(value, gen, provider);            
     }
 }

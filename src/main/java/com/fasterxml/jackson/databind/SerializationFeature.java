@@ -387,7 +387,15 @@ public enum SerializationFeature implements ConfigFeature
      * Feature that determines whether Object Identity is compared using
      * true JVM-level identity of Object (false); or, <code>equals()</code> method.
      * Latter is sometimes useful when dealing with Database-bound objects with
-     * ORM libraries (like Hibernate).
+     * ORM libraries (like Hibernate). Note that Object itself is actually compared,
+     * and NOT Object Id; naming of this feature is somewhat confusing, so it is important
+     * that Object <b>for which identity is to be preserved</b> are considered equal,
+     * above and beyond ids (which are always compared using equality anyway).
+     *<p>
+     * NOTE: due to the way functionality is implemented, it is very important that
+     * in addition to overriding {@link Object#equals} for Objects to match (to be considered
+     * "same") it is also necessary to ensure that {@link Object#hashCode()} is overridden
+     * to produce the exact same value for equal instances.
      *<p>
      * Feature is disabled by default; meaning that strict identity is used, not
      * <code>equals()</code>

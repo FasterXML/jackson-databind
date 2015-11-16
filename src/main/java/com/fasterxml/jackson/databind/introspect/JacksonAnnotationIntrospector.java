@@ -226,6 +226,12 @@ public class JacksonAnnotationIntrospector
         return (ann == null) ? null : ann.value();
     }
 
+    @Override
+    public String findClassDescription(AnnotatedClass ac) {
+        JsonClassDescription ann = _findAnnotation(ac, JsonClassDescription.class);
+        return (ann == null) ? null : ann.value();
+    }
+
     /*
     /**********************************************************
     /* Property auto-detection

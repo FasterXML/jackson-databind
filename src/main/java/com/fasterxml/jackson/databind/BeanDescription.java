@@ -90,13 +90,13 @@ public abstract class BeanDescription
      * generic type resolution context.
      */
     public abstract JavaType resolveType(java.lang.reflect.Type jdkType);
-    
+
     /**
      * Method for accessing collection of annotations the bean
      * class has.
      */
     public abstract Annotations getClassAnnotations();
-   
+
     /*
     /**********************************************************
     /* Basic API for finding properties
@@ -216,6 +216,14 @@ public abstract class BeanDescription
      * @since 2.2
      */
     public abstract Converter<Object,Object> findDeserializationConverter();
+
+    /**
+     * Accessor for possible description for the bean type, used for constructing
+     * documentation.
+     *
+     * @since 2.7
+     */
+    public String findClassDescription() { return null; }
 
     /*
     /**********************************************************

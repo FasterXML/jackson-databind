@@ -283,6 +283,19 @@ public abstract class AnnotationIntrospector
      */
     public Object findNamingStrategy(AnnotatedClass ac) { return null; }
 
+    /**
+     * Method used to check whether specified class defines a human-readable
+     * description to use for documentation.
+     * There are no further definitions for contents; for example, whether
+     * these may be marked up using HTML (or something like wiki format like Markup)
+     * is not defined.
+     * 
+     * @return Human-readable description, if any.
+     * 
+     * @since 2.7
+     */
+    public String findClassDescription(AnnotatedClass ac) { return null; }
+
     /*
     /**********************************************************
     /* Property auto-detection

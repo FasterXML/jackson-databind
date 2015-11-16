@@ -620,6 +620,12 @@ public class BasicBeanDescription extends BeanDescription
         return _createConverter(_annotationIntrospector.findDeserializationConverter(_classInfo));
     }
 
+    @Override
+    public String findClassDescription() {
+        return (_annotationIntrospector == null) ?
+                null : _annotationIntrospector.findClassDescription(_classInfo);
+    }
+
     /*
     /**********************************************************
     /* Helper methods for field introspection

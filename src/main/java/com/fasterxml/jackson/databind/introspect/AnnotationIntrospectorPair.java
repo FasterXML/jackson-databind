@@ -172,6 +172,15 @@ public class AnnotationIntrospectorPair
         return str;
     }
 
+    @Override
+    public String findClassDescription(AnnotatedClass ac) {
+        String str = _primary.findClassDescription(ac);
+        if ((str == null) || str.isEmpty()) {
+            str = _secondary.findClassDescription(ac);
+        }
+        return str;
+    }
+
     /*
     /******************************************************
     /* Property auto-detection

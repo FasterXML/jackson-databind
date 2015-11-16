@@ -14,10 +14,10 @@ Project: jackson-databind
  (reported by Miles K)
 #497: Add new JsonInclude.Include feature to exclude maps after exclusion removes all elements
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
-#857: Add support for java.beans.Transient
+#857: Add support for java.beans.Transient (requires Java 7)
  (suggested by Thomas M)
 #898: Add `ObjectMapper.getSerializerProviderInstance()`
-#905: Add support for `@ConstructorProperties`
+#905: Add support for `@ConstructorProperties` (requires Java 7)
  (requested by Jonas K)
 #909: Rename PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES as SNAKE_CASE,
    PASCAL_CASE_TO_CAMEL_CASE as UPPER_CAMEL_CASE
@@ -51,6 +51,7 @@ INCOMPATIBILITIES:
 
 - While unlikely to be problematic, #959 above required an addition of `SerializerProvider`
   argument for `depositSchemaProperty()` method `BeanProperty` and `PropertyWriter` interfaces
+- JDK baseline now Java 7 (JDK 1.7), from Java 6/JDK 1.6
 
 2.6.4 (not yet released)
 

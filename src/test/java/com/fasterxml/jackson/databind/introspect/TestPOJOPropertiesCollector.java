@@ -412,7 +412,6 @@ public class TestPOJOPropertiesCollector
         assertEquals(String.class, m.getRawType());
     }
 
-    // for [JACKSON-701]
     public void testInnerClassWithAnnotationsInCreator() throws Exception
     {
         BasicBeanDescription beanDesc;
@@ -424,9 +423,9 @@ public class TestPOJOPropertiesCollector
         assertNotNull(beanDesc);
     }
 
-    public void testJackson703() throws Exception
+    public void testUseAnnotationsFalse() throws Exception
     {
-    	// note: need a separate mapper, need to reconfigure
+        // note: need a separate mapper, need to reconfigure
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(MapperFeature.USE_ANNOTATIONS, false);
         BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));

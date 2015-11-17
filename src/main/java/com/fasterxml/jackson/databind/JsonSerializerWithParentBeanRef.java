@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public abstract class JsonSerializerWithParentBeanRef<T> extends JsonSerializer<T> {
 
 	@Override
-	public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+	final public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
 		throw new RuntimeException("Not Implemented");
 	}
 

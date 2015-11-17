@@ -1225,7 +1225,7 @@ public abstract class BeanDeserializerBase
     {
         if (_delegateDeserializer != null) {
             try {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+                Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }

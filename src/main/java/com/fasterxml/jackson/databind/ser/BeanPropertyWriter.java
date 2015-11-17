@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -7,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
@@ -501,11 +503,7 @@ public class BeanPropertyWriter extends PropertyWriter
             }
         }
         jgen.writeFieldName(_name);
-        if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
-        } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
-        }
+        serialize(bean, jgen, prov, value, ser);
     }
 
     /**
@@ -572,11 +570,7 @@ public class BeanPropertyWriter extends PropertyWriter
                 return;
             }
         }
-        if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
-        } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
-        }
+        serialize(bean, jgen, prov, value, ser);
     }
 
     /**
@@ -740,4 +734,17 @@ public class BeanPropertyWriter extends PropertyWriter
         sb.append(')');
         return sb.toString();
     }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	private void serialize(Object bean, JsonGenerator jgen, SerializerProvider prov, final Object value, JsonSerializer<Object> ser) throws JsonProcessingException, IOException {
+    	if (_typeSerializer == null) {
+    		if (ser instanceof JsonSerializerWithParentBeanRef) {
+    			((JsonSerializerWithParentBeanRef)ser).serialize(value, jgen, prov, bean);	
+    		} else {
+    			ser.serialize(value, jgen, prov);
+    		}
+        } else {
+            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+        }		
+	}
 }

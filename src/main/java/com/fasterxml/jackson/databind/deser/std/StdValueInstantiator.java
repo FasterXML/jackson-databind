@@ -282,7 +282,8 @@ public class StdValueInstantiator
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
         if (_arrayDelegateCreator == null) { // sanity-check; caller should check
-            throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());
+            // try falling back to the classic delegate
+            return createUsingDelegate(ctxt, delegate);
         }
         try {
             // First simple case: just delegate, no injectables

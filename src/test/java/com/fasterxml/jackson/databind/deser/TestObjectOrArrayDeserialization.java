@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -25,20 +26,20 @@ public class TestObjectOrArrayDeserialization extends BaseMapTest {
     }
 
     public void testObjectCase() throws Exception {
-        ArrayOrObject arrayOrObject = objectMapper().readValue("{}", ArrayOrObject.class);
+        ArrayOrObject arrayOrObject = new ObjectMapper().readValue("{}", ArrayOrObject.class);
         assertNull("expected objects field to be null", arrayOrObject.objects);
         assertNotNull("expected object field not to be null", arrayOrObject.object);
     }
 
     public void testEmptyArrayCase() throws Exception {
-        ArrayOrObject arrayOrObject = objectMapper().readValue("[]", ArrayOrObject.class);
+        ArrayOrObject arrayOrObject = new ObjectMapper().readValue("[]", ArrayOrObject.class);
         assertNotNull("expected objects field not to be null", arrayOrObject.objects);
         assertTrue("expected objects field to be an empty list", arrayOrObject.objects.isEmpty());
         assertNull("expected object field to be null", arrayOrObject.object);
     }
 
     public void testNotEmptyArrayCase() throws Exception {
-        ArrayOrObject arrayOrObject = objectMapper().readValue("[{}, {}]", ArrayOrObject.class);
+        ArrayOrObject arrayOrObject = new ObjectMapper().readValue("[{}, {}]", ArrayOrObject.class);
         assertNotNull("expected objects field not to be null", arrayOrObject.objects);
         assertEquals("expected objects field to have size 2", 2, arrayOrObject.objects.size());
         assertNull("expected object field to be null", arrayOrObject.object);

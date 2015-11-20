@@ -32,7 +32,7 @@ public abstract class ContextAttributes
 
     public abstract ContextAttributes withSharedAttribute(Object key, Object value);
 
-    public abstract ContextAttributes withSharedAttributes(Map<Object,Object> attributes);
+    public abstract ContextAttributes withSharedAttributes(Map<?,?> attributes);
     
     public abstract ContextAttributes withoutSharedAttribute(Object key);
     
@@ -71,11 +71,15 @@ public abstract class ContextAttributes
         /**
          * Shared attributes that we can not modify in-place.
          */
-        protected final Map<Object,Object> _shared;
+        protected final Map<?,?> _shared;
 
         /**
          * Per-call attributes that we can directly modify, since they are not
          * shared between threads.
+         *<p>
+         * NOTE: typed as Object-to-Object, unlike {@link #_shared}, because
+         * we need to be able to modify contents, and wildcard type would
+         * complicate that access.
          */
         protected transient Map<Object,Object> _nonShared;
         
@@ -85,12 +89,12 @@ public abstract class ContextAttributes
         /**********************************************************
          */
         
-        protected Impl(Map<Object,Object> shared) {
+        protected Impl(Map<?,?> shared) {
             _shared = shared;
             _nonShared = null;
         }
 
-        protected Impl(Map<Object,Object> shared, Map<Object,Object> nonShared) {
+        protected Impl(Map<?,?> shared, Map<Object,Object> nonShared) {
             _shared = shared;
             _nonShared = nonShared;
         }
@@ -120,7 +124,7 @@ public abstract class ContextAttributes
         }
 
         @Override
-        public ContextAttributes withSharedAttributes(Map<Object, Object> shared) {
+        public ContextAttributes withSharedAttributes(Map<?,?> shared) {
             return new Impl(shared);
         }
 
@@ -207,7 +211,7 @@ public abstract class ContextAttributes
             return new Impl(_shared, m);
         }
         
-        private Map<Object,Object> _copy(Map<Object,Object> src)
+        private Map<Object,Object> _copy(Map<?,?> src)
         {
             return new HashMap<Object,Object>(src);
         }

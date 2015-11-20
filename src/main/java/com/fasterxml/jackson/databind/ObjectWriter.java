@@ -631,9 +631,12 @@ public class ObjectWriter
     }
 
     /**
+     * Mutant factory method that allows construction of a new writer instance
+     * that uses specified set of default attribute values.
+     *
      * @since 2.3
      */
-    public ObjectWriter withAttributes(Map<Object,Object> attrs) {
+    public ObjectWriter withAttributes(Map<?,?> attrs) {
         SerializationConfig newConfig = _config.withAttributes(attrs);
         return (newConfig == _config) ? this :  _new(this, newConfig);
     }

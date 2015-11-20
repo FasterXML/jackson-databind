@@ -836,7 +836,7 @@ public class ObjectReader
     /**
      * @since 2.3
      */
-    public ObjectReader withAttributes(Map<Object,Object> attrs) {
+    public ObjectReader withAttributes(Map<?,?> attrs) {
         return _with(_config.withAttributes(attrs));
     }
 

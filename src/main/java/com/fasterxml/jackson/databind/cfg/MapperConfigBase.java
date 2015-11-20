@@ -379,7 +379,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * 
      * @since 2.3
      */
-    public T withAttributes(Map<Object,Object> attributes) {
+    public T withAttributes(Map<?,?> attributes) {
         return with(getAttributes().withSharedAttributes(attributes));
     }
     

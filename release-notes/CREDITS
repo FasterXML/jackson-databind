@@ -362,6 +362,8 @@ Jayson Minard (apatrida@github)
 David Bakin (david-bakin@github)
   * Reported #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
    (2.6.4)
+  * Suggested #1011: Change ObjectWriter::withAttributes() to take a Map with some kind of wildcard types
+   (2.7.0)
 
 Miles Kaufmann (milesk-amzn@github)
   * Reported #432: `StdValueInstantiator` unwraps exceptions, losing context

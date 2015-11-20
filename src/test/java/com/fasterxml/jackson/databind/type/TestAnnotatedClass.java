@@ -1,11 +1,7 @@
 package com.fasterxml.jackson.databind.type;
 
 import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 
@@ -68,18 +64,24 @@ public class TestAnnotatedClass
         private String props;
     }
 
+    // for [databind#1005]
+    static class Bean1005 {
+        // private to force creation of a synthetic constructor to avoid access issues
+        private Bean1005(int i) {}     
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testFieldIntrospection()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        // null -> no mix-in annotations
-        SerializationConfig config = mapper.getSerializationConfig();
-        JavaType t = mapper.constructType(FieldBean.class);
+        SerializationConfig config = MAPPER.getSerializationConfig();
+        JavaType t = MAPPER.constructType(FieldBean.class);
         AnnotatedClass ac = AnnotatedClass.construct(t, config);
         // AnnotatedClass does not ignore non-visible fields, yet
         assertEquals(2, ac.getFieldCount());
@@ -89,5 +91,17 @@ public class TestAnnotatedClass
                 fail("Unexpected field name '"+fname+"'");
             }
         }
+    }
+
+    // For [databind#1005]
+    public void testConstructorIntrospection()
+    {
+        // Need this call to ensure there is a synthetic constructor being generated
+        // (not really needed otherwise)
+        Bean1005 bean = new Bean1005(13);
+        SerializationConfig config = MAPPER.getSerializationConfig();
+        JavaType t = MAPPER.constructType(bean.getClass());
+        AnnotatedClass ac = AnnotatedClass.construct(t, config);
+        assertEquals(1, ac.getConstructors().size());
     }
 }

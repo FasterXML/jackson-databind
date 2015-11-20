@@ -355,6 +355,10 @@ Ievgen Pianov (pyanoveugen@github)
   * Reported #989: Deserialization from "{}" to java.lang.Object causes "out of END_OBJECT token" error
    (2.6.3)
 
+Jayson Minard (apatrida@github)
+  * Reported #1005: Synthetic constructors confusing Jackson data binding
+   (2.6.4)
+
 Miles Kaufmann (milesk-amzn@github)
   * Reported #432: `StdValueInstantiator` unwraps exceptions, losing context
    (2.7.0)

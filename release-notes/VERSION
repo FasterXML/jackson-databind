@@ -59,6 +59,8 @@ INCOMPATIBILITIES:
  (reported by Antibrumm@github)
 #989: Deserialization from "{}" to java.lang.Object causes "out of END_OBJECT token" error
  (reported by Ievgen P)
+#1005: Synthetic constructors confusing Jackson data binding
+ (reported by Jayson M)
 - Fix a minor problem with `@JsonNaming` not recognizing default value
 
 2.6.3 (12-Oct-2015)

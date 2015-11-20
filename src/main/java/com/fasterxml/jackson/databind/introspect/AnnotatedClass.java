@@ -425,13 +425,15 @@ public final class AnnotatedClass
         // Constructor also always members of this class, so
         TypeResolutionContext typeContext = this;        
         for (ClassUtil.Ctor ctor : declaredCtors) {
-            if (ctor.getParamCount() == 0) {
-                _defaultConstructor = _constructDefaultConstructor(ctor, typeContext);
-            } else {
-                if (constructors == null) {
-                    constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
+            if (_isIncludableConstructor(ctor.getConstructor())) {
+                if (ctor.getParamCount() == 0) {
+                    _defaultConstructor = _constructDefaultConstructor(ctor, typeContext);
+                } else {
+                    if (constructors == null) {
+                        constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
+                    }
+                    constructors.add(_constructNonDefaultConstructor(ctor, typeContext));
                 }
-                constructors.add(_constructNonDefaultConstructor(ctor, typeContext));
             }
         }
         if (constructors == null) {
@@ -989,9 +991,7 @@ public final class AnnotatedClass
 
     private boolean _isIncludableField(Field f)
     {
-        /* I'm pretty sure synthetic fields are to be skipped...
-         * (methods definitely are)
-         */
+        // Most likely synthetic fields, if any, are to be skipped similar to methods
         if (f.isSynthetic()) {
             return false;
         }
@@ -1002,6 +1002,12 @@ public final class AnnotatedClass
             return false;
         }
         return true;
+    }
+
+    // for [databind#1005]: do not use or expose synthetic constructors
+    private boolean _isIncludableConstructor(Constructor<?> c)
+    {
+        return !c.isSynthetic();
     }
 
     /*

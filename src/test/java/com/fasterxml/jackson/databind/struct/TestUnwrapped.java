@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 /**
- * Unit tests for verifying [JACKSON-132] implementation.
+ * Unit tests for verifying that basic {@link JsonUnwrapped} annotation
+ * handling works as expected; some more advanced tests are separated out
+ * to more specific test classes (like prefix/suffix handling).
  */
 public class TestUnwrapped extends BaseMapTest
 {
@@ -83,6 +85,16 @@ public class TestUnwrapped extends BaseMapTest
 
         public Child() { }
         public Child(String f) { field = f; }
+    }
+
+    static class Inner {
+        public String animal;
+    }
+
+    static class Outer {
+        // @JsonProperty
+        @JsonUnwrapped
+        private Inner inner;
     }
 
     /*
@@ -166,11 +178,26 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals("name", output.c1.field);
     }
 
+    public void testUnwrappedAsPropertyIndicator() throws Exception
+    {
+        Inner inner = new Inner();
+        inner.animal = "Zebra";
+
+        Outer outer = new Outer();
+        outer.inner = inner;
+
+        String actual = MAPPER.writeValueAsString(outer);
+
+        assertTrue(actual.contains("animal"));
+        assertTrue(actual.contains("Zebra"));
+        assertFalse(actual.contains("inner"));
+    }
+    
     // 22-Apr-2013, tatu: Commented out as it can't be simply fixed; requires implementing
     //    deep-update/merge. But leaving here to help with that effort, if/when it proceeds.
 
     /*
-    // [Issue#211]: Actually just variant of #160
+    // [databind#211]: Actually just variant of #160
 
     static class Issue211Bean {
         public String test1;

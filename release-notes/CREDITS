@@ -350,3 +350,7 @@ Ievgen Pianov (pyanoveugen@github)
 Jayson Minard (apatrida@github)
   * Reported #1005: Synthetic constructors confusing Jackson data binding
    (2.6.4)
+
+David Bakin (david-bakin@github)
+  * Reported #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
+   (2.6.4)

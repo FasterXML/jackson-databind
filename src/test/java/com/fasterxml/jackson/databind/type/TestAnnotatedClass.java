@@ -65,6 +65,12 @@ public class TestAnnotatedClass
         private String props;
     }
 
+    // for [databind#1005]
+    static class Bean1005 {
+        // private to force creation of a synthetic constructor to avoid access issues
+        private Bean1005(int i) {}     
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -83,5 +89,16 @@ public class TestAnnotatedClass
                 fail("Unexpected field name '"+fname+"'");
             }
         }
+    }
+
+    // For [databind#1005]
+    public void testConstructorIntrospection()
+    {
+        // Need this call to ensure there is a synthetic constructor being generated
+        // (not really needed otherwise)
+        Bean1005 bean = new Bean1005(13);
+        AnnotatedClass ac = AnnotatedClass.construct(bean.getClass(),
+                new JacksonAnnotationIntrospector(), null);
+        assertEquals(1, ac.getConstructors().size());
     }
 }

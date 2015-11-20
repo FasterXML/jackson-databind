@@ -336,13 +336,15 @@ public final class AnnotatedClass
         List<AnnotatedConstructor> constructors = null;
         Constructor<?>[] declaredCtors = _class.getDeclaredConstructors();
         for (Constructor<?> ctor : declaredCtors) {
-            if (ctor.getParameterTypes().length == 0) {
-                _defaultConstructor = _constructConstructor(ctor, true);
-            } else {
-                if (constructors == null) {
-                    constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
+            if (_isIncludableConstructor(ctor)) {
+                if (ctor.getParameterTypes().length == 0) {
+                    _defaultConstructor = _constructConstructor(ctor, true);
+                } else {
+                    if (constructors == null) {
+                        constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
+                    }
+                    constructors.add(_constructConstructor(ctor, false));
                 }
-                constructors.add(_constructConstructor(ctor, false));
             }
         }
         if (constructors == null) {
@@ -863,9 +865,7 @@ public final class AnnotatedClass
 
     private boolean _isIncludableField(Field f)
     {
-        /* I'm pretty sure synthetic fields are to be skipped...
-         * (methods definitely are)
-         */
+        // Most likely synthetic fields, if any, are to be skipped similar to methods
         if (f.isSynthetic()) {
             return false;
         }
@@ -876,6 +876,12 @@ public final class AnnotatedClass
             return false;
         }
         return true;
+    }
+
+    // for [databind#1005]: do not use or expose synthetic constructors
+    private boolean _isIncludableConstructor(Constructor<?> c)
+    {
+        return !c.isSynthetic();
     }
 
     /*

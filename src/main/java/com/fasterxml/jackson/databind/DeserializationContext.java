@@ -905,8 +905,8 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not construct instance of %s from String value '%s': %s",
-                        instClass.getName(), _valueDesc(), msg),
+                String.format("Can not construct instance of %s from String value (%s): %s",
+                        instClass.getName(), _quotedString(value), msg),
                 value, instClass);
     }
 
@@ -917,8 +917,8 @@ public abstract class DeserializationContext
     public JsonMappingException weirdNumberException(Number value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not construct instance of %s from number value (%s): %s",
-                        instClass.getName(), _valueDesc(), msg),
-                null, instClass);
+                        instClass.getName(), String.valueOf(value), msg),
+                value, instClass);
     }
     
     /**
@@ -928,8 +928,8 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not construct Map key of type %s from String \"%s\": ",
-                        keyClass.getName(), _desc(keyValue), msg),
+                String.format("Can not construct Map key of type %s from String (%s): %s",
+                        keyClass.getName(), _quotedString(keyValue), msg),
                 keyValue, keyClass);
     }
 
@@ -1019,10 +1019,27 @@ public abstract class DeserializationContext
     }
 
     protected String _desc(String desc) {
+        if (desc == null) {
+            return "[N/A]";
+        }
         // !!! should we quote it? (in case there are control chars, linefeeds)
         if (desc.length() > MAX_ERROR_STR_LEN) {
             desc = desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);
         }
         return desc;
+    }
+
+    // @since 2.7
+    protected String _quotedString(String desc) {
+        if (desc == null) {
+            return "[N/A]";
+        }
+        // !!! should we quote it? (in case there are control chars, linefeeds)
+        if (desc.length() > MAX_ERROR_STR_LEN) {
+            return String.format("\"%s]...[%s\"",
+                    desc.substring(0, MAX_ERROR_STR_LEN),
+                    desc.substring(desc.length() - MAX_ERROR_STR_LEN));
+        }
+        return "\"" + desc + "\"";
     }
 }

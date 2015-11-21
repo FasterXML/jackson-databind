@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -88,15 +89,16 @@ public class EnumDeserializer
         }
         // But let's consider int acceptable as well (if within ordinal range)
         if (curr == JsonToken.VALUE_NUMBER_INT) {
-            // ... unless told not to do that. :-) (as per [JACKSON-412])
-            _checkFailOnNumber(ctxt);
-            
+            // ... unless told not to do that
             int index = p.getIntValue();
+            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+                _failOnNumber(ctxt, p, index);
+            }
             if (index >= 0 && index <= _enumsByIndex.length) {
                 return _enumsByIndex[index];
             }
             if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                throw ctxt.weirdNumberException(Integer.valueOf(index), _enumClass(),
+                throw ctxt.weirdNumberException(index, _enumClass(),
                         "index value outside legal index range [0.."+(_enumsByIndex.length-1)+"]");
             }
             return null;
@@ -113,12 +115,14 @@ public class EnumDeserializer
                 return null;
             }
         } else {
-            // [#149]: Allow use of 'String' indexes as well
+            // [databind#149]: Allow use of 'String' indexes as well
             char c = name.charAt(0);
             if (c >= '0' && c <= '9') {
                 try {
                     int ix = Integer.parseInt(name);
-                    _checkFailOnNumber(ctxt);
+                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+                        _failOnNumber(ctxt, p, ix);
+                    }
                     if (ix >= 0 && ix <= _enumsByIndex.length) {
                         return _enumsByIndex[ix];
                     }
@@ -152,11 +156,13 @@ public class EnumDeserializer
         throw ctxt.mappingException(_enumClass());
     }
 
-    protected void _checkFailOnNumber(DeserializationContext ctxt) throws IOException
+    protected void _failOnNumber(DeserializationContext ctxt, JsonParser p, int index)
+        throws IOException
     {
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-            throw ctxt.mappingException("Not allowed to deserialize Enum value out of JSON number (disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow)");
-        }
+        throw InvalidFormatException.from(p,
+                String.format("Not allowed to deserialize Enum value out of JSON number (%d): disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow",
+                        index),
+                        index, _enumClass());
     }
 
     protected Class<?> _enumClass() {

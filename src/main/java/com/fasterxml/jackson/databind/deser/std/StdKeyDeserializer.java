@@ -339,7 +339,7 @@ public class StdKeyDeserializer extends KeyDeserializer
                 }
             }
             Enum<?> e = _resolver.findEnum(key);
-            if (e == null && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+            if ((e == null) && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                 throw ctxt.weirdKeyException(_keyClass, key, "not one of values for Enum class");
             }
             return e;

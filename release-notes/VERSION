@@ -44,6 +44,8 @@ Project: jackson-databind
  (reported by Shumpei A)
 #997: Add `MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS`
 #998: Allow use of `NON_DEFAULT` for POJOs without default constructor
+#1000: Add new mapping exception type for enums and UUIDs
+ (suggesed by natnan@github)
 #1011: Change ObjectWriter::withAttributes() to take a Map with some kind of wildcard types
  (suggested by David B)
 - Make `JsonValueFormat` (self-)serializable, deserializable, to/from valid external

@@ -98,20 +98,20 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     
     @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // Issue#381
-        if (jp.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final T value = deserialize(jp, ctxt);
-            if (jp.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+        if (p.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            p.nextToken();
+            final T value = deserialize(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                                 "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array");
             }
             return value;
         }
         // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
-        String text = jp.getValueAsString();
+        String text = p.getValueAsString();
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
                 // 04-Feb-2013, tatu: Usually should become null; but not always
@@ -140,9 +140,9 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             throw e;
             // nothing to do here, yet? We'll fail anyway
         }
-        if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
+        if (p.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
             // Trivial cases; null to null, instance of type itself returned as is
-            Object ob = jp.getEmbeddedObject();
+            Object ob = p.getEmbeddedObject();
             if (ob == null) {
                 return null;
             }

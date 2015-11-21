@@ -67,7 +67,7 @@ public class InvalidFormatException extends JsonMappingException
         _value = value;
         _targetType = targetType;
     }
-    
+
     public static InvalidFormatException from(JsonParser p, String msg,
             Object value, Class<?> targetType)
     {

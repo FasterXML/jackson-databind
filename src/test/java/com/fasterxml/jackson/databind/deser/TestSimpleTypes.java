@@ -11,6 +11,7 @@ import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -626,6 +627,24 @@ public class TestSimpleTypes
         String base64 = Base64Variants.getDefaultVariant().encode(new byte[16]);
         assertEquals(UUID.fromString(NULL_UUID),
                 mapper.readValue(quote(base64), UUID.class));
+    }
+
+    public void testUUIDInvalid() throws Exception
+    {
+        // and finally, exception handling too [databind#1000], for invalid cases
+        try {
+            MAPPER.readValue(quote("abcde"), UUID.class);
+            fail("Should fail on invalid UUID string");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "UUID has to be represented by standard");
+        }
+        try {
+            MAPPER.readValue(quote("76e6d183-5f68-4afa-b94a-922c1fdb83fx"), UUID.class);
+            fail("Should fail on invalid UUID string");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "non-hex character 'x'");
+        }
+        // should also test from-bytes version, but that's trickier... leave for now.
     }
 
     public void testUUIDAux() throws Exception

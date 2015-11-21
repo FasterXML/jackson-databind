@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.Base64Variants;
-
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 public class UUIDDeserializer extends FromStringDeserializer<UUID>
 {
@@ -37,24 +39,24 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
                 byte[] stuff = Base64Variants.getDefaultVariant().decode(id);
                 return _fromBytes(stuff, ctxt);
             }
-            _badFormat(id);
+            _badFormat(id, ctxt);
         }
 
         // verify hyphens first:
         if ((id.charAt(8) != '-') || (id.charAt(13) != '-')
                 || (id.charAt(18) != '-') || (id.charAt(23) != '-')) {
-            _badFormat(id);
+            _badFormat(id, ctxt);
         }
-        long l1 = intFromChars(id, 0);
+        long l1 = intFromChars(id, 0, ctxt);
         l1 <<= 32;
-        long l2 = ((long) shortFromChars(id, 9)) << 16;
-        l2 |= shortFromChars(id, 14);
+        long l2 = ((long) shortFromChars(id, 9, ctxt)) << 16;
+        l2 |= shortFromChars(id, 14, ctxt);
         long hi = l1 + l2;
 
-        int i1 = (shortFromChars(id, 19) << 16) | shortFromChars(id, 24);
+        int i1 = (shortFromChars(id, 19, ctxt) << 16) | shortFromChars(id, 24, ctxt);
         l1 = i1;
         l1 <<= 32;
-        l2 = intFromChars(id, 28);
+        l2 = intFromChars(id, 28, ctxt);
         l2 = (l2 << 32) >>> 32; // sign removal, Java-style. Ugh.
         long lo = l1 | l2;
 
@@ -71,19 +73,26 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
         return null; // never gets here
     }
 
-    private void _badFormat(String uuidStr) {
-        throw new NumberFormatException("UUID has to be represented by the standard 36-char representation");
+    private void _badFormat(String uuidStr, DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        throw InvalidFormatException.from(ctxt.getParser(),
+                "UUID has to be represented by standard 36-char representation",
+                uuidStr, handledType());
     }
     
-    static int intFromChars(String str, int index) {
-        return (byteFromChars(str, index) << 24) + (byteFromChars(str, index+2) << 16) + (byteFromChars(str, index+4) << 8) + byteFromChars(str, index+6);
+    static int intFromChars(String str, int index, DeserializationContext ctxt) throws JsonMappingException {
+        return (byteFromChars(str, index, ctxt) << 24)
+                + (byteFromChars(str, index+2, ctxt) << 16)
+                + (byteFromChars(str, index+4, ctxt) << 8)
+                + byteFromChars(str, index+6, ctxt);
     }
     
-    static int shortFromChars(String str, int index) {
-        return (byteFromChars(str, index) << 8) + byteFromChars(str, index+2);
+    static int shortFromChars(String str, int index, DeserializationContext ctxt) throws JsonMappingException {
+        return (byteFromChars(str, index, ctxt) << 8) + byteFromChars(str, index+2, ctxt);
     }
     
-    static int byteFromChars(String str, int index)
+    static int byteFromChars(String str, int index, DeserializationContext ctxt) throws JsonMappingException
     {
         final char c1 = str.charAt(index);
         final char c2 = str.charAt(index+1);
@@ -95,20 +104,23 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
             }
         }
         if (c1 > 127 || HEX_DIGITS[c1] < 0) {
-            return _badChar(str, index, c1);
+            return _badChar(str, index, ctxt, c1);
         }
-        return _badChar(str, index+1, c2);
+        return _badChar(str, index+1, ctxt, c2);
     }
 
-    static int _badChar(String uuidStr, int index, char c) {
-        throw new NumberFormatException("Non-hex character '"+c+"', not valid character for a UUID String"
-                +"' (value 0x"+Integer.toHexString(c)+") for UUID String \""+uuidStr+"\"");
+    static int _badChar(String uuidStr, int index, DeserializationContext ctxt, char c) throws JsonMappingException {
+        String msg = String.format(
+"Non-hex character '%c' (value 0x%s), not valid for UUID String: input String '%s'",
+        c, Integer.toHexString(c), uuidStr);
+        throw InvalidFormatException.from(ctxt.getParser(), msg, uuidStr, UUID.class);
     }
 
-    private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) throws IOException {
+    private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) throws JsonMappingException {
         if (bytes.length != 16) {
-            ctxt.mappingException("Can only construct UUIDs from byte[16]; got %d bytes",
-                    bytes.length);
+            throw InvalidFormatException.from(ctxt.getParser(),
+                    "Can only construct UUIDs from byte[16]; got "+bytes.length+" bytes",
+                    bytes, handledType());
         }
         return new UUID(_long(bytes, 0), _long(bytes, 8));
     }

@@ -77,7 +77,8 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
         throws JsonMappingException
     {
         throw InvalidFormatException.from(ctxt.getParser(),
-                "UUID has to be represented by standard 36-char representation",
+                String.format("UUID has to be represented by standard 36-char representation: input String '%s'",
+                        uuidStr),
                 uuidStr, handledType());
     }
     

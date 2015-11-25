@@ -549,7 +549,7 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            // ignorable things should be ignored
+            // Things marked as ignorable should not be passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
@@ -672,10 +672,7 @@ public class BeanDeserializer
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }
-
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
+            // Things marked as ignorable should not be passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
@@ -839,9 +836,7 @@ public class BeanDeserializer
             if (ext.handlePropertyValue(p, ctxt, propName, null)) {
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
+            // Things marked as ignorable should not be passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
@@ -867,6 +862,14 @@ public class BeanDeserializer
     protected Object deserializeUsingDelegateWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        throw ctxt.mappingException("Combination of External Type Id, Delegating Creator not yet supported");
+        // 24-Nov-2015, tatu: Something along these lines would normally work, in absence
+        //   of external type id:
+        /*
+        Object delegate = _delegateDeserializer.deserialize(p, ctxt);
+        return _valueInstantiator.createUsingDelegate(ctxt, delegate);
+        */
+
+        throw ctxt.instantiationException(handledType(),
+                "Combination of External Type Id, Delegating Creator not yet supported");
     }
 }

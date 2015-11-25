@@ -716,6 +716,10 @@ public class BeanDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithExternalTypeId(p, ctxt);
         }
+        if (_delegateDeserializer != null) {
+            return deserializeUsingDelegateWithExternalTypeId(p, ctxt);
+        }
+
         return deserializeWithExternalTypeId(p, ctxt, _valueInstantiator.createUsingDefault(ctxt));
     }
 
@@ -855,5 +859,14 @@ public class BeanDeserializer
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here
         }
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected Object deserializeUsingDelegateWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        throw ctxt.mappingException("Combination of External Type Id, Delegating Creator not yet supported");
     }
 }

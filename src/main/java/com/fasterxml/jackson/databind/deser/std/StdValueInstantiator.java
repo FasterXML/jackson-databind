@@ -252,60 +252,13 @@ public class StdValueInstantiator
     @Override
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
-        if (_delegateCreator == null) { // sanity-check; caller should check
-            throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());
-        }
-        try {
-            // First simple case: just delegate, no injectables
-            if (_delegateArguments == null) {
-                return _delegateCreator.call1(delegate);
-            }
-            // And then the case with at least one injectable...
-            final int len = _delegateArguments.length;
-            Object[] args = new Object[len];
-            for (int i = 0; i < len; ++i) {
-                SettableBeanProperty prop = _delegateArguments[i];
-                if (prop == null) { // delegate
-                    args[i] = delegate;
-                } else { // nope, injectable:
-                    args[i] = ctxt.findInjectableValue(prop.getInjectableValueId(), prop, null);
-                }
-            }
-            // and then try calling with full set of arguments
-            return _delegateCreator.call(args);
-        } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
-        }
+        return createUsingDelegate(_delegateCreator, _delegateArguments, ctxt, delegate);
     }
 
     @Override
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
-        if (_arrayDelegateCreator == null) { // sanity-check; caller should check
-            // try falling back to the classic delegate
-            return createUsingDelegate(ctxt, delegate);
-        }
-        try {
-            // First simple case: just delegate, no injectables
-            if (_arrayDelegateArguments == null) {
-                return _arrayDelegateCreator.call1(delegate);
-            }
-            // And then the case with at least one injectable...
-            final int len = _arrayDelegateArguments.length;
-            Object[] args = new Object[len];
-            for (int i = 0; i < len; ++i) {
-                SettableBeanProperty prop = _arrayDelegateArguments[i];
-                if (prop == null) { // delegate
-                    args[i] = delegate;
-                } else { // nope, injectable:
-                    args[i] = ctxt.findInjectableValue(prop.getInjectableValueId(), prop, null);
-                }
-            }
-            // and then try calling with full set of arguments
-            return _arrayDelegateCreator.call(args);
-        } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
-        }
+        return createUsingDelegate(_arrayDelegateCreator, _arrayDelegateArguments, ctxt, delegate);
     }
     
     /*
@@ -490,5 +443,44 @@ public class StdValueInstantiator
             }
         }
         return wrapAsJsonMappingException(ctxt, t);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    private Object createUsingDelegate(
+            AnnotatedWithParams delegateCreator,
+            SettableBeanProperty[] delegateArguments,
+            DeserializationContext ctxt,
+            Object delegate)
+            throws IOException
+    {
+        if (delegateCreator == null) { // sanity-check; caller should check
+            throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());
+        }
+        try {
+            // First simple case: just delegate, no injectables
+            if (delegateArguments == null) {
+                return delegateCreator.call1(delegate);
+            }
+            // And then the case with at least one injectable...
+            final int len = delegateArguments.length;
+            Object[] args = new Object[len];
+            for (int i = 0; i < len; ++i) {
+                SettableBeanProperty prop = delegateArguments[i];
+                if (prop == null) { // delegate
+                    args[i] = delegate;
+                } else { // nope, injectable:
+                    args[i] = ctxt.findInjectableValue(prop.getInjectableValueId(), prop, null);
+                }
+            }
+            // and then try calling with full set of arguments
+            return delegateCreator.call(args);
+        } catch (Throwable t) {
+            throw rewrapCtorProblem(ctxt, t);
+        }
     }
 }

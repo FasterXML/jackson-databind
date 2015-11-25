@@ -5,9 +5,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -237,18 +235,6 @@ public class AtomicReferenceSerializer
         return (_unwrapper != null);
     }
 
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("any", true);
-    }
-    
-    @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
-    {
-        visitor.expectAnyFormat(typeHint);
-    }
-
     /*
     /**********************************************************
     /* Serialization methods
@@ -290,10 +276,30 @@ public class AtomicReferenceSerializer
             return;
         }
 
-        // Otherwise apply type-prefix/suffix, otherwise std serialize:
+        // Otherwise apply type-prefix/suffix, then std serialize:
         typeSer.writeTypePrefixForScalar(ref, g);
         serialize(ref, g, provider);
         typeSer.writeTypeSuffixForScalar(ref, g);
+    }
+
+    /*
+    /**********************************************************
+    /* Introspection support
+    /**********************************************************
+     */
+
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
+    {
+        JsonSerializer<?> ser = _valueSerializer;
+        if (ser == null) {
+            ser = _findSerializer(visitor.getProvider(), _referredType, _property);
+            if (_unwrapper != null) {
+                ser = ser.unwrappingSerializer(_unwrapper);
+            }
+        }
+        ser.acceptJsonFormatVisitor(visitor, _referredType);
     }
 
     /*

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -35,8 +35,10 @@ public class DelegatingExternalProperty1003Test extends BaseMapTest
     public interface Hero { }
 
     static class Superman implements Hero {
+        String name = "superman";
+
         public String getName() {
-            return "superman";
+            return name;
         }
     }    
 
@@ -46,11 +48,8 @@ public class DelegatingExternalProperty1003Test extends BaseMapTest
 
         final String json = mapper.writeValueAsString(new HeroBattle(new Superman()));
 
-//System.err.println("JSON: "+json);        
         final HeroBattle battle = mapper.readValue(json, HeroBattle.class);
 
-        assert battle.getHero() instanceof Superman;
+        assertTrue(battle.getHero() instanceof Superman);
     }
-
-    
 }

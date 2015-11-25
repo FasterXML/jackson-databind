@@ -714,7 +714,13 @@ public class BeanDeserializer
             return deserializeUsingPropertyBasedWithExternalTypeId(p, ctxt);
         }
         if (_delegateDeserializer != null) {
-            return deserializeUsingDelegateWithExternalTypeId(p, ctxt);
+            /* 24-Nov-2015, tatu: Use of delegating creator needs to have precedence, and basically
+             *   external type id handling just has to be ignored, as they would relate to target
+             *   type and not delegate type. Whether this works as expected is another story, but
+             *   there's no other way to really mix these conflicting features.
+             */
+            return _valueInstantiator.createUsingDelegate(ctxt,
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
 
         return deserializeWithExternalTypeId(p, ctxt, _valueInstantiator.createUsingDefault(ctxt));
@@ -854,22 +860,5 @@ public class BeanDeserializer
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here
         }
-    }
-
-    /**
-     * @since 2.7
-     */
-    protected Object deserializeUsingDelegateWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
-        throws IOException
-    {
-        // 24-Nov-2015, tatu: Something along these lines would normally work, in absence
-        //   of external type id:
-        /*
-        Object delegate = _delegateDeserializer.deserialize(p, ctxt);
-        return _valueInstantiator.createUsingDelegate(ctxt, delegate);
-        */
-
-        throw ctxt.instantiationException(handledType(),
-                "Combination of External Type Id, Delegating Creator not yet supported");
     }
 }

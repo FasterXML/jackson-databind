@@ -717,6 +717,16 @@ public class BeanDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithExternalTypeId(p, ctxt);
         }
+        if (_delegateDeserializer != null) {
+            /* 24-Nov-2015, tatu: Use of delegating creator needs to have precedence, and basically
+             *   external type id handling just has to be ignored, as they would relate to target
+             *   type and not delegate type. Whether this works as expected is another story, but
+             *   there's no other way to really mix these conflicting features.
+             */
+            return _valueInstantiator.createUsingDelegate(ctxt,
+                    _delegateDeserializer.deserialize(p, ctxt));
+        }
+
         return deserializeWithExternalTypeId(p, ctxt, _valueInstantiator.createUsingDefault(ctxt));
     }
 

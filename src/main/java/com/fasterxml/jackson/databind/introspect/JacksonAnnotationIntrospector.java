@@ -32,6 +32,19 @@ public class JacksonAnnotationIntrospector
 {
     private static final long serialVersionUID = 1L;
 
+    private static final Java7Support _jdk7Helper;
+    static {
+        Java7Support x = null;
+        try {
+            x = Java7Support.class.newInstance();
+        } catch (Throwable t) {
+            // 24-Nov-2015, tatu: Should we log or not?
+            java.util.logging.Logger.getLogger(JacksonAnnotationIntrospector.class.getName())
+                .warning("Unable to load JDK7 annotation types; will have to skip");
+        }
+        _jdk7Helper = x;
+    }
+    
     /**
      * Since introspection of annotation types is a performance issue in some
      * use cases (rare, but do exist), let's try a simple cache to reduce
@@ -999,11 +1012,11 @@ public class JacksonAnnotationIntrospector
              return (ann.mode() != JsonCreator.Mode.DISABLED);
          }
          if (a instanceof AnnotatedConstructor) {
-             ConstructorProperties props = _findAnnotation(a, ConstructorProperties.class);
-             // 08-Nov-2015, tatu: One possible check would be to ensure there is at least
-             //    one name iff constructor has arguments. But seems unnecessary for now.
-             if (props != null) {
-                 return true;
+             if (_jdk7Helper != null) {
+                 Boolean b = _jdk7Helper.hasCreatorAnnotation(a);
+                 if (b != null) {
+                     return b.booleanValue();
+                 }
              }
          }
          return false;
@@ -1027,9 +1040,11 @@ public class JacksonAnnotationIntrospector
         if (ann != null) {
             return ann.value();
         }
-        Transient t = _findAnnotation(a, Transient.class);
-        if (t != null) {
-            return t.value();
+        if (_jdk7Helper != null) {
+            Boolean b = _jdk7Helper.findTransient(a);
+            if (b != null) {
+                return b.booleanValue();
+            }
         }
         return false;
     }
@@ -1063,12 +1078,10 @@ public class JacksonAnnotationIntrospector
             AnnotatedWithParams ctor = p.getOwner();
 
             if (ctor != null) {
-                ConstructorProperties props = _findAnnotation(ctor, ConstructorProperties.class);
-                if (props != null) {
-                    String[] names = props.value();
-                    int ix = p.getIndex();
-                    if (ix < names.length) {
-                        return PropertyName.construct(names[ix]);
+                if (_jdk7Helper != null) {
+                    PropertyName name = _jdk7Helper.findConstructorName(p);
+                    if (name != null) {
+                        return name;
                     }
                 }
             }
@@ -1153,5 +1166,64 @@ public class JacksonAnnotationIntrospector
      */
     protected StdTypeResolverBuilder _constructNoTypeResolverBuilder() {
         return StdTypeResolverBuilder.noTypeInfoBuilder();
+    }
+
+    /*
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
+     */
+
+    /**
+     * To support Java7-incomplete platforms, we will offer support for JDK 7
+     * annotations through this class, loaded dynamically; if loading fails,
+     * support will be missing.
+     */
+    private static class Java7Support
+    {
+        @SuppressWarnings("unused") // compiler warns, just needed side-effects
+        private final Class<?> _bogus;
+
+        @SuppressWarnings("unused") // compiler warns; called via Reflection
+        public Java7Support() {
+            // Trigger loading of annotations that only JDK 7 has...
+            Class<?> cls = Transient.class;
+            cls = ConstructorProperties.class;
+            _bogus = cls;
+        }
+        
+        public Boolean findTransient(Annotated a) {
+            Transient t = a.getAnnotation(Transient.class);
+            if (t != null) {
+                return t.value();
+            }
+            return null;
+        }
+
+        public Boolean hasCreatorAnnotation(Annotated a) {
+            ConstructorProperties props = a.getAnnotation(ConstructorProperties.class);
+            // 08-Nov-2015, tatu: One possible check would be to ensure there is at least
+            //    one name iff constructor has arguments. But seems unnecessary for now.
+            if (props != null) {
+                return Boolean.TRUE;
+            }
+            return null;
+        }
+
+        public PropertyName findConstructorName(AnnotatedParameter p)
+        {
+            AnnotatedWithParams ctor = p.getOwner();
+            if (ctor != null) {
+                ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
+                if (props != null) {
+                    String[] names = props.value();
+                    int ix = p.getIndex();
+                    if (ix < names.length) {
+                        return PropertyName.construct(names[ix]);
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

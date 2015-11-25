@@ -87,50 +87,13 @@ public class CreatorCollector
 
     public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
     {
-        JavaType delegateType;
-        boolean maybeVanilla = !_hasNonDefaultCreator;
-
-        if (maybeVanilla || (_creators[C_DELEGATE] == null)) {
-            delegateType = null;
-        } else {
-            // need to find type...
-            int ix = 0;
-            if (_delegateArgs != null) {
-                for (int i = 0, len = _delegateArgs.length; i < len; ++i) {
-                    if (_delegateArgs[i] == null) { // marker for delegate itself
-                        ix = i;
-                        break;
-                    }
-                }
-            }
-            delegateType = _creators[C_DELEGATE].getParameterType(ix);
-        }
-
-        JavaType arrayDelegateType;
-
-        if (maybeVanilla || (_creators[C_ARRAY_DELEGATE] == null)) {
-            arrayDelegateType = null;
-        } else {
-            // need to find type...
-            int ix = 0;
-            if (_arrayDelegateArgs != null) {
-                for (int i = 0, len = _arrayDelegateArgs.length; i < len; ++i) {
-                    if (_arrayDelegateArgs[i] == null) { // marker for delegate itself
-                        ix = i;
-                        break;
-                    }
-                }
-            }
-            arrayDelegateType = _creators[C_ARRAY_DELEGATE].getParameterType(ix);
-        }
-
+        final JavaType delegateType = _computeDelegateType(_creators[C_DELEGATE], _delegateArgs);
+        final JavaType arrayDelegateType = _computeDelegateType(_creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
         final JavaType type = _beanDesc.getType();
 
         // Any non-standard creator will prevent; with one exception: int-valued constructor
         // that standard containers have can be ignored
-        maybeVanilla &= !_hasNonDefaultCreator;
-
-        if (maybeVanilla) {
+        if (!_hasNonDefaultCreator) {
             /* 10-May-2014, tatu: If we have nothing special, and we are dealing with one
              *   of "well-known" types, can create a non-reflection-based instantiator.
              */
@@ -302,6 +265,25 @@ public class CreatorCollector
     /* Helper methods
     /**********************************************************
      */
+
+    private JavaType _computeDelegateType(AnnotatedWithParams creator, SettableBeanProperty[] delegateArgs)
+    {
+        if (!_hasNonDefaultCreator || (creator == null)) {
+            return null;
+        } else {
+            // need to find type...
+            int ix = 0;
+            if (delegateArgs != null) {
+                for (int i = 0, len = delegateArgs.length; i < len; ++i) {
+                    if (delegateArgs[i] == null) { // marker for delegate itself
+                        ix = i;
+                        break;
+                    }
+                }
+            }
+            return creator.getParameterType(ix);
+        }
+    }
 
     private <T extends AnnotatedMember> T _fixAccess(T member)
     {

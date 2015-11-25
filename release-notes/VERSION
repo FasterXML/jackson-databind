@@ -63,6 +63,8 @@ INCOMPATIBILITIES:
  (reported by Antibrumm@github)
 #989: Deserialization from "{}" to java.lang.Object causes "out of END_OBJECT token" error
  (reported by Ievgen P)
+#1003: JsonTypeInfo.As.EXTERNAL_PROPERTY does not work with a Delegate
+ (reported by alexwen@github)
 #1005: Synthetic constructors confusing Jackson data binding
  (reported by Jayson M)
 #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`

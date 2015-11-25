@@ -252,13 +252,17 @@ public class StdValueInstantiator
     @Override
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
-        return createUsingDelegate(_delegateCreator, _delegateArguments, ctxt, delegate);
+        return _createUsingDelegate(_delegateCreator, _delegateArguments, ctxt, delegate);
     }
 
     @Override
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
-        return createUsingDelegate(_arrayDelegateCreator, _arrayDelegateArguments, ctxt, delegate);
+        if (_arrayDelegateCreator == null) { // sanity-check; caller should check
+            // fallback to the classic delegate creator
+            return createUsingDelegate(ctxt, delegate);
+        }
+        return _createUsingDelegate(_arrayDelegateCreator, _arrayDelegateArguments, ctxt, delegate);
     }
     
     /*
@@ -451,7 +455,7 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
-    private Object createUsingDelegate(
+    private Object _createUsingDelegate(
             AnnotatedWithParams delegateCreator,
             SettableBeanProperty[] delegateArguments,
             DeserializationContext ctxt,

@@ -125,14 +125,6 @@ public class StdDateFormat
         _locale = DEFAULT_LOCALE;
     }
 
-    /**
-     * @deprecated Since 2.4, use variant that also takes Locale
-     */
-    @Deprecated // since 2.4
-    public StdDateFormat(TimeZone tz) {
-        this(tz, DEFAULT_LOCALE);
-    }
-    
     public StdDateFormat(TimeZone tz, Locale loc) {
         _timezone = tz;
         _locale = loc;
@@ -266,14 +258,12 @@ public class StdDateFormat
         if (looksLikeISO8601(dateStr)) { // also includes "plain"
             return parseAsISO8601(dateStr, pos);
         }
-        /* 14-Feb-2010, tatu: As per [JACKSON-236], better also
-         *   consider "stringified" simple time stamp
-         */
+        // Also consider "stringified" simple time stamp
         int i = dateStr.length();
         while (--i >= 0) {
             char ch = dateStr.charAt(i);
             if (ch < '0' || ch > '9') {
-                // 07-Aug-2013, tatu: And #267 points out that negative numbers should also work
+                // 07-Aug-2013, tatu: And [databind#267] points out that negative numbers should also work
                 if (i > 0 || ch != '-') {
                     break;
                 }

@@ -99,10 +99,11 @@ public class PolymorphicList036Test extends BaseMapTest
         list.add("value 2");
         
         String serialized = MAPPER.writeValueAsString(list);
-        System.out.println(serialized);
+//        System.out.println(serialized);
         
         StringyList<String> deserialized = MAPPER.readValue(serialized, type);
-        System.out.println(deserialized);
+//        System.out.println(deserialized);
         
+        assertNotNull(deserialized);
     }
 }

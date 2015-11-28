@@ -404,11 +404,15 @@ public class AnnotationIntrospectorPair
         objectIdInfo = _primary.findObjectReferenceInfo(ann, objectIdInfo);
         return objectIdInfo;
     }
-    
+
     @Override
     public JsonFormat.Value findFormat(Annotated ann) {
-        JsonFormat.Value r = _primary.findFormat(ann);
-        return (r == null) ? _secondary.findFormat(ann) : r;
+        JsonFormat.Value v1 = _primary.findFormat(ann);
+        JsonFormat.Value v2 = _secondary.findFormat(ann);
+        if (v2 == null) { // shouldn't occur but just in case
+            return v1;
+        }
+        return v2.withOverrides(v1);
     }
 
     @Override

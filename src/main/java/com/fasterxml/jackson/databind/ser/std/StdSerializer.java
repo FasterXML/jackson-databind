@@ -53,7 +53,7 @@ public abstract class StdSerializer<T>
     /* Life-cycle
     /**********************************************************
      */
-    
+
     protected StdSerializer(Class<T> t) {
         _handledType = t;
     }
@@ -62,7 +62,7 @@ public abstract class StdSerializer<T>
     protected StdSerializer(JavaType type) {
         _handledType = (Class<T>) type.getRawClass();
     }
-    
+
     /**
      * Alternate constructor that is (alas!) needed to work
      * around kinks of generic type handling
@@ -79,13 +79,13 @@ public abstract class StdSerializer<T>
     protected StdSerializer(StdSerializer<?> src) {
         _handledType = (Class<T>) src._handledType;
     }
-    
+
     /*
     /**********************************************************
     /* Accessors
     /**********************************************************
      */
-    
+
     @Override
     public Class<T> handledType() { return _handledType; }
 
@@ -94,7 +94,7 @@ public abstract class StdSerializer<T>
     /* Serialization
     /**********************************************************
      */
-    
+
     @Override
     public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider)
         throws IOException;

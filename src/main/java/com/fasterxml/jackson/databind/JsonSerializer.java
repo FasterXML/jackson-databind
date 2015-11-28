@@ -190,7 +190,7 @@ public abstract class JsonSerializer<T>
      * @since 2.0
      * 
      * @deprecated Since 2.5 Use {@link #isEmpty(SerializerProvider, Object)} instead;
-     *   will be removed from 2.7
+     *   will be removed from 2.8
      */
     @Deprecated
     public boolean isEmpty(T value) {

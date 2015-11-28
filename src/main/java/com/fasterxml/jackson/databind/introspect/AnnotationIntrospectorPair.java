@@ -343,9 +343,10 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public JsonInclude.Value findPropertyInclusion(Annotated a) {
+    public JsonInclude.Value findPropertyInclusion(Annotated a)
+    {
         JsonInclude.Value v2 = _secondary.findPropertyInclusion(a);
-        JsonInclude.Value v1 = _secondary.findPropertyInclusion(a);
+        JsonInclude.Value v1 = _primary.findPropertyInclusion(a);
 
         if (v2 == null) { // shouldn't occur but
             return v1;

@@ -131,8 +131,8 @@ public class JacksonAnnotationIntrospector
         return value.name();
     }
 
-    @Override
-    public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+    @Override // since 2.7
+    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         HashMap<String,String> expl = null;
         for (Field f : ClassUtil.getDeclaredFields(enumType)) {
             if (!f.isEnumConstant()) {

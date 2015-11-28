@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class TestJsonSerializeAs extends BaseMapTest
 {
-    // [JACKSON-799] stuff:
     public interface Fooable {
         public int getFoo();
     }
@@ -20,6 +19,12 @@ public class TestJsonSerializeAs extends BaseMapTest
         public int getBar() { return 15; }
     }
 
+    static class FooImplNoAnno implements Fooable {
+        @Override
+        public int getFoo() { return 42; }
+        public int getBar() { return 15; }
+    }
+    
     public class Fooables {
         public FooImpl[] getFoos() {
             return new FooImpl[] { new FooImpl() };
@@ -32,6 +37,14 @@ public class TestJsonSerializeAs extends BaseMapTest
         }
     }
 
+    // Also test via Field
+    static class FooableWithFieldWrapper {
+        @JsonSerialize(as=Fooable.class)
+        public Fooable getFoo() {
+            return new FooImplNoAnno();
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -40,19 +53,22 @@ public class TestJsonSerializeAs extends BaseMapTest
 
     private final ObjectWriter WRITER = objectWriter();
 
-    // [JACKSON-799]
-    public void testSerializeAsInClass() throws IOException
-    {
+    public void testSerializeAsInClass() throws IOException {
         assertEquals("{\"foo\":42}", WRITER.writeValueAsString(new FooImpl()));
     }
 
-    public void testSerializeAsForArrayProp() throws IOException
-    {
-        assertEquals("{\"foos\":[{\"foo\":42}]}", WRITER.writeValueAsString(new Fooables()));
+    public void testSerializeAsForArrayProp() throws IOException {
+        assertEquals("{\"foos\":[{\"foo\":42}]}",
+                WRITER.writeValueAsString(new Fooables()));
     }
 
-    public void testSerializeAsForSimpleProp() throws IOException
-    {
-        assertEquals("{\"foo\":{\"foo\":42}}", WRITER.writeValueAsString(new FooableWrapper()));
+    public void testSerializeAsForSimpleProp() throws IOException {
+        assertEquals("{\"foo\":{\"foo\":42}}",
+                WRITER.writeValueAsString(new FooableWrapper()));
+    }
+
+    public void testSerializeWithFieldAnno() throws IOException {
+        assertEquals("{\"foo\":{\"foo\":42}}",
+                WRITER.writeValueAsString(new FooableWithFieldWrapper()));
     }
 }

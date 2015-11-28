@@ -37,10 +37,10 @@ public class TestJsonSerializeAs extends BaseMapTest
         }
     }
 
-    // Also test via Field
+    // for [jackson-databind#1023]
     static class FooableWithFieldWrapper {
         @JsonSerialize(as=Fooable.class)
-        public FooImplNoAnno getFoo() {
+        public Fooable getFoo() {
             return new FooImplNoAnno();
         }
     }
@@ -67,6 +67,7 @@ public class TestJsonSerializeAs extends BaseMapTest
                 WRITER.writeValueAsString(new FooableWrapper()));
     }
 
+    // for [jackson-databind#1023]
     public void testSerializeWithFieldAnno() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWithFieldWrapper()));

@@ -114,7 +114,9 @@ public class BeanDeserializerFactory
         /* Or, for abstract types, may have alternate means for resolution
          * (defaulting, materialization)
          */
-        if (type.isAbstract()) {
+        // 29-Nov-2015, tatu: Also, filter out calls to primitive types, they are
+        //    not something we could materialize anything for
+        if (type.isAbstract() && !type.isPrimitive()) {
             // Let's make it possible to materialize abstract types.
             JavaType concreteType = materializeAbstractType(ctxt, type, beanDesc);
             if (concreteType != null) {

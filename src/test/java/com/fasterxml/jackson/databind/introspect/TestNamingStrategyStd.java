@@ -165,7 +165,10 @@ public class TestNamingStrategyStd extends BaseMapTest
                 {"_UserName", "user_name"},
                 {"_User_Name", "user_name"},
                 {"UGLY_NAME", "ugly_name"},
-                {"_Bars", "bars" }
+                {"_Bars", "bars" },
+                // [databind#1026]
+                {"usId", "us_id" },
+                {"uId", "u_id" },
     });
     
     private ObjectMapper _lcWithUndescoreMapper;

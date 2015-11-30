@@ -179,18 +179,16 @@ public class BeanDeserializerFactory
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        final JavaType abstractType = beanDesc.getType();
-        // [JACKSON-502]: Now it is possible to have multiple resolvers too,
-        //   as they are registered via module interface.
+        // May have multiple resolvers, call in precedence order until one returns non-null
         for (AbstractTypeResolver r : _factoryConfig.abstractTypeResolvers()) {
-            JavaType concrete = r.resolveAbstractType(ctxt.getConfig(), abstractType);
+            JavaType concrete = r.resolveAbstractType(ctxt.getConfig(), beanDesc);
             if (concrete != null) {
                 return concrete;
             }
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Public construction method beyond DeserializerFactory API:

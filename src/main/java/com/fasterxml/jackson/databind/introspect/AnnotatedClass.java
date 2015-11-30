@@ -283,9 +283,7 @@ public final class AnnotatedClass
 
     @Override
     public JavaType getType() {
-        // 16-Oct-2015, tatu: Does this make any sense? Technically doable but
-//        return _type;
-        throw new UnsupportedOperationException("Should not be called on AnnotatedClass");
+        return _type;
     }
 
     /*

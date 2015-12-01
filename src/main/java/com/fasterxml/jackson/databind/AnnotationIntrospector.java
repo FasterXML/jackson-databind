@@ -789,16 +789,22 @@ public abstract class AnnotationIntrospector
         
         // Ok: start by refining the main type itself; common to all types
         Class<?> serClass = findSerializationType(a);
-        if ((serClass != null) && !type.hasRawClass(serClass)) {
-            try {
-                // 11-Oct-2015, tatu: For deser, we call `TypeFactory.constructSpecializedType()`,
-                //   may be needed here too in future?
-                type = tf.constructGeneralizedType(type, serClass);
-            } catch (IllegalArgumentException iae) {
-                throw new JsonMappingException(null,
-                        String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",
-                                type, serClass.getName(), a.getName(), iae.getMessage()),
-                                iae);
+        if (serClass != null) {
+            if (type.hasRawClass(serClass)) {
+                // 30-Nov-2015, tatu: As per [databind#1023], need to allow forcing of
+                //    static typing this way
+                type = type.withStaticTyping();
+            } else {
+                try {
+                    // 11-Oct-2015, tatu: For deser, we call `TypeFactory.constructSpecializedType()`,
+                    //   may be needed here too in future?
+                    type = tf.constructGeneralizedType(type, serClass);
+                } catch (IllegalArgumentException iae) {
+                    throw new JsonMappingException(null,
+                            String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",
+                                    type, serClass.getName(), a.getName(), iae.getMessage()),
+                                    iae);
+                }
             }
         }
         // Then further processing for container types

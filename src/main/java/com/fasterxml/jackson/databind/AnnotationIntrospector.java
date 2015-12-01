@@ -814,32 +814,40 @@ public abstract class AnnotationIntrospector
             JavaType keyType = type.getKeyType();
             Class<?> keyClass = findSerializationKeyType(a, keyType);
             if (keyClass != null) {
-                try {
-                    keyType = tf.constructGeneralizedType(keyType, keyClass);
-                    type = ((MapLikeType) type).withKeyType(keyType);
-                } catch (IllegalArgumentException iae) {
-                    throw new JsonMappingException(null,
-                            String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                    type, keyClass.getName(), a.getName(), iae.getMessage()),
-                                    iae);
+                if (keyType.hasRawClass(keyClass)) {
+                    keyType = keyType.withStaticTyping();
+                } else {
+                    try {
+                        keyType = tf.constructGeneralizedType(keyType, keyClass);
+                    } catch (IllegalArgumentException iae) {
+                        throw new JsonMappingException(null,
+                                String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                        type, keyClass.getName(), a.getName(), iae.getMessage()),
+                                        iae);
+                    }
                 }
+                type = ((MapLikeType) type).withKeyType(keyType);
             }
         }
 
         JavaType contentType = type.getContentType();
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
-           Class<?> contentClass = findSerializationContentType(a, type.getContentType());
+           Class<?> contentClass = findSerializationContentType(a, contentType);
            if (contentClass != null) {
-               try {
-                   contentType = tf.constructGeneralizedType(contentType, contentClass);
-                   type = type.withContentType(contentType);
-               } catch (IllegalArgumentException iae) {
-                   throw new JsonMappingException(null,
-                           String.format("Failed to widen value type of %s with concrete-type annotation (value %s), from '%s': %s",
-                                   type, contentClass.getName(), a.getName(), iae.getMessage()),
-                                   iae);
+               if (contentType.hasRawClass(contentClass)) {
+                   contentType = contentType.withStaticTyping();
+               } else {
+                   try {
+                       contentType = tf.constructGeneralizedType(contentType, contentClass);
+                   } catch (IllegalArgumentException iae) {
+                       throw new JsonMappingException(null,
+                               String.format("Failed to widen value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                                       type, contentClass.getName(), a.getName(), iae.getMessage()),
+                                       iae);
+                   }
                }
+               type = type.withContentType(contentType);
            }
         }
         return type;

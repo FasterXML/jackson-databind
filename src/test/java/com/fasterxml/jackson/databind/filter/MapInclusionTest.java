@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.filter;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -7,7 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 
-public class TestEmptyMapSerialization588 extends BaseMapTest
+public class MapInclusionTest extends BaseMapTest
 {
     static class NoEmptiesMapContainer {
         @JsonInclude(value=JsonInclude.Include.NON_EMPTY,

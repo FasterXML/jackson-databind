@@ -109,31 +109,42 @@ public class AbstractDeserializer
      */
     
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // Hmmh. One tricky question; for scalar, is it an Object Id, or "Natural" type?
         // for now, prefer Object Id:
         if (_objectIdReader != null) {
-            JsonToken t = jp.getCurrentToken();
-            // should be good enough check; we only care about Strings, integral numbers:
-            if (t != null && t.isScalarValue()) {
-                return _deserializeFromObjectId(jp, ctxt);
+            JsonToken t = p.getCurrentToken();
+            if (t != null) {
+                // Most commonly, a scalar (int id, uuid String, ...)
+                if (t.isScalarValue()) {
+                    return _deserializeFromObjectId(p, ctxt);
+                }
+                // but, with 2.5+, a simple Object-wrapped value also legal:
+                if (t == JsonToken.START_OBJECT) {
+                    t = p.nextToken();
+                }
+                if ((t == JsonToken.FIELD_NAME) && _objectIdReader.maySerializeAsObject()
+                        && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                    return _deserializeFromObjectId(p, ctxt);
+                }
+            
             }
         }
         
         // First: support "natural" values (which are always serialized without type info!)
-        Object result = _deserializeIfNatural(jp, ctxt);
+        Object result = _deserializeIfNatural(p, ctxt);
         if (result != null) {
             return result;
         }
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         // This method should never be called...
         throw ctxt.instantiationException(_baseType.getRawClass(),
@@ -146,28 +157,28 @@ public class AbstractDeserializer
     /**********************************************************
      */
     
-    protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeIfNatural(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        /* As per [JACKSON-417], there is a chance we might be "natural" types
+        /* There is a chance we might be "natural" types
          * (String, Boolean, Integer, Double), which do not include any type information...
          * Care must be taken to only return this if return type matches, however.
          * Finally, we may have to consider possibility of custom handlers for
          * these values: but for now this should work ok.
          */
-        switch (jp.getCurrentTokenId()) {
+        switch (p.getCurrentTokenId()) {
         case JsonTokenId.ID_STRING:
             if (_acceptString) {
-                return jp.getText();
+                return p.getText();
             }
             break;
         case JsonTokenId.ID_NUMBER_INT:
             if (_acceptInt) {
-                return jp.getIntValue();
+                return p.getIntValue();
             }
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
             if (_acceptDouble) {
-                return Double.valueOf(jp.getDoubleValue());
+                return Double.valueOf(p.getDoubleValue());
             }
             break;
         case JsonTokenId.ID_TRUE:
@@ -188,18 +199,16 @@ public class AbstractDeserializer
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object _deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        Object id = _objectIdReader.readObjectReference(jp, ctxt);
+        Object id = _objectIdReader.readObjectReference(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         // do we have it resolved?
         Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
-            throw new UnresolvedForwardReference(jp,
-                    "Could not resolve Object Id ["+id+"] -- unresolved forward-reference?", jp.getCurrentLocation(), roid);
+            throw new UnresolvedForwardReference(p,
+                    "Could not resolve Object Id ["+id+"] -- unresolved forward-reference?", p.getCurrentLocation(), roid);
         }
         return pojo;
     }
 }
-
-

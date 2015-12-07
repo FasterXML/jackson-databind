@@ -242,16 +242,17 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
     public void replace(SettableBeanProperty newProp)
     {
         String key = getPropertyName(newProp);
-        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
-            if ((prop != null) && prop.getName().equals(key)) {
-                _hashArea[i] = newProp;
-                // also, replace in in-order
-                _propsInOrder[_findFromOrdered(prop)] = newProp;
-                return;
-            }
+        int ix = _findIndexInHash(key);
+        
+        if (ix >= 0) {
+            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[ix];
+            _hashArea[ix] = newProp;
+            // also, replace in in-order
+            _propsInOrder[_findFromOrdered(prop)] = newProp;
+            return;
         }
-        throw new NoSuchElementException("No entry '"+newProp.getName()+"' found, can't replace");
+        
+        throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
     }
 
     private List<SettableBeanProperty> properties() {
@@ -296,6 +297,8 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
      */
     public SettableBeanProperty find(int index)
     {
+        // note: will scan the whole area, including primary, secondary and
+        // possible spill-area
         for (int i = 1, end = _hashArea.length; i < end; i += 2) {
             SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
             if ((prop != null) && (index == prop.getPropertyIndex())) {
@@ -486,7 +489,40 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         throw JsonMappingException.wrapWithPath(t, bean, fieldName);
     }
 
-    private int _findFromOrdered(SettableBeanProperty prop) {
+    /**
+     * Helper method used to find exact location of a property with name
+     * given exactly, not subject to case changes, within hash area.
+     * Expectation is that such property SHOULD exist, although no
+     * exception is thrown.
+     *
+     * @since 2.7
+     */
+    private final int _findIndexInHash(String key)
+    {
+        final int slot = _hashCode(key);
+        int ix = (slot<<1);
+        
+        // primary match?
+        if (key.equals(_hashArea[ix])) {
+            return ix+1;
+        }
+        // no? secondary?
+        int hashSize = _hashMask+1;
+        ix = hashSize + (slot>>1) << 1;
+        if (key.equals(_hashArea[ix])) {
+            return ix+1;
+        }
+        // perhaps spill then
+        int i = (hashSize + (hashSize>>1)) << 1;
+        for (int end = i + _spillCount; i < end; i += 2) {
+            if (key.equals(_hashArea[i])) {
+                return i+1;
+            }
+        }
+        return -1;
+    }
+    
+    private final int _findFromOrdered(SettableBeanProperty prop) {
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i] == prop) {
                 return i;

@@ -354,3 +354,7 @@ Jayson Minard (apatrida@github)
 David Bakin (david-bakin@github)
   * Reported #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
    (2.6.4)
+
+Dmitry Romantsov (DmRomantsov@github)
+  * Reported #1036: Problem with case-insensitive deserialization
+   (2.6.4)

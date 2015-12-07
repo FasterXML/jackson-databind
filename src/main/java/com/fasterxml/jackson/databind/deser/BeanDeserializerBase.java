@@ -451,14 +451,14 @@ public abstract class BeanDeserializerBase
                 }
             }
 
-            // [JACKSON-235]: need to link managed references with matching back references
+            // Need to link managed references with matching back references
             prop = _resolveManagedReferenceProperty(ctxt, prop);
 
-            // issue #351: need to wrap properties that require object id resolution.
+            // [databind#351[: need to wrap properties that require object id resolution.
             if (!(prop instanceof ManagedReferenceProperty)) {
                 prop = _resolvedObjectIdProperty(ctxt, prop);
             }
-            // [JACKSON-132]: support unwrapped values (via @JsonUnwrapped)
+            // Support unwrapped values (via @JsonUnwrapped)
             SettableBeanProperty u = _resolveUnwrappedProperty(ctxt, prop);
             if (u != null) {
                 prop = u;
@@ -472,7 +472,7 @@ public abstract class BeanDeserializerBase
                 _beanProperties.remove(prop);
                 continue;
             }
-            // [JACKSON-594]: non-static inner classes too:
+            // non-static inner classes too:
             prop = _resolveInnerClassValuedProperty(ctxt, prop);
             if (prop != origProp) {
                 _beanProperties.replace(prop);

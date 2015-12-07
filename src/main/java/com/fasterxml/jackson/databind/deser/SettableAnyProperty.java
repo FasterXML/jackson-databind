@@ -110,15 +110,15 @@ public class SettableAnyProperty
      * Method called to deserialize appropriate value, given parser (and
      * context), and set it using appropriate method (a setter method).
      */
-    public final void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
+    public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance, String propName)
         throws IOException
     {
         try {
-            set(instance, propName, deserialize(jp, ctxt));
+            set(instance, propName, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
             if (!(_valueDeserializer.getObjectIdReader() != null)) {
-                throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
+                throw JsonMappingException.from(p, "Unresolved forward reference but no identity info.", reference);
             }
             AnySetterReferring referring = new AnySetterReferring(this, reference,
                     _type.getRawClass(), instance, propName);
@@ -126,16 +126,16 @@ public class SettableAnyProperty
         }
     }
 
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_NULL) {
             return null;
         }
         if (_valueTypeDeserializer != null) {
-            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
+            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        return _valueDeserializer.deserialize(jp, ctxt);
+        return _valueDeserializer.deserialize(p, ctxt);
     }
 
     public void set(Object instance, String propName, Object value) throws IOException

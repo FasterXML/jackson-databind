@@ -244,20 +244,13 @@ public final class AnnotatedClass
     public String getName() { return _class.getName(); }
 
     @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls)
-    {
-        if (_classAnnotations == null) {
-            resolveClassAnnotations();
-        }
-        return _classAnnotations.get(acls);
+    public <A extends Annotation> A getAnnotation(Class<A> acls) {
+        return _classAnnotations().get(acls);
     }
 
     @Override
     public boolean hasAnnotation(Class<?> acls) {
-        if (_classAnnotations == null) {
-            resolveClassAnnotations();
-        }
-        return _classAnnotations.has(acls);
+        return _classAnnotations().has(acls);
     }
 
     @Override
@@ -267,18 +260,12 @@ public final class AnnotatedClass
 
     @Override
     public Iterable<Annotation> annotations() {
-        if (_classAnnotations == null) {
-            resolveClassAnnotations();
-        }
-        return _classAnnotations.annotations();
+        return _classAnnotations().annotations();
     }
     
     @Override
     protected AnnotationMap getAllAnnotations() {
-        if (_classAnnotations == null) {
-            resolveClassAnnotations();
-        }
-        return _classAnnotations;
+        return _classAnnotations();
     }
 
     @Override
@@ -293,17 +280,11 @@ public final class AnnotatedClass
      */
 
     public Annotations getAnnotations() {
-        if (_classAnnotations == null) {
-            resolveClassAnnotations();
-        }
-        return _classAnnotations;
+        return _classAnnotations();
     }
-    
+
     public boolean hasAnnotations() {
-        if (_classAnnotations == null) {
-            resolveClassAnnotations();
-        }
-        return _classAnnotations.size() > 0;
+        return _classAnnotations().size() > 0;
     }
 
     public AnnotatedConstructor getDefaultConstructor()
@@ -375,29 +356,46 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
+    private AnnotationMap _classAnnotations() {
+        AnnotationMap anns = _classAnnotations;
+        if (anns == null) {
+            // yes, double-locking, typically not a good choice. But for typical usage
+            // pattern here (and with JVM 7 and above) is a reasonable choice to avoid
+            // non-common but existing race condition from root name lookup style usage
+            synchronized (this) {
+                anns = _classAnnotations;
+                if (anns == null) {
+                    anns = _resolveClassAnnotations();
+                    _classAnnotations = anns;
+                }
+            }
+        }
+        return anns;
+    }
+
     /**
      * Initialization method that will recursively collect Jackson
      * annotations for this class and all super classes and
      * interfaces.
      */
-    private void resolveClassAnnotations()
+    private AnnotationMap _resolveClassAnnotations()
     {
-        _classAnnotations = new AnnotationMap();
+        AnnotationMap ca = new AnnotationMap();
         // Should skip processing if annotation processing disabled
         if (_annotationIntrospector != null) {
             // add mix-in annotations first (overrides)
             if (_primaryMixIn != null) {
-                _addClassMixIns(_classAnnotations, _class, _primaryMixIn);
+                _addClassMixIns(ca, _class, _primaryMixIn);
             }
             // first, annotations from the class itself:
-            _addAnnotationsIfNotPresent(_classAnnotations,
+            _addAnnotationsIfNotPresent(ca,
                     ClassUtil.findClassAnnotations(_class));
     
             // and then from super types
             for (JavaType type : _superTypes) {
                 // and mix mix-in annotations in-between
-                _addClassMixIns(_classAnnotations, type);
-                _addAnnotationsIfNotPresent(_classAnnotations,
+                _addClassMixIns(ca, type);
+                _addAnnotationsIfNotPresent(ca,
                         ClassUtil.findClassAnnotations(type.getRawClass()));
             }
             /* and finally... any annotations there might be for plain
@@ -407,10 +405,11 @@ public final class AnnotatedClass
             /* 12-Jul-2009, tatu: Should this be done for interfaces too?
              *   For now, yes, seems useful for some cases, and not harmful for any?
              */
-            _addClassMixIns(_classAnnotations, Object.class);
+            _addClassMixIns(ca, Object.class);
         }
+        return ca;
     }
-    
+
     /**
      * Initialization method that will find out all constructors
      * and potential static factory methods the class has.

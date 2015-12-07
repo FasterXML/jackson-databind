@@ -359,9 +359,12 @@ public final class AnnotatedClass
     private AnnotationMap _classAnnotations() {
         AnnotationMap anns = _classAnnotations;
         if (anns == null) {
-            // yes, double-locking, typically not a good choice. But for typical usage
-            // pattern here (and with JVM 7 and above) is a reasonable choice to avoid
-            // non-common but existing race condition from root name lookup style usage
+            // 06-Dec-2015, tatu: yes, double-locking, typically not a good choice.
+            //  But for typical usage pattern here (and with JVM 7 and above) is
+            //  a reasonable choice to avoid non-common but existing race condition
+            //  from root name lookup style usage
+            // Also note that race condition stems from caching only used for loading
+            // where just class annotations are needed
             synchronized (this) {
                 anns = _classAnnotations;
                 if (anns == null) {

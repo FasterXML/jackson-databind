@@ -299,21 +299,21 @@ public final class AnnotatedClass
      */
     private void resolveClassAnnotations()
     {
-        _classAnnotations = new AnnotationMap();
+        AnnotationMap ca = new AnnotationMap();
         // [JACKSON-659] Should skip processing if annotation processing disabled
         if (_annotationIntrospector != null) {
             // add mix-in annotations first (overrides)
             if (_primaryMixIn != null) {
-                _addClassMixIns(_classAnnotations, _class, _primaryMixIn);
+                _addClassMixIns(ca, _class, _primaryMixIn);
             }
             // first, annotations from the class itself:
-            _addAnnotationsIfNotPresent(_classAnnotations, _class.getDeclaredAnnotations());
+            _addAnnotationsIfNotPresent(ca, _class.getDeclaredAnnotations());
     
             // and then from super types
             for (Class<?> cls : _superTypes) {
                 // and mix mix-in annotations in-between
-                _addClassMixIns(_classAnnotations, cls);
-                _addAnnotationsIfNotPresent(_classAnnotations, cls.getDeclaredAnnotations());
+                _addClassMixIns(ca, cls);
+                _addAnnotationsIfNotPresent(ca, cls.getDeclaredAnnotations());
             }
             /* and finally... any annotations there might be for plain
              * old Object.class: separate because for all other purposes
@@ -322,8 +322,9 @@ public final class AnnotatedClass
             /* 12-Jul-2009, tatu: Should this be done for interfaces too?
              *   For now, yes, seems useful for some cases, and not harmful for any?
              */
-            _addClassMixIns(_classAnnotations, Object.class);
+            _addClassMixIns(ca, Object.class);
         }
+        _classAnnotations = ca;
     }
     
     /**

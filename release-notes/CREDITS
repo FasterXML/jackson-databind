@@ -365,6 +365,10 @@ David Bakin (david-bakin@github)
   * Suggested #1011: Change ObjectWriter::withAttributes() to take a Map with some kind of wildcard types
    (2.7.0)
 
+Dmitry Romantsov (DmRomantsov@github)
+  * Reported #1036: Problem with case-insensitive deserialization
+   (2.6.4)
+
 Miles Kaufmann (milesk-amzn@github)
   * Reported #432: `StdValueInstantiator` unwraps exceptions, losing context
    (2.7.0)

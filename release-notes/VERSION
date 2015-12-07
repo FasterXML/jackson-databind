@@ -69,6 +69,8 @@ INCOMPATIBILITIES:
  (reported by Jayson M)
 #1013: `@JsonUnwrapped` is not treated as assuming `@JsonProperty("")`
  (reported by David B)
+#1036: Problem with case-insensitive deserialization
+ (repoted by Dmitry R)
 - Fix a minor problem with `@JsonNaming` not recognizing default value
 
 2.6.3 (12-Oct-2015)

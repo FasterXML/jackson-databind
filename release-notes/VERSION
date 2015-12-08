@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.4 (not yet released)
+2.6.4 (07-Dec-2015)
 
 #984: JsonStreamContexts are not build the same way for write.. and convert methods
  (reported by Antibrumm@github)

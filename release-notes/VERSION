@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.5 (not released)
+2.5.5 (07-Dec-2015)
 
 #844: Using JsonCreator still causes invalid path references in JsonMappingException
  (reported by Ian B)

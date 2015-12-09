@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -293,24 +294,16 @@ public abstract class AsArraySerializerBase<T>
         }
         return o;
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        JsonArrayFormatVisitor arrayVisitor = (visitor == null) ? null : visitor.expectArrayFormat(typeHint);
-        if (arrayVisitor != null) {
-            /* 01-Sep-2014, tatu: Earlier was trying to make use of 'typeHint' for some
-             *   reason, causing NPE (as per https://github.com/FasterXML/jackson-module-jsonSchema/issues/34)
-             *   if coupled with `@JsonValue`. But I can't see much benefit of trying to rely
-             *   on TypeHint here so code is simplified like so:
-             */
-            JsonSerializer<?> valueSer = _elementSerializer;
-            if (valueSer == null) {
-                valueSer = visitor.getProvider().findValueSerializer(_elementType, _property);
-            }
-            arrayVisitor.itemsFormat(valueSer, _elementType);
+        JsonSerializer<?> valueSer = _elementSerializer;
+        if (valueSer == null) {
+            valueSer = visitor.getProvider().findValueSerializer(_elementType, _property);
         }
+        visitArrayFormat(visitor, typeHint, valueSer, _elementType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

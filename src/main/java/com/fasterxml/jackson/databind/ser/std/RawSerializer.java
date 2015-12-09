@@ -50,6 +50,7 @@ public class RawSerializer<T>
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-        visitor.expectStringFormat(typeHint);
+        // type not really known, but since it is a JSON string:
+        visitStringFormat(visitor, typeHint);
     }
 }

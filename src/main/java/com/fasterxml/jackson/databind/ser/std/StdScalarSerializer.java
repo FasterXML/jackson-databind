@@ -36,12 +36,12 @@ public abstract class StdScalarSerializer<T>
      * change this behavior.
      */
     @Override
-    public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
-        typeSer.writeTypePrefixForScalar(value, jgen);
-        serialize(value, jgen, provider);
-        typeSer.writeTypeSuffixForScalar(value, jgen);
+        typeSer.writeTypePrefixForScalar(value, g);
+        serialize(value, g, provider);
+        typeSer.writeTypeSuffixForScalar(value, g);
     }
 
     @Override
@@ -55,10 +55,7 @@ public abstract class StdScalarSerializer<T>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            // 13-Sep-2013, tatu: Let's assume it's usually a String, right?
-//            visitor.expectAnyFormat(typeHint);
-            visitor.expectStringFormat(typeHint);
-        }
+        // 13-Sep-2013, tatu: Let's assume it's usually a String, right?
+        visitStringFormat(visitor, typeHint);
     }
 }

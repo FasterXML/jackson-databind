@@ -5,11 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -101,17 +101,27 @@ public abstract class StdSerializer<T>
 
     /*
     /**********************************************************
-    /* Helper methods for JSON Schema generation
+    /* Type introspection API, partial/default implementation
     /**********************************************************
      */
-    
+
+    /**
+     * Default implementation specifies no format. This behavior is usually
+     * overriden by custom serializers.
+     */
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
+    {
+        visitor.expectAnyFormat(typeHint);
+    }
+
     /**
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
      */
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException
     {
         return createSchemaNode("string");
     }
@@ -124,13 +134,19 @@ public abstract class StdSerializer<T>
     public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
         throws JsonMappingException
     {
-    	ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
-    	if (!isOptional) {
-    		schema.put("required", !isOptional);
-    	}
+        ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
+        if (!isOptional) {
+    		    schema.put("required", !isOptional);
+        }
         return schema;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Helper methods for JSON Schema generation
+    /**********************************************************
+     */
+
     protected ObjectNode createObjectNode() {
         return JsonNodeFactory.instance.objectNode();
     }
@@ -145,24 +161,138 @@ public abstract class StdSerializer<T>
     protected ObjectNode createSchemaNode(String type, boolean isOptional)
     {
         ObjectNode schema = createSchemaNode(type);
-        // as per [JACKSON-563]. Note that 'required' defaults to false
         if (!isOptional) {
             schema.put("required", !isOptional);
         }
         return schema;
     }
-    
+
     /**
-     * Default implementation specifies no format. This behavior is usually
-     * overriden by custom serializers.
+     * Helper method that calls necessary visit method(s) to indicate that the
+     * underlying JSON type is JSON String.
+     *
+     * @since 2.7
      */
-    @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JsonMappingException {
+        if (visitor != null) {
+            visitor.expectStringFormat(typeHint);
+        }
+    }
+
+    /**
+     * Helper method that calls necessary visit method(s) to indicate that the
+     * underlying JSON type is JSON String, but that there is a more refined
+     * logical type
+     *
+     * @since 2.7
+     */
+    protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
+            JsonValueFormat format)
         throws JsonMappingException
     {
-        visitor.expectAnyFormat(typeHint);
+        if (visitor != null) {
+            JsonStringFormatVisitor v2 = visitor.expectStringFormat(typeHint);
+            if (v2 != null) {
+                v2.format(format);
+            }
+        }
     }
-            
+
+    /**
+     * Helper method that calls necessary visit method(s) to indicate that the
+     * underlying JSON type is JSON Integer number.
+     *
+     * @since 2.7
+     */
+    protected void visitIntFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
+            NumberType numberType)
+        throws JsonMappingException
+    {
+        if (visitor != null) {
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                if (numberType != null) {
+                    v2.numberType(numberType);
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method that calls necessary visit method(s) to indicate that the
+     * underlying JSON type is JSON Integer number, but that there is also a further
+     * format restriction involved.
+     *
+     * @since 2.7
+     */
+    protected void visitIntFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
+            NumberType numberType, JsonValueFormat format)
+        throws JsonMappingException
+    {
+        if (visitor != null) {
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                if (numberType != null) {
+                    v2.numberType(numberType);
+                }
+                if (format != null) {
+                    v2.format(format);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method that calls necessary visit method(s) to indicate that the
+     * underlying JSON type is a floating-point JSON number.
+     *
+     * @since 2.7
+     */
+    protected void visitFloatFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
+            NumberType numberType)
+        throws JsonMappingException
+    {
+        if (visitor != null) {
+            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(numberType);
+            }
+        }
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected void visitArrayFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
+            JsonSerializer<?> itemSerializer, JavaType itemType)
+        throws JsonMappingException
+    {
+        if (visitor != null) {
+            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+            if (v2 != null) {
+                if (itemSerializer != null) {
+                    v2.itemsFormat(itemSerializer, itemType);
+                }
+            }
+        }
+    }
+
+    /**
+     * @since 2.7
+     */
+    protected void visitArrayFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
+            JsonFormatTypes itemType)
+        throws JsonMappingException
+    {
+        if (visitor != null) {
+            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+            if (v2 != null) {
+                v2.itemsFormat(itemType);
+            }
+        }
+    }
+    
     /*
     /**********************************************************
     /* Helper methods for exception handling
@@ -207,7 +337,7 @@ public abstract class StdSerializer<T>
                 throw (RuntimeException) t;
             }
         }
-        // [JACKSON-55] Need to add reference information
+        // Need to add reference information
         throw JsonMappingException.wrapWithPath(t, bean, fieldName);
     }
 
@@ -233,7 +363,7 @@ public abstract class StdSerializer<T>
                 throw (RuntimeException) t;
             }
         }
-        // [JACKSON-55] Need to add reference information
+        // Need to add reference information
         throw JsonMappingException.wrapWithPath(t, bean, index);
     }
 

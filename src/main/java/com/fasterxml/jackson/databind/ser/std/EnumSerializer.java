@@ -6,12 +6,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -166,10 +167,7 @@ public class EnumSerializer
     {
         SerializerProvider serializers = visitor.getProvider();
         if (_serializeAsIndex(serializers)) {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) { // typically serialized as a small number (byte or int)
-                v2.numberType(JsonParser.NumberType.INT);
-            }
+            visitIntFormat(visitor, typeHint, JsonParser.NumberType.INT);
             return;
         }
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);

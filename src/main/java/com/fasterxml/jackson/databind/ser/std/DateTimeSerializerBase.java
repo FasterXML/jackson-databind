@@ -159,16 +159,10 @@ public abstract class DateTimeSerializerBase<T>
 		boolean asNumber) throws JsonMappingException
     {
         if (asNumber) {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.LONG);
-                v2.format(JsonValueFormat.UTC_MILLISEC);
-            }
+            visitIntFormat(visitor, typeHint,
+                    JsonParser.NumberType.LONG, JsonValueFormat.UTC_MILLISEC);
         } else {
-            JsonStringFormatVisitor v2 = visitor.expectStringFormat(typeHint);
-            if (v2 != null) {
-                v2.format(JsonValueFormat.DATE_TIME);
-            }
+            visitStringFormat(visitor, typeHint, JsonValueFormat.DATE_TIME);
         }
     }
 }

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -40,22 +39,22 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     }
     
     @Override
-    public void serialize(byte[] value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(byte[] value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
-        jgen.writeBinary(provider.getConfig().getBase64Variant(),
+        g.writeBinary(provider.getConfig().getBase64Variant(),
                 value, 0, value.length);
     }
 
     @Override
-    public void serializeWithType(byte[] value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(byte[] value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForScalar(value, jgen);
-        jgen.writeBinary(provider.getConfig().getBase64Variant(),
+        typeSer.writeTypePrefixForScalar(value, g);
+        g.writeBinary(provider.getConfig().getBase64Variant(),
                 value, 0, value.length);
-        typeSer.writeTypeSuffixForScalar(value, jgen);
+        typeSer.writeTypeSuffixForScalar(value, g);
     }
     
     @Override
@@ -68,13 +67,9 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+        throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-            if (v2 != null) {
-                v2.itemsFormat(JsonFormatTypes.STRING);
-            }
-        }
+        // while logically (and within JVM) binary, gets encoded as Base64 String
+        visitArrayFormat(visitor, typeHint, JsonFormatTypes.STRING);
     }
 }

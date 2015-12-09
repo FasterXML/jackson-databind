@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
@@ -45,8 +43,9 @@ public class NumberSerializers {
     }
 
     /*
-     * /********************************************************** /* Shared
-     * base class /**********************************************************
+    /**********************************************************
+    /* Shared base class
+    /**********************************************************
      */
 
     protected abstract static class Base<T> extends StdScalarSerializer<T>
@@ -72,19 +71,12 @@ public class NumberSerializers {
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor,
-                JavaType typeHint) throws JsonMappingException {
+                JavaType typeHint) throws JsonMappingException
+        {
             if (_isInt) {
-                JsonIntegerFormatVisitor v2 = visitor
-                        .expectIntegerFormat(typeHint);
-                if (v2 != null) {
-                    v2.numberType(_numberType);
-                }
+                visitIntFormat(visitor, typeHint, _numberType);
             } else {
-                JsonNumberFormatVisitor v2 = visitor
-                        .expectNumberFormat(typeHint);
-                if (v2 != null) {
-                    v2.numberType(_numberType);
-                }
+                visitFloatFormat(visitor, typeHint, _numberType);
             }
         }
 

@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -218,11 +219,6 @@ public class StringArraySerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-            if (v2 != null) {
-                v2.itemsFormat(JsonFormatTypes.STRING);
-            }
-        }
+        visitArrayFormat(visitor, typeHint, JsonFormatTypes.STRING);
     }
 }

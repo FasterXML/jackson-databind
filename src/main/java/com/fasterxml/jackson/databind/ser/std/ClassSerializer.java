@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,10 +22,9 @@ public class ClassSerializer
     public ClassSerializer() { super(Class.class, false); }
 
     @Override
-    public void serialize(Class<?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(Class<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        jgen.writeString(value.getName());
+        g.writeString(value.getName());
     }
 
     @Override
@@ -36,8 +35,8 @@ public class ClassSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+        throws JsonMappingException
     {
-        visitor.expectStringFormat(typeHint);
+        visitStringFormat(visitor, typeHint);
     }
 }

@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
 
 /**
  * As a fallback, we may need to use this serializer for other
@@ -30,12 +28,6 @@ public class NumberSerializer
 
     protected final boolean _isInt;
 
-    @Deprecated // since 2.5
-    public NumberSerializer() {
-        super(Number.class);
-        _isInt = false;
-    }
-
     /**
      * @since 2.5
      */
@@ -46,30 +38,30 @@ public class NumberSerializer
     }
 
     @Override
-    public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         // should mostly come in as one of these two:
         if (value instanceof BigDecimal) {
-            jgen.writeNumber((BigDecimal) value);
+            g.writeNumber((BigDecimal) value);
         } else if (value instanceof BigInteger) {
-            jgen.writeNumber((BigInteger) value);
+            g.writeNumber((BigInteger) value);
             
         /* These shouldn't match (as there are more specific ones),
          * but just to be sure:
          */
         } else if (value instanceof Integer) {
-            jgen.writeNumber(value.intValue());
+            g.writeNumber(value.intValue());
         } else if (value instanceof Long) {
-            jgen.writeNumber(value.longValue());
+            g.writeNumber(value.longValue());
         } else if (value instanceof Double) {
-            jgen.writeNumber(value.doubleValue());
+            g.writeNumber(value.doubleValue());
         } else if (value instanceof Float) {
-            jgen.writeNumber(value.floatValue());
+            g.writeNumber(value.floatValue());
         } else if ((value instanceof Byte) || (value instanceof Short)) {
-            jgen.writeNumber(value.intValue()); // doesn't need to be cast to smaller numbers
+            g.writeNumber(value.intValue()); // doesn't need to be cast to smaller numbers
         } else {
             // We'll have to use fallback "untyped" number write method
-            jgen.writeNumber(value.toString());
+            g.writeNumber(value.toString());
         }
     }
 
@@ -82,17 +74,14 @@ public class NumberSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
         if (_isInt) {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.BIG_INTEGER);
-            }
+            visitIntFormat(visitor, typeHint, JsonParser.NumberType.BIG_INTEGER);
         } else {
-            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
-            if (v2 != null) {
-                Class<?> h = handledType();
-                if (h == BigDecimal.class) {
-                    v2.numberType(JsonParser.NumberType.BIG_DECIMAL);
-                } // otherwise it's for Number... anything we could do there?
+            Class<?> h = handledType();
+            if (h == BigDecimal.class) {
+                visitFloatFormat(visitor, typeHint, JsonParser.NumberType.BIG_INTEGER);
+            } else {
+                // otherwise bit unclear what to call... but let's try:
+                /*JsonNumberFormatVisitor v2 =*/ visitor.expectNumberFormat(typeHint);
             }
         }
     }

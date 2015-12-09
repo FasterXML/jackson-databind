@@ -22,8 +22,8 @@ public class FileSerializer
     public FileSerializer() { super(File.class); }
 
     @Override
-    public void serialize(File value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeString(value.getAbsolutePath());
+    public void serialize(File value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        g.writeString(value.getAbsolutePath());
     }
 
     @Override
@@ -33,8 +33,8 @@ public class FileSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+        throws JsonMappingException
     {
-        visitor.expectStringFormat(typeHint);
+        visitStringFormat(visitor, typeHint);
     }
 }

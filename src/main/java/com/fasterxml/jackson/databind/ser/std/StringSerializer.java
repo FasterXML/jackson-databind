@@ -53,9 +53,9 @@ public final class StringSerializer
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("string", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
-        if (visitor != null) visitor.expectStringFormat(typeHint);
+        visitStringFormat(visitor, typeHint);
     }
 }

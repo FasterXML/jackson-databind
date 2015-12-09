@@ -97,8 +97,6 @@ public class ToStringSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-        if (visitor != null) {
-            visitor.expectStringFormat(typeHint);
-        }
+        visitStringFormat(visitor, typeHint);
     }
 }

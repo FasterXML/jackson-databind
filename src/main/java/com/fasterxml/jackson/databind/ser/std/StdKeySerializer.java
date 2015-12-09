@@ -5,11 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 
 /**
@@ -57,6 +53,6 @@ public class StdKeySerializer extends StdSerializer<Object>
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
-        visitor.expectStringFormat(typeHint);
+        visitStringFormat(visitor, typeHint);
     }
 }

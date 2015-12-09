@@ -38,7 +38,24 @@ public final class AnnotationMap implements Annotations
         }
         return _annotations.containsKey(cls);
     }
-    
+
+    /**
+     * Helper method that can be used for a "bulk" check to see if at least
+     * one of given annotation types is included within this map.
+     *
+     * @since 2.7
+     */
+    public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
+        if (_annotations != null) {
+            for (int i = 0, end = annoClasses.length; i < end; ++i) {
+                if (_annotations.containsKey(annoClasses[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * @since 2.3
      */

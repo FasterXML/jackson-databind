@@ -82,6 +82,14 @@ public abstract class AnnotatedMember
     }
 
     @Override
+    public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
+        if (_annotations == null) {
+            return false;
+        }
+        return _annotations.hasOneOf(annoClasses);
+    }
+    
+    @Override
     public Iterable<Annotation> annotations() {
         if (_annotations == null) {
             return Collections.emptyList();

@@ -21,6 +21,11 @@ public abstract class Annotated
     public abstract boolean hasAnnotation(Class<?> acls);
 
     /**
+     * @since 2.7
+     */
+    public abstract boolean hasOneOf(Class<? extends Annotation>[] annoClasses);
+    
+    /**
      * Fluent factory method that will construct a new instance that uses specified
      * instance annotations instead of currently configured ones.
      */

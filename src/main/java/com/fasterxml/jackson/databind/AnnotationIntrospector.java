@@ -1342,4 +1342,14 @@ public abstract class AnnotationIntrospector
     protected boolean _hasAnnotation(Annotated annotated, Class<? extends Annotation> annoClass) {
         return annotated.hasAnnotation(annoClass);
     }
+
+    /**
+     * Alternative lookup method that is used to see if annotation has at least one of
+     * annotations of types listed in second argument.
+     *
+     * @since 2.7
+     */
+    protected boolean _hasOneOf(Annotated annotated, Class<? extends Annotation>[] annoClasses) {
+        return annotated.hasOneOf(annoClasses);
+    }
 }

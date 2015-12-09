@@ -32,6 +32,27 @@ public class JacksonAnnotationIntrospector
 {
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unchecked")
+    private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_SER = (Class<? extends Annotation>[])
+            new Class<?>[] {
+        JsonSerialize.class,
+        JsonView.class,
+        JsonRawValue.class,
+        JsonUnwrapped.class,
+        JsonBackReference.class,
+        JsonManagedReference.class
+    };
+
+    @SuppressWarnings("unchecked")
+    private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
+            new Class<?>[] {
+        JsonDeserialize.class,
+        JsonView.class,
+        JsonUnwrapped.class,
+        JsonBackReference.class,
+        JsonManagedReference.class
+    };
+
     private static final Java7Support _jdk7Helper;
     static {
         Java7Support x = null;
@@ -811,13 +832,7 @@ public class JacksonAnnotationIntrospector
         if (ctorName != null) {
             return ctorName;
         }
-        // 20-Nov-2015, tatu: as per [databind#1014]: should figure out a better way to do this
-        if (_hasAnnotation(a, JsonSerialize.class)
-                || _hasAnnotation(a, JsonView.class)
-                    || _hasAnnotation(a, JsonRawValue.class)
-                    || _hasAnnotation(a, JsonUnwrapped.class)
-                    || _hasAnnotation(a, JsonBackReference.class)
-                    || _hasAnnotation(a, JsonManagedReference.class)) {
+        if (_hasOneOf(a, ANNOTATIONS_TO_INFER_SER)) {
             return PropertyName.USE_DEFAULT;
         }
         return null;
@@ -970,12 +985,7 @@ public class JacksonAnnotationIntrospector
         if (ctorName != null) {
             return ctorName;
         }
-        // 20-Nov-2015, tatu: as per [databind#1014]: should figure out a better way to do this
-        if (_hasAnnotation(a, JsonDeserialize.class)
-                || _hasAnnotation(a, JsonView.class)
-                || _hasAnnotation(a, JsonUnwrapped.class)
-                || _hasAnnotation(a, JsonBackReference.class)
-                || _hasAnnotation(a, JsonManagedReference.class)) {
+        if (_hasOneOf(a, ANNOTATIONS_TO_INFER_DESER)) {
             return PropertyName.USE_DEFAULT;
         }
         return null;

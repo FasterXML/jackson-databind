@@ -171,6 +171,15 @@ public abstract class ValueInstantiator
                 getValueTypeDesc());
     }
 
+    /**
+     * Method to called to create value instance from JSON Array using
+     * an intermediate "delegate" value to pass to createor method
+     */
+    public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+        throw ctxt.mappingException("Can not instantiate value of type %s using delegate",
+                getValueTypeDesc());
+    }
+
     /*
     /**********************************************************
     /* Instantiation methods for JSON scalar types

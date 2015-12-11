@@ -28,6 +28,7 @@ public class CreatorCollector
     protected final static int C_BOOLEAN = 5;
     protected final static int C_DELEGATE = 6;
     protected final static int C_PROPS = 7;
+    protected final static int C_ARRAY_DELEGATE = 8;
 
     protected final static String[] TYPE_DESCS = new String[] {
         "default",
@@ -50,7 +51,7 @@ public class CreatorCollector
      * 
      * @since 2.5
      */
-    protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[8];
+    protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[9];
 
     /**
      * Bitmask of creators that were explicitly marked as creators; false for auto-detected
@@ -64,6 +65,8 @@ public class CreatorCollector
 
     // when there are injectable values along with delegate:
     protected SettableBeanProperty[] _delegateArgs;
+
+    protected SettableBeanProperty[] _arrayDelegateArgs;
 
     protected SettableBeanProperty[] _propertyBasedArgs;
 
@@ -84,32 +87,13 @@ public class CreatorCollector
 
     public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
     {
-        JavaType delegateType;
-        boolean maybeVanilla = !_hasNonDefaultCreator;
-
-        if (maybeVanilla || (_creators[C_DELEGATE] == null)) {
-            delegateType = null;
-        } else {
-            // need to find type...
-            int ix = 0;
-            if (_delegateArgs != null) {
-                for (int i = 0, len = _delegateArgs.length; i < len; ++i) {
-                    if (_delegateArgs[i] == null) { // marker for delegate itself
-                        ix = i;
-                        break;
-                    }
-                }
-            }
-            delegateType = _creators[C_DELEGATE].getParameterType(ix);
-        }
-
+        final JavaType delegateType = _computeDelegateType(_creators[C_DELEGATE], _delegateArgs);
+        final JavaType arrayDelegateType = _computeDelegateType(_creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
         final JavaType type = _beanDesc.getType();
 
         // Any non-standard creator will prevent; with one exception: int-valued constructor
         // that standard containers have can be ignored
-        maybeVanilla &= !_hasNonDefaultCreator;
-
-        if (maybeVanilla) {
+        if (!_hasNonDefaultCreator) {
             /* 10-May-2014, tatu: If we have nothing special, and we are dealing with one
              *   of "well-known" types, can create a non-reflection-based instantiator.
              */
@@ -129,6 +113,7 @@ public class CreatorCollector
         inst.configureFromObjectSettings(_creators[C_DEFAULT],
                 _creators[C_DELEGATE], delegateType, _delegateArgs,
                 _creators[C_PROPS], _propertyBasedArgs);
+        inst.configureFromArraySettings(_creators[C_ARRAY_DELEGATE], arrayDelegateType, _arrayDelegateArgs);
         inst.configureFromStringCreator(_creators[C_STRING]);
         inst.configureFromIntCreator(_creators[C_INT]);
         inst.configureFromLongCreator(_creators[C_LONG]);
@@ -176,8 +161,13 @@ public class CreatorCollector
     public void addDelegatingCreator(AnnotatedWithParams creator, boolean explicit,
             SettableBeanProperty[] injectables)
     {
-        verifyNonDup(creator, C_DELEGATE, explicit);
-        _delegateArgs = injectables;
+        if (creator.getParameterType(0).isCollectionLikeType()) {
+            verifyNonDup(creator, C_ARRAY_DELEGATE, explicit);
+            _arrayDelegateArgs = injectables;
+        } else {
+            verifyNonDup(creator, C_DELEGATE, explicit);
+            _delegateArgs = injectables;
+        }
     }
     
     public void addPropertyCreator(AnnotatedWithParams creator, boolean explicit,
@@ -275,6 +265,25 @@ public class CreatorCollector
     /* Helper methods
     /**********************************************************
      */
+
+    private JavaType _computeDelegateType(AnnotatedWithParams creator, SettableBeanProperty[] delegateArgs)
+    {
+        if (!_hasNonDefaultCreator || (creator == null)) {
+            return null;
+        } else {
+            // need to find type...
+            int ix = 0;
+            if (delegateArgs != null) {
+                for (int i = 0, len = delegateArgs.length; i < len; ++i) {
+                    if (delegateArgs[i] == null) { // marker for delegate itself
+                        ix = i;
+                        break;
+                    }
+                }
+            }
+            return creator.getParameterType(ix);
+        }
+    }
 
     private <T extends AnnotatedMember> T _fixAccess(T member)
     {

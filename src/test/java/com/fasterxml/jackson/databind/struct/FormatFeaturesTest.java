@@ -47,9 +47,24 @@ public class FormatFeaturesTest extends BaseMapTest
         public String[] values;
     }
 
+    static class IntArrayWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public int[] values;
+    }
+    static class LongArrayWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public long[] values;
+    }
+
+    
     static class StringListWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public List<String> values;
+    }
+
+    static class EnumSetWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public EnumSet<ABC> values;
     }
     
     static class RolesInArray {
@@ -66,10 +81,10 @@ public class FormatFeaturesTest extends BaseMapTest
         public String ID;
         public String Name;
     }
-    
+
     /*
     /**********************************************************
-    /* Test methods
+    /* Test methods, writing with single-element unwrapping
     /**********************************************************
      */
     
@@ -109,7 +124,13 @@ public class FormatFeaturesTest extends BaseMapTest
                 .writeValueAsString(new WrapWriteWithCollections()));
     }
 
-    public void testSingleStringArray() throws Exception {
+    /*
+    /**********************************************************
+    /* Test methods, reading with single-element unwrapping
+    /**********************************************************
+     */
+
+    public void testSingleStringArrayRead() throws Exception {
         String json = aposToQuotes(
                 "{ 'values': 'first' }");
         StringArrayWrapper result = MAPPER.readValue(json, StringArrayWrapper.class);
@@ -118,7 +139,34 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals("first", result.values[0]);
     }
 
-    public void testSingleStringList() throws Exception {
+    public void testSingleIntArrayRead() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': 123 }");
+        IntArrayWrapper result = MAPPER.readValue(json, IntArrayWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.length);
+        assertEquals(123, result.values[0]);
+    }
+
+    public void testSingleLongArrayRead() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': -205 }");
+        LongArrayWrapper result = MAPPER.readValue(json, LongArrayWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.length);
+        assertEquals(-205L, result.values[0]);
+    }
+
+    public void testSingleElementArrayRead() throws Exception {
+        String json = aposToQuotes(
+                "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
+        RolesInArray response = MAPPER.readValue(json, RolesInArray.class);
+        assertNotNull(response.roles);
+        assertEquals(1, response.roles.length);
+        assertEquals("333", response.roles[0].ID);
+    }
+    
+    public void testSingleStringListRead() throws Exception {
         String json = aposToQuotes(
                 "{ 'values': 'first' }");
         StringListWrapper result = MAPPER.readValue(json, StringListWrapper.class);
@@ -126,8 +174,8 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals(1, result.values.size());
         assertEquals("first", result.values.get(0));
     }
-    
-    public void testSingleElementList() throws Exception {
+
+    public void testSingleElementListRead() throws Exception {
         String json = aposToQuotes(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
         RolesInList response = MAPPER.readValue(json, RolesInList.class);
@@ -136,12 +184,11 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals("333", response.roles.get(0).ID);
     }
 
-    public void testSingleElementArray() throws Exception {
-        String json = aposToQuotes(
-                "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
-        RolesInArray response = MAPPER.readValue(json, RolesInArray.class);
-        assertNotNull(response.roles);
-        assertEquals(1, response.roles.length);
-        assertEquals("333", response.roles[0].ID);
+    public void testSingleEnumSetRead() throws Exception {
+        String json = aposToQuotes("{ 'values': 'B' }");
+        EnumSetWrapper result = MAPPER.readValue(json, EnumSetWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.size());
+        assertEquals(ABC.B, result.values.iterator().next());
     }
 }

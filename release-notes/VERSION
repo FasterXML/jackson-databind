@@ -50,6 +50,8 @@ Project: jackson-databind
  (contributed by Hugo W)
 #1011: Change ObjectWriter::withAttributes() to take a Map with some kind of wildcard types
  (suggested by David B)
+#1043: @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY) does not work on fields
+ (reported by fabiolaa@github)
 - Make `JsonValueFormat` (self-)serializable, deserializable, to/from valid external
   value (as per JSON Schema spec)
 

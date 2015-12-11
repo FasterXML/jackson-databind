@@ -98,8 +98,17 @@ public class ObjectArrayDeserializer
     /**
      * Overridable fluent-factory method used to create contextual instances
      */
-    @SuppressWarnings("unchecked")
     public ObjectArrayDeserializer withDeserializer(TypeDeserializer elemTypeDeser,
+            JsonDeserializer<?> elemDeser)
+    {
+        return withResolved(elemTypeDeser, elemDeser, _unwrapSingle);
+    }
+
+    /**
+     * @since 2.7
+     */
+    @SuppressWarnings("unchecked")
+    public ObjectArrayDeserializer withResolved(TypeDeserializer elemTypeDeser,
             JsonDeserializer<?> elemDeser, Boolean unwrapSingle)
     {
         if ((unwrapSingle == _unwrapSingle)
@@ -130,7 +139,7 @@ public class ObjectArrayDeserializer
         if (elemTypeDeser != null) {
             elemTypeDeser = elemTypeDeser.forProperty(property);
         }
-        return withDeserializer(elemTypeDeser, deser, unwrapSingle);
+        return withResolved(elemTypeDeser, deser, unwrapSingle);
     }
 
     @Override // since 2.5
@@ -163,7 +172,7 @@ public class ObjectArrayDeserializer
     
     @Override
     public Object[] deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
@@ -212,7 +221,7 @@ public class ObjectArrayDeserializer
     @Override
     public Object[] deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         /* Should there be separate handling for base64 stuff?
          * for now this should be enough:
@@ -227,7 +236,7 @@ public class ObjectArrayDeserializer
      */
     
     protected Byte[] deserializeFromBase64(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // First same as what PrimitiveArrayDeserializers.ByteDeser does:
         byte[] b = p.getBinaryValue(ctxt.getBase64Variant());
@@ -239,8 +248,8 @@ public class ObjectArrayDeserializer
         return result;
     }
 
-    private final Object[] handleNonArray(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object[] handleNonArray(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         // Empty String can become null...
         if (p.hasToken(JsonToken.VALUE_STRING)
@@ -255,7 +264,6 @@ public class ObjectArrayDeserializer
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
-
         if (!canWrap) {
             // One exception; byte arrays are generally serialized as base64, so that should be handled
             if (p.getCurrentToken() == JsonToken.VALUE_STRING

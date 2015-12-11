@@ -393,3 +393,7 @@ Shumpei Akai (flexfrank@github)
   * Reported #978: ObjectMapper#canSerialize(Object.class) returns false even though
    FAIL_ON_EMPTY_BEANS is disabled
    (2.7.0)
+
+Hugo Wood (hgwood@github)
+  * Contributed #1010: Support for array delegator
+   (2.7.0)

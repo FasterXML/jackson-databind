@@ -37,6 +37,7 @@ public class JacksonAnnotationIntrospector
             new Class<?>[] {
         JsonSerialize.class,
         JsonView.class,
+        JsonFormat.class,
         JsonRawValue.class,
         JsonUnwrapped.class,
         JsonBackReference.class,
@@ -48,6 +49,7 @@ public class JacksonAnnotationIntrospector
             new Class<?>[] {
         JsonDeserialize.class,
         JsonView.class,
+        JsonFormat.class,
         JsonUnwrapped.class,
         JsonBackReference.class,
         JsonManagedReference.class

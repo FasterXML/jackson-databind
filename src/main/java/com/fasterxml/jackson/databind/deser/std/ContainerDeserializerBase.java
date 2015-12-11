@@ -10,22 +10,13 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
 /**
  * Intermediate base deserializer class that adds more shared accessor
- * so that other classes can access information about contained (value)
- * types
+ * so that other classes can access information about contained (value) types
  */
 @SuppressWarnings("serial")
 public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>
 {
     protected ContainerDeserializerBase(JavaType selfType) {
-        super(selfType);
-    }
-
-    /**
-     * @deprecated Since 2.3 use one that takes {@link JavaType}
-     */
-    @Deprecated
-    protected ContainerDeserializerBase(Class<?> selfType) {
         super(selfType);
     }
 

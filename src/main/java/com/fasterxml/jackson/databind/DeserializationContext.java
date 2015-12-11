@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.*;
@@ -221,6 +222,21 @@ public abstract class DeserializationContext
     @Override
     public final Class<?> getActiveView() { return _view; }
 
+    @Override
+    public final boolean canOverrideAccessModifiers() {
+        return _config.canOverrideAccessModifiers();
+    }
+
+    @Override
+    public final boolean isEnabled(MapperFeature feature) {
+        return _config.isEnabled(feature);
+    }
+
+    @Override
+    public final JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
+        return _config.getDefaultPropertyFormat(baseType);
+    }
+    
     @Override
     public final AnnotationIntrospector getAnnotationIntrospector() {
         return _config.getAnnotationIntrospector();

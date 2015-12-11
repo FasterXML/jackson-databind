@@ -132,12 +132,11 @@ public interface BeanProperty extends Named
      *<pre>
      *   return intr.findFormat(getMember());
      *</pre>
+     * and specifically does NOT try to find per-type format defaults to merge;
+     * use {@link #findPropertyFormat} if such defaults would be useful.
      *
      * @since 2.6
-     * 
-     * @deprecated since 2.7 
      */
-    @Deprecated
     public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr);
 
     /**

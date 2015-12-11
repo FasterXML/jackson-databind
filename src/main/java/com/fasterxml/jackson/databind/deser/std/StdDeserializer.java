@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.NumberInput;
@@ -1004,7 +1005,45 @@ public abstract class StdDeserializer<T>
         }
         return existingDeserializer;
     }
-    
+
+    /**
+     * Helper method that may be used to find if this deserializer has specific
+     * {@link JsonFormat} settings, either via property, or through type-specific
+     * defaulting.
+     *
+     * @param typeForDefaults Type (erased) used for finding default format settings, if any
+     *
+     * @since 2.7
+     */
+    protected JsonFormat.Value findFormatOverrides(DeserializationContext ctxt,
+            BeanProperty prop, Class<?> typeForDefaults)
+    {
+        if (prop != null) {
+            return prop.findPropertyFormat(ctxt.getConfig(), typeForDefaults);
+        }
+        // even without property or AnnotationIntrospector, may have type-specific defaults
+        return ctxt.getDefaultPropertyFormat(typeForDefaults);
+    }
+
+    /**
+     * Convenience method that uses {@link #findFormatOverrides} to find possible
+     * defaults and/of overrides, and then calls {@link JsonFormat.Value#getFeature}
+     * to find whether that feature has been specifically marked as enabled or disabled.
+     * 
+     * @param typeForDefaults Type (erased) used for finding default format settings, if any
+     *
+     * @since 2.7
+     */
+    protected Boolean findFormatFeature(DeserializationContext ctxt,
+            BeanProperty prop, Class<?> typeForDefaults, JsonFormat.Feature feat)
+    {
+        JsonFormat.Value format = findFormatOverrides(ctxt, prop, typeForDefaults);
+        if (format != null) {
+            return format.getFeature(feat);
+        }
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Helper methods for sub-classes, problem reporting

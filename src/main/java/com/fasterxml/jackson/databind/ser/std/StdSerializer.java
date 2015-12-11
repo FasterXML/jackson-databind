@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
@@ -450,5 +451,43 @@ public abstract class StdSerializer<T>
         PropertyFilter filter = filters.findPropertyFilter(filterId, valueToFilter);
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
         return filter;
+    }
+
+    /**
+     * Helper method that may be used to find if this deserializer has specific
+     * {@link JsonFormat} settings, either via property, or through type-specific
+     * defaulting.
+     *
+     * @param typeForDefaults Type (erased) used for finding default format settings, if any
+     *
+     * @since 2.7
+     */
+    protected JsonFormat.Value findFormatOverrides(SerializerProvider provider,
+            BeanProperty prop, Class<?> typeForDefaults)
+    {
+        if (prop != null) {
+            return prop.findPropertyFormat(provider.getConfig(), typeForDefaults);
+        }
+        // even without property or AnnotationIntrospector, may have type-specific defaults
+        return provider.getDefaultPropertyFormat(typeForDefaults);
+    }
+
+    /**
+     * Convenience method that uses {@link #findFormatOverrides} to find possible
+     * defaults and/of overrides, and then calls {@link JsonFormat.Value#getFeature}
+     * to find whether that feature has been specifically marked as enabled or disabled.
+     * 
+     * @param typeForDefaults Type (erased) used for finding default format settings, if any
+     *
+     * @since 2.7
+     */
+    protected Boolean findFormatFeature(SerializerProvider provider,
+            BeanProperty prop, Class<?> typeForDefaults, JsonFormat.Feature feat)
+    {
+        JsonFormat.Value format = findFormatOverrides(provider, prop, typeForDefaults);
+        if (format != null) {
+            return format.getFeature(feat);
+        }
+        return null;
     }
 }

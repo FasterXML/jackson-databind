@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -88,7 +86,6 @@ public class StringArraySerializer
          *    and it may have overrides
          */
         JsonSerializer<?> ser = null;
-        Boolean unwrapSingle = null;
 
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
@@ -100,11 +97,11 @@ public class StringArraySerializer
                     ser = provider.serializerInstance(m, serDef);
                 }
             }
-            JsonFormat.Value format = property.findPropertyFormat(provider.getConfig(), String[].class);
-            if (format != null) {
-                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
-            }
         }
+        // but since formats have both property overrides and global per-type defaults,
+        // need to do that separately
+        Boolean unwrapSingle = findFormatFeature(provider, property, String[].class,
+                JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         if (ser == null) {
             ser = _elementSerializer;
         }

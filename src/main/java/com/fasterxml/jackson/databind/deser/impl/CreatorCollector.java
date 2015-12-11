@@ -174,7 +174,7 @@ public class CreatorCollector
             SettableBeanProperty[] properties)
     {
         verifyNonDup(creator, C_PROPS, explicit);
-        // [JACKSON-470] Better ensure we have no duplicate names either...
+        // Better ensure we have no duplicate names either...
         if (properties.length > 1) {
             HashMap<String,Integer> names = new HashMap<String,Integer>();
             for (int i = 0, len = properties.length; i < len; ++i) {

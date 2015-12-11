@@ -1,25 +1,26 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
-import java.util.Map;
-
-public class TestObjectOrArrayDeserialization extends BaseMapTest {
+public class TestObjectOrArrayDeserialization extends BaseMapTest
+{
 
     public static class ArrayOrObject {
         private final List<Object> objects;
         private final Object object;
 
-        @JsonCreator public ArrayOrObject(List<Object> objects) {
+        @JsonCreator
+        public ArrayOrObject(List<Object> objects) {
             this.objects = objects;
             this.object = null;
         }
 
-        @JsonCreator public ArrayOrObject(Object object) {
+        @JsonCreator
+        public ArrayOrObject(Object object) {
             this.objects = null;
             this.object = object;
         }
@@ -44,5 +45,4 @@ public class TestObjectOrArrayDeserialization extends BaseMapTest {
         assertEquals("expected objects field to have size 2", 2, arrayOrObject.objects.size());
         assertNull("expected object field to be null", arrayOrObject.object);
     }
-
 }

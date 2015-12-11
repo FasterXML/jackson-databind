@@ -287,7 +287,7 @@ public class CollectionDeserializer
             Collection<Object> result)
         throws IOException
     {
-        // [JACKSON-526]: implicit arrays from single values?
+        // Implicit arrays from single values?
         if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
             throw ctxt.mappingException(_collectionType.getRawClass());
         }

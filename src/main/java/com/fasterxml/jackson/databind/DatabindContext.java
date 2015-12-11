@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -59,9 +60,7 @@ public abstract class DatabindContext
      *  getConfig().isEnabled(feature);
      *</pre>
      */
-    public final boolean isEnabled(MapperFeature feature) {
-        return getConfig().isEnabled(feature);
-    }
+    public abstract boolean isEnabled(MapperFeature feature);
 
     /**
      * Convenience method for accessing serialization view in use (if any); equivalent to:
@@ -69,9 +68,7 @@ public abstract class DatabindContext
      *   getConfig().canOverrideAccessModifiers();
      *</pre>
      */
-    public final boolean canOverrideAccessModifiers() {
-        return getConfig().canOverrideAccessModifiers();
-    }
+    public abstract boolean canOverrideAccessModifiers();
 
     /**
      * Accessor for locating currently active view, if any;
@@ -89,6 +86,11 @@ public abstract class DatabindContext
      */
     public abstract TimeZone getTimeZone();
 
+    /**
+     * @since 2.7
+     */
+    public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
+    
     /*
     /**********************************************************
     /* Generic attributes (2.3+)

@@ -42,6 +42,32 @@ public class FormatFeaturesTest extends BaseMapTest
         public EnumSet<ABC> enums = EnumSet.of(ABC.B);
     }
 
+    static class StringArrayWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public String[] values;
+    }
+    
+    static class RolesInArray {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public Role[] roles;
+    }
+
+    static class RolesInList {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public List<Role> roles;
+    }
+    
+    static class Role {
+        public String ID;
+        public String Name;
+    }
+    
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testWithArrayTypes() throws Exception
@@ -76,5 +102,32 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
                 MAPPER.writer().without(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithCollections()));
+    }
+
+    public void testSingleStringArray() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': 'first' }");
+        StringArrayWrapper result = MAPPER.readValue(json, StringArrayWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.length);
+        assertEquals("first", result.values[0]);
+    }
+
+    public void testSingleElementList() throws Exception {
+        String json = aposToQuotes(
+                "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
+        RolesInList response = MAPPER.readValue(json, RolesInList.class);
+        assertNotNull(response.roles);
+        assertEquals(1, response.roles.size());
+        assertEquals("333", response.roles.get(0).ID);
+    }
+
+    public void testSingleElementArray() throws Exception {
+        String json = aposToQuotes(
+                "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
+        RolesInArray response = MAPPER.readValue(json, RolesInArray.class);
+        assertNotNull(response.roles);
+        assertEquals(1, response.roles.length);
+        assertEquals("333", response.roles[0].ID);
     }
 }

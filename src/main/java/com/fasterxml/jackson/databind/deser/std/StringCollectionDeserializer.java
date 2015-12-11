@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -46,6 +47,15 @@ public final class StringCollectionDeserializer
      */
     protected final JsonDeserializer<Object> _delegateDeserializer;
 
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether single value may be taken to mean an unwrapped one-element array
+     * or not. If null, left to global defaults.
+     *
+     * @since 2.7
+     */
+    protected final Boolean _unwrapSingle;
+    
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -57,29 +67,31 @@ public final class StringCollectionDeserializer
     public StringCollectionDeserializer(JavaType collectionType,
             JsonDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueInstantiator, null, valueDeser);
+        this(collectionType, valueInstantiator, null, valueDeser, null);
     }
 
     @SuppressWarnings("unchecked")
     protected StringCollectionDeserializer(JavaType collectionType,
             ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
-            JsonDeserializer<?> valueDeser)
+            JsonDeserializer<?> valueDeser, Boolean unwrapSingle)
     {
         super(collectionType);
         _collectionType = collectionType;
         _valueDeserializer = (JsonDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeser;
+        _unwrapSingle = unwrapSingle;
     }
 
     protected StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
-            JsonDeserializer<?> valueDeser)
+            JsonDeserializer<?> valueDeser, Boolean unwrapSingle)
     {
-        if ((_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
+        if ((_unwrapSingle == unwrapSingle)
+                && (_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
             return this;
         }
         return new StringCollectionDeserializer(_collectionType,
-                _valueInstantiator, delegateDeser, valueDeser);
+                _valueInstantiator, delegateDeser, valueDeser, unwrapSingle);
     }
 
     @Override // since 2.5
@@ -109,7 +121,7 @@ public final class StringCollectionDeserializer
         JsonDeserializer<?> valueDeser = _valueDeserializer;
         final JavaType valueType = _collectionType.getContentType();
         if (valueDeser == null) {
-            // #125: May have a content converter
+            // [databind#125]: May have a content converter
             valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
             if (valueDeser == null) {
             // And we may also need to get deserializer for String
@@ -117,11 +129,15 @@ public final class StringCollectionDeserializer
             }
         } else { // if directly assigned, probably not yet contextual, so:
             valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, valueType);
-        } 
+        }
+        // 11-Dec-2015, tatu: Should we pass basic `Collection.class`, or more refined? Mostly
+        //   comes down to "List vs Collection" I suppose... for now, pass Collection
+        Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
+                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         if (isDefaultDeserializer(valueDeser)) {
             valueDeser = null;
         }
-        return withResolved(delegate, valueDeser);
+        return withResolved(delegate, valueDeser, unwrapSingle);
     }
     
     /*
@@ -150,44 +166,44 @@ public final class StringCollectionDeserializer
     
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<String> deserialize(JsonParser jp, DeserializationContext ctxt)
+    public Collection<String> deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         if (_delegateDeserializer != null) {
             return (Collection<String>) _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(jp, ctxt));
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
         final Collection<String> result = (Collection<String>) _valueInstantiator.createUsingDefault(ctxt);
-        return deserialize(jp, ctxt, result);
+        return deserialize(p, ctxt, result);
     }
 
     @Override
-    public Collection<String> deserialize(JsonParser jp, DeserializationContext ctxt,
+    public Collection<String> deserialize(JsonParser p, DeserializationContext ctxt,
             Collection<String> result)
         throws IOException
     {
         // Ok: must point to START_ARRAY
-        if (!jp.isExpectedStartArrayToken()) {
-            return handleNonArray(jp, ctxt, result);
+        if (!p.isExpectedStartArrayToken()) {
+            return handleNonArray(p, ctxt, result);
         }
 
         if (_valueDeserializer != null) {
-            return deserializeUsingCustom(jp, ctxt, result, _valueDeserializer);
+            return deserializeUsingCustom(p, ctxt, result, _valueDeserializer);
         }
         try {
             while (true) {
                 // First the common case:
-                String value = jp.nextTextValue();
+                String value = p.nextTextValue();
                 if (value != null) {
                     result.add(value);
                     continue;
                 }
-                JsonToken t = jp.getCurrentToken();
+                JsonToken t = p.getCurrentToken();
                 if (t == JsonToken.END_ARRAY) {
                     break;
                 }
                 if (t != JsonToken.VALUE_NULL) {
-                    value = _parseString(jp, ctxt);
+                    value = _parseString(p, ctxt);
                 }
                 result.add(value);
             }
@@ -197,7 +213,7 @@ public final class StringCollectionDeserializer
         return result;
     }
     
-    private Collection<String> deserializeUsingCustom(JsonParser jp, DeserializationContext ctxt,
+    private Collection<String> deserializeUsingCustom(JsonParser p, DeserializationContext ctxt,
             Collection<String> result, final JsonDeserializer<String> deser) throws IOException
     {
         while (true) {
@@ -207,15 +223,15 @@ public final class StringCollectionDeserializer
              *   assume that's what we use due to custom deserializer
              */
             String value;
-            if (jp.nextTextValue() == null) {
-                JsonToken t = jp.getCurrentToken();
+            if (p.nextTextValue() == null) {
+                JsonToken t = p.getCurrentToken();
                 if (t == JsonToken.END_ARRAY) {
                     break;
                 }
                 // Ok: no need to convert Strings, but must recognize nulls
-                value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue(ctxt) : deser.deserialize(jp, ctxt);
+                value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue(ctxt) : deser.deserialize(p, ctxt);
             } else {
-                value = deser.deserialize(jp, ctxt);
+                value = deser.deserialize(p, ctxt);
             }
             result.add(value);
         }
@@ -223,9 +239,9 @@ public final class StringCollectionDeserializer
     }
     
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         // In future could check current token... for now this should be enough:
-        return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
     /**
@@ -233,22 +249,25 @@ public final class StringCollectionDeserializer
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
-    private final Collection<String> handleNonArray(JsonParser jp, DeserializationContext ctxt, Collection<String> result) throws IOException
+    private final Collection<String> handleNonArray(JsonParser p, DeserializationContext ctxt, Collection<String> result) throws IOException
     {
-        // [JACKSON-526]: implicit arrays from single values?
-        if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+        // implicit arrays from single values?
+        boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
+                ((_unwrapSingle == null) &&
+                        ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+        if (!canWrap) {
             throw ctxt.mappingException(_collectionType.getRawClass());
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
         JsonDeserializer<String> valueDes = _valueDeserializer;
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
 
         String value;
         
         if (t == JsonToken.VALUE_NULL) {
             value = (valueDes == null) ? null : valueDes.getNullValue(ctxt);
         } else {
-            value = (valueDes == null) ? _parseString(jp, ctxt) : valueDes.deserialize(jp, ctxt);
+            value = (valueDes == null) ? _parseString(p, ctxt) : valueDes.deserialize(p, ctxt);
         }
         result.add(value);
         return result;

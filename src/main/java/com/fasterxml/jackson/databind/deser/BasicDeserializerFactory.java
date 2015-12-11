@@ -1023,12 +1023,12 @@ public abstract class BasicDeserializerFactory
             if (deser == null) {
                 ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
                 if (!inst.canCreateUsingDefault()) {
-                    // [Issue#161]: No default constructor for ArrayBlockingQueue...
+                    // [databind#161]: No default constructor for ArrayBlockingQueue...
                     if (type.getRawClass() == ArrayBlockingQueue.class) {
                         return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst, null);
                     }
                 }
-                // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
+                // Can use more optimal deserializer if content type is String, so:
                 if (contentType.getRawClass() == String.class) {
                     // no value type deserializer because Strings are one of natural/native types:
                     deser = new StringCollectionDeserializer(type, contentDeser, inst);
@@ -1037,7 +1037,7 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
-        // and then new with 2.2: ability to post-process it too (Issue#120)
+        // allow post-processing it too
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyCollectionDeserializer(config, type, beanDesc, deser);

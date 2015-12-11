@@ -46,6 +46,11 @@ public class FormatFeaturesTest extends BaseMapTest
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public String[] values;
     }
+
+    static class StringListWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public List<String> values;
+    }
     
     static class RolesInArray {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
@@ -113,6 +118,15 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals("first", result.values[0]);
     }
 
+    public void testSingleStringList() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': 'first' }");
+        StringListWrapper result = MAPPER.readValue(json, StringListWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.size());
+        assertEquals("first", result.values.get(0));
+    }
+    
     public void testSingleElementList() throws Exception {
         String json = aposToQuotes(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");

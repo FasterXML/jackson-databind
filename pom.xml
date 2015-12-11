@@ -47,8 +47,8 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <!-- version could come from parent pom, but right now need an override -->
-      <version>2.7.0-rc2-SNAPSHOT</version>
+      <!-- version could come from parent pom, but until there is official release need to override -->
+      <version>2.7.0-rc2</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

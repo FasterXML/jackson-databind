@@ -26,15 +26,23 @@ public class ArrayBlockingQueueDeserializer
     /**********************************************************
      */
 
+     public ArrayBlockingQueueDeserializer(JavaType collectionType,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueInstantiator valueInstantiator)
+    {
+        super(collectionType, valueDeser, valueTypeDeser, valueInstantiator);
+    }
+
     /**
      * Constructor used when creating contextualized instances.
      */
-    public ArrayBlockingQueueDeserializer(JavaType collectionType,
+     protected ArrayBlockingQueueDeserializer(JavaType collectionType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
-            JsonDeserializer<Object> delegateDeser)
+            JsonDeserializer<Object> delegateDeser, Boolean unwrapSingle)
     {
-        super(collectionType, valueDeser, valueTypeDeser, valueInstantiator, delegateDeser);
+        super(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+                delegateDeser, unwrapSingle);
     }
 
     /**
@@ -51,14 +59,15 @@ public class ArrayBlockingQueueDeserializer
     @Override
     @SuppressWarnings("unchecked")
     protected ArrayBlockingQueueDeserializer withResolved(JsonDeserializer<?> dd,
-            JsonDeserializer<?> vd, TypeDeserializer vtd)
+            JsonDeserializer<?> vd, TypeDeserializer vtd, Boolean unwrapSingle)
     {
-        if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)) {
+        if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)
+                && (_unwrapSingle == unwrapSingle)) {
             return this;
         }
         return new ArrayBlockingQueueDeserializer(_collectionType,
                 (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd);
+                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
                 
     }
 

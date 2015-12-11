@@ -1025,7 +1025,7 @@ public abstract class BasicDeserializerFactory
                 if (!inst.canCreateUsingDefault()) {
                     // [databind#161]: No default constructor for ArrayBlockingQueue...
                     if (type.getRawClass() == ArrayBlockingQueue.class) {
-                        return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst, null);
+                        return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst);
                     }
                 }
                 // Can use more optimal deserializer if content type is String, so:

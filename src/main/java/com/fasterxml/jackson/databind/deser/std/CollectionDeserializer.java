@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -54,6 +55,15 @@ public class CollectionDeserializer
      */
     protected final JsonDeserializer<Object> _delegateDeserializer;
 
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether single value may be taken to mean an unwrapped one-element array
+     * or not. If null, left to global defaults.
+     *
+     * @since 2.7
+     */
+    protected final Boolean _unwrapSingle;
+
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -70,7 +80,7 @@ public class CollectionDeserializer
             JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null);
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null);
     }
 
     /**
@@ -79,7 +89,8 @@ public class CollectionDeserializer
     protected CollectionDeserializer(JavaType collectionType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
-            JsonDeserializer<Object> delegateDeser)
+            JsonDeserializer<Object> delegateDeser,
+            Boolean unwrapSingle)
     {
         super(collectionType);
         _collectionType = collectionType;
@@ -87,6 +98,7 @@ public class CollectionDeserializer
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = delegateDeser;
+        _unwrapSingle = unwrapSingle;
     }
 
     /**
@@ -101,21 +113,36 @@ public class CollectionDeserializer
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _unwrapSingle = src._unwrapSingle;
     }
 
     /**
      * Fluent-factory method call to construct contextual instance.
+     *
+     * @since 2.7
      */
     @SuppressWarnings("unchecked")
     protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
-            JsonDeserializer<?> vd, TypeDeserializer vtd)
+            JsonDeserializer<?> vd, TypeDeserializer vtd,
+            Boolean unwrapSingle)
     {
-        if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)) {
+        if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)
+                && (_unwrapSingle == unwrapSingle)) {
             return this;
         }
         return new CollectionDeserializer(_collectionType,
                 (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd);
+                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
+    }
+
+    /**
+     * @deprecated Since 2.7 as it does not pass `unwrapSingle`
+     */
+    @Deprecated // since 2.7 -- will not retain "unwrapSingle" setting
+    protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
+            JsonDeserializer<?> vd, TypeDeserializer vtd)
+    {
+        return withResolved(dd, vd, vtd, _unwrapSingle);
     }
 
     // Important: do NOT cache if polymorphic values
@@ -154,10 +181,13 @@ public class CollectionDeserializer
             }
             delegateDeser = findDeserializer(ctxt, delegateType, property);
         }
+        // [databind#1043]: allow per-property allow-wrapping of single overrides:
+        Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
+                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         JsonDeserializer<?> valueDeser = _valueDeserializer;
         
-        // #125: May have a content converter
+        // May have a content converter
         valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         final JavaType vt = _collectionType.getContentType();
         if (valueDeser == null) {
@@ -170,7 +200,7 @@ public class CollectionDeserializer
         if (valueTypeDeser != null) {
             valueTypeDeser = valueTypeDeser.forProperty(property);
         }
-        return withResolved(delegateDeser, valueDeser, valueTypeDeser);
+        return withResolved(delegateDeser, valueDeser, valueTypeDeser, unwrapSingle);
     }
     
     /*
@@ -208,7 +238,7 @@ public class CollectionDeserializer
          *  there is also possibility of "auto-wrapping" of single-element arrays.
          *  Hence we only accept empty String here.
          */
-        if (p.getCurrentToken() == JsonToken.VALUE_STRING) {
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
             String str = p.getText();
             if (str.length() == 0) {
                 return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
@@ -288,7 +318,10 @@ public class CollectionDeserializer
         throws IOException
     {
         // Implicit arrays from single values?
-        if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+        boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
+                ((_unwrapSingle == null) &&
+                        ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+        if (!canWrap) {
             throw ctxt.mappingException(_collectionType.getRawClass());
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;

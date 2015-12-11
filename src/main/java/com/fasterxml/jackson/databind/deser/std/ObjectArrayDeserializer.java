@@ -3,7 +3,10 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.lang.reflect.Array;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -51,12 +54,21 @@ public class ObjectArrayDeserializer
      */
     protected final TypeDeserializer _elementTypeDeserializer;
 
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether single value may be taken to mean an unwrapped one-element array
+     * or not. If null, left to global defaults.
+     *
+     * @since 2.7
+     */
+    protected final Boolean _unwrapSingle;
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public ObjectArrayDeserializer(ArrayType arrayType,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
@@ -66,20 +78,37 @@ public class ObjectArrayDeserializer
         _untyped = (_elementClass == Object.class);
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
+        _unwrapSingle = null;
     }
 
+    protected ObjectArrayDeserializer(ObjectArrayDeserializer base,
+            JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser,
+            Boolean unwrapSingle)
+    {
+        super(base._arrayType);
+        _arrayType = base._arrayType;
+        _elementClass = base._elementClass;
+        _untyped = base._untyped;
+
+        _elementDeserializer = elemDeser;
+        _elementTypeDeserializer = elemTypeDeser;
+        _unwrapSingle = unwrapSingle;
+    }
+    
     /**
      * Overridable fluent-factory method used to create contextual instances
      */
     @SuppressWarnings("unchecked")
     public ObjectArrayDeserializer withDeserializer(TypeDeserializer elemTypeDeser,
-            JsonDeserializer<?> elemDeser)
+            JsonDeserializer<?> elemDeser, Boolean unwrapSingle)
     {
-        if ((elemDeser == _elementDeserializer) && (elemTypeDeser == _elementTypeDeserializer)) {
+        if ((unwrapSingle == _unwrapSingle)
+                && (elemDeser == _elementDeserializer)
+                && (elemTypeDeser == _elementTypeDeserializer)) {
             return this;
         }
-        return new ObjectArrayDeserializer(_arrayType,
-                (JsonDeserializer<Object>) elemDeser, elemTypeDeser);
+        return new ObjectArrayDeserializer(this,
+                (JsonDeserializer<Object>) elemDeser, elemTypeDeser, unwrapSingle);
     }
 
     @Override
@@ -87,7 +116,9 @@ public class ObjectArrayDeserializer
             BeanProperty property) throws JsonMappingException
     {
         JsonDeserializer<?> deser = _elementDeserializer;
-        // #125: May have a content converter
+        Boolean unwrapSingle = findFormatFeature(ctxt, property, _arrayType.getRawClass(),
+                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        // May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
         final JavaType vt = _arrayType.getContentType();
         if (deser == null) {
@@ -99,7 +130,7 @@ public class ObjectArrayDeserializer
         if (elemTypeDeser != null) {
             elemTypeDeser = elemTypeDeser.forProperty(property);
         }
-        return withDeserializer(elemTypeDeser, deser);
+        return withDeserializer(elemTypeDeser, deser, unwrapSingle);
     }
 
     @Override // since 2.5
@@ -131,12 +162,12 @@ public class ObjectArrayDeserializer
      */
     
     @Override
-    public Object[] deserialize(JsonParser jp, DeserializationContext ctxt)
+    public Object[] deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         // Ok: must point to START_ARRAY (or equivalent)
-        if (!jp.isExpectedStartArrayToken()) {
-            return handleNonArray(jp, ctxt);
+        if (!p.isExpectedStartArrayToken()) {
+            return handleNonArray(p, ctxt);
         }
 
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
@@ -146,16 +177,16 @@ public class ObjectArrayDeserializer
         final TypeDeserializer typeDeser = _elementTypeDeserializer;
 
         try {
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 
                 if (t == JsonToken.VALUE_NULL) {
                     value = _elementDeserializer.getNullValue(ctxt);
                 } else if (typeDeser == null) {
-                    value = _elementDeserializer.deserialize(jp, ctxt);
+                    value = _elementDeserializer.deserialize(p, ctxt);
                 } else {
-                    value = _elementDeserializer.deserializeWithType(jp, ctxt, typeDeser);
+                    value = _elementDeserializer.deserializeWithType(p, ctxt, typeDeser);
                 }
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
@@ -179,14 +210,14 @@ public class ObjectArrayDeserializer
     }
 
     @Override
-    public Object[] deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object[] deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
         /* Should there be separate handling for base64 stuff?
          * for now this should be enough:
          */
-        return (Object[]) typeDeserializer.deserializeTypedFromArray(jp, ctxt);
+        return (Object[]) typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
     
     /*
@@ -195,11 +226,11 @@ public class ObjectArrayDeserializer
     /**********************************************************
      */
     
-    protected Byte[] deserializeFromBase64(JsonParser jp, DeserializationContext ctxt)
+    protected Byte[] deserializeFromBase64(JsonParser p, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         // First same as what PrimitiveArrayDeserializers.ByteDeser does:
-        byte[] b = jp.getBinaryValue(ctxt.getBase64Variant());
+        byte[] b = p.getBinaryValue(ctxt.getBase64Variant());
         // But then need to convert to wrappers
         Byte[] result = new Byte[b.length];
         for (int i = 0, len = b.length; i < len; ++i) {
@@ -208,38 +239,41 @@ public class ObjectArrayDeserializer
         return result;
     }
 
-    private final Object[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
+    private final Object[] handleNonArray(JsonParser p, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        // [JACKSON-620] Empty String can become null...
-        if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
+        // Empty String can become null...
+        if (p.hasToken(JsonToken.VALUE_STRING)
                 && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-            String str = jp.getText();
+            String str = p.getText();
             if (str.length() == 0) {
                 return null;
             }
         }
         
         // Can we do implicit coercion to a single-element array still?
-        if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-            /* 04-Oct-2009, tatu: One exception; byte arrays are generally
-             *   serialized as base64, so that should be handled
-             */
-            if (jp.getCurrentToken() == JsonToken.VALUE_STRING
-                && _elementClass == Byte.class) {
-                return deserializeFromBase64(jp, ctxt);
+        boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
+                ((_unwrapSingle == null) &&
+                        ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+
+        if (!canWrap) {
+            // One exception; byte arrays are generally serialized as base64, so that should be handled
+            if (p.getCurrentToken() == JsonToken.VALUE_STRING
+                    // note: not `byte[]`, but `Byte[]` -- former is primitive array
+                    && _elementClass == Byte.class) {
+                return deserializeFromBase64(p, ctxt);
             }
             throw ctxt.mappingException(_arrayType.getRawClass());
         }
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
             value = _elementDeserializer.getNullValue(ctxt);
         } else if (_elementTypeDeserializer == null) {
-            value = _elementDeserializer.deserialize(jp, ctxt);
+            value = _elementDeserializer.deserialize(p, ctxt);
         } else {
-            value = _elementDeserializer.deserializeWithType(jp, ctxt, _elementTypeDeserializer);
+            value = _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
         }
         // Ok: bit tricky, since we may want T[], not just Object[]
         Object[] result;

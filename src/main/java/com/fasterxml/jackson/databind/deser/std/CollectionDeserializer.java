@@ -182,6 +182,8 @@ public class CollectionDeserializer
             delegateDeser = findDeserializer(ctxt, delegateType, property);
         }
         // [databind#1043]: allow per-property allow-wrapping of single overrides:
+        // 11-Dec-2015, tatu: Should we pass basic `Collection.class`, or more refined? Mostly
+        //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:

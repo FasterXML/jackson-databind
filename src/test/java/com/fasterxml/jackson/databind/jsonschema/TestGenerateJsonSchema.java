@@ -1,10 +1,11 @@
 package com.fasterxml.jackson.databind.jsonschema;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -105,6 +106,12 @@ public class TestGenerateJsonSchema
     static class Name {
         public String first, last;
     }
+
+    @JsonPropertyOrder({ "dec", "bigInt" })
+    static class Numbers {
+        public BigDecimal dec;
+        public BigInteger bigInt;
+    }
     
     /*
     /**********************************************************
@@ -117,8 +124,7 @@ public class TestGenerateJsonSchema
     /**
      * tests generating json-schema stuff.
      */
-    public void testGeneratingJsonSchema()
-        throws Exception
+    public void testOldSchemaGeneration() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
         
@@ -190,34 +196,18 @@ public class TestGenerateJsonSchema
      * Additional unit test for verifying that schema object itself
      * can be properly serialized
      */
-    public void testSchemaSerialization()
-            throws Exception
+    public void testSchemaSerialization() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
-	Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
-	assertNotNull(result);
-	// no need to check out full structure, just basics...
-	assertEquals("object", result.get("type"));
-	// only add 'required' if it is true...
-	assertNull(result.get("required"));
-	assertNotNull(result.get("properties"));
+        Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
+        assertNotNull(result);
+        // no need to check out full structure, just basics...
+        assertEquals("object", result.get("type"));
+        // only add 'required' if it is true...
+        assertNull(result.get("required"));
+        assertNotNull(result.get("properties"));
     }
 
-    public void testInvalidCall()
-        throws Exception
-    {
-        // not ok to pass null
-        try {
-            MAPPER.generateJsonSchema(null);
-            fail("Should have failed");
-        } catch (IllegalArgumentException iae) {
-            verifyException(iae, "class must be provided");
-        }
-    }
-
-    /**
-     * Test for [JACKSON-454]
-     */
     public void testThatObjectsHaveNoItems() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
@@ -236,7 +226,7 @@ public class TestGenerateJsonSchema
                 json);
     }
 
-    // [Issue#271]
+    // [databind#271]
     public void testUnwrapping()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
@@ -247,4 +237,14 @@ public class TestGenerateJsonSchema
         assertEquals(EXP, json);
     }
 
+    // 
+    public void testNumberTypes()  throws Exception
+    {
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(Numbers.class);
+        String json = quotesToApos(jsonSchema.toString());
+        String EXP = "{'type':'object',"
+                +"'properties':{'dec':{'type':'number'},"
+                +"'bigInt':{'type':'integer'}}}";
+        assertEquals(EXP, json);
+    }
 }

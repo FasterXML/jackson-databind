@@ -75,71 +75,71 @@ public interface JsonFormatVisitorWrapper extends JsonFormatVisitorWithSerialize
         public Base() { }
 
         public Base(SerializerProvider p) {
-             _provider = p;
+            _provider = p;
         }
 
         @Override
         public SerializerProvider getProvider() {
-             return _provider;
+            return _provider;
         }
 
         @Override
         public void setProvider(SerializerProvider p) {
-             _provider = p;
+            _provider = p;
         }
 
         @Override
         public JsonObjectFormatVisitor expectObjectFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
 
         @Override
         public JsonArrayFormatVisitor expectArrayFormat(JavaType type)
                   throws JsonMappingException {
-             return null;
+            return null;
         }
 
         @Override
         public JsonStringFormatVisitor expectStringFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
 
         @Override
         public JsonNumberFormatVisitor expectNumberFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
 
         @Override
         public JsonIntegerFormatVisitor expectIntegerFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
 
         @Override
         public JsonBooleanFormatVisitor expectBooleanFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
 
         @Override
         public JsonNullFormatVisitor expectNullFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
 
         @Override
         public JsonAnyFormatVisitor expectAnyFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
 
         @Override
         public JsonMapFormatVisitor expectMapFormat(JavaType type)
-                  throws JsonMappingException {
-             return null;
+                throws JsonMappingException {
+            return null;
         }
    }
 }

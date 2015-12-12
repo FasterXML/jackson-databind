@@ -253,4 +253,8 @@ public abstract class BaseMapTest
     protected static String aposToQuotes(String json) {
         return json.replace("'", "\"");
     }
+
+    protected static String quotesToApos(String json) {
+        return json.replace("\"", "'");
+    }
 }

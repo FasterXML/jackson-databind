@@ -474,7 +474,7 @@ public abstract class StdSerializer<T>
 
     /**
      * Convenience method that uses {@link #findFormatOverrides} to find possible
-     * defaults and/of overrides, and then calls {@link JsonFormat.Value#getFeature}
+     * defaults and/of overrides, and then calls <code>JsonFormat.Value.getFeature(...)</code>
      * to find whether that feature has been specifically marked as enabled or disabled.
      * 
      * @param typeForDefaults Type (erased) used for finding default format settings, if any

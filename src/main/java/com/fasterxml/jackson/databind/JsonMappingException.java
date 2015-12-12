@@ -10,7 +10,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Checked exception used to signal fatal problems with mapping of
- * content.
+ * content, distinct from low-level I/O problems (signaled using
+ * simple {@link java.io.IOException}s) or data encoding/decoding
+ * problems (signaled with {@link com.fasterxml.jackson.core.JsonParseException},
+ * {@link com.fasterxml.jackson.core.JsonGenerationException}).
  *<p>
  * One additional feature is the ability to denote relevant path
  * of references (during serialization/deserialization) to help in

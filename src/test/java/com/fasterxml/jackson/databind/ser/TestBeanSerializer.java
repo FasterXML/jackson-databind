@@ -157,7 +157,7 @@ public class TestBeanSerializer extends BaseMapTest
         {
             JavaType strType = config.constructType(String.class);
             // we need a valid BeanPropertyDefinition; this will do (just need name to match)
-            POJOPropertyBuilder prop = new POJOPropertyBuilder(new PropertyName("bogus"), null, true);
+            POJOPropertyBuilder prop = new POJOPropertyBuilder(config, null, true, new PropertyName("bogus"));
             try {
                 AnnotatedField f = new AnnotatedField(null, EmptyBean.class.getDeclaredField("name"), null);
                 beanProperties.add(new BeanPropertyWriter(prop, f, null,

@@ -30,6 +30,11 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * so that different sets of annotations can be supported, and support
  * plugged-in dynamically.
  *<p>
+ * Although default implementations are based on using annotations as the only
+ * (or at least main) information source, custom implementations are not limited
+ * in such a way, and in fact there is no expectation they should be. So the name
+ * is bit of misnomer; this is a general configuration introspection facility.
+ *<p>
  * NOTE: due to rapid addition of new methods (and changes to existing methods),
  * it is <b>strongly</b> recommended that custom implementations should not directly
  * extend this class, but rather extend {@link NopAnnotationIntrospector}.
@@ -558,6 +563,19 @@ public abstract class AnnotationIntrospector
      * @since 2.6
      */
     public JsonProperty.Access findPropertyAccess(Annotated ann) { return null; }
+
+    /**
+     * Method called in cases where a class has two methods eligible to be used
+     * for the same logical property, and default logic is not enough to figure
+     * out clear precedence. Introspector may try to choose one to use; or, if
+     * unable, return `null` to indicate it can not resolve the problem.
+     *
+     * @since 2.7
+     */
+    public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
+            AnnotatedMethod setter1, AnnotatedMethod setter2) {
+        return null;
+    }
 
     /*
     /**********************************************************

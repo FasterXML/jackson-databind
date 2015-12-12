@@ -4,8 +4,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -21,6 +21,8 @@ public class POJOPropertyBuilder
      * (true) or deserialization (false)
      */
     protected final boolean _forSerialization;
+
+    protected final MapperConfig<?> _config;
 
     protected final AnnotationIntrospector _annotationIntrospector;
 
@@ -45,25 +47,27 @@ public class POJOPropertyBuilder
 
     protected Linked<AnnotatedMethod> _setters;
 
-    public POJOPropertyBuilder(PropertyName internalName, AnnotationIntrospector ai,
-            boolean forSerialization) {
-        this(internalName, internalName, ai, forSerialization);
+    public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
+            boolean forSerialization, PropertyName internalName) {
+        this(config, ai, forSerialization, internalName, internalName);
     }
 
-    protected POJOPropertyBuilder(PropertyName internalName, PropertyName name,
-            AnnotationIntrospector annotationIntrospector, boolean forSerialization)
+    protected POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
+            boolean forSerialization, PropertyName internalName, PropertyName name)
     {
+        _config = config;
+        _annotationIntrospector = ai;
         _internalName = internalName;
         _name = name;
-        _annotationIntrospector = annotationIntrospector;
         _forSerialization = forSerialization;
     }
 
     public POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
     {
+        _config = src._config;
+        _annotationIntrospector = src._annotationIntrospector;
         _internalName = src._internalName;
         _name = newName;
-        _annotationIntrospector = src._annotationIntrospector;
         _fields = src._fields;
         _ctorParameters = src._ctorParameters;
         _getters = src._getters;
@@ -269,9 +273,7 @@ public class POJOPropertyBuilder
         }
         // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
-             *   is in super-class from the other
-             */
+            // Allow masking, i.e. do not fail if one is in super-class from the other
             Class<?> currClass = curr.value.getDeclaringClass();
             Class<?> nextClass = next.value.getDeclaringClass();
             if (currClass != nextClass) {
@@ -283,13 +285,16 @@ public class POJOPropertyBuilder
                     continue;
                 }
             }
+            AnnotatedMethod nextM = next.value;
+            AnnotatedMethod currM = curr.value;
+
             /* 30-May-2014, tatu: Two levels of precedence:
              * 
              * 1. Regular setters ("setX(...)")
              * 2. Implicit, possible setters ("x(...)")
              */
-            int priNext = _setterPriority(next.value);
-            int priCurr = _setterPriority(curr.value);
+            int priNext = _setterPriority(nextM);
+            int priCurr = _setterPriority(currM);
 
             if (priNext != priCurr) {
                 if (priNext < priCurr) {
@@ -297,6 +302,21 @@ public class POJOPropertyBuilder
                 }
                 continue;
             }
+            // 11-Dec-2015, tatu: As per [databind#1033] allow pluggable conflict resolution
+            if (_annotationIntrospector != null) {
+                AnnotatedMethod pref = _annotationIntrospector.resolveSetterConflict(_config,
+                        currM, nextM);
+                
+                // note: should be one of nextM/currM; but no need to check
+                if (pref == currM) {
+                    continue;
+                }
+                if (pref == nextM) {
+                    curr = next;
+                    continue;
+                }
+            }
+            
             throw new IllegalArgumentException("Conflicting setter definitions for property \""+getName()+"\": "
                     +curr.value.getFullName()+" vs "+next.value.getFullName());
         }
@@ -408,7 +428,7 @@ public class POJOPropertyBuilder
     protected int _getterPriority(AnnotatedMethod m)
     {
         final String name = m.getName();
-        // [#238]: Also, regular getters have precedence over "is-getters"
+        // [databind#238]: Also, regular getters have precedence over "is-getters"
         if (name.startsWith("get") && name.length() > 3) {
             // should we check capitalization?
             return 1;
@@ -428,7 +448,7 @@ public class POJOPropertyBuilder
         }
         return 2;
     }
-    
+
     /*
     /**********************************************************
     /* Implementations of refinement accessors
@@ -885,7 +905,7 @@ public class POJOPropertyBuilder
         for (Linked<?> node = accessors; node != null; node = node.next) {
             PropertyName name = node.name;
             if (!node.isNameExplicit || name == null) { // no explicit name -- problem!
-                // [Issue#541] ... but only as long as it's visible
+                // [databind#541] ... but only as long as it's visible
                 if (!node.isVisible) {
                     continue;
                 }
@@ -896,7 +916,8 @@ public class POJOPropertyBuilder
             }
             POJOPropertyBuilder prop = props.get(name);
             if (prop == null) {
-                prop = new POJOPropertyBuilder(_internalName, name, _annotationIntrospector, _forSerialization);
+                prop = new POJOPropertyBuilder(_config, _annotationIntrospector, _forSerialization,
+                        _internalName, name);
                 props.put(name, prop);
             }
             // ultra-clumsy, part 2 -- lambdas would be nice here

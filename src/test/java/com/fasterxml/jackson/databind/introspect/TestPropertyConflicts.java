@@ -12,14 +12,14 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestPropertyConflicts extends BaseMapTest
 {
-    // For [JACKSON-694]: error message for conflicting getters sub-optimal
+    // error message for conflicting getters sub-optimal
     static class BeanWithConflict
     {
         public int getX() { return 3; }
         public boolean getx() { return false; }
     }
 
-    // [Issue#238]
+    // [databind#238]
     protected static class Getters1A
     {
         @JsonProperty
@@ -67,7 +67,7 @@ public class TestPropertyConflicts extends BaseMapTest
         }
     }
 
-    // For [Issue#541]
+    // For [databind#541]
     static class Bean541 {
         protected String str;
 
@@ -81,14 +81,13 @@ public class TestPropertyConflicts extends BaseMapTest
             return str;
         }
      }
-     
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
-    // for [JACKSON-694]
+
     public void testFailWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
@@ -100,7 +99,7 @@ public class TestPropertyConflicts extends BaseMapTest
         }
     }        
 
-    // [Issue#238]: ok to have getter, "isGetter"
+    // [databind#238]: ok to have getter, "isGetter"
     public void testRegularAndIsGetter() throws Exception
     {
         final ObjectWriter writer = objectWriter();

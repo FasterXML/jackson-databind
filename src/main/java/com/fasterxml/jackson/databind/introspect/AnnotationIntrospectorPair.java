@@ -467,10 +467,20 @@ public class AnnotationIntrospectorPair
         return JsonProperty.Access.AUTO;
     }
 
+    @Override // since 2.7
+    public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
+            AnnotatedMethod setter1, AnnotatedMethod setter2)
+    {
+        AnnotatedMethod res = _primary.resolveSetterConflict(config, setter1, setter2);
+        if (res == null) {
+            res = _secondary.resolveSetterConflict(config, setter1, setter2);
+        }
+        return res;
+    }
+
     // // // Serialization: type refinements
 
-    // since 2.7
-    @Override
+    @Override // since 2.7
     public JavaType refineSerializationType(MapperConfig<?> config,
             Annotated a, JavaType baseType) throws JsonMappingException
     {

@@ -414,6 +414,34 @@ public class JacksonAnnotationIntrospector
         return (ann == null) ? null : ann.value();
     }
 
+    @Override // since 2.7
+    public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
+            AnnotatedMethod setter1, AnnotatedMethod setter2)
+    {
+        Class<?> cls1 = setter1.getRawParameterType(0);
+        Class<?> cls2 = setter2.getRawParameterType(0);
+        
+        // First: prefer primitives over non-primitives
+        // 11-Dec-2015, tatu: TODO, perhaps consider wrappers for primitives too?
+        if (cls1.isPrimitive()) {
+            if (!cls2.isPrimitive()) {
+                return setter1;
+            }
+        } else if (cls2.isPrimitive()) {
+            return setter2;
+        }
+        
+        if (cls1 == String.class) {
+            if (cls2 != String.class) {
+                return setter1;
+            }
+        } else if (cls2 == String.class) {
+            return setter2;
+        }
+
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Annotations for Polymorphic Type handling

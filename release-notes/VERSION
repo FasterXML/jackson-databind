@@ -52,6 +52,8 @@ Project: jackson-databind
  (suggested by David B)
 #1043: @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY) does not work on fields
  (reported by fabiolaa@github)
+#1044: Add `AnnotationIntrospector.resolveSetterConflict(...)` to allow custom setter conflict resolution
+ (suggested by clydebarrow@github)
 - Make `JsonValueFormat` (self-)serializable, deserializable, to/from valid external
   value (as per JSON Schema spec)
 

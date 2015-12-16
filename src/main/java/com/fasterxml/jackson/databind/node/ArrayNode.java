@@ -23,9 +23,20 @@ import java.util.List;
 public class ArrayNode
     extends ContainerNode<ArrayNode>
 {
-    private final List<JsonNode> _children = new ArrayList<JsonNode>();
+    private final List<JsonNode> _children;
 
-    public ArrayNode(JsonNodeFactory nc) { super(nc); }
+    public ArrayNode(JsonNodeFactory nf) {
+        super(nf);
+        _children = new ArrayList<JsonNode>();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public ArrayNode(JsonNodeFactory nf, List<JsonNode> children) {
+        super(nf);
+        _children = children;
+    }
 
     @Override
     protected JsonNode _at(JsonPointer ptr) {

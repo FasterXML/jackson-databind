@@ -160,7 +160,7 @@ public class NewSchemaTest extends BaseMapTest
                         ser.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base() {
                             @Override
                             public JsonNumberFormatVisitor expectNumberFormat(
-                                    JavaType type) throws JsonMappingException {
+                                    JavaType t) throws JsonMappingException {
                                 return new JsonNumberFormatVisitor() {
                                     @Override
                                     public void format(JsonValueFormat format) {
@@ -178,7 +178,7 @@ public class NewSchemaTest extends BaseMapTest
                             }
 
                             @Override
-                            public JsonIntegerFormatVisitor expectIntegerFormat(JavaType type) throws JsonMappingException {
+                            public JsonIntegerFormatVisitor expectIntegerFormat(JavaType t) throws JsonMappingException {
                                 return new JsonIntegerFormatVisitor() {
                                     @Override
                                     public void format(JsonValueFormat format) {

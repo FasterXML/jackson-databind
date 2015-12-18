@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.5.5-1 (not released)
+
+#1051: Problem with Object Id and Type Id as Wrapper Object (regression in 2.5.1)
+
 2.5.5 (07-Dec-2015)
 
 #844: Using JsonCreator still causes invalid path references in JsonMappingException

@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
-    static abstract class SuperType {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    abstract static class SuperType {
     }
 
     @JsonTypeName("TypeB")
@@ -32,8 +32,8 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // "Empty" bean, to test [JACKSON-366]
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
-    static abstract class BaseBean { }
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    abstract static class BaseBean { }
     
     static class EmptyBean extends BaseBean { }
 
@@ -51,26 +51,26 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // And then [JACKSON-614]
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY,
-            property="#type",
-            defaultImpl=DefaultImpl.class)
-    static abstract class SuperTypeWithDefault { }
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY,
+            property = "#type",
+            defaultImpl = DefaultImpl.class)
+    abstract static class SuperTypeWithDefault { }
 
     static class DefaultImpl extends SuperTypeWithDefault {
         public int a;
     }
 
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="#type")
-    static abstract class SuperTypeWithoutDefault { }
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "#type")
+    abstract static class SuperTypeWithoutDefault { }
 
     static class DefaultImpl505 extends SuperTypeWithoutDefault {
         public int a;
     }
 
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type")
-    @JsonSubTypes({ @JsonSubTypes.Type(ImplX.class),
-          @JsonSubTypes.Type(ImplY.class) })
-    static abstract class BaseX { }
+    @JsonSubTypes({@JsonSubTypes.Type(ImplX.class),
+            @JsonSubTypes.Type(ImplY.class)})
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "type")
+    abstract static class BaseX { }
 
     @JsonTypeName("x")
     static class ImplX extends BaseX {

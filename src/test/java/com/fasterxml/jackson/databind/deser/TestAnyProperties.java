@@ -111,7 +111,7 @@ public class TestAnyProperties
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-    static abstract class Base { }
+    abstract static class Base { }
 
     static class Impl extends Base {
         public String value;

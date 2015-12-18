@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
 public class TestObjectIdWithPolymorphic extends BaseMapTest
 {
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "id")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
-    static abstract class Base
+    abstract static class Base
     {
         public int value;
         public Base next;
@@ -63,7 +63,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         public Process() { super(null); }
     }
     
-    public static abstract class Activity extends Base811 {
+    public abstract static class Activity extends Base811 {
         protected Activity parent;
         public Activity(Process owner, Activity parent) {
                 super(owner);

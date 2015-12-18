@@ -15,19 +15,19 @@ import com.fasterxml.jackson.databind.util.*;
 public class PropertyBuilder
 {
     // @since 2.7
-    private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
+    private static final Object NO_DEFAULT_MARKER = Boolean.FALSE;
     
-    final protected SerializationConfig _config;
-    final protected BeanDescription _beanDesc;
+    protected final SerializationConfig _config;
+    protected final BeanDescription _beanDesc;
 
     /**
      * Default inclusion mode for properties of the POJO for which
      * properties are collected; possibly overridden on
      * per-property basis.
      */
-    final protected JsonInclude.Value _defaultInclusion;
+    protected final JsonInclude.Value _defaultInclusion;
 
-    final protected AnnotationIntrospector _annotationIntrospector;
+    protected final AnnotationIntrospector _annotationIntrospector;
 
     /**
      * If a property has serialization inclusion value of

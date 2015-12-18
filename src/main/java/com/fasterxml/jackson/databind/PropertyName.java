@@ -16,8 +16,8 @@ public class PropertyName
 {
     private static final long serialVersionUID = 1L; // 2.5
 
-    private final static String _USE_DEFAULT = "";
-    private final static String _NO_NAME = "";
+    private static final String _USE_DEFAULT = "";
+    private static final String _NO_NAME = "";
 
     /**
      * Special placeholder value that indicates that name to use should be
@@ -25,14 +25,14 @@ public class PropertyName
      * null, as null means "no information available, whereas this value
      * indicates explicit defaulting.
      */
-    public final static PropertyName USE_DEFAULT = new PropertyName(_USE_DEFAULT, null);
+    public static final PropertyName USE_DEFAULT = new PropertyName(_USE_DEFAULT, null);
 
     /**
      * Special placeholder value that indicates that there is no name associated.
      * Exact semantics to use (if any) depend on actual annotation in use, but
      * commonly this value disables behavior for which name would be needed.
      */
-    public final static PropertyName NO_NAME = new PropertyName(new String(_NO_NAME), null);
+    public static final PropertyName NO_NAME = new PropertyName(new String(_NO_NAME), null);
     
     /**
      * Basic name of the property.

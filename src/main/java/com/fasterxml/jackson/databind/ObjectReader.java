@@ -39,7 +39,7 @@ public class ObjectReader
 {
     private static final long serialVersionUID = 1L; // since 2.5
 
-    private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
+    private static final JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
     /*
     /**********************************************************
@@ -146,7 +146,7 @@ public class ObjectReader
      * Root-level cached deserializers.
      * Passed by {@link ObjectMapper}, shared with it.
      */
-    final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
+    protected final ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
 
     /*
     /**********************************************************

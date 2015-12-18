@@ -20,31 +20,31 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class CreatorCollector
 {
     // Since 2.5
-    protected final static int C_DEFAULT = 0;
-    protected final static int C_STRING = 1;
-    protected final static int C_INT = 2;
-    protected final static int C_LONG = 3;
-    protected final static int C_DOUBLE = 4;
-    protected final static int C_BOOLEAN = 5;
-    protected final static int C_DELEGATE = 6;
-    protected final static int C_PROPS = 7;
-    protected final static int C_ARRAY_DELEGATE = 8;
+    protected static final int C_DEFAULT = 0;
+    protected static final int C_STRING = 1;
+    protected static final int C_INT = 2;
+    protected static final int C_LONG = 3;
+    protected static final int C_DOUBLE = 4;
+    protected static final int C_BOOLEAN = 5;
+    protected static final int C_DELEGATE = 6;
+    protected static final int C_PROPS = 7;
+    protected static final int C_ARRAY_DELEGATE = 8;
 
-    protected final static String[] TYPE_DESCS = new String[] {
+    protected static final String[] TYPE_DESCS = new String[] {
         "default",
         "String", "int", "long", "double", "boolean",
         "delegate", "property-based"
     };
 
     /// Type of bean being created
-    final protected BeanDescription _beanDesc;
+    protected final BeanDescription _beanDesc;
 
-    final protected boolean _canFixAccess;
+    protected final boolean _canFixAccess;
 
     /**
      * @since 2.7
      */
-    final protected boolean _forceAccess;
+    protected final boolean _forceAccess;
     
     /**
      * Set of creators we have collected so far
@@ -344,15 +344,15 @@ public class CreatorCollector
     /**********************************************************
      */
 
-    protected final static class Vanilla
+    protected static final class Vanilla
         extends ValueInstantiator
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        public final static int TYPE_COLLECTION = 1;
-        public final static int TYPE_MAP = 2;
-        public final static int TYPE_HASH_MAP = 3;
+        public static final int TYPE_COLLECTION = 1;
+        public static final int TYPE_MAP = 2;
+        public static final int TYPE_HASH_MAP = 3;
 
         private final int _type;
         

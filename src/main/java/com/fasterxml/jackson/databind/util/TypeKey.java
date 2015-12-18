@@ -45,19 +45,19 @@ public class TypeKey
         _hashCode = typed ? typedHash(key) : untypedHash(key);
     }
 
-    public final static int untypedHash(Class<?> cls) {
+    public static final int untypedHash(Class<?> cls) {
         return cls.getName().hashCode();
     }
 
-    public final static int typedHash(Class<?> cls) {
+    public static final int typedHash(Class<?> cls) {
         return cls.getName().hashCode()+1;
     }
 
-    public final static int untypedHash(JavaType type) {
+    public static final int untypedHash(JavaType type) {
         return type.hashCode() - 1;
     }
     
-    public final static int typedHash(JavaType type) {
+    public static final int typedHash(JavaType type) {
         return type.hashCode() - 2;
     }
     

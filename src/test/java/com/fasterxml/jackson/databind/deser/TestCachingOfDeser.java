@@ -52,8 +52,8 @@ public class TestCachingOfDeser extends BaseMapTest
     /**********************************************************
      */
 
-    final static String MAP_INPUT = "{\"map\":{\"a\":1}}";
-    final static String LIST_INPUT = "{\"list\":[1]}";
+    static final String MAP_INPUT = "{\"map\":{\"a\":1}}";
+    static final String LIST_INPUT = "{\"list\":[1]}";
 
     
     // Ok: first, use custom-annotated instance first, then standard

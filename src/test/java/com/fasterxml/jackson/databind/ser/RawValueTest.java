@@ -22,8 +22,8 @@ public class RawValueTest
      */
 
     /// Class for testing {@link JsonRawValue} annotations with getters returning String
-    @JsonPropertyOrder(alphabetic=true)
-    final static class ClassGetter<T>
+    @JsonPropertyOrder(alphabetic = true)
+    static final class ClassGetter<T>
     {
         protected final T _value;
     	

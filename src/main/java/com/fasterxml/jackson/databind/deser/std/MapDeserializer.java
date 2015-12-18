@@ -597,7 +597,7 @@ public class MapDeserializer
         reference.getRoid().appendReferring(referring);
     }
 
-    private final static class MapReferringAccumulator {
+    private static final class MapReferringAccumulator {
         private final Class<?> _valueType;
         private Map<Object,Object> _result;
         /**
@@ -655,7 +655,7 @@ public class MapDeserializer
      * The resolved object associated with {@link #key} comes before the values in
      * {@link #next}.
      */
-    final static class MapReferring extends Referring {
+    static final class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
         public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();

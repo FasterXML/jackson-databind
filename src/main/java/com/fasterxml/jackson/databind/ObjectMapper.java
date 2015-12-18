@@ -255,26 +255,26 @@ public class ObjectMapper
     // Quick little shortcut, to avoid having to use global TypeFactory instance...
     // 19-Oct-2015, tatu: Not sure if this is really safe to do; let's at least allow
     //   some amount of introspection
-    private final static JavaType JSON_NODE_TYPE =
+    private static final JavaType JSON_NODE_TYPE =
             SimpleType.constructUnsafe(JsonNode.class);
 //            TypeFactory.defaultInstance().constructType(JsonNode.class);
 
     // 16-May-2009, tatu: Ditto ^^^
-    protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
+    protected static final AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
 
-    protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
+    protected static final VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
 
     /**
      * @deprecated Since 2.6, do not use: will be removed in 2.7 or later
      */
     @Deprecated
-    protected final static PrettyPrinter _defaultPrettyPrinter = new DefaultPrettyPrinter();
+    protected static final PrettyPrinter _defaultPrettyPrinter = new DefaultPrettyPrinter();
 
     /**
      * Base settings contain defaults used for all {@link ObjectMapper}
      * instances.
      */
-    protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
+    protected static final BaseSettings DEFAULT_BASE = new BaseSettings(
             null, // can not share global ClassIntrospector any more (2.5+)
             DEFAULT_ANNOTATION_INTROSPECTOR,
             STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
@@ -427,7 +427,7 @@ public class ObjectMapper
      * no type information is needed for base type), or type-wrapped
      * deserializers (if it is needed)
      */
-    final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers
+    protected final ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers
         = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.6f, 2);
 
     /*

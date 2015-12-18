@@ -17,13 +17,13 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     /**
      * Polymorphic base class - existing property as simple property on subclasses
      */
-	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type",
-	        visible=true)
-	@JsonSubTypes({
-		@Type(value = Apple.class, name = "apple") ,
-		@Type(value = Orange.class, name = "orange") 
-		})
-	static abstract class Fruit {
+    @JsonSubTypes({
+            @Type(value = Apple.class, name = "apple"),
+            @Type(value = Orange.class, name = "orange")
+    })
+    @JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type",
+            visible = true)
+    abstract static class Fruit {
         public String name;
         protected Fruit(String n)  { name = n; }
     }
@@ -65,12 +65,12 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     /**
      * Polymorphic base class - existing property forced by abstract method
      */
-	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
-	@JsonSubTypes({
-		@Type(value = Dog.class, name = "doggie") ,
-		@Type(value = Cat.class, name = "kitty") 
-		})
-	static abstract class Animal {
+    @JsonSubTypes({
+            @Type(value = Dog.class, name = "doggie"),
+            @Type(value = Cat.class, name = "kitty")
+    })
+    @JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
+    abstract static class Animal {
         public String name;
         
         protected Animal(String n)  { name = n; }
@@ -122,12 +122,12 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     /**
      * Polymorphic base class - existing property NOT forced by abstract method on base class
      */
-	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
-	@JsonSubTypes({
-		@Type(value = Accord.class, name = "accord") ,
-		@Type(value = Camry.class, name = "camry") 
-		})
-	static abstract class Car {
+    @JsonSubTypes({
+            @Type(value = Accord.class, name = "accord"),
+            @Type(value = Camry.class, name = "camry")
+    })
+    @JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
+    abstract static class Car {
         public String name;        
         protected Car(String n)  { name = n; }
     }

@@ -31,7 +31,7 @@ public abstract class BeanDeserializerBase
 {
     private static final long serialVersionUID = 1;
 
-    protected final static PropertyName TEMP_PROPERTY_NAME = new PropertyName("#temporary-name");
+    protected static final PropertyName TEMP_PROPERTY_NAME = new PropertyName("#temporary-name");
 
     /*
     /**********************************************************
@@ -47,17 +47,17 @@ public abstract class BeanDeserializerBase
      *<p> 
      * Transient since annotations only used during construction.
      */
-    final private transient Annotations _classAnnotations;
+    private final transient Annotations _classAnnotations;
 
     /**
      * Declared type of the bean this deserializer handles.
      */
-    final protected JavaType _beanType;
+    protected final JavaType _beanType;
 
     /**
      * Requested shape from bean class annotations.
      */
-    final protected JsonFormat.Shape _serializationShape;
+    protected final JsonFormat.Shape _serializationShape;
     
     /*
     /**********************************************************
@@ -116,7 +116,7 @@ public abstract class BeanDeserializerBase
      * Mapping of property names to properties, built when all properties
      * to use have been successfully resolved.
      */
-    final protected BeanPropertyMap _beanProperties;
+    protected final BeanPropertyMap _beanProperties;
 
     /**
      * List of {@link ValueInjector}s, if any injectable values are
@@ -124,7 +124,7 @@ public abstract class BeanDeserializerBase
      * This includes injectors used for injecting values via setters
      * and fields, but not ones passed through constructor parameters.
      */
-    final protected ValueInjector[] _injectables;
+    protected final ValueInjector[] _injectables;
 
     /**
      * Fallback setter used for handling any properties that are not
@@ -138,25 +138,25 @@ public abstract class BeanDeserializerBase
      * track of recognized but ignorable properties: these will
      * be skipped without errors or warnings.
      */
-    final protected HashSet<String> _ignorableProps;
+    protected final HashSet<String> _ignorableProps;
 
     /**
      * Flag that can be set to ignore and skip unknown properties.
      * If set, will not throw an exception for unknown properties.
      */
-    final protected boolean _ignoreAllUnknown;
+    protected final boolean _ignoreAllUnknown;
 
     /**
      * Flag that indicates that some aspect of deserialization depends
      * on active view used (if any)
      */
-    final protected boolean _needViewProcesing;
+    protected final boolean _needViewProcesing;
     
     /**
      * We may also have one or more back reference fields (usually
      * zero or one).
      */
-    final protected Map<String, SettableBeanProperty> _backRefs;
+    protected final Map<String, SettableBeanProperty> _backRefs;
     
     /*
     /**********************************************************

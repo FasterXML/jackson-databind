@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 @SuppressWarnings("serial")
 public class StdKeySerializers
 {
-    protected final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
+    protected static final JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
 
-    protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
+    protected static final JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
 
     private StdKeySerializers() { }
 
@@ -104,11 +104,11 @@ public class StdKeySerializers
      * as well as alternative configuration of Enum key serializers.
      */
     public static class Default extends StdSerializer<Object> {
-        final static int TYPE_DATE = 1;
-        final static int TYPE_CALENDAR = 2;
-        final static int TYPE_CLASS = 3;
-        final static int TYPE_ENUM = 4;
-        final static int TYPE_TO_STRING = 5;
+        static final int TYPE_DATE = 1;
+        static final int TYPE_CALENDAR = 2;
+        static final int TYPE_CLASS = 3;
+        static final int TYPE_ENUM = 4;
+        static final int TYPE_TO_STRING = 5;
 
         protected final int _typeId;
         

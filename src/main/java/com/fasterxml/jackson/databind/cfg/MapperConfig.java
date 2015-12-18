@@ -42,12 +42,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * @since 2.7
      */
-    protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
+    protected static final JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
     /**
      * @since 2.7
      */
-    protected final static JsonFormat.Value EMPTY_FORMAT = JsonFormat.Value.empty();
+    protected static final JsonFormat.Value EMPTY_FORMAT = JsonFormat.Value.empty();
 
     /**
      * Set of shared mapper features enabled.

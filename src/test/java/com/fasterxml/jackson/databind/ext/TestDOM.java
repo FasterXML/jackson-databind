@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestDOM extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    final static String SIMPLE_XML =
+    static final String SIMPLE_XML =
         "<root attr='3'><leaf>Rock &amp; Roll!</leaf><?proc instr?></root>";
-    final static String SIMPLE_XML_NS =
+    static final String SIMPLE_XML_NS =
         "<root ns:attr='abc' xmlns:ns='http://foo' />";
     
     public void testSerializeSimpleNonNS() throws Exception

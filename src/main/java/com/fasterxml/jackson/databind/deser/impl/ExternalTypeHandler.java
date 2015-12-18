@@ -291,7 +291,7 @@ public class ExternalTypeHandler
         }
     }
 
-    private final static class ExtTypedProperty
+    private static final class ExtTypedProperty
     {
         private final SettableBeanProperty _property;
         private final TypeDeserializer _typeDeserializer;

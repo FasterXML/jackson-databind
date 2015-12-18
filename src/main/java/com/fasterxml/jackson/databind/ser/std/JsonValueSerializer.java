@@ -85,7 +85,7 @@ public class JsonValueSerializer
     }
 
     @SuppressWarnings("unchecked")
-    private final static Class<Object> _notNullClass(Class<?> cls) {
+    private static final Class<Object> _notNullClass(Class<?> cls) {
         return (cls == null) ? Object.class : (Class<Object>) cls;
     }
     

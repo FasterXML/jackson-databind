@@ -13,11 +13,11 @@ public class TypeBindings
 {
     private static final long serialVersionUID = 1L;
 
-    private final static String[] NO_STRINGS = new String[0];
+    private static final String[] NO_STRINGS = new String[0];
 
-    private final static JavaType[] NO_TYPES = new JavaType[0];
+    private static final JavaType[] NO_TYPES = new JavaType[0];
 
-    private final static TypeBindings EMPTY = new TypeBindings(NO_STRINGS, NO_TYPES, null);
+    private static final TypeBindings EMPTY = new TypeBindings(NO_STRINGS, NO_TYPES, null);
 
     // // // Pre-resolved instances for minor optimizations
 
@@ -351,15 +351,15 @@ public class TypeBindings
      * used.
      */
     static class TypeParamStash {
-        private final static TypeVariable<?>[] VARS_ABSTRACT_LIST = AbstractList.class.getTypeParameters();
-        private final static TypeVariable<?>[] VARS_COLLECTION = Collection.class.getTypeParameters();
-        private final static TypeVariable<?>[] VARS_ITERABLE = Iterable.class.getTypeParameters();
-        private final static TypeVariable<?>[] VARS_LIST = List.class.getTypeParameters();
-        private final static TypeVariable<?>[] VARS_ARRAY_LIST = ArrayList.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_ABSTRACT_LIST = AbstractList.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_COLLECTION = Collection.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_ITERABLE = Iterable.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_LIST = List.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_ARRAY_LIST = ArrayList.class.getTypeParameters();
 
-        private final static TypeVariable<?>[] VARS_MAP = Map.class.getTypeParameters();
-        private final static TypeVariable<?>[] VARS_HASH_MAP = HashMap.class.getTypeParameters();
-        private final static TypeVariable<?>[] VARS_LINKED_HASH_MAP = LinkedHashMap.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_MAP = Map.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_HASH_MAP = HashMap.class.getTypeParameters();
+        private static final TypeVariable<?>[] VARS_LINKED_HASH_MAP = LinkedHashMap.class.getTypeParameters();
 
         public static TypeVariable<?>[] paramsFor1(Class<?> erasedType)
         {

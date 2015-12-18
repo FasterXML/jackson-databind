@@ -22,7 +22,7 @@ public final class StringArrayDeserializer
 {
     private static final long serialVersionUID = 2L;
 
-    public final static StringArrayDeserializer instance = new StringArrayDeserializer();
+    public static final StringArrayDeserializer instance = new StringArrayDeserializer();
 
     /**
      * Value serializer to use, if not the standard one (which is inlined)

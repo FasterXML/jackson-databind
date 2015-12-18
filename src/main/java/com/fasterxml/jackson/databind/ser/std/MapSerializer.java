@@ -35,7 +35,7 @@ public class MapSerializer
 {
     private static final long serialVersionUID = 1L;
 
-    protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
+    protected static final JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
 
     /**
      * Map-valued property being serialized with this instance

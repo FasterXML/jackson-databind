@@ -17,7 +17,7 @@ public class TestDefaultForObject
     /**********************************************************
      */
 
-    static abstract class AbstractBean { }
+    abstract static class AbstractBean { }
     
     static class StringBean extends AbstractBean { // ha, punny!
         public String name;
@@ -54,7 +54,7 @@ public class TestDefaultForObject
         }
     }
 
-    final static class BeanHolder
+    static final class BeanHolder
     {
         public AbstractBean bean;
         
@@ -62,7 +62,7 @@ public class TestDefaultForObject
         public BeanHolder(AbstractBean b) { bean = b; }
     }
 
-    final static class ObjectHolder
+    static final class ObjectHolder
     {
         public Object value;
 
@@ -79,7 +79,7 @@ public class TestDefaultForObject
         public String subject;
     }
 
-    static public class DomainBeanWrapper {
+    public static class DomainBeanWrapper {
         public String name;
         public Object myBean;
     }

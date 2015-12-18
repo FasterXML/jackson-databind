@@ -46,7 +46,7 @@ public class TestUnwrapped extends BaseMapTest
         }
     }
     
-    final static class Location {
+    static final class Location {
         public int x;
         public int y;
 

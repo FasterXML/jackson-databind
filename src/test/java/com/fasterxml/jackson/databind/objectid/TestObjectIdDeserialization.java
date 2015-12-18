@@ -190,7 +190,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
     
-    private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
+    private static final String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
 
     public void testSimpleDeserializationClass() throws Exception
     {
@@ -240,7 +240,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     // Bit more complex, due to extra wrapping etc:
-    private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
+    private static final String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
         
     public void testSimpleDeserializationProperty() throws Exception
     {
@@ -396,7 +396,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     /*****************************************************
      */
 
-    private final static String EXP_CUSTOM_VIA_CLASS = "{\"customId\":123,\"value\":-900,\"next\":123}";
+    private static final String EXP_CUSTOM_VIA_CLASS = "{\"customId\":123,\"value\":-900,\"next\":123}";
 
     public void testCustomDeserializationClass() throws Exception
     {
@@ -406,7 +406,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertSame(result, result.next);
     }
 
-    private final static String EXP_CUSTOM_VIA_PROP = "{\"node\":{\"customId\":3,\"value\":99,\"next\":{\"node\":3}}}";
+    private static final String EXP_CUSTOM_VIA_PROP = "{\"node\":{\"customId\":3,\"value\":99,\"next\":{\"node\":3}}}";
     
     public void testCustomDeserializationProperty() throws Exception
     {

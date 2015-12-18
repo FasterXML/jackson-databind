@@ -15,7 +15,7 @@ public final class ObjectBuffer
      * Also: let's expand by doubling up until 64k chunks (which is 16k entries for
      * 32-bit machines)
      */
-    private final static int SMALL_CHUNK = (1 << 14);
+    private static final int SMALL_CHUNK = (1 << 14);
 
     /**
      * Let's limit maximum size of chunks we use; helps avoid excessive allocation
@@ -23,7 +23,7 @@ public final class ObjectBuffer
      * For now, let's limit to quarter million entries, 1 meg chunks for 32-bit
      * machines.
      */
-    private final static int MAX_CHUNK = (1 << 18);
+    private static final int MAX_CHUNK = (1 << 18);
 
     // // // Data storage
 

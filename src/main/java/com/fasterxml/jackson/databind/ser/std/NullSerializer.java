@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class NullSerializer
     extends StdSerializer<Object>
 {
-    public final static NullSerializer instance = new NullSerializer();
+    public static final NullSerializer instance = new NullSerializer();
     
     private NullSerializer() { super(Object.class); }
     

@@ -166,7 +166,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     /**********************************************************
      */
     
-    public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
+    public abstract static class PropertyNamingStrategyBase extends PropertyNamingStrategy
     {
         @Override
         public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName)

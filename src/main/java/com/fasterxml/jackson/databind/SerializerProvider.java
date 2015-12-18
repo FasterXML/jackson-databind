@@ -48,9 +48,9 @@ public abstract class SerializerProvider
      * cached for faster resolution. Usually this isn't needed, but maybe it
      * is in some cases?
      */
-    protected final static boolean CACHE_UNKNOWN_MAPPINGS = false;
+    protected static final boolean CACHE_UNKNOWN_MAPPINGS = false;
 
-    public final static JsonSerializer<Object> DEFAULT_NULL_KEY_SERIALIZER =
+    public static final JsonSerializer<Object> DEFAULT_NULL_KEY_SERIALIZER =
         new FailingSerializer("Null key for a Map not allowed in JSON (use a converting NullKeySerializer?)");
 
     /**
@@ -62,7 +62,7 @@ public abstract class SerializerProvider
      *<p>
      * NOTE: changed to <code>protected</code> for 2.3; no need to be publicly available.
      */
-    protected final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
+    protected static final JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
 
     /*
     /**********************************************************
@@ -73,13 +73,13 @@ public abstract class SerializerProvider
     /**
      * Serialization configuration to use for serialization processing.
      */
-    final protected SerializationConfig _config;
+    protected final SerializationConfig _config;
 
     /**
      * View used for currently active serialization, if any.
      * Only set for non-blueprint instances.
      */
-    final protected Class<?> _serializationView;
+    protected final Class<?> _serializationView;
     
     /*
     /**********************************************************
@@ -91,7 +91,7 @@ public abstract class SerializerProvider
      * Factory used for constructing actual serializer instances.
      * Only set for non-blueprint instances.
      */
-    final protected SerializerFactory _serializerFactory;
+    protected final SerializerFactory _serializerFactory;
 
     /*
     /**********************************************************
@@ -102,7 +102,7 @@ public abstract class SerializerProvider
     /**
      * Cache for doing type-to-value-serializer lookups.
      */
-    final protected SerializerCache _serializerCache;
+    protected final SerializerCache _serializerCache;
 
     /**
      * Lazily-constructed holder for per-call attributes.

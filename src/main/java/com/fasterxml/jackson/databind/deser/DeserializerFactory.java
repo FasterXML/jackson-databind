@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.type.*;
  */
 public abstract class DeserializerFactory
 {
-    protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
+    protected static final Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
 
     /*
     /********************************************************

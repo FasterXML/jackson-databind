@@ -21,8 +21,8 @@ public class TestTypedDeserialization
     /**
      * Polymorphic base class
      */
-    @JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="@classy")
-    static abstract class Animal {
+    @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "@classy")
+    abstract static class Animal {
         public String name;
         
         protected Animal(String n)  { name = n; }
@@ -71,8 +71,8 @@ public class TestTypedDeserialization
     }
 
     // base class with no useful info
-    @JsonTypeInfo(use=Id.CLASS, include=As.WRAPPER_ARRAY)
-    static abstract class DummyBase {
+    @JsonTypeInfo(use = Id.CLASS, include = As.WRAPPER_ARRAY)
+    abstract static class DummyBase {
         protected DummyBase(boolean foo) { }
     }
 

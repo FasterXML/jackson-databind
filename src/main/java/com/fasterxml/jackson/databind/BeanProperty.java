@@ -31,8 +31,8 @@ import com.fasterxml.jackson.databind.util.Named;
  */
 public interface BeanProperty extends Named
 {
-    public final static JsonFormat.Value EMPTY_FORMAT = new JsonFormat.Value();
-    public final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
+    public static final JsonFormat.Value EMPTY_FORMAT = new JsonFormat.Value();
+    public static final JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
     /**
      * Method to get logical name of the property

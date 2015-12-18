@@ -20,7 +20,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
 {
     private static final long serialVersionUID = 1L;
 
-    private final static DocumentBuilderFactory _parserFactory;
+    private static final DocumentBuilderFactory _parserFactory;
     static {
         _parserFactory = DocumentBuilderFactory.newInstance();
         // yup, only cave men do XML without recognizing namespaces...

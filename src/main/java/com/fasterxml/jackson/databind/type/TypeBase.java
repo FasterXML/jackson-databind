@@ -15,8 +15,8 @@ public abstract class TypeBase
 {
     private static final long serialVersionUID = 1;
 
-    private final static TypeBindings NO_BINDINGS = TypeBindings.emptyBindings();
-    private final static JavaType[] NO_TYPES = new JavaType[0];
+    private static final TypeBindings NO_BINDINGS = TypeBindings.emptyBindings();
+    private static final JavaType[] NO_TYPES = new JavaType[0];
 
     protected final JavaType _superClass;
 
@@ -34,7 +34,7 @@ public abstract class TypeBase
     /**
      * Lazily initialized external representation of the type
      */
-    volatile transient String _canonicalName;
+    transient volatile String _canonicalName;
 
     /**
      * Main constructor to use by extending classes.

@@ -94,7 +94,7 @@ public class TypeParser
                 +"' (remaining: '"+tokens.getRemainingInput()+"'): "+msg);
     }
 
-    final static class MyTokenizer
+    static final class MyTokenizer
         extends StringTokenizer
     {
         protected final String _input;

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
 public class TestContextAttributeWithDeser extends BaseMapTest
 {
-    final static String KEY = "foobar";
+    static final String KEY = "foobar";
     
     @SuppressWarnings("serial")
     static class PrefixStringDeserializer extends StdScalarDeserializer<String>

@@ -38,7 +38,7 @@ public class TestJsonValue
      * method. Difference is between Integer serialization, and
      * conversion to a Json String.
      */
-    final static class ToStringValueClass<T>
+    static final class ToStringValueClass<T>
         extends ValueClass<T>
     {
         public ToStringValueClass(T value) { super(value); }
@@ -49,7 +49,7 @@ public class TestJsonValue
         @JsonValue T value() { return super.value(); }
     }
 
-    final static class ToStringValueClass2
+    static final class ToStringValueClass2
         extends ValueClass<String>
     {
         public ToStringValueClass2(String value) { super(value); }

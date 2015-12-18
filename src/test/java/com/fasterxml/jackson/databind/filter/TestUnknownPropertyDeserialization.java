@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 public class TestUnknownPropertyDeserialization
     extends BaseMapTest
 {
-    final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
+    static final String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
 
     /*
     /**********************************************************
@@ -23,7 +23,7 @@ public class TestUnknownPropertyDeserialization
     /**********************************************************
      */
 
-    final static class TestBean
+    static final class TestBean
     {
         String _unknown;
 
@@ -42,7 +42,7 @@ public class TestUnknownPropertyDeserialization
      * just marks unknown property/ies when encountered, along with
      * Json value of the property.
      */
-    final static class MyHandler
+    static final class MyHandler
         extends DeserializationProblemHandler
     {
         @Override

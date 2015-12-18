@@ -31,29 +31,29 @@ public class StdDateFormat
      * to ISO-8601 date formatting standard, when it includes basic undecorated
      * timezone definition
      */
-    protected final static String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    protected static final String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     /**
      * Same as 'regular' 8601, but handles 'Z' as an alias for "+0000"
      * (or "UTC")
      */
-    protected final static String DATE_FORMAT_STR_ISO8601_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    protected static final String DATE_FORMAT_STR_ISO8601_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     /**
      * ISO-8601 with just the Date part, no time
      */
-    protected final static String DATE_FORMAT_STR_PLAIN = "yyyy-MM-dd";
+    protected static final String DATE_FORMAT_STR_PLAIN = "yyyy-MM-dd";
 
     /**
      * This constant defines the date format specified by
      * RFC 1123 / RFC 822.
      */
-    protected final static String DATE_FORMAT_STR_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    protected static final String DATE_FORMAT_STR_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
     /**
      * For error messages we'll also need a list of all formats.
      */
-    protected final static String[] ALL_FORMATS = new String[] {
+    protected static final String[] ALL_FORMATS = new String[] {
         DATE_FORMAT_STR_ISO8601,
         DATE_FORMAT_STR_ISO8601_Z,
         DATE_FORMAT_STR_RFC1123,
@@ -64,19 +64,19 @@ public class StdDateFormat
      * By default we use UTC for everything, with Jackson 2.7 and later
      * (2.6 and earlier relied on GMT)
      */
-    private final static TimeZone DEFAULT_TIMEZONE;
+    private static final TimeZone DEFAULT_TIMEZONE;
     static {
         DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC"); // since 2.7
     }
 
-    private final static Locale DEFAULT_LOCALE = Locale.US;
+    private static final Locale DEFAULT_LOCALE = Locale.US;
     
-    protected final static DateFormat DATE_FORMAT_RFC1123;
+    protected static final DateFormat DATE_FORMAT_RFC1123;
 
-    protected final static DateFormat DATE_FORMAT_ISO8601;
-    protected final static DateFormat DATE_FORMAT_ISO8601_Z;
+    protected static final DateFormat DATE_FORMAT_ISO8601;
+    protected static final DateFormat DATE_FORMAT_ISO8601_Z;
 
-    protected final static DateFormat DATE_FORMAT_PLAIN;
+    protected static final DateFormat DATE_FORMAT_PLAIN;
 
     /* Let's construct "blueprint" date format instances: can not be used
      * as is, due to thread-safety issues, but can be used for constructing
@@ -100,7 +100,7 @@ public class StdDateFormat
     /**
      * A singleton instance can be used for cloning purposes, as a blueprint of sorts.
      */
-    public final static StdDateFormat instance = new StdDateFormat();
+    public static final StdDateFormat instance = new StdDateFormat();
     
     /**
      * Caller may want to explicitly override timezone to use; if so,
@@ -119,7 +119,7 @@ public class StdDateFormat
      * @since 2.7
      */
     protected Boolean _lenient;
-    
+
     protected transient DateFormat _formatRFC1123;
     protected transient DateFormat _formatISO8601;
     protected transient DateFormat _formatISO8601_z;
@@ -146,7 +146,7 @@ public class StdDateFormat
         _locale = loc;
         _lenient = lenient;
     }
-    
+
     public static TimeZone getDefaultTimeZone() {
         return DEFAULT_TIMEZONE;
     }
@@ -358,7 +358,7 @@ public class StdDateFormat
     /* Public API, writing
     /**********************************************************
      */
-    
+
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo,
             FieldPosition fieldPosition)
@@ -535,7 +535,7 @@ public class StdDateFormat
         return _formatRFC1123.parse(dateStr, pos);
     }
 
-    private final static boolean hasTimeZone(String str)
+    private static final boolean hasTimeZone(String str)
     {
         // Only accept "+hh", "+hhmm" and "+hh:mm" (and with minus), so
         int len = str.length();
@@ -550,7 +550,7 @@ public class StdDateFormat
         return false;
     }
 
-    private final static DateFormat _cloneFormat(DateFormat df, String format,
+    private static final DateFormat _cloneFormat(DateFormat df, String format,
             TimeZone tz, Locale loc, Boolean lenient)
     {
         if (!loc.equals(DEFAULT_LOCALE)) {

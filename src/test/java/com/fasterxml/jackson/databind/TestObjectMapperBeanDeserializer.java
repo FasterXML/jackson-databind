@@ -23,7 +23,7 @@ public class TestObjectMapperBeanDeserializer
     /**********************************************************
      */
 
-    final static class CtorValueBean
+    static final class CtorValueBean
         implements JsonSerializable // so we can output as simple String
     {
         final String _desc;
@@ -54,7 +54,7 @@ public class TestObjectMapperBeanDeserializer
         }
     }
 
-    final static class FactoryValueBean
+    static final class FactoryValueBean
     {
         final String _desc;
 
@@ -80,7 +80,7 @@ public class TestObjectMapperBeanDeserializer
     /**
      * Simple test bean
      */
-    public final static class TestBean
+    public static final class TestBean
     {
         int _x;
         long _y;
@@ -147,7 +147,7 @@ public class TestObjectMapperBeanDeserializer
      * Note: List elements must be something other than what 'untyped' mapper
      * would produce from serialization.
      */
-    public final static class BeanWithList
+    public static final class BeanWithList
     {
         List<CtorValueBean> _beans;
 

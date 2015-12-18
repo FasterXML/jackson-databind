@@ -1116,7 +1116,7 @@ public class POJOPropertyBuilder
      * Node used for creating simple linked lists to efficiently store small sets
      * of things.
      */
-    protected final static class Linked<T>
+    protected static final class Linked<T>
     {
         public final T value;
         public final Linked<T> next;

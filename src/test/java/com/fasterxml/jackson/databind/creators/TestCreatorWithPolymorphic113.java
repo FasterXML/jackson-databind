@@ -9,11 +9,11 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestCreatorWithPolymorphic113 extends BaseMapTest
 {
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonSubTypes({@JsonSubTypes.Type(Dog.class)})
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
-    @JsonSubTypes({  @JsonSubTypes.Type(Dog.class) })
-    public static abstract class Animal {
-        public final static String ID = "id";
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public abstract static class Animal {
+        public static final String ID = "id";
 
         private String id;
 

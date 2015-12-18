@@ -32,7 +32,7 @@ public abstract class StdDeserializer<T>
      *
      * @since 2.6
      */
-    protected final static int F_MASK_INT_COERCIONS = 
+    protected static final int F_MASK_INT_COERCIONS =
             DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
             | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
     
@@ -42,7 +42,7 @@ public abstract class StdDeserializer<T>
      * types deserializer handles (which may be as generic
      * as {@link Object} in some case)
      */
-    final protected Class<?> _valueClass;
+    protected final Class<?> _valueClass;
 
     protected StdDeserializer(Class<?> vc) {
         _valueClass = vc;
@@ -807,7 +807,7 @@ public abstract class StdDeserializer<T>
      * Helper method for encapsulating calls to low-level double value parsing; single place
      * just because we need a work-around that must be applied to all calls.
      */
-    protected final static double parseDouble(String numStr) throws NumberFormatException
+    protected static final double parseDouble(String numStr) throws NumberFormatException
     {
         // avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
         if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {

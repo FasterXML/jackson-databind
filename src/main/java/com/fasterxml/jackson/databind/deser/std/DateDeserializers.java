@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 @SuppressWarnings("serial")
 public class DateDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private static final HashSet<String> _classNames = new HashSet<String>();
     static {
         Class<?>[] numberTypes = new Class<?>[] {
             Calendar.class,
@@ -244,7 +244,7 @@ public class DateDeserializers
      */
     public static class DateDeserializer extends DateBasedDeserializer<Date>
     {
-        public final static DateDeserializer instance = new DateDeserializer();
+        public static final DateDeserializer instance = new DateDeserializer();
 
         public DateDeserializer() { super(Date.class); }
         public DateDeserializer(DateDeserializer base, DateFormat df, String formatString) {

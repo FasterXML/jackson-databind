@@ -20,7 +20,7 @@ public abstract class NopAnnotationIntrospector
      * "null" introspector: one that never finds any annotation
      * information.
      */
-    public final static NopAnnotationIntrospector instance = new NopAnnotationIntrospector() {
+    public static final NopAnnotationIntrospector instance = new NopAnnotationIntrospector() {
         private static final long serialVersionUID = 1L;
 
         @Override

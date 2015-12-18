@@ -24,7 +24,7 @@ public class TestAnnotations
      */
 
     /// Class for testing {@link JsonProperty} annotations with getters
-    final static class SizeClassGetter
+    static final class SizeClassGetter
     {
         @JsonProperty public int size() { return 3; }
         @JsonProperty("length") public int foobar() { return -17; }
@@ -36,14 +36,14 @@ public class TestAnnotations
     }
 
     // And additional testing to cover [JACKSON-64]
-    final static class SizeClassGetter2
+    static final class SizeClassGetter2
     {
         // Should still be considered property "x"
         @JsonProperty protected int getX() { return 3; }
     }
 
     // and some support for testing [JACKSON-120]
-    final static class SizeClassGetter3
+    static final class SizeClassGetter3
     {
         // Should be considered property "y" even tho non-public
         @JsonSerialize protected int getY() { return 8; }
@@ -54,15 +54,15 @@ public class TestAnnotations
      * Class for testing {@link JsonSerializer} annotation
      * for class itself.
      */
-    @JsonSerialize(using=BogusSerializer.class)
-    final static class ClassSerializer {
+    @JsonSerialize(using = BogusSerializer.class)
+    static final class ClassSerializer {
     }
 
     /**
      * Class for testing an active {@link JsonSerialize#using} annotation
      * for a method
      */
-    final static class ClassMethodSerializer {
+    static final class ClassMethodSerializer {
         private int _x;
 
         public ClassMethodSerializer(int x) { _x = x; }
@@ -75,7 +75,7 @@ public class TestAnnotations
      * Class for testing an inactive (one that will not have any effect)
      * {@link JsonSerialize} annotation for a method
      */
-    final static class InactiveClassMethodSerializer {
+    static final class InactiveClassMethodSerializer {
         private int _x;
 
         public InactiveClassMethodSerializer(int x) { _x = x; }
@@ -135,7 +135,7 @@ public class TestAnnotations
     /**********************************************************
      */
 
-    public final static class BogusSerializer extends JsonSerializer<Object>
+    public static final class BogusSerializer extends JsonSerializer<Object>
     {
         @Override
         public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
@@ -145,7 +145,7 @@ public class TestAnnotations
         }
     }
 
-    private final static class StringSerializer extends JsonSerializer<Object>
+    private static final class StringSerializer extends JsonSerializer<Object>
     {
         @Override
         public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)

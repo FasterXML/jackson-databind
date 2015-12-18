@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 public class TestConfig
     extends BaseMapTest
 {
-    @JsonAutoDetect(setterVisibility=Visibility.NONE)
-    final static class Dummy { }
+    @JsonAutoDetect(setterVisibility = Visibility.NONE)
+    static final class Dummy { }
 
-    final static class EmptyDummy { }
+    static final class EmptyDummy { }
 
     static class AnnoBean {
         int value = 3;

@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestOverlappingTypeIdNames312 extends BaseMapTest
 {
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
             @JsonSubTypes.Type(name = "a", value = Impl312.class),
             @JsonSubTypes.Type(name = "b", value = Impl312.class)
     })
-    static abstract class Base312 { }
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    abstract static class Base312 { }
 
     static class Impl312 extends Base312 {
         public int x;

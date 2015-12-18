@@ -182,18 +182,18 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     {
         private static final long serialVersionUID = 1;
 
-        public final static int STD_FILE = 1;
-        public final static int STD_URL = 2;
-        public final static int STD_URI = 3;
-        public final static int STD_CLASS = 4;
-        public final static int STD_JAVA_TYPE = 5;
-        public final static int STD_CURRENCY = 6;
-        public final static int STD_PATTERN = 7;
-        public final static int STD_LOCALE = 8;
-        public final static int STD_CHARSET = 9;
-        public final static int STD_TIME_ZONE = 10;
-        public final static int STD_INET_ADDRESS = 11;
-        public final static int STD_INET_SOCKET_ADDRESS = 12;
+        public static final int STD_FILE = 1;
+        public static final int STD_URL = 2;
+        public static final int STD_URI = 3;
+        public static final int STD_CLASS = 4;
+        public static final int STD_JAVA_TYPE = 5;
+        public static final int STD_CURRENCY = 6;
+        public static final int STD_PATTERN = 7;
+        public static final int STD_LOCALE = 8;
+        public static final int STD_CHARSET = 9;
+        public static final int STD_TIME_ZONE = 10;
+        public static final int STD_INET_ADDRESS = 11;
+        public static final int STD_INET_SOCKET_ADDRESS = 12;
 
         protected final int _kind;
         

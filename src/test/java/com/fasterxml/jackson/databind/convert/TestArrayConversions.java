@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.*;
 public class TestArrayConversions
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    final static String OVERFLOW_MSG_BYTE = "out of range of Java byte";
-    final static String OVERFLOW_MSG = "overflow";
+    static final String OVERFLOW_MSG_BYTE = "out of range of Java byte";
+    static final String OVERFLOW_MSG = "overflow";
 
     final ObjectMapper mapper = new ObjectMapper();
 

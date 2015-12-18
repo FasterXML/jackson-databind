@@ -14,7 +14,7 @@ public class TestSimpleSerializationIgnore
     extends BaseMapTest
 {
     // Class for testing enabled {@link JsonIgnore} annotation
-    final static class SizeClassEnabledIgnore
+    static final class SizeClassEnabledIgnore
     {
         @JsonIgnore public int getY() { return 9; }
 
@@ -26,7 +26,7 @@ public class TestSimpleSerializationIgnore
     }
 
     // Class for testing disabled {@link JsonIgnore} annotation
-    final static class SizeClassDisabledIgnore
+    static final class SizeClassDisabledIgnore
     {
         // note: must be public to be seen
         public int getX() { return 3; }

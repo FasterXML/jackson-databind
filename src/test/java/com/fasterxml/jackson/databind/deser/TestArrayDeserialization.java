@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class TestArrayDeserialization
     extends BaseMapTest
 {
-    public final static class Bean1
+    public static final class Bean1
     {
         int _x, _y;
         List<Bean2> _beans;
@@ -58,7 +58,7 @@ public class TestArrayDeserialization
      * Deserialization from String value will be done via single-arg
      * constructor.
      */
-    public final static class Bean2
+    public static final class Bean2
         implements JsonSerializable // so we can output as simple String
     {
         final String _desc;

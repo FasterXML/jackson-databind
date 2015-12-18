@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public final class TypeWrappedSerializer
     extends JsonSerializer<Object>
 {
-    final protected TypeSerializer _typeSerializer;
-    final protected JsonSerializer<Object> _serializer;
+    protected final TypeSerializer _typeSerializer;
+    protected final JsonSerializer<Object> _serializer;
 
     @SuppressWarnings("unchecked")
     public TypeWrappedSerializer(TypeSerializer typeSer, JsonSerializer<?> ser)

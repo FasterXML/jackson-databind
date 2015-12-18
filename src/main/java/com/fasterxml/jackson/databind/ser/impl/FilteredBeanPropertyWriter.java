@@ -28,7 +28,7 @@ public abstract class FilteredBeanPropertyWriter
     /**********************************************************
      */
 
-    private final static class SingleView
+    private static final class SingleView
         extends BeanPropertyWriter
         implements java.io.Serializable
     {
@@ -95,7 +95,7 @@ public abstract class FilteredBeanPropertyWriter
         }
     }
 
-    private final static class MultiView
+    private static final class MultiView
         extends BeanPropertyWriter
         implements java.io.Serializable
     {

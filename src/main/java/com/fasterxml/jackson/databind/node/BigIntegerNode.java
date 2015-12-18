@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class BigIntegerNode
     extends NumericNode
 {
-    private final static BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
-    private final static BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
-    private final static BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
-    private final static BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+    private static final BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
+    private static final BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
+    private static final BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+    private static final BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
     
-    final protected BigInteger _value;
+    protected final BigInteger _value;
     
     /*
     /**********************************************************

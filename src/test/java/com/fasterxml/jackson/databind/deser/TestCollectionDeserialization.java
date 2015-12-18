@@ -75,7 +75,7 @@ public class TestCollectionDeserialization
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testUntypedList() throws Exception
     {

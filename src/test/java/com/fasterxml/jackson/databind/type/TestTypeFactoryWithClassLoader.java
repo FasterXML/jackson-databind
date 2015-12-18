@@ -127,7 +127,7 @@ public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader
 public static class AClass
 {
   private String _foo, _bar;
-  protected final static Class<?> thisClass = new Object() {
+  protected static final Class<?> thisClass = new Object() {
   }.getClass().getEnclosingClass();
 
   public AClass() { }

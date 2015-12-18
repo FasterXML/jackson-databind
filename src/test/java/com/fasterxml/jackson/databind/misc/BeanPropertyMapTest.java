@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 // for [databind#884]
 public class BeanPropertyMapTest extends BaseMapTest
 {
-    protected final static JavaType BOGUS_TYPE = TypeFactory.unknownType();
+    protected static final JavaType BOGUS_TYPE = TypeFactory.unknownType();
     
     @SuppressWarnings("serial")
     static class MyObjectIdReader extends ObjectIdReader

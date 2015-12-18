@@ -47,7 +47,7 @@ public class CoreXMLSerializers extends Serializers.Base
         extends StdSerializer<XMLGregorianCalendar>
         implements ContextualSerializer
     {
-        final static XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
+        static final XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
 
         final JsonSerializer<Object> _delegate;
         

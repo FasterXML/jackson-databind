@@ -25,7 +25,7 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
     @JsonProperty("foobar")
     private @interface MyRename { }
 
-    protected final static class Bean {
+    protected static final class Bean {
         @MyIgnoral
         public String getIgnored() { return "foo"; }
  

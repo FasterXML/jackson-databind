@@ -162,9 +162,9 @@ public class TestParentChildReferences
         public void setParent(Parent parent) { this.parent = parent; }
     }
 
-    @JsonTypeInfo(use=Id.NAME)
     @JsonSubTypes({@JsonSubTypes.Type(ConcreteNode.class)})
-    static abstract class AbstractNode
+    @JsonTypeInfo(use = Id.NAME)
+    abstract static class AbstractNode
     {
         public String id;
         

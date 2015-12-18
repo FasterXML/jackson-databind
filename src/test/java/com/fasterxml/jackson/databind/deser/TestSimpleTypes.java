@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class TestSimpleTypes
     extends BaseMapTest
 {
-    final static String NAN_STRING = "NaN";
+    static final String NAN_STRING = "NaN";
 
-    final static class BooleanBean {
+    static final class BooleanBean {
         boolean _v;
         void setV(boolean v) { _v = v; }
     }
@@ -33,23 +33,23 @@ public class TestSimpleTypes
         void setV(int v) { _v = v; }
     }
 
-    final static class DoubleBean {
+    static final class DoubleBean {
         double _v;
         void setV(double v) { _v = v; }
     }
 
-    final static class FloatBean {
+    static final class FloatBean {
         float _v;
         void setV(float v) { _v = v; }
     }
     
-    final static class CharacterBean {
+    static final class CharacterBean {
         char _v;
         void setV(char v) { _v = v; }
         char getV() { return _v; }
     }
     
-    final static class CharacterWrapperBean {
+    static final class CharacterWrapperBean {
         Character _v;
         void setV(Character v) { _v = v; }
         Character getV() { return _v; }

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.*;
  */
 public class MappingIterator<T> implements Iterator<T>, Closeable
 {
-    protected final static MappingIterator<?> EMPTY_ITERATOR =
+    protected static final MappingIterator<?> EMPTY_ITERATOR =
         new MappingIterator<Object>(null, null, null, null, false, null);
 
     /*
@@ -25,24 +25,24 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * State in which iterator is closed
      */
-    protected final static int STATE_CLOSED = 0;
+    protected static final int STATE_CLOSED = 0;
     
     /**
      * State in which value read failed
      */
-    protected final static int STATE_NEED_RESYNC = 1;
+    protected static final int STATE_NEED_RESYNC = 1;
     
     /**
      * State in which no recovery is needed, but "hasNextValue()" needs
      * to be called first
      */
-    protected final static int STATE_MAY_HAVE_VALUE = 2;
+    protected static final int STATE_MAY_HAVE_VALUE = 2;
 
     /**
      * State in which "hasNextValue()" has been succesfully called
      * and deserializer can be called to fetch value
      */
-    protected final static int STATE_HAS_VALUE = 3;
+    protected static final int STATE_HAS_VALUE = 3;
 
     /*
     /**********************************************************

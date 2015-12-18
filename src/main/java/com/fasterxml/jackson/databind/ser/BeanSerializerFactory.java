@@ -62,7 +62,7 @@ public class BeanSerializerFactory
      * thus a single shared global (== singleton) instance can be used
      * without thread-safety issues.
      */
-    public final static BeanSerializerFactory instance = new BeanSerializerFactory(null);
+    public static final BeanSerializerFactory instance = new BeanSerializerFactory(null);
 
     /*
     /**********************************************************

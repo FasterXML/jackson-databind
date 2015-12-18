@@ -122,7 +122,7 @@ public class TestPOJOAsArray extends BaseMapTest
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     
     /**
      * Test that verifies that property annotation works

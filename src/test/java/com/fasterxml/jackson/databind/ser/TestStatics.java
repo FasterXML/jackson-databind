@@ -18,7 +18,7 @@ public class TestStatics
     /**********************************************************
      */
 
-    final static class FieldBean
+    static final class FieldBean
     {
         public int x = 1;
 
@@ -28,7 +28,7 @@ public class TestStatics
         @JsonProperty public static int z = 3;
     }
 
-    final static class GetterBean
+    static final class GetterBean
     {
         public int getX() { return 3; }
 

@@ -48,14 +48,14 @@ public abstract class BasicSerializerFactory
      * about ClassLoader used to load them. Rather, we can just
      * use the class name, and keep things simple and efficient.
      */
-    protected final static HashMap<String, JsonSerializer<?>> _concrete;
+    protected static final HashMap<String, JsonSerializer<?>> _concrete;
     
     /**
      * Actually it may not make much sense to eagerly instantiate all
      * kinds of serializers: so this Map actually contains class references,
      * not instances
      */
-    protected final static HashMap<String, Class<? extends JsonSerializer<?>>> _concreteLazy;
+    protected static final HashMap<String, Class<? extends JsonSerializer<?>>> _concreteLazy;
     
     static {
         HashMap<String, Class<? extends JsonSerializer<?>>> concLazy

@@ -71,7 +71,8 @@ public class TestCreators
 
         private LongFactoryBean(long v) { value = v; }
 
-        @JsonCreator static protected LongFactoryBean valueOf(long v) {
+        @JsonCreator
+        protected static LongFactoryBean valueOf(long v) {
             return new LongFactoryBean(v);
         }
     }
@@ -81,7 +82,8 @@ public class TestCreators
 
         private StringFactoryBean(String v, boolean dummy) { value = v; }
 
-        @JsonCreator static protected StringFactoryBean valueOf(String v) {
+        @JsonCreator
+        protected static StringFactoryBean valueOf(String v) {
             return new StringFactoryBean(v, true);
         }
     }

@@ -39,7 +39,7 @@ public class ManualReadPerfWithMedia extends ObjectReaderTestBase
                 m2, "JSON-as-Array", input, MediaItem.class);
     }
 
-    final static class NoFormatIntrospector extends JacksonAnnotationIntrospector
+    static final class NoFormatIntrospector extends JacksonAnnotationIntrospector
     {
         private static final long serialVersionUID = 1L;
         @Override

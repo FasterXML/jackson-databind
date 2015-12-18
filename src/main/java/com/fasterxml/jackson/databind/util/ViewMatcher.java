@@ -8,7 +8,7 @@ public class ViewMatcher implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    protected final static ViewMatcher EMPTY = new ViewMatcher();
+    protected static final ViewMatcher EMPTY = new ViewMatcher();
     
     public boolean isVisibleForView(Class<?> activeView) { return false; }
 
@@ -32,7 +32,7 @@ public class ViewMatcher implements java.io.Serializable
     /**********************************************************
      */
 
-    private final static class Single extends ViewMatcher
+    private static final class Single extends ViewMatcher
     {
         private static final long serialVersionUID = 1L;
 
@@ -44,7 +44,7 @@ public class ViewMatcher implements java.io.Serializable
         }
     }
 
-    private final static class Multi extends ViewMatcher
+    private static final class Multi extends ViewMatcher
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;

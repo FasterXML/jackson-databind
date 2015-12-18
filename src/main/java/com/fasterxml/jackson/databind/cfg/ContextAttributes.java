@@ -64,9 +64,9 @@ public abstract class ContextAttributes
     {
         private static final long serialVersionUID = 1L;
 
-        protected final static Impl EMPTY = new Impl(Collections.emptyMap());
+        protected static final Impl EMPTY = new Impl(Collections.emptyMap());
 
-        protected final static Object NULL_SURROGATE = new Object();
+        protected static final Object NULL_SURROGATE = new Object();
         
         /**
          * Shared attributes that we can not modify in-place.

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
  */
 public class BeanSerializerBuilder
 {
-    private final static BeanPropertyWriter[] NO_PROPERTIES = new BeanPropertyWriter[0];
+    private static final BeanPropertyWriter[] NO_PROPERTIES = new BeanPropertyWriter[0];
 
     /*
     /**********************************************************
@@ -24,7 +24,7 @@ public class BeanSerializerBuilder
     /**********************************************************
      */
 
-    final protected BeanDescription _beanDesc;
+    protected final BeanDescription _beanDesc;
 
     protected SerializationConfig _config;
     

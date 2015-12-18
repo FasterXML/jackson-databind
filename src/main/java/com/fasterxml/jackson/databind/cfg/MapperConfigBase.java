@@ -28,7 +28,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     extends MapperConfig<T>
     implements java.io.Serializable
 {
-    private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
+    private static final int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
     /**********************************************************

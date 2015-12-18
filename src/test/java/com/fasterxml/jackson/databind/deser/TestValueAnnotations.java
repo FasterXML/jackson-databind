@@ -86,7 +86,7 @@ public class TestValueAnnotations
     /* Class for testing valid {@link JsonDeserialize} annotation
      * with 'as' parameter to define concrete class to deserialize to
      */
-    final static class CollectionHolder
+    static final class CollectionHolder
     {
         Collection<String> _strings;
 
@@ -103,7 +103,7 @@ public class TestValueAnnotations
     /* Another class for testing valid {@link JsonDeserialize} annotation
      * with 'as' parameter to define concrete class to deserialize to
      */
-    final static class MapHolder
+    static final class MapHolder
     {
         // Let's also coerce numbers into Strings here
         Map<String,String> _data;
@@ -121,7 +121,7 @@ public class TestValueAnnotations
     /* Another class for testing valid {@link JsonDeserialize} annotation
      * with 'as' parameter, but with array
      */
-    final static class ArrayHolder
+    static final class ArrayHolder
     {
         String[] _strings;
 
@@ -136,7 +136,7 @@ public class TestValueAnnotations
     /* Another class for testing broken {@link JsonDeserialize} annotation
      * with 'as' parameter; one with incompatible type
      */
-    final static class BrokenCollectionHolder
+    static final class BrokenCollectionHolder
     {
         @JsonDeserialize(as=String.class) // not assignable to Collection
         public void setStrings(Collection<String> s) { }
@@ -148,14 +148,14 @@ public class TestValueAnnotations
     /**********************************************************
      */
 
-    final static class StringWrapper
+    static final class StringWrapper
     {
         final String _string;
 
         public StringWrapper(String s) { _string = s; }
     }
 
-    final static class MapKeyHolder
+    static final class MapKeyHolder
     {
         Map<Object, String> _map;
 
@@ -167,7 +167,7 @@ public class TestValueAnnotations
         }
     }
 
-    final static class BrokenMapKeyHolder
+    static final class BrokenMapKeyHolder
     {
         // Invalid: Integer not a sub-class of String
         @JsonDeserialize(keyAs=Integer.class)
@@ -180,7 +180,7 @@ public class TestValueAnnotations
     /**********************************************************
      */
 
-    final static class ListContentHolder
+    static final class ListContentHolder
     {
         List<?> _list;
 
@@ -190,7 +190,7 @@ public class TestValueAnnotations
         }
     }
 
-    final static class InvalidContentClass
+    static final class InvalidContentClass
     {
         /* Such annotation not allowed, since it makes no sense;
          * non-container classes have no contents to annotate (but
@@ -202,7 +202,7 @@ public class TestValueAnnotations
             public void setValue(Object x) { }
     }
 
-    final static class ArrayContentHolder
+    static final class ArrayContentHolder
     {
         Object[] _data;
 
@@ -213,7 +213,7 @@ public class TestValueAnnotations
         }
     }
 
-    final static class MapContentHolder
+    static final class MapContentHolder
     {
         Map<Object,Object> _map;
 

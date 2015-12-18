@@ -127,7 +127,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
      */
 
     @JacksonStdImpl
-    final static class CharDeser
+    static final class CharDeser
         extends PrimitiveArrayDeserializers<char[]>
     {
         private static final long serialVersionUID = 1L;
@@ -210,7 +210,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
      */
 
     @JacksonStdImpl
-    final static class BooleanDeser
+    static final class BooleanDeser
         extends PrimitiveArrayDeserializers<boolean[]>
     {
         private static final long serialVersionUID = 1L;
@@ -264,7 +264,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
      * to int/long/shorts): base64 encoded data.
      */
     @JacksonStdImpl
-    final static class ByteDeser
+    static final class ByteDeser
         extends PrimitiveArrayDeserializers<byte[]>
     {
         private static final long serialVersionUID = 1L;
@@ -350,7 +350,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     }
 
     @JacksonStdImpl
-    final static class ShortDeser
+    static final class ShortDeser
         extends PrimitiveArrayDeserializers<short[]>
     {
         private static final long serialVersionUID = 1L;
@@ -398,12 +398,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     }
 
     @JacksonStdImpl
-    final static class IntDeser
+    static final class IntDeser
         extends PrimitiveArrayDeserializers<int[]>
     {
         private static final long serialVersionUID = 1L;
 
-        public final static IntDeser instance = new IntDeser();
+        public static final IntDeser instance = new IntDeser();
         
         public IntDeser() { super(int[].class); }
         protected IntDeser(IntDeser base, Boolean unwrapSingle) {
@@ -449,12 +449,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     }
 
     @JacksonStdImpl
-    final static class LongDeser
+    static final class LongDeser
         extends PrimitiveArrayDeserializers<long[]>
     {
         private static final long serialVersionUID = 1L;
 
-        public final static LongDeser instance = new LongDeser();
+        public static final LongDeser instance = new LongDeser();
 
         public LongDeser() { super(long[].class); }
         protected LongDeser(LongDeser base, Boolean unwrapSingle) {
@@ -499,7 +499,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     }
 
     @JacksonStdImpl
-    final static class FloatDeser
+    static final class FloatDeser
         extends PrimitiveArrayDeserializers<float[]>
     {
         private static final long serialVersionUID = 1L;
@@ -549,7 +549,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     }
 
     @JacksonStdImpl
-    final static class DoubleDeser
+    static final class DoubleDeser
         extends PrimitiveArrayDeserializers<double[]>
     {
         private static final long serialVersionUID = 1L;

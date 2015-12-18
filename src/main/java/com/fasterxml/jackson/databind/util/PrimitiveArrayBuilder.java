@@ -8,13 +8,13 @@ public abstract class PrimitiveArrayBuilder<T>
     /**
      * Let's start with small chunks; typical usage is for small arrays anyway.
      */
-    final static int INITIAL_CHUNK_SIZE = 12;
+    static final int INITIAL_CHUNK_SIZE = 12;
 
     /**
      * Also: let's expand by doubling up until 64k chunks (which is 16k entries for
      * 32-bit machines)
      */
-    final static int SMALL_CHUNK_SIZE = (1 << 14);
+    static final int SMALL_CHUNK_SIZE = (1 << 14);
 
     /**
      * Let's limit maximum size of chunks we use; helps avoid excessive allocation
@@ -22,7 +22,7 @@ public abstract class PrimitiveArrayBuilder<T>
      * For now, let's limit to quarter million entries, 1 meg chunks for 32-bit
      * machines.
      */
-    final static int MAX_CHUNK_SIZE = (1 << 18);
+    static final int MAX_CHUNK_SIZE = (1 << 18);
 
     // // // Data storage
 
@@ -140,7 +140,7 @@ public abstract class PrimitiveArrayBuilder<T>
      * take type; hence we can implement some aspects of primitive data
      * handling in generic fashion.
      */
-    final static class Node<T>
+    static final class Node<T>
     {
         /**
          * Data stored in this node.

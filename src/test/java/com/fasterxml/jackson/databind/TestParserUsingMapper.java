@@ -10,13 +10,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestParserUsingMapper  extends BaseMapTest
 {
-    final static int TWO_BYTE_ESCAPED = 0x111;
-    final static int THREE_BYTE_ESCAPED = 0x1111;
+    static final int TWO_BYTE_ESCAPED = 0x111;
+    static final int THREE_BYTE_ESCAPED = 0x1111;
 
-    final static SerializedString TWO_BYTE_ESCAPED_STRING = new SerializedString("&111;");
-    final static SerializedString THREE_BYTE_ESCAPED_STRING = new SerializedString("&1111;");
+    static final SerializedString TWO_BYTE_ESCAPED_STRING = new SerializedString("&111;");
+    static final SerializedString THREE_BYTE_ESCAPED_STRING = new SerializedString("&1111;");
     
-    final static class Pojo
+    static final class Pojo
     {
         int _x;
 

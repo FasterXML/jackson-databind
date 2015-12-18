@@ -55,7 +55,7 @@ public class ObjectMapperTest extends BaseMapTest
     /**********************************************************
      */
     
-    final static ObjectMapper MAPPER = new ObjectMapper();
+    static final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testProps()
     {

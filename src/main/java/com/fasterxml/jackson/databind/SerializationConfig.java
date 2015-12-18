@@ -41,11 +41,11 @@ public final class SerializationConfig
     private static final long serialVersionUID = 1;
 
     // since 2.6
-    protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
+    protected static final PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
 
     // since 2.7
     // Default is "USE_DEFAULTS, USE_DEFAULTS"
-    protected final static JsonInclude.Value DEFAULT_INCLUSION = JsonInclude.Value.empty();
+    protected static final JsonInclude.Value DEFAULT_INCLUSION = JsonInclude.Value.empty();
     
     /*
     /**********************************************************

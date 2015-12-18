@@ -17,10 +17,10 @@ public class IntNode
 {
     // // // Let's cache small set of common value
 
-    final static int MIN_CANONICAL = -1;
-    final static int MAX_CANONICAL = 10;
+    static final int MIN_CANONICAL = -1;
+    static final int MAX_CANONICAL = 10;
 
-    private final static IntNode[] CANONICALS;
+    private static final IntNode[] CANONICALS;
     static {
         int count = MAX_CANONICAL - MIN_CANONICAL + 1;
         CANONICALS = new IntNode[count];

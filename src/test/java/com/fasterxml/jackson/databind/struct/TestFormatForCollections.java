@@ -40,7 +40,7 @@ public class TestFormatForCollections extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();    
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
     // [Issue#40]

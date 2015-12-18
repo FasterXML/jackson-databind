@@ -27,8 +27,8 @@ public class TestAnnotationUsing
      * Class for testing {@link JsonDeserializer} annotation
      * for class itself.
      */
-    @JsonDeserialize(using=ValueDeserializer.class)
-    final static class ValueClass {
+    @JsonDeserialize(using = ValueDeserializer.class)
+    static final class ValueClass {
         int _a;
         
         /* we'll test it by not having default no-arg ctor, and leaving
@@ -43,7 +43,7 @@ public class TestAnnotationUsing
      * Class for testing {@link JsonDeserializer} annotation
      * for a method
      */
-    final static class MethodBean {
+    static final class MethodBean {
         int[] _ints;
 
         /* Note: could be made to work otherwise, except that
@@ -99,7 +99,7 @@ public class TestAnnotationUsing
         }
     }
 
-    private final static class IntsDeserializer extends StdDeserializer<int[]>
+    private static final class IntsDeserializer extends StdDeserializer<int[]>
     {
         public IntsDeserializer() { super(int[].class); }
         @Override
@@ -110,7 +110,7 @@ public class TestAnnotationUsing
         }
     }
 
-    private final static class MapKeyDeserializer extends KeyDeserializer
+    private static final class MapKeyDeserializer extends KeyDeserializer
     {
         @Override
         public Object deserializeKey(String key, DeserializationContext ctxt)

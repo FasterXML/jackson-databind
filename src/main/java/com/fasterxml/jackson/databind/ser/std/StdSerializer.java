@@ -39,7 +39,7 @@ public abstract class StdSerializer<T>
      *
      * @since 2.7
      */
-    private final static Object CONVERTING_CONTENT_CONVERTER_LOCK = new Object();
+    private static final Object CONVERTING_CONTENT_CONVERTER_LOCK = new Object();
 
     private static final long serialVersionUID = 1L;
 

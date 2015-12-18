@@ -12,7 +12,7 @@ import java.io.IOException;
 public class TestTreeDeserialization
     extends BaseMapTest
 {
-    final static class Bean {
+    static final class Bean {
         int _x;
         JsonNode _node;
 
@@ -117,7 +117,7 @@ public class TestTreeDeserialization
         assertTrue(n.isNull());
     }
 
-    final static class CovarianceBean {
+    static final class CovarianceBean {
         ObjectNode _object;
         ArrayNode _array;
 

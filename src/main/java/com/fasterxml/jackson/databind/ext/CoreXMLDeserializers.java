@@ -24,7 +24,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
      * configuration, if any); and since instantion (esp. implementation
      * introspection) can be expensive we better reuse the instance.
      */
-    final static DatatypeFactory _dataTypeFactory;
+    static final DatatypeFactory _dataTypeFactory;
     static {
         try {
             _dataTypeFactory = DatatypeFactory.newInstance();
@@ -56,9 +56,9 @@ public class CoreXMLDeserializers extends Deserializers.Base
     /**********************************************************
      */
 
-    protected final static int TYPE_DURATION = 1;
-    protected final static int TYPE_G_CALENDAR = 2;
-    protected final static int TYPE_QNAME = 3;
+    protected static final int TYPE_DURATION = 1;
+    protected static final int TYPE_G_CALENDAR = 2;
+    protected static final int TYPE_QNAME = 3;
 
     /**
      * Combo-deserializer that supports deserialization of somewhat optional

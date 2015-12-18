@@ -86,7 +86,7 @@ public final class ArrayBuilders
     /**********************************************************
      */
 
-    public final static class BooleanBuilder
+    public static final class BooleanBuilder
         extends PrimitiveArrayBuilder<boolean[]>
     {
         public BooleanBuilder() { }
@@ -94,28 +94,28 @@ public final class ArrayBuilders
         public final boolean[] _constructArray(int len) { return new boolean[len]; }
     }
 
-    public final static class ByteBuilder
+    public static final class ByteBuilder
         extends PrimitiveArrayBuilder<byte[]>
     {
         public ByteBuilder() { }
         @Override
         public final byte[] _constructArray(int len) { return new byte[len]; }
     }
-    public final static class ShortBuilder
+    public static final class ShortBuilder
         extends PrimitiveArrayBuilder<short[]>
     {
         public ShortBuilder() { }
         @Override
         public final short[] _constructArray(int len) { return new short[len]; }
     }
-    public final static class IntBuilder
+    public static final class IntBuilder
         extends PrimitiveArrayBuilder<int[]>
     {
         public IntBuilder() { }
         @Override
         public final int[] _constructArray(int len) { return new int[len]; }
     }
-    public final static class LongBuilder
+    public static final class LongBuilder
         extends PrimitiveArrayBuilder<long[]>
     {
         public LongBuilder() { }
@@ -123,14 +123,14 @@ public final class ArrayBuilders
         public final long[] _constructArray(int len) { return new long[len]; }
     }
 
-    public final static class FloatBuilder
+    public static final class FloatBuilder
         extends PrimitiveArrayBuilder<float[]>
     {
         public FloatBuilder() { }
         @Override
         public final float[] _constructArray(int len) { return new float[len]; }
     }
-    public final static class DoubleBuilder
+    public static final class DoubleBuilder
         extends PrimitiveArrayBuilder<double[]>
     {
         public DoubleBuilder() { }

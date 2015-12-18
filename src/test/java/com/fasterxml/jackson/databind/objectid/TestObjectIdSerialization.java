@@ -169,7 +169,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     /*****************************************************
      */
 
-    private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
+    private static final String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
     
     private final ObjectMapper MAPPER = objectMapper();
 
@@ -188,7 +188,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     }
     
     // Bit more complex, due to extra wrapping etc:
-    private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
+    private static final String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
 
     public void testSimpleSerializationProperty() throws Exception
     {
@@ -245,7 +245,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     /*****************************************************
      */
 
-    private final static String EXP_CUSTOM_PROP = "{\"customId\":123,\"value\":-19,\"next\":123}";
+    private static final String EXP_CUSTOM_PROP = "{\"customId\":123,\"value\":-19,\"next\":123}";
     // Test for verifying that custom
     public void testCustomPropertyForClass() throws Exception
     {
@@ -261,7 +261,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         assertEquals(EXP_CUSTOM_PROP, json);
     }
 
-    private final static String EXP_CUSTOM_PROP_VIA_REF = "{\"node\":{\"id\":123,\"value\":7,\"next\":{\"node\":123}}}";
+    private static final String EXP_CUSTOM_PROP_VIA_REF = "{\"node\":{\"id\":123,\"value\":7,\"next\":{\"node\":123}}}";
     // Test for verifying that custom
     public void testCustomPropertyViaProperty() throws Exception
     {

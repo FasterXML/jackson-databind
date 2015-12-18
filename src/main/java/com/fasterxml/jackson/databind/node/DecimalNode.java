@@ -16,12 +16,12 @@ public class DecimalNode
 {
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
 
-    private final static BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
-    private final static BigDecimal MAX_INTEGER = BigDecimal.valueOf(Integer.MAX_VALUE);
-    private final static BigDecimal MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
-    private final static BigDecimal MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
+    private static final BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
+    private static final BigDecimal MAX_INTEGER = BigDecimal.valueOf(Integer.MAX_VALUE);
+    private static final BigDecimal MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
+    private static final BigDecimal MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
 
-    final protected BigDecimal _value;
+    protected final BigDecimal _value;
 
     /* 
     /**********************************************************

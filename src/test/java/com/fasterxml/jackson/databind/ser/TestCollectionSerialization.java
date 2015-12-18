@@ -14,7 +14,7 @@ public class TestCollectionSerialization
     enum Key { A, B, C };
 
     // Field-based simple bean with a single property, "values"
-    final static class CollectionBean
+    static final class CollectionBean
     {
         @JsonProperty // not required
         public Collection<Object> values;
@@ -72,7 +72,7 @@ public class TestCollectionSerialization
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testCollections() throws IOException
     {

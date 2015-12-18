@@ -26,7 +26,7 @@ public class TestSimpleModule extends BaseMapTest
     /**
      * Trivial bean that requires custom serializer and deserializer
      */
-    final static class CustomBean
+    static final class CustomBean
     {
         protected String str;
         protected int num;

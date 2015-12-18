@@ -25,11 +25,11 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
 
-    final protected BeanDescription _beanDesc;
+    protected final BeanDescription _beanDesc;
 
-    final protected boolean _defaultViewInclusion;
+    protected final boolean _defaultViewInclusion;
     
-    final protected boolean _caseInsensitivePropertyComparison;
+    protected final boolean _caseInsensitivePropertyComparison;
     
     /*
     /**********************************************************
@@ -40,7 +40,7 @@ public class BeanDeserializerBuilder
     /**
      * Properties to deserialize collected so far.
      */
-    final protected Map<String, SettableBeanProperty> _properties
+    protected final Map<String, SettableBeanProperty> _properties
         = new LinkedHashMap<String, SettableBeanProperty>();
     
     /**

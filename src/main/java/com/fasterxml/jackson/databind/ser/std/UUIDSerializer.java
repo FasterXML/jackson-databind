@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class UUIDSerializer
     extends StdScalarSerializer<UUID>
 {
-    final static char[] HEX_CHARS = "0123456789abcdef".toCharArray();
+    static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
     public UUIDSerializer() { super(UUID.class); }
 
@@ -90,7 +90,7 @@ public class UUIDSerializer
 
     }
 
-    private final static byte[] _asBytes(UUID uuid)
+    private static final byte[] _asBytes(UUID uuid)
     {
         byte[] buffer = new byte[16];
         long hi = uuid.getMostSignificantBits();
@@ -102,7 +102,7 @@ public class UUIDSerializer
         return buffer;
     }
 
-    private final static void _appendInt(int value, byte[] buffer, int offset)
+    private static final void _appendInt(int value, byte[] buffer, int offset)
     {
         buffer[offset] = (byte) (value >> 24);
         buffer[++offset] = (byte) (value >> 16);

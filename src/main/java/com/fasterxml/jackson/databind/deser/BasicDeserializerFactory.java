@@ -35,24 +35,24 @@ public abstract class BasicDeserializerFactory
     extends DeserializerFactory
     implements java.io.Serializable
 {
-    private final static Class<?> CLASS_OBJECT = Object.class;
-    private final static Class<?> CLASS_STRING = String.class;
-    private final static Class<?> CLASS_CHAR_BUFFER = CharSequence.class;
-    private final static Class<?> CLASS_ITERABLE = Iterable.class;
-    private final static Class<?> CLASS_MAP_ENTRY = Map.Entry.class;
+    private static final Class<?> CLASS_OBJECT = Object.class;
+    private static final Class<?> CLASS_STRING = String.class;
+    private static final Class<?> CLASS_CHAR_BUFFER = CharSequence.class;
+    private static final Class<?> CLASS_ITERABLE = Iterable.class;
+    private static final Class<?> CLASS_MAP_ENTRY = Map.Entry.class;
 
     /**
      * We need a placeholder for creator properties that don't have name
      * but are marked with `@JsonWrapped` annotation.
      */
-    protected final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
+    protected static final PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
     
     /* We do some defaulting for abstract Map classes and
      * interfaces, to avoid having to use exact types or annotations in
      * cases where the most common concrete Maps will do.
      */
     @SuppressWarnings("rawtypes")
-    final static HashMap<String, Class<? extends Map>> _mapFallbacks =
+    static final HashMap<String, Class<? extends Map>> _mapFallbacks =
         new HashMap<String, Class<? extends Map>>();
     static {
         _mapFallbacks.put(Map.class.getName(), LinkedHashMap.class);
@@ -69,7 +69,7 @@ public abstract class BasicDeserializerFactory
      * cases where the most common concrete Collection will do.
      */
     @SuppressWarnings("rawtypes")
-    final static HashMap<String, Class<? extends Collection>> _collectionFallbacks =
+    static final HashMap<String, Class<? extends Collection>> _collectionFallbacks =
         new HashMap<String, Class<? extends Collection>>();
     static {
         _collectionFallbacks.put(Collection.class.getName(), ArrayList.class);

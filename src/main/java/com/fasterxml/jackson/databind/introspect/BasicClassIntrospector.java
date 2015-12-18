@@ -28,22 +28,22 @@ public class BasicClassIntrospector
      * @since 2.4
      */
     
-    protected final static BasicBeanDescription STRING_DESC;
+    protected static final BasicBeanDescription STRING_DESC;
     static {
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(String.class, null);
         STRING_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(String.class), ac);
     }
-    protected final static BasicBeanDescription BOOLEAN_DESC;
+    protected static final BasicBeanDescription BOOLEAN_DESC;
     static {
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Boolean.TYPE, null);
         BOOLEAN_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Boolean.TYPE), ac);
     }
-    protected final static BasicBeanDescription INT_DESC;
+    protected static final BasicBeanDescription INT_DESC;
     static {
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Integer.TYPE, null);
         INT_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Integer.TYPE), ac);
     }
-    protected final static BasicBeanDescription LONG_DESC;
+    protected static final BasicBeanDescription LONG_DESC;
     static {
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Long.TYPE, null);
         LONG_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Long.TYPE), ac);
@@ -56,7 +56,7 @@ public class BasicClassIntrospector
      */
 
     @Deprecated // since 2.5: construct instance directly
-    public final static BasicClassIntrospector instance = new BasicClassIntrospector();
+    public static final BasicClassIntrospector instance = new BasicClassIntrospector();
 
     /**
      * Looks like 'forClassAnnotations()' gets called so frequently that we

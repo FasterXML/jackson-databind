@@ -200,7 +200,7 @@ public final class AnnotatedConstructor
      * Field references. It basically just stores declaring class
      * and field name.
      */
-    private final static class Serialization
+    private static final class Serialization
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;

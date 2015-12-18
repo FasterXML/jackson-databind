@@ -108,9 +108,9 @@ public class TestVisibleTypeId extends BaseMapTest
         public String getType2() { return "type2"; };
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "name")
-    @JsonSubTypes({ @JsonSubTypes.Type(value=I263Impl.class) })
-    public static abstract class I263Base {
+    @JsonSubTypes({@JsonSubTypes.Type(value = I263Impl.class)})
+    @JsonTypeInfo(use = Id.NAME, property = "name")
+    public abstract static class I263Base {
         @JsonTypeId
         public abstract String getName();
     }

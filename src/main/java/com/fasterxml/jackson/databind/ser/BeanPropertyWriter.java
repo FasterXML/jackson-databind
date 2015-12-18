@@ -44,7 +44,7 @@ public class BeanPropertyWriter
     /**
      * Marker object used to indicate "do not serialize if empty"
      */
-    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+    public static final Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /*
     /**********************************************************

@@ -16,8 +16,8 @@ public class BooleanNode
 {
     // // Just need two instances...
 
-    public final static BooleanNode TRUE = new BooleanNode(true);
-    public final static BooleanNode FALSE = new BooleanNode(false);
+    public static final BooleanNode TRUE = new BooleanNode(true);
+    public static final BooleanNode FALSE = new BooleanNode(false);
 
     private final boolean _value;
     

@@ -151,6 +151,9 @@ public class BeanDeserializer
         case VALUE_TRUE:
         case VALUE_FALSE:
             return deserializeFromBoolean(p, ctxt);
+
+        case VALUE_NULL:
+            return deserializeFromNull(p, ctxt);
         case START_ARRAY:
             // these only work if there's a (delegating) creator...
             return deserializeFromArray(p, ctxt);
@@ -164,8 +167,8 @@ public class BeanDeserializer
             }
             return deserializeFromObject(p, ctxt);
         default:
-            throw ctxt.mappingException(handledType());
         }
+        throw ctxt.mappingException(handledType());
     }
 
     protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -467,6 +470,35 @@ public class BeanDeserializer
         }
     }
 
+    /**
+     * Helper method called for rare case of pointing to {@link JsonToken#VALUE_NULL}
+     * token. While this is most often an erroneous condition, there is one specific
+     * case with XML handling where polymorphic type with no properties is exposed
+     * as such, and should be handled same as empty Object.
+     *
+     * @since 2.7
+     */
+    protected Object deserializeFromNull(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        // 17-Dec-2015, tatu: Highly specialized case, mainly to support polymorphic
+        //   "empty" POJOs deserialized from XML, where empty XML tag synthesizes a
+        //   `VALUE_NULL` token.
+        if (p.requiresCustomCodec()) { // not only XML module, but mostly it...
+            @SuppressWarnings("resource")
+            TokenBuffer tb = new TokenBuffer(p, ctxt);
+            tb.writeEndObject();
+            JsonParser p2 = tb.asParser(p);
+            p2.nextToken(); // to point to END_OBJECT
+            // note: don't have ObjectId to consider at this point, so:
+            Object ob = _vanillaProcessing ? vanillaDeserialize(p2, ctxt, JsonToken.END_OBJECT)
+                    : deserializeFromObject(p2, ctxt);
+            p2.close();
+            return ob;
+        }
+        throw ctxt.mappingException(handledType());
+    }
+    
     /*
     /**********************************************************
     /* Deserializing when we have to consider an active View

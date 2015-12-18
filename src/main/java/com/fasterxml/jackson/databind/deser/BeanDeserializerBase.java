@@ -1269,7 +1269,7 @@ public abstract class BeanDeserializerBase
         
         return p.getEmbeddedObject();
     }
-    
+
     /*
     /**********************************************************
     /* Overridable helper methods

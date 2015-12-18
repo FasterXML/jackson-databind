@@ -63,6 +63,10 @@ INCOMPATIBILITIES:
   argument for `depositSchemaProperty()` method `BeanProperty` and `PropertyWriter` interfaces
 - JDK baseline now Java 7 (JDK 1.7), from Java 6/JDK 1.6
 
+2.6.5 (not yet released)
+
+#1061: Problem with Object Id and Type Id as Wrapper Object (regression in 2.5.1)
+
 2.6.4 (07-Dec-2015)
 
 #984: JsonStreamContexts are not build the same way for write.. and convert methods
@@ -206,7 +210,7 @@ INCOMPATIBILITIES:
 - Remove old cglib compatibility tests; cause problems in Eclipse
 - Add `withFilterId()` method in `JsonSerializer` (demote from `BeanSerializer`)
 
-2.5.5 (not released)
+2.5.5 (07-Dec-2015)
 
 #844: Using JsonCreator still causes invalid path references in JsonMappingException
  (reported by Ian B)

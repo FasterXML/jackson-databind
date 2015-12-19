@@ -276,6 +276,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 return node;
             case JsonTokenId.ID_EMBEDDED_OBJECT:
                 node.add(_fromEmbedded(p, ctxt, nodeFactory));
+                break;
             case JsonTokenId.ID_STRING:
                 node.add(nodeFactory.textNode(p.getText()));
                 break;

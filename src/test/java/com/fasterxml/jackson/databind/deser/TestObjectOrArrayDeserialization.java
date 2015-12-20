@@ -8,19 +8,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestObjectOrArrayDeserialization extends BaseMapTest
 {
+    public static class SomeObject {
+        public String someField;
+    }
 
     public static class ArrayOrObject {
-        private final List<Object> objects;
-        private final Object object;
+        private final List<SomeObject> objects;
+        private final SomeObject object;
 
         @JsonCreator
-        public ArrayOrObject(List<Object> objects) {
+        public ArrayOrObject(List<SomeObject> objects) {
             this.objects = objects;
             this.object = null;
         }
 
         @JsonCreator
-        public ArrayOrObject(Object object) {
+        public ArrayOrObject(SomeObject object) {
             this.objects = null;
             this.object = object;
         }
@@ -45,4 +48,5 @@ public class TestObjectOrArrayDeserialization extends BaseMapTest
         assertEquals("expected objects field to have size 2", 2, arrayOrObject.objects.size());
         assertNull("expected object field to be null", arrayOrObject.object);
     }
+
 }

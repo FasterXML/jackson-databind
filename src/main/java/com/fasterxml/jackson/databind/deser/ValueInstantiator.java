@@ -99,6 +99,13 @@ public abstract class ValueInstantiator
     public boolean canCreateUsingDelegate() { return false; }
 
     /**
+     * Method that can be called to check whether a array-delegate-based creator
+     * (single-arg constructor or factory method)
+     * is available for this instantiator
+     */
+    public boolean canCreateUsingArrayDelegate() { return false; }
+
+    /**
      * Method that can be called to check whether a property-based creator
      * (argument-taking constructor or factory method)
      * is available to instantiate values from JSON Object
@@ -127,6 +134,15 @@ public abstract class ValueInstantiator
      * pass that to instantiator.
      */
     public JavaType getDelegateType(DeserializationConfig config) { return null; }
+
+    /**
+     * Method that can be used to determine what is the type of array delegate
+     * type to use, if any; if no delegates are used, will return null. If
+     * non-null type is returned, deserializer will bind JSON into specified
+     * type (using standard deserializer for that type), and pass that to
+     * instantiator.
+     */
+    public JavaType getArrayDelegateType(DeserializationConfig config) { return null; }
     
     /*
     /**********************************************************
@@ -238,6 +254,16 @@ public abstract class ValueInstantiator
      * this method may return null .
      */
     public AnnotatedWithParams getDelegateCreator() { return null; }
+
+    /**
+     * Method that can be called to try to access member (constructor,
+     * static factory method) that is used as the "array delegate creator".
+     * Note that implementations not required to return actual object
+     * they use (or, they may use some other instantiation) method.
+     * That is, even if {@link #canCreateUsingArrayDelegate()} returns true,
+     * this method may return null .
+     */
+    public AnnotatedWithParams getArrayDelegateCreator() { return null; }
 
     /**
      * Method that can be called to try to access member (constructor,

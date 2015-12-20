@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.6.5 (not yet released)
 
+#1052: Don't generate a spurious NullNode after parsing an embedded object
+ (reported by philipa@github)
 #1061: Problem with Object Id and Type Id as Wrapper Object (regression in 2.5.1)
 
 2.6.4 (07-Dec-2015)

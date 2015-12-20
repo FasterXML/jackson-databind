@@ -1258,6 +1258,18 @@ public abstract class BeanDeserializerBase
                 wrapInstantiationProblem(e, ctxt);
             }
         }
+        // fallback to non-array delegate
+        if (_delegateDeserializer != null) {
+            try {
+                Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
+            } catch (Exception e) {
+                wrapInstantiationProblem(e, ctxt);
+            }
+        }
         if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {

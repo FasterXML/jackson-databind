@@ -201,6 +201,11 @@ public class StdValueInstantiator
     public boolean canCreateUsingDelegate() {
         return _delegateType != null;
     }
+
+    @Override
+    public boolean canCreateUsingArrayDelegate() {
+        return _arrayDelegateType != null;
+    }
     
     @Override
     public boolean canCreateFromObjectWith() {
@@ -210,6 +215,11 @@ public class StdValueInstantiator
     @Override
     public JavaType getDelegateType(DeserializationConfig config) {
         return _delegateType;
+    }
+
+    @Override
+    public JavaType getArrayDelegateType(DeserializationConfig config) {
+        return _arrayDelegateType;
     }
 
     @Override
@@ -357,6 +367,11 @@ public class StdValueInstantiator
     @Override
     public AnnotatedWithParams getDelegateCreator() {
         return _delegateCreator;
+    }
+
+    @Override
+    public AnnotatedWithParams getArrayDelegateCreator() {
+        return _arrayDelegateCreator;
     }
 
     @Override

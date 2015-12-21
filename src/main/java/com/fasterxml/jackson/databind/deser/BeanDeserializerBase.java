@@ -77,6 +77,12 @@ public abstract class BeanDeserializerBase
      * to be used for deserializing from JSON Object.
      */
     protected JsonDeserializer<Object> _delegateDeserializer;
+
+    /**
+     * Deserializer that is used iff array-delegate-based creator
+     * is to be used for deserializing from JSON Object.
+     */
+    protected JsonDeserializer<Object> _arrayDelegateDeserializer;
     
     /**
      * If the bean needs to be instantiated using constructor
@@ -526,22 +532,20 @@ public abstract class BeanDeserializerBase
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
                         +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
             }
-            AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
-            // Need to create a temporary property to allow contextual deserializers:
-            BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
-                    delegateType, null, _classAnnotations, delegateCreator,
-                    PropertyMetadata.STD_OPTIONAL);
+            _delegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
+                    _valueInstantiator.getDelegateCreator());
+        }
 
-            TypeDeserializer td = delegateType.getTypeHandler();
-            if (td == null) {
-                td = ctxt.getConfig().findTypeDeserializer(delegateType);
+        // and array-delegate-based constructor:
+        if (_valueInstantiator.canCreateUsingArrayDelegate()) {
+            JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
+            if (delegateType == null) {
+                throw new IllegalArgumentException("Invalid array-delegate-creator definition for "+_beanType
+                        +": value instantiator ("+_valueInstantiator.getClass().getName()
+                        +") returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'");
             }
-            JsonDeserializer<Object> dd = findDeserializer(ctxt, delegateType, property);
-            if (td != null) {
-                td = td.forProperty(property);
-                dd = new TypeWrappedDeserializer(td, dd);
-            }
-            _delegateDeserializer = dd;
+            _arrayDelegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
+                    _valueInstantiator.getArrayDelegateCreator());
         }
 
         // And now that we know CreatorProperty instances are also resolved can finally create the creator:
@@ -563,6 +567,26 @@ public abstract class BeanDeserializerBase
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
+
+    private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt, JavaType delegateType,
+            AnnotatedWithParams delegateCreator) throws JsonMappingException {
+        // Need to create a temporary property to allow contextual deserializers:
+        BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
+                delegateType, null, _classAnnotations, delegateCreator,
+                PropertyMetadata.STD_OPTIONAL);
+
+        TypeDeserializer td = delegateType.getTypeHandler();
+        if (td == null) {
+            td = ctxt.getConfig().findTypeDeserializer(delegateType);
+        }
+        JsonDeserializer<Object> dd = findDeserializer(ctxt, delegateType, property);
+        if (td != null) {
+            td = td.forProperty(property);
+            return new TypeWrappedDeserializer(td, dd);
+        }
+        return dd;
+    }
+
 
     /**
      * Helper method that can be used to see if specified property is annotated
@@ -1223,6 +1247,18 @@ public abstract class BeanDeserializerBase
 
     public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
+        if (_arrayDelegateDeserializer != null) {
+            try {
+                Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt, _arrayDelegateDeserializer.deserialize(p, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
+            } catch (Exception e) {
+                wrapInstantiationProblem(e, ctxt);
+            }
+        }
+        // fallback to non-array delegate
         if (_delegateDeserializer != null) {
             try {
                 Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));

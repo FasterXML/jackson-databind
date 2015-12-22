@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
+import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
  * Simple cache object that allows for doing 2-level lookups: first level is
@@ -29,8 +30,8 @@ public final class SerializerCache
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private final HashMap<com.fasterxml.jackson.databind.util.TypeKey, JsonSerializer<Object>> _sharedMap
-        = new HashMap<com.fasterxml.jackson.databind.util.TypeKey, JsonSerializer<Object>>(64);
+    private final HashMap<TypeKey, JsonSerializer<Object>> _sharedMap
+        = new HashMap<TypeKey, JsonSerializer<Object>>(64);
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -145,12 +146,10 @@ public final class SerializerCache
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
                 _readOnlyMap.set(null);
             }
-            /* Finally: some serializers want to do post-processing, after
-             * getting registered (to handle cyclic deps).
-             */
-            /* 14-May-2011, tatu: As per [JACKSON-570], resolving needs to be done
-             *   in synchronized manner; this because while we do need to register
-             *   instance first, we also must keep lock until resolution is complete
+            // Need resolution to handle cyclic POJO type dependencies
+            /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
+             *   this because while we do need to register instance first, we also must
+             *   keep lock until resolution is complete.
              */
             if (ser instanceof ResolvableSerializer) {
                 ((ResolvableSerializer) ser).resolve(provider);
@@ -166,13 +165,34 @@ public final class SerializerCache
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
                 _readOnlyMap.set(null);
             }
-            /* Finally: some serializers want to do post-processing, after
-             * getting registered (to handle cyclic deps).
+            // Need resolution to handle cyclic POJO type dependencies
+            /* 14-May-2011, tatu: Resolving needs to be done in synchronized manner;
+             *   this because while we do need to register instance first, we also must
+             *   keep lock until resolution is complete.
              */
-            /* 14-May-2011, tatu: As per [JACKSON-570], resolving needs to be done
-             *   in synchronized manner; this because while we do need to register
-             *   instance first, we also must keep lock until resolution is complete
-             */
+            if (ser instanceof ResolvableSerializer) {
+                ((ResolvableSerializer) ser).resolve(provider);
+            }
+        }
+    }
+
+    /**
+     * Another alternative that will cover both access via raw type and matching
+     * fully resolved type, in one fell swoop.
+     *
+     * @since 2.7
+     */
+    public void addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
+            JsonSerializer<Object> ser,
+            SerializerProvider provider)
+        throws JsonMappingException
+    {
+        synchronized (this) {
+            Object ob1 = _sharedMap.put(new TypeKey(rawType, false), ser);
+            Object ob2 = _sharedMap.put(new TypeKey(fullType, false), ser);
+            if ((ob1 == null) || (ob2 == null)) {
+                _readOnlyMap.set(null);
+            }
             if (ser instanceof ResolvableSerializer) {
                 ((ResolvableSerializer) ser).resolve(provider);
             }
@@ -185,26 +205,5 @@ public final class SerializerCache
      */
     public synchronized void flush() {
         _sharedMap.clear();
-    }
-
-    /*
-    /**************************************************************
-    /* Helper class(es)
-    /**************************************************************
-     */
-
-    /**
-     * @deprecated Since 2.6; replaced by {@link com.fasterxml.jackson.databind.util.TypeKey}
-     */
-    @Deprecated
-    public final static class TypeKey extends com.fasterxml.jackson.databind.util.TypeKey
-    {
-        public TypeKey(Class<?> key, boolean typed) {
-            super(key, typed);
-        }
-
-        public TypeKey(JavaType key, boolean typed) {
-            super(key, typed);
-        }
     }
 }

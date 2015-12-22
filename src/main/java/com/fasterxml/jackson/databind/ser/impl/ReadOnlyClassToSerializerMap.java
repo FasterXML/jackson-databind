@@ -130,6 +130,7 @@ public final class ReadOnlyClassToSerializerMap
         }
         return null;
     }    
+
     /*
     /**********************************************************
     /* Helper classes

@@ -1104,9 +1104,7 @@ public abstract class SerializerProvider
 
     protected void _reportIncompatibleRootType(Object value, JavaType rootType) throws IOException
     {
-        /* 07-Jan-2010, tatu: As per [JACKSON-456] better handle distinction between wrapper types,
-         *    primitives
-         */
+        // One special case: allow primitive/wrapper type coercion
         if (rootType.isPrimitive()) {
             Class<?> wrapperType = ClassUtil.wrapperType(rootType.getRawClass());
             // If it's just difference between wrapper, primitive, let it slide
@@ -1163,10 +1161,10 @@ public abstract class SerializerProvider
     protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType)
         throws JsonMappingException
     {
-        JavaType type = _config.constructType(rawType);
+        JavaType fullType = _config.constructType(rawType);
         JsonSerializer<Object> ser;
         try {
-            ser = _createUntypedSerializer(type);
+            ser = _createUntypedSerializer(fullType);
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -1175,7 +1173,8 @@ public abstract class SerializerProvider
         }
 
         if (ser != null) {
-            _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
+            // 21-Dec-2015, tatu: Best to cache for both raw and full-type key
+            _serializerCache.addAndResolveNonTypedSerializer(rawType, fullType, ser, this);
         }
         return ser;
     }
@@ -1194,6 +1193,7 @@ public abstract class SerializerProvider
         }
     
         if (ser != null) {
+            // 21-Dec-2015, tatu: Should we also cache using raw key?
             _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);
         }
         return ser;

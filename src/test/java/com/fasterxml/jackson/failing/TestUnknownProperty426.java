@@ -9,14 +9,16 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestUnknownProperty426 extends BaseMapTest
 {
-    // For [Issue#426]
+    // For [databind#426]
     @JsonIgnoreProperties({ "userId" })
     static class User {
         public String firstName;
         Integer userId; 
 
-        void setUserId(String id) {
-            setUserId(new Integer(id));
+        void setUserId(CharSequence id) {
+            // 21-Dec-2015, tatu: With a fix in 2.7, use of String would not
+            //   trigger the problem, so use CharSequence...
+            setUserId(new Integer(id.toString()));
         }
 
         public Integer getUserId() {

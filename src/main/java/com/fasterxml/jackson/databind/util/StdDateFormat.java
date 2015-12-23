@@ -109,6 +109,16 @@ public class StdDateFormat
     protected transient TimeZone _timezone;
 
     protected final Locale _locale;
+
+    /**
+     * Explicit override for leniency, if specified.
+     *<p>
+     * Can not be `final` because {@link #setLenient(boolean)} returns
+     * `void`.
+     *
+     * @since 2.7
+     */
+    protected Boolean _lenient;
     
     protected transient DateFormat _formatRFC1123;
     protected transient DateFormat _formatISO8601;
@@ -125,11 +135,18 @@ public class StdDateFormat
         _locale = DEFAULT_LOCALE;
     }
 
+    @Deprecated // since 2.7
     public StdDateFormat(TimeZone tz, Locale loc) {
         _timezone = tz;
         _locale = loc;
     }
 
+    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
+        _timezone = tz;
+        _locale = loc;
+        _lenient = lenient;
+    }
+    
     public static TimeZone getDefaultTimeZone() {
         return DEFAULT_TIMEZONE;
     }
@@ -145,14 +162,14 @@ public class StdDateFormat
         if ((tz == _timezone) || tz.equals(_timezone)) {
             return this;
         }
-        return new StdDateFormat(tz, _locale);
+        return new StdDateFormat(tz, _locale, _lenient);
     }
 
     public StdDateFormat withLocale(Locale loc) {
         if (loc.equals(_locale)) {
             return this;
         }
-        return new StdDateFormat(_timezone, loc);
+        return new StdDateFormat(_timezone, loc, _lenient);
     }
     
     @Override
@@ -160,7 +177,7 @@ public class StdDateFormat
         /* Although there is that much state to share, we do need to
          * orchestrate a bit, mostly since timezones may be changed
          */
-        return new StdDateFormat(_timezone, _locale);
+        return new StdDateFormat(_timezone, _locale, _lenient);
     }
 
     /**
@@ -179,7 +196,7 @@ public class StdDateFormat
      * @since 2.4
      */
     public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc);
+        return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc, null);
     }
 
     /**
@@ -190,7 +207,8 @@ public class StdDateFormat
      * @since 2.4
      */
     public static DateFormat getRFC1123Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123, tz, loc);
+        return _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
+                tz, loc, null);
     }
 
     /**
@@ -200,10 +218,10 @@ public class StdDateFormat
     public static DateFormat getRFC1123Format(TimeZone tz) {
         return getRFC1123Format(tz, DEFAULT_LOCALE);
     }
-    
+
     /*
     /**********************************************************
-    /* Public API
+    /* Public API, configuration
     /**********************************************************
      */
 
@@ -211,7 +229,7 @@ public class StdDateFormat
     public TimeZone getTimeZone() {
         return _timezone;
     }
-    
+
     @Override
     public void setTimeZone(TimeZone tz)
     {
@@ -219,22 +237,74 @@ public class StdDateFormat
          * so need to reset instances if timezone changes:
          */
         if (!tz.equals(_timezone)) {
-            _formatRFC1123 = null;
-            _formatISO8601 = null;
-            _formatISO8601_z = null;
-            _formatPlain = null;
+            _clearFormats();
             _timezone = tz;
         }
     }
-    
+
+    /**
+     * Need to override since we need to keep track of leniency locally,
+     * and not via underlying {@link Calendar} instance like base class
+     * does.
+     */
+    @Override // since 2.7
+    public void setLenient(boolean enabled) {
+        Boolean newValue = enabled;
+        if (_lenient != newValue) {
+            _lenient = newValue;
+            // and since leniency settings may have been used:
+            _clearFormats();
+        }
+    }
+
+    @Override // since 2.7
+    public boolean isLenient() {
+        if (_lenient == null) {
+            // default is, I believe, true
+            return true;
+        }
+        return _lenient.booleanValue();
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, parsing
+    /**********************************************************
+     */
+
     @Override
     public Date parse(String dateStr) throws ParseException
     {
         dateStr = dateStr.trim();
         ParsePosition pos = new ParsePosition(0);
-        Date result = parse(dateStr, pos);
-        if (result != null) {
-            return result;
+
+        Date dt;
+
+        if (looksLikeISO8601(dateStr)) { // also includes "plain"
+            dt = parseAsISO8601(dateStr, pos, true);
+        } else {
+            // Also consider "stringified" simple time stamp
+            int i = dateStr.length();
+            while (--i >= 0) {
+                char ch = dateStr.charAt(i);
+                if (ch < '0' || ch > '9') {
+                    // 07-Aug-2013, tatu: And [databind#267] points out that negative numbers should also work
+                    if (i > 0 || ch != '-') {
+                        break;
+                    }
+                }
+            }
+            if ((i < 0)
+                // let's just assume negative numbers are fine (can't be RFC-1123 anyway); check length for positive
+                    && (dateStr.charAt(0) == '-' || NumberInput.inLongRange(dateStr, false))) {
+                dt = new Date(Long.parseLong(dateStr));
+            } else {
+                // Otherwise, fall back to using RFC 1123
+                dt = parseAsRFC1123(dateStr, pos);
+            }
+        }
+        if (dt != null) {
+            return dt;
         }
 
         StringBuilder sb = new StringBuilder();
@@ -256,7 +326,11 @@ public class StdDateFormat
     public Date parse(String dateStr, ParsePosition pos)
     {
         if (looksLikeISO8601(dateStr)) { // also includes "plain"
-            return parseAsISO8601(dateStr, pos);
+            try {
+                return parseAsISO8601(dateStr, pos, false);
+            } catch (ParseException e) { // will NOT be thrown due to false but is declared...
+                return null;
+            }
         }
         // Also consider "stringified" simple time stamp
         int i = dateStr.length();
@@ -279,12 +353,19 @@ public class StdDateFormat
         return parseAsRFC1123(dateStr, pos);
     }
 
+    /*
+    /**********************************************************
+    /* Public API, writing
+    /**********************************************************
+     */
+    
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo,
             FieldPosition fieldPosition)
     {
         if (_formatISO8601 == null) {
-            _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, _timezone, _locale);
+            _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601,
+                    _timezone, _locale, _lenient);
         }
         return _formatISO8601.format(date, toAppendTo, fieldPosition);
     }
@@ -328,7 +409,8 @@ public class StdDateFormat
         return false;
     }
 
-    protected Date parseAsISO8601(String dateStr, ParsePosition pos)
+    protected Date parseAsISO8601(String dateStr, ParsePosition pos, boolean throwErrors)
+            throws ParseException
     {
         /* 21-May-2009, tatu: DateFormat has very strict handling of
          * timezone  modifiers for ISO-8601. So we need to do some scrubbing.
@@ -341,19 +423,24 @@ public class StdDateFormat
         int len = dateStr.length();
         char c = dateStr.charAt(len-1);
         DateFormat df;
+        String formatStr;
 
-        // [JACKSON-200]: need to support "plain" date...
+        // Need to support "plain" date...
         if (len <= 10 && Character.isDigit(c)) {
             df = _formatPlain;
+            formatStr = DATE_FORMAT_STR_PLAIN;
             if (df == null) {
-                df = _formatPlain = _cloneFormat(DATE_FORMAT_PLAIN, DATE_FORMAT_STR_PLAIN, _timezone, _locale);
+                df = _formatPlain = _cloneFormat(DATE_FORMAT_PLAIN, formatStr,
+                        _timezone, _locale, _lenient);
             }
         } else if (c == 'Z') {
             df = _formatISO8601_z;
+            formatStr = DATE_FORMAT_STR_ISO8601_Z;
             if (df == null) {
-                df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z, DATE_FORMAT_STR_ISO8601_Z, _timezone, _locale);
+                df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z, formatStr,
+                        _timezone, _locale, _lenient);
             }
-            // [JACKSON-334]: may be missing milliseconds... if so, add
+            // may be missing milliseconds... if so, add
             if (dateStr.charAt(len-4) == ':') {
                 StringBuilder sb = new StringBuilder(dateStr);
                 sb.insert(len-1, ".000");
@@ -398,8 +485,10 @@ public class StdDateFormat
                     dateStr = sb.toString();
                 }
                 df = _formatISO8601;
+                formatStr = DATE_FORMAT_STR_ISO8601;
                 if (_formatISO8601 == null) {
-                    df = _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, _timezone, _locale);
+                    df = _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, formatStr,
+                            _timezone, _locale, _lenient);
                 }
             } else {
                 // If not, plain date. Easiest to just patch 'Z' in the end?
@@ -419,19 +508,29 @@ public class StdDateFormat
                 sb.append('Z');
                 dateStr = sb.toString();
                 df = _formatISO8601_z;
+                formatStr = DATE_FORMAT_STR_ISO8601_Z;
                 if (df == null) {
-                    df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z, DATE_FORMAT_STR_ISO8601_Z,
-                            _timezone, _locale);
+                    df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z, formatStr,
+                            _timezone, _locale, _lenient);
                 }
             }
         }
-        return df.parse(dateStr, pos);
+        Date dt = df.parse(dateStr, pos);
+        // 22-Dec-2015, tatu: With non-lenient, may get null
+        if (dt == null) {
+            throw new ParseException
+            (String.format("Can not parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
+                           dateStr, formatStr, _lenient),
+               pos.getErrorIndex());
+        }
+        return dt;
     }
 
     protected Date parseAsRFC1123(String dateStr, ParsePosition pos)
     {
         if (_formatRFC1123 == null) {
-            _formatRFC1123 = _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123, _timezone, _locale);
+            _formatRFC1123 = _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
+                    _timezone, _locale, _lenient);
         }
         return _formatRFC1123.parse(dateStr, pos);
     }
@@ -452,7 +551,7 @@ public class StdDateFormat
     }
 
     private final static DateFormat _cloneFormat(DateFormat df, String format,
-            TimeZone tz, Locale loc)
+            TimeZone tz, Locale loc, Boolean lenient)
     {
         if (!loc.equals(DEFAULT_LOCALE)) {
             df = new SimpleDateFormat(format, loc);
@@ -463,7 +562,17 @@ public class StdDateFormat
                 df.setTimeZone(tz);
             }
         }
+        if (lenient != null) {
+            df.setLenient(lenient.booleanValue());
+        }
         return df;
+    }
+
+    protected void _clearFormats() {
+        _formatRFC1123 = null;
+        _formatISO8601 = null;
+        _formatISO8601_z = null;
+        _formatPlain = null;
     }
 }
 

@@ -13,6 +13,8 @@ Project: jackson-databind
 #432: `StdValueInstantiator` unwraps exceptions, losing context
  (reported by Miles K)
 #497: Add new JsonInclude.Include feature to exclude maps after exclusion removes all elements
+#803: Allow use of `StdDateFormat.setLenient()`
+ (suggested by raj-ghodke@github)
 #819: Add support for setting `FormatFeature` via `ObjectReader`, `ObjectWriter`
 #857: Add support for java.beans.Transient (requires Java 7)
  (suggested by Thomas M)

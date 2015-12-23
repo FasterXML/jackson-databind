@@ -65,10 +65,11 @@ public interface TypeIdResolver
      */
     public String idFromBaseType();
 
+    // !!! TODO: remove from 2.8
     /**
      * @deprecated since 2.5; call {@link #typeFromId(DatabindContext, String)} instead
      */
-    @Deprecated // since 2.4
+    @Deprecated // since 2.5
     public JavaType typeFromId(String id);
 
     /**
@@ -78,6 +79,13 @@ public interface TypeIdResolver
      */
     public JavaType typeFromId(DatabindContext context, String id);
 
+    /**
+     * Method called for error-reporting and diagnostics purposes.
+     * 
+     * @since 2.7 -- but since 2.5 has existed in {@link com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase}
+     */
+    public String getDescForKnownTypeIds();
+    
     /*
     /**********************************************************
     /* Accessors for metadata

@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Partial base implementation of {@link TypeIdResolver}: all custom implementations
  * are <b>strongly</b> recommended to extend this class, instead of directly
  * implementing {@link TypeIdResolver}.
+ * Note that ALL sub-class need to re-implement
+ * {@link #typeFromId(DatabindContext, String)} method; otherwise implementation
+ * will not work.
  *<p>
  * Note that instances created to be constructed from annotations
  * ({@link com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver})
@@ -69,15 +72,17 @@ public abstract class TypeIdResolverBase
      */
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
-        return typeFromId(id);
+        // 22-Dec-2015, tatu: Must be overridden by sub-classes, so let's throw
+        //    an exception if not
+        throw new IllegalStateException("Sub-class "+getClass().getName()+" MUST implement "
+                +"`typeFromId(DatabindContext,String)");
     }
 
     /**
      * Helper method used to get a simple description of all known type ids,
      * for use in error messages.
-     *<p>
-     * TODO: demote down to be part of {@link TypeIdResolver} in 2.6 or 2.7
      */
+    @Override
     public String getDescForKnownTypeIds() {
         return null;
     }

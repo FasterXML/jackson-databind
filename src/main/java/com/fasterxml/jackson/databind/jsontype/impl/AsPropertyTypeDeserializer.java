@@ -150,7 +150,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
                 "missing property '"+_typePropertyName+"' that is to contain type id  (for class "+baseTypeName()+")");
     }
 
-    /* Aalso need to re-route "unknown" version. Need to think
+    /* Also need to re-route "unknown" version. Need to think
      * this through bit more in future, but for now this does address issue and has
      * no negative side effects (at least within existing unit test suite).
      */

@@ -68,6 +68,17 @@ public class TestJDKAtomicTypes
         }
     }
 
+    static class WrappedString {
+        String value;
+
+        public WrappedString(String s) { value = s; }
+    }
+
+    static class AtomicRefReadWrapper {
+        @JsonDeserialize(contentAs=WrappedString.class)
+        public AtomicReference<Object> value;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -167,6 +178,17 @@ public class TestJDKAtomicTypes
         assertEquals(bd, ob);
     }
 
+    // [databind#882]: verify `@JsonDeserialize(contentAs=)` works with AtomicReference
+    public void testDeserializeWithContentAs() throws Exception
+    {
+        AtomicRefReadWrapper result = MAPPER.readValue(aposToQuotes("{'value':'abc'}"),
+                AtomicRefReadWrapper.class);
+         Object v = result.value.get();
+         assertNotNull(v);
+         assertEquals(WrappedString.class, v.getClass());
+         assertEquals("abc", ((WrappedString)v).value);
+    }
+    
     // [databind#932]: support unwrapping too
     public void testWithUnwrapping() throws Exception
     {

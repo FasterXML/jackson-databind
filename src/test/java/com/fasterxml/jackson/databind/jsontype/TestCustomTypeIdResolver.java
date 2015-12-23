@@ -30,7 +30,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         public ExtBean value;
     }
 
-    static class CustomResolver extends CustomResolverBase {
+    static class CustomResolver extends TestCustomResolverBase {
         // yes, static: just for test purposes, not real use
         static List<JavaType> initTypes;
 
@@ -55,18 +55,18 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         public ExtBeanImpl(int y) { this.y = y; }
     }
     
-    static class ExtResolver extends CustomResolverBase {
+    static class ExtResolver extends TestCustomResolverBase {
         public ExtResolver() {
             super(ExtBean.class, ExtBeanImpl.class);
         }
     }
 
-    static class CustomResolverBase extends TypeIdResolverBase
+    static class TestCustomResolverBase extends TypeIdResolverBase
     {
         protected final Class<?> superType;
         protected final Class<?> subType;
 
-        public CustomResolverBase(Class<?> baseType, Class<?> implType) {
+        public TestCustomResolverBase(Class<?> baseType, Class<?> implType) {
             superType = baseType;
             subType = implType;
         }

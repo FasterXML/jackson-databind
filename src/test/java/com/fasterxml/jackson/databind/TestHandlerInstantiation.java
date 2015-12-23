@@ -45,7 +45,7 @@ public class TestHandlerInstantiation extends BaseMapTest
     static class MyMap extends HashMap<String,String> { }
 
     @JsonTypeInfo(use=Id.CUSTOM, include=As.WRAPPER_ARRAY)
-    @JsonTypeIdResolver(CustomIdResolver.class)
+    @JsonTypeIdResolver(TestCustomIdResolver.class)
     static class TypeIdBean {
         public int x;
         
@@ -111,13 +111,13 @@ public class TestHandlerInstantiation extends BaseMapTest
     }
     
     // copied from "TestCustomTypeIdResolver"
-    static class CustomIdResolver extends TypeIdResolverBase
+    static class TestCustomIdResolver extends TypeIdResolverBase
     {
         static List<JavaType> initTypes;
 
         final String _id;
         
-        public CustomIdResolver(String idForBean) {
+        public TestCustomIdResolver(String idForBean) {
             _id = idForBean;
         }
 
@@ -211,8 +211,8 @@ public class TestHandlerInstantiation extends BaseMapTest
         public TypeIdResolver typeIdResolverInstance(MapperConfig<?> config,
                 Annotated annotated, Class<?> resolverClass)
         {
-            if (resolverClass == CustomIdResolver.class) {
-                return new CustomIdResolver("!!!");
+            if (resolverClass == TestCustomIdResolver.class) {
+                return new TestCustomIdResolver("!!!");
             }
             return null;
         }

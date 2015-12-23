@@ -71,7 +71,8 @@ public abstract class TypeDeserializerBase
     {
         _baseType = baseType;
         _idResolver = idRes;
-        _typePropertyName = typePropertyName;
+        // 22-Dec-2015, tatu: as per [databind#1055], avoid NPE
+        _typePropertyName = (typePropertyName == null) ? "" : typePropertyName;
         _typeIdVisible = typeIdVisible;
         // defaults are fine, although concurrency of 4 bit more frugal than 16:
         _deserializers = new ConcurrentHashMap<String, JsonDeserializer<Object>>(16, 0.75f, 4);

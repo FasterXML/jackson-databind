@@ -32,7 +32,7 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
             return jp.getText();
         }
 
-        // Issue#381
+        // [databind#381]
         if (curr == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             jp.nextToken();
             final String parsed = _parseString(jp, ctxt);

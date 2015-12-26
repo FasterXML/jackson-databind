@@ -939,10 +939,9 @@ public class ObjectReader
      * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp)
-        throws IOException, JsonProcessingException
+    public <T> T readValue(JsonParser p) throws IOException
     {
-        return (T) _bind(jp, _valueToUpdate);
+        return (T) _bind(p, _valueToUpdate);
     }
 
     /**
@@ -957,10 +956,9 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T readValue(JsonParser jp, Class<T> valueType)
-        throws IOException, JsonProcessingException
+    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException
     {
-        return (T) forType(valueType).readValue(jp);
+        return (T) forType(valueType).readValue(p);
     }
 
     /**
@@ -975,10 +973,9 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T readValue(JsonParser jp, TypeReference<?> valueTypeRef)
-        throws IOException, JsonProcessingException
+    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException
     {
-        return (T) forType(valueTypeRef).readValue(jp);
+        return (T) forType(valueTypeRef).readValue(p);
     }
 
     /**
@@ -993,8 +990,8 @@ public class ObjectReader
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, ResolvedType valueType) throws IOException, JsonProcessingException {
-        return (T) forType((JavaType)valueType).readValue(jp);
+    public <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException, JsonProcessingException {
+        return (T) forType((JavaType)valueType).readValue(p);
     }
 
     /**
@@ -1004,67 +1001,103 @@ public class ObjectReader
      * (data-format specific) parser is given.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, JavaType valueType) throws IOException, JsonProcessingException {
-        return (T) forType(valueType).readValue(jp);
+    public <T> T readValue(JsonParser p, JavaType valueType) throws IOException {
+        return (T) forType(valueType).readValue(p);
     }
 
     /**
      * Convenience method that is equivalent to:
      *<pre>
-     *   withType(valueType).readValues(jp);
+     *   withType(valueType).readValues(p);
      *</pre>
+     *<p>
+     * Method reads a sequence of Objects from parser stream.
+     * Sequence can be either root-level "unwrapped" sequence (without surrounding
+     * JSON array), or a sequence contained in a JSON Array.
+     * In either case {@link JsonParser} <b>MUST</b> point to the first token of
+     * the first element, OR not point to any token (in which case it is advanced
+     * to the next token). This means, specifically, that for wrapped sequences,
+     * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
+     * contains values to read) but rather to the token following it which is the first
+     * token of the first value to read.
      *<p>
      * NOTE: this method never tries to auto-detect format, since actual
      * (data-format specific) parser is given.
      */
     @Override
-    public <T> Iterator<T> readValues(JsonParser jp, Class<T> valueType)
-        throws IOException, JsonProcessingException {
-        return forType(valueType).readValues(jp);
+    public <T> Iterator<T> readValues(JsonParser p, Class<T> valueType) throws IOException {
+        return forType(valueType).readValues(p);
     }
 
     /**
      * Convenience method that is equivalent to:
      *<pre>
-     *   withType(valueTypeRef).readValues(jp);
+     *   withType(valueTypeRef).readValues(p);
      *</pre>
+     *<p>
+     * Method reads a sequence of Objects from parser stream.
+     * Sequence can be either root-level "unwrapped" sequence (without surrounding
+     * JSON array), or a sequence contained in a JSON Array.
+     * In either case {@link JsonParser} <b>MUST</b> point to the first token of
+     * the first element, OR not point to any token (in which case it is advanced
+     * to the next token). This means, specifically, that for wrapped sequences,
+     * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
+     * contains values to read) but rather to the token following it which is the first
+     * token of the first value to read.
      *<p>
      * NOTE: this method never tries to auto-detect format, since actual
      * (data-format specific) parser is given.
      */
     @Override
-    public <T> Iterator<T> readValues(JsonParser jp, TypeReference<?> valueTypeRef)
-        throws IOException, JsonProcessingException {
-        return forType(valueTypeRef).readValues(jp);
+    public <T> Iterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+        return forType(valueTypeRef).readValues(p);
     }
     
     /**
      * Convenience method that is equivalent to:
      *<pre>
-     *   withType(valueType).readValues(jp);
+     *   withType(valueType).readValues(p);
      *</pre>
+     *<p>
+     * Method reads a sequence of Objects from parser stream.
+     * Sequence can be either root-level "unwrapped" sequence (without surrounding
+     * JSON array), or a sequence contained in a JSON Array.
+     * In either case {@link JsonParser} <b>MUST</b> point to the first token of
+     * the first element, OR not point to any token (in which case it is advanced
+     * to the next token). This means, specifically, that for wrapped sequences,
+     * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
+     * contains values to read) but rather to the token following it which is the first
+     * token of the first value to read.
      *<p>
      * NOTE: this method never tries to auto-detect format, since actual
      * (data-format specific) parser is given.
      */
     @Override
-    public <T> Iterator<T> readValues(JsonParser jp, ResolvedType valueType)
-        throws IOException, JsonProcessingException {
-        return readValues(jp, (JavaType) valueType);
+    public <T> Iterator<T> readValues(JsonParser p, ResolvedType valueType) throws IOException {
+        return readValues(p, (JavaType) valueType);
     }
 
     /**
      * Convenience method that is equivalent to:
      *<pre>
-     *   withType(valueType).readValues(jp);
+     *   withType(valueType).readValues(p);
      *</pre>
+     *<p>
+     * Method reads a sequence of Objects from parser stream.
+     * Sequence can be either root-level "unwrapped" sequence (without surrounding
+     * JSON array), or a sequence contained in a JSON Array.
+     * In either case {@link JsonParser} <b>MUST</b> point to the first token of
+     * the first element, OR not point to any token (in which case it is advanced
+     * to the next token). This means, specifically, that for wrapped sequences,
+     * parser MUST NOT point to the surrounding <code>START_ARRAY</code> (one that
+     * contains values to read) but rather to the token following it which is the first
+     * token of the first value to read.
      *<p>
      * NOTE: this method never tries to auto-detect format, since actual
      * (data-format specific) parser is given.
      */
-    public <T> Iterator<T> readValues(JsonParser jp, JavaType valueType)
-        throws IOException, JsonProcessingException {
-        return forType(valueType).readValues(jp);
+    public <T> Iterator<T> readValues(JsonParser p, JavaType valueType) throws IOException {
+        return forType(valueType).readValues(p);
     }
 
     /*
@@ -1101,10 +1134,8 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends TreeNode> T readTree(JsonParser jp)
-            throws IOException, JsonProcessingException
-    {
-        return (T) _bindAsTree(jp);
+    public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+        return (T) _bindAsTree(p);
     }
      
     @Override

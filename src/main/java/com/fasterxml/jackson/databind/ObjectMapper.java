@@ -3628,6 +3628,7 @@ public class ObjectMapper
         }
     }
 
+    @Deprecated // since 2.7, not used internally any more
     protected final void _configAndWriteValue(JsonGenerator g, Object value, Class<?> viewClass)
         throws IOException
     {
@@ -3661,7 +3662,7 @@ public class ObjectMapper
      * method is to be called right after serialization has been called
      */
     private final void _configAndWriteCloseable(JsonGenerator g, Object value, SerializationConfig cfg)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
@@ -3673,9 +3674,7 @@ public class ObjectMapper
             toClose = null;
             tmpToClose.close();
         } finally {
-            /* Need to close both generator and value, as long as they haven't yet
-             * been closed
-             */
+            // Need to close both generator and value, as long as they haven't yet been closed
             if (g != null) {
                 // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                 //    structures, which typically causes more damage.
@@ -3697,7 +3696,7 @@ public class ObjectMapper
      * method is to be called right after serialization has been called
      */
     private final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {

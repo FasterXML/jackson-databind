@@ -24,6 +24,19 @@ public class TestObjectIdSerialization extends BaseMapTest
         }
     }
 
+    @JsonIdentityInfo(generator=ObjectIdGenerators.StringIdGenerator.class, property="id")
+    static class StringIdentifiable
+    {
+        public int value;
+
+        public StringIdentifiable next;
+        
+        public StringIdentifiable() { this(0); }
+        public StringIdentifiable(int v) {
+            value = v;
+        }
+    }
+
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="customId")
     static class IdentifiableWithProp
     {
@@ -146,7 +159,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         public int customId;
     }
 
-    // [Issue#370]
+    // [databind#370]
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
     public static class EmptyObject { }
 
@@ -190,13 +203,41 @@ public class TestObjectIdSerialization extends BaseMapTest
         assertEquals(EXP_SIMPLE_INT_PROP, json);
     }
 
-    // [Issue#370]
+    // [databind#370]
     public void testEmptyObjectWithId() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new EmptyObject());
         assertEquals(aposToQuotes("{'@id':1}"), json);
     }    
+
+    public void testSerializeWithOpaqueStringId() throws Exception
+    {
+        StringIdentifiable ob1 = new StringIdentifiable(12);
+        StringIdentifiable ob2 = new StringIdentifiable(34);
+        ob1.next = ob2;
+        ob2.next = ob1;
+
+        // first just verify we get some output
+        String json = MAPPER.writeValueAsString(ob1);
+        assertNotNull(json);
+
+        // then get them back
+        StringIdentifiable output = MAPPER.readValue(json, StringIdentifiable.class);
+        assertNotNull(output);
+        assertEquals(12, output.value);
+        assertNotNull(output.next);
+        assertEquals(34, output.next.value);
+        assertSame(output.next.next, output);
+
+        String json2 = aposToQuotes("{'id':'foobar','value':3, 'next':{'id':'barf','value':5,'next':'foobar'}}");
+        output = MAPPER.readValue(json2, StringIdentifiable.class);
+        assertNotNull(output);
+        assertEquals(3, output.value);
+        assertNotNull(output.next);
+        assertEquals(5, output.next.value);
+        assertSame(output.next.next, output);
+    }
 
     /*
     /*****************************************************

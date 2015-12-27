@@ -84,6 +84,16 @@ public abstract class ValueNode
     @Override
     public final boolean hasNonNull(String fieldName) { return false; }
 
+    @Override
+    protected JsonNode _add(JsonPointer ptr, JsonNode value) {
+        throw new UnsupportedOperationException("value");
+    }
+
+    @Override
+    protected JsonNode _remove(JsonPointer ptr) {
+        throw new UnsupportedOperationException("value");
+    }
+
     /*
      **********************************************************************
      * Find methods: all "leaf" nodes return the same for these

@@ -231,7 +231,61 @@ public abstract class JsonNode
     }
 
     protected abstract JsonNode _at(JsonPointer ptr);
-    
+
+    private JsonNode _fromNullable(JsonNode n) {
+        return n != null ? n : MissingNode.getInstance();
+    }
+
+    /**
+     * Method for adding or updating the value at a given JSON pointer.
+     * 
+     * @return This node to allow chaining or {@code value} if {@code ptr} is "/".
+     * @throws IllegalArgumentException if the path is invalid (e.g. empty, contains a name instead of an index)
+     * @throws UnsupportedOperationException if the targeted node does not support updates
+     * @since 2.6
+     */
+    public final JsonNode add(JsonPointer ptr, JsonNode value) {
+        // In recursion we only match parent nodes, so this was an attempt to add to an empty pointer
+        if (ptr.matches()) {
+            throw new IllegalArgumentException("Cannot add to an empty path");
+        }
+
+        // FIXME Should mayMatchProperty check for empty strings?
+        if (ptr.getMatchingProperty().length() == 0 && !ptr.mayMatchElement()) {
+            // No possible match, return value as the new root element
+            return value;
+        } else if (ptr.tail().matches()) {
+            // Matched the parent node (hopefully a container)
+            return _add(ptr, value);
+        } else {
+            // Need to consume more of the pointer
+            _fromNullable(_at(ptr)).add(ptr.tail(), value);
+            return this;
+        }
+    }
+
+    protected abstract JsonNode _add(JsonPointer ptr, JsonNode value);
+
+    /**
+     * Method for removing the value at a given JSON pointer.
+     * 
+     * @return Node removed, if any; null if none
+     * @throws IllegalArgumentException if the path is invalid
+     * @throws UnsupportedOperationException if the targeted node does not support removal
+     * @since 2.6
+     */
+    public final JsonNode remove(JsonPointer ptr) {
+        if (ptr.matches()) {
+            return this;
+        } else if (ptr.tail().matches()) {
+            return _remove(ptr);
+        } else {
+            return _fromNullable(_at(ptr)).remove(ptr.tail());
+        }
+    }
+
+    protected abstract JsonNode _remove(JsonPointer ptr);
+
     /*
     /**********************************************************
     /* Public API, type introspection

@@ -116,6 +116,26 @@ public class ObjectNode
         return MissingNode.getInstance();
     }
 
+    @Override
+    protected JsonNode _add(JsonPointer ptr, JsonNode value) {
+        // FIXME Should we be able to use mayMatchProperty?
+        if (ptr.getMatchingProperty().length() > 0) {
+            return set(ptr.getMatchingProperty(), value);
+        } else {
+            throw new IllegalArgumentException("invalid object property: " + ptr);
+        }
+    }
+
+    @Override
+    protected JsonNode _remove(JsonPointer ptr) {
+        // FIXME Should we be able to use mayMatchProperty?
+        if (ptr.getMatchingProperty().length() > 0) {
+            return remove(ptr.getMatchingProperty());
+        } else {
+            throw new IllegalArgumentException("invalid object property: " + ptr);
+        }
+    }
+
     /**
      * Method to use for accessing all fields (with both names
      * and values) of this JSON Object.

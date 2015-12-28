@@ -49,15 +49,13 @@ public class NumberSerializer
         /* These shouldn't match (as there are more specific ones),
          * but just to be sure:
          */
-        } else if (value instanceof Integer) {
-            g.writeNumber(value.intValue());
         } else if (value instanceof Long) {
             g.writeNumber(value.longValue());
         } else if (value instanceof Double) {
             g.writeNumber(value.doubleValue());
         } else if (value instanceof Float) {
             g.writeNumber(value.floatValue());
-        } else if ((value instanceof Byte) || (value instanceof Short)) {
+        } else if (value instanceof Integer || value instanceof Byte || value instanceof Short) {
             g.writeNumber(value.intValue()); // doesn't need to be cast to smaller numbers
         } else {
             // We'll have to use fallback "untyped" number write method

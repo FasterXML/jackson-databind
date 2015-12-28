@@ -180,7 +180,7 @@ public class TestGenerateJsonSchema
     	public void setObvious(String s) {obvious = s; }
     }
     
-    public static FilterProvider secretFilterProvider = new SimpleFilterProvider()
+    public static final FilterProvider secretFilterProvider = new SimpleFilterProvider()
         .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
 
     public void testGeneratingJsonSchemaWithFilters() throws Exception {

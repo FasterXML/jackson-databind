@@ -40,8 +40,7 @@ public class MappingIteratorDeserializer
             DeserializationContext ctxt) throws IOException,
             JsonProcessingException
     {
-        MappingIterator<Object> mit = new MappingIterator<Object>(_valueType, p, ctxt,
+        return new MappingIterator<Object>(_valueType, p, ctxt,
                 _valueDeserializer, false, null);
-        return mit;
     }
 }

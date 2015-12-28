@@ -37,7 +37,7 @@ public final class ReadOnlyClassToSerializerMap
         _buckets = buckets;
     }
     
-    private final static int findSize(int size)
+    private static final int findSize(int size)
     {
         // For small enough results (64 or less), we'll require <= 50% fill rate; otherwise 80%
         int needed = (size <= 64) ? (size + size) : (size + (size >> 2));
@@ -137,7 +137,7 @@ public final class ReadOnlyClassToSerializerMap
     /**********************************************************
      */
 
-    private final static class Bucket
+    private static final class Bucket
     {
         public final JsonSerializer<Object> value;
         public final Bucket next;

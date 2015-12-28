@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RaceCondition738Test extends BaseMapTest
 {
-    static abstract class AbstractHasSubTypes implements HasSubTypes { }
+    abstract static class AbstractHasSubTypes implements HasSubTypes { }
 
     static class TypeOne extends AbstractHasSubTypes {
         private final String id;

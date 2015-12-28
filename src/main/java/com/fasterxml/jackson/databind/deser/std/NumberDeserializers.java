@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class NumberDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private static final HashSet<String> _classNames = new HashSet<String>();
     static {
         // note: can skip primitive types; other ways to check them:
         Class<?>[] numberTypes = new Class<?>[] {
@@ -159,13 +159,13 @@ public class NumberDeserializers
      */
 
     @JacksonStdImpl
-    public final static class BooleanDeserializer
+    public static final class BooleanDeserializer
         extends PrimitiveOrWrapperDeserializer<Boolean>
     {
         private static final long serialVersionUID = 1L;
 
-        final static BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.TYPE, Boolean.FALSE);
-        final static BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.class, null);
+        static final BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.TYPE, Boolean.FALSE);
+        static final BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.class, null);
 
         public BooleanDeserializer(Class<Boolean> cls, Boolean nvl)
         {
@@ -195,8 +195,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
-        final static ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
+        static final ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
+        static final ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
         
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
@@ -216,8 +216,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.TYPE, Short.valueOf((short)0));
-        final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.class, null);
+        static final ShortDeserializer primitiveInstance = new ShortDeserializer(Short.TYPE, Short.valueOf((short)0));
+        static final ShortDeserializer wrapperInstance = new ShortDeserializer(Short.class, null);
         
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
@@ -238,8 +238,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.TYPE, '\0');
-        final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.class, null);
+        static final CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.TYPE, '\0');
+        static final CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.class, null);
         
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
@@ -285,13 +285,13 @@ public class NumberDeserializers
     }
 
     @JacksonStdImpl
-    public final static class IntegerDeserializer
+    public static final class IntegerDeserializer
         extends PrimitiveOrWrapperDeserializer<Integer>
     {
         private static final long serialVersionUID = 1L;
 
-        final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, Integer.valueOf(0));
-        final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
+        static final IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, Integer.valueOf(0));
+        static final IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
         
         public IntegerDeserializer(Class<Integer> cls, Integer nvl) {
             super(cls, nvl);
@@ -323,13 +323,13 @@ public class NumberDeserializers
     }
 
     @JacksonStdImpl
-    public final static class LongDeserializer
+    public static final class LongDeserializer
         extends PrimitiveOrWrapperDeserializer<Long>
     {
         private static final long serialVersionUID = 1L;
 
-        final static LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, Long.valueOf(0L));
-        final static LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
+        static final LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, Long.valueOf(0L));
+        static final LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
         
         public LongDeserializer(Class<Long> cls, Long nvl) {
             super(cls, nvl);
@@ -354,8 +354,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.TYPE, 0.f);
-        final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
+        static final FloatDeserializer primitiveInstance = new FloatDeserializer(Float.TYPE, 0.f);
+        static final FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
         
         public FloatDeserializer(Class<Float> cls, Float nvl) {
             super(cls, nvl);
@@ -374,8 +374,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.TYPE, 0.d);
-        final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
+        static final DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.TYPE, 0.d);
+        static final DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
         
         public DoubleDeserializer(Class<Double> cls, Double nvl) {
             super(cls, nvl);
@@ -411,7 +411,7 @@ public class NumberDeserializers
     public static class NumberDeserializer
         extends StdScalarDeserializer<Object>
     {
-        public final static NumberDeserializer instance = new NumberDeserializer();
+        public static final NumberDeserializer instance = new NumberDeserializer();
         
         public NumberDeserializer() {
             super(Number.class);
@@ -528,7 +528,7 @@ public class NumberDeserializers
     public static class BigIntegerDeserializer
         extends StdScalarDeserializer<BigInteger>
     {
-        public final static BigIntegerDeserializer instance = new BigIntegerDeserializer();
+        public static final BigIntegerDeserializer instance = new BigIntegerDeserializer();
 
         public BigIntegerDeserializer() { super(BigInteger.class); }
 
@@ -583,7 +583,7 @@ public class NumberDeserializers
     public static class BigDecimalDeserializer
         extends StdScalarDeserializer<BigDecimal>
     {
-        public final static BigDecimalDeserializer instance = new BigDecimalDeserializer();
+        public static final BigDecimalDeserializer instance = new BigDecimalDeserializer();
  
         public BigDecimalDeserializer() { super(BigDecimal.class); }
 

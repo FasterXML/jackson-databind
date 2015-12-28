@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestGenerics
     extends BaseMapTest
 {
-    static abstract class BaseNumberBean<T extends Number>
+    abstract static class BaseNumberBean<T extends Number>
     {
         public abstract void setNumber(T value);
     }

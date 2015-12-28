@@ -62,7 +62,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testWithView() throws Exception
     {

@@ -167,7 +167,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          * This is the canonical base instance, configured with default
          * visibility values
          */
-        protected final static Std DEFAULT = new Std(Std.class.getAnnotation(JsonAutoDetect.class));
+        protected static final Std DEFAULT = new Std(Std.class.getAnnotation(JsonAutoDetect.class));
         
         protected final Visibility _getterMinLevel;
         protected final Visibility _isGetterMinLevel;

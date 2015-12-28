@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 
 public class TestWithGenerics extends BaseMapTest
 {
+    @JsonSubTypes({@Type(value = Dog.class, name = "doggy")})
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
-    @JsonSubTypes( { @Type(value = Dog.class, name = "doggy") })
-    static abstract class Animal {
+    abstract static class Animal {
         public String name;
     }    
 

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 public final class ClassUtil
 {
-    private final static Class<?> CLS_OBJECT = Object.class;
+    private static final Class<?> CLS_OBJECT = Object.class;
 
     /*
     /**********************************************************
@@ -342,7 +342,7 @@ public final class ClassUtil
      *   So let's do somewhat aggressive caching.
      */
 
-    private final static LRUMap<Class<?>,ClassMetadata> sCached = new LRUMap<Class<?>,ClassMetadata>(48, 48);    
+    private static final LRUMap<Class<?>,ClassMetadata> sCached = new LRUMap<Class<?>,ClassMetadata>(48, 48);
 
     /**
      * @since 2.7
@@ -892,7 +892,7 @@ public final class ClassUtil
      */
     private static class EnumTypeLocator
     {
-        final static EnumTypeLocator instance = new EnumTypeLocator();
+        static final EnumTypeLocator instance = new EnumTypeLocator();
 
         private final Field enumSetTypeField;
         private final Field enumMapTypeField;
@@ -970,10 +970,10 @@ public final class ClassUtil
     /**
      * @since 2.7
      */
-    private final static class ClassMetadata
+    private static final class ClassMetadata
     {
-        private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
-        private final static Ctor[] NO_CTORS = new Ctor[0];
+        private static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
+        private static final Ctor[] NO_CTORS = new Ctor[0];
 
         private final Class<?> _forClass;
 
@@ -1111,7 +1111,7 @@ public final class ClassUtil
      *
      * @since 2.7
      */
-    public final static class Ctor
+    public static final class Ctor
     {
         public final Constructor<?> _ctor;
 

@@ -111,7 +111,7 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
         _spillCount = spillCount;
     }
     
-    private final static int findSize(int size)
+    private static final int findSize(int size)
     {
         if (size <= 5) {
             return 8;

@@ -25,7 +25,7 @@ public class ToStringSerializer
     /**
      * Singleton instance to use.
      */
-    public final static ToStringSerializer instance = new ToStringSerializer();
+    public static final ToStringSerializer instance = new ToStringSerializer();
 
     /**
      *<p>

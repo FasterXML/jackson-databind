@@ -43,7 +43,7 @@ public abstract class PropertyValue
      * Property value that used when assigning value to property using
      * a setter method or direct field access.
      */
-    final static class Regular
+    static final class Regular
         extends PropertyValue
     {
         final SettableBeanProperty _property;
@@ -69,7 +69,7 @@ public abstract class PropertyValue
      * value arguments, allowing setting multiple different
      * properties using single method).
      */
-    final static class Any
+    static final class Any
         extends PropertyValue
     {
         final SettableAnyProperty _property;
@@ -96,7 +96,7 @@ public abstract class PropertyValue
      * Property value type used when storing entries to be added
      * to a Map.
      */
-    final static class Map
+    static final class Map
         extends PropertyValue
     {
         final Object _key;

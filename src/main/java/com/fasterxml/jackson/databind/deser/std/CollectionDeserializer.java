@@ -348,7 +348,7 @@ public class CollectionDeserializer
         return result;
     }
 
-    public final static class CollectionReferringAccumulator {
+    public static final class CollectionReferringAccumulator {
         private final Class<?> _elementType;
         private final Collection<Object> _result;
 
@@ -407,7 +407,7 @@ public class CollectionDeserializer
      * object associated with {@link #_id} comes before the values in
      * {@link #next}.
      */
-    private final static class CollectionReferring extends Referring {
+    private static final class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
         public final List<Object> next = new ArrayList<Object>();
         

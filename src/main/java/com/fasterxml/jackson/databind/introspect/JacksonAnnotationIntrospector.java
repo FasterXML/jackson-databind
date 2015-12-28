@@ -33,7 +33,7 @@ public class JacksonAnnotationIntrospector
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("unchecked")
-    private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_SER = (Class<? extends Annotation>[])
+    private static final Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_SER = (Class<? extends Annotation>[])
             new Class<?>[] {
         JsonSerialize.class,
         JsonView.class,
@@ -45,7 +45,7 @@ public class JacksonAnnotationIntrospector
     };
 
     @SuppressWarnings("unchecked")
-    private final static Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
+    private static final Class<? extends Annotation>[] ANNOTATIONS_TO_INFER_DESER = (Class<? extends Annotation>[])
             new Class<?>[] {
         JsonDeserialize.class,
         JsonView.class,

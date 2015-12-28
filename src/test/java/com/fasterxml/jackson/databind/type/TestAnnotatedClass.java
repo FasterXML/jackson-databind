@@ -35,7 +35,7 @@ public class TestAnnotatedClass
         public int y() { return 3; }
     }
 
-    static abstract class GenericBase<T extends Number>
+    abstract static class GenericBase<T extends Number>
     {
         public abstract void setX(T value);
     }

@@ -26,7 +26,7 @@ public class MapInclusionTest extends BaseMapTest
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
 
     // [databind#588]
     public void testNonNullValueMapViaProp() throws IOException

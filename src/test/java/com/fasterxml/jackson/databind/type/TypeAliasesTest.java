@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.*;
 public class TypeAliasesTest
     extends BaseMapTest
 {
-    public static abstract class Base<T> {
+    public abstract static class Base<T> {
         public T inconsequential = null;
     }
 
-    public static abstract class BaseData<T> {
+    public abstract static class BaseData<T> {
         public T dataObj;
     }
    

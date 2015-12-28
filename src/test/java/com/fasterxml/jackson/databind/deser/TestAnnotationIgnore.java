@@ -12,7 +12,7 @@ public class TestAnnotationIgnore
     extends BaseMapTest
 {
     // Class for testing {@link JsonIgnore} annotations with setters
-    final static class SizeClassIgnore
+    static final class SizeClassIgnore
     {
         int _x = 0;
         int _y = 0;
@@ -28,8 +28,8 @@ public class TestAnnotationIgnore
         }
     }
 
-    @JsonIgnoreProperties({ "z" })
-    final static class NoYOrZ
+    @JsonIgnoreProperties({"z"})
+    static final class NoYOrZ
     {
         public int x;
 

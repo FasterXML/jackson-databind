@@ -12,7 +12,7 @@ public class TestNoTypeInfo extends BaseMapTest
     static interface NoTypeInterface {
     }
     
-    final static class NoType implements NoTypeInterface {
+    static final class NoType implements NoTypeInterface {
         public int a = 3;
     }
     

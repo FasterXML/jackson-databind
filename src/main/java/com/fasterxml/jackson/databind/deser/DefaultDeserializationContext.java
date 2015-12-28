@@ -311,7 +311,7 @@ public abstract class DefaultDeserializationContext
     /**
      * Actual full concrete implementation
      */
-    public final static class Impl extends DefaultDeserializationContext
+    public static final class Impl extends DefaultDeserializationContext
     {
         private static final long serialVersionUID = 1L;
 

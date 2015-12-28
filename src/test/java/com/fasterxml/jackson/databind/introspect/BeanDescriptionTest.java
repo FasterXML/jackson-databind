@@ -7,7 +7,7 @@ public class BeanDescriptionTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 
-    private final static String CLASS_DESC = "Description, yay!";
+    private static final String CLASS_DESC = "Description, yay!";
     
     @JsonClassDescription(CLASS_DESC)
     static class DocumentedBean {

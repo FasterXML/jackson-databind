@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 
 public class TestGeneratorUsingMapper extends BaseMapTest
 {
-    final static class Pojo
+    static final class Pojo
     {
         public int getX() { return 4; }
     }

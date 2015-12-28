@@ -129,7 +129,7 @@ public class TestMapSerialization extends BaseMapTest
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
 
     public void testUsingObjectWriter() throws IOException
     {

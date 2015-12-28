@@ -24,7 +24,7 @@ public final class IndexedStringListSerializer
 {
     private static final long serialVersionUID = 1L;
 
-    public final static IndexedStringListSerializer instance = new IndexedStringListSerializer();
+    public static final IndexedStringListSerializer instance = new IndexedStringListSerializer();
 
     /*
     /**********************************************************

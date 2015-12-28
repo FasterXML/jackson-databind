@@ -42,10 +42,10 @@ public class TestTypeFactory
     static class MyStringXMap<V> extends HashMap<String,V> { }
 
     // And one more, now with obfuscated type names; essentially it's just Map<Int,Long>
-    static abstract class IntLongMap extends XLongMap<Integer> { }
+    abstract static class IntLongMap extends XLongMap<Integer> { }
     // trick here is that V now refers to key type, not value type
-    static abstract class XLongMap<V> extends XXMap<V,Long> { }
-    static abstract class XXMap<K,V> implements Map<K,V> { }
+    abstract static class XLongMap<V> extends XXMap<V,Long> { }
+    abstract static class XXMap<K,V> implements Map<K,V> { }
 
     static class SneakyBean {
         public IntLongMap intMap;
@@ -471,7 +471,7 @@ public class TestTypeFactory
         assertEquals(tf.constructType(long[].class), params[0]);
     }
 
-    static abstract class StringIntMapEntry implements Map.Entry<String,Integer> { }
+    abstract static class StringIntMapEntry implements Map.Entry<String,Integer> { }
     
     public void testMapEntryResolution()
     {

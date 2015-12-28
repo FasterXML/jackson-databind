@@ -11,7 +11,7 @@ public final class AnnotatedMethod
 {
     private static final long serialVersionUID = 1L;
 
-    final protected transient Method _method;
+    protected final transient Method _method;
 
     // // Simple lazy-caching:
 
@@ -269,7 +269,7 @@ public final class AnnotatedMethod
      * Field references. It basically just stores declaring class
      * and field name.
      */
-    private final static class Serialization
+    private static final class Serialization
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;

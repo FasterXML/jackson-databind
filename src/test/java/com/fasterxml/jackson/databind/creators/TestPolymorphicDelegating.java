@@ -9,7 +9,7 @@ public class TestPolymorphicDelegating extends BaseMapTest
     // For [databind#580]
     
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-    static abstract class Issue580Base {
+    abstract static class Issue580Base {
     }
 
     static class Issue580Impl extends Issue580Base {

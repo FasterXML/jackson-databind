@@ -50,7 +50,7 @@ public abstract class DeserializationContext
      * may be very large -- no point in spamming logs with megs of meaningless
      * data.
      */
-    private final static int MAX_ERROR_STR_LEN = 500;
+    private static final int MAX_ERROR_STR_LEN = 500;
 
     /*
     /**********************************************************

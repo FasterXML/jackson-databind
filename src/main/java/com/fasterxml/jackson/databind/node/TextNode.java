@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class TextNode
     extends ValueNode
 {
-    final static TextNode EMPTY_STRING_NODE = new TextNode("");
+    static final TextNode EMPTY_STRING_NODE = new TextNode("");
 
     protected final String _value;
 

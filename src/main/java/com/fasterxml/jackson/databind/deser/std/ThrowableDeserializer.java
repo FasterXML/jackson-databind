@@ -18,7 +18,7 @@ public class ThrowableDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    protected final static String PROP_NAME_MESSAGE = "message";
+    protected static final String PROP_NAME_MESSAGE = "message";
 
     /*
     /************************************************************

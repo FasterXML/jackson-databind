@@ -24,7 +24,7 @@ public class DataFormatReaders
      * much less (4 bytes or so) is needed, but we will allow bit more
      * leniency to support data formats that need more complex heuristics.
      */
-    public final static int DEFAULT_MAX_INPUT_LOOKAHEAD = 64;
+    public static final int DEFAULT_MAX_INPUT_LOOKAHEAD = 64;
     
     /**
      * Ordered list of readers which both represent data formats to

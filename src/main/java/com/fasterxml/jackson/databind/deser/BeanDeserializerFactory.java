@@ -36,9 +36,9 @@ public class BeanDeserializerFactory
     /**
      * Signature of <b>Throwable.initCause</b> method.
      */
-    private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
+    private static final Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
-    private final static Class<?>[] NO_VIEWS = new Class<?>[0];
+    private static final Class<?>[] NO_VIEWS = new Class<?>[0];
     
     /*
     /**********************************************************
@@ -50,7 +50,7 @@ public class BeanDeserializerFactory
      * Globally shareable thread-safe instance which has no additional custom deserializers
      * registered
      */
-    public final static BeanDeserializerFactory instance = new BeanDeserializerFactory(
+    public static final BeanDeserializerFactory instance = new BeanDeserializerFactory(
             new DeserializerFactoryConfig());
 
     public BeanDeserializerFactory(DeserializerFactoryConfig config) {

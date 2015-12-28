@@ -43,7 +43,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
 
-    static abstract class InstantiatorBase extends ValueInstantiator
+    abstract static class InstantiatorBase extends ValueInstantiator
     {
         @Override
         public String getValueTypeDesc() {
@@ -54,7 +54,7 @@ public class TestValueInstantiator extends BaseMapTest
         public boolean canCreateUsingDelegate() { return false; }
     }
     
-    static abstract class PolymorphicBeanBase { }
+    abstract static class PolymorphicBeanBase { }
     
     static class PolymorphicBean extends PolymorphicBeanBase
     {

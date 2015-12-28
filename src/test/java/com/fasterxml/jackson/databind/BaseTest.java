@@ -18,18 +18,18 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    protected final static int SAMPLE_SPEC_VALUE_WIDTH = 800;
-    protected final static int SAMPLE_SPEC_VALUE_HEIGHT = 600;
-    protected final static String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
-    protected final static String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
-    protected final static int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
-    protected final static String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
-    protected final static int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
-    protected final static int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
-    protected final static int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
-    protected final static int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
+    protected static final int SAMPLE_SPEC_VALUE_WIDTH = 800;
+    protected static final int SAMPLE_SPEC_VALUE_HEIGHT = 600;
+    protected static final String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
+    protected static final String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
+    protected static final int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
+    protected static final String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
 
-    protected final static String SAMPLE_DOC_JSON_SPEC = 
+    protected static final String SAMPLE_DOC_JSON_SPEC =
         "{\n"
         +"  \"Image\" : {\n"
         +"    \"Width\" : "+SAMPLE_SPEC_VALUE_WIDTH+",\n"

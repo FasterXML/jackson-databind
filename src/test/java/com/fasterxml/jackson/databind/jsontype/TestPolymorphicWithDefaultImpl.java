@@ -98,8 +98,8 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     }
 
     // for [databind#656]
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.WRAPPER_OBJECT, defaultImpl=ImplFor656.class)
-    static abstract class BaseFor656 { }
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT, defaultImpl = ImplFor656.class)
+    abstract static class BaseFor656 { }
 
     static class ImplFor656 extends BaseFor656 {
         public int a;

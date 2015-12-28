@@ -108,8 +108,8 @@ public class NumberSerializers {
      */
 
     @JacksonStdImpl
-    public final static class ShortSerializer extends Base<Object> {
-        final static ShortSerializer instance = new ShortSerializer();
+    public static final class ShortSerializer extends Base<Object> {
+        static final ShortSerializer instance = new ShortSerializer();
 
         public ShortSerializer() {
             super(Short.class, JsonParser.NumberType.INT, "number");
@@ -133,7 +133,7 @@ public class NumberSerializers {
      * of bridge methods.
      */
     @JacksonStdImpl
-    public final static class IntegerSerializer extends Base<Object> {
+    public static final class IntegerSerializer extends Base<Object> {
         public IntegerSerializer() {
             super(Integer.class, JsonParser.NumberType.INT, "integer");
         }
@@ -160,8 +160,8 @@ public class NumberSerializers {
      * calling {@link java.lang.Number#intValue}.
      */
     @JacksonStdImpl
-    public final static class IntLikeSerializer extends Base<Object> {
-        final static IntLikeSerializer instance = new IntLikeSerializer();
+    public static final class IntLikeSerializer extends Base<Object> {
+        static final IntLikeSerializer instance = new IntLikeSerializer();
 
         public IntLikeSerializer() {
             super(Number.class, JsonParser.NumberType.INT, "integer");
@@ -175,8 +175,8 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class LongSerializer extends Base<Object> {
-        final static LongSerializer instance = new LongSerializer();
+    public static final class LongSerializer extends Base<Object> {
+        static final LongSerializer instance = new LongSerializer();
 
         public LongSerializer() {
             super(Long.class, JsonParser.NumberType.LONG, "number");
@@ -190,8 +190,8 @@ public class NumberSerializers {
     }
 
     @JacksonStdImpl
-    public final static class FloatSerializer extends Base<Object> {
-        final static FloatSerializer instance = new FloatSerializer();
+    public static final class FloatSerializer extends Base<Object> {
+        static final FloatSerializer instance = new FloatSerializer();
 
         public FloatSerializer() {
             super(Float.class, JsonParser.NumberType.FLOAT, "number");
@@ -212,8 +212,8 @@ public class NumberSerializers {
      * on serialization (unlike for most scalar types as of 1.5)
      */
     @JacksonStdImpl
-    public final static class DoubleSerializer extends Base<Object> {
-        final static DoubleSerializer instance = new DoubleSerializer();
+    public static final class DoubleSerializer extends Base<Object> {
+        static final DoubleSerializer instance = new DoubleSerializer();
 
         public DoubleSerializer() {
             super(Double.class, JsonParser.NumberType.DOUBLE, "number");

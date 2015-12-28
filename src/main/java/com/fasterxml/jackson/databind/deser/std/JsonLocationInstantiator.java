@@ -49,11 +49,11 @@ public class JsonLocationInstantiator extends ValueInstantiator
                 _int(args[3]), _int(args[4]));
     }
 
-    private final static long _long(Object o) {
+    private static final long _long(Object o) {
         return (o == null) ? 0L : ((Number) o).longValue();
     }
 
-    private final static int _int(Object o) {
+    private static final int _int(Object o) {
         return (o == null) ? 0 : ((Number) o).intValue();
     }
 }

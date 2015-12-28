@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 @SuppressWarnings("serial")
 public class StdArraySerializers
 {
-    protected final static HashMap<String, JsonSerializer<?>> _arraySerializers =
+    protected static final HashMap<String, JsonSerializer<?>> _arraySerializers =
         new HashMap<String, JsonSerializer<?>>();
     static {
         // Arrays of various types (including common object types)
@@ -86,7 +86,7 @@ public class StdArraySerializers
         extends ArraySerializerBase<boolean[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
+        private static final JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
 
         public BooleanArraySerializer() { super(boolean[].class); }
 
@@ -176,7 +176,7 @@ public class StdArraySerializers
     public static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
+        private static final JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
 
         public ShortArraySerializer() { super(short[].class); }
         public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
@@ -343,7 +343,7 @@ public class StdArraySerializers
     public static class IntArraySerializer extends ArraySerializerBase<int[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
+        private static final JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
 
         public IntArraySerializer() { super(int[].class); }
 
@@ -432,7 +432,7 @@ public class StdArraySerializers
     public static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
+        private static final JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
 
         public LongArraySerializer() { super(long[].class); }
         public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
@@ -525,7 +525,7 @@ public class StdArraySerializers
     public static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
+        private static final JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
         
         public FloatArraySerializer() {
             super(float[].class);
@@ -616,7 +616,7 @@ public class StdArraySerializers
     public static class DoubleArraySerializer extends ArraySerializerBase<double[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
-        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
+        private static final JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
 
         public DoubleArraySerializer() { super(double[].class); }
 

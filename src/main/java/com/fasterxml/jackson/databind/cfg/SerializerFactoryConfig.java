@@ -16,9 +16,9 @@ public final class SerializerFactoryConfig
      * Constant for empty <code>Serializers</code> array (which by definition
      * is stateless and reusable)
      */
-    protected final static Serializers[] NO_SERIALIZERS = new Serializers[0];
+    protected static final Serializers[] NO_SERIALIZERS = new Serializers[0];
 
-    protected final static BeanSerializerModifier[] NO_MODIFIERS = new BeanSerializerModifier[0];
+    protected static final BeanSerializerModifier[] NO_MODIFIERS = new BeanSerializerModifier[0];
     
     /**
      * List of providers for additional serializers, checked before considering default

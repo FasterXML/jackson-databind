@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.*;
 public class TestTreeSerialization
     extends BaseMapTest
 {
-    final static class Bean {
+    static final class Bean {
         public String getX() { return "y"; }
         public int getY() { return 13; }
     }

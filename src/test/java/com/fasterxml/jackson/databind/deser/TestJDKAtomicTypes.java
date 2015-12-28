@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class TestJDKAtomicTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
+    @JsonSubTypes({@JsonSubTypes.Type(Impl.class)})
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
-    @JsonSubTypes({ @JsonSubTypes.Type(Impl.class) })
-    static abstract class Base { }
+    abstract static class Base { }
 
     @JsonTypeName("I")
     static class Impl extends Base {

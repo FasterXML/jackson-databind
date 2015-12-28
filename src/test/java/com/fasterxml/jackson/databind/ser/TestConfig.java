@@ -22,11 +22,11 @@ public class TestConfig
     /**********************************************************
      */
 
+    @JsonSerialize(typing = JsonSerialize.Typing.STATIC)
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    @JsonSerialize(typing=JsonSerialize.Typing.STATIC)
-    final static class Config { }
+    static final class Config { }
 
-    final static class ConfigNone { }
+    static final class ConfigNone { }
 
     static class AnnoBean {
         public int getX() { return 1; }
@@ -48,7 +48,7 @@ public class TestConfig
     /**********************************************************
      */
 
-    final static ObjectMapper MAPPER = new ObjectMapper();
+    static final ObjectMapper MAPPER = new ObjectMapper();
 
     /* Test to verify that we don't overflow number of features; if we
      * hit the limit, need to change implementation -- this test just
@@ -224,7 +224,7 @@ public class TestConfig
         assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
     }
     
-    private final static String getLF() {
+    private static final String getLF() {
         return System.getProperty("line.separator");
     }
 }

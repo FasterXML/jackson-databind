@@ -14,15 +14,15 @@ import com.fasterxml.jackson.databind.*;
 public class TestTreeMapperSerializer
     extends BaseMapTest
 {
-    final static String FIELD1 = "first";
-    final static String FIELD2 = "Second?";
-    final static String FIELD3 = "foo'n \"bar\"";
-    final static String FIELD4 = "4";
+    static final String FIELD1 = "first";
+    static final String FIELD2 = "Second?";
+    static final String FIELD3 = "foo'n \"bar\"";
+    static final String FIELD4 = "4";
 
-    final static String TEXT1 = "Some text & \"stuff\"";
-    final static String TEXT2 = "Some more text:\twith\nlinefeeds and all!";
+    static final String TEXT1 = "Some text & \"stuff\"";
+    static final String TEXT2 = "Some more text:\twith\nlinefeeds and all!";
 
-    final static double DOUBLE_VALUE = 9.25;
+    static final double DOUBLE_VALUE = 9.25;
 
     public void testFromArray()
         throws Exception

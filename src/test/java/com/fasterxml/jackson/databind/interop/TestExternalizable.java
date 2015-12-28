@@ -17,7 +17,7 @@ public class TestExternalizable extends BaseMapTest
      */
     static class MapperHolder {
         private final ObjectMapper mapper = new ObjectMapper();
-        private final static MapperHolder instance = new MapperHolder();
+        private static final MapperHolder instance = new MapperHolder();
         public static ObjectMapper mapper() { return instance.mapper; }
     }
 
@@ -25,7 +25,7 @@ public class TestExternalizable extends BaseMapTest
      * Helper class we need to adapt {@link ObjectOutput} as
      * {@link OutputStream}
      */
-    final static class ExternalizableInput extends InputStream
+    static final class ExternalizableInput extends InputStream
     {
         private final ObjectInput in;
 
@@ -73,7 +73,7 @@ public class TestExternalizable extends BaseMapTest
      * Helper class we need to adapt {@link ObjectOutput} as
      * {@link OutputStream}
      */
-    final static class ExternalizableOutput extends OutputStream
+    static final class ExternalizableOutput extends OutputStream
     {
         private final ObjectOutput out;
 

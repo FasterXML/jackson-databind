@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public abstract class BaseMapTest
     extends BaseTest
 {
-    private final static Object SINGLETON_OBJECT = new Object();
+    private static final Object SINGLETON_OBJECT = new Object();
     
     /*
     /**********************************************************
@@ -124,7 +124,7 @@ public abstract class BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper SHARED_MAPPER = new ObjectMapper();
+    private static final ObjectMapper SHARED_MAPPER = new ObjectMapper();
 
     protected ObjectMapper objectMapper() {
         return SHARED_MAPPER;

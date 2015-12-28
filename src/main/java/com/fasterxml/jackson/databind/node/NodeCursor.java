@@ -108,7 +108,7 @@ abstract class NodeCursor
      * than JSON Object and Array).
      * Note that context is NOT created for leaf values.
      */
-    protected final static class RootCursor
+    protected static final class RootCursor
         extends NodeCursor
     {
         protected JsonNode _node;
@@ -148,7 +148,7 @@ abstract class NodeCursor
     /**
      * Cursor used for traversing non-empty JSON Array nodes
      */
-    protected final static class ArrayCursor
+    protected static final class ArrayCursor
         extends NodeCursor
     {
         protected Iterator<JsonNode> _contents;
@@ -188,7 +188,7 @@ abstract class NodeCursor
     /**
      * Cursor used for traversing non-empty JSON Object nodes
      */
-    protected final static class ObjectCursor
+    protected static final class ObjectCursor
         extends NodeCursor
     {
         protected Iterator<Map.Entry<String, JsonNode>> _contents;

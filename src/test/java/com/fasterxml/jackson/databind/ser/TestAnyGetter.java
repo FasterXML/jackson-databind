@@ -13,7 +13,7 @@ public class TestAnyGetter extends BaseMapTest
 {
     static class Bean
     {
-        final static Map<String,Boolean> extra = new HashMap<String,Boolean>();
+        static final Map<String,Boolean> extra = new HashMap<String,Boolean>();
         static {
             extra.put("a", Boolean.TRUE);
         }

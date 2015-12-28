@@ -20,8 +20,8 @@ public final class TypeWrappedDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    final protected TypeDeserializer _typeDeserializer;
-    final protected JsonDeserializer<Object> _deserializer;
+    protected final TypeDeserializer _typeDeserializer;
+    protected final JsonDeserializer<Object> _deserializer;
 
     @SuppressWarnings("unchecked")
     public TypeWrappedDeserializer(TypeDeserializer typeDeser, JsonDeserializer<?> deser)

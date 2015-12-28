@@ -31,7 +31,7 @@ public final class InnerClassProperty
      * Transient since there is no need to persist; only needed during
      * construction of objects.
      */
-    final protected transient Constructor<?> _creator;
+    protected final transient Constructor<?> _creator;
     
     /**
      * Serializable version of single-arg constructor we use for value instantiation.

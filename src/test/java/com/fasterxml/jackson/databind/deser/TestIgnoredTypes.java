@@ -47,7 +47,7 @@ public class TestIgnoredTypes extends BaseMapTest
     }
     
     @JsonIgnoreType
-    static abstract class PersonMixin {
+    abstract static class PersonMixin {
     }
     
     /*

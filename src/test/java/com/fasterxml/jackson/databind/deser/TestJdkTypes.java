@@ -71,7 +71,7 @@ public class TestJdkTypes extends BaseMapTest
 
     // [Issue#429]
     static class StackTraceBean {
-        public final static int NUM = 13;
+        public static final int NUM = 13;
 
         @JsonProperty("Location")
         @JsonDeserialize(using=MyStackTraceElementDeserializer.class)

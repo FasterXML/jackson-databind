@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class TestIterable extends BaseMapTest
 {
-    final static class IterableWrapper
+    static final class IterableWrapper
         implements Iterable<Integer>
     {
         List<Integer> _ints = new ArrayList<Integer>();
@@ -96,7 +96,7 @@ public class TestIterable extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testIterator() throws IOException
     {

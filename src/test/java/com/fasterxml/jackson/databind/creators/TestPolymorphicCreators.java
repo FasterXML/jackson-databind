@@ -67,7 +67,7 @@ public class TestPolymorphicCreators
             throw new RuntimeException("cannot instantiate " + which);
         }
 
-        abstract public int getWhich();
+        public abstract int getWhich();
 
         public final String getOpt() {
             return opt;

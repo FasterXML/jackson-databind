@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 public class TestContextAttributeWithSer extends BaseMapTest
 {
-    final static String KEY = "foobar";
+    static final String KEY = "foobar";
 
     @SuppressWarnings("serial")
     static class PrefixStringSerializer extends StdScalarSerializer<String>

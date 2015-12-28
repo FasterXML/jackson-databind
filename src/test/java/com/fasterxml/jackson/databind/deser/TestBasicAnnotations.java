@@ -25,7 +25,7 @@ public class TestBasicAnnotations
      */
 
     /// Class for testing {@link JsonProperty} annotations
-    final static class SizeClassSetter
+    static final class SizeClassSetter
     {
         int _size;
         int _length;
@@ -46,7 +46,7 @@ public class TestBasicAnnotations
         protected IntWrapper w = new IntWrapper(13);
     }
     
-    final static class SizeClassSetter2
+    static final class SizeClassSetter2
     {
         int _x;
 
@@ -60,7 +60,7 @@ public class TestBasicAnnotations
      * One more, but this time checking for implied setter
      * using @JsonDeserialize
      */
-    final static class SizeClassSetter3
+    static final class SizeClassSetter3
     {
         int _x;
 
@@ -94,7 +94,7 @@ public class TestBasicAnnotations
     /**********************************************************
      */
 
-    final static class IntsDeserializer extends StdDeserializer<int[]>
+    static final class IntsDeserializer extends StdDeserializer<int[]>
     {
         public IntsDeserializer() { super(int[].class); }
         @Override

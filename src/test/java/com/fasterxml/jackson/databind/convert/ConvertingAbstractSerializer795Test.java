@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 // for [databind#795]
 public class ConvertingAbstractSerializer795Test extends BaseMapTest
 {
-    public static abstract class AbstractCustomType {
+    public abstract static class AbstractCustomType {
         final String value;
         public AbstractCustomType(String v) {
             this.value = v;

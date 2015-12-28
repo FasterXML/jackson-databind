@@ -24,7 +24,7 @@ public class NumberSerializer
     /**
      * Static instance that is only to be used for {@link java.lang.Number}.
      */
-    public final static NumberSerializer instance = new NumberSerializer(Number.class);
+    public static final NumberSerializer instance = new NumberSerializer(Number.class);
 
     protected final boolean _isInt;
 

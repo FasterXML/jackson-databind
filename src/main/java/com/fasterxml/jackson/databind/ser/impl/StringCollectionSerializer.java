@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 public class StringCollectionSerializer
     extends StaticListSerializerBase<Collection<String>>
 {
-    public final static StringCollectionSerializer instance = new StringCollectionSerializer();
+    public static final StringCollectionSerializer instance = new StringCollectionSerializer();
 
     /*
     /**********************************************************

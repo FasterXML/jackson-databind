@@ -35,13 +35,13 @@ public class UntypedObjectDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    protected final static Object[] NO_OBJECTS = new Object[0];
+    protected static final Object[] NO_OBJECTS = new Object[0];
 
     /**
      * @deprecated Since 2.3, construct a new instance, needs to be resolved
      */
     @Deprecated
-    public final static UntypedObjectDeserializer instance = new UntypedObjectDeserializer(null, null);
+    public static final UntypedObjectDeserializer instance = new UntypedObjectDeserializer(null, null);
 
     /*
     /**********************************************************
@@ -477,7 +477,7 @@ public class UntypedObjectDeserializer
     {
         private static final long serialVersionUID = 1L;
 
-        public final static Vanilla std = new Vanilla();
+        public static final Vanilla std = new Vanilla();
 
         public Vanilla() { super(Object.class); }
 

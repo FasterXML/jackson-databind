@@ -16,7 +16,7 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
     /**
      * @since 2.2
      */
-    public final static StringDeserializer instance = new StringDeserializer();
+    public static final StringDeserializer instance = new StringDeserializer();
     
     public StringDeserializer() { super(String.class); }
 

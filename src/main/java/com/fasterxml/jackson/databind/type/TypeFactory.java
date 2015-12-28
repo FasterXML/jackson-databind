@@ -36,16 +36,16 @@ public final class TypeFactory
 {
     private static final long serialVersionUID = 1L;
 
-    private final static JavaType[] NO_TYPES = new JavaType[0];
+    private static final JavaType[] NO_TYPES = new JavaType[0];
 
     /**
      * Globally shared singleton. Not accessed directly; non-core
      * code should use per-ObjectMapper instance (via configuration objects).
      * Core Jackson code uses {@link #defaultInstance} for accessing it.
      */
-    protected final static TypeFactory instance = new TypeFactory();
+    protected static final TypeFactory instance = new TypeFactory();
 
-    protected final static TypeBindings EMPTY_BINDINGS = TypeBindings.emptyBindings();
+    protected static final TypeBindings EMPTY_BINDINGS = TypeBindings.emptyBindings();
 
     /*
     /**********************************************************
@@ -57,16 +57,16 @@ public final class TypeFactory
     // // // will not be modified, and can be freely shared to streamline
     // // // parts of processing
 
-    private final static Class<?> CLS_STRING = String.class;
-    private final static Class<?> CLS_OBJECT = Object.class;
+    private static final Class<?> CLS_STRING = String.class;
+    private static final Class<?> CLS_OBJECT = Object.class;
 
-    private final static Class<?> CLS_COMPARABLE = Comparable.class;
-    private final static Class<?> CLS_CLASS = Class.class;
-    private final static Class<?> CLS_ENUM = Enum.class;
+    private static final Class<?> CLS_COMPARABLE = Comparable.class;
+    private static final Class<?> CLS_CLASS = Class.class;
+    private static final Class<?> CLS_ENUM = Enum.class;
 
-    private final static Class<?> CLS_BOOL = Boolean.TYPE;
-    private final static Class<?> CLS_INT = Integer.TYPE;
-    private final static Class<?> CLS_LONG = Long.TYPE;
+    private static final Class<?> CLS_BOOL = Boolean.TYPE;
+    private static final Class<?> CLS_INT = Integer.TYPE;
+    private static final Class<?> CLS_LONG = Long.TYPE;
 
     /*
     /**********************************************************
@@ -75,15 +75,15 @@ public final class TypeFactory
      */
 
     // note: these are primitive, hence no super types
-    protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
-    protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
-    protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
+    protected static final SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
+    protected static final SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
+    protected static final SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
 
     // and as to String... well, for now, ignore its super types
-    protected final static SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);
+    protected static final SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);
 
     // @since 2.7
-    protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
+    protected static final SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
 
     /**
      * Cache {@link Comparable} because it is both parameteric (relatively costly to
@@ -91,7 +91,7 @@ public final class TypeFactory
      *
      * @since 2.7
      */
-    protected final static SimpleType CORE_TYPE_COMPARABLE = new SimpleType(CLS_COMPARABLE);
+    protected static final SimpleType CORE_TYPE_COMPARABLE = new SimpleType(CLS_COMPARABLE);
 
     /**
      * Cache {@link Enum} because it is parametric AND self-referential (costly to
@@ -99,7 +99,7 @@ public final class TypeFactory
      *
      * @since 2.7
      */
-    protected final static SimpleType CORE_TYPE_ENUM = new SimpleType(CLS_ENUM);
+    protected static final SimpleType CORE_TYPE_ENUM = new SimpleType(CLS_ENUM);
 
     /**
      * Cache {@link Class} because it is nominally parametric, but has no really
@@ -107,7 +107,7 @@ public final class TypeFactory
      *
      * @since 2.7
      */
-    protected final static SimpleType CORE_TYPE_CLASS = new SimpleType(CLS_CLASS);
+    protected static final SimpleType CORE_TYPE_CLASS = new SimpleType(CLS_CLASS);
 
     /**
      * Since type resolution can be expensive (specifically when resolving

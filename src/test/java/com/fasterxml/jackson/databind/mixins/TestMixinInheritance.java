@@ -30,13 +30,13 @@ public class TestMixinInheritance
         public String getNameo() { return "Bill"; }
     }
 
-    static abstract class BeanoMixinSuper2 extends Beano2 {
+    abstract static class BeanoMixinSuper2 extends Beano2 {
         @Override
         @JsonProperty("name")
         public abstract String getNameo();
     }
 
-    static abstract class BeanoMixinSub2 extends BeanoMixinSuper2 {
+    abstract static class BeanoMixinSub2 extends BeanoMixinSuper2 {
         @Override
         @JsonProperty("id")
         public abstract int getIdo();

@@ -135,7 +135,7 @@ public class ReadableObjectId
     /**********************************************************
      */
 
-    public static abstract class Referring {
+    public abstract static class Referring {
         private final UnresolvedForwardReference _reference;
         private final Class<?> _beanType;
 

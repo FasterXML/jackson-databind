@@ -17,7 +17,7 @@ public class NullifyingDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    public final static NullifyingDeserializer instance = new NullifyingDeserializer();
+    public static final NullifyingDeserializer instance = new NullifyingDeserializer();
     
     public NullifyingDeserializer() { super(Object.class); }
 

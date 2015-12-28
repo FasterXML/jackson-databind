@@ -39,9 +39,9 @@ public abstract class BeanSerializerBase
     implements ContextualSerializer, ResolvableSerializer,
         JsonFormatVisitable, SchemaAware
 {
-    protected final static PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
+    protected static final PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
     
-    final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
+    protected static final BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
 
     /*
     /**********************************************************
@@ -52,42 +52,42 @@ public abstract class BeanSerializerBase
     /**
      * Writers used for outputting actual property values
      */
-    final protected BeanPropertyWriter[] _props;
+    protected final BeanPropertyWriter[] _props;
 
     /**
      * Optional filters used to suppress output of properties that
      * are only to be included in certain views
      */
-    final protected BeanPropertyWriter[] _filteredProps;
+    protected final BeanPropertyWriter[] _filteredProps;
 
     /**
      * Handler for {@link com.fasterxml.jackson.annotation.JsonAnyGetter}
      * annotated properties
      */
-    final protected AnyGetterWriter _anyGetterWriter;
+    protected final AnyGetterWriter _anyGetterWriter;
 
     /**
      * Id of the bean property filter to use, if any; null if none.
      */
-    final protected Object _propertyFilterId;
+    protected final Object _propertyFilterId;
 
     /**
      * If using custom type ids (usually via getter, or field), this is the
      * reference to that member.
      */
-    final protected AnnotatedMember _typeId;
+    protected final AnnotatedMember _typeId;
 
     /**
      * If this POJO can be alternatively serialized using just an object id
      * to denote a reference to previously serialized object,
      * this Object will handle details.
      */
-    final protected ObjectIdWriter _objectIdWriter;
+    protected final ObjectIdWriter _objectIdWriter;
 
     /**
      * Requested shape from bean class annotations.
      */
-    final protected JsonFormat.Shape _serializationShape;
+    protected final JsonFormat.Shape _serializationShape;
 
     /*
     /**********************************************************
@@ -245,7 +245,7 @@ public abstract class BeanSerializerBase
         this(src, rename(src._props, unwrapper), rename(src._filteredProps, unwrapper));
     }
     
-    private final static BeanPropertyWriter[] rename(BeanPropertyWriter[] props,
+    private static final BeanPropertyWriter[] rename(BeanPropertyWriter[] props,
             NameTransformer transformer)
     {
         if (props == null || props.length == 0 || transformer == null || transformer == NameTransformer.NOP) {

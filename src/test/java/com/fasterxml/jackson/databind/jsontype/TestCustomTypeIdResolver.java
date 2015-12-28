@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestCustomTypeIdResolver extends BaseMapTest
 {
-    @JsonTypeInfo(use=Id.CUSTOM, include=As.WRAPPER_OBJECT)
     @JsonTypeIdResolver(CustomResolver.class)
-    static abstract class CustomBean { }
+    @JsonTypeInfo(use = Id.CUSTOM, include = As.WRAPPER_OBJECT)
+    abstract static class CustomBean { }
 
     static class CustomBeanImpl extends CustomBean {
         public int x;
@@ -46,7 +46,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         }
     }
     
-    static abstract class ExtBean { }
+    abstract static class ExtBean { }
 
     static class ExtBeanImpl extends ExtBean {
         public int y;

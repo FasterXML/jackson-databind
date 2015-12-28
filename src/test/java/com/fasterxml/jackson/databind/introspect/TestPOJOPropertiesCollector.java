@@ -187,8 +187,8 @@ public class TestPOJOPropertiesCollector
 
     static class PropDescBean
     {
-        public final static String A_DESC = "That's A!";
-        public final static int B_INDEX = 3;
+        public static final String A_DESC = "That's A!";
+        public static final int B_INDEX = 3;
 
         @JsonPropertyDescription(A_DESC)
         public String a;

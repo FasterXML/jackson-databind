@@ -19,10 +19,10 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class TestTypedContainerSerialization
 	extends BaseMapTest
 {
-    @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
-    @JsonSubTypes( { @Type(value = Dog.class, name = "doggy"),
-        @Type(value = Cat.class, name = "kitty") })
-    static abstract class Animal {
+    @JsonSubTypes({@Type(value = Dog.class, name = "doggy"),
+			@Type(value = Cat.class, name = "kitty")})
+	@JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
+	abstract static class Animal {
 	    public String name;
 
 	    protected Animal(String n) {
@@ -97,7 +97,7 @@ public class TestTypedContainerSerialization
     static class Issue508A { }
     static class Issue508B extends Issue508A { }
 
-    private final static ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     /*
     /**********************************************************

@@ -36,7 +36,7 @@ public class ObjectWriter
      * We need to keep track of explicit disabling of pretty printing;
      * easiest to do by a token value.
      */
-    protected final static PrettyPrinter NULL_PRETTY_PRINTER = new MinimalPrettyPrinter();
+    protected static final PrettyPrinter NULL_PRETTY_PRINTER = new MinimalPrettyPrinter();
 
     /*
     /**********************************************************
@@ -1208,12 +1208,12 @@ public class ObjectWriter
      * 
      * @since 2.5
      */
-    public final static class GeneratorSettings
+    public static final class GeneratorSettings
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        public final static GeneratorSettings empty = new GeneratorSettings(null, null, null, null);
+        public static final GeneratorSettings empty = new GeneratorSettings(null, null, null, null);
 
         /**
          * To allow for dynamic enabling/disabling of pretty printing,
@@ -1330,12 +1330,12 @@ public class ObjectWriter
      * 
      * @since 2.5
      */
-    public final static class Prefetch
+    public static final class Prefetch
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        public final static Prefetch empty = new Prefetch(null, null, null);
+        public static final Prefetch empty = new Prefetch(null, null, null);
         
         /**
          * Specified root serialization type to use; can be same

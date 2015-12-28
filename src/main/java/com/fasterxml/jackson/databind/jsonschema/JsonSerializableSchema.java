@@ -28,7 +28,7 @@ public @interface JsonSerializableSchema
      * needed because annotations can not have null as default
      * value.
      */
-    public final static String NO_VALUE = "##irrelevant";
+    public static final String NO_VALUE = "##irrelevant";
 
     /**
      * Property that can be used to indicate id of the type when

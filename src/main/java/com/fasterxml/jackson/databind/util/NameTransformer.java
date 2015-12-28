@@ -11,9 +11,9 @@ public abstract class NameTransformer
      * Singleton "no-operation" transformer which simply returns given
      * name as is. Used commonly as placeholder or marker.
      */
-    public final static NameTransformer NOP = new NopTransformer();
+    public static final NameTransformer NOP = new NopTransformer();
     
-    protected final static class NopTransformer
+    protected static final class NopTransformer
         extends NameTransformer
         implements java.io.Serializable
     {

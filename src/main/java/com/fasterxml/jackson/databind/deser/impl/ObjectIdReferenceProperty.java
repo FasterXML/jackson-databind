@@ -93,7 +93,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
         return _forward.setAndReturn(instance, value);
     }
 
-    public final static class PropertyReferring extends Referring {
+    public static final class PropertyReferring extends Referring {
         private final ObjectIdReferenceProperty _parent;
         public final Object _pojo;
 

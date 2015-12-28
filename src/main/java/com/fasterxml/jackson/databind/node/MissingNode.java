@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public final class MissingNode
     extends ValueNode
 {
-    private final static MissingNode instance = new MissingNode();
+    private static final MissingNode instance = new MissingNode();
 
     private MissingNode() { }
 

@@ -30,7 +30,7 @@ public class TokenBuffer
  */
     extends JsonGenerator
 {
-    protected final static int DEFAULT_GENERATOR_FEATURES = JsonGenerator.Feature.collectDefaults();
+    protected static final int DEFAULT_GENERATOR_FEATURES = JsonGenerator.Feature.collectDefaults();
 
     /*
     /**********************************************************
@@ -1156,7 +1156,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     /**********************************************************
      */
 
-    protected final static class Parser
+    protected static final class Parser
         extends ParserMinimalBase
     {
         /*
@@ -1644,15 +1644,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * use 16 distinct fields and switch statement (slightly more efficient
      * storage, slightly slower access)
      */
-    protected final static class Segment 
+    protected static final class Segment
     {
-        public final static int TOKENS_PER_SEGMENT = 16;
+        public static final int TOKENS_PER_SEGMENT = 16;
         
         /**
          * Static array used for fast conversion between token markers and
          * matching {@link JsonToken} instances
          */
-        private final static JsonToken[] TOKEN_TYPES_BY_INDEX;
+        private static final JsonToken[] TOKEN_TYPES_BY_INDEX;
         static {
             // ... here we know that there are <= 15 values in JsonToken enum
             TOKEN_TYPES_BY_INDEX = new JsonToken[16];

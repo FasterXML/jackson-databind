@@ -25,25 +25,25 @@ public class OptionalHandlerFactory implements java.io.Serializable
      * more dynamic, we better only figure out handlers completely dynamically, if and
      * when they are needed. To do this we need to assume package prefixes.
      */
-    private final static String PACKAGE_PREFIX_JAVAX_XML = "javax.xml.";
+    private static final String PACKAGE_PREFIX_JAVAX_XML = "javax.xml.";
 
-    private final static String SERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLSerializers";
-    private final static String DESERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLDeserializers";
+    private static final String SERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLSerializers";
+    private static final String DESERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLDeserializers";
 
     // Plus we also have a single serializer for DOM Node:
 //    private final static String CLASS_NAME_DOM_NODE = "org.w3c.dom.Node";
 //    private final static String CLASS_NAME_DOM_DOCUMENT = "org.w3c.dom.Document";
-    private final static String SERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMSerializer";
-    private final static String DESERIALIZER_FOR_DOM_DOCUMENT = "com.fasterxml.jackson.databind.ext.DOMDeserializer$DocumentDeserializer";
-    private final static String DESERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMDeserializer$NodeDeserializer";
+    private static final String SERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMSerializer";
+    private static final String DESERIALIZER_FOR_DOM_DOCUMENT = "com.fasterxml.jackson.databind.ext.DOMDeserializer$DocumentDeserializer";
+    private static final String DESERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMDeserializer$NodeDeserializer";
 
-    private final static String DESERIALIZER_FOR_PATH = "com.fasterxml.jackson.databind.ext.PathDeserializer";
+    private static final String DESERIALIZER_FOR_PATH = "com.fasterxml.jackson.databind.ext.PathDeserializer";
 
     // // Since 2.7, we will assume DOM classes are always found, both due to JDK 1.6 minimum
     // // and because Android (and presumably GAE) have these classes
 
-    private final static Class<?> CLASS_DOM_NODE;
-    private final static Class<?> CLASS_DOM_DOCUMENT;
+    private static final Class<?> CLASS_DOM_NODE;
+    private static final Class<?> CLASS_DOM_DOCUMENT;
 
     static {
         Class<?> doc = null, node = null;
@@ -62,7 +62,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
     // // (note: also assume it comes from JDK so that ClassLoader issues with OSGi
     // // can, I hope, be avoided?)
     
-    private final static Class<?> CLASS_JAVA7_PATH;
+    private static final Class<?> CLASS_JAVA7_PATH;
     static {
         Class<?> cls = null;
         try {
@@ -74,7 +74,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         CLASS_JAVA7_PATH = cls;
     }
     
-    public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
+    public static final OptionalHandlerFactory instance = new OptionalHandlerFactory();
     
     protected OptionalHandlerFactory() { }
 

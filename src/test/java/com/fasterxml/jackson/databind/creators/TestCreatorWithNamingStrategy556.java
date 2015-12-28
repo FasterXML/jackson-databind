@@ -64,7 +64,7 @@ public class TestCreatorWithNamingStrategy556
         MAPPER.setAnnotationIntrospector(new MyParamIntrospector());
     }
 
-    private final static String CTOR_JSON = aposToQuotes("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
+    private static final String CTOR_JSON = aposToQuotes("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
     
     public void testRenameViaCtor() throws Exception
     {

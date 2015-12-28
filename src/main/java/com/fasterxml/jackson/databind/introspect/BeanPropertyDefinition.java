@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.Named;
 public abstract class BeanPropertyDefinition
     implements Named
 {
-    protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
+    protected static final JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
     /*
     /**********************************************************

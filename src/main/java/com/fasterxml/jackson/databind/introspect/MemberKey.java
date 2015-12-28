@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  */
 public final class MemberKey
 {
-    final static Class<?>[] NO_CLASSES = new Class<?>[0];
+    static final Class<?>[] NO_CLASSES = new Class<?>[0];
 
     final String _name;
     final Class<?>[] _argTypes;

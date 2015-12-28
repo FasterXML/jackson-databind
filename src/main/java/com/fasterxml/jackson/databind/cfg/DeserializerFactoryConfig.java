@@ -14,10 +14,10 @@ public class DeserializerFactoryConfig
 {
     private static final long serialVersionUID = 1L; // since 2.5
 
-    protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
-    protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
-    protected final static AbstractTypeResolver[] NO_ABSTRACT_TYPE_RESOLVERS = new AbstractTypeResolver[0];
-    protected final static ValueInstantiators[] NO_VALUE_INSTANTIATORS = new ValueInstantiators[0];
+    protected static final Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
+    protected static final BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
+    protected static final AbstractTypeResolver[] NO_ABSTRACT_TYPE_RESOLVERS = new AbstractTypeResolver[0];
+    protected static final ValueInstantiators[] NO_VALUE_INSTANTIATORS = new ValueInstantiators[0];
 
     /**
      * By default we plug default key deserializers using as "just another" set of
@@ -25,7 +25,7 @@ public class DeserializerFactoryConfig
      * 
      * @since 2.2
      */
-    protected final static KeyDeserializers[] DEFAULT_KEY_DESERIALIZERS = new KeyDeserializers[] {
+    protected static final KeyDeserializers[] DEFAULT_KEY_DESERIALIZERS = new KeyDeserializers[] {
         new StdKeyDeserializers()
     };
     

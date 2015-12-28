@@ -20,7 +20,7 @@ public class JsonNodeDeserializer
      * Singleton instance of generic deserializer for {@link JsonNode}.
      * Only used for types other than JSON Object and Array.
      */
-    private final static JsonNodeDeserializer instance = new JsonNodeDeserializer();
+    private static final JsonNodeDeserializer instance = new JsonNodeDeserializer();
 
     protected JsonNodeDeserializer() { super(JsonNode.class); }
 
@@ -80,12 +80,12 @@ public class JsonNodeDeserializer
     /**********************************************************
      */
 
-    final static class ObjectDeserializer
+    static final class ObjectDeserializer
         extends BaseNodeDeserializer<ObjectNode>
     {
         private static final long serialVersionUID = 1L;
 
-        protected final static ObjectDeserializer _instance = new ObjectDeserializer();
+        protected static final ObjectDeserializer _instance = new ObjectDeserializer();
 
         protected ObjectDeserializer() { super(ObjectNode.class); }
 
@@ -106,12 +106,12 @@ public class JsonNodeDeserializer
          }
     }
         
-    final static class ArrayDeserializer
+    static final class ArrayDeserializer
         extends BaseNodeDeserializer<ArrayNode>
     {
         private static final long serialVersionUID = 1L;
 
-        protected final static ArrayDeserializer _instance = new ArrayDeserializer();
+        protected static final ArrayDeserializer _instance = new ArrayDeserializer();
 
         protected ArrayDeserializer() { super(ArrayNode.class); }
 

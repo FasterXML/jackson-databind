@@ -82,7 +82,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
         public int getValue() { return value; }
     }
 
-    final static class BeanWithAnon {
+    static final class BeanWithAnon {
         public BaseValue bean = new BaseValue() {
             @Override
             public String toString() { return "sub!"; }

@@ -29,10 +29,10 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class SerializableSerializer
     extends StdSerializer<JsonSerializable>
 {
-    public final static SerializableSerializer instance = new SerializableSerializer();
+    public static final SerializableSerializer instance = new SerializableSerializer();
 
     // Ugh. Should NOT need this...
-    private final static AtomicReference<ObjectMapper> _mapperReference = new AtomicReference<ObjectMapper>();
+    private static final AtomicReference<ObjectMapper> _mapperReference = new AtomicReference<ObjectMapper>();
     
     protected SerializableSerializer() { super(JsonSerializable.class); }
 
@@ -102,7 +102,7 @@ public class SerializableSerializer
         return objectNode;
     }
     
-    private final static synchronized ObjectMapper _getObjectMapper()
+    private static final synchronized ObjectMapper _getObjectMapper()
     {
         ObjectMapper mapper = _mapperReference.get();
         if (mapper == null) {

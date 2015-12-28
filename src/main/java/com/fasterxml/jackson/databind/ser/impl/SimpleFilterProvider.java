@@ -68,7 +68,7 @@ public class SimpleFilterProvider
     }
 
     @SuppressWarnings("deprecation")
-    private final static Map<String,PropertyFilter> _convert(Map<String,?> filters)
+    private static final Map<String,PropertyFilter> _convert(Map<String,?> filters)
     {
         HashMap<String,PropertyFilter> result = new HashMap<String,PropertyFilter>();
         for (Map.Entry<String, ?> entry : filters.entrySet()) {
@@ -84,8 +84,8 @@ public class SimpleFilterProvider
         return result;
     }
 
-    @SuppressWarnings("deprecation") 
-    private final static PropertyFilter _convert(BeanPropertyFilter f) {
+    @SuppressWarnings("deprecation")
+    private static final PropertyFilter _convert(BeanPropertyFilter f) {
         return SimpleBeanPropertyFilter.from((BeanPropertyFilter) f);   
     }
     

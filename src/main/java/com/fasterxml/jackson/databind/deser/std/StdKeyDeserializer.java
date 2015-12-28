@@ -32,25 +32,25 @@ public class StdKeyDeserializer extends KeyDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    public final static int TYPE_BOOLEAN = 1;
-    public final static int TYPE_BYTE = 2;
-    public final static int TYPE_SHORT = 3;
-    public final static int TYPE_CHAR = 4;
-    public final static int TYPE_INT = 5;
-    public final static int TYPE_LONG = 6;
-    public final static int TYPE_FLOAT = 7;
-    public final static int TYPE_DOUBLE = 8;
-    public final static int TYPE_LOCALE = 9;
-    public final static int TYPE_DATE = 10;
-    public final static int TYPE_CALENDAR = 11;
-    public final static int TYPE_UUID = 12;
-    public final static int TYPE_URI = 13;
-    public final static int TYPE_URL = 14;
-    public final static int TYPE_CLASS = 15;
-    public final static int TYPE_CURRENCY = 16;
+    public static final int TYPE_BOOLEAN = 1;
+    public static final int TYPE_BYTE = 2;
+    public static final int TYPE_SHORT = 3;
+    public static final int TYPE_CHAR = 4;
+    public static final int TYPE_INT = 5;
+    public static final int TYPE_LONG = 6;
+    public static final int TYPE_FLOAT = 7;
+    public static final int TYPE_DOUBLE = 8;
+    public static final int TYPE_LOCALE = 9;
+    public static final int TYPE_DATE = 10;
+    public static final int TYPE_CALENDAR = 11;
+    public static final int TYPE_UUID = 12;
+    public static final int TYPE_URI = 13;
+    public static final int TYPE_URL = 14;
+    public static final int TYPE_CLASS = 15;
+    public static final int TYPE_CURRENCY = 16;
 
-    final protected int _kind;
-    final protected Class<?> _keyClass;
+    protected final int _kind;
+    protected final Class<?> _keyClass;
 
     /**
      * Some types that are deserialized using a helper deserializer.
@@ -240,11 +240,11 @@ public class StdKeyDeserializer extends KeyDeserializer
      */
 
     @JacksonStdImpl
-    final static class StringKD extends StdKeyDeserializer
+    static final class StringKD extends StdKeyDeserializer
     {
         private static final long serialVersionUID = 1L;
-        private final static StringKD sString = new StringKD(String.class);
-        private final static StringKD sObject = new StringKD(Object.class);
+        private static final StringKD sString = new StringKD(String.class);
+        private static final StringKD sObject = new StringKD(Object.class);
         
         private StringKD(Class<?> nominalType) { super(-1, nominalType); }
 
@@ -276,13 +276,13 @@ public class StdKeyDeserializer extends KeyDeserializer
      * that must recognize FIELD_NAMEs as text!) to reuse existing
      * handlers as key handlers.
      */
-    final static class DelegatingKD
+    static final class DelegatingKD
         extends KeyDeserializer // note: NOT the std one
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        final protected Class<?> _keyClass;
+        protected final Class<?> _keyClass;
 
         protected final JsonDeserializer<?> _delegate;
         
@@ -314,7 +314,7 @@ public class StdKeyDeserializer extends KeyDeserializer
     }
      
     @JacksonStdImpl
-    final static class EnumKD extends StdKeyDeserializer
+    static final class EnumKD extends StdKeyDeserializer
     {
         private static final long serialVersionUID = 1L;
 
@@ -350,7 +350,7 @@ public class StdKeyDeserializer extends KeyDeserializer
      * Key deserializer that calls a single-string-arg constructor
      * to instantiate desired key type.
      */
-    final static class StringCtorKeyDeserializer extends StdKeyDeserializer
+    static final class StringCtorKeyDeserializer extends StdKeyDeserializer
     {
         private static final long serialVersionUID = 1L;
 
@@ -372,7 +372,7 @@ public class StdKeyDeserializer extends KeyDeserializer
      * Key deserializer that calls a static no-args factory method
      * to instantiate desired key type.
      */
-    final static class StringFactoryKeyDeserializer extends StdKeyDeserializer
+    static final class StringFactoryKeyDeserializer extends StdKeyDeserializer
     {
         private static final long serialVersionUID = 1L;
 

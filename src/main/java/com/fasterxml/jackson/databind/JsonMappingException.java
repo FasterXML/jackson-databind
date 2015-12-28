@@ -28,7 +28,7 @@ public class JsonMappingException
      * Let's limit length of reference chain, to limit damage in cases
      * of infinite recursion.
      */
-    final static int MAX_REFS_TO_LIST = 1000;
+    static final int MAX_REFS_TO_LIST = 1000;
 
     /*
     /**********************************************************

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 
 abstract class ObjectReaderTestBase
 {
-    protected final static int WARMUP_ROUNDS = 5;
+    protected static final int WARMUP_ROUNDS = 5;
 
     protected String _desc1, _desc2;
     

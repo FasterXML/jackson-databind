@@ -17,7 +17,7 @@ public class TestClassUtil
     /* Test classes and interfaces needed for testing class util
      * methods
      */
-    static abstract class BaseClass implements Comparable<BaseClass>,
+    abstract static class BaseClass implements Comparable<BaseClass>,
         BaseInt
     {
         BaseClass(String str) { }
@@ -37,13 +37,13 @@ public class TestClassUtil
         }
     }
 
-    static abstract class SubClass
+    abstract static class SubClass
         extends BaseClass
         implements SubInt {
         SubClass() { super("x"); }
     }
 
-    static abstract class ConcreteAndAbstract {
+    abstract static class ConcreteAndAbstract {
         public abstract void a();
         
         public void c() { }

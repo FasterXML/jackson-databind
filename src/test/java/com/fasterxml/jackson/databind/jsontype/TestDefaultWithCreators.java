@@ -14,7 +14,7 @@ public class TestDefaultWithCreators
     /**********************************************************
      */
 
-    static abstract class Job
+    abstract static class Job
     {
         public long id;
     }

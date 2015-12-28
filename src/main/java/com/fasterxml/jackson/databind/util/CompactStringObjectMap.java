@@ -22,7 +22,7 @@ public final class CompactStringObjectMap
     /**
      * Shared instance that can be used when there are no contents to Map.
      */
-    private final static CompactStringObjectMap EMPTY = new CompactStringObjectMap(1, 0,
+    private static final CompactStringObjectMap EMPTY = new CompactStringObjectMap(1, 0,
             new Object[4]);
     
     private final int _hashMask, _spillCount;
@@ -75,7 +75,7 @@ public final class CompactStringObjectMap
         return new CompactStringObjectMap(mask, spillCount, hashArea);
     }
 
-    private final static int findSize(int size)
+    private static final int findSize(int size)
     {
         if (size <= 5) {
             return 8;

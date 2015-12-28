@@ -196,7 +196,7 @@ public abstract class PropertySerializerMap
      * Value class used for returning tuple that has both serializer
      * that was retrieved and new map instance
      */
-    public final static class SerializerAndMapResult
+    public static final class SerializerAndMapResult
     {
         public final JsonSerializer<Object> serializer;
         public final PropertySerializerMap map;
@@ -212,7 +212,7 @@ public abstract class PropertySerializerMap
     /**
      * Trivial container for bundling type + serializer entries.
      */
-    private final static class TypeAndSerializer
+    private static final class TypeAndSerializer
     {
         public final Class<?> type;
         public final JsonSerializer<Object> serializer;
@@ -233,13 +233,13 @@ public abstract class PropertySerializerMap
      * Bogus instance that contains no serializers; used as the default
      * map with new serializers.
      */
-    private final static class Empty extends PropertySerializerMap
+    private static final class Empty extends PropertySerializerMap
     {
         // No root serializers; do not reset when full
-        public final static Empty FOR_PROPERTIES = new Empty(false);
+        public static final Empty FOR_PROPERTIES = new Empty(false);
 
         // Yes, root serializers; do reset when full
-        public final static Empty FOR_ROOT_VALUES = new Empty(true);
+        public static final Empty FOR_ROOT_VALUES = new Empty(true);
 
         protected Empty(boolean resetWhenFull) {
             super(resetWhenFull);
@@ -262,7 +262,7 @@ public abstract class PropertySerializerMap
      * theoretically dynamic or polymorphic types just have single
      * actual type.
      */
-    private final static class Single extends PropertySerializerMap
+    private static final class Single extends PropertySerializerMap
     {
         private final Class<?> _type;
         private final JsonSerializer<Object> _serializer;
@@ -288,7 +288,7 @@ public abstract class PropertySerializerMap
         }
     }
 
-    private final static class Double extends PropertySerializerMap
+    private static final class Double extends PropertySerializerMap
     {
         private final Class<?> _type1, _type2;
         private final JsonSerializer<Object> _serializer1, _serializer2;
@@ -327,7 +327,7 @@ public abstract class PropertySerializerMap
         }
     }
     
-    private final static class Multi extends PropertySerializerMap
+    private static final class Multi extends PropertySerializerMap
     {
         /**
          * Let's limit number of serializers we actually cache; linear
@@ -337,7 +337,7 @@ public abstract class PropertySerializerMap
          * case so for now let's just stop building after hard-coded
          * limit. 8 sounds like a reasonable stab for now.
          */
-        private final static int MAX_ENTRIES = 8;
+        private static final int MAX_ENTRIES = 8;
         
         private final TypeAndSerializer[] _entries;
 

@@ -38,7 +38,7 @@ class Result677<T> {
 abstract class BaseType<T> {
     public T value;
 
-    public final static class SubType<T extends Number> extends BaseType<T>
+    public static final class SubType<T extends Number> extends BaseType<T>
     {
     }
 }

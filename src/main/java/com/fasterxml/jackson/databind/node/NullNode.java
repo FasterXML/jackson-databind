@@ -15,7 +15,7 @@ public final class NullNode
 {
     // // Just need a fly-weight singleton
 
-    public final static NullNode instance = new NullNode();
+    public static final NullNode instance = new NullNode();
 
     private NullNode() { }
 

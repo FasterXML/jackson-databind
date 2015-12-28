@@ -14,7 +14,7 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
 {
     private static final long serialVersionUID = 1L;
 
-    final static int[] HEX_DIGITS = new int[127];
+    static final int[] HEX_DIGITS = new int[127];
     static {
         Arrays.fill(HEX_DIGITS, -1);
         for (int i = 0; i < 10; ++i) { HEX_DIGITS['0' + i] = i; }

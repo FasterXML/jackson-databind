@@ -30,7 +30,7 @@ public class SettableAnyProperty
     /**
      * Annotated variant is needed for JDK serialization only
      */
-    final protected AnnotatedMethod _setter;
+    protected final AnnotatedMethod _setter;
 
     protected final JavaType _type;
 

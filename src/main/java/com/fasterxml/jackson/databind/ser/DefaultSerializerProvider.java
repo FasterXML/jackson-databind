@@ -585,7 +585,7 @@ public abstract class DefaultSerializerProvider
      * Concrete implementation that defines factory method(s),
      * defined as final.
      */
-    public final static class Impl extends DefaultSerializerProvider {
+    public static final class Impl extends DefaultSerializerProvider {
         private static final long serialVersionUID = 1L;
 
         public Impl() { super(); }

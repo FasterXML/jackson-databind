@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class BinaryNode
     extends ValueNode
 {
-    final static BinaryNode EMPTY_BINARY_NODE = new BinaryNode(new byte[0]);
+    static final BinaryNode EMPTY_BINARY_NODE = new BinaryNode(new byte[0]);
 
     protected final byte[] _data;
 

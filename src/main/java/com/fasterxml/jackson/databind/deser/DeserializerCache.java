@@ -39,7 +39,7 @@ public final class DeserializerCache
      * (should very quickly converge to zero after startup), let's
      * define a relatively low concurrency setting.
      */
-    final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers
+    protected final ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers
         = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.75f, 4);
 
     /**
@@ -47,7 +47,7 @@ public final class DeserializerCache
      * completed deserializers, to resolve cyclic dependencies. This is the
      * map used for storing deserializers before they are fully complete.
      */
-    final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
+    protected final HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
 
     /*

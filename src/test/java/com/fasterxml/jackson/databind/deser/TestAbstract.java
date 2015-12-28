@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestAbstract
     extends BaseMapTest
 {
-    static abstract class Abstract {
+    abstract static class Abstract {
         public int x;
     }
     

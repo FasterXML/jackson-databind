@@ -37,7 +37,7 @@ public class TestObjectId154 extends BaseMapTest
 
         assertNotNull(first.next);
         assertTrue(first.next instanceof Foo);
-        Foo second = (Foo) first.next;
+        Foo second = first.next;
         assertNotNull(second.ref);
         assertSame(first, second.ref);
     }

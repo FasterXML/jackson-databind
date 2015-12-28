@@ -73,7 +73,7 @@ public class FloatNode extends NumericNode
     public long longValue() { return (long) _value; }
 
     @Override
-    public float floatValue() { return (float) _value; }
+    public float floatValue() { return _value; }
     
     @Override
     public double doubleValue() { return _value; }

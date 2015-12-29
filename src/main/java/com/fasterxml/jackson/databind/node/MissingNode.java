@@ -30,7 +30,7 @@ public final class MissingNode
     @SuppressWarnings("unchecked")
     @Override
     public <T extends JsonNode> T deepCopy() { return (T) this; }
-    
+
     public static MissingNode getInstance() { return instance; }
     
     @Override
@@ -68,11 +68,11 @@ public final class MissingNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator jg, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonProcessingException
     {
-        jg.writeNull();
+        g.writeNull();
     }
     
     @Override

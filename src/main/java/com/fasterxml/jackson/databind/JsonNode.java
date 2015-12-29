@@ -231,7 +231,7 @@ public abstract class JsonNode
     }
 
     protected abstract JsonNode _at(JsonPointer ptr);
-    
+
     /*
     /**********************************************************
     /* Public API, type introspection

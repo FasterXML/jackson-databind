@@ -56,7 +56,6 @@ Project: jackson-databind
  (reported by fabiolaa@github)
 #1044: Add `AnnotationIntrospector.resolveSetterConflict(...)` to allow custom setter conflict resolution
  (suggested by clydebarrow@github)
-#1062: Add new `JsonFormatTypes` enumerated value, `UNION`
 - Make `JsonValueFormat` (self-)serializable, deserializable, to/from valid external
   value (as per JSON Schema spec)
 

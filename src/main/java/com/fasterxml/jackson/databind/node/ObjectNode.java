@@ -32,7 +32,7 @@ public class ObjectNode
         super(nc);
         _children = kids;
     }
-    
+
     @Override
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingProperty());

@@ -14,6 +14,14 @@ public enum JsonFormatTypes
 	OBJECT,
 	ARRAY,
 	NULL,
+
+	/**
+	 * Virtual type used for union types; needed to make JSON Schema work with union types.
+	 *
+	 * @since 2.7
+	 */
+	UNION,
+	
 	ANY;
 
 	private static final Map<String,JsonFormatTypes> _byLCName = new HashMap<String,JsonFormatTypes>();

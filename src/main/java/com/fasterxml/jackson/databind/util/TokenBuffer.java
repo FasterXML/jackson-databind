@@ -913,6 +913,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public void writeObjectId(Object id) {
         _objectId = id;
         _hasNativeId = true;
+        _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT);
     }
 
     /*

@@ -114,7 +114,7 @@ public class TokenBuffer
     protected Object _objectId;
 
     /**
-     * Do we currnetly have a native type or object id buffered?
+     * Do we currently have a native type or object id buffered?
      */
     protected boolean _hasNativeId = false;
 

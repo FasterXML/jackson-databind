@@ -38,6 +38,7 @@ public class JacksonAnnotationIntrospector
         JsonSerialize.class,
         JsonView.class,
         JsonFormat.class,
+        JsonTypeInfo.class,
         JsonRawValue.class,
         JsonUnwrapped.class,
         JsonBackReference.class,
@@ -50,6 +51,7 @@ public class JacksonAnnotationIntrospector
         JsonDeserialize.class,
         JsonView.class,
         JsonFormat.class,
+        JsonTypeInfo.class,
         JsonUnwrapped.class,
         JsonBackReference.class,
         JsonManagedReference.class

@@ -305,11 +305,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         switch (p.getCurrentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this
+        case JsonTokenId.ID_FIELD_NAME:
             return deserializeObject(p, ctxt, nodeFactory);
         case JsonTokenId.ID_START_ARRAY:
             return deserializeArray(p, ctxt, nodeFactory);
-        case JsonTokenId.ID_FIELD_NAME:
-            return deserializeObject(p, ctxt, nodeFactory);
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             return _fromEmbedded(p, ctxt, nodeFactory);
         case JsonTokenId.ID_STRING:

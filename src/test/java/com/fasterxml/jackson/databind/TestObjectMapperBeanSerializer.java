@@ -39,10 +39,7 @@ public class TestObjectMapperBeanSerializer
             String name = jp.getCurrentName();
             JsonToken t = jp.nextToken();
 
-            if (name.equals("uri")) {
-                assertToken(JsonToken.VALUE_STRING, t);
-                assertEquals(FixtureObjectBase.VALUE_URSTR, getAndVerifyText(jp));
-            } else if (name.equals("url")) {
+            if (name.equals("uri") || name.equals("url")) {
                 assertToken(JsonToken.VALUE_STRING, t);
                 assertEquals(FixtureObjectBase.VALUE_URSTR, getAndVerifyText(jp));
             } else if (name.equals("testNull")) {

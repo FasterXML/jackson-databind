@@ -71,7 +71,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
-        } else if (t == JsonToken.START_ARRAY) {
+        } else if (t == JsonToken.START_ARRAY || t != JsonToken.FIELD_NAME) {
             /* This is most likely due to the fact that not all Java types are
              * serialized as JSON Objects; so if "as-property" inclusion is requested,
              * serialization of things like Lists must be instead handled as if
@@ -79,8 +79,6 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
              * But this can also be due to some custom handling: so, if "defaultImpl"
              * is defined, it will be asked to handle this case.
              */
-            return _deserializeTypedUsingDefaultImpl(p, ctxt, null);
-        } else if (t != JsonToken.FIELD_NAME) {
             return _deserializeTypedUsingDefaultImpl(p, ctxt, null);
         }
         // Ok, let's try to find the property. But first, need token buffer...

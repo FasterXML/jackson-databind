@@ -84,13 +84,18 @@ public abstract class BasicSerializerFactory
         _concrete.put(Calendar.class.getName(), CalendarSerializer.instance);
         DateSerializer dateSer = DateSerializer.instance;
         _concrete.put(java.util.Date.class.getName(), dateSer);
-        // note: timestamps are very similar to java.util.Date, thus serialized as such
-        _concrete.put(java.sql.Timestamp.class.getName(), dateSer);
         
-        // leave some of less commonly used ones as lazy, no point in proactive construction
-        _concreteLazy.put(java.sql.Date.class.getName(), SqlDateSerializer.class);
-        _concreteLazy.put(java.sql.Time.class.getName(), SqlTimeSerializer.class);
-
+        try {
+            // note: timestamps are very similar to java.util.Date, thus serialized as such
+            _concrete.put(java.sql.Timestamp.class.getName(), dateSer);
+        
+            // leave some of less commonly used ones as lazy, no point in proactive construction
+            _concreteLazy.put(java.sql.Date.class.getName(), SqlDateSerializer.class);
+            _concreteLazy.put(java.sql.Time.class.getName(), SqlTimeSerializer.class);
+        } catch(NoClassDefFoundError e) {
+        	//java.sql is not standard in embedded compact configurations.
+        }
+        
         // And then other standard non-structured JDK types
         for (Map.Entry<Class<?>,Object> en : StdJdkSerializers.all()) {
             Object value = en.getValue();

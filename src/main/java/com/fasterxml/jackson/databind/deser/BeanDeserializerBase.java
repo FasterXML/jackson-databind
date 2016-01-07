@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
@@ -71,7 +72,7 @@ public abstract class BeanDeserializerBase
      * is passed (via updateValue())
      */
     protected final ValueInstantiator _valueInstantiator;
-    
+
     /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
@@ -83,7 +84,7 @@ public abstract class BeanDeserializerBase
      * is to be used for deserializing from JSON Object.
      */
     protected JsonDeserializer<Object> _arrayDelegateDeserializer;
-    
+
     /**
      * If the bean needs to be instantiated using constructor
      * or factory method
@@ -439,7 +440,7 @@ public abstract class BeanDeserializerBase
 
             // May already have deserializer from annotations, if so, skip:
             if (!prop.hasValueDeserializer()) {
-                // [Issue#125]: allow use of converters
+                // [databind#125]: allow use of converters
                 JsonDeserializer<?> deser = findConvertingDeserializer(ctxt, prop);
                 if (deser == null) {
                     deser = findDeserializer(ctxt, prop.getType(), prop);
@@ -1206,9 +1207,9 @@ public abstract class BeanDeserializerBase
     @SuppressWarnings("incomplete-switch")
     public Object deserializeFromDouble(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (p.getNumberType()) {
-        case FLOAT: // no separate methods for taking float...
-        case DOUBLE:
+        NumberType t = p.getNumberType();
+        // no separate methods for taking float...
+        if ((t == NumberType.DOUBLE) || (t == NumberType.FLOAT)) {
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromDouble()) {
                     Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));

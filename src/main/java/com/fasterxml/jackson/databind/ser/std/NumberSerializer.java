@@ -46,9 +46,8 @@ public class NumberSerializer
         } else if (value instanceof BigInteger) {
             g.writeNumber((BigInteger) value);
             
-        /* These shouldn't match (as there are more specific ones),
-         * but just to be sure:
-         */
+        // These should not occur, as more specific methods should have been called; but
+        // just in case let's cover all bases:
         } else if (value instanceof Long) {
             g.writeNumber(value.longValue());
         } else if (value instanceof Double) {

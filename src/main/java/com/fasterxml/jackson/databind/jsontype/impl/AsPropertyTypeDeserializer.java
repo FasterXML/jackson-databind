@@ -71,7 +71,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
-        } else if (t == JsonToken.START_ARRAY || t != JsonToken.FIELD_NAME) {
+        } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.FIELD_NAME) {
             /* This is most likely due to the fact that not all Java types are
              * serialized as JSON Objects; so if "as-property" inclusion is requested,
              * serialization of things like Lists must be instead handled as if

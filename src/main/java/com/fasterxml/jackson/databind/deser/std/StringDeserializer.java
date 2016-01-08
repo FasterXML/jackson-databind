@@ -48,7 +48,7 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
                 return null;
             }
             if (ob instanceof byte[]) {
-                return Base64Variants.getDefaultVariant().encode((byte[]) ob, false);
+                return ctxt.getBase64Variant().encode((byte[]) ob, false);
             }
             // otherwise, try conversion using toString()...
             return ob.toString();

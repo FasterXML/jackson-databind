@@ -17,8 +17,7 @@ import com.fasterxml.jackson.core.format.MatchStrength;
 public class MappingJsonFactory
     extends JsonFactory
 {
-    // generated for Jackson 2.1.0
-    private static final long serialVersionUID = -6744103724013275513L;
+    private static final long serialVersionUID = -1; // since 2.7
 
     public MappingJsonFactory()
     {
@@ -37,7 +36,7 @@ public class MappingJsonFactory
     {
         super(src, mapper);
         if (mapper == null) {
-          setCodec(new ObjectMapper(this));
+            setCodec(new ObjectMapper(this));
         }
     }
 
@@ -64,7 +63,7 @@ public class MappingJsonFactory
      */
     
     /**
-     * Sub-classes need to override this method (as of 1.8)
+     * Sub-classes need to override this method
      */
     @Override
     public String getFormatName()
@@ -76,7 +75,7 @@ public class MappingJsonFactory
     }
 
     /**
-     * Sub-classes need to override this method (as of 1.8)
+     * Sub-classes need to override this method
      */
     @Override
     public MatchStrength hasFormat(InputAccessor acc) throws IOException

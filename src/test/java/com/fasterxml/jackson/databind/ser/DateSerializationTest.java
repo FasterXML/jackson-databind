@@ -116,7 +116,16 @@ public class DateSerializationTest
         // does use is quite simple:
         assertEquals(quote(time.toString()), MAPPER.writeValueAsString(time));
     }
-    
+
+    public void testSqlTimestamp() throws IOException
+    {
+        java.sql.Timestamp input = new java.sql.Timestamp(0L);
+        // just should produce same output as standard `java.util.Date`:
+        Date altTnput = new Date(0L);
+        assertEquals(MAPPER.writeValueAsString(altTnput),
+                MAPPER.writeValueAsString(input));
+    }
+
     public void testTimeZone() throws IOException
     {
         TimeZone input = TimeZone.getTimeZone("PST");

@@ -21,9 +21,9 @@ public class SqlTimeSerializer
     public SqlTimeSerializer() { super(java.sql.Time.class); }
 
     @Override
-    public void serialize(java.sql.Time value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serialize(java.sql.Time value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        jgen.writeString(value.toString());
+        g.writeString(value.toString());
     }
 
     @Override

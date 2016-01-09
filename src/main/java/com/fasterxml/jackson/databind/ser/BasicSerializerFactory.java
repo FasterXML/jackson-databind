@@ -86,14 +86,7 @@ public abstract class BasicSerializerFactory
         // Other discrete non-container types:
         // First, Date/Time zoo:
         concrete.put(Calendar.class.getName(), CalendarSerializer.instance);
-        DateSerializer dateSer = DateSerializer.instance;
-        concrete.put(java.util.Date.class.getName(), dateSer);
-        // note: timestamps are very similar to java.util.Date, thus serialized as such
-        concrete.put(java.sql.Timestamp.class.getName(), dateSer);
-        
-        // leave some of less commonly used ones as lazy, no point in proactive construction
-        concLazy.put(java.sql.Date.class.getName(), SqlDateSerializer.class);
-        concLazy.put(java.sql.Time.class.getName(), SqlTimeSerializer.class);
+        concrete.put(java.util.Date.class.getName(), DateSerializer.instance);
 
         // And then other standard non-structured JDK types
         for (Map.Entry<Class<?>,Object> en : StdJdkSerializers.all()) {

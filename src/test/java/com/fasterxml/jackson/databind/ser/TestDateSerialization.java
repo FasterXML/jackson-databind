@@ -109,6 +109,21 @@ public class TestDateSerialization
         assertEquals(aposToQuotes("{'date':0}"), MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
     }
 
+    public void testSqlTimestamp() throws IOException
+    {
+        java.sql.Timestamp input = new java.sql.Timestamp(0L);
+        // just should produce same output as standard `java.util.Date`:
+        Date altTnput = new Date(0L);
+        assertEquals(MAPPER.writeValueAsString(altTnput),
+                MAPPER.writeValueAsString(input));
+    }
+
+    public void testSqlTime() throws IOException
+    {
+        java.sql.Time input = new java.sql.Time(0L);
+        assertEquals(quote(input.toString()), MAPPER.writeValueAsString(input));
+    }
+    
     public void testTimeZone() throws IOException
     {
         TimeZone input = TimeZone.getTimeZone("PST");

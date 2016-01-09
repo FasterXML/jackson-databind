@@ -150,7 +150,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(4, m._deserializationContext._cache.cachedDeserializersCount());
     }
     
-    // [Issue#28]: ObjectMapper.copy()
+    // [databind#28]: ObjectMapper.copy()
     public void testCopy() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -280,5 +280,23 @@ public class ObjectMapperTest extends BaseMapTest
                 .findValueSerializer(Bean.class);
         assertNotNull(ser);
         assertEquals(Bean.class, ser.handledType());
+    }
+
+    // for [databind#1074]
+    public void testCopyOfParserFeatures() throws Exception
+    {
+        // ensure we have "fresh" instance to start with
+        ObjectMapper mapper = new ObjectMapper();
+        assertFalse(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        assertTrue(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+
+        ObjectMapper copy = mapper.copy();
+        assertTrue(copy.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+
+        // also verify there's no back-linkage
+        copy.configure(JsonParser.Feature.ALLOW_COMMENTS, false);
+        assertFalse(copy.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
     }
 }

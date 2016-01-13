@@ -76,6 +76,8 @@ INCOMPATIBILITIES:
 #1061: Problem with Object Id and Type Id as Wrapper Object (regression in 2.5.1)
 #1073: Add try-catch around `java.sql` type serializers
  (suggested by claudemt@github)
+#1078: ObjectMapper.copy() still does not preserve _registeredModuleTypes
+ (reported by ajonkisz@github)
 
 2.6.4 (07-Dec-2015)
 

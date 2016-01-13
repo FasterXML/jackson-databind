@@ -481,8 +481,8 @@ public class ObjectMapper
         // Default serializer factory is stateless, can just assign
         _serializerFactory = src._serializerFactory;
 
-        // as per [databind#922], make sure to copy registered modules as appropriate
-        Set<Object> reg = _registeredModuleTypes;
+        // as per [databind#922], [databind#1078] make sure to copy registered modules as appropriate
+        Set<Object> reg = src._registeredModuleTypes;
         if (reg == null) {
             _registeredModuleTypes = null;
         } else {

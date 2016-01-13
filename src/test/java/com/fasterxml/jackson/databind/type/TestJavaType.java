@@ -86,13 +86,6 @@ public class TestJavaType
 
         assertTrue(arrayT.equals(ArrayType.construct(tf.constructType(String.class), null)));
         assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null)));
-
-        // Also, must NOT try to create using simple type
-        try {
-            SimpleType.construct(String[].class);
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "for an array");
-        }
     }
 
     public void testEnumType()

@@ -128,7 +128,7 @@ public abstract class TypeBase
         }
         return Arrays.asList(_superInterfaces);
     }
-    
+
     @Override
     public final JavaType findSuperType(Class<?> rawTarget)
     {

@@ -594,17 +594,21 @@ public final class TypeFactory
         */
     }
 
-    /*
+    /**
+     * @deprecated Since 2.7 (accidentally removed in 2.7.0; added back in 2.7.1)
+     */
+    @Deprecated
     public JavaType constructType(Type type, Class<?> contextType) {
-        TypeBindings b = (contextType == null) ? null : new TypeBindings(this, null, contextType);
-        return _fromAny(null, type, b);
+        return _fromAny(null, type, EMPTY_BINDINGS);
     }
 
+    /**
+     * @deprecated Since 2.7 (accidentally removed in 2.7.0; added back in 2.7.1)
+     */
+    @Deprecated
     public JavaType constructType(Type type, JavaType contextType) {
-        TypeBindings b = (contextType == null) ? null : new TypeBindings(this, null, contextType);
-        return _fromAny(null, type, b);
+        return _fromAny(null, type, contextType.getBindings());
     }
-    */
 
     /*
     /**********************************************************

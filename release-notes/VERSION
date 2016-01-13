@@ -4,7 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.0 (not yet released)
+2.7.1 (not yet released)
+
+#1079: Add back `TypeFactory.constructType(Type, Class)` as "deprecated" in 2.7.1
+
+2.7.0 (10-Jan-2016)
 
 #76: Problem handling datatypes Recursive type parameters
  (reported by Aram K)

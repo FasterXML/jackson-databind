@@ -21,6 +21,14 @@ public class SimpleType // note: until 2.6 was final
     /**********************************************************
      */
 
+    /**
+     * Constructor only used by core Jackson databind functionality;
+     * should never be called by application code.
+     *<p>
+     * As with other direct construction that by-passes {@link TypeFactory},
+     * no introspection occurs with respect to super-types; caller must be
+     * aware of consequences if using this method.
+     */
     protected SimpleType(Class<?> cls) {
         this(cls, TypeBindings.emptyBindings(), null, null);
     }
@@ -62,7 +70,10 @@ public class SimpleType // note: until 2.6 was final
     }
     
     /**
-     * Method used by core Jackson classes: NOT to be used by application code.
+     * Method used by core Jackson classes: NOT to be used by application code:
+     * it does NOT properly handle inspection of super-types, so neither parent
+     * Classes nor implemented Interfaces are accessible with resulting type
+     * instance.
      *<p>
      * NOTE: public only because it is called by <code>ObjectMapper</code> which is
      * not in same package
@@ -73,17 +84,20 @@ public class SimpleType // note: until 2.6 was final
                 null, null, null, null, false);
     }
 
-    @Override
-    protected JavaType _narrow(Class<?> subclass)
-    {
-        if (_class == subclass) {
-            return this;
-        }
-        // Should we check that there is a sub-class relationship?
-        return new SimpleType(subclass, _bindings, _superClass, _superInterfaces,
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
+    /**
+     * Method that should NOT to be used by application code:
+     * it does NOT properly handle inspection of super-types, so neither parent
+     * Classes nor implemented Interfaces are accessible with resulting type
+     * instance. Instead, please use {@link TypeFactory}'s <code>constructType</code>
+     * methods which handle introspection appropriately.
+     *<p>
+     * Note that prior to 2.7, method usage was not limited and would typically
+     * have worked acceptably: the problem comes from inability to resolve super-type
+     * information, for which {@link TypeFactory} is needed.
+     * 
+     * @deprecated Since 2.7
+     */
+    @Deprecated
     public static SimpleType construct(Class<?> cls)
     {
         /* Let's add sanity checks, just to ensure no
@@ -102,6 +116,17 @@ public class SimpleType // note: until 2.6 was final
         return new SimpleType(cls);
     }
 
+    @Override
+    protected JavaType _narrow(Class<?> subclass)
+    {
+        if (_class == subclass) {
+            return this;
+        }
+        // Should we check that there is a sub-class relationship?
+        return new SimpleType(subclass, _bindings, _superClass, _superInterfaces,
+                _valueHandler, _typeHandler, _asStatic);
+    }
+    
     @Override
     public JavaType withContentType(JavaType contentType) {
         throw new IllegalArgumentException("Simple types have no content types; can not call withContentType()");

@@ -28,7 +28,7 @@ public class AtomicReferenceSerializer
     protected final JavaType _referredType;
 
     protected final BeanProperty _property;
-    
+
     /**
      * Type serializer used for values, if any.
      *

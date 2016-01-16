@@ -397,3 +397,7 @@ Shumpei Akai (flexfrank@github)
 Hugo Wood (hgwood@github)
   * Contributed #1010: Support for array delegator
    (2.7.0)
+
+Julian Hyde (julianhyde@github)
+  * Reported #1083: Field in base class is not recognized, when using `@JsonType.defaultImpl`
+   (2.7.1)

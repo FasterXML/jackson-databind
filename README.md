@@ -10,6 +10,7 @@ While the original use case for Jackson was JSON data-binding, it can now be use
 Naming of classes uses word 'JSON' in many places even though there is no actual hard dependency to JSON format.
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-databind.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-databind) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind)
+[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.core/jackson-databind/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind)
 
 -----
 

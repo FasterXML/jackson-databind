@@ -177,7 +177,7 @@ public abstract class StdSerializer<T>
     protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException {
         if (visitor != null) {
-            visitor.expectStringFormat(typeHint);
+            /*JsonStringFormatVisitor v2 =*/ visitor.expectStringFormat(typeHint);
         }
     }
 

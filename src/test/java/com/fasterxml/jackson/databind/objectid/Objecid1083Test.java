@@ -4,8 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 
 public class Objecid1083Test extends BaseMapTest

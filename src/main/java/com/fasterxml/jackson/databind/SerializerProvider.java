@@ -148,18 +148,6 @@ public abstract class SerializerProvider
      */
     protected JsonSerializer<Object> _nullKeySerializer = DEFAULT_NULL_KEY_SERIALIZER;
 
-    /*
-    /**********************************************************
-    /* State, for non-blueprint instances: generic
-    /**********************************************************
-     */
-    
-    /**
-     * For fast lookups, we will have a local non-shared read-only
-     * map that contains serializers previously fetched.
-     */
-    protected final ReadOnlyClassToSerializerMap _knownSerializers;
-
     /**
      * Lazily acquired and instantiated formatter object: initialized
      * first time it is needed, reused afterwards. Used via instances
@@ -190,8 +178,6 @@ public abstract class SerializerProvider
         _config = null;
         _serializerFactory = null;
         _serializerCache = new SerializerCache();
-        // Blueprints doesn't have access to any serializers...
-        _knownSerializers = null;
 
         _serializationView = null;
         _attributes = null;
@@ -225,11 +211,6 @@ public abstract class SerializerProvider
 
         _serializationView = config.getActiveView();
         _attributes = config.getAttributes();
-
-        /* Non-blueprint instances do have a read-only map; one that doesn't
-         * need synchronization for lookups.
-         */
-        _knownSerializers = _serializerCache.getReadOnlyLookupMap();
     }
 
     /**
@@ -243,7 +224,6 @@ public abstract class SerializerProvider
         _config = null;
         _serializationView = null;
         _serializerFactory = null;
-        _knownSerializers = null;
 
         // and others initialized to default empty state
         _serializerCache = new SerializerCache();
@@ -478,7 +458,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // Fast lookup from local lookup thingy works?
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().untypedValueSerializer(valueType);
         if (ser == null) {
             // If not, maybe shared map already has it?
             ser = _serializerCache.untypedValueSerializer(valueType);
@@ -519,7 +499,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // (see comments from above method)
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _serializerCache.untypedValueSerializer(valueType);
             if (ser == null) {
@@ -546,7 +526,7 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> findValueSerializer(Class<?> valueType) throws JsonMappingException
     {
         // (see comments from above method)
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _serializerCache.untypedValueSerializer(valueType);
             if (ser == null) {
@@ -576,7 +556,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // (see comments from above method)
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _serializerCache.untypedValueSerializer(valueType);
             if (ser == null) {
@@ -608,7 +588,7 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> findPrimaryPropertySerializer(JavaType valueType, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _serializerCache.untypedValueSerializer(valueType);
             if (ser == null) {
@@ -634,7 +614,7 @@ public abstract class SerializerProvider
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _serializerCache.untypedValueSerializer(valueType);
             if (ser == null) {
@@ -674,7 +654,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // Two-phase lookups; local non-shared cache, then shared:
-        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().typedValueSerializer(valueType);
         if (ser != null) {
             return ser;
         }
@@ -719,7 +699,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {
         // Two-phase lookups; local non-shared cache, then shared:
-        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().typedValueSerializer(valueType);
         if (ser != null) {
             return ser;
         }
@@ -1128,7 +1108,7 @@ public abstract class SerializerProvider
         throws JsonMappingException
     {        
         // Fast lookup from local lookup thingy works?
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(runtimeType);
+        JsonSerializer<Object> ser = _serializerCache.getReadOnlyLookupMap().untypedValueSerializer(runtimeType);
         if (ser == null) {
             // If not, maybe shared map already has it?
             ser = _serializerCache.untypedValueSerializer(runtimeType);

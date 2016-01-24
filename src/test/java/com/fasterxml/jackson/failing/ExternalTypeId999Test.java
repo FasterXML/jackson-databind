@@ -28,11 +28,11 @@ public class ExternalTypeId999Test extends BaseMapTest
         public Message(@JsonProperty("type") String type,
                 @JsonProperty("payload") P payload)
         {
-            if (type == null) {
-                throw new RuntimeException("'type' is null");
-            }
             if (payload == null) {
                 throw new RuntimeException("'payload' is null");
+            }
+            if (type == null) {
+                throw new RuntimeException("'type' is null");
             }
             this.type = type;
             this.payload = payload;

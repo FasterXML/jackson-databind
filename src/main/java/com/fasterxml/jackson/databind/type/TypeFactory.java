@@ -599,7 +599,7 @@ public final class TypeFactory
      */
     @Deprecated
     public JavaType constructType(Type type, Class<?> contextType) {
-        return _fromAny(null, type, EMPTY_BINDINGS);
+        return constructType(type, constructType(contextType));
     }
 
     /**

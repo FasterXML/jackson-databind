@@ -24,7 +24,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.6.0</jackson.version>
+  <jackson.version>2.7.0</jackson.version>
   ...
 </properties>
 

@@ -69,7 +69,8 @@ public class MapLikeType extends TypeBase
 
     @Deprecated // since 2.7
     public static MapLikeType construct(Class<?> rawType, JavaType keyT, JavaType valueT) {
-        return new MapLikeType(rawType, null, null, null, keyT, valueT, null, null, false);
+        return new MapLikeType(rawType, null, _bogusSuperClass(rawType), null,
+                keyT, valueT, null, null, false);
     }
 
     @Override

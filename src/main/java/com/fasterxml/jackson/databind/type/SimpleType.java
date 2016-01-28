@@ -100,6 +100,7 @@ public class SimpleType // note: until 2.6 was final
     @Deprecated
     public static SimpleType construct(Class<?> cls)
     {
+                
         /* Let's add sanity checks, just to ensure no
          * Map/Collection entries are constructed
          */
@@ -113,9 +114,11 @@ public class SimpleType // note: until 2.6 was final
         if (cls.isArray()) {
             throw new IllegalArgumentException("Can not construct SimpleType for an array (class: "+cls.getName()+")");
         }
-        return new SimpleType(cls);
+        return new SimpleType(cls, TypeBindings.emptyBindings(),
+                // 18-Oct-2015, tatu: Should be ok to pass very minimal supertype info?
+                _bogusSuperClass(cls), null, null, null, false);
     }
-
+    
     @Override
     protected JavaType _narrow(Class<?> subclass)
     {

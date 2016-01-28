@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.type.SimpleType;
  * Set of tests to ensure that changes between 2.6 and 2.7 can
  * be handled somewhat gracefully.
  */
-public class DeprecatedTypeHandlingTest extends BaseMapTest
+public class DeprecatedTypeHandling1102Test extends BaseMapTest
 {
     static class Point {
         public int x;
@@ -22,9 +22,9 @@ public class DeprecatedTypeHandlingTest extends BaseMapTest
     }
 
     final ObjectMapper MAPPER = objectMapper();
-    
+
     @SuppressWarnings("deprecation")
-    public void testExplicitCollectionType() throws Exception
+    public void testSimplePOJOType() throws Exception
     {
         JavaType elem = SimpleType.construct(Point.class);
 
@@ -32,18 +32,21 @@ public class DeprecatedTypeHandlingTest extends BaseMapTest
         assertNotNull(p);
         assertEquals(1, p.x);
         assertEquals(2, p.getY());
-
+    }
+    
+    @SuppressWarnings("deprecation")
+    public void testExplicitCollectionType() throws Exception
+    {
+        JavaType elem = SimpleType.construct(Point.class);
         final String json = aposToQuotes("[ {'x':1,'y':2}, {'x':3,'y':6 }]");
         
-        System.err.println("ELEM -> "+elem);
-System.err.println("ELEM.raw -> "+elem.getRawClass());
         JavaType t = CollectionType.construct(List.class, elem);
         List<Point> l = MAPPER.readValue(json, t);
         assertNotNull(l);
         assertEquals(2, l.size());
         Object ob = l.get(0);
         assertEquals(Point.class, ob.getClass());
-        p = (Point) ob;
+        Point p = (Point) ob;
         assertEquals(1, p.x);
         assertEquals(2, p.getY());
     }

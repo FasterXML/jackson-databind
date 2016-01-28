@@ -5,7 +5,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -242,5 +241,22 @@ public abstract class TypeBase
             }
         }
         return sb;
+    }
+
+    /**
+     * Internal helper method used to figure out nominal super-class for
+     * deprecated factory methods / constructors, where we are not given
+     * properly resolved supertype hierarchy.
+     * Will basically give `JavaType` for `java.lang.Object` for classes
+     * other than `java.lafgn.Object`; null for others.
+     *
+     * @since 2.7
+     */
+    protected static JavaType _bogusSuperClass(Class<?> cls) {
+        Class<?> parent = cls.getSuperclass();
+        if (parent == null) {
+            return null;
+        }
+        return TypeFactory.unknownType();
     }
 }

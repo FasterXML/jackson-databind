@@ -47,7 +47,7 @@ public final class CollectionType
         // nominally component types will be just Object.class
         return new CollectionType(rawType, null,
                 // !!! TODO: Wrong, does have supertypes, but:
-                null, null, elemT,
+                _bogusSuperClass(rawType), null, elemT,
                 null, null, false);
     }
 

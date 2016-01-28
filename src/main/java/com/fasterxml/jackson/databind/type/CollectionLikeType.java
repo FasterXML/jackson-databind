@@ -61,7 +61,7 @@ public class CollectionLikeType extends TypeBase
     public static CollectionLikeType construct(Class<?> rawType, JavaType elemT) {
         return new CollectionLikeType(rawType, null, 
                 // !!! TODO: wrong, probably has super-types, but:
-                null, null,
+                _bogusSuperClass(rawType), null,
                 elemT, null, null, false);
     }
 

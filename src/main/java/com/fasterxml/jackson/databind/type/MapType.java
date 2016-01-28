@@ -41,7 +41,8 @@ public final class MapType extends MapLikeType
     @Deprecated // since 2.7
     public static MapType construct(Class<?> rawType, JavaType keyT, JavaType valueT) {
         // !!! TODO: Wrong, does have supertypes
-        return new MapType(rawType, null, null, null, keyT, valueT, null, null, false);
+        return new MapType(rawType, null, _bogusSuperClass(rawType), null,
+                keyT, valueT, null, null, false);
     }
 
     @Override

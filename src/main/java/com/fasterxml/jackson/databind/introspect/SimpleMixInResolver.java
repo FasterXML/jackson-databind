@@ -61,12 +61,13 @@ public class SimpleMixInResolver
     public void setLocalDefinitions(Map<Class<?>, Class<?>> sourceMixins) {
         if (sourceMixins == null || sourceMixins.isEmpty()) {
             _localMixIns = null;
+        } else {
+            Map<ClassKey,Class<?>> mixIns = new HashMap<ClassKey,Class<?>>(sourceMixins.size());
+            for (Map.Entry<Class<?>,Class<?>> en : sourceMixins.entrySet()) {
+                mixIns.put(new ClassKey(en.getKey()), en.getValue());
+            }
+            _localMixIns = mixIns;
         }
-        Map<ClassKey,Class<?>> mixIns = new HashMap<ClassKey,Class<?>>(sourceMixins.size());
-        for (Map.Entry<Class<?>,Class<?>> en : sourceMixins.entrySet()) {
-            mixIns.put(new ClassKey(en.getKey()), en.getValue());
-        }
-        _localMixIns = mixIns;
     }
 
     public void addLocalDefinition(Class<?> target, Class<?> mixinSource) {

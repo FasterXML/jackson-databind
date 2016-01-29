@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.*;
@@ -233,6 +234,11 @@ public class DateDeserializers
                 throw ctxt.instantiationException(_calendarClass, e);
             }
         }
+
+        @Override
+        public Calendar deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return deserialize(jp, ctxt);
+        }
     }
 
     /**
@@ -260,6 +266,11 @@ public class DateDeserializers
         public java.util.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return _parseDate(jp, ctxt);
         }
+
+        @Override
+        public java.util.Date deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return deserialize(jp, ctxt);
+        }
     }
 
     /**
@@ -283,6 +294,11 @@ public class DateDeserializers
         public java.sql.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             Date d = _parseDate(jp, ctxt);
             return (d == null) ? null : new java.sql.Date(d.getTime());
+        }
+
+        @Override
+        public java.sql.Date deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return deserialize(jp, ctxt);
         }
     }
 
@@ -309,6 +325,11 @@ public class DateDeserializers
         public java.sql.Timestamp deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             return new Timestamp(_parseDate(jp, ctxt).getTime());
+        }
+
+        @Override
+        public java.sql.Timestamp deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return deserialize(jp, ctxt);
         }
     }
 }

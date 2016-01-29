@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
@@ -34,6 +36,40 @@ public class TestDateDeserialization
     static class DateInCETBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH", timezone="CET")
         public Date date;
+    }
+
+    // Test for [JACKSON-1103]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    static class ComparableMixin {}
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    static class Person
+    {
+        public String name;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        public Date dateOfBirth;
+    }
+
+    public void testDateWithTypeDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Comparable.class, ComparableMixin.class);
+        mapper.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY);
+
+        String json = "{\n"
+                    + "  \"@class\":  \"com.fasterxml.jackson.databind.deser.TestDateDeserialization$Person\",\n"
+                    + "  \"name\":    \"Novak Seovic\",\n"
+                    + "  \"dateOfBirth\": \"2007-12-28T00:00:00.000Z\"\n"
+                    + "}";
+
+        Person person = (Person) mapper.readValue(json, Object.class);
+        assertEquals("Novak Seovic", person.name);
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.setTime(person.dateOfBirth);
+        assertEquals(2007, c.get(Calendar.YEAR));
+        assertEquals(Calendar.DECEMBER, c.get(Calendar.MONTH));
+        assertEquals(28, c.get(Calendar.DAY_OF_MONTH));
     }
     
     /*

@@ -237,7 +237,9 @@ public class DateDeserializers
 
         @Override
         public Calendar deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
-            return deserialize(jp, ctxt);
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (Calendar) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
         }
     }
 
@@ -269,7 +271,9 @@ public class DateDeserializers
 
         @Override
         public java.util.Date deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
-            return deserialize(jp, ctxt);
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (Date) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
         }
     }
 
@@ -298,7 +302,9 @@ public class DateDeserializers
 
         @Override
         public java.sql.Date deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
-            return deserialize(jp, ctxt);
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (java.sql.Date) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
         }
     }
 
@@ -329,7 +335,9 @@ public class DateDeserializers
 
         @Override
         public java.sql.Timestamp deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
-            return deserialize(jp, ctxt);
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (Timestamp) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
         }
     }
 }

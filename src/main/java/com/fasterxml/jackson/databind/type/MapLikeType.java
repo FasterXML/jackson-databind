@@ -1,19 +1,19 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
- * Type that represents Map-like types; things that consist of key/value pairs but that
- * do not necessarily implement {@link java.util.Map}, but that do not have enough
- * introspection functionality to allow for some level of generic handling.
- * This specifically allows framework to check for configuration and annotation
- * settings used for Map types, and pass these to custom handlers that may be more
- * familiar with actual type.
+ * Type that represents Map-like types; things that consist of key/value pairs
+ * but that do not necessarily implement {@link java.util.Map}, but that do not
+ * have enough introspection functionality to allow for some level of generic
+ * handling. This specifically allows framework to check for configuration and
+ * annotation settings used for Map types, and pass these to custom handlers
+ * that may be more familiar with actual type.
  */
-public class MapLikeType extends TypeBase
-{
+public class MapLikeType extends TypeBase {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -27,17 +27,16 @@ public class MapLikeType extends TypeBase
     protected final JavaType _valueType;
 
     /*
-    /**********************************************************
-    /* Life-cycle
-    /**********************************************************
+     * /********************************************************** /* Life-cycle
+     * /**********************************************************
      */
 
     protected MapLikeType(Class<?> mapType, TypeBindings bindings,
-            JavaType superClass, JavaType[] superInts, JavaType keyT, JavaType valueT,
-            Object valueHandler, Object typeHandler, boolean asStatic)
-    {
-        super(mapType, bindings, superClass, superInts,
-                keyT.hashCode() ^ valueT.hashCode(), valueHandler, typeHandler, asStatic);
+            JavaType superClass, JavaType[] superInts, JavaType keyT,
+            JavaType valueT, Object valueHandler, Object typeHandler,
+            boolean asStatic) {
+        super(mapType, bindings, superClass, superInts, keyT.hashCode()
+                ^ valueT.hashCode(), valueHandler, typeHandler, asStatic);
         _keyType = keyT;
         _valueType = valueT;
     }
@@ -45,37 +44,54 @@ public class MapLikeType extends TypeBase
     /**
      * @since 2.7
      */
-    protected MapLikeType(TypeBase base, JavaType keyT, JavaType valueT)
-    {
+    protected MapLikeType(TypeBase base, JavaType keyT, JavaType valueT) {
         super(base);
         _keyType = keyT;
         _valueType = valueT;
     }
 
     /**
-     * Factory method that can be used to "upgrade" a basic type into collection-like
-     * one; usually done via {@link TypeModifier}
+     * Factory method that can be used to "upgrade" a basic type into
+     * collection-like one; usually done via {@link TypeModifier}
      *
      * @since 2.7
      */
-    public static MapLikeType upgradeFrom(JavaType baseType, JavaType keyT, JavaType valueT) {
-        // 19-Oct-2015, tatu: Not sure if and how other types could be used as base;
-        //    will cross that bridge if and when need be
+    public static MapLikeType upgradeFrom(JavaType baseType, JavaType keyT,
+            JavaType valueT) {
+        // 19-Oct-2015, tatu: Not sure if and how other types could be used as
+        // base;
+        // will cross that bridge if and when need be
         if (baseType instanceof TypeBase) {
             return new MapLikeType((TypeBase) baseType, keyT, valueT);
         }
-        throw new IllegalArgumentException("Can not upgrade from an instance of "+baseType.getClass());
+        throw new IllegalArgumentException(
+                "Can not upgrade from an instance of " + baseType.getClass());
     }
 
-    @Deprecated // since 2.7
-    public static MapLikeType construct(Class<?> rawType, JavaType keyT, JavaType valueT) {
-        return new MapLikeType(rawType, null, null, null, keyT, valueT, null, null, false);
+    @Deprecated
+    // since 2.7; remove from 2.8
+    public static MapLikeType construct(Class<?> rawType, JavaType keyT,
+            JavaType valueT) {
+        // First: may need to fabricate TypeBindings (needed for refining into
+        // concrete collection types, as per [databind#1102])
+        TypeVariable<?>[] vars = rawType.getTypeParameters();
+        TypeBindings bindings;
+        if ((vars == null) || (vars.length != 2)) {
+            bindings = TypeBindings.emptyBindings();
+        } else {
+            bindings = TypeBindings.create(rawType, keyT, valueT);
+        }
+        return new MapLikeType(rawType, bindings, _bogusSuperClass(rawType),
+                null, keyT, valueT, null, null, false);
     }
 
+    @Deprecated
+    // since 2.7
     @Override
     protected JavaType _narrow(Class<?> subclass) {
-        return new MapLikeType(subclass, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
+        return new MapLikeType(subclass, _bindings, _superClass,
+                _superInterfaces, _keyType, _valueType, _valueHandler,
+                _typeHandler, _asStatic);
     }
 
     /**
@@ -85,42 +101,46 @@ public class MapLikeType extends TypeBase
         if (keyType == _keyType) {
             return this;
         }
-        return new MapLikeType(_class, _bindings, _superClass, _superInterfaces,
-                keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, keyType, _valueType, _valueHandler,
+                _typeHandler, _asStatic);
     }
-    
+
     @Override
     public JavaType withContentType(JavaType contentType) {
         if (_valueType == contentType) {
             return this;
         }
-        return new MapLikeType(_class, _bindings, _superClass, _superInterfaces,
-                _keyType, contentType, _valueHandler, _typeHandler, _asStatic);
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType, contentType, _valueHandler,
+                _typeHandler, _asStatic);
     }
 
     @Override
     public MapLikeType withTypeHandler(Object h) {
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType, _valueHandler, h, _asStatic);
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType, _valueType, _valueHandler, h,
+                _asStatic);
     }
 
     @Override
     public MapLikeType withContentTypeHandler(Object h) {
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType.withTypeHandler(h),
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType, _valueType.withTypeHandler(h),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
     public MapLikeType withValueHandler(Object h) {
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType, h, _typeHandler, _asStatic);
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType, _valueType, h, _typeHandler,
+                _asStatic);
     }
 
     @Override
     public MapLikeType withContentValueHandler(Object h) {
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType.withValueHandler(h),
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType, _valueType.withValueHandler(h),
                 _valueHandler, _typeHandler, _asStatic);
     }
 
@@ -129,17 +149,16 @@ public class MapLikeType extends TypeBase
         if (_asStatic) {
             return this;
         }
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType, _valueType.withStaticTyping(),
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType, _valueType.withStaticTyping(),
                 _valueHandler, _typeHandler, true);
     }
 
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
-        return new MapLikeType(rawType, bindings,
-                superClass, superInterfaces, _keyType, _valueType,
-                _valueHandler, _typeHandler, _asStatic);
+        return new MapLikeType(rawType, bindings, superClass, superInterfaces,
+                _keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -155,24 +174,31 @@ public class MapLikeType extends TypeBase
         }
         return sb.toString();
     }
- 
+
     /*
-    /**********************************************************
-    /* Public API
-    /**********************************************************
+     * /********************************************************** /* Public API
+     * /**********************************************************
      */
 
     @Override
-    public boolean isContainerType() { return true; }
+    public boolean isContainerType() {
+        return true;
+    }
 
     @Override
-    public boolean isMapLikeType() { return true; }
-    
-    @Override
-    public JavaType getKeyType() { return _keyType; }
+    public boolean isMapLikeType() {
+        return true;
+    }
 
     @Override
-    public JavaType getContentType() { return _valueType; }
+    public JavaType getKeyType() {
+        return _keyType;
+    }
+
+    @Override
+    public JavaType getContentType() {
+        return _valueType;
+    }
 
     @Override
     public Object getContentValueHandler() {
@@ -188,10 +214,9 @@ public class MapLikeType extends TypeBase
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }
-    
+
     @Override
-    public StringBuilder getGenericSignature(StringBuilder sb)
-    {
+    public StringBuilder getGenericSignature(StringBuilder sb) {
         _classSignature(_class, sb, false);
         sb.append('<');
         _keyType.getGenericSignature(sb);
@@ -199,58 +224,55 @@ public class MapLikeType extends TypeBase
         sb.append(">;");
         return sb;
     }
- 
+
     /*
-    /**********************************************************
-    /* Extended API
-    /**********************************************************
+     * /********************************************************** /* Extended
+     * API /**********************************************************
      */
 
-    public MapLikeType withKeyTypeHandler(Object h)
-    {
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType.withTypeHandler(h), _valueType,
+    public MapLikeType withKeyTypeHandler(Object h) {
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType.withTypeHandler(h), _valueType,
                 _valueHandler, _typeHandler, _asStatic);
     }
 
     public MapLikeType withKeyValueHandler(Object h) {
-        return new MapLikeType(_class, _bindings,
-                _superClass, _superInterfaces, _keyType.withValueHandler(h), _valueType,
+        return new MapLikeType(_class, _bindings, _superClass,
+                _superInterfaces, _keyType.withValueHandler(h), _valueType,
                 _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     /**
-     * Method that can be used for checking whether this type is a
-     * "real" Collection type; meaning whether it represents a parameterized
-     * subtype of {@link java.util.Collection} or just something that acts
-     * like one.
+     * Method that can be used for checking whether this type is a "real"
+     * Collection type; meaning whether it represents a parameterized subtype of
+     * {@link java.util.Collection} or just something that acts like one.
      */
     public boolean isTrueMapType() {
         return Map.class.isAssignableFrom(_class);
     }
 
     /*
-    /**********************************************************
-    /* Standard methods
-    /**********************************************************
+     * /********************************************************** /* Standard
+     * methods /**********************************************************
      */
 
     @Override
-    public String toString()
-    {
-        return "[map-like type; class "+_class.getName()+", "+_keyType+" -> "+_valueType+"]";
+    public String toString() {
+        return "[map-like type; class " + _class.getName() + ", " + _keyType
+                + " -> " + _valueType + "]";
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (o == this) return true;
-        if (o == null) return false;
-        if (o.getClass() != getClass()) return false;
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (o == null)
+            return false;
+        if (o.getClass() != getClass())
+            return false;
 
         MapLikeType other = (MapLikeType) o;
-        return (_class == other._class)
-            && _keyType.equals(other._keyType)
-            && _valueType.equals(other._valueType);
+        return (_class == other._class) && _keyType.equals(other._keyType)
+                && _valueType.equals(other._valueType);
     }
 }

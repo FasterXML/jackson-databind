@@ -9,6 +9,8 @@ Project: jackson-databind
 #1079: Add back `TypeFactory.constructType(Type, Class)` as "deprecated" in 2.7.1
 #1083: Field in base class is not recognized, when using `@JsonType.defaultImpl`
  (reported by Julian H)
+#1102: Handling of deprecated `SimpleType.construct()` too minimalistic
+ (reported by Thibault K)
 
 2.7.0 (10-Jan-2016)
 
@@ -71,7 +73,12 @@ INCOMPATIBILITIES:
   argument for `depositSchemaProperty()` method `BeanProperty` and `PropertyWriter` interfaces
 - JDK baseline now Java 7 (JDK 1.7), from Java 6/JDK 1.6
 
-2.6.5 (not yet released)
+2.6.6 (not released yet)
+
+#1088: NPE possibility in SimpleMixinResolver
+ (reported by Laird N)
+
+2.6.5 (19-Jan-2016)
 
 #1052: Don't generate a spurious NullNode after parsing an embedded object
  (reported by philipa@github)

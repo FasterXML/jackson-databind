@@ -373,7 +373,7 @@ public final class TypeFactory
             }
 
             // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
-            // !!! TODO
+            // !!! TODO (as of 28-Jan-2016, at least)
 
             // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
             //    a way to fully resolve and merge hierarchies; but that gets expensive

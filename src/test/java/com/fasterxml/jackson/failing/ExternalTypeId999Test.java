@@ -16,7 +16,8 @@ public class ExternalTypeId999Test extends BaseMapTest
 
     public static class Message<P extends Payload>
     {
-        private final String type;
+        final String type;
+
         @JsonTypeInfo(visible = true, use = JsonTypeInfo.Id.NAME,
                 include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
         @JsonSubTypes({

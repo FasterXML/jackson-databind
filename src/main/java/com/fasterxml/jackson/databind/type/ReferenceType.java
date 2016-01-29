@@ -151,8 +151,9 @@ public class ReferenceType extends SimpleType
     /* Narrow/widen
     /**********************************************************
      */
-    
+
     @Override
+    @Deprecated // since 2.7
     protected JavaType _narrow(Class<?> subclass)
     {
         // Should we check that there is a sub-class relationship?

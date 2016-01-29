@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.databind.jsontype;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -27,12 +30,26 @@ public class TestScalars extends BaseMapTest
         public AbstractWrapper() { }
         public AbstractWrapper(Serializable v) { value = v; }
     }
+
+    static class ScalarList {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
+        public List<Object> values = new ArrayList<Object>();
+
+        public ScalarList() { }
+
+        public ScalarList add(Object v) {
+            values.add(v);
+            return this;
+        }
+    }
     
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
+
+    final ObjectMapper MAPPER = new ObjectMapper();
     
     /**
      * Ensure that per-property dynamic types work, both for "native" types
@@ -40,9 +57,9 @@ public class TestScalars extends BaseMapTest
      */
     public void testScalarsWithTyping() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         String json;
         DynamicWrapper result;
+        ObjectMapper m = MAPPER;
 
         // first, check "native" types
         json = m.writeValueAsString(new DynamicWrapper(Integer.valueOf(3)));
@@ -73,7 +90,7 @@ public class TestScalars extends BaseMapTest
 
     public void testScalarsViaAbstractType() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = MAPPER;
         String json;
         AbstractWrapper result;
 
@@ -102,5 +119,24 @@ public class TestScalars extends BaseMapTest
         json = m.writeValueAsString(new AbstractWrapper(TestEnum.B));
         result = m.readValue(json, AbstractWrapper.class);
         assertEquals(TestEnum.B, result.value);
+    }
+
+    // Test inspired by [databind#1104]
+    public void testHeterogenousStringScalars() throws Exception
+    {
+        final UUID NULL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        ScalarList input = new ScalarList()
+                .add("Test")
+                .add(java.lang.Object.class)
+                .add(NULL_UUID)
+                ;
+        String json = MAPPER.writeValueAsString(input);
+
+        ScalarList result = MAPPER.readValue(json, ScalarList.class);
+        assertNotNull(result.values);
+        assertEquals(3, result.values.size());
+        assertEquals("Test", result.values.get(0));
+        assertEquals(Object.class, result.values.get(1));
+        assertEquals(NULL_UUID, result.values.get(2));
     }
 }

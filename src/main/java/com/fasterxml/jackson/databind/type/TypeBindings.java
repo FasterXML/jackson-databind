@@ -96,7 +96,6 @@ public class TypeBindings
         case 2:
             return create(erasedType, types[0], types[1]);
         }
-        
         TypeVariable<?>[] vars = erasedType.getTypeParameters();
         String[] names;
         if (vars == null || vars.length == 0) {
@@ -195,8 +194,6 @@ public class TypeBindings
      * Method for creating an instance that has same bindings as this object,
      * plus an indicator for additional type variable that may be unbound within
      * this context; this is needed to resolve recursive self-references.
-     * 
-     * @since 1.3 (renamed from "withAdditionalBinding" in 1.2)
      */
     public TypeBindings withUnboundVariable(String name)
     {

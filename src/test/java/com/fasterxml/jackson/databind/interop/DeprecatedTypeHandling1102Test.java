@@ -1,9 +1,10 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.interop;
 
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.SimpleType;
 
 /**
@@ -21,6 +22,10 @@ public class DeprecatedTypeHandling1102Test extends BaseMapTest
         public int getY() { return _y; }
     }
 
+    static class Point3D extends Point {
+        public int z;
+    }
+    
     final ObjectMapper MAPPER = objectMapper();
 
     @SuppressWarnings("deprecation")
@@ -33,14 +38,27 @@ public class DeprecatedTypeHandling1102Test extends BaseMapTest
         assertEquals(1, p.x);
         assertEquals(2, p.getY());
     }
+
+    @SuppressWarnings("deprecation")
+    public void testPOJOSubType() throws Exception
+    {
+        JavaType elem = SimpleType.construct(Point3D.class);
+
+        Point3D p = MAPPER.readValue(aposToQuotes("{'x':1,'z':3,'y':2}"), elem);
+        assertNotNull(p);
+        assertEquals(1, p.x);
+        assertEquals(2, p.getY());
+        assertEquals(3, p.z);
+    }
     
     @SuppressWarnings("deprecation")
     public void testExplicitCollectionType() throws Exception
     {
         JavaType elem = SimpleType.construct(Point.class);
-        final String json = aposToQuotes("[ {'x':1,'y':2}, {'x':3,'y':6 }]");
-        
         JavaType t = CollectionType.construct(List.class, elem);
+
+        final String json = aposToQuotes("[ {'x':1,'y':2}, {'x':3,'y':6 }]");        
+
         List<Point> l = MAPPER.readValue(json, t);
         assertNotNull(l);
         assertEquals(2, l.size());
@@ -49,5 +67,24 @@ public class DeprecatedTypeHandling1102Test extends BaseMapTest
         Point p = (Point) ob;
         assertEquals(1, p.x);
         assertEquals(2, p.getY());
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testExplicitMapType() throws Exception
+    {
+        JavaType key = SimpleType.construct(String.class);
+        JavaType elem = SimpleType.construct(Point.class);
+        JavaType t = MapType.construct(Map.class, key, elem);
+
+        final String json = aposToQuotes("{'x':{'x':3,'y':5}}");        
+
+        Map<String,Point> m = MAPPER.readValue(json, t);
+        assertNotNull(m);
+        assertEquals(1, m.size());
+        Object ob = m.values().iterator().next();
+        assertEquals(Point.class, ob.getClass());
+        Point p = (Point) ob;
+        assertEquals(3, p.x);
+        assertEquals(5, p.getY());
     }
 }

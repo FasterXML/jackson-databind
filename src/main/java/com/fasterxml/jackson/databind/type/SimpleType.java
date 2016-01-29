@@ -100,7 +100,6 @@ public class SimpleType // note: until 2.6 was final
     @Deprecated
     public static SimpleType construct(Class<?> cls)
     {
-                
         /* Let's add sanity checks, just to ensure no
          * Map/Collection entries are constructed
          */
@@ -114,12 +113,13 @@ public class SimpleType // note: until 2.6 was final
         if (cls.isArray()) {
             throw new IllegalArgumentException("Can not construct SimpleType for an array (class: "+cls.getName()+")");
         }
-        return new SimpleType(cls, TypeBindings.emptyBindings(),
-                // 18-Oct-2015, tatu: Should be ok to pass very minimal supertype info?
-                _bogusSuperClass(cls), null, null, null, false);
+        TypeBindings b = TypeBindings.emptyBindings();
+        return new SimpleType(cls, b,
+                _buildSuperClass(cls.getSuperclass(), b), null, null, null, false);
     }
-    
+
     @Override
+    @Deprecated
     protected JavaType _narrow(Class<?> subclass)
     {
         if (_class == subclass) {
@@ -235,6 +235,31 @@ public class SimpleType // note: until 2.6 was final
         }
         sb.append(';');
         return sb;
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods
+    /**********************************************************
+     */
+
+    /**
+     * Helper method we need to recursively build skeletal representations
+     * of superclasses.
+     * 
+     * @since 2.7 -- remove when not needed (2.8?)
+     */
+    private static JavaType _buildSuperClass(Class<?> superClass, TypeBindings b)
+    {
+        if (superClass == null) {
+            return null;
+        }
+        if (superClass == Object.class) {
+            return TypeFactory.unknownType();
+        }
+        JavaType superSuper = _buildSuperClass(superClass.getSuperclass(), b);
+        return new SimpleType(superClass, b,
+                superSuper, null, null, null, false);
     }
 
     /*

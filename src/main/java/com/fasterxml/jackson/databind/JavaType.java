@@ -202,6 +202,7 @@ public abstract class JavaType
         return result;
     }
 
+    @Deprecated // since 2.7
     protected abstract JavaType _narrow(Class<?> subclass);
 
     /*

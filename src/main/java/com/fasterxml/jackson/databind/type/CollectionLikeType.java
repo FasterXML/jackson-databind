@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -59,8 +60,16 @@ public class CollectionLikeType extends TypeBase
      */
     @Deprecated // since 2.7
     public static CollectionLikeType construct(Class<?> rawType, JavaType elemT) {
-        return new CollectionLikeType(rawType, null, 
-                // !!! TODO: wrong, probably has super-types, but:
+        // First: may need to fabricate TypeBindings (needed for refining into
+        // concrete collection types, as per [databind#1102])
+        TypeVariable<?>[] vars = rawType.getTypeParameters();
+        TypeBindings bindings;
+        if ((vars == null) || (vars.length != 1)) {
+            bindings = TypeBindings.emptyBindings();
+        } else {
+            bindings = TypeBindings.create(rawType, elemT);
+        }
+        return new CollectionLikeType(rawType, bindings,
                 _bogusSuperClass(rawType), null,
                 elemT, null, null, false);
     }
@@ -81,6 +90,7 @@ public class CollectionLikeType extends TypeBase
     }
 
     @Override
+    @Deprecated // since 2.7
     protected JavaType _narrow(Class<?> subclass) {
         return new CollectionLikeType(subclass, _bindings,
                 _superClass, _superInterfaces, _elementType,

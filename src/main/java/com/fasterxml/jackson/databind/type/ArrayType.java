@@ -111,6 +111,7 @@ public final class ArrayType
      * it is not even allowed.
      */
     @Override
+    @Deprecated // since 2.7
     protected JavaType _narrow(Class<?> subclass) {
         return _reportUnsupported();
     }

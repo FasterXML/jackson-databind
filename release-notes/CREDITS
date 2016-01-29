@@ -281,6 +281,8 @@ Laird Nelson (ljnelson@github)
   * Suggested #688: Provide a means for an ObjectMapper to discover mixin annotation
     classes on demand
    (2.6.0)
+  * Reported #1088: NPE possibility in SimpleMixinResolver
+   (2.6.6)
 
 Derk Norton (derknorton@github)
   * Suggested #689: Add `ObjectMapper.setDefaultPrettyPrinter(PrettyPrinter)`

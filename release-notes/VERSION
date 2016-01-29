@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.6 (not released yet)
+
+#1088: NPE possibility in SimpleMixinResolver
+ (reported by Laird N)
+
 2.6.5 (19-Jan-2016)
 
 #1052: Don't generate a spurious NullNode after parsing an embedded object

@@ -59,32 +59,20 @@ public abstract class DateTimeSerializerBase<T>
                     return withFormat(Boolean.TRUE, null);
                 }
 
-        		Boolean asNumber = (format.getShape() == JsonFormat.Shape.STRING) ? Boolean.FALSE : null;
-                // If not, do we have a pattern?
-                TimeZone tz = format.getTimeZone();
-                if (format.hasPattern()) {
-                    String pattern = format.getPattern();
-                    final Locale loc = format.hasLocale() ? format.getLocale() : serializers.getLocale();
+                if (format.getShape() == JsonFormat.Shape.STRING) {
+                    TimeZone tz = format.getTimeZone();
+                    final String pattern = format.hasPattern()
+                                           ? format.getPattern()
+                                           : StdDateFormat.DATE_FORMAT_STR_ISO8601;
+                    final Locale loc = format.hasLocale()
+                                       ? format.getLocale()
+                                       : serializers.getLocale();
                     SimpleDateFormat df = new SimpleDateFormat(pattern, loc);
                     if (tz == null) {
                         tz = serializers.getTimeZone();
                     }
                     df.setTimeZone(tz);
-                    return withFormat(asNumber, df);
-                }
-                // If not, do we at least have a custom timezone?
-                if (tz != null) {
-                    DateFormat df = serializers.getConfig().getDateFormat();
-                    // one shortcut: with our custom format, can simplify handling a bit
-                    if (df.getClass() == StdDateFormat.class) {
-                        final Locale loc = format.hasLocale() ? format.getLocale() : serializers.getLocale();
-                        df = StdDateFormat.getISO8601Format(tz, loc);
-                    } else {
-                        // otherwise need to clone, re-set timezone:
-                        df = (DateFormat) df.clone();
-                        df.setTimeZone(tz);
-                    }
-                    return withFormat(asNumber, df);
+                    return withFormat(Boolean.FALSE, df);
                 }
             }
         }

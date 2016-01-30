@@ -43,6 +43,12 @@ public class DateSerializationTest
         public DateAsStringBean(long l) { date = new java.util.Date(l); }
     }
 
+    static class DateAsDefaultStringBean {
+        @JsonFormat(shape=JsonFormat.Shape.STRING)
+        public Date date;
+        public DateAsDefaultStringBean(long l) { date = new java.util.Date(l); }
+    }
+
     static class DateInCETBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH:00", timezone="CET")
         public Date date;
@@ -192,6 +198,10 @@ public class DateSerializationTest
         // and for [Issue#423] as well:
         json = mapper.writer().with(getUTCTimeZone()).writeValueAsString(new CalendarAsStringBean(0L));
         assertEquals("{\"value\":\"1970-01-01\"}", json);
+
+        // and with default (ISO8601) format (databind#1109)
+        json = mapper.writeValueAsString(new DateAsDefaultStringBean(0L));
+        assertEquals("{\"date\":\"1970-01-01T00:00:00.000+0000\"}", json);
     }
 
     /**

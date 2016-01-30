@@ -31,7 +31,7 @@ public class StdDateFormat
      * to ISO-8601 date formatting standard, when it includes basic undecorated
      * timezone definition
      */
-    protected final static String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public final static String DATE_FORMAT_STR_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     /**
      * Same as 'regular' 8601, but handles 'Z' as an alias for "+0000"

@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #1088: NPE possibility in SimpleMixinResolver
  (reported by Laird N)
+#1108: Jackson not continue to parse after DeserializationFeature.FAIL_ON_INVALID_SUBTYPE error
+ (reported by jefferyyuan@github)
 
 2.6.5 (19-Jan-2016)
 

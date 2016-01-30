@@ -28,26 +28,35 @@ public class NullifyingDeserializer
      */
     
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        jp.skipChildren();
+        // 29-Jan-2016, tatu: Simple skipping for all other tokens, but FIELD_NAME bit
+        //    special unfortunately
+        if (p.hasToken(JsonToken.FIELD_NAME)) {
+            while (true) {
+                JsonToken t = p.nextToken();
+                if ((t == null) || (t == JsonToken.END_OBJECT)) {
+                    break;
+                }
+                p.skipChildren();
+            }
+        } else {
+            p.skipChildren();
+        }
         return null;
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer) throws IOException
     {
         // Not sure if we need to bother but:
 
-        JsonToken t = jp.getCurrentToken();
-        switch (t) {
-        case START_ARRAY:
-        case START_OBJECT:
-        case FIELD_NAME:
-            return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+        switch (p.getCurrentTokenId()) {
+        case JsonTokenId.ID_START_ARRAY:
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
+            return typeDeserializer.deserializeTypedFromAny(p, ctxt);
         default:
             return null;
         }

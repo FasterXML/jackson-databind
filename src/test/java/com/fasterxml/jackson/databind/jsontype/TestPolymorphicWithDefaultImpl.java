@@ -105,6 +105,24 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         public int a;
     }
 
+    static class CallRecord {
+        public float version;
+        public String application;
+        public Item item;
+        public Item item2;
+        public CallRecord() {}
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+    @JsonSubTypes({@JsonSubTypes.Type(value = Event.class, name = "event")})
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public interface Item { }
+
+    static class Event implements Item {
+        public String location;
+        public Event() {}
+    }
+
     /*
     /**********************************************************
     /* Unit tests, deserialization
@@ -193,7 +211,25 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertEquals(ImplFor656.class, value.getClass());
         assertEquals(3, ((ImplFor656) value).a);
     }
-    
+
+    public void testUnknownTypeIDRecovery() throws Exception
+    {
+        ObjectReader reader = MAPPER.readerFor(CallRecord.class).without(
+                DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+        String json = aposToQuotes("{'version':0.0,'application':'123',"
+                +"'item':{'type':'xevent','location':'location1'},"
+                +"'item2':{'type':'event','location':'location1'}}");
+        // can't read item2 - which is valid
+        CallRecord r = reader.readValue(json);
+        assertNull(r.item);
+        assertNotNull(r.item2);
+
+        json = aposToQuotes("{'item':{'type':'xevent','location':'location1'}, 'version':0.0,'application':'123'}");
+        CallRecord r3 = reader.readValue(json);
+        assertNull(r3.item);
+        assertEquals("123", r3.application);
+    }
+
     /*
     /**********************************************************
     /* Unit tests, serialization

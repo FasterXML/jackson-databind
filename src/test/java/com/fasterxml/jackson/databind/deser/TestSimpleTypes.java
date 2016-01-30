@@ -259,6 +259,30 @@ public class TestSimpleTypes
         assertEquals(9, result._v);
     }
 
+    public void testEmptyToNullCoercionForPrimitives() throws Exception {
+        _testEmptyToNullCoercion(int.class, Integer.valueOf(0));
+        _testEmptyToNullCoercion(long.class, Long.valueOf(0));
+        _testEmptyToNullCoercion(double.class, Double.valueOf(0.0));
+        _testEmptyToNullCoercion(float.class, Float.valueOf(0.0f));
+    }
+
+    private void _testEmptyToNullCoercion(Class<?> primType, Object emptyValue) throws Exception
+    {
+        final String EMPTY = "\"\"";
+
+        // as per [databind#1095] should only allow coercion from empty String,
+        // if `null` is acceptable
+        ObjectReader intR = MAPPER.readerFor(primType);
+        assertEquals(emptyValue, intR.readValue(EMPTY));
+        try {
+            intR.with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .readValue("\"\"");
+            fail("Should not have passed");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map Empty String");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Then tests for wrappers
@@ -324,14 +348,14 @@ public class TestSimpleTypes
         assertNull(wrapper.getV());
         
         final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         try {
-            mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
             mapper.readValue("{\"v\":null}", CharacterBean.class);
             fail("Attempting to deserialize a 'null' JSON reference into a 'char' property did not throw an exception");
         } catch (JsonMappingException exp) {
             //Exception thrown as required
         }
-        
+
         mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);  
         final CharacterBean charBean = MAPPER.readValue(new StringReader("{\"v\":null}"), CharacterBean.class);
         assertNotNull(wrapper);

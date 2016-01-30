@@ -9,6 +9,9 @@ Project: jackson-databind
 #1079: Add back `TypeFactory.constructType(Type, Class)` as "deprecated" in 2.7.1
 #1083: Field in base class is not recognized, when using `@JsonType.defaultImpl`
  (reported by Julian H)
+#1095: Prevent coercion of `int` from empty String to `null` if
+  `DeserializationFeature .FAIL_ON_NULL_FOR_PRIMITIVES` is `true`
+ (reported by yzmyyff@github)
 #1102: Handling of deprecated `SimpleType.construct()` too minimalistic
  (reported by Thibault K)
 

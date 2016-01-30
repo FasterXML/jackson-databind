@@ -5,14 +5,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashSet;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.JsonTokenId;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -150,6 +144,18 @@ public class NumberDeserializers
         public final T getNullValue() {
             return _nullValue;
         }
+
+        @Override
+        public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+            // [databind#1095]: Should not allow coercion from into null from Empty String
+            // either, if `null` not allowed
+            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+                throw ctxt.mappingException(
+                        "Can not map Empty String as null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        handledType().toString());
+            }
+            return _nullValue;
+        }
     }
 
     /*
@@ -226,7 +232,7 @@ public class NumberDeserializers
 
         @Override
         public Short deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             return _parseShort(jp, ctxt);
         }
@@ -248,7 +254,7 @@ public class NumberDeserializers
 
         @Override
         public Character deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             switch (p.getCurrentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT: // ok iff ascii value

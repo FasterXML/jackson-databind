@@ -928,7 +928,7 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not construct Map key of type %s from String \"%s\": ",
+                String.format("Can not construct Map key of type %s from String \"%s\": %s",
                         keyClass.getName(), _desc(keyValue), msg),
                 keyValue, keyClass);
     }

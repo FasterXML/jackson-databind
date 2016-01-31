@@ -82,6 +82,8 @@ INCOMPATIBILITIES:
  (reported by Laird N)
 #1108: Jackson not continue to parse after DeserializationFeature.FAIL_ON_INVALID_SUBTYPE error
  (reported by jefferyyuan@github)
+#1112: Detailed error message from custom key deserializer is discarded
+ (contributed by Benson M)
 
 2.6.5 (19-Jan-2016)
 

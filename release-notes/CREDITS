@@ -407,3 +407,8 @@ Julian Hyde (julianhyde@github)
 Thibault Kruse (tkruse@github)
   * Reported #1102: Handling of deprecated `SimpleType.construct()` too minimalistic
    (2.7.1)
+
+Aleks Seovic (aseovic@github)
+  * Reported #1109: @JsonFormat is ignored by the DateSerializer unless either a custom pattern
+    or a timezone are specified
+   (2.7.1)

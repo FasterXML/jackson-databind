@@ -14,6 +14,9 @@ Project: jackson-databind
  (reported by yzmyyff@github)
 #1102: Handling of deprecated `SimpleType.construct()` too minimalistic
  (reported by Thibault K)
+#1109: @JsonFormat is ignored by the DateSerializer unless either a custom pattern
+  or a timezone are specified
+ (contributed by Aleks S)
 
 2.7.0 (10-Jan-2016)
 

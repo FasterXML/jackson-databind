@@ -55,9 +55,11 @@ public class UnresolvedForwardReference extends JsonMappingException {
         _unresolvedIds = new ArrayList<UnresolvedId>();
     }
 
-    // ******************************
-    // ****** Accessor methods ******
-    // ******************************
+    /*
+    /**********************************************************
+    /* Accessor methods
+    /**********************************************************
+     */
 
     public ReadableObjectId getRoid() {
         return _roid;

@@ -123,10 +123,23 @@ public class TestJsonNode extends NodeTestBase
     // [databind#790]
     public void testCustomComparators() throws Exception
     {
+        ObjectNode nestedObject1 = MAPPER.createObjectNode();
+        nestedObject1.put("value", 6);
+        ArrayNode nestedArray1 = MAPPER.createArrayNode();
+        nestedArray1.add(7);
         ObjectNode root1 = MAPPER.createObjectNode();
         root1.put("value", 5);
+        root1.set("nested_object", nestedObject1);
+        root1.set("nested_array", nestedArray1);
+
+        ObjectNode nestedObject2 = MAPPER.createObjectNode();
+        nestedObject2.put("value", 6.9);
+        ArrayNode nestedArray2 = MAPPER.createArrayNode();
+        nestedArray2.add(7.0);
         ObjectNode root2 = MAPPER.createObjectNode();
         root2.put("value", 5.0);
+        root2.set("nested_object", nestedObject2);
+        root2.set("nested_array", nestedArray2);
 
         // default equals(): not strictly equal
         assertFalse(root1.equals(root2));
@@ -139,6 +152,9 @@ public class TestJsonNode extends NodeTestBase
 
             @Override
             public int compare(JsonNode o1, JsonNode o2) {
+                if (o1 instanceof ContainerNode || o2 instanceof ContainerNode) {
+                    fail("container nodes should be traversed, comparator should not be invoked");
+                }
                 if (o1.equals(o2)) {
                     return 0;
                 }

@@ -175,7 +175,7 @@ public class ObjectNode
 
         for (Map.Entry<String, JsonNode> entry : m1.entrySet()) {
             JsonNode v2 = m2.get(entry.getKey());
-            if ((v2 == null) || comparator.compare(entry.getValue(), v2) != 0) {
+            if ((v2 == null) || !entry.getValue().equals(comparator, v2)) {
                 return false;
             }
         }

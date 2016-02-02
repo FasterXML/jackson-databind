@@ -360,3 +360,7 @@ David Bakin (david-bakin@github)
 Dmitry Romantsov (DmRomantsov@github)
   * Reported #1036: Problem with case-insensitive deserialization
    (2.6.4)
+
+Daniel Norberg (danielnorberg@github)
+  * Contributed #1099: Fix custom comparator container node traversal
+   (2.6.6)

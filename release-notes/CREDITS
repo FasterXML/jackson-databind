@@ -371,6 +371,10 @@ Dmitry Romantsov (DmRomantsov@github)
   * Reported #1036: Problem with case-insensitive deserialization
    (2.6.4)
 
+Daniel Norberg (danielnorberg@github)
+  * Contributed #1099: Fix custom comparator container node traversal
+   (2.6.6)
+
 Miles Kaufmann (milesk-amzn@github)
   * Reported #432: `StdValueInstantiator` unwraps exceptions, losing context
    (2.7.0)
@@ -412,3 +416,4 @@ Aleks Seovic (aseovic@github)
   * Reported #1109: @JsonFormat is ignored by the DateSerializer unless either a custom pattern
     or a timezone are specified
    (2.7.1)
+

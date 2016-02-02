@@ -14,25 +14,24 @@
 
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.IOException;
+import java.util.Map;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.junit.Test;
 
-import java.io.IOException;
-import java.util.Map;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-/**
- *
- */
-public class ExceptionFromCustomEnumKeyDeserializerTest {
+@SuppressWarnings("serial")
+public class ExceptionFromCustomEnumKeyDeserializerTest
+    extends BaseMapTest
+{
     public enum AnEnum {
         ZERO,
         ONE
@@ -73,16 +72,11 @@ public class ExceptionFromCustomEnumKeyDeserializerTest {
     }
 
     public static class EnumModule extends SimpleModule {
-
+        @Override
         public void setupModule(SetupContext context) {
             context.setMixInAnnotations(AnEnum.class, LanguageCodeMixin.class);
         }
 
-        /**
-         * Register a Jackson module for Rosette's top-level enums an {@link ObjectMapper}.
-         * @param mapper the mapper.
-         * @return the same mapper, for convenience.
-         */
         public static ObjectMapper setupObjectMapper(ObjectMapper mapper) {
             final EnumModule module = new EnumModule();
             mapper.registerModule(module);
@@ -91,7 +85,7 @@ public class ExceptionFromCustomEnumKeyDeserializerTest {
     }
 
     @Test
-    public void lostMessage() {
+    public void testLostMessage() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new EnumModule());
         try {

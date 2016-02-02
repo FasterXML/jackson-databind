@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.1 (not yet released)
+2.7.1 (02-Feb-2016)
 
 #1079: Add back `TypeFactory.constructType(Type, Class)` as "deprecated" in 2.7.1
 #1083: Field in base class is not recognized, when using `@JsonType.defaultImpl`

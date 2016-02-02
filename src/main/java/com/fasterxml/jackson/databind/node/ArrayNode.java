@@ -115,7 +115,7 @@ public class ArrayNode
         List<JsonNode> l1 = _children;
         List<JsonNode> l2 = other._children;
         for (int i = 0; i < len; ++i) {
-            if (comparator.compare(l1.get(i), l2.get(i)) != 0) {
+            if (!l1.get(i).equals(comparator, l2.get(i))) {
                 return false;
             }
         }

@@ -598,8 +598,10 @@ public final class TypeFactory
      * @deprecated Since 2.7 (accidentally removed in 2.7.0; added back in 2.7.1)
      */
     @Deprecated
-    public JavaType constructType(Type type, Class<?> contextType) {
-        return constructType(type, constructType(contextType));
+    public JavaType constructType(Type type, Class<?> contextClass) {
+        TypeBindings bindings = (contextClass == null)
+                ? TypeBindings.emptyBindings() : constructType(contextClass).getBindings();
+        return _fromAny(null, type, bindings);
     }
 
     /**
@@ -607,7 +609,9 @@ public final class TypeFactory
      */
     @Deprecated
     public JavaType constructType(Type type, JavaType contextType) {
-        return _fromAny(null, type, contextType.getBindings());
+        TypeBindings bindings = (contextType == null)
+                ? TypeBindings.emptyBindings() : contextType.getBindings();
+        return _fromAny(null, type, bindings);
     }
 
     /*

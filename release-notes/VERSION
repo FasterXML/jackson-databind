@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.2 (not yet released)
+
+#1115: Problems with deprecated `TypeFactory.constructType(type, ctxt)` methods if `ctxt` is `null`
+
 2.7.1 (02-Feb-2016)
 
 #1079: Add back `TypeFactory.constructType(Type, Class)` as "deprecated" in 2.7.1

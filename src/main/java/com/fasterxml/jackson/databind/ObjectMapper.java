@@ -3527,6 +3527,7 @@ public class ObjectMapper
      * @return Constructed JSON schema.
      * 
      * @deprecated Since 2.6 use external JSON Schema generator (https://github.com/FasterXML/jackson-module-jsonSchema)
+     *    (which under the hood calls {@link #acceptJsonFormatVisitor(JavaType, JsonFormatVisitorWrapper)})
      */
     @Deprecated
     public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> t)

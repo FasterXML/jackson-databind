@@ -52,6 +52,7 @@ public final class SerializationConfig
     /* Configured helper objects
     /**********************************************************
      */
+
     /**
      * Object used for resolving filter ids to filter instances.
      * Non-null if explicitly defined; null by default.

@@ -34,14 +34,15 @@ public @interface JsonAppend
 
     /**
      * Indicator used to determine whether properties defined are to be
-     * appended before (false) or prepended before (true) regular properties.
+     * appended after (false) or prepended before (true) regular properties.
      * Affects all kinds of properties defined using this annotation.
      */
     public boolean prepend() default false;
-    
+
     /**
      * Definition of a single attribute-backed property.
-     * Attribute-backed properties will be appended after regular properties
+     * Attribute-backed properties will be appended after (or prepended before,
+     * as per {@link #prepend}) regular properties
      * in specified order, although their placement may be further changed
      * by the usual property-ordering functionality (alphabetic sorting;
      * explicit ordering)

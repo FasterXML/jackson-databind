@@ -143,6 +143,8 @@ Benson Margulies:
    (2.4.4)
   * Contributed 944: Failure to use custom deserializer for key deserializer
    (2.6.3)
+  * Reported #1120: String value omitted from weirdStringException
+   (2.6.6)
 
 Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK

@@ -906,7 +906,7 @@ public abstract class DeserializationContext
     public JsonMappingException weirdStringException(String value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not construct instance of %s from String value '%s': %s",
-                        instClass.getName(), _valueDesc(), msg),
+                        instClass.getName(), _desc(value), msg),
                 value, instClass);
     }
 
@@ -917,10 +917,10 @@ public abstract class DeserializationContext
     public JsonMappingException weirdNumberException(Number value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not construct instance of %s from number value (%s): %s",
-                        instClass.getName(), _valueDesc(), msg),
+                        instClass.getName(), String.valueOf(value), msg),
                 null, instClass);
     }
-    
+
     /**
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
@@ -1009,7 +1009,7 @@ public abstract class DeserializationContext
         }
         return cls.getName();
     }
-    
+
     protected String _valueDesc() {
         try {
             return _desc(_parser.getText());

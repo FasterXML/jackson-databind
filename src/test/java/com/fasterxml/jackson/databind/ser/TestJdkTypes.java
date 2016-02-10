@@ -20,12 +20,8 @@ public class TestJdkTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
-    
-    /**
-     * Unit test to catch bug [JACKSON-8].
-     */
-    public void testBigDecimal()
-        throws Exception
+
+    public void testBigDecimal() throws Exception
     {
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.14159265";
@@ -34,8 +30,7 @@ public class TestJdkTypes
         assertEquals("{\"pi\":3.14159265}", str);
     }
     
-    public void testBigDecimalAsPlainString()
-        throws Exception
+    public void testBigDecimalAsPlainString() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
 
@@ -46,10 +41,7 @@ public class TestJdkTypes
         String str = mapper.writeValueAsString(map);
         assertEquals("{\"pi\":3.00000000}", str);
     }
-    
-    /**
-     * Unit test related to [JACKSON-155]
-     */
+
     public void testFile() throws IOException
     {
         // this may get translated to different representation on Windows, maybe Mac:
@@ -81,9 +73,11 @@ public class TestJdkTypes
         assertEquals(quote("en"), MAPPER.writeValueAsString(new Locale("en")));
         assertEquals(quote("es_ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
         assertEquals(quote("fi_FI_savo"), MAPPER.writeValueAsString(new Locale("FI", "fi", "savo")));
+
+        // [databind#1123]
+        assertEquals(quote(""), MAPPER.writeValueAsString(Locale.ROOT));
     }
 
-    // [JACKSON-484]
     public void testInetAddress() throws IOException
     {
         assertEquals(quote("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));

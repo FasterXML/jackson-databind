@@ -32,7 +32,6 @@ public class TestJdkTypes extends BaseMapTest
         public double doubleValue = -1.0;
     }
 
-    // for [JACKSON-616]
     static class WrappersBean
     {
         public Boolean booleanValue;
@@ -140,19 +139,17 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(usd, new ObjectMapper().readValue(quote("USD"), Currency.class));
     }
 
-    /**
-     * Test for [JACKSON-419]
-     */
     public void testLocale() throws IOException
     {
         assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
         assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
-        assertEquals(new Locale("FI", "fi", "savo"), MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
+        assertEquals(new Locale("FI", "fi", "savo"),
+                MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
+        // [databind#1123]
+        Locale loc = MAPPER.readValue(quote(""), Locale.class);
+        assertSame(Locale.ROOT, loc);
     }
 
-    /**
-     * Test for [JACKSON-420] (add DeserializationConfig.FAIL_ON_NULL_FOR_PRIMITIVES)
-     */
     public void testNullForPrimitives() throws IOException
     {
         // by default, ok to rely on defaults

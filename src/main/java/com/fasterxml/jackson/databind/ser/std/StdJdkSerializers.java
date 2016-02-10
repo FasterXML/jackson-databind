@@ -36,7 +36,6 @@ public class StdJdkSerializers
         sers.put(UUID.class, new UUIDSerializer());
         sers.put(java.util.regex.Pattern.class, sls);
         sers.put(Locale.class, sls);
-
         // then atomic types (note: AtomicReference defined elsewhere)
         sers.put(AtomicBoolean.class, AtomicBooleanSerializer.class);
         sers.put(AtomicInteger.class, AtomicIntegerSerializer.class);

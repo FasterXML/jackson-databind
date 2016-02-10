@@ -95,6 +95,8 @@ INCOMPATIBILITIES:
  (reported by jefferyyuan@github)
 #1112: Detailed error message from custom key deserializer is discarded
  (contributed by Benson M)
+#1120: String value omitted from weirdStringException
+ (reported by Benson M)
 #1123: Serializing and Deserializing Locale.ROOT
  (reported by hookumsnivy@github)
 

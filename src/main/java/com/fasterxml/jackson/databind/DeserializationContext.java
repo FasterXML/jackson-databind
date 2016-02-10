@@ -936,7 +936,7 @@ public abstract class DeserializationContext
                         instClass.getName(), String.valueOf(value), msg),
                 value, instClass);
     }
-    
+
     /**
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
@@ -1025,7 +1025,7 @@ public abstract class DeserializationContext
         }
         return cls.getName();
     }
-    
+
     protected String _valueDesc() {
         try {
             return _desc(_parser.getText());

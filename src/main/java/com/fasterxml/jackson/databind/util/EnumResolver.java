@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.util;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -19,11 +23,14 @@ public class EnumResolver implements java.io.Serializable
 
     protected final HashMap<String, Enum<?>> _enumsById;
 
-    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums, HashMap<String, Enum<?>> map)
+    protected final Enum<?> _defaultValue;
+
+    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums, HashMap<String, Enum<?>> map, Enum<?> defaultValue)
     {
         _enumClass = enumClass;
         _enums = enums;
         _enumsById = map;
+        _defaultValue = defaultValue;
     }
 
     /**
@@ -45,7 +52,29 @@ public class EnumResolver implements java.io.Serializable
             }
             map.put(name, enumValues[i]);
         }
-        return new EnumResolver(enumCls, enumValues, map);
+
+        Enum<?> defaultEnum = determineDefaultEnumValue(enumCls);
+
+        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+    }
+
+    private static Enum<?> determineDefaultEnumValue(Class<Enum<?>> enumCls) {
+        Field[] fields = ClassUtil.getDeclaredFields(enumCls);
+        for (Field field : fields) {
+            JsonEnumDefaultValue defaultValueAnnotation = field.getAnnotation(JsonEnumDefaultValue.class);
+            if (defaultValueAnnotation != null && field.isEnumConstant()) {
+                try {
+                    Method valueOf = enumCls.getDeclaredMethod("valueOf", String.class);    // using `getMethod` causes IllegalAccessException
+                    valueOf.setAccessible(true);
+                    return enumCls.cast(valueOf.invoke(null, field.getName()));
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    java.util.logging.Logger.getLogger(EnumResolver.class.getName())
+                        .warning("Could not extract Enum annotated with " + JsonEnumDefaultValue.class.getSimpleName()
+                            + " due to: " + e.getLocalizedMessage());
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -61,7 +90,8 @@ public class EnumResolver implements java.io.Serializable
             Enum<?> e = enumValues[i];
             map.put(e.toString(), e);
         }
-        return new EnumResolver(enumCls, enumValues, map);
+        Enum<?> defaultValue = determineDefaultEnumValue(enumCls);
+        return new EnumResolver(enumCls, enumValues, map, defaultValue);
     }    
 
     public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
@@ -81,7 +111,10 @@ public class EnumResolver implements java.io.Serializable
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
         }
-        return new EnumResolver(enumCls, enumValues, map);
+
+        Enum<?> defaultValue = determineDefaultEnumValue(enumCls);
+
+        return new EnumResolver(enumCls, enumValues, map, defaultValue);
     }    
 
     /**
@@ -125,7 +158,7 @@ public class EnumResolver implements java.io.Serializable
     public CompactStringObjectMap constructLookup() {
         return CompactStringObjectMap.construct(_enumsById);
     }
-    
+
     public Enum<?> findEnum(String key) { return _enumsById.get(key); }
 
     public Enum<?> getEnum(int index) {
@@ -133,6 +166,10 @@ public class EnumResolver implements java.io.Serializable
             return null;
         }
         return _enums[index];
+    }
+
+    public Enum<?> getDefaultValue(){
+        return _defaultValue;
     }
 
     public Enum<?>[] getRawEnums() {

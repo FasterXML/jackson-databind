@@ -354,6 +354,18 @@ public enum DeserializationFeature implements ConfigFeature
     READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
 
     /**
+     * Feature that allows unknown Enum values to be ignored and a predefined value specified through
+     * {@link com.fasterxml.jackson.annotation.JsonEnumDefaultValue @JsonEnumDefaultValue} annotation.
+     * If disabled, unknown Enum values will throw exceptions.
+     * If enabled, but no predefined default Enum value is specified, an exception will be thrown as well.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.8
+     */
+    READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE(false),
+
+    /**
      * Feature that controls whether numeric timestamp values are expected
      * to be written using nanosecond timestamps (enabled) or not (disabled),
      * <b>if and only if</b> datatype supports such resolution.

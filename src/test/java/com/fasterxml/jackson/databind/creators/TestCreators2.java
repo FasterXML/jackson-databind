@@ -1,7 +1,6 @@
 
 package com.fasterxml.jackson.databind.creators;
 
-import java.beans.ConstructorProperties;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

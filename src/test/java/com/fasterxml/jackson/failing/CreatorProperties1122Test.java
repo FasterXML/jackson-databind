@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.databind.creators;
+package com.fasterxml.jackson.failing;
 
 import java.beans.ConstructorProperties;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
-public class CreatorPropertiesTest extends BaseMapTest
+public class CreatorProperties1122Test extends BaseMapTest
 {
     static class Issue905Bean {
         // 08-Nov-2015, tatu: Note that in real code we would most likely use same
@@ -23,6 +23,29 @@ public class CreatorPropertiesTest extends BaseMapTest
         }
     }
 
+//    @JsonIgnoreProperties(ignoreUnknown = true)
+  public class Ambiguity {
+
+      @JsonProperty("bar")
+      private int foo;
+
+      protected Ambiguity() {}
+
+      @ConstructorProperties({ "foo" })
+      public Ambiguity(int foo) {
+          this.foo = foo;
+      }
+
+      public int getFoo() {
+          return foo;
+      }
+
+      @Override
+      public String toString() {
+          return "Ambiguity [foo=" + foo + "]";
+      }
+
+  }    
     /*
     /**********************************************************
     /* Test methods
@@ -38,5 +61,13 @@ public class CreatorPropertiesTest extends BaseMapTest
                 Issue905Bean.class);
         assertEquals(2, b._x);
         assertEquals(3, b._y);
+    }
+
+    public void testIssue1122() throws Exception
+    {
+        String json = "{\"bar\":3}";
+        Ambiguity amb = MAPPER.readValue(json, Ambiguity.class);
+        assertNotNull(amb);
+        assertEquals(3, amb.getFoo());
     }
 }

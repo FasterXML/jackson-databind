@@ -18,7 +18,7 @@ public class AnyGetter1124Test extends BaseMapTest
 
         public void addAdditionalProperty(String key, String value) {
             if (additionalProperties == null) {
-                additionalProperties = new HashMap<>();
+                additionalProperties = new HashMap<String,String>();
             }
             additionalProperties.put(key,value);
         }

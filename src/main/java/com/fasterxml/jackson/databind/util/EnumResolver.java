@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -13,6 +11,8 @@ import java.util.*;
  */
 public class EnumResolver implements java.io.Serializable
 {
+    private static final AnnotationIntrospector defaultAnnotationInstrospector = null;
+
     private static final long serialVersionUID = 1L;
 
     protected final Class<Enum<?>> _enumClass;
@@ -57,10 +57,21 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
+     * @deprecated Since 2.8, use {@link #constructUsingToString(Class, AnnotationIntrospector)} instead
+     */
+    @Deprecated
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls)
+    {
+        return constructUsingToString(enumCls, defaultAnnotationInstrospector);
+    }
+
+    /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value
+     *
+     * @since 2.8
      */
-    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls)
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls, AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
@@ -70,12 +81,22 @@ public class EnumResolver implements java.io.Serializable
             map.put(e.toString(), e);
         }
 
-        Enum<?> defaultEnum = new JacksonAnnotationIntrospector().findDefaultEnumValue(enumCls);
+        Enum<?> defaultEnum = ai.findDefaultEnumValue(enumCls);
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
-    }    
+    }
 
-    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
-            Method accessor)
+    /**
+     * @deprecated Since 2.8, use {@link #constructUsingMethod(Class, Method, AnnotationIntrospector)} instead
+     */
+    @Deprecated
+    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor) {
+        return constructUsingMethod(enumCls, accessor, defaultAnnotationInstrospector);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor, AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
@@ -92,7 +113,7 @@ public class EnumResolver implements java.io.Serializable
             }
         }
 
-        Enum<?> defaultEnum = ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
+        Enum<?> defaultEnum = (ai != null) ? ai.findDefaultEnumValue(enumCls) : null;
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
     }    
 
@@ -111,27 +132,48 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
+     * @deprecated Since 2.8, use {@link #constructUnsafeUsingToString(Class, AnnotationIntrospector)} instead
+     */
+    @Deprecated
+    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls)
+    {
+        return constructUnsafeUsingToString(rawEnumCls, defaultAnnotationInstrospector);
+    }
+
+    /**
      * Method that needs to be used instead of {@link #constructUsingToString}
      * if static type of enum is not known.
+     *
+     * @since 2.8
      */
     @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls)
-    {            
+    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls, AnnotationIntrospector ai)
+    {
         // oh so wrong... not much that can be done tho
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
-        return constructUsingToString(enumCls);
+        return constructUsingToString(enumCls, ai);
+    }
+
+    /**
+     * @deprecated Since 2.8, use {@link #constructUnsafeUsingMethod(Class, Method, AnnotationIntrospector)} instead.
+     */
+    @Deprecated
+    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor) {
+        return constructUnsafeUsingMethod(rawEnumCls, accessor, defaultAnnotationInstrospector);
     }
 
     /**
      * Method used when actual String serialization is indicated using @JsonValue
      * on a method.
+     *
+     * @since 2.8
      */
     @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor)
+    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor, AnnotationIntrospector ai)
     {            
         // wrong as ever but:
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
-        return constructUsingMethod(enumCls, accessor);
+        return constructUsingMethod(enumCls, accessor, ai);
     }
 
     public CompactStringObjectMap constructLookup() {

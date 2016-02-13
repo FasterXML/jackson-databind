@@ -51,7 +51,7 @@ public class EnumResolver implements java.io.Serializable
             map.put(name, enumValues[i]);
         }
 
-        Enum<?> defaultEnum = ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
+        Enum<?> defaultEnum = ai.findDefaultEnumValue(enumCls);
 
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
     }
@@ -70,7 +70,7 @@ public class EnumResolver implements java.io.Serializable
             map.put(e.toString(), e);
         }
 
-        Enum<?> defaultEnum = ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
+        Enum<?> defaultEnum = new JacksonAnnotationIntrospector().findDefaultEnumValue(enumCls);
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
     }    
 

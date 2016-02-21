@@ -1112,11 +1112,8 @@ public final class TypeFactory
             // sanity check
             throw new IllegalArgumentException("Unrecognized Type: "+((type == null) ? "[null]" : type.toString()));
         }
-        /* Need to allow TypeModifiers to alter actual type; however,
-         * for now only call for simple types (i.e. not for arrays, map or collections).
-         * Can be changed in future it necessary
-         */
-        if (_modifiers != null && !resultType.isContainerType()) {
+        /* Need to allow TypeModifiers to alter actual type. */
+        if (_modifiers != null) {
             TypeBindings b = resultType.getBindings();
             if (b == null) {
                 b = EMPTY_BINDINGS;

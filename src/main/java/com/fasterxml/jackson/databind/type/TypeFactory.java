@@ -1112,14 +1112,22 @@ public final class TypeFactory
             // sanity check
             throw new IllegalArgumentException("Unrecognized Type: "+((type == null) ? "[null]" : type.toString()));
         }
-        /* Need to allow TypeModifiers to alter actual type. */
+        /* 21-Feb-2016, nateB/tatu: as per [databind#1129] (applied for 2.7.2),
+         *   we do need to let all kinds of types to be refined, esp. for Scala module.
+         */
         if (_modifiers != null) {
             TypeBindings b = resultType.getBindings();
             if (b == null) {
                 b = EMPTY_BINDINGS;
             }
             for (TypeModifier mod : _modifiers) {
-                resultType = mod.modifyType(resultType, type, b, this);
+                JavaType t = mod.modifyType(resultType, type, b, this);
+                if (t == null) {
+                    throw new IllegalStateException(String.format(
+                            "TypeModifier %s (of type %s) return null for type %s",
+                            mod, mod.getClass().getName(), resultType));
+                }
+                resultType = t;
             }
         }
         return resultType;

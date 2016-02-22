@@ -13,6 +13,24 @@ public final class ClassUtil
 
     /*
     /**********************************************************
+    /* Helper classes
+    /**********************************************************
+     */
+
+    /* 21-Feb-2016, tatu: Unfortunately `Collections.emptyIterator()` only
+     *   comes with JDK7, so we'll still have to include our bogus implementation
+     *   for as long as we want JDK6 runtime compatibility
+     */
+    private final static class EmptyIterator<T> implements Iterator<T> {
+        @Override public boolean hasNext() { return false; }
+        @Override public T next() { throw new NoSuchElementException(); }
+        @Override public void remove() { throw new UnsupportedOperationException(); }
+    }
+    
+    private final static EmptyIterator<?> EMPTY_ITERATOR = new EmptyIterator<Object>();
+
+    /*
+    /**********************************************************
     /* Simple factory methods
     /**********************************************************
      */
@@ -20,8 +38,11 @@ public final class ClassUtil
     /**
      * @since 2.7
      */
+    @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
-        return Collections.emptyIterator();
+// 21-Feb-2016, tatu: As per above, use a locally defined empty iterator
+//        return Collections.emptyIterator();
+        return (Iterator<T>) EMPTY_ITERATOR;
     }
 
     /*

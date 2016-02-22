@@ -419,3 +419,6 @@ Aleks Seovic (aseovic@github)
     or a timezone are specified
    (2.7.1)
 
+Timur Shakurov (saladinkzn@github)
+  * Reported #1134: Jackson 2.7 doesn't work with jdk6 due to use of `Collections.emptyIterator()`
+   (2.7.2)

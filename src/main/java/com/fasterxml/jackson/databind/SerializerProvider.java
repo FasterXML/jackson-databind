@@ -153,7 +153,7 @@ public abstract class SerializerProvider
     /* State, for non-blueprint instances: generic
     /**********************************************************
      */
-    
+
     /**
      * For fast lookups, we will have a local non-shared read-only
      * map that contains serializers previously fetched.

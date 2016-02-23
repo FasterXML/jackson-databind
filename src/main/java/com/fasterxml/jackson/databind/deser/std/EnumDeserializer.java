@@ -99,7 +99,8 @@ public class EnumDeserializer
             if (index >= 0 && index <= _enumsByIndex.length) {
                 return _enumsByIndex[index];
             }
-            if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE) && _enumDefaultValue != null) {
+            if ((_enumDefaultValue != null)
+                    && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
                 return _enumDefaultValue;
             }
             if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
@@ -136,8 +137,8 @@ public class EnumDeserializer
                 }
             }
         }
-        if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-            && _enumDefaultValue != null) {
+        if ((_enumDefaultValue != null)
+                && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
             return _enumDefaultValue;
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {

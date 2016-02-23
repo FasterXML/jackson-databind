@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-
 import java.lang.reflect.Method;
 import java.util.*;
+
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
 
 /**
  * Helper class used to resolve String values (either JSON Object field
@@ -11,8 +11,6 @@ import java.util.*;
  */
 public class EnumResolver implements java.io.Serializable
 {
-    private static final AnnotationIntrospector defaultAnnotationInstrospector = null;
-
     private static final long serialVersionUID = 1L;
 
     protected final Class<Enum<?>> _enumClass;
@@ -60,9 +58,8 @@ public class EnumResolver implements java.io.Serializable
      * @deprecated Since 2.8, use {@link #constructUsingToString(Class, AnnotationIntrospector)} instead
      */
     @Deprecated
-    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls)
-    {
-        return constructUsingToString(enumCls, defaultAnnotationInstrospector);
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls) {
+        return constructUsingToString(enumCls, null);
     }
 
     /**
@@ -71,7 +68,8 @@ public class EnumResolver implements java.io.Serializable
      *
      * @since 2.8
      */
-    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls, AnnotationIntrospector ai)
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls,
+            AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
@@ -80,8 +78,7 @@ public class EnumResolver implements java.io.Serializable
             Enum<?> e = enumValues[i];
             map.put(e.toString(), e);
         }
-
-        Enum<?> defaultEnum = ai.findDefaultEnumValue(enumCls);
+        Enum<?> defaultEnum = (ai == null) ? null : ai.findDefaultEnumValue(enumCls);
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
     }
 
@@ -90,13 +87,14 @@ public class EnumResolver implements java.io.Serializable
      */
     @Deprecated
     public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor) {
-        return constructUsingMethod(enumCls, accessor, defaultAnnotationInstrospector);
+        return constructUsingMethod(enumCls, accessor, null);
     }
 
     /**
      * @since 2.8
      */
-    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor, AnnotationIntrospector ai)
+    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor,
+            AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
@@ -112,7 +110,6 @@ public class EnumResolver implements java.io.Serializable
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
         }
-
         Enum<?> defaultEnum = (ai != null) ? ai.findDefaultEnumValue(enumCls) : null;
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
     }    
@@ -137,7 +134,7 @@ public class EnumResolver implements java.io.Serializable
     @Deprecated
     public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls)
     {
-        return constructUnsafeUsingToString(rawEnumCls, defaultAnnotationInstrospector);
+        return constructUnsafeUsingToString(rawEnumCls, null);
     }
 
     /**
@@ -159,7 +156,7 @@ public class EnumResolver implements java.io.Serializable
      */
     @Deprecated
     public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor) {
-        return constructUnsafeUsingMethod(rawEnumCls, accessor, defaultAnnotationInstrospector);
+        return constructUnsafeUsingMethod(rawEnumCls, accessor, null);
     }
 
     /**
@@ -169,7 +166,8 @@ public class EnumResolver implements java.io.Serializable
      * @since 2.8
      */
     @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor, AnnotationIntrospector ai)
+    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor,
+            AnnotationIntrospector ai)
     {            
         // wrong as ever but:
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;

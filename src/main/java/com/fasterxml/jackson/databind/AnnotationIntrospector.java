@@ -982,6 +982,7 @@ public abstract class AnnotationIntrospector
      *
      * @param enumCls The Enum class to scan for the default value.
      * @return null if none found or it's not possible to determine one.
+     *
      * @since 2.8
      */
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {

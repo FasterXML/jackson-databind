@@ -448,9 +448,8 @@ public abstract class StdSerializer<T>
             throw JsonMappingException.from(provider,
                     "Can not resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
         }
-        PropertyFilter filter = filters.findPropertyFilter(filterId, valueToFilter);
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
-        return filter;
+        return filters.findPropertyFilter(filterId, valueToFilter);
     }
 
     /**

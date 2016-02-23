@@ -500,13 +500,12 @@ public class POJOPropertyBuilder
     }
 
     protected Boolean _findRequired() {
-        Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
+       return fromMemberAnnotations(new WithMember<Boolean>() {
             @Override
             public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.hasRequiredMarker(member);
             }
         });
-        return b;
     }
     
     protected String _findDescription() {

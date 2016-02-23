@@ -115,7 +115,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     /**********************************************************
      */
 
-    public static List<Object[]> SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
+    final static List<Object[]> SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
                 {null, null},
                 {"", ""},
                 {"a", "a"},

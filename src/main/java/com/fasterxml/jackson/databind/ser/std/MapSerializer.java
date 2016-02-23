@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
@@ -873,10 +872,9 @@ public class MapSerializer
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
-        ObjectNode o = createSchemaNode("object", true);
         //(ryan) even though it's possible to statically determine the "value" type of the map,
         // there's no way to statically determine the keys, so the "Entries" can't be determined.
-        return o;
+        return createSchemaNode("object", true);
     }
 
     @Override

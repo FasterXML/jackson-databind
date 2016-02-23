@@ -196,8 +196,8 @@ public class TestArrayConversions
         for (int i = 0; i < size; ++i) {
             Number n1 = (Number) Array.get(inputArray, i);
             Number n2 = (Number) Array.get(outputArray, i);
-            double value1 = ((Number) n1).longValue();
-            double value2 = ((Number) n2).longValue();
+            double value1 = n1.longValue();
+            double value2 = n2.longValue();
             assertEquals("Entry #"+i+"/"+size+" not equal", value1, value2);
         }        
     }
@@ -207,10 +207,9 @@ public class TestArrayConversions
         for (int i = 0; i < size; ++i) {
             Number n1 = (Number) Array.get(inputArray, i);
             Number n2 = (Number) Array.get(outputArray, i);
-            double value1 = ((Number) n1).doubleValue();
-            double value2 = ((Number) n2).doubleValue();
+            double value1 = n1.doubleValue();
+            double value2 = n2.doubleValue();
             assertEquals("Entry #"+i+"/"+size+" not equal", value1, value2);
-        }        
+        }
     }
-
 }

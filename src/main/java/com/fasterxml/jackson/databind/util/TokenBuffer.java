@@ -1708,8 +1708,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (index > 0) {
                 l >>= (index << 2);
             }
-            int ix = ((int) l) & 0xF;
-            return ix;
+            return ((int) l) & 0xF;
         }
         
         public Object get(int index) {

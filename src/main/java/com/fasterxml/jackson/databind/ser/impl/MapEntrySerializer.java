@@ -146,9 +146,8 @@ public class MapEntrySerializer
         } else {
             keySer = provider.handleSecondaryContextualization(keySer, property);
         }
-        MapEntrySerializer mser = withResolved(property, keySer, ser);
         // but note: no filtering, ignored entries or sorting (unlike Maps)
-        return mser;
+        return withResolved(property, keySer, ser);
     }
 
     /*

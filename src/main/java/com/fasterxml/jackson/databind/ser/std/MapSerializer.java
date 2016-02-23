@@ -873,10 +873,9 @@ public class MapSerializer
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
-        ObjectNode o = createSchemaNode("object", true);
         //(ryan) even though it's possible to statically determine the "value" type of the map,
         // there's no way to statically determine the keys, so the "Entries" can't be determined.
-        return o;
+        return createSchemaNode("object", true);
     }
 
     @Override

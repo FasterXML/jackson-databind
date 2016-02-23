@@ -58,4 +58,10 @@ public class ISO8601DateFormatTest extends BaseMapTest
         assertSame(df, clone);
     }
 
+    public void testHashCodeEquals() throws Exception {
+        // for [databind#1130]
+        DateFormat defaultDF = StdDateFormat.instance;
+        defaultDF.hashCode();
+        assertTrue(defaultDF.equals(defaultDF));
+    }
 }

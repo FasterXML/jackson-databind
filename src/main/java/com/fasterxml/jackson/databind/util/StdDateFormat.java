@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 public class StdDateFormat
     extends DateFormat
 {
-    /* TODO !!! 24-Nov-2009, tatu: Need to rewrite this class:
+    /* TODO !!! 24-Nov-2009, tatu: Should rewrite this class:
      * JDK date parsing is awfully brittle, and ISO-8601 is quite
      * permissive. The two don't mix, need to write a better one.
      */
@@ -386,7 +386,17 @@ public class StdDateFormat
         str += "(locale: "+_locale+")";
         return str;
     }
-    
+
+    @Override // since 2.7[.2], as per [databind#1130]
+    public boolean equals(Object o) {
+        return (o == this);
+    }
+
+    @Override // since 2.7[.2], as per [databind#1130]
+    public int hashCode() {
+        return System.identityHashCode(this);
+    }
+
     /*
     /**********************************************************
     /* Helper methods

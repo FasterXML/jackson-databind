@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.8.0 (not released yet)
 
+#1126: Allow deserialization of unknown Enums using a predefined value
+ (contributed by Alejandro R)
 #1136: Implement `TokenBuffer.writeEmbeddedObject(Object)`
  (suggested by Gregoire C, gcxRun@github)
 

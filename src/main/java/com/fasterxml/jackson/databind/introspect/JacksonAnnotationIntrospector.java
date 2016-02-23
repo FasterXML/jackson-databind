@@ -186,6 +186,20 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
+    /**
+     * Finds the Enum value that should be considered the default value, if possible.
+     * <p>
+     * This implementation relies on {@link JsonEnumDefaultValue} annotation to determine the default value if present.
+     *
+     * @param enumCls The Enum class to scan for the default value.
+     * @return null if none found or it's not possible to determine one.
+     * @since 2.8
+     */
+    @Override
+    public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
+        return ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
+    }
+
     /*
     /**********************************************************
     /* General class annotations

@@ -1917,11 +1917,11 @@ public abstract class BasicDeserializerFactory
             if (config.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(accessor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor);
+            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor, config.getAnnotationIntrospector());
         }
         // May need to use Enum.toString()
         if (config.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
-            return EnumResolver.constructUnsafeUsingToString(enumClass);
+            return EnumResolver.constructUnsafeUsingToString(enumClass, config.getAnnotationIntrospector());
         }
         return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
     }

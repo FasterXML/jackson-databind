@@ -11,6 +11,8 @@ import java.util.*;
  */
 public class EnumResolver implements java.io.Serializable
 {
+    private static final AnnotationIntrospector defaultAnnotationInstrospector = null;
+
     private static final long serialVersionUID = 1L;
 
     protected final Class<Enum<?>> _enumClass;
@@ -19,11 +21,14 @@ public class EnumResolver implements java.io.Serializable
 
     protected final HashMap<String, Enum<?>> _enumsById;
 
-    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums, HashMap<String, Enum<?>> map)
+    protected final Enum<?> _defaultValue;
+
+    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums, HashMap<String, Enum<?>> map, Enum<?> defaultValue)
     {
         _enumClass = enumClass;
         _enums = enums;
         _enumsById = map;
+        _defaultValue = defaultValue;
     }
 
     /**
@@ -45,14 +50,28 @@ public class EnumResolver implements java.io.Serializable
             }
             map.put(name, enumValues[i]);
         }
-        return new EnumResolver(enumCls, enumValues, map);
+
+        Enum<?> defaultEnum = ai.findDefaultEnumValue(enumCls);
+
+        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+    }
+
+    /**
+     * @deprecated Since 2.8, use {@link #constructUsingToString(Class, AnnotationIntrospector)} instead
+     */
+    @Deprecated
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls)
+    {
+        return constructUsingToString(enumCls, defaultAnnotationInstrospector);
     }
 
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value
+     *
+     * @since 2.8
      */
-    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls)
+    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls, AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
@@ -61,11 +80,23 @@ public class EnumResolver implements java.io.Serializable
             Enum<?> e = enumValues[i];
             map.put(e.toString(), e);
         }
-        return new EnumResolver(enumCls, enumValues, map);
-    }    
 
-    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
-            Method accessor)
+        Enum<?> defaultEnum = ai.findDefaultEnumValue(enumCls);
+        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
+    }
+
+    /**
+     * @deprecated Since 2.8, use {@link #constructUsingMethod(Class, Method, AnnotationIntrospector)} instead
+     */
+    @Deprecated
+    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor) {
+        return constructUsingMethod(enumCls, accessor, defaultAnnotationInstrospector);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor, AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
@@ -81,7 +112,9 @@ public class EnumResolver implements java.io.Serializable
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
         }
-        return new EnumResolver(enumCls, enumValues, map);
+
+        Enum<?> defaultEnum = (ai != null) ? ai.findDefaultEnumValue(enumCls) : null;
+        return new EnumResolver(enumCls, enumValues, map, defaultEnum);
     }    
 
     /**
@@ -99,33 +132,54 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
+     * @deprecated Since 2.8, use {@link #constructUnsafeUsingToString(Class, AnnotationIntrospector)} instead
+     */
+    @Deprecated
+    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls)
+    {
+        return constructUnsafeUsingToString(rawEnumCls, defaultAnnotationInstrospector);
+    }
+
+    /**
      * Method that needs to be used instead of {@link #constructUsingToString}
      * if static type of enum is not known.
+     *
+     * @since 2.8
      */
     @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls)
-    {            
+    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls, AnnotationIntrospector ai)
+    {
         // oh so wrong... not much that can be done tho
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
-        return constructUsingToString(enumCls);
+        return constructUsingToString(enumCls, ai);
+    }
+
+    /**
+     * @deprecated Since 2.8, use {@link #constructUnsafeUsingMethod(Class, Method, AnnotationIntrospector)} instead.
+     */
+    @Deprecated
+    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor) {
+        return constructUnsafeUsingMethod(rawEnumCls, accessor, defaultAnnotationInstrospector);
     }
 
     /**
      * Method used when actual String serialization is indicated using @JsonValue
      * on a method.
+     *
+     * @since 2.8
      */
     @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor)
+    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor, AnnotationIntrospector ai)
     {            
         // wrong as ever but:
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
-        return constructUsingMethod(enumCls, accessor);
+        return constructUsingMethod(enumCls, accessor, ai);
     }
 
     public CompactStringObjectMap constructLookup() {
         return CompactStringObjectMap.construct(_enumsById);
     }
-    
+
     public Enum<?> findEnum(String key) { return _enumsById.get(key); }
 
     public Enum<?> getEnum(int index) {
@@ -133,6 +187,10 @@ public class EnumResolver implements java.io.Serializable
             return null;
         }
         return _enums[index];
+    }
+
+    public Enum<?> getDefaultValue(){
+        return _defaultValue;
     }
 
     public Enum<?>[] getRawEnums() {

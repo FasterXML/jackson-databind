@@ -28,6 +28,7 @@ public class EnumDeserializer
      * @since 2.6
      */
     protected final CompactStringObjectMap _enumLookup;
+    private final Enum<?> _enumDefaultValue;
 
     /**
      * @since 2.6
@@ -39,6 +40,7 @@ public class EnumDeserializer
         super(res.getEnumClass());
         _enumLookup = res.constructLookup();
         _enumsByIndex = res.getRawEnums();
+        _enumDefaultValue = res.getDefaultValue();
     }
 
     /**
@@ -97,6 +99,9 @@ public class EnumDeserializer
             if (index >= 0 && index <= _enumsByIndex.length) {
                 return _enumsByIndex[index];
             }
+            if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE) && _enumDefaultValue != null) {
+                return _enumDefaultValue;
+            }
             if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                 throw ctxt.weirdNumberException(index, _enumClass(),
                         "index value outside legal index range [0.."+(_enumsByIndex.length-1)+"]");
@@ -130,6 +135,10 @@ public class EnumDeserializer
                     // fine, ignore, was not an integer
                 }
             }
+        }
+        if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+            && _enumDefaultValue != null) {
+            return _enumDefaultValue;
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             throw ctxt.weirdStringException(name, _enumClass(),

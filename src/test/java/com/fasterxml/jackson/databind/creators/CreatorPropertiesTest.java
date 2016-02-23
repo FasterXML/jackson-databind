@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.creators;
 
 import java.beans.ConstructorProperties;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
 public class CreatorPropertiesTest extends BaseMapTest

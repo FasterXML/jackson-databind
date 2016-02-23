@@ -925,6 +925,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _hasNativeId = true;
     }
 
+    @Override // since 2.8
+    public void writeEmbeddedObject(Object object) throws IOException {
+        _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, object);
+    }
+
     /*
     /**********************************************************
     /* JsonGenerator implementation; pass-through copy

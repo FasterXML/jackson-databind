@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.0 (not released yet)
+
+#1136: Implement `TokenBuffer.writeEmbeddedObject(Object)`
+ (suggested by Gregoire C, gcxRun@github)
+
 2.7.2 (not released yet)
 
 #1129: When applying type modifiers, don't ignore container types.

@@ -7,24 +7,36 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Generic1133Test extends BaseMapTest
 {
     @SuppressWarnings("rawtypes")
-    public static abstract class HObj<M extends HObj> {
+    static abstract class HObj<M extends HObj> {
         public long id;
         public M parent;
     }
 
     static class DevBase extends HObj<DevBase> {
         public String tag;
+
+        // for some reason, setter is needed to expose this...
+        public void setTag(String t) { tag = t; }
+        
+        /*
+        public String getTag() { return tag; }
+        */
     }
 
     static class Dev extends DevBase {
         public long p1;
+
+        public long getP1() { return p1; }
     }
 
-    public static class DevM extends Dev {
-        public long m1;
+    static class DevM extends Dev {
+        private long m1;
+
+        public long getM1() { return m1; }
+        public void setM1(int m) { m1 = m; }
     }
 
-    public static abstract class ContainerBase<T> {
+    static abstract class ContainerBase<T> {
         public T entity;
     }
 

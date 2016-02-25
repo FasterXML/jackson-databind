@@ -18,14 +18,13 @@ public class Generic1133Test extends BaseMapTest
         // for some reason, setter is needed to expose this...
         public void setTag(String t) { tag = t; }
         
-        /*
-        public String getTag() { return tag; }
-        */
+        //public String getTag() { return tag; }
     }
 
     static class Dev extends DevBase {
         public long p1;
 
+        public void setP1(long l) { p1 = l; }
         public long getP1() { return p1; }
     }
 
@@ -33,7 +32,7 @@ public class Generic1133Test extends BaseMapTest
         private long m1;
 
         public long getM1() { return m1; }
-        public void setM1(int m) { m1 = m; }
+//        public void setM1(int m) { m1 = m; }
     }
 
     static abstract class ContainerBase<T> {

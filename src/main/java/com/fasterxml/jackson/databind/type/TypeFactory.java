@@ -193,10 +193,7 @@ public final class TypeFactory
     public void clearCache() {
         _typeCache.clear();
     }
-    
-    /*
-     * Getters
-     */
+
     public ClassLoader getClassLoader() {
         return _classLoader;
     }
@@ -319,7 +316,7 @@ public final class TypeFactory
         if (rawBase == subclass) {
             return baseType;
         }
-        
+
         JavaType newType;
 
         // also: if we start from untyped, not much to save
@@ -563,17 +560,29 @@ public final class TypeFactory
      */
 
     public JavaType constructType(Type type) {
-        return _fromAny(null, type, EMPTY_BINDINGS);
+        JavaType t = _fromAny(null, type, EMPTY_BINDINGS);
+        if (t instanceof ResolvedRecursiveType) {
+            t = _resolveRecursive(t);
+        }
+        return t;
     }
 
     public JavaType constructType(Type type, TypeBindings bindings) {
-        return _fromAny(null, type, bindings);
+        JavaType t = _fromAny(null, type, bindings);
+        if (t instanceof ResolvedRecursiveType) {
+            t = _resolveRecursive(t);
+        }
+        return t;
     }
     
     public JavaType constructType(TypeReference<?> typeRef)
     {
         // 19-Oct-2015, tatu: Simpler variant like so should work
-        return _fromAny(null, typeRef.getType(), EMPTY_BINDINGS);
+        JavaType t = _fromAny(null, typeRef.getType(), EMPTY_BINDINGS);
+        if (t instanceof ResolvedRecursiveType) {
+            t = _resolveRecursive(t);
+        }
+        return t;
 
         // but if not, due to funky sub-classing, type variables, what follows
         // is a more complete processing a la Java ClassMate.
@@ -601,7 +610,11 @@ public final class TypeFactory
     public JavaType constructType(Type type, Class<?> contextClass) {
         TypeBindings bindings = (contextClass == null)
                 ? TypeBindings.emptyBindings() : constructType(contextClass).getBindings();
-        return _fromAny(null, type, bindings);
+        JavaType t = _fromAny(null, type, bindings);
+        if (t instanceof ResolvedRecursiveType) {
+            t = _resolveRecursive(t);
+        }
+        return t;
     }
 
     /**
@@ -611,9 +624,23 @@ public final class TypeFactory
     public JavaType constructType(Type type, JavaType contextType) {
         TypeBindings bindings = (contextType == null)
                 ? TypeBindings.emptyBindings() : contextType.getBindings();
-        return _fromAny(null, type, bindings);
+        JavaType t = _fromAny(null, type, bindings);
+        if (t instanceof ResolvedRecursiveType) {
+            t = _resolveRecursive(t);
+        }
+        return t;
     }
 
+    // since 2.7.2
+    private JavaType _resolveRecursive(JavaType t) {
+        ResolvedRecursiveType rrt = (ResolvedRecursiveType) t;
+        JavaType t2 = rrt.getSelfReferencedType();
+        if (t2 == null) { // should never occur, so sanity check
+            throw new IllegalStateException("Failed to resolve self-referential type "+t.getRawClass());
+        }
+        return t2;
+    }
+    
     /*
     /**********************************************************
     /* Direct factory methods
@@ -1112,6 +1139,18 @@ public final class TypeFactory
             // sanity check
             throw new IllegalArgumentException("Unrecognized Type: "+((type == null) ? "[null]" : type.toString()));
         }
+        /*
+if (resultType instanceof ResolvedRecursiveType) {
+    ResolvedRecursiveType rr = (ResolvedRecursiveType) resultType;
+    System.err.println("ResolvedRecursiveType["+type.getClass().getName()+"]\n..."+rr.getRawClass().getName()+" -> "+rr.getReferencedType());
+    try {
+        throw new Exception();
+    } catch (Exception e) {
+        System.err.println(" Stack: ");
+        e.printStackTrace();
+    }
+}
+*/
         /* 21-Feb-2016, nateB/tatu: as per [databind#1129] (applied for 2.7.2),
          *   we do need to let all kinds of types to be refined, esp. for Scala module.
          */

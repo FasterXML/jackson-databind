@@ -641,7 +641,10 @@ public class BasicBeanDescription extends BeanDescription
      *
      * @return Ordered Map with logical property name as key, and
      *    matching field as value.
+     *
+     * @deprecated Since 2.7.2, does not seem to be used?
      */
+    @Deprecated
     public LinkedHashMap<String,AnnotatedField> _findPropertyFields(
             Collection<String> ignoredProperties, boolean forSerialization)
     {

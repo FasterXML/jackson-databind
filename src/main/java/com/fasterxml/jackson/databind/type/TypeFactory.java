@@ -193,10 +193,7 @@ public final class TypeFactory
     public void clearCache() {
         _typeCache.clear();
     }
-    
-    /*
-     * Getters
-     */
+
     public ClassLoader getClassLoader() {
         return _classLoader;
     }
@@ -319,7 +316,7 @@ public final class TypeFactory
         if (rawBase == subclass) {
             return baseType;
         }
-        
+
         JavaType newType;
 
         // also: if we start from untyped, not much to save

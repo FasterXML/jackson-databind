@@ -87,7 +87,11 @@ public class ResolvedRecursiveType extends TypeBase
 
     @Override
     public String toString() {
-        return null;
+        return new StringBuilder(40)
+        .append("[resolved recursive type -> ")
+        .append(_referencedType)
+        .append(']')
+        .toString();
     }
 
     @Override

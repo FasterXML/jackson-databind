@@ -217,7 +217,18 @@ public class TypeBindings
     {
         for (int i = 0, len = _names.length; i < len; ++i) {
             if (name.equals(_names[i])) {
-                return _types[i];
+                JavaType t = _types[i];
+                if (t instanceof ResolvedRecursiveType) {
+                    ResolvedRecursiveType rrt = (ResolvedRecursiveType) t;
+                    JavaType t2 = rrt.getSelfReferencedType();
+                    if (t2 == null) {
+                        throw new IllegalStateException(String.format
+("Unresolved ResolvedRecursiveType for parameter '%s' (index #%d; erased type %s)",
+name, i, t.getRawClass()));
+                    }
+                    return t2;
+                }
+                return t;
             }
         }
         return null;

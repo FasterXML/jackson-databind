@@ -1,14 +1,19 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class Generic1133Test extends BaseMapTest
+public class Generic1128Test extends BaseMapTest
 {
     @SuppressWarnings("rawtypes")
     static abstract class HObj<M extends HObj> {
         public long id;
+
+        // important: do not serialize as subtype, but only as type that
+        // is statically recognizable here.
+        @JsonSerialize(typing=JsonSerialize.Typing.STATIC)
         public M parent;
     }
 
@@ -44,7 +49,6 @@ public class Generic1133Test extends BaseMapTest
     public void testIssue1128() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-//        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         final DevMContainer devMContainer1 = new DevMContainer();
@@ -55,10 +59,11 @@ public class Generic1133Test extends BaseMapTest
         devMContainer1.entity = entity;
     
         String json = mapper.writeValueAsString(devMContainer1);
-//        String json = "{\"entity\":{\"id\":0,\"parent\":{\"id\":2,\"p1\":0},\"p1\":0,\"m1\":0}}";
-        
-        System.out.println("serializedContainer = " + json);
+
+//        System.out.println("serializedContainer = " + json);
         final DevMContainer devMContainer = mapper.readValue(json, DevMContainer.class);
-        System.out.println("devMContainer.getEntity().getParent().getId() = " + devMContainer.entity.parent.id);
+        long id = devMContainer.entity.parent.id;
+//        System.out.println("devMContainer.getEntity().getParent().getId() = " + id);
+        assertEquals(2, id);
     }
 }

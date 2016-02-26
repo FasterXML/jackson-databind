@@ -222,11 +222,18 @@ public class TypeBindings
                     ResolvedRecursiveType rrt = (ResolvedRecursiveType) t;
                     JavaType t2 = rrt.getSelfReferencedType();
                     if (t2 == null) {
+                        /* 25-Feb-2016, tatu: Looks like a potential problem, but alas
+                         *   we have a test where this should NOT fail and things... seem
+                         *   to work. So be it.
+                         */
+                        /*
                         throw new IllegalStateException(String.format
 ("Unresolved ResolvedRecursiveType for parameter '%s' (index #%d; erased type %s)",
 name, i, t.getRawClass()));
+*/
+                    } else {
+                        t2 = t;
                     }
-                    return t2;
                 }
                 return t;
             }

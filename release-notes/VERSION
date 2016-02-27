@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.7.2 (not released yet)
 
+#1124: JsonAnyGetter ignores JsonSerialize(contentUsing=...)
+ (reported by Jiri M)
 #1128: UnrecognizedPropertyException in 2.7.1 for properties that work with version 2.6.5
  (reported by Roleek@github)
 #1129: When applying type modifiers, don't ignore container types.

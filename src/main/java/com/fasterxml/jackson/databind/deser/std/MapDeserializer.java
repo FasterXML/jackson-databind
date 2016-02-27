@@ -576,7 +576,7 @@ public class MapDeserializer
         try {
             return (Map<Object,Object>)creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapAndThrow(e, _mapType.getRawClass(), null);
+            wrapAndThrow(e, _mapType.getRawClass(), key);
             return null;
         }
     }

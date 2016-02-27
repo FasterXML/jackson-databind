@@ -76,6 +76,10 @@ public abstract class ContainerDeserializerBase<T>
         if (t instanceof IOException && !(t instanceof JsonMappingException)) {
             throw (IOException) t;
         }
+        // for [databind#1141]
+        if (key == null) {
+            key = "N/A";
+        }
         throw JsonMappingException.wrapWithPath(t, ref, key);
     }
 }

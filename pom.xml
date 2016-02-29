@@ -25,10 +25,9 @@
   </scm>
 
   <properties>
-    <!-- With Jackson 2.7 we will require JDK 7 (except for annotations/streaming),
-         and new language features (diamond pattern) may be used. JDK dependencies are
-         still loaded in dynamically above and beyond 1.6: we plan to keep JDK compatibility
-         for a little bit longer.
+    <!-- With Jackson 2.8 we will require JDK 7 (except for annotations/streaming),
+         and new language features (diamond pattern) may be used.
+         Whether JDK dependencies are directly used is an open question as of Feb-2016
       -->
     <javac.src.version>1.7</javac.src.version>
     <javac.target.version>1.7</javac.target.version>

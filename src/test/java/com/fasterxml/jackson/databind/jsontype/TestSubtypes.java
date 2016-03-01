@@ -92,7 +92,35 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         public AtomicWrapper() { }
         public AtomicWrapper(int x) { value = new ImplX(x); }
     }
+
+    // [databind#1125]
+
+    static class Issue1125Wrapper {
+        public Base1125 value;
+
+        public Issue1125Wrapper() { }
+        public Issue1125Wrapper(Base1125 v) { value = v; }
+    }
     
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({ @JsonSubTypes.Type(Interm1125.class) })
+    static class Base1125 {
+        public int a;
+    }
+
+    @JsonSubTypes({ @JsonSubTypes.Type(value=Impl1125.class, name="impl") })
+    static class Interm1125 extends Base1125 { }
+
+    static class Impl1125 extends Interm1125 {
+        public int b;
+
+        public Impl1125() { }
+        public Impl1125(int a0, int b0) {
+            a = a0;
+            b = b0;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -256,5 +284,18 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertNotNull(output);
         assertEquals(ImplX.class, output.value.getClass());
         assertEquals(3, ((ImplX) output.value).x);
+    }
+
+    // [databind#1125]: properties from base class too
+    public void testIssue1125() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2)));
+        
+        Issue1125Wrapper result = MAPPER.readValue(json, Issue1125Wrapper.class);
+        assertNotNull(result.value);
+        assertEquals(Impl1125.class, result.value.getClass());
+        Impl1125 impl = (Impl1125) result.value;
+        assertEquals(1, impl.a);
+        assertEquals(2, impl.b);
     }
 }

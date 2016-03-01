@@ -425,7 +425,7 @@ Main differences compared to 1.0 "mapper" jar are:
 
 # Further reading
 
-* [Overall Jackson Docs](../../../jackson/docs)
+* [Overall Jackson Docs](../../../jackson-docs)
 * [Project wiki page](https://github.com/FasterXML/jackson-databind/wiki)
 
 Related:

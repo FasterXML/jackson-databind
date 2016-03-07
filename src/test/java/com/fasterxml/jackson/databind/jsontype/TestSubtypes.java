@@ -31,7 +31,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         public int d;
     }
 
-    // "Empty" bean, to test [JACKSON-366]
+    // "Empty" bean
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract class BaseBean { }
     
@@ -39,7 +39,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     static class EmptyNonFinal { }
 
-    // Verify combinations with [JACKSON-510]
+    // Verify combinations
 
     static class PropertyBean
     {
@@ -50,7 +50,6 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         public PropertyBean(SuperType v) { value = v; }
     }
 
-    // And then [JACKSON-614]
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY,
             property="#type",
             defaultImpl=DefaultImpl.class)
@@ -102,25 +101,39 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         public Issue1125Wrapper(Base1125 v) { value = v; }
     }
     
-    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, defaultImpl=Default1125.class)
     @JsonSubTypes({ @JsonSubTypes.Type(Interm1125.class) })
     static class Base1125 {
         public int a;
     }
 
     @JsonSubTypes({ @JsonSubTypes.Type(value=Impl1125.class, name="impl") })
-    static class Interm1125 extends Base1125 { }
+    static class Interm1125 extends Base1125 {
+        public int b;
+    }
 
     static class Impl1125 extends Interm1125 {
-        public int b;
+        public int c;
 
         public Impl1125() { }
-        public Impl1125(int a0, int b0) {
+        public Impl1125(int a0, int b0, int c0) {
             a = a0;
             b = b0;
+            c = c0;
         }
     }
 
+    static class Default1125 extends Interm1125 {
+    	public int def;
+
+    	Default1125() { }
+    	public Default1125(int a0, int b0, int def0) {
+    		a = a0;
+    		b = b0;
+    		def = def0;
+    	}
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -287,9 +300,10 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // [databind#1125]: properties from base class too
-    public void testIssue1125() throws Exception
+
+    public void testIssue1125NonDefault() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2)));
+        String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2, 3)));
         
         Issue1125Wrapper result = MAPPER.readValue(json, Issue1125Wrapper.class);
         assertNotNull(result.value);
@@ -297,5 +311,18 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         Impl1125 impl = (Impl1125) result.value;
         assertEquals(1, impl.a);
         assertEquals(2, impl.b);
+        assertEquals(3, impl.c);
+    }
+
+    public void testIssue1125WithDefault() throws Exception
+    {
+        Issue1125Wrapper result = MAPPER.readValue(aposToQuotes("{'value':{'a':3,'def':9,'b':5}}"),
+        		Issue1125Wrapper.class);
+        assertNotNull(result.value);
+        assertEquals(Default1125.class, result.value.getClass());
+        Default1125 impl = (Default1125) result.value;
+        assertEquals(3, impl.a);
+        assertEquals(5, impl.b);
+        assertEquals(9, impl.def);
     }
 }

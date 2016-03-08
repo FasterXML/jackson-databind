@@ -59,14 +59,15 @@ public abstract class DateTimeSerializerBase<T>
                     return withFormat(Boolean.TRUE, null);
                 }
 
-                if (format.getShape() == JsonFormat.Shape.STRING) {
+                if (format.getShape() == JsonFormat.Shape.STRING || format.hasPattern()
+                                || format.hasLocale() || format.hasTimeZone()) {
                     TimeZone tz = format.getTimeZone();
                     final String pattern = format.hasPattern()
-                                           ? format.getPattern()
-                                           : StdDateFormat.DATE_FORMAT_STR_ISO8601;
+                                    ? format.getPattern()
+                                    : StdDateFormat.DATE_FORMAT_STR_ISO8601;
                     final Locale loc = format.hasLocale()
-                                       ? format.getLocale()
-                                       : serializers.getLocale();
+                                    ? format.getLocale()
+                                    : serializers.getLocale();
                     SimpleDateFormat df = new SimpleDateFormat(pattern, loc);
                     if (tz == null) {
                         tz = serializers.getTimeZone();

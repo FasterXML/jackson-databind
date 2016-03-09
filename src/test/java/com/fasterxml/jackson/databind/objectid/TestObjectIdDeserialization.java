@@ -466,4 +466,31 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNotNull(value);
         assertEquals(3, value.value);
     }
+
+    //for databind#1150
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    static class IdentifiableStringId
+    {
+        public String id;
+        public int value;
+
+        public Identifiable next;
+
+        public IdentifiableStringId() { this(0); }
+        public IdentifiableStringId(int v) {
+            value = v;
+        }
+    }
+
+    public void testNullStringPropertyId() throws Exception
+    {
+
+
+        IdentifiableStringId value = MAPPER.readValue
+                (aposToQuotes("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
+        assertNotNull(value);
+        assertEquals(3, value.value);
+    }
+
+
 }

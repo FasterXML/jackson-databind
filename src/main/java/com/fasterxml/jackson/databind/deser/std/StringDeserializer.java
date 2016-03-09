@@ -55,7 +55,7 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
         }
         // allow coercions for other scalar types
         String text = p.getValueAsString();
-        // According to [databind#742], we shouldn't throw an exception if the value of the property is null
+        // According to [databind#742], StringDeserializer shouldn't throw an exception if the value of the property is null
         if (text != null || JsonToken.VALUE_NULL.equals(p.getCurrentToken())) {
             return text;
         }

@@ -426,3 +426,7 @@ Timur Shakurov (saladinkzn@github)
 Jiri Mikulasek (pirkogdc@github)
   * Reported #1124: JsonAnyGetter ignores JsonSerialize(contentUsing=...)
    (2.7.2)
+
+Xavi Torrens (xavitorrens@github)
+  * Reported #1150: Problem with Object id handling, explicit `null` token
+   (2.7.3)

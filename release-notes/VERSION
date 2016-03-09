@@ -4,7 +4,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.2 (not released yet)
+2.7.3 (not yet released)
+
+#1150: Problem with Object id handling, explicit `null` token
+ (reported by Xavi T)
+
+2.7.2 (26-Feb-2016)
 
 #1124: JsonAnyGetter ignores JsonSerialize(contentUsing=...)
  (reported by Jiri M)

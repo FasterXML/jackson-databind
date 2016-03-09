@@ -64,7 +64,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     abstract static class MysteryPolymorphic { }
 
-    // [Databind#511] types
+    // [databind#511] types
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
             include = JsonTypeInfo.As.WRAPPER_OBJECT)

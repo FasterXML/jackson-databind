@@ -422,3 +422,11 @@ Aleks Seovic (aseovic@github)
 Timur Shakurov (saladinkzn@github)
   * Reported #1134: Jackson 2.7 doesn't work with jdk6 due to use of `Collections.emptyIterator()`
    (2.7.2)
+
+Jiri Mikulasek (pirkogdc@github)
+  * Reported #1124: JsonAnyGetter ignores JsonSerialize(contentUsing=...)
+   (2.7.2)
+
+Xavi Torrens (xavitorrens@github)
+  * Reported #1150: Problem with Object id handling, explicit `null` token
+   (2.7.3)

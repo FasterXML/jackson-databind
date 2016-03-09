@@ -41,7 +41,7 @@ public class TestMapFiltering extends BaseMapTest
         }
     }
 
-    static class MyMapFilter implements PropertyFilter
+    static class TestMapFilter implements PropertyFilter
     {
         @Override
         public void serializeAsField(Object value, JsonGenerator jgen,
@@ -176,7 +176,7 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapFilteringWithAnnotations() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
-                new MyMapFilter());
+                new TestMapFilter());
         String json = MAPPER.writer(prov).writeValueAsString(new MapBean());
         // a=1 should become a=2
         assertEquals(aposToQuotes("{'values':{'a':2}}"), json);

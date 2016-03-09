@@ -677,7 +677,7 @@ public class BeanDeserializerFactory
                 PropertyMetadata.STD_OPTIONAL);
         type = resolveType(ctxt, beanDesc, type, setter);
 
-        /* AnySetter can be annotated with @JsonClass (etc) just like a
+        /* AnySetter can be annotated with @JsonDeserialize (etc) just like a
          * regular setter... so let's see if those are used.
          * Returns null if no annotations, in which case binding will
          * be done at a later point.

@@ -264,7 +264,7 @@ public class StdSubtypeResolver
         if (namedType.hasName()) {
             byName.put(namedType.getName(), namedType);
         }
-        
+
         // only check subtypes if this type hadn't yet been handled
         if (typesHandled.add(namedType.getType())) {
             Collection<NamedType> st = ai.findSubtypes(annotatedType);

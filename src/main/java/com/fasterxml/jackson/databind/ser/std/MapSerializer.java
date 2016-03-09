@@ -331,6 +331,7 @@ public class MapSerializer
                 ser = provider.serializerInstance(propertyAcc, serDef);
             }
         }
+
         if (property != null) {
             JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), Map.class);
             JsonInclude.Include incl = inclV.getContentInclusion();
@@ -556,13 +557,14 @@ public class MapSerializer
 
     /*
     /**********************************************************
-    /* JsonSerializer implementation
+    /* Secondary serialization methods
     /**********************************************************
      */
     
     /**
-     * Method called to serialize fields, when the value type is not statically known;
-     * but we know that no value suppression is needed (which simplifies processing a bit)
+     * General-purpose serialization for contents, where we do not necessarily know
+     * the value serialization, but 
+     * we do know that no value suppression is needed (which simplifies processing a bit)
      */
     public void serializeFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
@@ -593,9 +595,12 @@ public class MapSerializer
             // And then value
             if (valueElem == null) {
                 provider.defaultSerializeNull(gen);
-            } else {
+                continue;
+            }
+            JsonSerializer<Object> serializer = _valueSerializer;
+            if (serializer == null) {
                 Class<?> cc = valueElem.getClass();
-                JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                serializer = serializers.serializerFor(cc);
                 if (serializer == null) {
                     if (_valueType.hasGenericTypes()) {
                         serializer = _findAndAddDynamic(serializers,
@@ -605,13 +610,13 @@ public class MapSerializer
                     }
                     serializers = _dynamicValueSerializers;
                 }
-                try {
-                    serializer.serialize(valueElem, gen, provider);
-                } catch (Exception e) {
-                    // Add reference information
-                    String keyDesc = ""+keyElem;
-                    wrapAndThrow(provider, e, value, keyDesc);
-                }
+            }
+            try {
+                serializer.serialize(valueElem, gen, provider);
+            } catch (Exception e) {
+                // Add reference information
+                String keyDesc = ""+keyElem;
+                wrapAndThrow(provider, e, value, keyDesc);
             }
         }
     }
@@ -687,7 +692,7 @@ public class MapSerializer
      * so that value serializer is passed and does not need to be fetched from
      * provider.
      */
-    protected void serializeFieldsUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeFieldsUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             JsonSerializer<Object> ser)
         throws IOException
     {
@@ -737,7 +742,7 @@ public class MapSerializer
 
         PropertySerializerMap serializers = _dynamicValueSerializers;
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
-
+        
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key; unless ignorable by key
             final Object keyElem = entry.getKey();
@@ -801,7 +806,7 @@ public class MapSerializer
     /**
      * @since 2.5
      */
-    protected void serializeTypedFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeTypedFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue) // since 2.5
         throws IOException
     {

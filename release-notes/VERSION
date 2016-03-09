@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.7.3 (not yet released)
 
+#1125: Problem with polymorphic types, losing properties from base type(s)
 #1150: Problem with Object id handling, explicit `null` token
  (reported by Xavi T)
 

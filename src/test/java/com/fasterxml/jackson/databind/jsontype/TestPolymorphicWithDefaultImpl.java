@@ -160,7 +160,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertEquals(Arrays.asList("a", "b"), ((MyInter) inter).blah);
     }
 
-    // [Databind#148]
+    // [databind#148]
     public void testDefaultAsNoClass() throws Exception
     {
         Object ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ }");
@@ -178,7 +178,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertNull(ob);
     }
 
-    // [Databind#148]
+    // [databind#148]
     public void testBadTypeAsNull() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -189,7 +189,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertNull(ob);
     }
 
-    // [Databind#511]
+    // [databind#511]
     public void testInvalidTypeId511() throws Exception {
         ObjectReader reader = MAPPER.reader().without(
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE,
@@ -203,7 +203,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertNotNull(badResult);
     }
 
-    // [Databind#656]
+    // [databind#656]
     public void testDefaultImplWithObjectWrapper() throws Exception
     {
         BaseFor656 value = MAPPER.readValue(aposToQuotes("{'foobar':{'a':3}}"), BaseFor656.class);

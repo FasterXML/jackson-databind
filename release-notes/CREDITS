@@ -430,3 +430,8 @@ Jiri Mikulasek (pirkogdc@github)
 Xavi Torrens (xavitorrens@github)
   * Reported #1150: Problem with Object id handling, explicit `null` token
    (2.7.3)
+
+Yoann Rodière (fenrhil@github)
+  * Reported #1154: @JsonFormat.pattern on dates is now ignored if shape is not
+    explicitely provided
+   (2.7.3)

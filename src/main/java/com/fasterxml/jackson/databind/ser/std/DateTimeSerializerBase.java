@@ -55,11 +55,11 @@ public abstract class DateTimeSerializerBase<T>
             if (format != null) {
 
             	// Simple case first: serialize as numeric timestamp?
-                if (format.getShape().isNumeric()) {
+                JsonFormat.Shape shape = format.getShape();
+                if (shape.isNumeric()) {
                     return withFormat(Boolean.TRUE, null);
                 }
-
-                if (format.getShape() == JsonFormat.Shape.STRING || format.hasPattern()
+                if ((shape == JsonFormat.Shape.STRING) || format.hasPattern()
                                 || format.hasLocale() || format.hasTimeZone()) {
                     TimeZone tz = format.getTimeZone();
                     final String pattern = format.hasPattern()

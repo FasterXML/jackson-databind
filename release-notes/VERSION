@@ -9,6 +9,8 @@ Project: jackson-databind
 #1125: Problem with polymorphic types, losing properties from base type(s)
 #1150: Problem with Object id handling, explicit `null` token
  (reported by Xavi T)
+#1154: @JsonFormat.pattern on dates is now ignored if shape is not explicitely provided
+ (reported by Yoann R)
 
 2.7.2 (26-Feb-2016)
 

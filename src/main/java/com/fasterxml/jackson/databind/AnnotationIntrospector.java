@@ -947,7 +947,8 @@ public abstract class AnnotationIntrospector
     public boolean hasAsValueAnnotation(AnnotatedMethod am) {
         return false;
     }
-    
+
+    // TODO: Deprecate in 2.8?
     /**
      * Method for determining the String value to use for serializing
      * given enumeration entry; used when serializing enumerations
@@ -972,7 +973,14 @@ public abstract class AnnotationIntrospector
      */
     public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         for (int i = 0, len = enumValues.length; i < len; ++i) {
-            names[i] = findEnumValue(enumValues[i]);
+            /* 12-Mar-2016, tatu: This is quite tricky, considering that we should NOT
+             *   overwrite values with default `name`... so for now, let's only delegate
+             *   if no value has been set. Still not optimal but has to do
+             */
+            // TODO: In 2.8, stop delegation?
+            if (names[i] == null) {
+                names[i] = findEnumValue(enumValues[i]);
+            }
         }
         return names;
     }

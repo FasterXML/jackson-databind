@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,6 +22,20 @@ public class ReadValuesTest extends BaseMapTest
             return other.a == this.a;
         }
         @Override public int hashCode() { return a; }
+    }
+
+    static class Data1161 {
+        enum Type {
+            A, B, C;
+
+            @Override
+            public String toString() {
+                return name().toLowerCase();
+            };
+        };
+
+        public Type type;
+        public String value;
     }
 
     /*
@@ -261,15 +276,15 @@ public class ReadValuesTest extends BaseMapTest
     public void testNonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
-        JsonParser jp = MAPPER.getFactory().createParser(JSON);
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        JsonParser p = MAPPER.getFactory().createParser(JSON);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         
         // Important: as of 2.1, START_ARRAY can only be skipped if the
         // target type is NOT a Collection or array Java type.
         // So we have to explicitly skip it in this particular case.
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         
-        Iterator<int[]> it = MAPPER.readValues(jp, int[].class);
+        Iterator<int[]> it = MAPPER.readValues(p, int[].class);
 
         assertTrue(it.hasNext());
         int[] array = it.next();
@@ -280,6 +295,21 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(1, array.length);
         assertEquals(3, array[0]);
         assertFalse(it.hasNext());
-        jp.close();
+        p.close();
+    }
+
+    public void testDeserProps1161() throws Exception
+    {
+        final String src = "[ { \"type\": \"a\", \"value\": \"1\" }, { \"type\": \"b\", \"value\": \"2\" }]";
+        MappingIterator<Data1161> iterator = MAPPER
+                .reader()
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .forType(Data1161.class)
+                .readValues(src);
+        assertTrue(iterator.hasNext());
+        Data1161 item = iterator.nextValue();
+        assertNotNull(item);
+        assertSame(Data1161.Type.A, item.type);
+        iterator.close();
     }
 }

@@ -24,20 +24,6 @@ public class ReadValuesTest extends BaseMapTest
         @Override public int hashCode() { return a; }
     }
 
-    static class Data1161 {
-        enum Type {
-            A, B, C;
-
-            @Override
-            public String toString() {
-                return name().toLowerCase();
-            };
-        };
-
-        public Type type;
-        public String value;
-    }
-
     /*
     /**********************************************************
     /* Unit tests; root-level value sequences via Mapper
@@ -296,20 +282,5 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(3, array[0]);
         assertFalse(it.hasNext());
         p.close();
-    }
-
-    public void testDeserProps1161() throws Exception
-    {
-        final String src = "[ { \"type\": \"a\", \"value\": \"1\" }, { \"type\": \"b\", \"value\": \"2\" }]";
-        MappingIterator<Data1161> iterator = MAPPER
-                .reader()
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .forType(Data1161.class)
-                .readValues(src);
-        assertTrue(iterator.hasNext());
-        Data1161 item = iterator.nextValue();
-        assertNotNull(item);
-        assertSame(Data1161.Type.A, item.type);
-        iterator.close();
     }
 }

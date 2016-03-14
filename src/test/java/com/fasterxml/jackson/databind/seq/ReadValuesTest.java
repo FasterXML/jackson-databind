@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -261,15 +262,15 @@ public class ReadValuesTest extends BaseMapTest
     public void testNonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
-        JsonParser jp = MAPPER.getFactory().createParser(JSON);
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        JsonParser p = MAPPER.getFactory().createParser(JSON);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         
         // Important: as of 2.1, START_ARRAY can only be skipped if the
         // target type is NOT a Collection or array Java type.
         // So we have to explicitly skip it in this particular case.
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         
-        Iterator<int[]> it = MAPPER.readValues(jp, int[].class);
+        Iterator<int[]> it = MAPPER.readValues(p, int[].class);
 
         assertTrue(it.hasNext());
         int[] array = it.next();
@@ -280,6 +281,6 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(1, array.length);
         assertEquals(3, array[0]);
         assertFalse(it.hasNext());
-        jp.close();
+        p.close();
     }
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -61,7 +62,7 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
         ObjectNode o = createSchemaNode("array", true);
-        ObjectNode itemSchema = createSchemaNode("string"); //binary values written as strings?
+        ObjectNode itemSchema = createSchemaNode("byte"); //binary values written as strings?
         return o.set("items", itemSchema);
     }
     
@@ -69,7 +70,17 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        // while logically (and within JVM) binary, gets encoded as Base64 String
-        visitArrayFormat(visitor, typeHint, JsonFormatTypes.STRING);
+        // 14-Mar-2016, tatu: while logically (and within JVM) binary, gets encoded as Base64 String,
+        // let's try to indicate it is array of Bytes... difficult, thanks to JSON Schema's
+        // lackluster listing of types
+        //
+        // TODO: for 2.8, make work either as String/base64, or array of numbers,
+        //   with a qualifier that can be used to determine it's byte[]
+        if (visitor != null) {
+            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+            if (v2 != null) {
+                v2.itemsFormat(JsonFormatTypes.INTEGER);
+            }
+        }
     }
 }

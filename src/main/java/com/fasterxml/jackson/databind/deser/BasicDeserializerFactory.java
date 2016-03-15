@@ -1252,7 +1252,8 @@ public abstract class BasicDeserializerFactory
             }
             // Need to consider @JsonValue if one found
             if (deser == null) {
-                deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod()));
+                deser = new EnumDeserializer(constructEnumResolver(enumClass,
+                        config, beanDesc.findJsonValueMethod()));
             }
         }
 
@@ -1436,7 +1437,6 @@ public abstract class BasicDeserializerFactory
                 return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
-
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
         // May have @JsonCreator for static factory method:
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
@@ -1919,10 +1919,8 @@ public abstract class BasicDeserializerFactory
             }
             return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor);
         }
-        // May need to use Enum.toString()
-        if (config.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
-            return EnumResolver.constructUnsafeUsingToString(enumClass);
-        }
+        // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
+        //   here, but that won't do: it must be dynamically changeable...
         return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
     }
 

@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-
 import java.lang.reflect.Method;
 import java.util.*;
 
-/**
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+
+    /**
  * Helper class used to resolve String values (either JSON Object field
  * names or regular String values) into Java Enum instances.
  */
@@ -62,7 +62,7 @@ public class EnumResolver implements java.io.Serializable
             map.put(e.toString(), e);
         }
         return new EnumResolver(enumCls, enumValues, map);
-    }    
+    }
 
     public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
             Method accessor)
@@ -145,6 +145,13 @@ public class EnumResolver implements java.io.Serializable
             enums.add(e);
         }
         return enums;
+    }
+
+    /**
+     * @since 2.7.3
+     */
+    public Collection<String> getEnumIds() {
+        return _enumsById.keySet();
     }
     
     public Class<Enum<?>> getEnumClass() { return _enumClass; }

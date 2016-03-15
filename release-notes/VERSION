@@ -18,6 +18,9 @@ Project: jackson-databind
  (reported by Xavi T)
 #1154: @JsonFormat.pattern on dates is now ignored if shape is not explicitely provided
  (reported by Yoann R)
+#1161: `DeserializationFeature.READ_ENUMS_USING_TO_STRING` not dynamically
+  changeable with 2.7
+ (reported by asa-git@github)
 - Minor fixes to `AnnotationIntrospector.findEnumValues()` to correct problems with
   merging of explicit enum value names.
 

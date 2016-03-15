@@ -2,10 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.*;
@@ -165,6 +162,16 @@ public class TestEnumDeserialization
             }
         }
         ;
+    }
+
+    // [databind#1161]
+    enum Enum1161 {
+        A, B, C;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        };
     }
 
     static enum EnumWithDefaultAnno {
@@ -503,6 +510,25 @@ public class TestEnumDeserialization
         assertSame(EnumWithPropertyAnno.A, result[1]);
     }
 
+    // [databind#1161], unable to switch READ_ENUMS_USING_TO_STRING
+    public void testDeserWithToString1161() throws Exception
+    {
+        Enum1161 result = MAPPER.readerFor(Enum1161.class)
+                .readValue(quote("A"));
+        assertSame(Enum1161.A, result);
+
+        result = MAPPER.readerFor(Enum1161.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(quote("a"));
+        assertSame(Enum1161.A, result);
+
+        // and once again, going back to defaults
+        result = MAPPER.readerFor(Enum1161.class)
+                .without(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(quote("A"));
+        assertSame(Enum1161.A, result);
+    }
+    
     public void testEnumWithDefaultAnnotation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);

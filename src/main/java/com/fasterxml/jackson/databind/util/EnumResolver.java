@@ -144,7 +144,8 @@ public class EnumResolver implements java.io.Serializable
      * @since 2.8
      */
     @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls, AnnotationIntrospector ai)
+    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls,
+            AnnotationIntrospector ai)
     {
         // oh so wrong... not much that can be done tho
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
@@ -201,6 +202,13 @@ public class EnumResolver implements java.io.Serializable
             enums.add(e);
         }
         return enums;
+    }
+
+    /**
+     * @since 2.7.3
+     */
+    public Collection<String> getEnumIds() {
+        return _enumsById.keySet();
     }
     
     public Class<Enum<?>> getEnumClass() { return _enumClass; }

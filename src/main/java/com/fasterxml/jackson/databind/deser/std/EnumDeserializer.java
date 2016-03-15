@@ -24,23 +24,32 @@ public class EnumDeserializer
 {
     private static final long serialVersionUID = 1L;
 
+    protected Object[] _enumsByIndex;
+    
     /**
-     * @since 2.6
+     * @since 2.8
      */
-    protected final CompactStringObjectMap _enumLookup;
     private final Enum<?> _enumDefaultValue;
 
     /**
-     * @since 2.6
+     * @since 2.7.3
      */
-    protected Object[] _enumsByIndex;
+    protected final CompactStringObjectMap _lookupByName;
 
-    public EnumDeserializer(EnumResolver res)
+    /**
+     * Alternatively, we may need a different lookup object if "use toString"
+     * is defined.
+     *
+     * @since 2.7.3
+     */
+    protected CompactStringObjectMap _lookupByToString;
+    
+    public EnumDeserializer(EnumResolver byNameResolver)
     {
-        super(res.getEnumClass());
-        _enumLookup = res.constructLookup();
-        _enumsByIndex = res.getRawEnums();
-        _enumDefaultValue = res.getDefaultValue();
+        super(byNameResolver.getEnumClass());
+        _lookupByName = byNameResolver.constructLookup();
+        _enumsByIndex = byNameResolver.getRawEnums();
+        _enumDefaultValue = byNameResolver.getDefaultValue();
     }
 
     /**
@@ -82,10 +91,12 @@ public class EnumDeserializer
         
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
-            String name = p.getText();
-            Object result = _enumLookup.find(name);
+            CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                    ? _getToStringLookup(ctxt) : _lookupByName;
+            final String name = p.getText();
+            Object result = lookup.find(name);
             if (result == null) {
-                return _deserializeAltString(p, ctxt, name);
+                return _deserializeAltString(p, ctxt, lookup, name);
             }
             return result;
         }
@@ -112,8 +123,14 @@ public class EnumDeserializer
         return _deserializeOther(p, ctxt);
     }
 
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+    
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
-            String name) throws IOException
+            CompactStringObjectMap lookup, String name) throws IOException
     {
         name = name.trim();
         if (name.length() == 0) {
@@ -143,7 +160,7 @@ public class EnumDeserializer
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             throw ctxt.weirdStringException(name, _enumClass(),
-                    "value not one of declared Enum instance names: "+_enumLookup.keys());
+                    "value not one of declared Enum instance names: "+lookup.keys());
         }
         return null;
     }
@@ -177,6 +194,22 @@ public class EnumDeserializer
 
     protected Class<?> _enumClass() {
         return handledType();
+    }
+
+    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt)
+    {
+        CompactStringObjectMap lookup = _lookupByToString;
+        // note: exact locking not needed; all we care for here is to try to
+        // reduce contention for the initial resolution
+        if (lookup == null) {
+            synchronized (this) {
+                lookup = EnumResolver.constructUnsafeUsingToString(_enumClass(),
+                        ctxt.getAnnotationIntrospector())
+                    .constructLookup();
+            }
+            _lookupByToString = lookup;
+        }
+        return lookup;
     }
 
     /*

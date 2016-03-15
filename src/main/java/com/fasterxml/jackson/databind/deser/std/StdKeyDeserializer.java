@@ -5,11 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.NumberInput;
@@ -117,7 +113,7 @@ public class StdKeyDeserializer extends KeyDeserializer
     
     @Override
     public Object deserializeKey(String key, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (key == null) { // is this even legal call?
             return null;
@@ -318,13 +314,21 @@ public class StdKeyDeserializer extends KeyDeserializer
     {
         private static final long serialVersionUID = 1L;
 
-        protected final EnumResolver _resolver;
+        protected final EnumResolver _byNameResolver;
 
         protected final AnnotatedMethod _factory;
 
+        /**
+         * Lazily constructed alternative in case there is need to
+         * use 'toString()' method as the source.
+         *
+         * @since 2.7.3
+         */
+        protected EnumResolver _byToStringResolver;
+        
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
             super(-1, er.getEnumClass());
-            _resolver = er;
+            _byNameResolver = er;
             _factory = factory;
         }
 
@@ -338,11 +342,26 @@ public class StdKeyDeserializer extends KeyDeserializer
                     ClassUtil.unwrapAndThrowAsIAE(e);
                 }
             }
-            Enum<?> e = _resolver.findEnum(key);
+            EnumResolver res = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                    ? _getToStringResolver(ctxt) : _byNameResolver;
+            Enum<?> e = res.findEnum(key);
             if ((e == null) && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                throw ctxt.weirdKeyException(_keyClass, key, "not one of values for Enum class");
+                throw ctxt.weirdKeyException(_keyClass, key, "not one of values excepted for Enum class: "
+                        +res.getEnumIds());
             }
             return e;
+        }
+
+        private EnumResolver _getToStringResolver(DeserializationContext ctxt)
+        {
+            EnumResolver res = _byToStringResolver;
+            if (res == null) {
+                synchronized (this) {
+                    res = EnumResolver.constructUnsafeUsingToString(_byNameResolver.getEnumClass(),
+                            ctxt.getAnnotationIntrospector());
+                }
+            }
+            return res;
         }
     }
     

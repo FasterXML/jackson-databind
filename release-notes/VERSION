@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.3 (not yet released)
+2.7.3 (16-Mar-2016)
 
 #1125: Problem with polymorphic types, losing properties from base type(s)
 #1150: Problem with Object id handling, explicit `null` token

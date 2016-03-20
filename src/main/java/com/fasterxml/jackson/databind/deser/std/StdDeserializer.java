@@ -116,8 +116,9 @@ public abstract class StdDeserializer<T>
      * this method if they are to handle type information.
      */
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
-        return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer) throws IOException {
+        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
     
     /*
@@ -128,9 +129,9 @@ public abstract class StdDeserializer<T>
     /**********************************************************
      */
 
-    protected final boolean _parseBooleanPrimitive(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected final boolean _parseBooleanPrimitive(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         if (t == JsonToken.VALUE_NULL) return false;
@@ -138,14 +139,14 @@ public abstract class StdDeserializer<T>
         // [JACKSON-78]: should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
             // 11-Jan-2012, tatus: May be outside of int...
-            if (jp.getNumberType() == NumberType.INT) {
-                return (jp.getIntValue() != 0);
+            if (p.getNumberType() == NumberType.INT) {
+                return (p.getIntValue() != 0);
             }
-            return _parseBooleanFromOther(jp, ctxt);
+            return _parseBooleanFromOther(p, ctxt);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
-            String text = jp.getText().trim();
+            String text = p.getText().trim();
             // [#422]: Allow aliases
             if ("true".equals(text) || "True".equals(text)) {
                 return true;
@@ -160,11 +161,11 @@ public abstract class StdDeserializer<T>
         }
         // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final boolean parsed = _parseBooleanPrimitive(jp, ctxt);
-            t = jp.nextToken();
+            p.nextToken();
+            final boolean parsed = _parseBooleanPrimitive(p, ctxt);
+            t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'boolean' value but there was more than a single value in the array");
             }            
             return parsed;            
@@ -344,10 +345,10 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected final short _parseShortPrimitive(JsonParser jp, DeserializationContext ctxt)
+    protected final short _parseShortPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        int value = _parseIntPrimitive(jp, ctxt);
+        int value = _parseIntPrimitive(p, ctxt);
         // So far so good: but does it fit?
         if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
             throw ctxt.weirdStringException(String.valueOf(value),
@@ -543,18 +544,18 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, p.getCurrentToken());
     }
     
-    protected final Float _parseFloat(JsonParser jp, DeserializationContext ctxt)
+    protected final Float _parseFloat(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // We accept couple of different types; obvious ones first:
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
-            return jp.getFloatValue();
+            return p.getFloatValue();
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
-            String text = jp.getText().trim();
+            String text = p.getText().trim();
             if (text.length() == 0) {
                 return (Float) getEmptyValue(ctxt);
             }
@@ -588,11 +589,11 @@ public abstract class StdDeserializer<T>
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final Float parsed = _parseFloat(jp, ctxt);
-            t = jp.nextToken();
+            p.nextToken();
+            final Float parsed = _parseFloat(p, ctxt);
+            t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
             }            
             return parsed;            
@@ -601,16 +602,16 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
     
-    protected final float _parseFloatPrimitive(JsonParser jp, DeserializationContext ctxt)
+    protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
 
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
-            return jp.getFloatValue();
+            return p.getFloatValue();
         }
         if (t == JsonToken.VALUE_STRING) {
-            String text = jp.getText().trim();
+            String text = p.getText().trim();
             if (text.length() == 0 || _hasTextualNull(text)) {
                 return 0.0f;
             }
@@ -639,11 +640,11 @@ public abstract class StdDeserializer<T>
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final float parsed = _parseFloatPrimitive(jp, ctxt);
-            t = jp.nextToken();
+            p.nextToken();
+            final float parsed = _parseFloatPrimitive(p, ctxt);
+            t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'float' value but there was more than a single value in the array");
             }            
             return parsed;            
@@ -652,16 +653,16 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected final Double _parseDouble(JsonParser jp, DeserializationContext ctxt)
+    protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
-            return jp.getDoubleValue();
+            return p.getDoubleValue();
         }
         if (t == JsonToken.VALUE_STRING) {
-            String text = jp.getText().trim();
+            String text = p.getText().trim();
             if (text.length() == 0) {
                 return (Double) getEmptyValue(ctxt);
             }
@@ -694,11 +695,11 @@ public abstract class StdDeserializer<T>
             return (Double) getNullValue(ctxt);
         }
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final Double parsed = _parseDouble(jp, ctxt);
-            t = jp.nextToken();
+            p.nextToken();
+            final Double parsed = _parseDouble(p, ctxt);
+            t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'Double' value but there was more than a single value in the array");
             }            
             return parsed;            
@@ -707,18 +708,18 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected final double _parseDoublePrimitive(JsonParser jp, DeserializationContext ctxt)
+    protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // We accept couple of different types; obvious ones first:
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
-            return jp.getDoubleValue();
+            return p.getDoubleValue();
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
-            String text = jp.getText().trim();
+            String text = p.getText().trim();
             if (text.length() == 0 || _hasTextualNull(text)) {
                 return 0.0;
             }
@@ -749,11 +750,11 @@ public abstract class StdDeserializer<T>
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final double parsed = _parseDoublePrimitive(jp, ctxt);
-            t = jp.nextToken();
+            p.nextToken();
+            final double parsed = _parseDoublePrimitive(p, ctxt);
+            t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
             }            
             return parsed;            
@@ -762,12 +763,12 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected java.util.Date _parseDate(JsonParser jp, DeserializationContext ctxt)
+    protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            return new java.util.Date(jp.getLongValue());
+            return new java.util.Date(p.getLongValue());
         }
         if (t == JsonToken.VALUE_NULL) {
             return (java.util.Date) getNullValue(ctxt);
@@ -776,7 +777,7 @@ public abstract class StdDeserializer<T>
             String value = null;
             try {
                 // As per [JACKSON-203], take empty Strings to mean
-                value = jp.getText().trim();
+                value = p.getText().trim();
                 if (value.length() == 0) {
                     return (Date) getEmptyValue(ctxt);
                 }
@@ -791,11 +792,11 @@ public abstract class StdDeserializer<T>
         }
         // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final Date parsed = _parseDate(jp, ctxt);
-            t = jp.nextToken();
+            p.nextToken();
+            final Date parsed = _parseDate(p, ctxt);
+            t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
             }            
             return parsed;            
@@ -851,13 +852,13 @@ public abstract class StdDeserializer<T>
      * 
      * @since 2.5
      */
-    protected T _deserializeFromEmpty(JsonParser jp, DeserializationContext ctxt)
+    protected T _deserializeFromEmpty(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.START_ARRAY) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                t = jp.nextToken();
+                t = p.nextToken();
                 if (t == JsonToken.END_ARRAY) {
                     return null;
                 }
@@ -865,7 +866,7 @@ public abstract class StdDeserializer<T>
             }
         } else if (t == JsonToken.VALUE_STRING) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                String str = jp.getText().trim();
+                String str = p.getText().trim();
                 if (str.isEmpty()) {
                     return null;
                 }
@@ -1061,7 +1062,7 @@ public abstract class StdDeserializer<T>
      * <b>must</b> be passed since it may be something other than what
      * context has. Prior versions did not include the first parameter.
      *
-     * @param jp Parser that points to value of the unknown property
+     * @param p Parser that points to value of the unknown property
      * @param ctxt Context for deserialization; allows access to the parser,
      *    error reporting functionality
      * @param instanceOrClass Instance that is being populated by this
@@ -1069,14 +1070,14 @@ public abstract class StdDeserializer<T>
      *   If null, will assume type is what {@link #getValueClass} returns.
      * @param propName Name of the property that can not be mapped
      */
-    protected void handleUnknownProperty(JsonParser jp, DeserializationContext ctxt, Object instanceOrClass, String propName)
+    protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt, Object instanceOrClass, String propName)
         throws IOException
     {
         if (instanceOrClass == null) {
             instanceOrClass = handledType();
         }
         // Maybe we have configured handler(s) to take care of it?
-        if (ctxt.handleUnknownProperty(jp, this, instanceOrClass, propName)) {
+        if (ctxt.handleUnknownProperty(p, this, instanceOrClass, propName)) {
             return;
         }
         // Nope, not handled. Potentially that's a problem...
@@ -1085,13 +1086,13 @@ public abstract class StdDeserializer<T>
         /* But if we do get this far, need to skip whatever value we
          * are pointing to now.
          */
-        jp.skipChildren();
+        p.skipChildren();
     }
 
-    protected void _failDoubleToIntCoercion(JsonParser jp, DeserializationContext ctxt,
+    protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
             String type) throws IOException
     {
         throw ctxt.mappingException("Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
-                        jp.getValueAsString(), type);
+                        p.getValueAsString(), type);
     }
 }

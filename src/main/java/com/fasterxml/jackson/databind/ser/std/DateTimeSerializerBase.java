@@ -51,9 +51,9 @@ public abstract class DateTimeSerializerBase<T>
             BeanProperty property) throws JsonMappingException
     {
         if (property != null) {
-            JsonFormat.Value format = serializers.getAnnotationIntrospector().findFormat((Annotated)property.getMember());
+            JsonFormat.Value format = findFormatOverrides(serializers, property,
+                    handledType());
             if (format != null) {
-
             	// Simple case first: serialize as numeric timestamp?
                 JsonFormat.Shape shape = format.getShape();
                 if (shape.isNumeric()) {

@@ -66,8 +66,11 @@ public abstract class TypeDeserializerBase
     /**********************************************************
      */
 
+    /**
+     * @since 2.8
+     */
     protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes,
-            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
+            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
         _baseType = baseType;
         _idResolver = idRes;
@@ -76,18 +79,7 @@ public abstract class TypeDeserializerBase
         _typeIdVisible = typeIdVisible;
         // defaults are fine, although shouldn't need much concurrency
         _deserializers = new ConcurrentHashMap<String, JsonDeserializer<Object>>(16, 0.75f, 2);
-        if (defaultImpl == null) {
-            _defaultImpl = null;
-        } else {
-            /* 16-Oct-2011, tatu: should call this via TypeFactory; this is
-             *    not entirely safe... however, since Collections/Maps are
-             *    seldom (if ever) base types, may be ok.
-             */
-            // 01-Nov-2015, tatu: Actually this is still exactly wrong. Should fix.
-            // 15-Jan-2016, tatu: ... as witnessed by [databind#1083], patched, but
-            //     fundamentally this call can't be made to work for all cases
-            _defaultImpl = baseType.forcedNarrowBy(defaultImpl);
-        }
+        _defaultImpl = defaultImpl;
         _property = null;
     }
 

@@ -1204,7 +1204,6 @@ public abstract class BeanDeserializerBase
      * Method called to deserialize POJO value from a JSON floating-point
      * number.
      */
-    @SuppressWarnings("incomplete-switch")
     public Object deserializeFromDouble(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         NumberType t = p.getNumberType();

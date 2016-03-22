@@ -492,9 +492,7 @@ public class MapSerializer
     public void serialize(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        gen.writeStartObject();
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
+        gen.writeStartObject(value);
         if (!value.isEmpty()) {
             Object suppressableValue = _suppressableValue;
             if (suppressableValue == JsonInclude.Include.ALWAYS) {

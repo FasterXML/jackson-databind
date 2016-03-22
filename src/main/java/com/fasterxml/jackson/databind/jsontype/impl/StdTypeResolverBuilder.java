@@ -3,15 +3,11 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.jsontype.*;
 
 /**
  * Default {@link TypeResolverBuilder} implementation.
@@ -109,7 +105,7 @@ public class StdTypeResolverBuilder
         if (_defaultImpl == null) {
             defaultImpl = null;
         } else {
-            // 20-Mar-2016, tatu: It is important to go specialization go through
+            // 20-Mar-2016, tatu: It is important to do specialization go through
             //   TypeFactory to ensure proper resolution; with 2.7 and before, direct
             //   call to JavaType was used, but that can not work reliably with 2.7
             // 20-Mar-2016, tatu: Can finally add a check for type compatibility BUT

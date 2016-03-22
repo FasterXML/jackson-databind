@@ -591,7 +591,7 @@ public abstract class BeanSerializerBase
             return;
         }
         if (startEndObject) {
-            gen.writeStartObject();
+            gen.writeStartObject(bean);
         }
         objectId.writeAsField(gen, provider, w);
         if (_propertyFilterId != null) {

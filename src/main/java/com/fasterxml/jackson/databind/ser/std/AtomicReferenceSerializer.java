@@ -142,19 +142,23 @@ public class AtomicReferenceSerializer
         if (typeSer != null) {
             typeSer = typeSer.forProperty(property);
         }
-        JsonSerializer<?> ser = _valueSerializer;
+        // First: do we have an annotation override from property?
+        JsonSerializer<?> ser = findAnnotatedContentSerializer(provider, property);;
         if (ser == null) {
-            // A few conditions needed to be able to fetch serializer here:
-            if (_useStatic(provider, property, _referredType)) {
-                ser = _findSerializer(provider, _referredType, property);
+            // If not, use whatever was configured by type
+            ser = _valueSerializer;
+            if (ser == null) {
+                // A few conditions needed to be able to fetch serializer here:
+                if (_useStatic(provider, property, _referredType)) {
+                    ser = _findSerializer(provider, _referredType, property);
+                }
+            } else {
+                ser = provider.handlePrimaryContextualization(ser, property);
             }
-        } else {
-            ser = provider.handlePrimaryContextualization(ser, property);
         }
         // Also: may want to have more refined exclusion based on referenced value
         JsonInclude.Include contentIncl = _contentInclusion;
         if (property != null) {
-
             JsonInclude.Value incl = property.findPropertyInclusion(provider.getConfig(),
                     AtomicReference.class);
             JsonInclude.Include newIncl = incl.getContentInclusion();

@@ -1291,7 +1291,6 @@ public abstract class BasicDeserializerFactory
         // Very first thing: is deserializer hard-coded for elements?
         JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
-
         // Then optional type info: if type has been resolved, we may already know type deserializer:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         if (contentTypeDeser == null) { // or if not, may be able to find:
@@ -1299,16 +1298,11 @@ public abstract class BasicDeserializerFactory
         }
         JsonDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDesc,
                 contentTypeDeser, contentDeser);
+
         if (deser == null) {
             // Just one referential type as of JDK 1.7 / Java 7: AtomicReference (Java 8 adds Optional)
             if (AtomicReference.class.isAssignableFrom(type.getRawClass())) {
-                JavaType referencedType = type.getReferencedType();
-                /*
-                TypeDeserializer vts = findTypeDeserializer(ctxt.getConfig(), referencedType);
-                BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
-                JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
-                */
-                return new AtomicReferenceDeserializer(referencedType, contentTypeDeser, deser);
+                return new AtomicReferenceDeserializer(contentType, contentTypeDeser, contentDeser);
             }
         }
         if (deser != null) {

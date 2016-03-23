@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -30,8 +29,9 @@ public class AtomicReferenceDeserializer
     public AtomicReferenceDeserializer(JavaType referencedType) {
         this(referencedType, null, null);
     }
-    
-    public AtomicReferenceDeserializer(JavaType referencedType, TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+
+    public AtomicReferenceDeserializer(JavaType referencedType,
+            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
         super(AtomicReference.class);
         _referencedType = referencedType;
@@ -56,13 +56,13 @@ public class AtomicReferenceDeserializer
     public AtomicReference<?> getNullValue() {
         return new AtomicReference<Object>();
     }
-    
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
     {
         JsonDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _valueTypeDeserializer;
-
+        
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_referencedType, property);
         } else { // otherwise directly assigned, probably not contextual yet:

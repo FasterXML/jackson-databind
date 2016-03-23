@@ -79,6 +79,13 @@ public class TestJDKAtomicTypes
         public AtomicReference<Object> value;
     }
 
+    static class LCStringWrapper {
+        @JsonDeserialize(contentUsing=LowerCasingDeserializer.class)
+        public AtomicReference<String> value;
+
+        public LCStringWrapper() { }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -195,5 +202,12 @@ public class TestJDKAtomicTypes
          String jsonExp = aposToQuotes("{'XX.name':'Bob'}");
          String jsonAct = MAPPER.writeValueAsString(new UnwrappingRefParent());
          assertEquals(jsonExp, jsonAct);
+    }
+
+    public void testWithCustomDeserializer() throws Exception
+    {
+        LCStringWrapper w = MAPPER.readValue(aposToQuotes("{'value':'FoobaR'}"),
+                LCStringWrapper.class);
+        assertEquals("foobar", w.value.get());
     }
 }

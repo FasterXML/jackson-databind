@@ -113,8 +113,9 @@ public class ReferenceType extends SimpleType
         if (h == _referencedType.<Object>getValueHandler()) {
             return this;
         }
+        JavaType refdType = _referencedType.withValueHandler(h);
         return new ReferenceType(_class, _bindings,
-                _superClass, _superInterfaces, _referencedType.withValueHandler(h),
+                _superClass, _superInterfaces, refdType,
                 _valueHandler, _typeHandler, _asStatic);
     }
 

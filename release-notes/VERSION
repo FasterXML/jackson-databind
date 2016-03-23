@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.4 (not yet released)
+
+- Improve handling of custom content (de)serializers for `AtomicReference`
+
 2.7.3 (16-Mar-2016)
 
 #1125: Problem with polymorphic types, losing properties from base type(s)

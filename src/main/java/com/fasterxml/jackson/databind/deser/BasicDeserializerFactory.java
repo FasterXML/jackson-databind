@@ -1298,16 +1298,11 @@ public abstract class BasicDeserializerFactory
         }
         JsonDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDesc,
                 contentTypeDeser, contentDeser);
+
         if (deser == null) {
             // Just one referential type as of JDK 1.7 / Java 7: AtomicReference (Java 8 adds Optional)
             if (AtomicReference.class.isAssignableFrom(type.getRawClass())) {
-                JavaType referencedType = type.getReferencedType();
-                /*
-                TypeDeserializer vts = findTypeDeserializer(ctxt.getConfig(), referencedType);
-                BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
-                JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
-                */
-                return new AtomicReferenceDeserializer(referencedType, contentTypeDeser, deser);
+                return new AtomicReferenceDeserializer(contentType, contentTypeDeser, contentDeser);
             }
         }
         if (deser != null) {

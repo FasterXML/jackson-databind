@@ -62,7 +62,6 @@ public class TestAnnotationUsing
         public Object[] values;
     }
 
-
     static class ListBean {
         @JsonDeserialize(contentUsing=ValueDeserializer.class)
         public List<Object> values;

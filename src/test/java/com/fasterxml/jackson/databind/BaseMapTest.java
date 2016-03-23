@@ -7,7 +7,12 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public abstract class BaseMapTest
@@ -115,6 +120,42 @@ public abstract class BaseMapTest
     }
 
     public enum ABC { A, B, C; }
+
+    /*
+    /**********************************************************
+    /* Shared serializers
+    /**********************************************************
+     */
+    
+    @SuppressWarnings("serial")
+    public static class UpperCasingSerializer extends StdScalarSerializer<String>
+    {
+        public UpperCasingSerializer() { super(String.class); }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen,
+                SerializerProvider provider) throws IOException {
+            gen.writeString(value.toUpperCase());
+        }
+    }
+
+    @SuppressWarnings("serial")
+    public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
+    {
+        public LowerCasingDeserializer() { super(String.class); }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException, JsonProcessingException {
+            return p.getText().toLowerCase();
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Construction
+    /**********************************************************
+     */
     
     protected BaseMapTest() { super(); }
 

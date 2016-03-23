@@ -30,7 +30,7 @@ public class AtomicReferenceDeserializer
     public AtomicReferenceDeserializer(JavaType referencedType) {
         this(referencedType, null, null);
     }
-    
+
     public AtomicReferenceDeserializer(JavaType referencedType, TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
         super(AtomicReference.class);

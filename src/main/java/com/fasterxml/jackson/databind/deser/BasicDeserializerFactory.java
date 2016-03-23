@@ -1291,7 +1291,6 @@ public abstract class BasicDeserializerFactory
         // Very first thing: is deserializer hard-coded for elements?
         JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
-
         // Then optional type info: if type has been resolved, we may already know type deserializer:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         if (contentTypeDeser == null) { // or if not, may be able to find:

@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.concurrent.atomic.*;
 
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured
@@ -13,30 +13,48 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestSimpleAtomicTypes
     extends BaseMapTest
 {
+    static class UCStringWrapper {
+        @JsonSerialize(contentUsing=UpperCasingSerializer.class)
+        public AtomicReference<String> value;
+
+        public UCStringWrapper(String s) { value = new AtomicReference<String>(s); }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
+    private final ObjectMapper MAPPER = objectMapper();
+    
     public void testAtomicBoolean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals("true", serializeAsString(mapper, new AtomicBoolean(true)));
-        assertEquals("false", serializeAsString(mapper, new AtomicBoolean(false)));
+        assertEquals("true", MAPPER.writeValueAsString(new AtomicBoolean(true)));
+        assertEquals("false", MAPPER.writeValueAsString(new AtomicBoolean(false)));
     }
 
     public void testAtomicInteger() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals("1", serializeAsString(mapper, new AtomicInteger(1)));
-        assertEquals("-9", serializeAsString(mapper, new AtomicInteger(-9)));
+        assertEquals("1", MAPPER.writeValueAsString(new AtomicInteger(1)));
+        assertEquals("-9", MAPPER.writeValueAsString(new AtomicInteger(-9)));
     }
 
     public void testAtomicLong() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals("0", serializeAsString(mapper, new AtomicLong(0)));
+        assertEquals("0", MAPPER.writeValueAsString(new AtomicLong(0)));
     }
 
     public void testAtomicReference() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         String[] strs = new String[] { "abc" };
-        assertEquals("[\"abc\"]", serializeAsString(mapper, new AtomicReference<String[]>(strs)));
+        assertEquals("[\"abc\"]", MAPPER.writeValueAsString(new AtomicReference<String[]>(strs)));
+    }
+
+    public void testCustomSerializer() throws Exception
+    {
+        final String VALUE = "fooBAR";
+        String json = MAPPER.writeValueAsString(new UCStringWrapper(VALUE));
+        assertEquals(json, aposToQuotes("{'value':'FOOBAR'}"));
     }
 }

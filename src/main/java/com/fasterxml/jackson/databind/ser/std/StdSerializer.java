@@ -370,19 +370,9 @@ public abstract class StdSerializer<T>
 
     /*
     /**********************************************************
-    /* Helper methods, other
+    /* Helper methods, accessing annotation-based configuration
     /**********************************************************
      */
-    
-    /**
-     * Method that can be called to determine if given serializer is the default
-     * serializer Jackson uses; as opposed to a custom serializer installed by
-     * a module or calling application. Determination is done using
-     * {@link JacksonStdImpl} annotation on serializer class.
-     */
-    protected boolean isDefaultSerializer(JsonSerializer<?> serializer) {
-        return ClassUtil.isJacksonStdImpl(serializer);
-    }
 
     /**
      * Helper method that can be used to see if specified property has annotation
@@ -489,5 +479,44 @@ public abstract class StdSerializer<T>
             return format.getFeature(feat);
         }
         return null;
+    }
+
+    /**
+     * Convenience method for finding out possibly configured content value serializer.
+     *
+     * @since 2.7.4
+     */
+    protected JsonSerializer<?> findAnnotatedContentSerializer(SerializerProvider serializers,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (property != null) {
+            // First: if we have a property, may have property-annotation overrides
+            AnnotatedMember m = property.getMember();
+            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
+            if (m != null) {
+                Object serDef = intr.findContentSerializer(m);
+                if (serDef != null) {
+                    return serializers.serializerInstance(m, serDef);
+                }
+            }
+        }
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+    
+    /**
+     * Method that can be called to determine if given serializer is the default
+     * serializer Jackson uses; as opposed to a custom serializer installed by
+     * a module or calling application. Determination is done using
+     * {@link JacksonStdImpl} annotation on serializer class.
+     */
+    protected boolean isDefaultSerializer(JsonSerializer<?> serializer) {
+        return ClassUtil.isJacksonStdImpl(serializer);
     }
 }

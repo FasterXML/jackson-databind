@@ -1911,7 +1911,7 @@ public abstract class BasicDeserializerFactory
             if (config.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(accessor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor);
+            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor, config.getAnnotationIntrospector());
         }
         // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
         //   here, but that won't do: it must be dynamically changeable...

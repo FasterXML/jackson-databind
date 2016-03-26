@@ -643,6 +643,17 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _writeContext = _writeContext.createChildObjectContext();
     }
 
+    @Override // since 2.8
+    public void writeStartObject(Object forValue) throws IOException
+    {
+        _append(JsonToken.START_OBJECT);
+        JsonWriteContext ctxt = _writeContext.createChildObjectContext();
+        _writeContext = ctxt;
+        if (forValue != null) {
+            ctxt.setCurrentValue(forValue);
+        }
+    }
+
     @Override
     public final void writeEndObject() throws IOException
     {
@@ -923,6 +934,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public void writeObjectId(Object id) {
         _objectId = id;
         _hasNativeId = true;
+    }
+
+    @Override // since 2.8
+    public void writeEmbeddedObject(Object object) throws IOException {
+        _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, object);
     }
 
     /*

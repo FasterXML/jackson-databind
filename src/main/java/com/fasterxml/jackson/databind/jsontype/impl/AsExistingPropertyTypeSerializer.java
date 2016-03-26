@@ -18,45 +18,47 @@ public class AsExistingPropertyTypeSerializer
     extends AsPropertyTypeSerializer
 {
 
-    public AsExistingPropertyTypeSerializer(TypeIdResolver idRes, BeanProperty property, String propName)
+    public AsExistingPropertyTypeSerializer(TypeIdResolver idRes,
+            BeanProperty property, String propName)
     {
         super(idRes, property, propName);
     }
 
     @Override
     public AsExistingPropertyTypeSerializer forProperty(BeanProperty prop) {
-        return (_property == prop) ? this : new AsExistingPropertyTypeSerializer(this._idResolver, prop, this._typePropertyName);
+        return (_property == prop) ? this :
+            new AsExistingPropertyTypeSerializer(_idResolver, prop, _typePropertyName);
     }
     
     @Override
     public As getTypeInclusion() { return As.EXISTING_PROPERTY; }
     
     @Override
-    public void writeTypePrefixForObject(Object value, JsonGenerator jgen) throws IOException
+    public void writeTypePrefixForObject(Object value, JsonGenerator gen) throws IOException
     {
         final String typeId = idFromValue(value);
-        if ((typeId != null) && jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+        if ((typeId != null) && gen.canWriteTypeId()) {
+            gen.writeTypeId(typeId);
         }
-        jgen.writeStartObject();
+        gen.writeStartObject();
     }
 
     @Override
-    public void writeTypePrefixForObject(Object value, JsonGenerator jgen, Class<?> type) throws IOException
+    public void writeTypePrefixForObject(Object value, JsonGenerator gen, Class<?> type) throws IOException
     {
         final String typeId = idFromValueAndType(value, type);
-        if ((typeId != null) && jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+        if ((typeId != null) && gen.canWriteTypeId()) {
+            gen.writeTypeId(typeId);
         }
-        jgen.writeStartObject();
+        gen.writeStartObject();
     }
     
     @Override
-    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId) throws IOException
+    public void writeCustomTypePrefixForObject(Object value, JsonGenerator gen, String typeId) throws IOException
     {
-        if ((typeId != null) && jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+        if ((typeId != null) && gen.canWriteTypeId()) {
+            gen.writeTypeId(typeId);
         }
-        jgen.writeStartObject();
+        gen.writeStartObject();
     }
 }

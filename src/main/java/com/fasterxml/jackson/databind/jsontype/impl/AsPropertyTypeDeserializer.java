@@ -24,14 +24,20 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     protected final As _inclusion;
 
+    /**
+     * @since 2.8
+     */
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
-            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
+            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
         this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY);
     }
     
+    /**
+     * @since 2.8
+     */
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
-            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl,
+            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
             As inclusion)
     {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);

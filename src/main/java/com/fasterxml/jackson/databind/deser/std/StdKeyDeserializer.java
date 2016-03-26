@@ -5,11 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.NumberInput;
@@ -347,7 +343,7 @@ public class StdKeyDeserializer extends KeyDeserializer
                 }
             }
             EnumResolver res = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                    ? _getToStringResolver() : _byNameResolver;
+                    ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
             if ((e == null) && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                 throw ctxt.weirdKeyException(_keyClass, key, "not one of values excepted for Enum class: "
@@ -356,12 +352,13 @@ public class StdKeyDeserializer extends KeyDeserializer
             return e;
         }
 
-        private EnumResolver _getToStringResolver()
+        private EnumResolver _getToStringResolver(DeserializationContext ctxt)
         {
             EnumResolver res = _byToStringResolver;
             if (res == null) {
                 synchronized (this) {
-                    res = EnumResolver.constructUnsafeUsingToString(_byNameResolver.getEnumClass());
+                    res = EnumResolver.constructUnsafeUsingToString(_byNameResolver.getEnumClass(),
+                            ctxt.getAnnotationIntrospector());
                 }
             }
             return res;

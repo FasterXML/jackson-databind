@@ -187,9 +187,7 @@ public class MapEntrySerializer
     public void serialize(Map.Entry<?, ?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        gen.writeStartObject();
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
+        gen.writeStartObject(value);
         if (_valueSerializer != null) {
             serializeUsing(value, gen, provider, _valueSerializer);
         } else {

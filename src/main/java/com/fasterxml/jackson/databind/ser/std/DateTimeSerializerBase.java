@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -51,15 +50,14 @@ public abstract class DateTimeSerializerBase<T>
             BeanProperty property) throws JsonMappingException
     {
         if (property != null) {
-            JsonFormat.Value format = serializers.getAnnotationIntrospector().findFormat((Annotated)property.getMember());
+            JsonFormat.Value format = findFormatOverrides(serializers, property,
+                    handledType());
             if (format != null) {
-
             	// Simple case first: serialize as numeric timestamp?
                 JsonFormat.Shape shape = format.getShape();
                 if (shape.isNumeric()) {
                     return withFormat(Boolean.TRUE, null);
                 }
-
                 if ((shape == JsonFormat.Shape.STRING) || format.hasPattern()
                                 || format.hasLocale() || format.hasTimeZone()) {
                     TimeZone tz = format.getTimeZone();

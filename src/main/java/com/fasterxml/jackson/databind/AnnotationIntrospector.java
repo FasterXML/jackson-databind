@@ -985,6 +985,18 @@ public abstract class AnnotationIntrospector
         return names;
     }
 
+    /**
+     * Finds the Enum value that should be considered the default value, if possible.
+     *
+     * @param enumCls The Enum class to scan for the default value.
+     * @return null if none found or it's not possible to determine one.
+     *
+     * @since 2.8
+     */
+    public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Deserialization: general annotations

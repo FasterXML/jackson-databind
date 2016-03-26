@@ -148,9 +148,7 @@ public class BeanSerializer
             _serializeWithObjectId(bean, gen, provider, true);
             return;
         }
-        gen.writeStartObject();
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(bean);
+        gen.writeStartObject(bean);
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {

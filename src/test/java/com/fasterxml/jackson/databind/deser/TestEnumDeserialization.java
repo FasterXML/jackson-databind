@@ -173,7 +173,28 @@ public class TestEnumDeserialization
             return name().toLowerCase();
         };
     }
-    
+
+    static enum EnumWithDefaultAnno {
+        A, B,
+
+        @JsonEnumDefaultValue
+        OTHER;
+    }
+
+    static enum EnumWithDefaultAnnoAndConstructor {
+        A, B,
+
+        @JsonEnumDefaultValue
+        OTHER;
+
+        @JsonCreator public static EnumWithDefaultAnnoAndConstructor fromId(String value) {
+            for (EnumWithDefaultAnnoAndConstructor e: values()) {
+                if (e.name().toLowerCase().equals(value)) return e;
+            }
+            return null;
+        }
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -506,4 +527,29 @@ public class TestEnumDeserialization
                 .without(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(quote("A"));
         assertSame(Enum1161.A, result);
-    }}
+    }
+    
+    public void testEnumWithDefaultAnnotation() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+
+        EnumWithDefaultAnno myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnno.class);
+        assertSame(EnumWithDefaultAnno.OTHER, myEnum);
+    }
+
+    public void testEnumWithDefaultAnnotationUsingIndexes() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+
+        EnumWithDefaultAnno myEnum = mapper.readValue("9", EnumWithDefaultAnno.class);
+        assertSame(EnumWithDefaultAnno.OTHER, myEnum);
+    }
+
+    public void testEnumWithDefaultAnnotationWithConstructor() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+
+        EnumWithDefaultAnnoAndConstructor myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnnoAndConstructor.class);
+        assertNull("When using a constructor, the default value annotation shouldn't be used.", myEnum);
+    }
+}

@@ -63,7 +63,7 @@ public class TestGenericListSerialization
         
         JSONResponse<List<Parent>> out = mapper.readValue(json, 0, json.length, rootType);
 
-        List<Parent> deserializedContent = (List<Parent>) out.getResult();
+        List<Parent> deserializedContent = out.getResult();
 
         assertEquals(2, deserializedContent.size());
         assertTrue(deserializedContent.get(0) instanceof Parent);

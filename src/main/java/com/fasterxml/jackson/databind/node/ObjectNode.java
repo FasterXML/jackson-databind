@@ -279,33 +279,33 @@ public class ObjectNode
      * all of its descendants using specified JSON generator.
      */
     @Override
-    public void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public void serialize(JsonGenerator g, SerializerProvider provider)
+        throws IOException
     {
-        jg.writeStartObject();
+        g.writeStartObject(this);
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-            jg.writeFieldName(en.getKey());
+            g.writeFieldName(en.getKey());
                 /* 17-Feb-2009, tatu: Can we trust that all nodes will always
                  *   extend BaseJsonNode? Or if not, at least implement
                  *   JsonSerializable? Let's start with former, change if
                  *   we must.
                  */
-            ((BaseJsonNode) en.getValue()).serialize(jg, provider);
+            ((BaseJsonNode) en.getValue()).serialize(g, provider);
         }
-        jg.writeEndObject();
+        g.writeEndObject();
     }
 
     @Override
-    public void serializeWithType(JsonGenerator jg, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
-        typeSer.writeTypePrefixForObject(this, jg);
+        typeSer.writeTypePrefixForObject(this, g);
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-            jg.writeFieldName(en.getKey());
-            ((BaseJsonNode) en.getValue()).serialize(jg, provider);
+            g.writeFieldName(en.getKey());
+            ((BaseJsonNode) en.getValue()).serialize(g, provider);
         }
-        typeSer.writeTypeSuffixForObject(this, jg);
+        typeSer.writeTypeSuffixForObject(this, g);
     }
 
     /*

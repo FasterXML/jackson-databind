@@ -566,7 +566,13 @@ public class AnnotationIntrospectorPair
         names = _primary.findEnumValues(enumType, enumValues, names);
         return names;
     }
-    
+
+    @Override
+    public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
+        Enum<?> en = _primary.findDefaultEnumValue(enumCls);
+        return (en == null) ? _secondary.findDefaultEnumValue(enumCls) : en;
+    }
+
     // // // Deserialization: general annotations
 
     @Override

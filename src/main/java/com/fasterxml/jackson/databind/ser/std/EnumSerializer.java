@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -96,10 +95,12 @@ public class EnumSerializer
      * choice here, however.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException
+    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+            BeanProperty property) throws JsonMappingException
     {
         if (property != null) {
-            JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat((Annotated) property.getMember());
+            JsonFormat.Value format = findFormatOverrides(serializers,
+                    property, handledType());
             if (format != null) {
                 Boolean serializeAsIndex = _isShapeWrittenUsingIndex(property.getType().getRawClass(), format, false);
                 if (serializeAsIndex != _serializeAsIndex) {

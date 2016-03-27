@@ -49,12 +49,6 @@ public class BasicBeanDescription extends BeanDescription
      * Information collected about the class introspected.
      */
     final protected AnnotatedClass _classInfo;
-    
-    /**
-     * We may need type bindings for the bean type. If so, we'll
-     * construct it lazily
-     */
-    protected TypeBindings _bindings;
 
     /*
     /**********************************************************

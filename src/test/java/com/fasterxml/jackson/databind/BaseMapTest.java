@@ -126,7 +126,7 @@ public abstract class BaseMapTest
     /* Shared serializers
     /**********************************************************
      */
-    
+
     @SuppressWarnings("serial")
     public static class UpperCasingSerializer extends StdScalarSerializer<String>
     {

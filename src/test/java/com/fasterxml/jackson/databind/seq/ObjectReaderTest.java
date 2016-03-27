@@ -17,7 +17,7 @@ public class ObjectReaderTest extends BaseMapTest
     static class POJO {
         public Map<String, Object> name;
     }
-    
+
     public void testParserFeatures() throws Exception
     {
         final String JSON = "[ /* foo */ 7 ]";
@@ -99,6 +99,7 @@ public class ObjectReaderTest extends BaseMapTest
         
         pojo = itr.next();
 
+        assertNotNull(pojo.name);
         assertTrue(pojo.name.containsKey("value"));
         assertEquals(5678, pojo.name.get("value"));
         assertFalse(itr.hasNext());

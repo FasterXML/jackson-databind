@@ -1163,7 +1163,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
         
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
     /**
@@ -1180,7 +1180,7 @@ public class ObjectReader
             _reportUndetectableSource(src);
         }
 
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
     
     /**
@@ -1197,7 +1197,7 @@ public class ObjectReader
             _reportUndetectableSource(src);
         }
         
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
     /**
@@ -1214,7 +1214,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(src, 0, src.length);
         }
         
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
     /**
@@ -1231,7 +1231,8 @@ public class ObjectReader
             return (T) _detectBindAndClose(src, offset, length);
         }
 
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src, offset, length)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src, offset, length),
+                false));
     }
     
     @SuppressWarnings("unchecked")
@@ -1242,7 +1243,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
 
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
     /**
@@ -1259,7 +1260,7 @@ public class ObjectReader
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
 
-        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src)));
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
     /**
@@ -1277,7 +1278,7 @@ public class ObjectReader
             _reportUndetectableSource(src);
         }
         
-        return (T) _bindAndClose(_considerFilter(treeAsTokens(src)));
+        return (T) _bindAndClose(_considerFilter(treeAsTokens(src), false));
     }
     
     /**
@@ -1296,7 +1297,7 @@ public class ObjectReader
             return _detectBindAndCloseAsTree(in);
         }
 
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(in)));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(in), false));
     }
     
     /**
@@ -1315,7 +1316,7 @@ public class ObjectReader
             _reportUndetectableSource(r);
         }
         
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(r)));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(r), false));
     }
 
     /**
@@ -1334,7 +1335,7 @@ public class ObjectReader
             _reportUndetectableSource(json);
         }
 
-        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json)));
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
     }
 
     /*
@@ -1389,7 +1390,7 @@ public class ObjectReader
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
         
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
     }
     
     /**
@@ -1402,7 +1403,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        JsonParser p = _considerFilter(_parserFactory.createParser(src));
+        JsonParser p = _considerFilter(_parserFactory.createParser(src), true);
         _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -1421,7 +1422,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        JsonParser p = _considerFilter(_parserFactory.createParser(json));
+        JsonParser p = _considerFilter(_parserFactory.createParser(json), true);
         _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -1437,7 +1438,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
     }
 
     /**
@@ -1458,7 +1459,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), false);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
     }
 
     /**
@@ -1473,7 +1474,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src)));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
     }
 
     /*
@@ -1546,9 +1547,11 @@ public class ObjectReader
     /**
      * Consider filter when creating JsonParser.  
      */
-    protected JsonParser _considerFilter(final JsonParser p) {
-        return _filter == null || FilteringParserDelegate.class.isInstance(p) 
-                ? p : new FilteringParserDelegate(p, _filter, false, false);
+    protected JsonParser _considerFilter(final JsonParser p, boolean multiValue) {
+        // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
+        //    have a multiple-value read (that is, "readValues()").
+        return ((_filter == null) || FilteringParserDelegate.class.isInstance(p))
+                ? p : new FilteringParserDelegate(p, _filter, false, multiValue);
     }
     
     protected Object _bindAndClose(JsonParser p) throws IOException

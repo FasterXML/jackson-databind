@@ -131,6 +131,7 @@ public class JacksonAnnotationIntrospector
      * explicit serialized name
      */
     @Override
+    @Deprecated
     public String findEnumValue(Enum<?> value)
     {
         // 11-Jun-2015, tatu: As per [databind#677], need to allow explicit naming.

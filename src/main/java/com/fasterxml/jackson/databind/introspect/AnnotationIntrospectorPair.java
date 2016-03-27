@@ -552,8 +552,9 @@ public class AnnotationIntrospectorPair
     public boolean hasAsValueAnnotation(AnnotatedMethod am) {
         return _primary.hasAsValueAnnotation(am) || _secondary.hasAsValueAnnotation(am);
     }
-    
+
     @Override
+    @Deprecated
     public String findEnumValue(Enum<?> value) {
         String r = _primary.findEnumValue(value);
         return (r == null) ? _secondary.findEnumValue(value) : r;

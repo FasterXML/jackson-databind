@@ -948,14 +948,19 @@ public abstract class AnnotationIntrospector
         return false;
     }
 
-    // TODO: Deprecate in 2.8?
     /**
      * Method for determining the String value to use for serializing
      * given enumeration entry; used when serializing enumerations
      * as Strings (the standard method).
      *
      * @return Serialized enum value.
+     *
+     * @deprecated Since 2.8: use {@link #findEnumValues} instead because this method
+     *    does not properly handle override settings (defaults to <code>enum.name</code>
+     *    without indicating whether that is explicit or not), and is inefficient to
+     *    call one-by-one.
      */
+    @Deprecated
     public String findEnumValue(Enum<?> value) {
         return value.name();
     }

@@ -137,11 +137,6 @@ public class TestJacksonAnnotationIntrospector
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findEnumValue(Enum<?> value) {
-            return value.name().toLowerCase();
-        }
-
-        @Override
         public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
             // kinda sorta wrong, but for testing's sake...
             for (int i = 0, len = enumValues.length; i < len; ++i) {

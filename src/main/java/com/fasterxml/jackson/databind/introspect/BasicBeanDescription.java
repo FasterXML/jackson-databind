@@ -22,9 +22,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  * use cases for that, nor is such usage tested or supported.
  * Separation from API is mostly to isolate some implementation details
  * here and keep API simple.
- *<p>
- * Note that since 2.6 this class has been a thin shell around
- * {@link POJOPropertiesCollector}, which handles most of actual work.
  */
 public class BasicBeanDescription extends BeanDescription
 {

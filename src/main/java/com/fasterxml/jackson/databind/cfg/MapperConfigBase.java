@@ -47,6 +47,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Registered concrete subtypes that can be used instead of (or
      * in addition to) ones declared using annotations.
+     *<p>
+     * Note that instances are stateful and as such may need to be copied,
+     * and may NOT be demoted down to {@link BaseSettings}.
      */
     protected final SubtypeResolver _subtypeResolver;
 
@@ -74,6 +77,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected final ContextAttributes _attributes;
 
     /**
+     * Note that instances are stateful (for caching) and as such may need to be copied,
+     * and may NOT be demoted down to {@link BaseSettings}.
+     *
      * @since 2.6
      */
     protected final RootNameLookup _rootNames;

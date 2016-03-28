@@ -46,9 +46,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <!-- 22-Feb-2016, tatu: Temporarily override version; will be updated in parent pom soon
-      -->
-      <version>2.8.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

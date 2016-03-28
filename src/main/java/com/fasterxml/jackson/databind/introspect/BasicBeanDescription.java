@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.PropertyConfigOverride;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -62,6 +63,14 @@ public class BasicBeanDescription extends BeanDescription
      * Details of Object Id to include, if any
      */
     protected ObjectIdInfo _objectIdInfo;
+
+    /**
+     * Possible configuration overrides to apply to properties of
+     * this type.
+     *
+     * @since 2.8
+     */
+    protected PropertyConfigOverride _configOverrides;
     
     /*
     /**********************************************************
@@ -75,7 +84,12 @@ public class BasicBeanDescription extends BeanDescription
         super(type);
         _propCollector = coll;
         _config = coll.getConfig();
-        _annotationIntrospector = (_config == null) ? null : _config.getAnnotationIntrospector();
+        // NOTE: null config only for some pre-constructed types
+        if (_config == null) {
+            _annotationIntrospector = null;
+        } else {
+            _annotationIntrospector = _config.getAnnotationIntrospector();
+        }
         _classInfo = classDef;
     }
 
@@ -89,7 +103,12 @@ public class BasicBeanDescription extends BeanDescription
         super(type);
         _propCollector = null;
         _config = config;
-        _annotationIntrospector = (_config == null) ? null : _config.getAnnotationIntrospector();
+        // NOTE: null config only for some pre-constructed types
+        if (_config == null) {
+            _annotationIntrospector = null;
+        } else {
+            _annotationIntrospector = _config.getAnnotationIntrospector();
+        }
         _classInfo = classDef;
         _properties = props;
     }
@@ -310,6 +329,11 @@ public class BasicBeanDescription extends BeanDescription
         }
     }
 
+    @Override
+    public PropertyConfigOverride getConfigOverrides() {
+        return _configOverrides;
+    }
+    
     /*
     /**********************************************************
     /* Simple accessors, extended

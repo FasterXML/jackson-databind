@@ -265,12 +265,6 @@ public class ObjectMapper
     protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
 
     /**
-     * @deprecated Since 2.6, do not use: will be removed in 2.7 or later
-     */
-    @Deprecated
-    protected final static PrettyPrinter _defaultPrettyPrinter = new DefaultPrettyPrinter();
-
-    /**
      * Base settings contain defaults used for all {@link ObjectMapper}
      * instances.
      */
@@ -3586,14 +3580,6 @@ public class ObjectMapper
     protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         return _serializerProvider.createInstance(config, _serializerFactory);
     }
-    
-    /**
-     * @deprecated Since 2.6, use {@link SerializationConfig#constructDefaultPrettyPrinter()} directly
-     */
-    @Deprecated
-    protected PrettyPrinter _defaultPrettyPrinter() {
-        return _serializationConfig.constructDefaultPrettyPrinter();
-    }
 
     /**
      * Method called to configure the generator as necessary and then
@@ -3621,35 +3607,6 @@ public class ObjectMapper
                 /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                  *    structures, which typically causes more damage.
                  */
-                g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
-                try {
-                    g.close();
-                } catch (IOException ioe) { }
-            }
-        }
-    }
-
-    @Deprecated // since 2.7, not used internally any more
-    protected final void _configAndWriteValue(JsonGenerator g, Object value, Class<?> viewClass)
-        throws IOException
-    {
-        SerializationConfig cfg = getSerializationConfig().withView(viewClass);
-        cfg.initialize(g); // since 2.5
-
-        // [JACKSON-282]: consider Closeable
-        if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _configAndWriteCloseable(g, value, cfg);
-            return;
-        }
-        boolean closed = false;
-        try {
-            _serializerProvider(cfg).serializeValue(g, value);
-            closed = true;
-            g.close();
-        } finally {
-            if (!closed) {
-                // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
-                //    structures, which typically causes more damage.
                 g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     g.close();
@@ -3737,7 +3694,7 @@ public class ObjectMapper
      * Actual implementation of value reading+binding operation.
      */
     protected Object _readValue(DeserializationConfig cfg, JsonParser jp, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException
     {
         /* First: may need to read the next token, to initialize
          * state (either before first read from parser, or after
@@ -3767,7 +3724,7 @@ public class ObjectMapper
     }
     
     protected Object _readMapAndClose(JsonParser jp, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException
     {
         try {
             Object result;

@@ -14,12 +14,25 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  */
 public class MutablePropertyConfigOverride
     extends PropertyConfigOverride
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
+    public MutablePropertyConfigOverride() { super(); }
+
+    protected MutablePropertyConfigOverride(MutablePropertyConfigOverride src) {
+        super(src);
+    }
+    
+    public MutablePropertyConfigOverride copy() {
+        return new MutablePropertyConfigOverride(this);
+    }
+
     public MutablePropertyConfigOverride setFormat(JsonFormat.Value v) {
         _format = v;
         return this;
     }
-
+    
     public MutablePropertyConfigOverride getInclude(JsonInclude.Value v) {
         _include = v;
         return this;

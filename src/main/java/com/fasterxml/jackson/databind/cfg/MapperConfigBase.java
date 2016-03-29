@@ -1,18 +1,12 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.Base64Variant;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.PropertyName;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
@@ -77,13 +71,23 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected final ContextAttributes _attributes;
 
     /**
+     * Simple cache used for finding out possible root name for root name
+     * wrapping.
+     *<p>
      * Note that instances are stateful (for caching) and as such may need to be copied,
      * and may NOT be demoted down to {@link BaseSettings}.
      *
      * @since 2.6
      */
     protected final RootNameLookup _rootNames;
-    
+
+    /**
+     * Configured property overrides, accessed by declared type of property.
+     *
+     * @since 2.8
+     */
+    protected final PropertyConfigOverrides _propertyOverrides;
+
     /*
     /**********************************************************
     /* Construction
@@ -93,10 +97,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
+     *
+     * @since 2.8
      */
     protected MapperConfigBase(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
         _mixIns = mixins;
@@ -106,8 +112,20 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = null;
         // default to "no attributes"
         _attributes = ContextAttributes.getEmpty();
+        _propertyOverrides = propertyOverrides;
     }
-    
+
+    /**
+     * @deprecated Since 2.8, remove from 2.9 or later
+     */
+    @Deprecated
+    protected MapperConfigBase(BaseSettings base,
+            SubtypeResolver str, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
+    {
+        this(base, str, mixins, rootNames, null);
+    }
+
     /**
      * Pass-through constructor used when no changes are needed to the
      * base class.
@@ -121,6 +139,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
+        _propertyOverrides = src._propertyOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
@@ -132,6 +151,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
+        _propertyOverrides = src._propertyOverrides;
     }
     
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
@@ -143,6 +163,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
+        _propertyOverrides = src._propertyOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
@@ -153,6 +174,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
+        _propertyOverrides = src._propertyOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
@@ -163,6 +185,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = rootName;
         _view = src._view;
         _attributes = src._attributes;
+        _propertyOverrides = src._propertyOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
@@ -174,6 +197,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = view;
         _attributes = src._attributes;
+        _propertyOverrides = src._propertyOverrides;
     }
 
     /**
@@ -188,6 +212,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
+        _propertyOverrides = src._propertyOverrides;
     }
     
     /**
@@ -202,13 +227,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = attr;
+        _propertyOverrides = src._propertyOverrides;
     }
 
     /**
-     * @since 2.6
+     * @since 2.8
      */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
     {
         super(src);
         _mixIns = mixins;
@@ -217,8 +243,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
+        _propertyOverrides = propertyOverrides;
     }
-    
+
     /*
     /**********************************************************
     /* Addition fluent factory methods, common to all sub-types
@@ -471,7 +498,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         }
         return _rootNames.findRootName(rawRootType, this);
     }
-    
+
+    @Override
+    public PropertyConfigOverride findPropertyConfigOverride(Class<?> type) {
+        return _propertyOverrides.findOverride(type);
+    }
+
     /*
     /**********************************************************
     /* ClassIntrospector.MixInResolver impl:

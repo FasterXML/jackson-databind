@@ -104,9 +104,9 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
     {
-        super(base, str, mixins, rootNames);
+        super(base, str, mixins, rootNames, propertyOverrides);
         _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
         _nodeFactory = JsonNodeFactory.instance;
         _problemHandlers = null;
@@ -116,6 +116,15 @@ public final class DeserializationConfig
         _formatReadFeaturesToChange = 0;
     }
 
+    /**
+     * @deprecated Since 2.8, remove from 2.9 or later
+     */
+    @Deprecated
+    public DeserializationConfig(BaseSettings base, SubtypeResolver str,
+            SimpleMixInResolver mixins, RootNameLookup rootNames) {
+        this(base, str, mixins, rootNames, null);
+    }
+    
     private DeserializationConfig(DeserializationConfig src,
             int mapperFeatures, int deserFeatures,
             int parserFeatures, int parserFeatureMask,
@@ -233,15 +242,14 @@ public final class DeserializationConfig
     }
 
     /**
-     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}
-     * or {@link ObjectReader}.
+     * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
      *
-     * @since 2.6
+     * @since 2.8
      */
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
     {
-        super(src, mixins, rootNames);
+        super(src, mixins, rootNames, propertyOverrides);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;

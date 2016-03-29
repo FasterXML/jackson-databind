@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.PropertyConfigOverrides;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -308,6 +309,13 @@ public class ObjectMapper
      */
     protected SubtypeResolver _subtypeResolver;
 
+    /**
+     * Configured property overrides, accessed by declared type of property.
+     *
+     * @since 2.8
+     */
+    protected PropertyConfigOverrides _propertyOverrides;
+
     /*
     /**********************************************************
     /* Configuration settings: mix-in annotations
@@ -467,12 +475,12 @@ public class ObjectMapper
         _subtypeResolver = src._subtypeResolver;
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
+        _propertyOverrides = src._propertyOverrides.copy();
+        _mixIns = src._mixIns.copy();
 
-        SimpleMixInResolver mixins = src._mixIns.copy();
-        _mixIns = mixins;
         RootNameLookup rootNames = new RootNameLookup();
-        _serializationConfig = new SerializationConfig(src._serializationConfig, mixins, rootNames);
-        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins, rootNames);
+        _serializationConfig = new SerializationConfig(src._serializationConfig, _mixIns, rootNames, _propertyOverrides);
+        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, _mixIns, rootNames, _propertyOverrides);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 
@@ -524,12 +532,13 @@ public class ObjectMapper
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
-
+        _propertyOverrides = new PropertyConfigOverrides();
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
+        PropertyConfigOverrides propOverrides = new PropertyConfigOverrides();
         _serializationConfig = new SerializationConfig(base,
-                    _subtypeResolver, mixins, rootNames);
+                    _subtypeResolver, mixins, rootNames, propOverrides);
         _deserializationConfig = new DeserializationConfig(base,
-                    _subtypeResolver, mixins, rootNames);
+                    _subtypeResolver, mixins, rootNames, propOverrides);
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();

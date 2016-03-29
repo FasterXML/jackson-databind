@@ -135,9 +135,9 @@ public final class SerializationConfig
      */
     public SerializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
     {
-        super(base, str, mixins, rootNames);
+        super(base, str, mixins, rootNames, propertyOverrides);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
         _filterProvider = null;
         _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
@@ -148,6 +148,17 @@ public final class SerializationConfig
         _serializationInclusion = DEFAULT_INCLUSION;
     }
 
+    /**
+     * @deprecated Since 2.8, remove from 2.9 or later
+     */
+    @Deprecated
+    public SerializationConfig(BaseSettings base,
+            SubtypeResolver str, SimpleMixInResolver mixins,
+            RootNameLookup rootNames)
+    {
+        this(base, str, mixins, rootNames, null);
+    }
+    
     private SerializationConfig(SerializationConfig src, SubtypeResolver str)
     {
         super(src, str);
@@ -291,15 +302,14 @@ public final class SerializationConfig
     }
 
     /**
-     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}
-     * or {@link ObjectReader}.
+     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
      *
-     * @since 2.6
+     * @since 2.8
      */
     protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
+            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
     {
-        super(src, mixins, rootNames);
+        super(src, mixins, rootNames, propertyOverrides);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;

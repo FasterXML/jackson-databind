@@ -17,6 +17,12 @@ public abstract class PropertyConfigOverride
     protected JsonFormat.Value _format;
     protected JsonInclude.Value _include;
 
+    protected PropertyConfigOverride() { }
+    protected PropertyConfigOverride(PropertyConfigOverride src) {
+        _format = src._format;
+        _include = src._include;
+    }
+    
     public JsonFormat.Value getFormat() { return _format; }
     public JsonInclude.Value getInclude() { return _include; }
 }

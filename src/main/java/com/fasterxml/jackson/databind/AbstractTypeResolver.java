@@ -30,11 +30,13 @@ public abstract class AbstractTypeResolver
         return null;
     }
 
-    // !!! 29-Nov-2015, tatu: TODO: mark deprecated in 2.8
     /**
      * Older variant of {@link #resolveAbstractType(DeserializationConfig, BeanDescription)};
-     * obsoleted in 2.7, to be deprecated in 2.8
+     * obsoleted in 2.7
+     *
+     * @deprecated since 2.8 (may be removed from 2.9 or later)
      */
+    @Deprecated
     public JavaType resolveAbstractType(DeserializationConfig config,
             JavaType type) {
         return null;
@@ -46,10 +48,7 @@ public abstract class AbstractTypeResolver
      * when no concrete implementation was found.
      * It will be called after checking all other possibilities,
      * including defaulting.
-     *<p>
-     * Default implementation will call obsolete method for Jackson 2.7,
-     * to try to keep some level of backwards compatibility.
-     * 
+     *
      * @param config Configuration in use; should always be of type
      *    <code>DeserializationConfig</code>
      * @param typeDesc Description of the POJO type to resolve
@@ -62,6 +61,6 @@ public abstract class AbstractTypeResolver
      */
     public JavaType resolveAbstractType(DeserializationConfig config,
             BeanDescription typeDesc) {
-        return resolveAbstractType(config, typeDesc.getType());
+        return null;
     }
 }

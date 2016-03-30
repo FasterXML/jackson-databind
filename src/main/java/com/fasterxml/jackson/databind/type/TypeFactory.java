@@ -371,12 +371,14 @@ public final class TypeFactory
 
             // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
             // !!! TODO (as of 28-Jan-2016, at least)
-
+            
             // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
             //    a way to fully resolve and merge hierarchies; but that gets expensive
             //    so let's, for now, try to create close-enough approximation that
             //    is not 100% same, structurally, but has equivalent information for
             //    our specific neeeds.
+            // 29-Mar-2016, tatu: See [databind#1173]  (and test `TypeResolverTest`)
+            //  for a case where this code does get invoked: not ideal
             if (baseType.isInterface()) {
                 newType = baseType.refine(subclass, TypeBindings.emptyBindings(), null,
                         new JavaType[] { baseType });

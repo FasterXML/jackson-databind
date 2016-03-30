@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.module;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.ClassKey;
@@ -80,10 +80,15 @@ public class SimpleAbstractTypeResolver
         return config.getTypeFactory().constructSpecializedType(type, dst);
     }
 
-    
     @Override
-    public JavaType resolveAbstractType(DeserializationConfig config, JavaType type)
-    {
+    public JavaType resolveAbstractType(DeserializationConfig config, JavaType type){
+        // never materialize anything, so:
+        return null;
+    }
+
+    @Override
+    public JavaType resolveAbstractType(DeserializationConfig config,
+            BeanDescription typeDesc) {
         // never materialize anything, so:
         return null;
     }

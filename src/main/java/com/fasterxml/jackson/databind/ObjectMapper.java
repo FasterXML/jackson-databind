@@ -2976,7 +2976,7 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     public String writeValueAsString(Object value)
         throws JsonProcessingException
-    {        
+    {
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {

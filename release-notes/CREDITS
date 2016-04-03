@@ -435,3 +435,8 @@ Yoann Rodière (fenrhil@github)
   * Reported #1154: @JsonFormat.pattern on dates is now ignored if shape is not
     explicitely provided
    (2.7.3)
+
+Ross Goldberg
+  * Reported #1165, provided fix for: `CoreXMLDeserializers` does not handle
+    time-only `XMLGregorianCalendars`
+   (2.8.0)

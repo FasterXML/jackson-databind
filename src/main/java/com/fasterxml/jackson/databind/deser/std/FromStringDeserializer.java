@@ -100,7 +100,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        // Issue#381
+        // [databind#381]
         if (p.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final T value = deserialize(p, ctxt);

@@ -774,23 +774,9 @@ public abstract class StdDeserializer<T>
             return (java.util.Date) getNullValue(ctxt);
         }
         if (t == JsonToken.VALUE_STRING) {
-            String value = null;
-            try {
-                // As per [JACKSON-203], take empty Strings to mean
-                value = p.getText().trim();
-                if (value.length() == 0) {
-                    return (Date) getEmptyValue(ctxt);
-                }
-                if (_hasTextualNull(value)) {
-                    return (java.util.Date) getNullValue(ctxt);
-                }
-                return ctxt.parseDate(value);
-            } catch (IllegalArgumentException iae) {
-                throw ctxt.weirdStringException(value, _valueClass,
-                        "not a valid representation (error: "+iae.getMessage()+")");
-            }
+            return _parseDate(p.getText(), ctxt);
         }
-        // Issue#381
+        // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final Date parsed = _parseDate(p, ctxt);
@@ -804,6 +790,27 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
+    /**
+     * @since 2.8
+     */
+    protected java.util.Date _parseDate(String value, DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        try {
+            // Take empty Strings to mean 'empty' Value, usually 'null':
+            if (value.length() == 0) {
+                return (Date) getEmptyValue(ctxt);
+            }
+            if (_hasTextualNull(value)) {
+                return (java.util.Date) getNullValue(ctxt);
+            }
+            return ctxt.parseDate(value);
+        } catch (IllegalArgumentException iae) {
+            throw ctxt.weirdStringException(value, _valueClass,
+                    "not a valid representation (error: "+iae.getMessage()+")");
+        }
+    }
+    
     /**
      * Helper method for encapsulating calls to low-level double value parsing; single place
      * just because we need a work-around that must be applied to all calls.

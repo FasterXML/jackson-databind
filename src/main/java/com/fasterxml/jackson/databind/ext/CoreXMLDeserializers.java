@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Container deserializers that handle "core" XML types: ones included in standard
@@ -81,77 +80,17 @@ public class CoreXMLDeserializers extends Deserializers.Base
         }
 
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
-            // For most types, use super impl; but not for GregorianCalendar
+            // For most types, use super impl; but GregorianCalendar also allows
+            // integer value (timestamp), which needs separate handling
             if (_kind == TYPE_G_CALENDAR) {
-                return parseXMLGregorianCalendarPossiblyNested(jp, ctxt);
-            }
-            return super.deserialize(jp, ctxt);
-        }
-
-        protected XMLGregorianCalendar parseXMLGregorianCalendarPossiblyNested(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
-        {
-            // Must unnest nested arrays here using iteration instead of in _parseDate(...) using recursion
-            // because if _parseDate(...) throws an exception, then this must try to parse using _dataTypeFactory.newXMLGregorianCalendar(String)
-            // which would lose the recursive array nesting context from _parseDate(...)
-
-            int nestedArrayCount = 0;
-            for (JsonToken t = jp.getCurrentToken(); t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS); t = jp.nextToken()) {
-                nestedArrayCount++;
-            }
-
-            final XMLGregorianCalendar xgCal = parseXMLGregorianCalendarNotNested(jp, ctxt);
-
-            for (int i = 0; i < nestedArrayCount; i++) {
-                if (jp.nextToken() != JsonToken.END_ARRAY) {
-                    throw ctxt.wrongTokenException(
-                        jp,
-                        JsonToken.END_ARRAY,
-                        "Attempted to unwrap single value array for single 'javax.xml.datatype.XMLGregorianCalendar' value but there was more than a single value in the array"
-                    );
+                if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                    return _gregorianFromDate(ctxt, _parseDate(p, ctxt));
                 }
             }
-
-            return xgCal;
-        }
-
-        protected XMLGregorianCalendar parseXMLGregorianCalendarNotNested(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
-        {
-            try {
-                return parseXMLGregorianCalendarFromJacksonFormat(jp, ctxt);
-            }
-            catch (InvalidFormatException e) {
-                // try to parse from native XML Schema 1.0 lexical representation String,
-                // which includes time-only formats not handled by parseXMLGregorianCalendarFromJacksonFormat(...)
-
-                JsonToken t = jp.getCurrentToken();
-
-                if (t == JsonToken.VALUE_STRING) {
-                    return _dataTypeFactory.newXMLGregorianCalendar(jp.getText().trim());
-                }
-
-                throw ctxt.mappingException(_valueClass, t);
-            }
-        }
-
-        protected XMLGregorianCalendar parseXMLGregorianCalendarFromJacksonFormat(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
-        {
-            Date d = _parseDate(jp, ctxt);
-            if (d == null) {
-                return null;
-            }
-            GregorianCalendar calendar = new GregorianCalendar();
-            calendar.setTime(d);
-            TimeZone tz = ctxt.getTimeZone();
-            if (tz != null) {
-                calendar.setTimeZone(tz);
-            }
-            return _dataTypeFactory.newXMLGregorianCalendar(calendar);
+            return super.deserialize(p, ctxt);
         }
 
         @Override
@@ -162,8 +101,34 @@ public class CoreXMLDeserializers extends Deserializers.Base
                 return _dataTypeFactory.newDuration(value);
             case TYPE_QNAME:
                 return QName.valueOf(value);
+            case TYPE_G_CALENDAR:
+                Date d;
+                try {
+                    d = _parseDate(value, ctxt);
+                }
+                catch (JsonMappingException e) {
+                    // try to parse from native XML Schema 1.0 lexical representation String,
+                    // which includes time-only formats not handled by parseXMLGregorianCalendarFromJacksonFormat(...)
+                    return _dataTypeFactory.newXMLGregorianCalendar(value);
+                }
+                return _gregorianFromDate(ctxt, d);
             }
             throw new IllegalStateException();
+        }
+
+        protected XMLGregorianCalendar _gregorianFromDate(DeserializationContext ctxt,
+                Date d)
+        {
+            if (d == null) {
+                return null;
+            }
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(d);
+            TimeZone tz = ctxt.getTimeZone();
+            if (tz != null) {
+                calendar.setTimeZone(tz);
+            }
+            return _dataTypeFactory.newXMLGregorianCalendar(calendar);
         }
     }
 }

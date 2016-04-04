@@ -31,7 +31,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
     @Override
     public abstract JsonToken asToken();
-    
+
     @Override
     public String asText() { return ""; }
 
@@ -63,6 +63,14 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
      */
     @Override
     public final ArrayNode arrayNode() { return _nodeFactory.arrayNode(); }
+
+    /**
+     * Factory method that constructs and returns an {@link ArrayNode} with an initial capacity
+     * Construction is done using registered {@link JsonNodeFactory}
+     * @param capacity the initial capacity of the ArrayNode
+     */
+    @Override
+    public final ArrayNode arrayNode(int capacity) { return _nodeFactory.arrayNode(capacity); }
 
     /**
      * Factory method that constructs and returns an empty {@link ObjectNode}
@@ -113,7 +121,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public final ValueNode numberNode(Float v) { return _nodeFactory.numberNode(v); }
     @Override
     public final ValueNode numberNode(Double v) { return _nodeFactory.numberNode(v); }
-    
+
     @Override
     public final TextNode textNode(String text) { return _nodeFactory.textNode(text); }
 

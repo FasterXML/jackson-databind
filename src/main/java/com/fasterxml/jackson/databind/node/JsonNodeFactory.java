@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.util.RawValue;
 /**
  * Base class that specifies methods for getting access to
  * Node instances (newly constructed, or shared, depending
- * on type), as well as basic implementation of the methods. 
+ * on type), as well as basic implementation of the methods.
  * Designed to be sub-classed if extended functionality (additions
  * to behavior of node types, mostly) is needed.
  */
@@ -85,7 +85,7 @@ public class JsonNodeFactory
     {
         return bigDecimalExact ? decimalsAsIs : decimalsNormalized;
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods for literal values
@@ -131,7 +131,7 @@ public class JsonNodeFactory
     public ValueNode numberNode(Byte value) {
         return (value == null) ? nullNode() : IntNode.valueOf(value.intValue());
     }
-    
+
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 16-bit integer value
@@ -149,7 +149,7 @@ public class JsonNodeFactory
     public ValueNode numberNode(Short value) {
         return (value == null) ? nullNode() : ShortNode.valueOf(value);
     }
-    
+
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 32-bit integer value
@@ -176,7 +176,7 @@ public class JsonNodeFactory
     public NumericNode numberNode(long v) {
         return LongNode.valueOf(v);
     }
-    
+
     /**
      * Alternate factory method that will handle wrapper value, which may be null.
      * Due to possibility of null, returning type is not guaranteed to be
@@ -189,7 +189,7 @@ public class JsonNodeFactory
         }
         return LongNode.valueOf(value.longValue());
     }
-    
+
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given unlimited range integer value
@@ -214,7 +214,7 @@ public class JsonNodeFactory
     public ValueNode numberNode(Float value) {
         return (value == null) ? nullNode() : FloatNode.valueOf(value.floatValue());
     }
-    
+
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 64-bit floating point value
@@ -232,7 +232,7 @@ public class JsonNodeFactory
     public ValueNode numberNode(Double value) {
         return (value == null) ? nullNode() : DoubleNode.valueOf(value.doubleValue());
     }
-    
+
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given unlimited precision floating point value
@@ -309,6 +309,12 @@ public class JsonNodeFactory
     @Override
     public ArrayNode arrayNode() { return new ArrayNode(this); }
 
+    /*
+     * Factory method for constructing a JSON Array node with an initial capacity
+     */
+    @Override
+    public ArrayNode arrayNode(int capacity) { return new ArrayNode(this, capacity); }
+
     /**
      * Factory method for constructing an empty JSON Object ("struct") node
      */
@@ -334,7 +340,7 @@ public class JsonNodeFactory
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected boolean _inIntRange(long l)
     {
         int i = (int) l;

@@ -435,3 +435,7 @@ Yoann Rodière (fenrhil@github)
   * Reported #1154: @JsonFormat.pattern on dates is now ignored if shape is not
     explicitely provided
    (2.7.3)
+
+Mark Woon (markwoon@github)
+  * Reported #1178: `@JsonSerialize(contentAs=superType)` behavior disallowed in 2.7
+   (2.7.4)

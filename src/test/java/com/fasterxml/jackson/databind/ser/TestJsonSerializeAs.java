@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
+import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -37,11 +39,38 @@ public class TestJsonSerializeAs extends BaseMapTest
         }
     }
 
-    // for [jackson-databind#1023]
+    // for [databind#1023]
     static class FooableWithFieldWrapper {
         @JsonSerialize(as=Fooable.class)
         public Fooable getFoo() {
             return new FooImplNoAnno();
+        }
+    }
+
+    interface Bean1178Base {
+        public int getA();
+    }
+
+    @JsonPropertyOrder({"a","b"})
+    static abstract class Bean1178Abstract implements Bean1178Base {
+        @Override
+        public int getA() { return 1; }
+
+        public int getB() { return 2; }
+    }
+
+    static class Bean1178Impl extends Bean1178Abstract {
+        public int getC() { return 3; }
+    }
+
+    static class Bean1178Wrapper {
+        @JsonSerialize(contentAs=Bean1178Abstract.class)
+        public List<Bean1178Base> values;
+        public Bean1178Wrapper(int count) {
+            values = new ArrayList<Bean1178Base>();
+            for (int i = 0; i < count; ++i) {
+                values.add(new Bean1178Impl());
+            }
         }
     }
     
@@ -67,9 +96,15 @@ public class TestJsonSerializeAs extends BaseMapTest
                 WRITER.writeValueAsString(new FooableWrapper()));
     }
 
-    // for [jackson-databind#1023]
+    // for [databind#1023]
     public void testSerializeWithFieldAnno() throws IOException {
         assertEquals("{\"foo\":{\"foo\":42}}",
                 WRITER.writeValueAsString(new FooableWithFieldWrapper()));
+    }
+
+    // for [databind#1178]
+    public void testSpecializedContentAs() throws IOException {
+        assertEquals(aposToQuotes("{'values':[{'a':1,'b':2}]}"),
+                WRITER.writeValueAsString(new Bean1178Wrapper(1)));
     }
 }

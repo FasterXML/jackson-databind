@@ -856,11 +856,23 @@ public abstract class AnnotationIntrospector
                if (contentType.hasRawClass(contentClass)) {
                    contentType = contentType.withStaticTyping();
                } else {
+                   // 03-Apr-2016, tatu: As per [databind#1178], may need to actually
+                   //   specialize (narrow) type sometimes, even if more commonly opposite
+                   //   is needed.
+                   Class<?> currRaw = contentType.getRawClass();
                    try {
-                       contentType = tf.constructGeneralizedType(contentType, contentClass);
-                   } catch (IllegalArgumentException iae) {
+                       if (contentClass.isAssignableFrom(currRaw)) { // common case
+                           contentType = tf.constructGeneralizedType(contentType, contentClass);
+                       } else if (currRaw.isAssignableFrom(contentClass)) { // specialization, ok as well
+                           contentType = tf.constructSpecializedType(contentType, contentClass);
+                       } else {
+                           throw new JsonMappingException(null,
+                                   String.format("Can not refine serialization content type %s into %s; types not related",
+                                           contentType, contentClass.getName()));
+                       }
+                   } catch (IllegalArgumentException iae) { // shouldn't really happen
                        throw new JsonMappingException(null,
-                               String.format("Failed to widen value type of %s with concrete-type annotation (value %s), from '%s': %s",
+                               String.format("Internal error: failed to refine value type of %s with concrete-type annotation (value %s), from '%s': %s",
                                        type, contentClass.getName(), a.getName(), iae.getMessage()),
                                        iae);
                    }

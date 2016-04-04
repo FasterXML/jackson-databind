@@ -119,7 +119,7 @@ public class TestJsonSerialize2
 
     private final ObjectMapper MAPPER = new ObjectMapper();
     
-    // [JACKSON-480], test value annotation applied to List value class
+    // test value annotation applied to List value class
     public void testSerializedAsListWithClassAnnotations() throws IOException
     {
         SimpleValueList list = new SimpleValueList();
@@ -127,7 +127,7 @@ public class TestJsonSerialize2
         assertEquals("[{\"value\":\"foo\"}]", MAPPER.writeValueAsString(list));
     }
 
-    // [JACKSON-480], test value annotation applied to Map value class
+    // test value annotation applied to Map value class
     public void testSerializedAsMapWithClassAnnotations() throws IOException
     {
         SimpleValueMap map = new SimpleValueMap();
@@ -135,7 +135,7 @@ public class TestJsonSerialize2
         assertEquals("{\"toString:x\":{\"value\":\"y\"}}", MAPPER.writeValueAsString(map));
     }
 
-    // [JACKSON-480], test Serialization annotation with List
+    // test Serialization annotation with List
     public void testSerializedAsListWithClassSerializer() throws IOException
     {
         ObjectMapper m = new ObjectMapper();

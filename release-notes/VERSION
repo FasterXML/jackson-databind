@@ -125,7 +125,7 @@ INCOMPATIBILITIES:
   argument for `depositSchemaProperty()` method `BeanProperty` and `PropertyWriter` interfaces
 - JDK baseline now Java 7 (JDK 1.7), from Java 6/JDK 1.6
 
-2.6.6 (not released yet)
+2.6.6 (05-Apr-2016)
 
 #1088: NPE possibility in SimpleMixinResolver
  (reported by Laird N)

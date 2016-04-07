@@ -51,12 +51,6 @@ public class AtomicReferenceDeserializer
         return new AtomicReference<Object>();
     }
 
-    @Deprecated // remove in 2.7
-    @Override
-    public AtomicReference<?> getNullValue() {
-        return new AtomicReference<Object>();
-    }
-
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
     {

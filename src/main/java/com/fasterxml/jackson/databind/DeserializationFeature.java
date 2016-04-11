@@ -230,7 +230,20 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.6
      */
     FAIL_ON_MISSING_CREATOR_PROPERTIES(false),
-    
+
+    /**
+      * Feature that determines what happens if one or more Creator properties (properties
+      * bound to parameters of Creator method (constructor or static factory method))
+      * are bound to null values - either from the JSON or as a default value. This
+      * is useful if you want to avoid nulls in your codebase, and particularly useful
+      * if you are using Java or Scala optionals for non-mandatory fields.
+      * Feature is disabled by default, so that no exception is thrown for missing creator
+      * property values, unless they are explicitly marked as `required`.
+      *
+      * @since 2.8
+      */
+    FAIL_ON_NULL_CREATOR_PROPERTIES(false),
+
     /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)

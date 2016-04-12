@@ -153,7 +153,7 @@ public class ReferenceType extends SimpleType
         _classSignature(_class, sb, false);
         sb.append('<');
         sb = _referencedType.getGenericSignature(sb);
-        sb.append(';');
+        sb.append(">;");
         return sb;
     }
     

@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.6.1 (not yet released)
+
+#1194: Incorrect signature for generic type via `JavaType.getGenericSignature
+
 2.6.6 (05-Apr-2016)
 
 #1088: NPE possibility in SimpleMixinResolver

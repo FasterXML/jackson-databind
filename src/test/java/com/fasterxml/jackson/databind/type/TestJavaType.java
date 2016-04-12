@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.type;
 
 import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
@@ -19,7 +21,7 @@ public class TestJavaType
     static enum MyEnum { A, B; }
     static enum MyEnum2 {
         A(1), B(2);
-        
+
         private MyEnum2(int value) { }
     }
 
@@ -27,6 +29,19 @@ public class TestJavaType
     static class Issue728 {
         public <C extends CharSequence> C method(C input) { return null; }
     }
+
+    public interface Generic1195 {
+        public AtomicReference<String> getGeneric();
+        public List<String> getList();
+        public Map<String,String> getMap();
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
     public void testLocalType728() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -48,12 +63,6 @@ public class TestJavaType
         assertEquals(CharSequence.class, t.getRawClass());
     }
 
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
-    
     public void testSimpleClass()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -117,5 +126,25 @@ public class TestJavaType
         JavaType t2 = tf.constructType(t1);
         assertSame(t1, t2);
     }
-}
 
+    // [databind#1195]
+    public void testGenericSignature1195() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        Method m;
+        JavaType t;
+
+        m = Generic1195.class.getMethod("getList");
+        t  = tf.constructType(m.getGenericReturnType());
+        assertEquals("Ljava/util/List<Ljava/lang/String;>;", t.getGenericSignature());
+
+        m = Generic1195.class.getMethod("getMap");
+        t  = tf.constructType(m.getGenericReturnType());
+        assertEquals("Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;",
+                t.getGenericSignature());
+
+        m = Generic1195.class.getMethod("getGeneric");
+        t  = tf.constructType(m.getGenericReturnType());
+        assertEquals("Ljava/util/concurrent/atomic/AtomicReference<Ljava/lang/String;>;", t.getGenericSignature());
+    }
+}

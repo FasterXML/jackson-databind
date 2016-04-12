@@ -7,6 +7,7 @@ Project: jackson-databind
 2.7.4 (not yet released)
 
 #1178: `@JsonSerialize(contentAs=superType)` behavior disallowed in 2.7
+#1194: Incorrect signature for generic type via `JavaType.getGenericSignature
 - Improve handling of custom content (de)serializers for `AtomicReference`
 
 2.7.3 (16-Mar-2016)

@@ -15,8 +15,8 @@ Project: jackson-databind
  (reported, contributed fix by Ross G)
 
 2.7.4 (not yet released)
-
 #1178: `@JsonSerialize(contentAs=superType)` behavior disallowed in 2.7
+#1191: Non-matching quotes used in error message for date parsing
 #1194: Incorrect signature for generic type via `JavaType.getGenericSignature
 - Improve handling of custom content (de)serializers for `AtomicReference`
 

@@ -294,12 +294,12 @@ public class ISO8601Utils
         } catch (IllegalArgumentException e) {
             fail = e;
         }
-        String input = (date == null) ? null : ('"' + date + "'");
+        String input = (date == null) ? null : ('"' + date + '"');
         String msg = fail.getMessage();
         if (msg == null || msg.isEmpty()) {
             msg = "("+fail.getClass().getName()+")";
         }
-        ParseException ex = new ParseException("Failed to parse date [" + input + "]: " + msg, pos.getIndex());
+        ParseException ex = new ParseException("Failed to parse date " + input + ": " + msg, pos.getIndex());
         ex.initCause(fail);
         throw ex;
     }

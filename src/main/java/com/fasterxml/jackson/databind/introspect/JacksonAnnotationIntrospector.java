@@ -58,13 +58,13 @@ public class JacksonAnnotationIntrospector
 
     // NOTE: loading of Java7 dependencies is encapsulated by handlers in Java7Support,
     //  here we do not really need any handling; but for extra-safety use try-catch
-    private static final Java7Support _jdk7Helper;
+    private static final Java7Support _java7Helper;
     static {
         Java7Support x = null;
         try {
             x = Java7Support.instance();
         } catch (Throwable t) { }
-        _jdk7Helper = x;
+        _java7Helper = x;
     }
     
     /**
@@ -1060,17 +1060,16 @@ public class JacksonAnnotationIntrospector
     @Override
     public boolean hasCreatorAnnotation(Annotated a)
     {
-        /* No dedicated disabling; regular @JsonIgnore used
-         * if needs to be ignored (and if so, is handled prior
-         * to this method getting called)
+        /* No dedicated disabling; regular @JsonIgnore used if needs to be
+         * ignored (and if so, is handled prior to this method getting called)
          */
          JsonCreator ann = _findAnnotation(a, JsonCreator.class);
          if (ann != null) {
              return (ann.mode() != JsonCreator.Mode.DISABLED);
          }
          if (a instanceof AnnotatedConstructor) {
-             if (_jdk7Helper != null) {
-                 Boolean b = _jdk7Helper.hasCreatorAnnotation(a);
+             if (_java7Helper != null) {
+                 Boolean b = _java7Helper.hasCreatorAnnotation(a);
                  if (b != null) {
                      return b.booleanValue();
                  }
@@ -1097,8 +1096,8 @@ public class JacksonAnnotationIntrospector
         if (ann != null) {
             return ann.value();
         }
-        if (_jdk7Helper != null) {
-            Boolean b = _jdk7Helper.findTransient(a);
+        if (_java7Helper != null) {
+            Boolean b = _java7Helper.findTransient(a);
             if (b != null) {
                 return b.booleanValue();
             }
@@ -1135,8 +1134,8 @@ public class JacksonAnnotationIntrospector
             AnnotatedWithParams ctor = p.getOwner();
 
             if (ctor != null) {
-                if (_jdk7Helper != null) {
-                    PropertyName name = _jdk7Helper.findConstructorName(p);
+                if (_java7Helper != null) {
+                    PropertyName name = _java7Helper.findConstructorName(p);
                     if (name != null) {
                         return name;
                     }

@@ -155,9 +155,9 @@ public class StdDelegatingDeserializer<T>
      */
     
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        Object delegateValue = _delegateDeserializer.deserialize(jp, ctxt);
+        Object delegateValue = _delegateDeserializer.deserialize(p, ctxt);
         if (delegateValue == null) {
             return null;
         }
@@ -165,14 +165,21 @@ public class StdDelegatingDeserializer<T>
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException
     {
-        /* 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
-         *    let's give it a chance?
+        /* 12-Apr-2016, tatu: As predicted, earlier handling does not work
+         *   (see [databind#1189] for details). There does not seem to be any compelling
+         *   way to combine polymorphic types, Converters, but the least sucky way
+         *   is probably to use Converter and ignore polymorphic type. Alternative
+         *   would be to try to change `TypeDeserializer` to accept `Converter` to
+         *   invoke... but that is more intrusive, yet not guaranteeing success.
          */
-        Object delegateValue = _delegateDeserializer.deserializeWithType(jp, ctxt,
-                typeDeserializer);
+        // method called up to 2.7.3:
+//        Object delegateValue = _delegateDeserializer.deserializeWithType(p, ctxt, typeDeserializer);
+
+        // method called since 2.7.4
+        Object delegateValue = _delegateDeserializer.deserialize(p, ctxt);
         if (delegateValue == null) {
             return null;
         }

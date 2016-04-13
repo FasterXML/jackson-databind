@@ -13,9 +13,10 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  *
  * @param <IN> Type of values converter takes
  * @param <OUT> Result type from conversion
- * 
+ *
  * @see com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer
- * 
+ * @see com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer
+ *
  * @since 2.1
  */
 public interface Converter<IN,OUT>

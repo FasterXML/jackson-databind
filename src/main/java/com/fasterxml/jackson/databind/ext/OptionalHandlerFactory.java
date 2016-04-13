@@ -37,8 +37,6 @@ public class OptionalHandlerFactory implements java.io.Serializable
     private final static String DESERIALIZER_FOR_DOM_DOCUMENT = "com.fasterxml.jackson.databind.ext.DOMDeserializer$DocumentDeserializer";
     private final static String DESERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMDeserializer$NodeDeserializer";
 
-    private final static String DESERIALIZER_FOR_PATH = "com.fasterxml.jackson.databind.ext.PathDeserializer";
-
     // // Since 2.7, we will assume DOM classes are always found, both due to JDK 1.6 minimum
     // // and because Android (and presumably GAE) have these classes
 
@@ -61,17 +59,14 @@ public class OptionalHandlerFactory implements java.io.Serializable
     // // But Java7 type(s) may or may not be; dynamic lookup should be fine, still
     // // (note: also assume it comes from JDK so that ClassLoader issues with OSGi
     // // can, I hope, be avoided?)
-    
-    private final static Class<?> CLASS_JAVA7_PATH;
+
+    private static final Java7Support _jdk7Helper;
     static {
-        Class<?> cls = null;
+        Java7Support x = null;
         try {
-            cls = Class.forName("java.nio.file.Path");
-        } catch (Exception e) {
-            // not optimal but will do
-            System.err.println("WARNING: could not load Java7 Path class");
-        }
-        CLASS_JAVA7_PATH = cls;
+            x = Java7Support.instance();
+        } catch (Throwable t) { }
+        _jdk7Helper = x;
     }
     
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
@@ -89,8 +84,11 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         final Class<?> rawType = type.getRawClass();
 
-        if ((CLASS_JAVA7_PATH != null) && CLASS_JAVA7_PATH.isAssignableFrom(rawType)) {
-            return ToStringSerializer.instance;
+        if (_jdk7Helper != null) {
+            Class<?> path = _jdk7Helper.getClassJavaNioFilePath();
+            if (path.isAssignableFrom(rawType)) {
+                return ToStringSerializer.instance;
+            }
         }
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
             return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE);
@@ -116,8 +114,11 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         final Class<?> rawType = type.getRawClass();
 
-        if ((CLASS_JAVA7_PATH != null) && CLASS_JAVA7_PATH.isAssignableFrom(rawType)) {
-            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_PATH);
+        if (_jdk7Helper != null) {
+            JsonDeserializer<?> deser = _jdk7Helper.getDeserializerForJavaNioFilePath(rawType);
+            if (deser != null) {
+                return deser;
+            }
         }
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {
             return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE);

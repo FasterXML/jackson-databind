@@ -9,11 +9,11 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
-public class PathDeserializer extends StdScalarDeserializer<Path>
+public class Java7PathDeserializer extends StdScalarDeserializer<Path>
 {
     private static final long serialVersionUID = 1;
 
-    public PathDeserializer() { super(Path.class); }
+    public Java7PathDeserializer() { super(Path.class); }
     
     @Override
     public Path deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {

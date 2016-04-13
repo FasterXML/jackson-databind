@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.beans.ConstructorProperties;
-import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -12,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.ext.Java7Support;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -57,16 +56,14 @@ public class JacksonAnnotationIntrospector
         JsonManagedReference.class
     };
 
+    // NOTE: loading of Java7 dependencies is encapsulated by handlers in Java7Support,
+    //  here we do not really need any handling; but for extra-safety use try-catch
     private static final Java7Support _jdk7Helper;
     static {
         Java7Support x = null;
         try {
-            x = Java7Support.class.newInstance();
-        } catch (Throwable t) {
-            // 24-Nov-2015, tatu: Should we log or not?
-            java.util.logging.Logger.getLogger(JacksonAnnotationIntrospector.class.getName())
-                .warning("Unable to load JDK7 annotation types; will have to skip");
-        }
+            x = Java7Support.instance();
+        } catch (Throwable t) { }
         _jdk7Helper = x;
     }
     
@@ -1233,57 +1230,4 @@ public class JacksonAnnotationIntrospector
     /* Helper classes
     /**********************************************************
      */
-
-    /**
-     * To support Java7-incomplete platforms, we will offer support for JDK 7
-     * annotations through this class, loaded dynamically; if loading fails,
-     * support will be missing.
-     */
-    private static class Java7Support
-    {
-        @SuppressWarnings("unused") // compiler warns, just needed side-effects
-        private final Class<?> _bogus;
-
-        @SuppressWarnings("unused") // compiler warns; called via Reflection
-        public Java7Support() {
-            // Trigger loading of annotations that only JDK 7 has...
-            Class<?> cls = Transient.class;
-            cls = ConstructorProperties.class;
-            _bogus = cls;
-        }
-        
-        public Boolean findTransient(Annotated a) {
-            Transient t = a.getAnnotation(Transient.class);
-            if (t != null) {
-                return t.value();
-            }
-            return null;
-        }
-
-        public Boolean hasCreatorAnnotation(Annotated a) {
-            ConstructorProperties props = a.getAnnotation(ConstructorProperties.class);
-            // 08-Nov-2015, tatu: One possible check would be to ensure there is at least
-            //    one name iff constructor has arguments. But seems unnecessary for now.
-            if (props != null) {
-                return Boolean.TRUE;
-            }
-            return null;
-        }
-
-        public PropertyName findConstructorName(AnnotatedParameter p)
-        {
-            AnnotatedWithParams ctor = p.getOwner();
-            if (ctor != null) {
-                ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
-                if (props != null) {
-                    String[] names = props.value();
-                    int ix = p.getIndex();
-                    if (ix < names.length) {
-                        return PropertyName.construct(names[ix]);
-                    }
-                }
-            }
-            return null;
-        }
-    }
 }

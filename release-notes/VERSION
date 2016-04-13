@@ -13,8 +13,10 @@ Project: jackson-databind
  (suggested by Gregoire C, gcxRun@github)
 #1165: CoreXMLDeserializers does not handle time-only XMLGregorianCalendars
  (reported, contributed fix by Ross G)
+#1187: Refactor `AtomicReferenceDeserializer` into `ReferenceTypeDeserializer`
 
 2.7.4 (not yet released)
+
 #1178: `@JsonSerialize(contentAs=superType)` behavior disallowed in 2.7
 #1189: Converter called twice results in ClassCastException
  (reported by carrino@github)

@@ -35,11 +35,9 @@ public abstract class TypeDeserializer
      * (as is the case for bean properties), or values contained
      * (for {@link java.util.Collection} or {@link java.util.Map}
      * valued properties).
-     * 
-     * @since 2.0
      */
     public abstract TypeDeserializer forProperty(BeanProperty prop);
-    
+
     /*
     /**********************************************************
     /* Introspection
@@ -72,7 +70,7 @@ public abstract class TypeDeserializer
      * resolved)
      */
     public abstract Class<?> getDefaultImpl();
-    
+
     /*
     /**********************************************************
     /* Type deserialization methods
@@ -88,7 +86,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws IOException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -99,7 +97,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt) throws IOException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -111,7 +109,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt) throws IOException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -122,7 +120,7 @@ public abstract class TypeDeserializer
      * using JSON node representation, or "untyped" Java object
      * (which may be Map, Collection, wrapper/primitive etc).
      */
-    public abstract Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException;
+    public abstract Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws IOException;
 
     /*
     /**********************************************************
@@ -135,32 +133,33 @@ public abstract class TypeDeserializer
      * a "natural" value, and one that would be acceptable as the
      * result value (compatible with declared base type)
      */
-    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt, JavaType baseType) throws IOException {
-        return deserializeIfNatural(jp, ctxt, baseType.getRawClass());
+    public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt, JavaType baseType) throws IOException {
+        return deserializeIfNatural(p, ctxt, baseType.getRawClass());
     }
-    
+
     @SuppressWarnings("incomplete-switch")
-    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt, Class<?> base) throws IOException
+    public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt,
+            Class<?> base) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == null) {
             return null;
         }
         switch (t) {
         case VALUE_STRING:
             if (base.isAssignableFrom(String.class)) {
-                return jp.getText();
+                return p.getText();
             }
             break;
         case VALUE_NUMBER_INT:
             if (base.isAssignableFrom(Integer.class)) {
-                return jp.getIntValue();
+                return p.getIntValue();
             }
             break;
 
         case VALUE_NUMBER_FLOAT:
             if (base.isAssignableFrom(Double.class)) {
-                return Double.valueOf(jp.getDoubleValue());
+                return Double.valueOf(p.getDoubleValue());
             }
             break;
         case VALUE_TRUE:

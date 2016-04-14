@@ -394,9 +394,11 @@ public abstract class StdSerializer<T>
          */
         Object ob = provider.getAttribute(CONVERTING_CONTENT_CONVERTER_LOCK);
         if (ob != null) {
-            return existingSerializer;
+            if (ob == Boolean.TRUE) { // just to ensure it's value we added.
+                return existingSerializer;
+            }
         }
-        
+
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null && prop != null) {
             AnnotatedMember m = prop.getMember();

@@ -194,5 +194,4 @@ public class TestJDKSerialization extends BaseMapTest
             objIn.close();
         }
     }
-
 }

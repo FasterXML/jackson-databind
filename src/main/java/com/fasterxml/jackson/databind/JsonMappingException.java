@@ -89,6 +89,12 @@ public class JsonMappingException
             _index = index;
         }
 
+        private Reference(Reference src, Object newFrom) {
+            _from = newFrom;
+            _fieldName = src._fieldName;
+            _index = src._index;
+        }
+
         public void setFrom(Object o) { _from = o; }
         public void setFieldName(String n) { _fieldName = n; }
         public void setIndex(int ix) { _index = ix; }
@@ -124,7 +130,24 @@ public class JsonMappingException
             sb.append(']');
             return sb.toString();
         }
-    }
+
+        /**
+         * May need some cleaning here, given that `from` may or may not be serializable.
+         *
+         * since 2.7.4
+         */
+        Object writeReplace() {
+            // as per [databind#1195], reference may cause trouble, if non-serializable
+            // instance. What to replace it with is trickier; Class is most natural, but
+            // would recipient have that available? Assume this is the case, for now, because
+            // 
+            if ((_from != null) && !(_from instanceof Serializable)) {
+                Object from = _from.getClass();
+                return new Reference(this, from);
+            }
+            return this;
+        }
+}
 
     /*
     /**********************************************************
@@ -141,10 +164,12 @@ public class JsonMappingException
     /**
      * Underlying processor ({@link JsonParser} or {@link JsonGenerator}),
      * if known.
+     *<p>
+     * NOTE: typically not serializable hence <code>transient</code>
      *
      * @since 2.7
      */
-    protected Closeable _processor;
+    protected transient Closeable _processor;
     
     /*
     /**********************************************************

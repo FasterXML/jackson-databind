@@ -218,10 +218,4 @@ public class TestConvertingSerializer
         // must be  {"a":2,"b":4}
         assertEquals("{\"a\":2,\"b\":4}", json);
     }
-
-    // [databind#357]
-    public void testConverterForList357() throws Exception {
-        String json = objectWriter().writeValueAsString(new ListWrapper());
-        assertEquals("{\"list\":[[\"Hello world!\"]]}", json);
-    }
 }

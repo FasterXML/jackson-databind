@@ -177,12 +177,14 @@ public abstract class ContextAttributes
                 // need to mask nulls to ensure default values won't be showing
                 if (_shared.containsKey(key)) {
                     value = NULL_SURROGATE;
-                } else {
+                } else if ((_nonShared == null) || !_nonShared.containsKey(key)) {
                     // except if non-mutable shared list has no entry, we don't care
+                    return this;
+                } else {
+                    _nonShared.remove(key);
                     return this;
                 }
             }
-
             // a special case: create non-shared instance if need be
             if (_nonShared == null) {
                 return nonSharedInstance(key, value);

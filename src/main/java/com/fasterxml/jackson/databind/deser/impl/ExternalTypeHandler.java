@@ -257,7 +257,7 @@ public class ExternalTypeHandler
         TokenBuffer merged = new TokenBuffer(p, ctxt);
         merged.writeStartArray();
         merged.writeString(typeId);
-        
+
         merged.copyCurrentStructure(p2);
         merged.writeEndArray();
         // needs to point to START_OBJECT (or whatever first token is)
@@ -265,7 +265,7 @@ public class ExternalTypeHandler
         mp.nextToken();
         _properties[index].getProperty().deserializeAndSet(mp, ctxt, bean);
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes
@@ -284,7 +284,7 @@ public class ExternalTypeHandler
             _nameToPropertyIndex.put(property.getName(), index);
             _nameToPropertyIndex.put(typeDeser.getPropertyName(), index);
         }
-        
+
         public ExternalTypeHandler build() {
             return new ExternalTypeHandler(_properties.toArray(new ExtTypedProperty[_properties.size()]),
                     _nameToPropertyIndex, null, null);
@@ -296,7 +296,7 @@ public class ExternalTypeHandler
         private final SettableBeanProperty _property;
         private final TypeDeserializer _typeDeserializer;
         private final String _typePropertyName;
-        
+
         public ExtTypedProperty(SettableBeanProperty property, TypeDeserializer typeDeser)
         {
             _property = property;
@@ -312,6 +312,11 @@ public class ExternalTypeHandler
             return _typeDeserializer.getDefaultImpl() != null;
         }
 
+        /**
+         * Specialized called when we need to expose type id of `defaultImpl` when
+         * serializing: we may need to expose it for assignment to a property, or
+         * it may be requested as visible for some other reason.
+         */
         public String getDefaultTypeId() {
             Class<?> defaultType = _typeDeserializer.getDefaultImpl();
             if (defaultType == null) {
@@ -319,9 +324,9 @@ public class ExternalTypeHandler
             }
             return _typeDeserializer.getTypeIdResolver().idFromValueAndType(null, defaultType);
         }
-        
+
         public String getTypePropertyName() { return _typePropertyName; }
-        
+
         public SettableBeanProperty getProperty() {
             return _property;
         }

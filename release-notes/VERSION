@@ -13,6 +13,8 @@ Project: jackson-databind
  (reported by carrino@github)
 #1191: Non-matching quotes used in error message for date parsing
 #1194: Incorrect signature for generic type via `JavaType.getGenericSignature
+#1195: `JsonMappingException` not Serializable due to 2.7 reference to source (parser)
+ (reported by mjustin@github)
 #1198: Problem with `@JsonTypeInfo.As.EXTERNAL_PROPERTY`, `defaultImpl`, missing type id, NPE
 - Improve handling of custom content (de)serializers for `AtomicReference`
 

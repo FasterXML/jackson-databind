@@ -18,6 +18,8 @@ Project: jackson-databind
 2.7.4 (not yet released)
 
 #1178: `@JsonSerialize(contentAs=superType)` behavior disallowed in 2.7
+#1186: SimpleAbstractTypeResolver breaks generic parameters
+ (reported by tobiash@github)
 #1189: Converter called twice results in ClassCastException
  (reported by carrino@github)
 #1191: Non-matching quotes used in error message for date parsing

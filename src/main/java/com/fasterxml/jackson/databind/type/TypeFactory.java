@@ -364,11 +364,12 @@ public final class TypeFactory
                 }
             }
             // (3) Sub-class does not take type parameters -- just resolve subtype
-            if (subclass.getTypeParameters().length == 0) {
+            int typeParamCount = subclass.getTypeParameters().length;
+            if (typeParamCount == 0) {
                 newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
                 break;
             }
-
+            
             // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
             // !!! TODO (as of 28-Jan-2016, at least)
             
@@ -390,7 +391,20 @@ public final class TypeFactory
             if (newType == null) {
                 // But otherwise gets bit tricky, as we need to partially resolve the type hierarchy
                 // (hopefully passing null Class for root is ok)
-                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());        
+                TypeBindings tb = null;
+
+                // 14-Apr-2016, tatu: One possible short-cut; if type parameter counts
+                //   match, chances are they ought to match. Let's take our chances...
+                if (baseType.containedTypeCount() == typeParamCount) {
+                    if (typeParamCount == 1) {
+                        tb = TypeBindings.create(subclass, baseType.containedType(0));
+                    } else if (typeParamCount == 2) {
+                        tb = TypeBindings.create(subclass, baseType.containedType(0),
+                                baseType.containedType(1));
+                    }
+                }
+                newType = _fromClass(null, subclass,
+                        (tb == null) ? TypeBindings.emptyBindings() : tb);
             }
         } while (false);
 

@@ -39,11 +39,11 @@ public abstract class DeserializationProblemHandler
      * true to indicate it did handle property successfully.
      * Skipping is usually done like so:
      *<pre>
-     *  jp.skipChildren();
+     *  parser.skipChildren();
      *</pre>
      *<p>
      * Note: version 1.2 added new deserialization feature
-     * (<code>DeserializationConfig.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES</code>).
+     * {@link com.fasterxml.jackson.databind.DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES}).
      * It will only have effect <b>after</b> handler is called, and only
      * if handler did <b>not</b> handle the problem.
      *
@@ -51,14 +51,14 @@ public abstract class DeserializationProblemHandler
      *   has been instantiated so far); or Class that indicates type that
      *   will be instantiated (if no instantiation done yet: for example
      *   when bean uses non-default constructors)
-     * @param jp Parser to use for handling problematic content
+     * @param p Parser to use for handling problematic content
      * 
      * @return True if the problem is resolved (and content available used or skipped);
      *  false if the handler did not anything and the problem is unresolved. Note that in
      *  latter case caller will either throw an exception or explicitly skip the content,
      *  depending on configuration.
      */
-    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp,
+    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
             JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
         throws IOException, JsonProcessingException
     {

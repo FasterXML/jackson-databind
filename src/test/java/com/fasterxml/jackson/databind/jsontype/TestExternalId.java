@@ -74,7 +74,7 @@ public class TestExternalId extends BaseMapTest
             value = new ValueBean(f);
         }
     }
-    
+
     @JsonTypeName("vbean")
     static class ValueBean {
         public int value;
@@ -251,6 +251,36 @@ public class TestExternalId extends BaseMapTest
         public String something;
     }
 
+    enum Type965 { BIG_DECIMAL }
+
+    static class Wrapper965 {
+        protected Type965 typeEnum;
+
+        protected Object value;
+
+        @JsonGetter("type")
+        String getTypeString() {
+            return typeEnum.name();
+        }
+
+        @JsonSetter("type")
+        void setTypeString(String type) {
+            this.typeEnum = Type965.valueOf(type);
+        }
+
+        @JsonGetter(value = "objectValue") 
+        Object getValue() {
+            return value;
+        }
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
+        @JsonSubTypes({ @JsonSubTypes.Type(name = "BIG_DECIMAL", value = BigDecimal.class) })
+        @JsonSetter(value = "objectValue") 
+        private void setValue(Object value) {
+            this.value = value;
+        }
+    }    
+    
     /*
     /**********************************************************
     /* Unit tests, serialization
@@ -395,29 +425,7 @@ public class TestExternalId extends BaseMapTest
         assertEquals("dog", result.petType);
     }
 
-    // For [Issue#96]: should allow use of default impl, if property missing
-    /* 18-Jan-2013, tatu: Unfortunately this collides with [Issue#118], and I don't
-     *   know what the best resolution is. For now at least 
-     */
-    /*
-    public void testWithDefaultAndMissing() throws Exception
-    {
-        ExternalBeanWithDefault input = new ExternalBeanWithDefault(13);
-        // baseline: include type, verify things work:
-        String fullJson = MAPPER.writeValueAsString(input);
-        ExternalBeanWithDefault output = MAPPER.readValue(fullJson, ExternalBeanWithDefault.class);
-        assertNotNull(output);
-        assertNotNull(output.bean);
-        // and then try without type info...
-        ExternalBeanWithDefault defaulted = MAPPER.readValue("{\"bean\":{\"value\":13}}",
-                ExternalBeanWithDefault.class);
-        assertNotNull(defaulted);
-        assertNotNull(defaulted.bean);
-        assertSame(ValueBean.class, defaulted.bean.getClass());
-    }
-    */
-
-    // For [Issue#118]
+    // For [databind#118]
     // Note: String works fine, since no type id will used; other scalar types have issues
     public void testWithScalar118() throws Exception
     {
@@ -431,7 +439,7 @@ public class TestExternalId extends BaseMapTest
         assertTrue(result.value instanceof java.util.Date);
     }
 
-    // For [Issue#118] using "natural" type(s)
+    // For [databind#118] using "natural" type(s)
     public void testWithNaturalScalar118() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(Integer.valueOf(13));
@@ -511,35 +519,6 @@ public class TestExternalId extends BaseMapTest
         assertEquals(Payload928.class, envelope2._payload.getClass());
     }
 
-    enum Type965 { BIG_DECIMAL }
-
-    static class Wrapper965 {
-        protected Type965 typeEnum;
-
-        protected Object value;
-
-        @JsonGetter("type")
-        String getTypeString() {
-            return typeEnum.name();
-        }
-
-        @JsonSetter("type")
-        void setTypeString(String type) {
-            this.typeEnum = Type965.valueOf(type);
-        }
-
-        @JsonGetter(value = "objectValue") 
-        Object getValue() {
-            return value;
-        }
-
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
-        @JsonSubTypes({ @JsonSubTypes.Type(name = "BIG_DECIMAL", value = BigDecimal.class) })
-        @JsonSetter(value = "objectValue") 
-        private void setValue(Object value) {
-            this.value = value;
-        }
-    }    
     // for [databind#965]
     public void testBigDecimal965() throws Exception
     {

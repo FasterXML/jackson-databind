@@ -1,15 +1,13 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import java.util.*;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.TreeSet;
 
 public class TypeNameIdResolver extends TypeIdResolverBase
 {
@@ -18,15 +16,15 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     /**
      * Mappings from class name to type id, used for serialization
      */
-    protected final HashMap<String, String> _typeToId;
+    protected final Map<String, String> _typeToId;
 
     /**
      * Mappings from type id to JavaType, used for deserialization
      */
-    protected final HashMap<String, JavaType> _idToType;
+    protected final Map<String, JavaType> _idToType;
     
     protected TypeNameIdResolver(MapperConfig<?> config, JavaType baseType,
-            HashMap<String, String> typeToId, HashMap<String, JavaType> idToType)
+            Map<String, String> typeToId, Map<String, JavaType> idToType)
     {
         super(baseType, config.getTypeFactory());
         _config = config;
@@ -39,14 +37,17 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     {
         // sanity check
         if (forSer == forDeser) throw new IllegalArgumentException();
-        HashMap<String, String> typeToId = null;
-        HashMap<String, JavaType> idToType = null;
+        Map<String, String> typeToId = null;
+        Map<String, JavaType> idToType = null;
 
         if (forSer) {
             typeToId = new HashMap<String, String>();
         }
         if (forDeser) {
             idToType = new HashMap<String, JavaType>();
+            // 14-Apr-2016, tatu: Apparently needed for special case of `defaultImpl`;
+            //    see [databind#1198] for details.
+            typeToId = new TreeMap<String, String>();
         }
         if (subtypes != null) {
             for (NamedType t : subtypes) {
@@ -59,10 +60,8 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                     typeToId.put(cls.getName(), id);
                 }
                 if (forDeser) {
-                    /* 24-Feb-2011, tatu: [JACKSON-498] One more problem; sometimes
-                     *   we have same name for multiple types; if so, use most specific
-                     *   one.
-                     */
+                    // One more problem; sometimes we have same name for multiple types;
+                    // if so, use most specific
                     JavaType prev = idToType.get(id);
                     if (prev != null) { // Can only override if more specific
                         if (cls.isAssignableFrom(prev.getRawClass())) { // nope, more generic (or same)
@@ -87,12 +86,13 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
     protected String idFromClass(Class<?> clazz)
     {
-        if(clazz==null){
+        if (clazz == null) {
             return null;
         }
         Class<?> cls = _typeFactory.constructType(clazz).getRawClass();
         final String key = cls.getName();
         String name;
+
         synchronized (_typeToId) {
             name = _typeToId.get(key);
             if (name == null) {

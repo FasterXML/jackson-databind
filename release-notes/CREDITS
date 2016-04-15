@@ -444,3 +444,9 @@ Ross Goldberg
   * Reported #1165, provided fix for: `CoreXMLDeserializers` does not handle
     time-only `XMLGregorianCalendar`s
    (2.8.0)
+
+Mikhail Kokho (mkokho@github)
+  * Contributed impl for #990: Allow failing on `null` values for creator (add
+  `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)
+   (2.8.0)
+

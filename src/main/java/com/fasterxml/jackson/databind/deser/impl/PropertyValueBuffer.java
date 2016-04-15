@@ -125,6 +125,16 @@ public class PropertyValueBuffer
                 }
             }
         }
+
+        if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
+            for (int ix = 0; ix < props.length; ++ix) {
+              if (_creatorParameters[ix] == null) {
+                  throw _context.mappingException("Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
+                          props[ix].getName(), props[ix].getCreatorIndex());
+              }
+            }
+        }
+
         return _creatorParameters;
     }
 

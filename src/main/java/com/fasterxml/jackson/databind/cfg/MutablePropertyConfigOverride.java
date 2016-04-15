@@ -33,7 +33,7 @@ public class MutablePropertyConfigOverride
         return this;
     }
     
-    public MutablePropertyConfigOverride getInclude(JsonInclude.Value v) {
+    public MutablePropertyConfigOverride setInclude(JsonInclude.Value v) {
         _include = v;
         return this;
     }

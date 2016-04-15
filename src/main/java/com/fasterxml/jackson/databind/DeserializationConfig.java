@@ -805,12 +805,25 @@ public final class DeserializationConfig
 
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
+        PropertyConfigOverride overrides = findPropertyConfigOverride(baseType);
+        if (overrides != null) {
+            JsonInclude.Value v = overrides.getInclude();
+            if (v != null) {
+                return v;
+            }
+        }
         return EMPTY_INCLUDE;
     }
 
     @Override
     public JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
-        // !!! TODO: per-type defaults
+        PropertyConfigOverride overrides = findPropertyConfigOverride(baseType);
+        if (overrides != null) {
+            JsonFormat.Value v = overrides.getFormat();
+            if (v != null) {
+                return v;
+            }
+        }
         return EMPTY_FORMAT;
     }
 

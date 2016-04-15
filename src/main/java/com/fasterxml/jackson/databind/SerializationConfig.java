@@ -908,16 +908,28 @@ public final class SerializationConfig
 
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        // !!! TODO: per-type defaults
+        PropertyConfigOverride overrides = findPropertyConfigOverride(baseType);
+        if (overrides != null) {
+            JsonInclude.Value v = overrides.getInclude();
+            if (v != null) {
+                return v;
+            }
+        }
         return _serializationInclusion;
     }
 
     @Override
     public JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
-        // !!! TODO: per-type defaults
+        PropertyConfigOverride overrides = findPropertyConfigOverride(baseType);
+        if (overrides != null) {
+            JsonFormat.Value v = overrides.getFormat();
+            if (v != null) {
+                return v;
+            }
+        }
         return EMPTY_FORMAT;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: other

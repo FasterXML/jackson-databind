@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
@@ -393,26 +392,23 @@ public abstract class BeanSerializerBase
         
         // Let's start with one big transmutation: Enums that are annotated
         // to serialize as Objects may want to revert
+        JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
         JsonFormat.Shape shape = null;
-        if (accessor != null) {
-            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
-
-            if (format != null) {
-                shape = format.getShape();
-                // or, alternatively, asked to revert "back to" other representations...
-                if (shape != _serializationShape) {
-                    if (_handledType.isEnum()) {
-                        switch (shape) {
-                        case STRING:
-                        case NUMBER:
-                        case NUMBER_INT:
-                            // 12-Oct-2014, tatu: May need to introspect full annotations... but
-                            //   for now, just do class ones
-                            BeanDescription desc = config.introspectClassAnnotations(_handledType);
-                            JsonSerializer<?> ser = EnumSerializer.construct(_handledType,
-                                    provider.getConfig(), desc, format);
-                            return provider.handlePrimaryContextualization(ser, property);
-                        }
+        if ((format != null) && format.hasShape()) {
+            shape = format.getShape();
+            // or, alternatively, asked to revert "back to" other representations...
+            if ((shape != JsonFormat.Shape.ANY) && (shape != _serializationShape)) {
+                if (_handledType.isEnum()) {
+                    switch (shape) {
+                    case STRING:
+                    case NUMBER:
+                    case NUMBER_INT:
+                        // 12-Oct-2014, tatu: May need to introspect full annotations... but
+                        //   for now, just do class ones
+                        BeanDescription desc = config.introspectClassAnnotations(_handledType);
+                        JsonSerializer<?> ser = EnumSerializer.construct(_handledType,
+                                provider.getConfig(), desc, format);
+                        return provider.handlePrimaryContextualization(ser, property);
                     }
                 }
             }

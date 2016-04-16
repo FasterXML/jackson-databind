@@ -20,25 +20,24 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
  */
 @SuppressWarnings("serial")
 public class NumberSerializers {
-    protected NumberSerializers() {
-    }
+    protected NumberSerializers() { }
 
     public static void addAll(Map<String, JsonSerializer<?>> allDeserializers) {
-        final JsonSerializer<?> intS = new IntegerSerializer();
-        allDeserializers.put(Integer.class.getName(), intS);
-        allDeserializers.put(Integer.TYPE.getName(), intS);
-        allDeserializers.put(Long.class.getName(), LongSerializer.instance);
-        allDeserializers.put(Long.TYPE.getName(), LongSerializer.instance);
+        allDeserializers.put(Integer.class.getName(), new IntegerSerializer(Integer.class));
+        allDeserializers.put(Integer.TYPE.getName(), new IntegerSerializer(Integer.TYPE));
+        allDeserializers.put(Long.class.getName(), new LongSerializer(Long.class));
+        allDeserializers.put(Long.TYPE.getName(), new LongSerializer(Long.TYPE));
+
         allDeserializers.put(Byte.class.getName(), IntLikeSerializer.instance);
         allDeserializers.put(Byte.TYPE.getName(), IntLikeSerializer.instance);
         allDeserializers.put(Short.class.getName(), ShortSerializer.instance);
         allDeserializers.put(Short.TYPE.getName(), ShortSerializer.instance);
 
         // Numbers, limited length floating point
+        allDeserializers.put(Double.class.getName(), new DoubleSerializer(Double.class));
+        allDeserializers.put(Double.TYPE.getName(), new DoubleSerializer(Double.TYPE));
         allDeserializers.put(Float.class.getName(), FloatSerializer.instance);
         allDeserializers.put(Float.TYPE.getName(), FloatSerializer.instance);
-        allDeserializers.put(Double.class.getName(), DoubleSerializer.instance);
-        allDeserializers.put(Double.TYPE.getName(), DoubleSerializer.instance);
     }
 
     /*
@@ -81,7 +80,8 @@ public class NumberSerializers {
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov,
-                BeanProperty property) throws JsonMappingException {
+                BeanProperty property) throws JsonMappingException
+        {
             JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
             if (format != null) {
                 switch (format.getShape()) {
@@ -127,8 +127,8 @@ public class NumberSerializers {
      */
     @JacksonStdImpl
     public final static class IntegerSerializer extends Base<Object> {
-        public IntegerSerializer() {
-            super(Integer.class, JsonParser.NumberType.INT, "integer");
+        public IntegerSerializer(Class<?> type) {
+            super(type, JsonParser.NumberType.INT, "integer");
         }
 
         @Override
@@ -169,10 +169,8 @@ public class NumberSerializers {
 
     @JacksonStdImpl
     public final static class LongSerializer extends Base<Object> {
-        final static LongSerializer instance = new LongSerializer();
-
-        public LongSerializer() {
-            super(Long.class, JsonParser.NumberType.LONG, "number");
+        public LongSerializer(Class<?> cls) {
+            super(cls, JsonParser.NumberType.LONG, "number");
         }
 
         @Override
@@ -206,10 +204,8 @@ public class NumberSerializers {
      */
     @JacksonStdImpl
     public final static class DoubleSerializer extends Base<Object> {
-        final static DoubleSerializer instance = new DoubleSerializer();
-
-        public DoubleSerializer() {
-            super(Double.class, JsonParser.NumberType.DOUBLE, "number");
+        public DoubleSerializer(Class<?> cls) {
+            super(cls, JsonParser.NumberType.DOUBLE, "number");
         }
 
         @Override

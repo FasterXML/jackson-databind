@@ -15,6 +15,12 @@ public class NumberSerTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 
+    static class IntWrapper {
+        public int i;
+
+        public IntWrapper(int value) { i = value; }
+    }
+    
     static class IntAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         @JsonProperty("value")
@@ -71,5 +77,14 @@ public class NumberSerTest extends BaseMapTest
         assertEquals(aposToQuotes("{'value':'3'}"), MAPPER.writeValueAsString(new IntAsString()));
         assertEquals(aposToQuotes("{'value':'4'}"), MAPPER.writeValueAsString(new LongAsString()));
         assertEquals(aposToQuotes("{'value':'-0.5'}"), MAPPER.writeValueAsString(new DoubleAsString()));
+    }
+
+    public void testConfigOverridesForNumbers() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(Integer.TYPE) // for `int`
+            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+        assertEquals(aposToQuotes("{'i':'3'}"),
+                mapper.writeValueAsString(new IntWrapper(3)));
     }
 }

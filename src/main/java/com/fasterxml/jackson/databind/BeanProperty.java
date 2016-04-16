@@ -136,7 +136,10 @@ public interface BeanProperty extends Named
      * use {@link #findPropertyFormat} if such defaults would be useful.
      *
      * @since 2.6
+     * 
+     * @deprecated since 2.8 use {@link #findPropertyFormat} instead.
      */
+    @Deprecated
     public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr);
 
     /**
@@ -234,16 +237,6 @@ public interface BeanProperty extends Named
             this(base._name, newType, base._wrapperName, base._contextAnnotations, base._member, base._metadata);
         }
 
-        @Deprecated // since 2.3
-        public Std(String name, JavaType type, PropertyName wrapperName,
-                Annotations contextAnnotations, AnnotatedMember member,
-                boolean isRequired)
-        {
-            this(new PropertyName(name), type, wrapperName, contextAnnotations,
-                    member,
-                    isRequired ? PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL);
-        }
-
         public Std withType(JavaType type) {
             return new Std(this, type);
         }
@@ -307,13 +300,6 @@ public interface BeanProperty extends Named
         @Override public PropertyMetadata getMetadata() { return _metadata; }
         @Override public AnnotatedMember getMember() { return _member; }
 
-        /**
-         *<p>
-         * TODO: move to {@link BeanProperty} in near future, once all standard
-         * implementations define it.
-         * 
-         * @since 2.5
-         */
         @Override
         public boolean isVirtual() { return false; }
 

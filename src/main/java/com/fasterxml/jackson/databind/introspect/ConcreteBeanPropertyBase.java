@@ -28,9 +28,9 @@ public abstract class ConcreteBeanPropertyBase
     /**
      * Lazily accessed value for per-property format override definition.
      * 
-     * @since 2.6
+     * @since 2.8
      */
-    protected transient JsonFormat.Value _format;
+    protected transient JsonFormat.Value _propertyFormat;
 
     protected ConcreteBeanPropertyBase(PropertyMetadata md) {
         _metadata = (md == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL : md;
@@ -38,7 +38,7 @@ public abstract class ConcreteBeanPropertyBase
 
     protected ConcreteBeanPropertyBase(ConcreteBeanPropertyBase src) {
         _metadata = src._metadata;
-        _format = src._format;
+        _propertyFormat = src._propertyFormat;
     }
 
     @Override
@@ -53,17 +53,15 @@ public abstract class ConcreteBeanPropertyBase
     @Override
     @Deprecated
     public final JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-        JsonFormat.Value f = _format;
-        if (f == null) { // not yet looked up, do that
-            if (intr != null) {
-                AnnotatedMember member = getMember();
-                if (member != null) {
-                    f = intr.findFormat(member);
-                }
+        JsonFormat.Value f = null;
+        if (intr != null) {
+            AnnotatedMember member = getMember();
+            if (member != null) {
+                f = intr.findFormat(member);
             }
-            if (f == null) {
-                f = EMPTY_FORMAT;
-            }
+        }
+        if (f == null) {
+            f = EMPTY_FORMAT;
         }
         return f;
     }
@@ -71,18 +69,27 @@ public abstract class ConcreteBeanPropertyBase
     @Override
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType)
     {
-        // 08-Oct-2015, tatu: Unlike with Format, let's not cache locally here, for now?
-        JsonFormat.Value v0 = config.getDefaultPropertyFormat(baseType);
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        AnnotatedMember member = getMember();
-        if ((intr == null) || (member == null)) {
-            return v0;
-        }
-        JsonFormat.Value v = intr.findFormat(member);
+        // 15-Apr-2016, tatu: Let's calculate lazily, retain; assumption being however that
+        //    baseType is always the same
+        JsonFormat.Value v = _propertyFormat;
         if (v == null) {
-            return v0;
+            JsonFormat.Value v1 = config.getDefaultPropertyFormat(baseType);
+            JsonFormat.Value v2 = null;
+            AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            if (intr != null) {
+                AnnotatedMember member = getMember();
+                if (member != null) {
+                    v2 = intr.findFormat(member);
+                }
+            }
+            if (v1 == null) {
+                v = (v2 == null) ? EMPTY_FORMAT : v2;
+            } else {
+                v = (v2 == null) ? v1 : v1.withOverrides(v2);
+            }
+            _propertyFormat = v;
         }
-        return v0.withOverrides(v);
+        return v;
     }
 
     @Override

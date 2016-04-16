@@ -677,13 +677,10 @@ public abstract class BeanDeserializerBase
         }
 
         // One more thing: are we asked to serialize POJO as array?
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         JsonFormat.Shape shape = null;
-        if (accessor != null) {
-            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
-
-            if (format != null) {
-                shape = format.getShape();
-            }
+        if ((format != null) && format.hasShape()) {
+            shape = format.getShape();
         }
         if (shape == null) {
             shape = _serializationShape;

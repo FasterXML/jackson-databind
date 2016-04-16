@@ -224,6 +224,8 @@ public class TestPOJOAsArray extends BaseMapTest
         ObjectMapper mapper2 = new ObjectMapper();
         mapper2.setAnnotationIntrospector(new ForceArraysIntrospector());
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
+
+        // and allow reading back, too
     }
 
     public void testWithMaps() throws Exception
@@ -254,5 +256,10 @@ public class TestPOJOAsArray extends BaseMapTest
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY));
         String json = mapper.writeValueAsString(new NonAnnotatedXY(2, 3));
         assertEquals("[2,3]", json);
+
+        // also, read it back
+        NonAnnotatedXY result = mapper.readValue(json, NonAnnotatedXY.class);
+        assertNotNull(result);
+        assertEquals(3, result.y);
     }
 }

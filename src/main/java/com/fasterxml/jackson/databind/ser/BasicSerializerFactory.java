@@ -961,7 +961,7 @@ public abstract class BasicSerializerFactory
         @SuppressWarnings("unchecked")
         Class<Enum<?>> enumClass = (Class<Enum<?>>) type.getRawClass();
         JsonSerializer<?> ser = EnumSerializer.construct(enumClass, config, beanDesc, format);
-        // [Issue#120]: Allow post-processing
+        // [databind#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyEnumSerializer(config, type, beanDesc, ser);

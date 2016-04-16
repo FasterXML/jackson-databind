@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestFormatForCollections extends BaseMapTest
 {
-    // [issue#40]: Allow serialization 'as POJO' (resulting in JSON Object) 
+    // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object) 
     @JsonPropertyOrder({ "size", "value" })
     @JsonFormat(shape=Shape.OBJECT)
     @JsonIgnoreProperties({ "empty" }) // from 'isEmpty()'

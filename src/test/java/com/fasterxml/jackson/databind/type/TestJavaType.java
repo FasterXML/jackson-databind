@@ -30,7 +30,7 @@ public class TestJavaType
         public <C extends CharSequence> C method(C input) { return null; }
     }
 
-    public interface Generic1195 {
+    public interface Generic1194 {
         public AtomicReference<String> getGeneric();
         public List<String> getList();
         public Map<String,String> getMap();
@@ -127,23 +127,23 @@ public class TestJavaType
         assertSame(t1, t2);
     }
 
-    // [databind#1195]
-    public void testGenericSignature1195() throws Exception
+    // [databind#1194]
+    public void testGenericSignature1194() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         Method m;
         JavaType t;
 
-        m = Generic1195.class.getMethod("getList");
+        m = Generic1194.class.getMethod("getList");
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/List<Ljava/lang/String;>;", t.getGenericSignature());
 
-        m = Generic1195.class.getMethod("getMap");
+        m = Generic1194.class.getMethod("getMap");
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;",
                 t.getGenericSignature());
 
-        m = Generic1195.class.getMethod("getGeneric");
+        m = Generic1194.class.getMethod("getGeneric");
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/concurrent/atomic/AtomicReference<Ljava/lang/String;>;", t.getGenericSignature());
     }

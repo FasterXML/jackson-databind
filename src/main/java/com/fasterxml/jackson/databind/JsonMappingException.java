@@ -70,6 +70,16 @@ public class JsonMappingException
         protected int _index = -1;
 
         /**
+         * Lazily-constructed description of this instance; needed mostly to
+         * allow JDK serialization to work in case where {@link #_from} is
+         * non-serializable (and has to be dropped) but we still want to pass
+         * actual description along.
+         *
+         * @since 2.7.4
+         */
+        protected String _asString;
+
+        /**
          * Default constructor for deserialization/sub-classing purposes
          */
         protected Reference() { }
@@ -89,7 +99,8 @@ public class JsonMappingException
             _index = index;
         }
 
-        private Reference(Reference src, Object newFrom) {
+        private Reference(Reference src, String asString, Object newFrom) {
+            _asString = asString;
             _from = newFrom;
             _fieldName = src._fieldName;
             _index = src._index;
@@ -104,31 +115,38 @@ public class JsonMappingException
         public int getIndex() { return _index; }
 
         @Override public String toString() {
-            StringBuilder sb = new StringBuilder();
-            Class<?> cls = (_from instanceof Class<?>) ?
-                ((Class<?>)_from) : _from.getClass();
-            /* Hmmh. Although Class.getName() is mostly ok, it does look
-             * butt-ugly for arrays. So let's use getSimpleName() instead;
-             * but have to prepend package name too.
-             */
-            String pkgName = ClassUtil.getPackageName(cls);
-            if (pkgName != null) {
-                sb.append(pkgName);
-                sb.append('.');
+            if (_asString == null) {
+                StringBuilder sb = new StringBuilder();
+
+                if (_from == null) { // can this ever occur?
+                    sb.append("UNKNOWN");
+                } else {
+                    Class<?> cls = (_from instanceof Class<?>) ? (Class<?>)_from : _from.getClass();
+                    /* Hmmh. Although Class.getName() is mostly ok, it does look
+                     * butt-ugly for arrays. So let's use getSimpleName() instead;
+                     * but have to prepend package name too.
+                     */
+                    String pkgName = ClassUtil.getPackageName(cls);
+                    if (pkgName != null) {
+                        sb.append(pkgName);
+                        sb.append('.');
+                    }
+                    sb.append(cls.getSimpleName());
+                }
+                sb.append('[');
+                if (_fieldName != null) {
+                    sb.append('"');
+                    sb.append(_fieldName);
+                    sb.append('"');
+                } else if (_index >= 0) {
+                    sb.append(_index);
+                } else {
+                    sb.append('?');
+                }
+                sb.append(']');
+                _asString = sb.toString();
             }
-            sb.append(cls.getSimpleName());
-            sb.append('[');
-            if (_fieldName != null) {
-                sb.append('"');
-                sb.append(_fieldName);
-                sb.append('"');
-            } else if (_index >= 0) {
-                sb.append(_index);
-            } else {
-                sb.append('?');
-            }
-            sb.append(']');
-            return sb.toString();
+            return _asString;
         }
 
         /**
@@ -138,16 +156,12 @@ public class JsonMappingException
          */
         Object writeReplace() {
             // as per [databind#1195], reference may cause trouble, if non-serializable
-            // instance. What to replace it with is trickier; Class is most natural, but
-            // would recipient have that available? Assume this is the case, for now, because
-            // 
-            if ((_from != null) && !(_from instanceof Serializable)) {
-                Object from = _from.getClass();
-                return new Reference(this, from);
-            }
-            return this;
+            // instance (either directly or transitively); and even use of Class would often
+            // be problematic. Because of this, clear up `_from` always, but ensure that
+            // description is preserved
+            return new Reference(this, toString(), null);
         }
-}
+    }
 
     /*
     /**********************************************************

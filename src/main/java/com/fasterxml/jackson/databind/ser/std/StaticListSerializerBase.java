@@ -60,35 +60,36 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
-            throws JsonMappingException
+    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+            BeanProperty property)
+        throws JsonMappingException
     {
         JsonSerializer<?> ser = null;
         Boolean unwrapSingle = null;
         
         if (property != null) {
-            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
             if (m != null) {
                 Object serDef = intr.findContentSerializer(m);
                 if (serDef != null) {
-                    ser = provider.serializerInstance(m, serDef);
+                    ser = serializers.serializerInstance(m, serDef);
                 }
             }
-            JsonFormat.Value format = property.findPropertyFormat(provider.getConfig(), _handledType);
-            if (format != null) {
-                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
-            }
+        }
+        JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+        if (format != null) {
+            unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
         if (ser == null) {
             ser = _serializer;
         }
         // [databind#124]: May have a content converter
-        ser = findConvertingContentSerializer(provider, property, ser);
+        ser = findConvertingContentSerializer(serializers, property, ser);
         if (ser == null) {
-            ser = provider.findValueSerializer(String.class, property);
+            ser = serializers.findValueSerializer(String.class, property);
         } else {
-            ser = provider.handleSecondaryContextualization(ser, property);
+            ser = serializers.handleSecondaryContextualization(ser, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {

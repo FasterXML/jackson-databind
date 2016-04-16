@@ -123,7 +123,7 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
         throws JsonMappingException
     {
@@ -137,33 +137,33 @@ public class ObjectArraySerializer
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
             AnnotatedMember m = property.getMember();
-            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+            final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             if (m != null) {
                 Object serDef = intr.findContentSerializer(m);
                 if (serDef != null) {
-                    ser = provider.serializerInstance(m, serDef);
+                    ser = serializers.serializerInstance(m, serDef);
                 }
             }
-            JsonFormat.Value format = property.findPropertyFormat(provider.getConfig(), _handledType);
-            if (format != null) {
-                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
-            }
+        }
+        JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
+        if (format != null) {
+            unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
         if (ser == null) {
             ser = _elementSerializer;
         }
-        // #124: May have a content converter
-        ser = findConvertingContentSerializer(provider, property, ser);
+        // [databind#124]: May have a content converter
+        ser = findConvertingContentSerializer(serializers, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             if (_elementType != null) {
                 if (_staticTyping && !_elementType.isJavaLangObject()) {
-                    ser = provider.findValueSerializer(_elementType, property);
+                    ser = serializers.findValueSerializer(_elementType, property);
                 }
             }
         } else {
-            ser = provider.handleSecondaryContextualization(ser, property);
+            ser = serializers.handleSecondaryContextualization(ser, property);
         }
         return withResolved(property, vts, ser, unwrapSingle);
     }

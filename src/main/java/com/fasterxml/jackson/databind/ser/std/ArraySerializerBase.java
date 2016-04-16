@@ -87,14 +87,14 @@ public abstract class ArraySerializerBase<T>
             Boolean unwrapSingle);
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property) throws JsonMappingException
     {
         Boolean unwrapSingle = null;
 
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
-            JsonFormat.Value format = property.findPropertyFormat(provider.getConfig(), _handledType);
+            JsonFormat.Value format = findFormatOverrides(serializers, property, handledType());
             if (format != null) {
                 unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
                 if (unwrapSingle != _unwrapSingle) {

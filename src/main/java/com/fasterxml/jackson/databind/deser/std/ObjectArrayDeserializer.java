@@ -147,7 +147,7 @@ public class ObjectArrayDeserializer
         // Important: do NOT cache if polymorphic values, or ones with custom deserializer
         return (_elementDeserializer == null) && (_elementTypeDeserializer == null);
     }
-    
+
     /*
     /**********************************************************
     /* ContainerDeserializerBase API

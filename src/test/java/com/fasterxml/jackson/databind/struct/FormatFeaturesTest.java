@@ -47,16 +47,23 @@ public class FormatFeaturesTest extends BaseMapTest
         public String[] values;
     }
 
+    static class StringArrayNotAnnoted {
+        public String[] values;
+
+        protected StringArrayNotAnnoted() { }
+        public StringArrayNotAnnoted(String ... v) { values = v; }
+    }
+    
     static class IntArrayWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public int[] values;
     }
+
     static class LongArrayWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public long[] values;
     }
 
-    
     static class StringListWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public List<String> values;
@@ -105,6 +112,13 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true]}"),
                 MAPPER.writer().without(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithArrays()));
+
+        // And then without SerializationFeature but with config override:
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(String[].class).setFormat(JsonFormat.Value.empty()
+                .withFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED));
+        assertEquals(aposToQuotes("{'values':'a'}"),
+                mapper.writeValueAsString(new StringArrayNotAnnoted("a")));
     }
 
     public void testWithCollectionTypes() throws Exception
@@ -137,6 +151,15 @@ public class FormatFeaturesTest extends BaseMapTest
         assertNotNull(result.values);
         assertEquals(1, result.values.length);
         assertEquals("first", result.values[0]);
+
+        // and then without annotation, but with global override
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(String[].class).setFormat(JsonFormat.Value.empty()
+                .withFeature(JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+        StringArrayNotAnnoted result2 = mapper.readValue(json, StringArrayNotAnnoted.class);
+        assertNotNull(result2.values);
+        assertEquals(1, result2.values.length);
+        assertEquals("first", result2.values[0]);
     }
 
     public void testSingleIntArrayRead() throws Exception {

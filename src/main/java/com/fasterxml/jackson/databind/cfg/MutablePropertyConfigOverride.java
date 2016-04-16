@@ -24,7 +24,7 @@ public class MutablePropertyConfigOverride
         super(src);
     }
     
-    public MutablePropertyConfigOverride copy() {
+    protected MutablePropertyConfigOverride copy() {
         return new MutablePropertyConfigOverride(this);
     }
 

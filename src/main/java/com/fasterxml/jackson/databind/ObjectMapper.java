@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.MutablePropertyConfigOverride;
 import com.fasterxml.jackson.databind.cfg.PropertyConfigOverrides;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -532,9 +533,9 @@ public class ObjectMapper
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
-        _propertyOverrides = new PropertyConfigOverrides();
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
         PropertyConfigOverrides propOverrides = new PropertyConfigOverrides();
+        _propertyOverrides = propOverrides;
         _serializationConfig = new SerializationConfig(base,
                     _subtypeResolver, mixins, rootNames, propOverrides);
         _deserializationConfig = new DeserializationConfig(base,
@@ -767,14 +768,21 @@ public class ObjectMapper
             public boolean isEnabled(JsonParser.Feature f) {
                 return mapper.isEnabled(f);
             }
-            
+
             @Override
             public boolean isEnabled(JsonGenerator.Feature f) {
                 return mapper.isEnabled(f);
             }
-            
+
+            // // // Mutant accessors
+
+            @Override
+            public MutablePropertyConfigOverride configOverride(Class<?> type) {
+                return mapper.configOverride(type);
+            }
+
             // // // Methods for registering handlers: deserializers
-            
+
             @Override
             public void addDeserializers(Deserializers d) {
                 DeserializerFactory df = mapper._deserializationContext._factory.withAdditionalDeserializers(d);
@@ -1450,6 +1458,33 @@ public class ObjectMapper
      */
     public void registerSubtypes(NamedType... types) {
         getSubtypeResolver().registerSubtypes(types);
+    }
+
+    /*
+    /**********************************************************
+    /* Configuration, basic type handling
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for getting a mutable configuration override object for
+     * given type, needed to add or change per-type overrides applied
+     * to properties of given type.
+     * Usage is through returned object by colling "setter" methods, which
+     * directly modify override object and take effect directly.
+     * For example you can do
+     *<pre>
+     *   mapper.configOverride(java.util.Date.class)
+     *       .setFormat(JsonFormat.Value.forPattern("yyyy-MM-dd"));
+     *<pre>
+     * to change the default format to use for properties of type
+     * {@link java.util.Date} (possibly further overridden by per-property
+     * annotations)
+     *
+     * @since 2.8
+     */
+    public MutablePropertyConfigOverride configOverride(Class<?> type) {
+        return _propertyOverrides.findOrCreateOverride(type);
     }
 
     /*

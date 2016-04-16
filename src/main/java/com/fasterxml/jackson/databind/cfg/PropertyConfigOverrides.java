@@ -15,14 +15,15 @@ public class PropertyConfigOverrides
     protected Map<Class<?>, MutablePropertyConfigOverride> _overrides;
 
     public PropertyConfigOverrides() {
-        this(null);
+        _overrides = null;
     }
 
     protected PropertyConfigOverrides(Map<Class<?>, MutablePropertyConfigOverride> overrides) {
         _overrides = overrides;
     }
 
-    public PropertyConfigOverrides copy() {
+    public PropertyConfigOverrides copy()
+    {
         if (_overrides == null) {
             return new PropertyConfigOverrides();
         }

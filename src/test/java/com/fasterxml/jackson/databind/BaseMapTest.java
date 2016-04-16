@@ -165,22 +165,25 @@ public abstract class BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper SHARED_MAPPER = new ObjectMapper();
+    private static ObjectMapper SHARED_MAPPER;
 
     protected ObjectMapper objectMapper() {
+        if (SHARED_MAPPER == null) {
+            SHARED_MAPPER = new ObjectMapper();
+        }
         return SHARED_MAPPER;
     }
     
     protected ObjectWriter objectWriter() {
-        return SHARED_MAPPER.writer();
+        return objectMapper().writer();
     }
 
     protected ObjectReader objectReader() {
-        return SHARED_MAPPER.reader();
+        return objectMapper().reader();
     }
     
     protected ObjectReader objectReader(Class<?> cls) {
-        return SHARED_MAPPER.readerFor(cls);
+        return objectMapper().readerFor(cls);
     }
 
     // @since 2.7

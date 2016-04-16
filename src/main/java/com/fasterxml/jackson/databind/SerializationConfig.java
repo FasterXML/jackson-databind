@@ -3,11 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.text.DateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
@@ -916,18 +913,6 @@ public final class SerializationConfig
             }
         }
         return _serializationInclusion;
-    }
-
-    @Override
-    public JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
-        PropertyConfigOverride overrides = findPropertyConfigOverride(baseType);
-        if (overrides != null) {
-            JsonFormat.Value v = overrides.getFormat();
-            if (v != null) {
-                return v;
-            }
-        }
-        return EMPTY_FORMAT;
     }
 
     /*

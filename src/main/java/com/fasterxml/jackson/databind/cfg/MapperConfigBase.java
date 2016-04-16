@@ -3,8 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import java.text.DateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -479,6 +478,29 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /*
     /**********************************************************
+    /* Property config override access
+    /**********************************************************
+     */
+    
+    @Override
+    public final PropertyConfigOverride findPropertyConfigOverride(Class<?> type) {
+        return _propertyOverrides.findOverride(type);
+    }
+
+    @Override
+    public JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
+        PropertyConfigOverride overrides = _propertyOverrides.findOverride(type);
+        if (overrides != null) {
+            JsonFormat.Value v = overrides.getFormat();
+            if (v != null) {
+                return v;
+            }
+        }
+        return EMPTY_FORMAT;
+    }
+
+    /*
+    /**********************************************************
     /* Other config access
     /**********************************************************
      */
@@ -497,11 +519,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             return _rootName;
         }
         return _rootNames.findRootName(rawRootType, this);
-    }
-
-    @Override
-    public PropertyConfigOverride findPropertyConfigOverride(Class<?> type) {
-        return _propertyOverrides.findOverride(type);
     }
 
     /*

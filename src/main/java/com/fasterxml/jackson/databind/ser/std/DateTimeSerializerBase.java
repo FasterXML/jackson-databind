@@ -27,7 +27,7 @@ public abstract class DateTimeSerializerBase<T>
      * Java timestamp, regardless of other settings.
      */
     protected final Boolean _useTimestamp;
-    
+
     /**
      * Specific format to use, if not default format: non null value
      * also indicates that serialization is to be done as JSON String,

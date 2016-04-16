@@ -354,10 +354,24 @@ public class BasicBeanDescription extends BeanDescription
     @Override
     public JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue)
     {
+        // 15-Apr-2016, tatu: Let's check both per-type defaults and annotations; per-type
+        //   defaults having higher precedence, so start with that
         if (_annotationIntrospector != null) {
             JsonFormat.Value v = _annotationIntrospector.findFormat(_classInfo);
             if (v != null) {
-                return v;
+                if (defValue == null) {
+                    defValue = v;
+                } else {
+                    defValue = defValue.withOverrides(v);
+                }
+            }
+        }
+        JsonFormat.Value v = _config.getDefaultPropertyFormat(_classInfo.getRawType());
+        if (v != null) {
+            if (defValue == null) {
+                defValue = v;
+            } else {
+                defValue = defValue.withOverrides(v);
             }
         }
         return defValue;

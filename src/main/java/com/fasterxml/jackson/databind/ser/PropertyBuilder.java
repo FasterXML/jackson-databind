@@ -44,7 +44,8 @@ public class PropertyBuilder
     {
         _config = config;
         _beanDesc = beanDesc;
-        _defaultInclusion = beanDesc.findPropertyInclusion(config.getDefaultPropertyInclusion());
+        _defaultInclusion = beanDesc.findPropertyInclusion(
+                config.getDefaultPropertyInclusion(beanDesc.getBeanClass()));
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 

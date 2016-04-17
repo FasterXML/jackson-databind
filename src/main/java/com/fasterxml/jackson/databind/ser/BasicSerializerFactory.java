@@ -805,7 +805,7 @@ public abstract class BasicSerializerFactory
          *    used is appropriate.
          */
         JsonInclude.Value inclV = beanDesc.findPropertyInclusion(config.getDefaultPropertyInclusion());
-        
+
         if (inclV == null) {
             return null;
         }

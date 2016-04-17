@@ -198,7 +198,6 @@ public interface BeanProperty extends Named
      */
     public static class Std implements BeanProperty
     {
-
         protected final PropertyName _name;
         protected final JavaType _type;
         protected final PropertyName _wrapperName;

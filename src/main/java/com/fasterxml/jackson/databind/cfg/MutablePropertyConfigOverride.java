@@ -37,4 +37,9 @@ public class MutablePropertyConfigOverride
         _include = v;
         return this;
     }
+
+    public MutablePropertyConfigOverride setIsIgnoredType(Boolean v) {
+        _isIgnoredType = v;
+        return this;
+    }
 }

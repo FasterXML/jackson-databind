@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
@@ -312,7 +313,8 @@ public abstract class SerializerProvider
         
     /*
     /**********************************************************
-    /* DatabindContext implementation
+    /* DatabindContext implementation (and closely related
+    /* but ser-specific)
     /**********************************************************
      */
 
@@ -355,7 +357,14 @@ public abstract class SerializerProvider
     public final JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
         return _config.getDefaultPropertyFormat(baseType);
     }
-    
+
+    /**
+     * @since 2.8
+     */
+    public final JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
+        return _config.getDefaultPropertyInclusion();
+    }
+
     /**
      * Method for accessing default Locale to use: convenience method for
      *<pre>

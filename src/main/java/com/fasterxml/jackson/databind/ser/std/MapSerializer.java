@@ -310,10 +310,6 @@ public class MapSerializer
             BeanProperty property)
         throws JsonMappingException
     {
-        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
-         *    checking here since we finally know for sure the property,
-         *    and it may have overrides
-         */
         JsonSerializer<?> ser = null;
         JsonSerializer<?> keySer = null;
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
@@ -332,12 +328,10 @@ public class MapSerializer
             }
         }
 
-        if (property != null) {
-            JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), Map.class);
-            JsonInclude.Include incl = inclV.getContentInclusion();
-            if ((incl != null) && (incl != JsonInclude.Include.USE_DEFAULTS)) {
-                suppressableValue = incl;
-            }
+        JsonInclude.Value inclV = findIncludeOverrides(provider, property, Map.class);
+        JsonInclude.Include incl = inclV.getContentInclusion();
+        if ((incl != null) && (incl != JsonInclude.Include.USE_DEFAULTS)) {
+            suppressableValue = incl;
         }
         if (ser == null) {
             ser = _valueSerializer;

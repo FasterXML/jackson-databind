@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
@@ -482,6 +483,19 @@ public abstract class StdSerializer<T>
         return null;
     }
 
+    /**
+     * @since 2.8
+     */
+    protected JsonInclude.Value findIncludeOverrides(SerializerProvider provider,
+            BeanProperty prop, Class<?> typeForDefaults)
+    {
+        if (prop != null) {
+            return prop.findPropertyInclusion(provider.getConfig(), typeForDefaults);
+        }
+        // even without property or AnnotationIntrospector, may have type-specific defaults
+        return provider.getDefaultPropertyInclusion(typeForDefaults);
+    }
+    
     /**
      * Convenience method for finding out possibly configured content value serializer.
      *

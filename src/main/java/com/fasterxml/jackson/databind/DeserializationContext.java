@@ -236,7 +236,7 @@ public abstract class DeserializationContext
     public final JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType) {
         return _config.getDefaultPropertyFormat(baseType);
     }
-    
+
     @Override
     public final AnnotationIntrospector getAnnotationIntrospector() {
         return _config.getAnnotationIntrospector();

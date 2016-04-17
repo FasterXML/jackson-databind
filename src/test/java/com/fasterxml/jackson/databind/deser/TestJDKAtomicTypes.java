@@ -137,6 +137,46 @@ public class TestJDKAtomicTypes
                 mapper.writeValueAsString(new SimpleWrapper(null)));
     }
 
+    public void testSerPropInclusionAlways() throws Exception
+    {
+        JsonInclude.Value incl =
+                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyInclusion(incl);
+        assertEquals(aposToQuotes("{'value':true}"),
+                mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
+    }
+
+    public void testSerPropInclusionNonNull() throws Exception
+    {
+        JsonInclude.Value incl =
+                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyInclusion(incl);
+        assertEquals(aposToQuotes("{'value':true}"),
+                mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
+    }
+
+    public void testSerPropInclusionNonAbsent() throws Exception
+    {
+        JsonInclude.Value incl =
+                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyInclusion(incl);
+        assertEquals(aposToQuotes("{'value':true}"),
+                mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
+    }
+
+    public void testSerPropInclusionNonEmpty() throws Exception
+    {
+        JsonInclude.Value incl =
+                JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyInclusion(incl);
+        assertEquals(aposToQuotes("{'value':true}"),
+                mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
+    }
+
     // [databind#340]
     public void testPolymorphicAtomicReference() throws Exception
     {

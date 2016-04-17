@@ -215,16 +215,16 @@ public abstract class ReferenceTypeSerializer<T>
         if (_contentInclusion == null) {
             return false;
         }
+        Object contents = _getReferenced(value);
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             try {
-                ser = _findCachedSerializer(provider, value.getClass());
+                ser = _findCachedSerializer(provider, contents.getClass());
             } catch (JsonMappingException e) { // nasty but necessary
                 throw new RuntimeJsonMappingException(e);
             }
         }
-        return ser.isEmpty(provider, _getReferenced(value));
-
+        return ser.isEmpty(provider, contents);
     }
 
     @Override

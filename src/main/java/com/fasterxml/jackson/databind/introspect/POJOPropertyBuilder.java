@@ -551,14 +551,20 @@ public class POJOPropertyBuilder
 
     @Override
     public JsonInclude.Value findInclusion() {
+        AnnotatedMember a = getAccessor();
+        // 16-Apr-2106, tatu: Let's include per-type default inclusion too
+        JsonInclude.Value v = _config.getDefaultPropertyInclusion(a.getRawType());
         if (_annotationIntrospector != null) {
-            AnnotatedMember a = getAccessor();
-            JsonInclude.Value v =  _annotationIntrospector.findPropertyInclusion(a);
-            if (v != null) {
-                return v;
+            JsonInclude.Value v2 = _annotationIntrospector.findPropertyInclusion(a);
+            if (v2 != null) {
+                if (v == null) {
+                    v = v2;
+                } else {
+                    v = v.withOverrides(v2);
+                }
             }
         }
-        return JsonInclude.Value.empty();
+        return (v == null) ? JsonInclude.Value.empty() : v;
     }
 
     public JsonProperty.Access findAccess() {

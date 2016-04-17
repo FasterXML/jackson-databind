@@ -22,12 +22,6 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class BeanDescription
 {
-    /*
-    /**********************************************************
-    /* Configuration
-    /**********************************************************
-     */
-
     /**
      * Bean type information, including raw class and possible
      * * generics information

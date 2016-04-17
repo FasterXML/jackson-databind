@@ -800,6 +800,10 @@ public abstract class BasicSerializerFactory
             JavaType contentType, BeanDescription beanDesc)
         throws JsonMappingException
     {
+        /* 16-Apr-2016, tatu: Should this consider possible property-config overrides?
+         *    Quite possibly yes, but would need to carefully check that content type being
+         *    used is appropriate.
+         */
         JsonInclude.Value inclV = beanDesc.findPropertyInclusion(config.getDefaultPropertyInclusion());
         
         if (inclV == null) {

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -160,13 +159,10 @@ public abstract class ReferenceTypeSerializer<T>
         }
         // Also: may want to have more refined exclusion based on referenced value
         JsonInclude.Include contentIncl = _contentInclusion;
-        if (property != null) {
-            JsonInclude.Value incl = property.findPropertyInclusion(provider.getConfig(),
-                    AtomicReference.class);
-            JsonInclude.Include newIncl = incl.getContentInclusion();
-            if ((newIncl != contentIncl) && (newIncl != JsonInclude.Include.USE_DEFAULTS)) {
-                contentIncl = newIncl;
-            }
+        JsonInclude.Value incl = findIncludeOverrides(provider, property, handledType());
+        JsonInclude.Include newIncl = incl.getContentInclusion();
+        if ((newIncl != contentIncl) && (newIncl != JsonInclude.Include.USE_DEFAULTS)) {
+            contentIncl = newIncl;
         }
         return withResolved(property, typeSer, ser, _unwrapper, contentIncl);
     }

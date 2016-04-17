@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.cfg.PropertyConfigOverride;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -91,19 +90,6 @@ public abstract class BeanDescription
      * class has.
      */
     public abstract Annotations getClassAnnotations();
-
-    /**
-     * Accessor for finding possible configuration overrides to use for
-     * properties of this type. Such overrides will have precedence over
-     * type-specific annotations (that is, annotations in value classes)
-     * but may be further overridden with property annotations (annotations
-     * attached to property accessors).
-     *
-     * @since 2.8
-     */
-    public PropertyConfigOverride getConfigOverrides() {
-        return null;
-    }
 
     /*
     /**********************************************************

@@ -6,11 +6,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.cfg.PropertyConfigOverride;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -64,14 +64,6 @@ public class BasicBeanDescription extends BeanDescription
      */
     protected ObjectIdInfo _objectIdInfo;
 
-    /**
-     * Possible configuration overrides to apply to properties of
-     * this type.
-     *
-     * @since 2.8
-     */
-    protected PropertyConfigOverride _configOverrides;
-    
     /*
     /**********************************************************
     /* Life-cycle
@@ -329,11 +321,6 @@ public class BasicBeanDescription extends BeanDescription
         }
     }
 
-    @Override
-    public PropertyConfigOverride getConfigOverrides() {
-        return _configOverrides;
-    }
-    
     /*
     /**********************************************************
     /* Simple accessors, extended

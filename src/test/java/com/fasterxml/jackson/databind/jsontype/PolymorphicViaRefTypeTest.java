@@ -40,9 +40,7 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
         TypeInfoAtomic data = new TypeInfoAtomic();
         data.value = new AtomicReference<BaseForAtomic>(new ImplForAtomic(42));
         String json = MAPPER.writeValueAsString(data);
-System.err.println("JSON = "+json);
         TypeInfoAtomic result = MAPPER.readValue(json, TypeInfoAtomic.class);
         assertNotNull(result);
     }
-
 }

@@ -16,6 +16,7 @@ Project: jackson-databind
 #1195: `JsonMappingException` not Serializable due to 2.7 reference to source (parser)
  (reported by mjustin@github)
 #1198: Problem with `@JsonTypeInfo.As.EXTERNAL_PROPERTY`, `defaultImpl`, missing type id, NPE
+#1203: `@JsonTypeInfo` does not work correctly for ReferenceTypes like `AtomicReference`
 - Improve handling of custom content (de)serializers for `AtomicReference`
 
 2.7.3 (16-Mar-2016)

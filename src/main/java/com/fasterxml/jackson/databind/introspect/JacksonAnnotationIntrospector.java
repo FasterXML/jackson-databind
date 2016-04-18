@@ -467,7 +467,10 @@ public class JacksonAnnotationIntrospector
         /* As per definition of @JsonTypeInfo, should only apply to contents of container
          * (collection, map) types, not container types themselves:
          */
-        if (baseType.isContainerType()) return null;
+        // 17-Apr-2016, tatu: For 2.7.4 make sure ReferenceType also included
+        if (baseType.isContainerType() || baseType.isReferenceType()) {
+            return null;
+        }
         // No per-member type overrides (yet)
         return _findTypeResolver(config, am, baseType);
     }
@@ -1170,11 +1173,11 @@ public class JacksonAnnotationIntrospector
         JsonTypeIdResolver idResInfo = _findAnnotation(ann, JsonTypeIdResolver.class);
         TypeIdResolver idRes = (idResInfo == null) ? null
                 : config.typeIdResolverInstance(ann, idResInfo.value());
-        if (idRes != null) { // [JACKSON-359]
+        if (idRes != null) {
             idRes.init(baseType);
         }
         b = b.init(info.use(), idRes);
-        /* 13-Aug-2011, tatu: One complication wrt [JACKSON-453]; external id
+        /* 13-Aug-2011, tatu: One complication; external id
          *   only works for properties; so if declared for a Class, we will need
          *   to map it to "PROPERTY" instead of "EXTERNAL_PROPERTY"
          */
@@ -1186,7 +1189,7 @@ public class JacksonAnnotationIntrospector
         b = b.typeProperty(info.property());
         Class<?> defaultImpl = info.defaultImpl();
 
-        // 08-Dec-2014, tatu: To deprecated `JsonTypeInfo.None` we need to use other placeholder(s);
+        // 08-Dec-2014, tatu: To deprecate `JsonTypeInfo.None` we need to use other placeholder(s);
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
         //   valid use (can not instantiate as default)

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 /**
- * For [Issue#292]
+ * For [databind#292]
  */
 @SuppressWarnings("serial")
 public class TestAbstractContainers extends BaseMapTest

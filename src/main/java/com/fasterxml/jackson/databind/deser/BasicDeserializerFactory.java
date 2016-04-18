@@ -1869,7 +1869,7 @@ public abstract class BasicDeserializerFactory
             }
         }
 
-        if (type.getContentType() != null) { // container type or reference type
+        if (type.isContainerType() || type.isReferenceType()) {
             Object cdDef = intr.findContentDeserializer(member);
             JsonDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
             if (cd != null) {

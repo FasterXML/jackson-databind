@@ -787,9 +787,8 @@ public class BeanSerializerFactory
         // Does member specify a serializer? If so, let's use it.
         JsonSerializer<?> annotatedSerializer = findSerializerFromAnnotation(prov,
                 accessor);
-        /* 02-Feb-2012, tatu: Unlike most other code paths, serializer produced
-         *  here will NOT be resolved or contextualized, unless done here, so:
-         */
+        // Unlike most other code paths, serializer produced
+        // here will NOT be resolved or contextualized, unless done here, so:
         if (annotatedSerializer instanceof ResolvableSerializer) {
             ((ResolvableSerializer) annotatedSerializer).resolve(prov);
         }
@@ -798,8 +797,7 @@ public class BeanSerializerFactory
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         // 16-Feb-2014, cgc: contentType serializers for collection-like and map-like types
-        if (ClassUtil.isCollectionMapOrArray(type.getRawClass())
-                || type.isCollectionLikeType() || type.isMapLikeType()) {
+        if (type.isContainerType() || type.isReferenceType()) {
             contentTypeSer = findPropertyContentTypeSerializer(type, prov.getConfig(), accessor);
         }
         // and if not JAXB collection/array with annotations, maybe regular type info?

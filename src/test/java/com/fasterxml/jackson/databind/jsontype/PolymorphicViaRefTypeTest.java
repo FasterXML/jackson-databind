@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.*;
 
 public class PolymorphicViaRefTypeTest extends BaseMapTest
@@ -35,14 +36,12 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = objectMapper();
 
-    public void testOptionalWithAtomic() throws Exception
+    public void testPolymorphicAtomicRefProperty() throws Exception
     {
         TypeInfoAtomic data = new TypeInfoAtomic();
         data.value = new AtomicReference<BaseForAtomic>(new ImplForAtomic(42));
         String json = MAPPER.writeValueAsString(data);
-System.err.println("JSON = "+json);
         TypeInfoAtomic result = MAPPER.readValue(json, TypeInfoAtomic.class);
         assertNotNull(result);
     }
-
 }

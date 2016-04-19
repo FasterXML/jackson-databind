@@ -230,6 +230,10 @@ public class ObjectMapper
                 }
                 // fall through
             case OBJECT_AND_NON_CONCRETE:
+                // 19-Apr-2016, tatu: ReferenceType like Optional also requires similar handling:
+                while (t.isReferenceType()) {
+                    t = t.getReferencedType();
+                }
                 return t.isJavaLangObject()
                         || (!t.isConcrete()
                                 // [databind#88] Should not apply to JSON tree models:
@@ -239,7 +243,11 @@ public class ObjectMapper
                 while (t.isArrayType()) {
                     t = t.getContentType();
                 }
-                // [Issue#88] Should not apply to JSON tree models:
+                // 19-Apr-2016, tatu: ReferenceType like Optional also requires similar handling:
+                while (t.isReferenceType()) {
+                    t = t.getReferencedType();
+                }
+                // [databind#88] Should not apply to JSON tree models:
                 return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
             default:
             //case JAVA_LANG_OBJECT:
@@ -1344,7 +1352,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Type information configuration (1.5+)
+    /* Type information configuration
     /**********************************************************
      */
 

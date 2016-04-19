@@ -76,7 +76,7 @@ public class ClassNameIdResolver
     
     protected final String _idFrom(Object value, Class<?> cls)
     {
-        // [JACKSON-380] Need to ensure that "enum subtypes" work too
+        // Need to ensure that "enum subtypes" work too
         if (Enum.class.isAssignableFrom(cls)) {
             if (!cls.isEnum()) { // means that it's sub-class of base enum, so:
                 cls = cls.getSuperclass();
@@ -84,23 +84,21 @@ public class ClassNameIdResolver
         }
         String str = cls.getName();
         if (str.startsWith("java.util")) {
-            /* 25-Jan-2009, tatu: There are some internal classes that
-             *   we can not access as is. We need better mechanism; for
-             *   now this has to do...
-             */
-            /* Enum sets and maps are problematic since we MUST know
-             * type of contained enums, to be able to deserialize.
-             * In addition, EnumSet is not a concrete type either
-             */
+            // 25-Jan-2009, tatu: There are some internal classes that we can not access as is.
+            //     We need better mechanism; for now this has to do...
+
+            // Enum sets and maps are problematic since we MUST know type of
+            // contained enums, to be able to deserialize.
+            // In addition, EnumSet is not a concrete type either
             if (value instanceof EnumSet<?>) { // Regular- and JumboEnumSet...
                 Class<?> enumClass = ClassUtil.findEnumType((EnumSet<?>) value);
                 // not optimal: but EnumSet is not a customizable type so this is sort of ok
-                str = TypeFactory.defaultInstance().constructCollectionType(EnumSet.class, enumClass).toCanonical();
+               str = _typeFactory.constructCollectionType(EnumSet.class, enumClass).toCanonical();
             } else if (value instanceof EnumMap<?,?>) {
                 Class<?> enumClass = ClassUtil.findEnumType((EnumMap<?,?>) value);
                 Class<?> valueClass = Object.class;
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
-                str = TypeFactory.defaultInstance().constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
+                str = _typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
             } else {
                 String end = str.substring(9);
                 if ((end.startsWith(".Arrays$") || end.startsWith(".Collections$"))

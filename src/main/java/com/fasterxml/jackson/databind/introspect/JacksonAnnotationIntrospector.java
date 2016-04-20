@@ -80,7 +80,29 @@ public class JacksonAnnotationIntrospector
      * @since 2.7
      */
     protected transient LRUMap<Class<?>,Boolean> _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
-    
+
+    /*
+    /**********************************************************
+    /* Local configuration settings
+    /**********************************************************
+     */
+
+    /**
+     * See {@link #setConstructorPropertiesImpliesCreator(boolean)} for
+     * explanation.
+     *<p>
+     * Defaults to true.
+     * 
+     * @since 2.7.4
+     */
+    protected boolean _cfgConstructorPropertiesImpliesCreator = true;
+
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+
     public JacksonAnnotationIntrospector() { }
 
     @Override
@@ -95,6 +117,28 @@ public class JacksonAnnotationIntrospector
         return this;
     }
 
+    /*
+    /**********************************************************
+    /* Configuration
+    /**********************************************************
+     */
+
+    /**
+     * Method for changing behavior of {@link java.beans.ConstructorProperties}:
+     * if set to `true`, existence DOES indicate that the given constructor should
+     * be considered a creator; `false` that it should NOT be considered a creator
+     * without explicit use of <code>JsonCreator</code> annotation.
+     *<p>
+     * Default setting is `true`
+     *
+     * @since 2.7.4
+     */
+    public JacksonAnnotationIntrospector setConstructorPropertiesImpliesCreator(boolean b)
+    {
+        _cfgConstructorPropertiesImpliesCreator = b;
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* General annotation properties
@@ -294,10 +338,9 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findImplicitPropertyName(AnnotatedMember param) {
-        // not known by default (until JDK8) for creators; default 
-        //
-        return null;
+    public String findImplicitPropertyName(AnnotatedMember m) {
+        PropertyName n = _findConstructorName(m);
+        return (n == null) ? null : n.getSimpleName();
     }
     
     @Override
@@ -866,10 +909,6 @@ public class JacksonAnnotationIntrospector
         if (pann != null) {
             return PropertyName.construct(pann.value());
         }
-        PropertyName ctorName = _findConstructorName(a);
-        if (ctorName != null) {
-            return ctorName;
-        }
         if (_hasOneOf(a, ANNOTATIONS_TO_INFER_SER)) {
             return PropertyName.USE_DEFAULT;
         }
@@ -1019,10 +1058,6 @@ public class JacksonAnnotationIntrospector
         if (pann != null) {
             return PropertyName.construct(pann.value());
         }
-        PropertyName ctorName = _findConstructorName(a);
-        if (ctorName != null) {
-            return ctorName;
-        }
         if (_hasOneOf(a, ANNOTATIONS_TO_INFER_DESER)) {
             return PropertyName.USE_DEFAULT;
         }
@@ -1059,11 +1094,15 @@ public class JacksonAnnotationIntrospector
          if (ann != null) {
              return (ann.mode() != JsonCreator.Mode.DISABLED);
          }
-         if (a instanceof AnnotatedConstructor) {
-             if (_jdk7Helper != null) {
-                 Boolean b = _jdk7Helper.hasCreatorAnnotation(a);
-                 if (b != null) {
-                     return b.booleanValue();
+         // 19-Apr-2016, tatu: As per [databind#1197], [databind#1122] (and some related),
+         //    may or may not consider it a creator
+         if (_cfgConstructorPropertiesImpliesCreator ) {
+             if (a instanceof AnnotatedConstructor) {
+                 if (_jdk7Helper != null) {
+                     Boolean b = _jdk7Helper.hasCreatorAnnotation(a);
+                     if (b != null) {
+                         return b.booleanValue();
+                     }
                  }
              }
          }

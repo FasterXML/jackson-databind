@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.creators;
 
 import java.beans.ConstructorProperties;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
 public class CreatorPropertiesTest extends BaseMapTest
@@ -22,6 +23,29 @@ public class CreatorPropertiesTest extends BaseMapTest
         }
     }
 
+    // for [databind#1122]
+    static class Ambiguity {
+
+        @JsonProperty("bar")
+        private int foo;
+
+        protected Ambiguity() {}
+
+        @ConstructorProperties({ "foo" })
+        public Ambiguity(int foo) {
+            this.foo = foo;
+        }
+
+        public int getFoo() {
+            return foo;
+        }
+
+        @Override
+        public String toString() {
+            return "Ambiguity [foo=" + foo + "]";
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -37,5 +61,14 @@ public class CreatorPropertiesTest extends BaseMapTest
                 Issue905Bean.class);
         assertEquals(2, b._x);
         assertEquals(3, b._y);
+    }
+
+    // [databind#1122]
+    public void testPossibleNamingConflict() throws Exception
+    {
+        String json = "{\"bar\":3}";
+        Ambiguity amb = MAPPER.readValue(json, Ambiguity.class);
+        assertNotNull(amb);
+        assertEquals(3, amb.getFoo());
     }
 }

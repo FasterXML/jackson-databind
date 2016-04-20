@@ -1,18 +1,24 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
+import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -59,16 +65,17 @@ public class EnumDeserializer
      * @return Deserializer based on given factory method, if type was suitable;
      *  null if type can not be used
      */
-    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
-            Class<?> enumClass, AnnotatedMethod factory)
-    {
-        // note: caller has verified there's just one arg; but we must verify its type
+    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config, Class<?> enumClass,
+    		AnnotatedMethod factory, ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps) {
+        // note: caller has verified there's just one arg; but we must verify
+        // its type
         Class<?> paramClass = factory.getRawParameterType(0);
         if (config.canOverrideAccessModifiers()) {
-            ClassUtil.checkAndFixAccess(factory.getMember(),
-                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+        	ClassUtil.checkAndFixAccess(factory.getMember(),
+        			config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        return new FactoryBasedDeserializer(enumClass, factory, paramClass);
+        return new FactoryBasedDeserializer(enumClass, factory, paramClass).withCreatorProps(creatorProps)
+        		.withValueInstantiator(valueInstantiator);
     }
     
     /*
@@ -232,6 +239,8 @@ public class EnumDeserializer
         protected final Class<?> _inputType;
         protected final Method _factory;
         protected final JsonDeserializer<?> _deser;
+        protected ValueInstantiator _valueInstantiator;
+        protected SettableBeanProperty[] _creatorProps;
         
         public FactoryBasedDeserializer(Class<?> cls, AnnotatedMethod f,
                 Class<?> inputType)
@@ -250,11 +259,26 @@ public class EnumDeserializer
             _deser = deser;
         }
         
+        //To set the ValueInstantiator to be used for deserializing JsonCreator.MODE.Properties
+        public FactoryBasedDeserializer withValueInstantiator(ValueInstantiator valueInstantiator) {
+            _valueInstantiator = valueInstantiator;
+            return this;
+        }
+        
+        //To set the SettableBeanProperty array to be used for deserializing JsonCreator.MODE.Properties
+        public FactoryBasedDeserializer withCreatorProps(SettableBeanProperty[] creatorProps) {
+            _creatorProps = creatorProps;
+            return this;
+        }
+        
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
             throws JsonMappingException
         {
+        	final DeserializationConfig config = ctxt.getConfig();
+      	  	BeanDescription beanDesc = config.introspect(ctxt.constructType(_inputType));
+      	  	
             if ((_deser == null) && (_inputType != String.class)) {
                 return new FactoryBasedDeserializer(this,
                         ctxt.findContextualValueDeserializer(ctxt.constructType(_inputType), property));
@@ -265,12 +289,22 @@ public class EnumDeserializer
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            Object value;
+            Object value = null;
             if (_deser != null) {
                 value = _deser.deserialize(p, ctxt);
             } else {
                 JsonToken curr = p.getCurrentToken();
-                if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
+                //There can be a JSON object passed for deserializing an Enum,
+                //the below case handles it.
+                if (p.isExpectedStartObjectToken()) {
+                    p.nextToken();
+                    
+                    if(_creatorProps != null){
+                    	PropertyBasedCreator propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps);
+                    	return deserializeEnumUsingPropertyBased(p, ctxt, propertyBasedCreator);
+                    }
+                }
+                else if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
                     value = p.getText();
                 } else {
                     value = p.getValueAsString();
@@ -293,6 +327,82 @@ public class EnumDeserializer
                 return deserialize(p, ctxt);
             }
             return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+        }
+        
+        // Method to deserialize the Enum using property based methodology
+        protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
+        		final PropertyBasedCreator creator) throws IOException {
+        	PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        
+        	JsonToken t = p.getCurrentToken();
+        	for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        		String propName = p.getCurrentName();
+        		p.nextToken(); // to point to value
+        
+        		SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+        		if (creatorProp != null) {
+        
+        			if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
+        				p.nextToken(); // to move to next field name
+        			}
+        			continue;
+        		}
+        
+        		if (buffer.readIdProperty(propName)) {
+        			continue;
+        		}
+        
+        	}
+        
+        	return creator.build(ctxt, buffer);
+        }
+
+        // ************ Got the below methods from BeanDeserializer ********************//
+	
+        protected final Object _deserializeWithErrorWrapping(JsonParser p, DeserializationContext ctxt,
+        		SettableBeanProperty prop) throws IOException {
+        	try {
+        		return prop.deserialize(p, ctxt);
+        	} catch (Exception e) {
+        		wrapAndThrow(e, _valueClass.getClass(), prop.getName(), ctxt);
+        		// never gets here, unless caller declines to throw an exception
+        		return null;
+        	}
+        }
+        
+        public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+        		throws IOException {
+        	// [JACKSON-55] Need to add reference information
+        	throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
+        }
+        
+        private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) throws IOException {
+        	/*
+        	 * 05-Mar-2009, tatu: But one nasty edge is when we get
+        	 * StackOverflow: usually due to infinite loop. But that often gets
+        	 * hidden within an InvocationTargetException...
+        	 */
+        	while (t instanceof InvocationTargetException && t.getCause() != null) {
+        		t = t.getCause();
+        	}
+        	// Errors to be passed as is
+        	if (t instanceof Error) {
+        		throw (Error) t;
+        	}
+        	boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+        	// Ditto for IOExceptions; except we may want to wrap JSON
+        	// exceptions
+        	if (t instanceof IOException) {
+        		if (!wrap || !(t instanceof JsonProcessingException)) {
+        			throw (IOException) t;
+        		}
+        	} else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for
+        						// unchecked exceptions
+        		if (t instanceof RuntimeException) {
+        			throw (RuntimeException) t;
+        		}
+        	}
+        	return t;
         }
     }
 }

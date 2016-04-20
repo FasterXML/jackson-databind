@@ -47,4 +47,30 @@ public class AtomicReferenceDeserializer
     public AtomicReference<Object> referenceValue(Object contents) {
         return new AtomicReference<Object>(contents);
     }
+
+    /*
+    @Override
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeser) throws IOException
+    {
+        final JsonToken t = p.getCurrentToken();
+        if (t == JsonToken.VALUE_NULL) { // can this actually happen?
+            return getNullValue(ctxt);
+        }
+        // 22-Oct-2015, tatu: This handling is probably not needed (or is wrong), but
+        //   could be result of older (pre-2.7) Jackson trying to serialize natural types.
+        //  Because of this, let's allow for now, unless proven problematic
+        if ((t != null) && t.isScalarValue()) {
+            return deserialize(p, ctxt);
+        }
+        // 19-Apr-2016, tatu: Alas, due to there not really being anything for AtomicReference
+        //   itself, need to just ignore `typeDeser`, use TypeDeserializer we do have for contents
+        //   and it might just work.
+
+        if (_valueTypeDeserializer == null) {
+            return deserialize(p, ctxt);
+        }
+        return new AtomicReference<Object>(_valueTypeDeserializer.deserializeTypedFromAny(p, ctxt));
+    }
+    */
 }

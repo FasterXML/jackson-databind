@@ -53,6 +53,10 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
         String json = MAPPER.writeValueAsString(data);
         TypeInfoAtomic result = MAPPER.readValue(json, TypeInfoAtomic.class);
         assertNotNull(result);
+        BaseForAtomic value = result.value.get();
+        assertNotNull(value);
+        assertEquals(ImplForAtomic.class, value.getClass());
+        assertEquals(42, ((ImplForAtomic) value).x);
     }
 
     public void testAtomicRefViaDefaultTyping() throws Exception
@@ -63,5 +67,9 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
         AtomicStringWrapper result = mapper.readValue(json, AtomicStringWrapper.class);
         assertNotNull(result);
+        assertNotNull(result.wrapper);
+        assertEquals(AtomicReference.class, result.wrapper.getClass());
+        StringWrapper w = result.wrapper.get();
+        assertEquals("foo", w.str);
     }
 }

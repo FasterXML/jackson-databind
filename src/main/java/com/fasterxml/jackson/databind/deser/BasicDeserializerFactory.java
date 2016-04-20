@@ -1302,6 +1302,8 @@ public abstract class BasicDeserializerFactory
         if (deser == null) {
             // Just one referential type as of JDK 1.7 / Java 7: AtomicReference (Java 8 adds Optional)
             if (AtomicReference.class.isAssignableFrom(type.getRawClass())) {
+                // 19-Apr-2016, tatu: By default we'd get something that expect to see an
+                //   AtomicReference... but what we need is something else, so...
                 return new AtomicReferenceDeserializer(contentType, contentTypeDeser, contentDeser);
             }
         }

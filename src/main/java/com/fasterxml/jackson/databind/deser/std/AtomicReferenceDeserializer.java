@@ -22,7 +22,7 @@ public class AtomicReferenceDeserializer
     protected final TypeDeserializer _valueTypeDeserializer;
 
     protected final JsonDeserializer<?> _valueDeserializer;
-    
+
     /**
      * @param referencedType Parameterization of this reference
      */
@@ -84,7 +84,7 @@ public class AtomicReferenceDeserializer
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException
+            TypeDeserializer typeDeser) throws IOException
     {
         final JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_NULL) { // can this actually happen?
@@ -96,7 +96,13 @@ public class AtomicReferenceDeserializer
         if ((t != null) && t.isScalarValue()) {
             return deserialize(p, ctxt);
         }
-        // andn this is what should really happen
-        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+        // 19-Apr-2016, tatu: Alas, due to there not really being anything for AtomicReference
+        //   itself, need to just ignore `typeDeser`, use TypeDeserializer we do have for contents
+        //   and it might just work.
+
+        if (_valueTypeDeserializer == null) {
+            return deserialize(p, ctxt);
+        }
+        return new AtomicReference<Object>(_valueTypeDeserializer.deserializeTypedFromAny(p, ctxt));
     }
 }

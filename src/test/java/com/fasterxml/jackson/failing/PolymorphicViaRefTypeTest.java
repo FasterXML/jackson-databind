@@ -15,7 +15,7 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
             wrapper = new AtomicReference<StringWrapper>(new StringWrapper(str));
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods

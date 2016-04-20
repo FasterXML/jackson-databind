@@ -114,10 +114,18 @@ public abstract class ReferenceTypeDeserializer<T>
         // 22-Oct-2015, tatu: This handling is probably not needed (or is wrong), but
         //   could be result of older (pre-2.7) Jackson trying to serialize natural types.
         //  Because of this, let's allow for now, unless proven problematic
+        /*
         if ((t != null) && t.isScalarValue()) {
             return deserialize(p, ctxt);
         }
-        // andn this is what should really happen
-        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+        */
+        // 19-Apr-2016, tatu: Alas, due to there typically really being anything for Reference wrapper
+        //   itself, need to just ignore `typeDeser`, use TypeDeserializer we do have for contents
+        //   and it might just work.
+
+        if (_valueTypeDeserializer == null) {
+            return deserialize(p, ctxt);
+        }
+        return referenceValue(_valueTypeDeserializer.deserializeTypedFromAny(p, ctxt));
     }
 }

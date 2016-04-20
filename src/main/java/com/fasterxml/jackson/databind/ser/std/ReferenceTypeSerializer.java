@@ -273,10 +273,21 @@ public abstract class ReferenceTypeSerializer<T>
             return;
         }
 
+        // 19-Apr-2016, tatu: In order to basically "skip" the whole wrapper level
+        //    (which is what non-polymorphic serialization does too), we will need
+        //    to simply delegate call, I think, and NOT try to use it here.
+        
         // Otherwise apply type-prefix/suffix, then std serialize:
+        /*
         typeSer.writeTypePrefixForScalar(ref, g);
         serialize(ref, g, provider);
         typeSer.writeTypeSuffixForScalar(ref, g);
+        */
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) {
+            ser = _findCachedSerializer(provider, value.getClass());
+        }
+        ser.serializeWithType(value, g, provider, typeSer);
     }
 
     /*

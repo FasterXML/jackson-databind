@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
 public class PolymorphicViaRefTypeTest extends BaseMapTest
 {
@@ -28,6 +29,15 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
         public AtomicReference<BaseForAtomic> value;
     }
 
+    static class AtomicStringWrapper {
+        public AtomicReference<StringWrapper> wrapper;
+
+        protected AtomicStringWrapper() { }
+        public AtomicStringWrapper(String str) {
+            wrapper = new AtomicReference<StringWrapper>(new StringWrapper(str));
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -42,6 +52,16 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
         data.value = new AtomicReference<BaseForAtomic>(new ImplForAtomic(42));
         String json = MAPPER.writeValueAsString(data);
         TypeInfoAtomic result = MAPPER.readValue(json, TypeInfoAtomic.class);
+        assertNotNull(result);
+    }
+
+    public void testAtomicRefViaDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        AtomicStringWrapper data = new AtomicStringWrapper("foo");
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
+        AtomicStringWrapper result = mapper.readValue(json, AtomicStringWrapper.class);
         assertNotNull(result);
     }
 }

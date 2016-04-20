@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class TestAnyGetter extends BaseMapTest
+public class AnyGetterTest extends BaseMapTest
 {
     static class Bean
     {
@@ -84,6 +85,40 @@ public class TestAnyGetter extends BaseMapTest
         }
     }
 
+    // [databind#1124]
+    static class Bean1124
+    {
+        protected Map<String,String> additionalProperties;
+
+        public void addAdditionalProperty(String key, String value) {
+            if (additionalProperties == null) {
+                additionalProperties = new HashMap<String,String>();
+            }
+            additionalProperties.put(key,value);
+        }
+        
+        public void setAdditionalProperties(Map<String, String> additionalProperties) {
+            this.additionalProperties = additionalProperties;
+        }
+
+        @JsonAnyGetter
+        @JsonSerialize(contentUsing=MyUCSerializer.class)
+        public Map<String,String> getAdditionalProperties() { return additionalProperties; }
+    }
+
+    // [databind#1124]
+    @SuppressWarnings("serial")
+    static class MyUCSerializer extends StdScalarSerializer<String>
+    {
+        public MyUCSerializer() { super(String.class); }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen,
+                SerializerProvider provider) throws IOException {
+            gen.writeString(value.toUpperCase());
+        }
+    }
+
     /*
     /**********************************************************
     /* Test cases
@@ -101,7 +136,6 @@ public class TestAnyGetter extends BaseMapTest
         assertEquals(Boolean.TRUE, map.get("a"));
     }
 
-    // [JACKSON-392]
     public void testAnyOnly() throws Exception
     {
         ObjectMapper m;
@@ -133,5 +167,15 @@ public class TestAnyGetter extends BaseMapTest
         Issue705Bean input = new Issue705Bean("key", "value");        
         String json = MAPPER.writeValueAsString(input);
         assertEquals("{\"stuff\":\"[key/value]\"}", json);
+    }
+
+    // [databind#1124]
+    public void testAnyGetterWithValueSerializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Bean1124 input = new Bean1124();
+        input.addAdditionalProperty("key", "value");
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"key\":\"VALUE\"}", json);
     }
 }

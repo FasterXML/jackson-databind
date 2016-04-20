@@ -116,7 +116,7 @@ public abstract class AnnotatedWithParams
     public abstract JavaType getParameterType(int index);
 
     /**
-     * @deprecated Since 2.7, remove in 2.8
+     * @deprecated Since 2.7, remove in 2.9
      */
     @Deprecated
     public final Type getGenericParameterType(int index) {

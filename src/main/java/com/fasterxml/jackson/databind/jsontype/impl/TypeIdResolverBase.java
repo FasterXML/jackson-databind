@@ -51,25 +51,6 @@ public abstract class TypeIdResolverBase
         return idFromValueAndType(null, _baseType.getRawClass());
     }
 
-    /**
-     * @deprecated Since 2.3, override {@link #typeFromId(DatabindContext, String)} instead
-     *    to get access to contextual information
-     */
-    @Deprecated
-    @Override
-    public JavaType typeFromId(String id) {
-        return typeFromId(null, id);
-    }
-
-    /**
-     * New method, replacement for {@link #typeFromId(String)}, which is given
-     * context for accessing information, including configuration and
-     * {@link TypeFactory}.
-     * 
-     * @return Type for given id
-     * 
-     * @since 2.3
-     */
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
         // 22-Dec-2015, tatu: Must be overridden by sub-classes, so let's throw

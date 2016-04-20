@@ -42,7 +42,7 @@ public interface TypeIdResolver
     /* Conversions between types and type ids
     /**********************************************************
      */
-    
+
     /**
      * Method called to serialize type of the type of given value
      * as a String to include in serialized JSON content.
@@ -65,17 +65,10 @@ public interface TypeIdResolver
      */
     public String idFromBaseType();
 
-    // !!! TODO: remove from 2.8
-    /**
-     * @deprecated since 2.5; call {@link #typeFromId(DatabindContext, String)} instead
-     */
-    @Deprecated // since 2.5
-    public JavaType typeFromId(String id);
-
     /**
      * Method called to resolve type from given type identifier.
      * 
-     * @since 2.5 -- but since 2.3 has existed in {@link com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase}
+     * @since 2.5
      */
     public JavaType typeFromId(DatabindContext context, String id);
 
@@ -85,7 +78,7 @@ public interface TypeIdResolver
      * @since 2.7 -- but since 2.5 has existed in {@link com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase}
      */
     public String getDescForKnownTypeIds();
-    
+
     /*
     /**********************************************************
     /* Accessors for metadata

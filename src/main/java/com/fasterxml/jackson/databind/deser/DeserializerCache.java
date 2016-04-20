@@ -353,7 +353,7 @@ public final class DeserializerCache
         }
         // otherwise need to do bit of introspection
         JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
-        // One more twist, as per [Issue#288]; probably need to get new BeanDesc
+        // One more twist, as per [databind#288]; probably need to get new BeanDesc
         if (!delegateType.hasRawClass(type.getRawClass())) {
             beanDesc = config.introspect(delegateType);
         }

@@ -29,18 +29,12 @@ public class ClassNameIdResolver
     
     @Override
     public String idFromValue(Object value) {
-        return _idFrom(value, value.getClass());
+        return _idFrom(value, value.getClass(), _typeFactory);
     }
 
     @Override
     public String idFromValueAndType(Object value, Class<?> type) {
-        return _idFrom(value, type);
-    }
-
-    @Deprecated // since 2.3
-    @Override
-    public JavaType typeFromId(String id) {
-        return _typeFromId(id, _typeFactory);
+        return _idFrom(value, type, _typeFactory);
     }
 
     @Override
@@ -74,7 +68,7 @@ public class ClassNameIdResolver
     /**********************************************************
      */
     
-    protected final String _idFrom(Object value, Class<?> cls)
+    protected final String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
         // Need to ensure that "enum subtypes" work too
         if (Enum.class.isAssignableFrom(cls)) {
@@ -93,12 +87,12 @@ public class ClassNameIdResolver
             if (value instanceof EnumSet<?>) { // Regular- and JumboEnumSet...
                 Class<?> enumClass = ClassUtil.findEnumType((EnumSet<?>) value);
                 // not optimal: but EnumSet is not a customizable type so this is sort of ok
-               str = _typeFactory.constructCollectionType(EnumSet.class, enumClass).toCanonical();
+               str = typeFactory.constructCollectionType(EnumSet.class, enumClass).toCanonical();
             } else if (value instanceof EnumMap<?,?>) {
                 Class<?> enumClass = ClassUtil.findEnumType((EnumMap<?,?>) value);
                 Class<?> valueClass = Object.class;
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
-                str = _typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
+                str = typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
             } else {
                 String end = str.substring(9);
                 if ((end.startsWith(".Arrays$") || end.startsWith(".Collections$"))

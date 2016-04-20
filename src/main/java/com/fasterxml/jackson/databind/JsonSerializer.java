@@ -187,10 +187,8 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation will consider only null values to be empty.
      * 
-     * @since 2.0
-     * 
      * @deprecated Since 2.5 Use {@link #isEmpty(SerializerProvider, Object)} instead;
-     *   will be removed from 2.8
+     *   will be removed from 2.9
      */
     @Deprecated
     public boolean isEmpty(T value) {
@@ -204,7 +202,7 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation will consider only null values to be empty.
      *<p>
-     * NOTE: replaces {@link #isEmpty(Object)}, deprecated in 2.5
+     * NOTE: replaces {@link #isEmpty(Object)}, which was deprecated in 2.5
      * 
      * @since 2.5
      */

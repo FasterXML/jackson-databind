@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 public class TypeNameIdResolver extends TypeIdResolverBase
 {
     protected final MapperConfig<?> _config;
-    
+
     /**
      * Mappings from class name to type id, used for serialization
      */
@@ -22,7 +22,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
      * Mappings from type id to JavaType, used for deserialization
      */
     protected final Map<String, JavaType> _idToType;
-    
+
     protected TypeNameIdResolver(MapperConfig<?> config, JavaType baseType,
             Map<String, String> typeToId, Map<String, JavaType> idToType)
     {
@@ -79,8 +79,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.NAME; }
 
     @Override
-    public String idFromValue(Object value)
-    {
+    public String idFromValue(Object value) {
         return idFromClass(value.getClass());
     }
 
@@ -123,12 +122,6 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         return idFromValue(value);
     }
 
-    @Deprecated
-    @Override
-    public JavaType typeFromId(String id) {
-        return _typeFromId(id);
-    }    
-
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
         return _typeFromId(id);
@@ -150,13 +143,9 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append('[').append(getClass().getName());
-        sb.append("; id-to-type=").append(_idToType);
-        sb.append(']');
-        return sb.toString();
+        return String.format("[%s; id-to-type=%s]", getClass().getName(), _idToType);
     }
-    
+
     /*
     /*********************************************************
     /* Helper methods

@@ -63,7 +63,7 @@ public abstract class Annotated
     public abstract JavaType getType();
 
     /**
-     * @deprecated Since 2.7 Use {@link #getType()} instead. To be removed from 2.8.
+     * @deprecated Since 2.7 Use {@link #getType()} instead. To be removed from 2.9
      */
     @Deprecated
     public final JavaType getType(TypeBindings bogus) {
@@ -74,7 +74,7 @@ public abstract class Annotated
      * Full generic type of the annotated element; definition
      * of what exactly this means depends on sub-class.
      *
-     * @deprecated Since 2.7 should instead use {@link #getType()}. To be removed from 2.8
+     * @deprecated Since 2.7 should instead use {@link #getType()}. To be removed from 2.9
      */
     @Deprecated
     public Type getGenericType() {

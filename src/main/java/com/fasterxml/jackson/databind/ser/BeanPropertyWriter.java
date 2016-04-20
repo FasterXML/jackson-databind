@@ -599,15 +599,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                 .getRawClass();
     }
 
-    /*
-     * public JavaType getFullPropertyType() { if (_accessorMethod != null) {
-     * return _accessorMethod.getType() } if (_field != null) { return
-     * _field.getType(); } return null; }
-     */
-
     /**
-     * @deprecated Since 2.7, to be removed from 2.8, use {@link #getType()}
-     *             instead.
+     * @deprecated Since 2.7, to be removed from 2.9, use {@link #getType()} instead.
      */
     @Deprecated
     public Class<?> getPropertyType() {
@@ -625,8 +618,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      *
      * @return The property type, or null if not found.
      *
-     * @deprecated Since 2.7, to be removed from 2.8, use {@link #getType()}
-     *             instead.
+     * @deprecated Since 2.7, to be removed from 2.9, use {@link #getType()} instead.
      */
     @Deprecated
     public Type getGenericPropertyType() {

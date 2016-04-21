@@ -11,6 +11,7 @@ import java.util.Set;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -57,6 +58,11 @@ public class JsonValueSerializer
     /**********************************************************
      */
 
+    // Added in 2.7.4 for forward-compatibility reasons; will be used by default in 2.8.0
+    public JsonValueSerializer(AnnotatedMethod valueMethod, JsonSerializer<?> ser) {
+        this(valueMethod.getAnnotated(), ser);
+    }
+    
     /**
      * @param ser Explicit serializer to use, if caller knows it (which
      *    occurs if and only if the "value method" was annotated with

@@ -212,9 +212,9 @@ public class DateDeserializers
         }
         
         @Override
-        public Calendar deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public Calendar deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            Date d = _parseDate(jp, ctxt);
+            Date d = _parseDate(p, ctxt);
             if (d == null) {
                 return null;
             }

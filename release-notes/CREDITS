@@ -439,3 +439,8 @@ Yoann Rodière (fenrhil@github)
 Mark Woon (markwoon@github)
   * Reported #1178: `@JsonSerialize(contentAs=superType)` behavior disallowed in 2.7
    (2.7.4)
+
+Tom Mack (tommack@github)
+  * Reported #1208: treeToValue doesn't handle POJONodes that contain exactly
+    the requested value type
+   (2.7.4)

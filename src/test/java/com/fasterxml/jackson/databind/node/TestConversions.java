@@ -31,14 +31,11 @@ public class TestConversions extends BaseMapTest
         public Leaf() { }
         public Leaf(int v) { value = v; }
     }
-    
-    // MixIn for [JACKSON-554]
-    @JsonDeserialize(using = LeafDeserializer.class)
-    public static class LeafMixIn
-    {
-    }
 
-    // for [Issue#467]
+    @JsonDeserialize(using = LeafDeserializer.class)
+    public static class LeafMixIn { }
+
+    // for [databind#467]
     @JsonSerialize(using=Issue467Serializer.class)
     static class Issue467Bean  {
         public int i;
@@ -121,7 +118,6 @@ public class TestConversions extends BaseMapTest
         }
     }
 
-    // Test for [JACKSON-554]
     public void testTreeToValue() throws Exception
     {
         String JSON = "{\"leaf\":{\"value\":13}}";
@@ -134,7 +130,17 @@ public class TestConversions extends BaseMapTest
         assertEquals(13, r1.leaf.value);
     }
 
-    // Test for [JACKSON-631]
+    // [databind#1208]: should coerce POJOs at least at root level
+    public void testTreeToValueWithPOJO() throws Exception
+    {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new java.util.Date(0));
+        ValueNode pojoNode = MAPPER.getNodeFactory().pojoNode(c);        
+        Calendar result = MAPPER.treeToValue(pojoNode, Calendar.class);
+        assertNotNull(result);
+        assertEquals(result.getTimeInMillis(), c.getTimeInMillis());
+    }
+
     public void testBase64Text() throws Exception
     {
         // let's actually iterate over sets of encoding modes, lengths
@@ -202,7 +208,7 @@ public class TestConversions extends BaseMapTest
         assertEquals(3, data.length);
     }
 
-    // [Issue#232]
+    // [databind#232]
     public void testBigDecimalAsPlainStringTreeConversion() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -239,7 +245,7 @@ public class TestConversions extends BaseMapTest
         }    
     }
 
-    // [#433]
+    // [databind#433]
     public void testBeanToTree() throws Exception
     {
         final CustomSerializedPojo pojo = new CustomSerializedPojo();
@@ -248,7 +254,7 @@ public class TestConversions extends BaseMapTest
         assertEquals(JsonNodeType.OBJECT, node.getNodeType());
     }
 
-    // [#467]
+    // [databind#467]
     public void testConversionOfPojos() throws Exception
     {
         final Issue467Bean input = new Issue467Bean(13);
@@ -264,7 +270,7 @@ public class TestConversions extends BaseMapTest
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
     }
 
-    // [#467]
+    // [databind#467]
     public void testConversionOfTrees() throws Exception
     {
         final Issue467Tree input = new Issue467Tree();

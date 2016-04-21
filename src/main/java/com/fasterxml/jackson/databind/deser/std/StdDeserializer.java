@@ -762,12 +762,12 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected java.util.Date _parseDate(JsonParser jp, DeserializationContext ctxt)
+    protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            return new java.util.Date(jp.getLongValue());
+            return new java.util.Date(p.getLongValue());
         }
         if (t == JsonToken.VALUE_NULL) {
             return (java.util.Date) getNullValue(ctxt);
@@ -776,7 +776,7 @@ public abstract class StdDeserializer<T>
             String value = null;
             try {
                 // As per [JACKSON-203], take empty Strings to mean
-                value = jp.getText().trim();
+                value = p.getText().trim();
                 if (value.length() == 0) {
                     return (Date) getEmptyValue(ctxt);
                 }
@@ -789,16 +789,18 @@ public abstract class StdDeserializer<T>
                         "not a valid representation (error: "+iae.getMessage()+")");
             }
         }
-        // Issue#381
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final Date parsed = _parseDate(jp, ctxt);
-            t = jp.nextToken();
-            if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
-            }            
-            return parsed;            
+        // [databind#381]
+        if (t == JsonToken.START_ARRAY) {
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final Date parsed = _parseDate(p, ctxt);
+                t = p.nextToken();
+                if (t != JsonToken.END_ARRAY) {
+                    throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
+                            "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
+                }            
+                return parsed;
+            }
         }
         throw ctxt.mappingException(_valueClass, t);
     }

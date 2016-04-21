@@ -26,8 +26,7 @@ public class POJONode
      */
 
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.POJO;
     }
 

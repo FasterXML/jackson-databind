@@ -33,6 +33,8 @@ Project: jackson-databind
 #1197: `SNAKE_CASE` doesn't work when using Lombok's `@AllArgsConstructor`
 #1198: Problem with `@JsonTypeInfo.As.EXTERNAL_PROPERTY`, `defaultImpl`, missing type id, NPE
 #1203: `@JsonTypeInfo` does not work correctly for ReferenceTypes like `AtomicReference`
+#1208: treeToValue doesn't handle POJONodes that contain exactly the requested value type
+  (reported by Tom M)
 - Improve handling of custom content (de)serializers for `AtomicReference`
 
 2.7.3 (16-Mar-2016)

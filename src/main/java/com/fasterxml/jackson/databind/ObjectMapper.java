@@ -2567,10 +2567,20 @@ public class ObjectMapper
         throws JsonProcessingException
     {
         try {
-            // [Issue-11]: Simple cast when we just want to cast to, say, ObjectNode
+            // Simple cast when we just want to cast to, say, ObjectNode
             // ... one caveat; while everything is Object.class, let's not take shortcut
             if (valueType != Object.class && valueType.isAssignableFrom(n.getClass())) {
                 return (T) n;
+            }
+            // 20-Apr-2016, tatu: Another thing: for VALUE_EMBEDDED_OBJECT, assume similar
+            //    short-cut coercion
+            if (n.asToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
+                if (n instanceof POJONode) {
+                    Object ob = ((POJONode) n).getPojo();
+                    if ((ob == null) || valueType.isInstance(ob)) {
+                        return (T) ob;
+                    }
+                }
             }
             return readValue(treeAsTokens(n), valueType);
         } catch (JsonProcessingException e) {

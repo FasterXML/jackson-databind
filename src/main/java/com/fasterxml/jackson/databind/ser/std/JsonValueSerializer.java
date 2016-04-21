@@ -59,11 +59,6 @@ public class JsonValueSerializer
     /**********************************************************
      */
 
-    // Added in 2.7.4 for forward-compatibility reasons; will be used by default in 2.8.0
-    public JsonValueSerializer(AnnotatedMethod valueMethod, JsonSerializer<?> ser) {
-        this(valueMethod.getAnnotated(), ser);
-    }
-    
     /**
      * @param ser Explicit serializer to use, if caller knows it (which
      *    occurs if and only if the "value method" was annotated with

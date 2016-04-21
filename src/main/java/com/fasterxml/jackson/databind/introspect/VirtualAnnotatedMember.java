@@ -17,7 +17,10 @@ public class VirtualAnnotatedMember extends AnnotatedMember
 
     protected final Class<?> _declaringClass;
 
-    protected final Class<?> _rawType;
+    /**
+     * @since 2.8 with this signature; had <code>_rawType</code> earlier
+     */
+    protected final JavaType _type;
 
     protected final String _name;
 
@@ -28,12 +31,21 @@ public class VirtualAnnotatedMember extends AnnotatedMember
      */
 
     public VirtualAnnotatedMember(TypeResolutionContext typeContext, Class<?> declaringClass,
-            String name, Class<?> rawType)
+            String name, JavaType type)
     {
         super(typeContext, /* AnnotationMap*/ null);
         _declaringClass = declaringClass;
-        _rawType = rawType;
+        _type = type;
         _name = name;
+    }
+
+    /**
+     * @deprecated Since 2.8
+     */
+    @Deprecated
+    public VirtualAnnotatedMember(TypeResolutionContext typeContext, Class<?> declaringClass,
+            String name, Class<?> rawType) {
+        this(typeContext, declaringClass, name, typeContext.resolveType(rawType));
     }
 
     @Override
@@ -58,12 +70,12 @@ public class VirtualAnnotatedMember extends AnnotatedMember
 
     @Override
     public Class<?> getRawType() {
-        return _rawType;
+        return _type.getRawClass();
     }
 
     @Override
     public JavaType getType() {
-        return _typeContext.resolveType(_rawType);
+        return _type;
     }
 
     /*

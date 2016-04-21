@@ -16,7 +16,7 @@ Project: jackson-databind
  (suggested by Gregoire C, gcxRun@github)
 #1165: CoreXMLDeserializers does not handle time-only XMLGregorianCalendars
  (reported, contributed fix by Ross G)
-#1182: Add the ability to specify the initial capacity of the ArrayNode
+#1181: Add the ability to specify the initial capacity of the ArrayNode
  (suggested by Matt V, mveitas@github)
 #1187: Refactor `AtomicReferenceDeserializer` into `ReferenceTypeDeserializer`
 #1211: Change `JsonValueSerializer` to get `AnnotatedMethod`, not "raw" method

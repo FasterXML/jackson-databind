@@ -813,10 +813,6 @@ public abstract class DeserializationContext
      * @return True if there was a configured problem handler that was able to handle the
      *   problem
      */
-    /**
-     * Method deserializers can call to inform configured {@link DeserializationProblemHandler}s
-     * of an unrecognized property.
-     */
     public boolean handleUnknownProperty(JsonParser p, JsonDeserializer<?> deser,
             Object instanceOrClass, String propName)
         throws IOException, JsonProcessingException
@@ -855,7 +851,109 @@ public abstract class DeserializationContext
         throw UnrecognizedPropertyException.from(_parser,
                 instanceOrClass, fieldName, propIds);
     }
-    
+
+    /**
+     * @since 2.8
+     */
+    public JsonMappingException reportMappingException(String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw mappingException(msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public JsonMappingException reportInstantiationException(Class<?> instClass, Throwable t)
+        throws JsonMappingException
+    {
+        throw instantiationException(instClass, t);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public JsonMappingException reportInstantiationException(Class<?> instClass,
+            String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw instantiationException(instClass, msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public <T> T reportWeirdStringException(String value, Class<?> instClass,
+            String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw weirdStringException(value, instClass, msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public <T> T reportWeirdNumberException(Number value, Class<?> instClass,
+            String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw weirdNumberException(value, instClass, msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public <T> T reportWeirdKeyException(Class<?> keyClass, String keyValue,
+            String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw weirdKeyException(keyClass, keyValue, msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public <T> T reportWrongTokenException(JsonParser p,
+            JsonToken expToken, String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw wrongTokenException(p, expToken, msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public <T> T reportUnknownTypeException(JavaType type, String id,
+            String extraDesc) throws JsonMappingException
+    {
+        throw unknownTypeException(type, id, extraDesc);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public <T> T reportEndOfInputException(Class<?> instClass) throws JsonMappingException {
+        throw endOfInputException(instClass);
+    }
+
     /*
     /**********************************************************
     /* Methods for constructing exceptions
@@ -976,7 +1074,8 @@ public abstract class DeserializationContext
      */
     public JsonMappingException unknownTypeException(JavaType type, String id,
             String extraDesc) {
-        String msg = "Could not resolve type id '"+id+"' into a subtype of "+type;
+        String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
+                id, type);
         if (extraDesc != null) {
             msg = msg + ": "+extraDesc;
         }

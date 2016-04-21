@@ -100,7 +100,8 @@ public class NewSchemaTest extends BaseMapTest
     public void testEnumWithJsonValue() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
-        MAPPER.acceptJsonFormatVisitor(TestEnumWithJsonValue.class, new JsonFormatVisitorWrapper.Base() {
+        MAPPER.acceptJsonFormatVisitor(TestEnumWithJsonValue.class,
+                new JsonFormatVisitorWrapper.Base() {
             @Override
             public JsonStringFormatVisitor expectStringFormat(JavaType type) {
                 return new JsonStringFormatVisitor() {

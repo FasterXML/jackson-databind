@@ -234,7 +234,7 @@ public abstract class BasicSerializerFactory
                         if (config.canOverrideAccessModifiers()) {
                             ClassUtil.checkAndFixAccess(m, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
-                        ser = new JsonValueSerializer(m, delegate);
+                        ser = new JsonValueSerializer(am, delegate);
                     } else {
                         ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                     }
@@ -353,7 +353,7 @@ public abstract class BasicSerializerFactory
                 ClassUtil.checkAndFixAccess(m, prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod);
-            return new JsonValueSerializer(m, ser);
+            return new JsonValueSerializer(valueMethod, ser);
         }
         // No well-known annotations...
         return null;

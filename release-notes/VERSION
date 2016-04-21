@@ -19,6 +19,7 @@ Project: jackson-databind
 #1182: Add the ability to specify the initial capacity of the ArrayNode
  (suggested by Matt V, mveitas@github)
 #1187: Refactor `AtomicReferenceDeserializer` into `ReferenceTypeDeserializer`
+#1211: Change `JsonValueSerializer` to get `AnnotatedMethod`, not "raw" method
 
 2.7.4 (not yet released)
 

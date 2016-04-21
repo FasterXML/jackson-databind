@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -11,6 +9,7 @@ import java.util.Set;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -36,8 +35,11 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 public class JsonValueSerializer
     extends StdSerializer<Object>
     implements ContextualSerializer, JsonFormatVisitable, SchemaAware
-{
-    protected final Method _accessorMethod;
+    {
+    /**
+     * @since 2.8 (was "plain" method before)
+     */
+    protected final AnnotatedMethod _accessorMethod;
 
     protected final JsonSerializer<Object> _valueSerializer;
 
@@ -62,11 +64,14 @@ public class JsonValueSerializer
      *    occurs if and only if the "value method" was annotated with
      *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
+     *    
+     * @since 2.8 Earlier method took "raw" Method, but that does not work with access
+     *    to information we need
      */
     @SuppressWarnings("unchecked")
-    public JsonValueSerializer(Method valueMethod, JsonSerializer<?> ser)
+    public JsonValueSerializer(AnnotatedMethod valueMethod, JsonSerializer<?> ser)
     {
-        super(valueMethod.getReturnType(), false);
+        super(valueMethod.getType());
         _accessorMethod = valueMethod;
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = null;
@@ -120,9 +125,8 @@ public class JsonValueSerializer
              * if not, we don't really know the actual type until we get the instance.
              */
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING)
-                    || Modifier.isFinal(_accessorMethod.getReturnType().getModifiers())) {
-                JavaType t = provider.constructType(_accessorMethod.getGenericReturnType());
+            JavaType t = _accessorMethod.getType();
+            if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || t.isFinal()) {
                 // false -> no need to cache
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
@@ -155,7 +159,7 @@ public class JsonValueSerializer
     public void serialize(Object bean, JsonGenerator jgen, SerializerProvider prov) throws IOException
     {
         try {
-            Object value = _accessorMethod.invoke(bean);
+            Object value = _accessorMethod.getValue(bean);
             if (value == null) {
                 prov.defaultSerializeNull(jgen);
                 return;
@@ -195,7 +199,7 @@ public class JsonValueSerializer
         // Regardless of other parts, first need to find value to serialize:
         Object value = null;
         try {
-            value = _accessorMethod.invoke(bean);
+            value = _accessorMethod.getValue(bean);
             // and if we got null, can also just write it directly
             if (value == null) {
                 provider.defaultSerializeNull(jgen);
@@ -255,32 +259,25 @@ public class JsonValueSerializer
         throws JsonMappingException
     {
         /* 27-Apr-2015, tatu: First things first; for JSON Schema introspection,
-         *    Enums are special, and unfortunately we will need to add special
+         *    Enum types that use `@JsonValue` are special (but NOT necessarily
+         *    anything else that RETURNS an enum!)
+         *    So we will need to add special
          *    handling here (see https://github.com/FasterXML/jackson-module-jsonSchema/issues/57
          *    for details).
+         *    
+         *    Note that meaning of JsonValue, then, is very different for Enums. Sigh.
          */
-        Class<?> decl = (typeHint == null) ? null : typeHint.getRawClass();
-        if (decl == null) {
-            decl = _accessorMethod.getDeclaringClass();
-        }
-        if ((decl != null) && (decl.isEnum())) {
-            if (_acceptJsonFormatVisitorForEnum(visitor, typeHint, decl)) {
+        final JavaType type = _accessorMethod.getType();
+        Class<?> declaring = _accessorMethod.getDeclaringClass();
+        if ((declaring != null) && declaring.isEnum()) {
+            if (_acceptJsonFormatVisitorForEnum(visitor, typeHint, declaring)) {
                 return;
             }
         }
-        
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
-            if (typeHint == null) {
-                if (_property != null) {
-                    typeHint = _property.getType();
-                }
-                if (typeHint == null) {
-                    typeHint = visitor.getProvider().constructType(_handledType);
-                }
-            }
-            ser = visitor.getProvider().findTypedValueSerializer(typeHint, false, _property);
-            if (ser == null) {
+            ser = visitor.getProvider().findTypedValueSerializer(type, false, _property);
+            if (ser == null) { // can this ever occur?
                 visitor.expectAnyFormat(typeHint);
                 return;
             }
@@ -290,7 +287,7 @@ public class JsonValueSerializer
 
     /**
      * Overridable helper method used for special case handling of schema information for
-     * Enums
+     * Enums.
      * 
      * @return True if method handled callbacks; false if not; in latter case caller will
      *   send default callbacks
@@ -307,7 +304,10 @@ public class JsonValueSerializer
             Set<String> enums = new LinkedHashSet<String>();
             for (Object en : enumType.getEnumConstants()) {
                 try {
-                    enums.add(String.valueOf(_accessorMethod.invoke(en)));
+                    // 21-Apr-2016, tatu: This is convoluted to the max, but essentially we
+                    //   call `@JsonValue`-annotated accessor method on all Enum members,
+                    //   so it all "works out". To some degree.
+                    enums.add(String.valueOf(_accessorMethod.callOn(en)));
                 } catch (Exception e) {
                     Throwable t = e;
                     while (t instanceof InvocationTargetException && t.getCause() != null) {
@@ -322,9 +322,8 @@ public class JsonValueSerializer
             stringVisitor.enumTypes(enums);
         }
         return true;
-        
     }
-    
+
     protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)
     {
         // First: do we have a natural type being handled?

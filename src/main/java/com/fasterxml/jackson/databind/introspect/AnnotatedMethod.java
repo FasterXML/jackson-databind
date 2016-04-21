@@ -114,7 +114,15 @@ public final class AnnotatedMethod
     public final Object call1(Object arg) throws Exception {
         return _method.invoke(null, arg);
     }
-    
+
+    public final Object callOn(Object pojo) throws Exception {
+        return _method.invoke(pojo);
+    }
+
+    public final Object callOnWith(Object pojo, Object... args) throws Exception {
+        return _method.invoke(pojo, args);
+    }
+
     /*
     /********************************************************
     /* AnnotatedMember impl
@@ -154,7 +162,7 @@ public final class AnnotatedMethod
                     +getFullName()+": "+e.getMessage(), e);
         }
     }
-    
+
     /*
     /*****************************************************
     /* Extended API, generic
@@ -170,7 +178,7 @@ public final class AnnotatedMethod
         return getDeclaringClass().getName() + "#" + getName() + "("
             +getParameterCount()+" params)";
     }
-    
+
     public Class<?>[] getRawParameterTypes()
     {
         if (_paramClasses == null) {

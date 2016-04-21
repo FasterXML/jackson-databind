@@ -454,3 +454,9 @@ Mikhail Kokho (mkokho@github)
   * Contributed impl for #990: Allow failing on `null` values for creator (add
   `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)
    (2.8.0)
+
+Lokesh Kumar (LokeshN@github)
+  * Contributed impl for #1082: Can not use static Creator factory methods for `Enum`s,
+    with JsonCreator.Mode.PROPERTIES
+   (2.8.0)
+

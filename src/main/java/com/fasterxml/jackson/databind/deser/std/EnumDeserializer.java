@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -18,7 +17,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -59,25 +57,37 @@ public class EnumDeserializer
     }
 
     /**
+     * @deprecated Since 2.8
+     */
+    @Deprecated
+    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
+            Class<?> enumClass, AnnotatedMethod factory) {
+        return deserializerForCreator(config, enumClass, factory);
+    }
+    
+    /**
      * Factory method used when Enum instances are to be deserialized
      * using a creator (static factory method)
      * 
      * @return Deserializer based on given factory method, if type was suitable;
      *  null if type can not be used
+     *
+     * @since 2.8
      */
-    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config, Class<?> enumClass,
-    		AnnotatedMethod factory, ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps) {
-        // note: caller has verified there's just one arg; but we must verify
-        // its type
-        Class<?> paramClass = factory.getRawParameterType(0);
+    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
+            Class<?> enumClass, AnnotatedMethod factory,
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
+    {
+        // note: caller has verified there's just one arg; but we must verify its type
         if (config.canOverrideAccessModifiers()) {
-        	ClassUtil.checkAndFixAccess(factory.getMember(),
-        			config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            ClassUtil.checkAndFixAccess(factory.getMember(),
+                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        return new FactoryBasedDeserializer(enumClass, factory, paramClass).withCreatorProps(creatorProps)
-        		.withValueInstantiator(valueInstantiator);
+        Class<?> paramClass = factory.getRawParameterType(0);
+        return new FactoryBasedDeserializer(enumClass, factory, paramClass,
+                valueInstantiator, creatorProps);
     }
-    
+
     /*
     /**********************************************************
     /* Default JsonDeserializer implementation
@@ -237,18 +247,20 @@ public class EnumDeserializer
 
         // Marker type; null if String expected; otherwise numeric wrapper
         protected final Class<?> _inputType;
-        protected final Method _factory;
+        protected final AnnotatedMethod _factory;
         protected final JsonDeserializer<?> _deser;
-        protected ValueInstantiator _valueInstantiator;
-        protected SettableBeanProperty[] _creatorProps;
+        protected final ValueInstantiator _valueInstantiator;
+        protected final SettableBeanProperty[] _creatorProps;
         
-        public FactoryBasedDeserializer(Class<?> cls, AnnotatedMethod f,
-                Class<?> inputType)
+        public FactoryBasedDeserializer(Class<?> cls, AnnotatedMethod f, Class<?> inputType,
+                ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
         {
             super(cls);
-            _factory = f.getAnnotated();
+            _factory = f;
             _inputType = inputType;
             _deser = null;
+            _valueInstantiator = valueInstantiator;
+            _creatorProps = creatorProps;
         }
 
         protected FactoryBasedDeserializer(FactoryBasedDeserializer base,
@@ -256,29 +268,17 @@ public class EnumDeserializer
             super(base._valueClass);
             _inputType = base._inputType;
             _factory = base._factory;
+            _valueInstantiator = base._valueInstantiator;
+            _creatorProps = base._creatorProps;
+
             _deser = deser;
         }
-        
-        //To set the ValueInstantiator to be used for deserializing JsonCreator.MODE.Properties
-        public FactoryBasedDeserializer withValueInstantiator(ValueInstantiator valueInstantiator) {
-            _valueInstantiator = valueInstantiator;
-            return this;
-        }
-        
-        //To set the SettableBeanProperty array to be used for deserializing JsonCreator.MODE.Properties
-        public FactoryBasedDeserializer withCreatorProps(SettableBeanProperty[] creatorProps) {
-            _creatorProps = creatorProps;
-            return this;
-        }
-        
+
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
             throws JsonMappingException
         {
-        	final DeserializationConfig config = ctxt.getConfig();
-      	  	BeanDescription beanDesc = config.introspect(ctxt.constructType(_inputType));
-      	  	
             if ((_deser == null) && (_inputType != String.class)) {
                 return new FactoryBasedDeserializer(this,
                         ctxt.findContextualValueDeserializer(ctxt.constructType(_inputType), property));
@@ -296,22 +296,21 @@ public class EnumDeserializer
                 JsonToken curr = p.getCurrentToken();
                 //There can be a JSON object passed for deserializing an Enum,
                 //the below case handles it.
-                if (p.isExpectedStartObjectToken()) {
+                if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
+                    value = p.getText();
+                } else if (p.isExpectedStartObjectToken()) {
                     p.nextToken();
                     
-                    if(_creatorProps != null){
-                    	PropertyBasedCreator propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps);
-                    	return deserializeEnumUsingPropertyBased(p, ctxt, propertyBasedCreator);
+                    if (_creatorProps != null) {
+                        PropertyBasedCreator propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps);
+                        return deserializeEnumUsingPropertyBased(p, ctxt, propertyBasedCreator);
                     }
-                }
-                else if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
-                    value = p.getText();
                 } else {
                     value = p.getValueAsString();
                 }
             }
             try {
-                return _factory.invoke(_valueClass, value);
+                return _factory.callOnWith(_valueClass, value);
             } catch (Exception e) {
                 Throwable t = ClassUtil.getRootCause(e);
                 if (t instanceof IOException) {
@@ -371,17 +370,13 @@ public class EnumDeserializer
         }
         
         public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-        		throws IOException {
-        	// [JACKSON-55] Need to add reference information
+        		throws IOException
+        {
         	throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
         }
         
-        private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) throws IOException {
-        	/*
-        	 * 05-Mar-2009, tatu: But one nasty edge is when we get
-        	 * StackOverflow: usually due to infinite loop. But that often gets
-        	 * hidden within an InvocationTargetException...
-        	 */
+        private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) throws IOException
+        {
         	while (t instanceof InvocationTargetException && t.getCause() != null) {
         		t = t.getCause();
         	}

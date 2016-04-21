@@ -1233,14 +1233,11 @@ public abstract class BasicDeserializerFactory
         final Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
-        
-       
+
         if (deser == null) {
             ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
-            SettableBeanProperty[] creatorProps = null;
-            if (valueInstantiator != null) {
-            	creatorProps = valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            }
+            SettableBeanProperty[] creatorProps = (valueInstantiator == null) ? null
+                    : valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
                 if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {

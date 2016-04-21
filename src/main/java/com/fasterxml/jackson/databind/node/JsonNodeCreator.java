@@ -63,6 +63,13 @@ public interface JsonNodeCreator
     // (bit unkosher, due to forward references... but has to do for now)
 
     public ArrayNode arrayNode();
+
+    /**
+     * Factory method for constructing a JSON Array node with an initial capacity
+     *
+     * @since 2.8
+     */
     public ArrayNode arrayNode(int capacity);
+
     public ObjectNode objectNode();
 }

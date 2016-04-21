@@ -30,9 +30,12 @@ public class ArrayNode
         _children = new ArrayList<JsonNode>();
     }
 
+    /**
+     * @since 2.8
+     */
     public ArrayNode(JsonNodeFactory nf, int capacity) {
         super(nf);
-        _children = new ArrayList<>(capacity);
+        _children = new ArrayList<JsonNode>(capacity);
     }
 
     /**

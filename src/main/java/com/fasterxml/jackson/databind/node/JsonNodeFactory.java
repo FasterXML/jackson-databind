@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.util.RawValue;
  * to behavior of node types, mostly) is needed.
  */
 public class JsonNodeFactory
-    implements java.io.Serializable // since 2.1
-        ,JsonNodeCreator // since 2.3
+    implements java.io.Serializable, // since 2.1
+        JsonNodeCreator // since 2.3
 {
     // with 2.2
     private static final long serialVersionUID = 1L;
@@ -309,8 +309,10 @@ public class JsonNodeFactory
     @Override
     public ArrayNode arrayNode() { return new ArrayNode(this); }
 
-    /*
+    /**
      * Factory method for constructing a JSON Array node with an initial capacity
+     *
+     * @since 2.8
      */
     @Override
     public ArrayNode arrayNode(int capacity) { return new ArrayNode(this, capacity); }

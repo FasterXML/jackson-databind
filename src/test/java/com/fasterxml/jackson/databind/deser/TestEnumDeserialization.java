@@ -131,7 +131,7 @@ public class TestEnumDeserialization
                 for (AnnotatedMethod am : factoryMethods) {
                     final JsonCreator creator = am.getAnnotation(JsonCreator.class);
                     if (creator != null) {
-                        return EnumDeserializer.deserializerForCreator(config, type, am);
+                        return EnumDeserializer.deserializerForCreator(config, type, am, null, null);
                     }
                 }
             }
@@ -194,6 +194,41 @@ public class TestEnumDeserialization
             return null;
         }
     }
+    
+    static enum EnumWithPropertiesModeJsonCreator {
+    	TEST1,
+    	TEST2,
+    	TEST3;
+    
+        @JsonGetter("name")
+        public String getName() {
+            return name();
+        }
+    
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public static EnumWithPropertiesModeJsonCreator create(@JsonProperty("name") String name) {
+            return EnumWithPropertiesModeJsonCreator.valueOf(name);
+        }
+      
+    }
+
+    static enum EnumWithDelegateModeJsonCreator {
+    	TEST1,
+    	TEST2,
+    	TEST3;
+    
+        @JsonGetter("name")
+        public String getName() {
+            return name();
+        }
+    
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public static EnumWithDelegateModeJsonCreator create(JsonNode json) {
+            return EnumWithDelegateModeJsonCreator.valueOf(json.get("name").asText());
+        }
+      
+    }
+
 
     /*
     /**********************************************************
@@ -552,4 +587,27 @@ public class TestEnumDeserialization
         EnumWithDefaultAnnoAndConstructor myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnnoAndConstructor.class);
         assertNull("When using a constructor, the default value annotation shouldn't be used.", myEnum);
     }
+    
+    public void testJsonCreatorPropertiesWithEnum() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        
+        EnumWithPropertiesModeJsonCreator type1 = mapper.readValue("{\"name\":\"TEST1\", \"description\":\"TEST\"}", EnumWithPropertiesModeJsonCreator.class);
+        assertSame(EnumWithPropertiesModeJsonCreator.TEST1, type1);
+        
+        EnumWithPropertiesModeJsonCreator type2 = mapper.readValue("{\"name\":\"TEST3\", \"description\":\"TEST\"}", EnumWithPropertiesModeJsonCreator.class);
+        assertSame(EnumWithPropertiesModeJsonCreator.TEST3, type2);
+    	
+    }
+    
+    public void testJsonCreatorDelagateWithEnum() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        
+        EnumWithDelegateModeJsonCreator type1 = mapper.readValue("{\"name\":\"TEST1\", \"description\":\"TEST\"}", EnumWithDelegateModeJsonCreator.class);
+        assertSame(EnumWithDelegateModeJsonCreator.TEST1, type1);
+        
+        EnumWithDelegateModeJsonCreator type2 = mapper.readValue("{\"name\":\"TEST3\", \"description\":\"TEST\"}", EnumWithDelegateModeJsonCreator.class);
+        assertSame(EnumWithDelegateModeJsonCreator.TEST3, type2);
+    	
+    }
+    
 }

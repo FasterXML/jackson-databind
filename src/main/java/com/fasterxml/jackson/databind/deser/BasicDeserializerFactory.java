@@ -1233,7 +1233,14 @@ public abstract class BasicDeserializerFactory
         final Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
+        
+       
         if (deser == null) {
+            ValueInstantiator valueInstantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
+            SettableBeanProperty[] creatorProps = null;
+            if (valueInstantiator != null) {
+            	creatorProps = valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+            }
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
                 if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
@@ -1242,7 +1249,7 @@ public abstract class BasicDeserializerFactory
                         Class<?> returnType = factory.getRawReturnType();
                         // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
                         if (returnType.isAssignableFrom(enumClass)) {
-                            deser = EnumDeserializer.deserializerForCreator(config, enumClass, factory);
+                            deser = EnumDeserializer.deserializerForCreator(config, enumClass, factory, valueInstantiator, creatorProps);
                             break;
                         }
                     }
@@ -1250,6 +1257,7 @@ public abstract class BasicDeserializerFactory
                             +enumClass.getName()+")");
                 }
             }
+           
             // Need to consider @JsonValue if one found
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass,

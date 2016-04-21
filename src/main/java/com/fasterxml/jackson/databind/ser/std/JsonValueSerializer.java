@@ -276,7 +276,7 @@ public class JsonValueSerializer
                     typeHint = _property.getType();
                 }
                 if (typeHint == null) {
-                    typeHint = visitor.getProvider().constructType(_handledType);
+                    typeHint = visitor.getProvider().constructType(_accessorMethod.getGenericReturnType());
                 }
             }
             ser = visitor.getProvider().findTypedValueSerializer(typeHint, false, _property);

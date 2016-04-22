@@ -380,7 +380,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *
      * @since 2.8
      * 
-     * @return Override object if there is an override for specified type
+     * @return Override object if there is an override for specified type; `null` if not
      */
     public abstract PropertyConfigOverride findPropertyConfigOverride(Class<?> type);
 

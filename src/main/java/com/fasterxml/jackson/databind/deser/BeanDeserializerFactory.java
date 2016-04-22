@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
+import com.fasterxml.jackson.databind.cfg.PropertyConfigOverride;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -593,9 +594,9 @@ public class BeanDeserializerFactory
                     rawPropertyType = property.getField().getRawType();
                 }
 
-                // [JACKSON-429] Some types are declared as ignorable as well
+                // Some types are declared as ignorable as well
                 if ((rawPropertyType != null)
-                        && (isIgnorableType(ctxt.getConfig(), beanDesc, rawPropertyType, ignoredTypes))) {
+                        && isIgnorableType(ctxt.getConfig(), beanDesc, rawPropertyType, ignoredTypes)) {
                     // important: make ignorable, to avoid errors if value is actually seen
                     builder.addIgnorable(name);
                     continue;
@@ -803,7 +804,7 @@ public class BeanDeserializerFactory
             throw new IllegalArgumentException("Can not deserialize Proxy class "+type.getName()+" as a Bean");
         }
         /* also: can't deserialize some local classes: static are ok; in-method not;
-         * and with [JACKSON-594], other non-static inner classes are ok
+         * other non-static inner classes are ok
          */
         typeStr = ClassUtil.isLocalType(type, true);
         if (typeStr != null) {
@@ -823,9 +824,20 @@ public class BeanDeserializerFactory
         if (status != null) {
             return status.booleanValue();
         }
-        BeanDescription desc = config.introspectClassAnnotations(type);
-        status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
-        // We default to 'false', i.e. not ignorable
-        return (status == null) ? false : status.booleanValue(); 
+        // 21-Apr-2016, tatu: For 2.8, can specify config overrides
+        PropertyConfigOverride override = config.findPropertyConfigOverride(type);
+        if (override != null) {
+            status = override.getIsIgnoredType();
+        }
+        if (status == null) {
+            BeanDescription desc = config.introspectClassAnnotations(type);
+            status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
+            // We default to 'false', i.e. not ignorable
+            if (status == null) {
+                status = Boolean.FALSE;
+            }
+        }
+        ignoredTypes.put(type, status);
+        return status.booleanValue();
     }
 }

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.8.0 (not released yet)
 
+#621: Allow definition of "ignorable types" without annotation (using
+  `Mapper.configOverride(type).setIsIgnoredType(true)`
 #990: Allow failing on `null` values for creator (add 
   `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)
  (contributed by mkokho@github)

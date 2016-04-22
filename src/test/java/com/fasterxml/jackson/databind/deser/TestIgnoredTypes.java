@@ -8,18 +8,13 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * Test for [JACKSON-429]
+ * Test for type-based ignoral, both via annotations (<code>JsonIgnoreType</code>)
+ * and "config overrides" (2.8 and above).
  */
 public class TestIgnoredTypes extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-    
     @JsonIgnoreType
-    class IgnoredType { // note: non-static, can't be deserializer
+    class IgnoredType { // note: non-static, can't be deserialized
         public IgnoredType(IgnoredType src) { }
     }
 
@@ -49,17 +44,31 @@ public class TestIgnoredTypes extends BaseMapTest
     @JsonIgnoreType
     static abstract class PersonMixin {
     }
-    
+
+    static class Wrapper {
+        public int value = 3;
+        public Wrapped wrapped = new Wrapped(7);
+    }
+
+    static class Wrapped {
+        public int x;
+
+        // make default ctor fail
+        public Wrapped() { throw new RuntimeException("Should not be called"); }
+        public Wrapped(int x0) { x = x0; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-
+    
     public void testIgnoredType() throws Exception
     {
+        final ObjectMapper mapper = objectMapper();
+
         // First: should be ok in general, even though couldn't build deserializer (due to non-static inner class):
-        ObjectMapper mapper = new ObjectMapper();
         NonIgnoredType bean = mapper.readValue("{\"value\":13}", NonIgnoredType.class);
         assertNotNull(bean);
         assertEquals(13, bean.value);
@@ -89,5 +98,20 @@ public class TestIgnoredTypes extends BaseMapTest
         persons.add(new Person("Bob"));
         String json = mapper.writeValueAsString(persons);
         assertEquals("[{\"name\":\"Bob\"}]", json);
+    }
+
+    public void testIgnoreUsingConfigOverride() throws Exception
+    {
+        final ObjectMapper mapper = objectMapper();
+        mapper.configOverride(Wrapped.class).setIsIgnoredType(true);
+
+        // serialize , first
+        String json = mapper.writeValueAsString(new Wrapper());
+        assertEquals(aposToQuotes("{'value':3}"), json);
+
+        // then deserialize
+        Wrapper result = mapper.readValue(aposToQuotes("{'value':5,'wrapped':false}"),
+                Wrapper.class);
+        assertEquals(5, result.value);
     }
 }

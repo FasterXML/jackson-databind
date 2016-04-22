@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.PropertyConfigOverride;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -699,12 +700,19 @@ public class BeanSerializerFactory
             Class<?> type = accessor.getRawType();
             Boolean result = ignores.get(type);
             if (result == null) {
-                BeanDescription desc = config.introspectClassAnnotations(type);
-                AnnotatedClass ac = desc.getClassInfo();
-                result = intr.isIgnorableType(ac);
-                // default to false, non-ignorable
+                // 21-Apr-2016, tatu: For 2.8, can specify config overrides
+                PropertyConfigOverride override = config.findPropertyConfigOverride(type);
+                if (override != null) {
+                    result = override.getIsIgnoredType();
+                }
                 if (result == null) {
-                    result = Boolean.FALSE;
+                    BeanDescription desc = config.introspectClassAnnotations(type);
+                    AnnotatedClass ac = desc.getClassInfo();
+                    result = intr.isIgnorableType(ac);
+                    // default to false, non-ignorable
+                    if (result == null) {
+                        result = Boolean.FALSE;
+                    }
                 }
                 ignores.put(type, result);
             }

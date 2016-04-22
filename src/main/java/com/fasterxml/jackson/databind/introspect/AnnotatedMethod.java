@@ -82,8 +82,8 @@ public final class AnnotatedMethod
 
     /**
      * For methods, this returns declared return type, which is only
-     * useful with getters (setters do not return anything; hence "void"
-     * type is returned here)
+     * useful with getters (setters do not return anything; hence `Void`
+     * would be returned here)
      */
     @Override
     public JavaType getType() {

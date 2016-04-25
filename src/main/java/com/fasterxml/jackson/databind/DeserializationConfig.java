@@ -103,7 +103,7 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
     {
         super(base, str, mixins, rootNames, propertyOverrides);
         _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
@@ -246,7 +246,7 @@ public final class DeserializationConfig
      * @since 2.8
      */
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
     {
         super(src, mixins, rootNames, propertyOverrides);
         _deserFeatures = src._deserFeatures;
@@ -804,7 +804,7 @@ public final class DeserializationConfig
 
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        PropertyConfigOverride overrides = findPropertyConfigOverride(baseType);
+        TypeConfigOverride overrides = findPropertyConfigOverride(baseType);
         if (overrides != null) {
             JsonInclude.Value v = overrides.getInclude();
             if (v != null) {

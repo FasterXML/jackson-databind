@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  *
  * @since 2.8
  */
-public abstract class PropertyConfigOverride
+public abstract class TypeConfigOverride
 {
     protected JsonFormat.Value _format;
     protected JsonInclude.Value _include;
@@ -25,8 +25,8 @@ public abstract class PropertyConfigOverride
      */
     protected Boolean _isIgnoredType;
     
-    protected PropertyConfigOverride() { }
-    protected PropertyConfigOverride(PropertyConfigOverride src) {
+    protected TypeConfigOverride() { }
+    protected TypeConfigOverride(TypeConfigOverride src) {
         _format = src._format;
         _include = src._include;
     }

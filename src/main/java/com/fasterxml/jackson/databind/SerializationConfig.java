@@ -132,7 +132,7 @@ public final class SerializationConfig
      */
     public SerializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
     {
         super(base, str, mixins, rootNames, propertyOverrides);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
@@ -304,7 +304,7 @@ public final class SerializationConfig
      * @since 2.8
      */
     protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
     {
         super(src, mixins, rootNames, propertyOverrides);
         _serFeatures = src._serFeatures;
@@ -905,7 +905,7 @@ public final class SerializationConfig
 
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        PropertyConfigOverride overrides = findPropertyConfigOverride(baseType);
+        TypeConfigOverride overrides = findPropertyConfigOverride(baseType);
         if (overrides != null) {
             JsonInclude.Value v = overrides.getInclude();
             if (v != null) {

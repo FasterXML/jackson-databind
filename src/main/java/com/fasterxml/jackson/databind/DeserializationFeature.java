@@ -402,6 +402,13 @@ public enum DeserializationFeature implements ConfigFeature
      * If enabled, contextual <code>TimeZone</code> will essentially override any other
      * TimeZone information; if disabled, it will only be used if value itself does not
      * contain any TimeZone information.
+     *<p>
+     * Note that exact behavior depends on date/time types in question; and specifically
+     * JDK type of {@link java.util.Date} does NOT have in-built timezone information
+     * so this setting has no effect.
+     *<p>
+     * As of Jackson 2.8, this feature is supported only by extension modules for Joda
+     * and Java 8 date/tyime datatypes.
      * 
      * @since 2.2
      */

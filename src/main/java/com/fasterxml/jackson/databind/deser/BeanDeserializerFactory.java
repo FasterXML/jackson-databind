@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
-import com.fasterxml.jackson.databind.cfg.PropertyConfigOverride;
+import com.fasterxml.jackson.databind.cfg.TypeConfigOverride;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -825,7 +825,7 @@ public class BeanDeserializerFactory
             return status.booleanValue();
         }
         // 21-Apr-2016, tatu: For 2.8, can specify config overrides
-        PropertyConfigOverride override = config.findPropertyConfigOverride(type);
+        TypeConfigOverride override = config.findPropertyConfigOverride(type);
         if (override != null) {
             status = override.getIsIgnoredType();
         }

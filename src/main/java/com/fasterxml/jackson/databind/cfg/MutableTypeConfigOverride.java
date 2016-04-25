@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
- * Extension of {@link PropertyConfigOverride} that allows changing of
+ * Extension of {@link TypeConfigOverride} that allows changing of
  * contained configuration settings. Exposed to
  * {@link com.fasterxml.jackson.databind.Module}s that want to set
  * overrides, but not exposed to functionality that wants to apply
@@ -12,33 +12,33 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  *
  * @since 2.8
  */
-public class MutablePropertyConfigOverride
-    extends PropertyConfigOverride
+public class MutableTypeConfigOverride
+    extends TypeConfigOverride
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    public MutablePropertyConfigOverride() { super(); }
+    public MutableTypeConfigOverride() { super(); }
 
-    protected MutablePropertyConfigOverride(MutablePropertyConfigOverride src) {
+    protected MutableTypeConfigOverride(MutableTypeConfigOverride src) {
         super(src);
     }
     
-    protected MutablePropertyConfigOverride copy() {
-        return new MutablePropertyConfigOverride(this);
+    protected MutableTypeConfigOverride copy() {
+        return new MutableTypeConfigOverride(this);
     }
 
-    public MutablePropertyConfigOverride setFormat(JsonFormat.Value v) {
+    public MutableTypeConfigOverride setFormat(JsonFormat.Value v) {
         _format = v;
         return this;
     }
     
-    public MutablePropertyConfigOverride setInclude(JsonInclude.Value v) {
+    public MutableTypeConfigOverride setInclude(JsonInclude.Value v) {
         _include = v;
         return this;
     }
 
-    public MutablePropertyConfigOverride setIsIgnoredType(Boolean v) {
+    public MutableTypeConfigOverride setIsIgnoredType(Boolean v) {
         _isIgnoredType = v;
         return this;
     }

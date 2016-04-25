@@ -85,7 +85,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      *
      * @since 2.8
      */
-    protected final PropertyConfigOverrides _propertyOverrides;
+    protected final TypeConfigOverrides _propertyOverrides;
 
     /*
     /**********************************************************
@@ -101,7 +101,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected MapperConfigBase(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
         _mixIns = mixins;
@@ -233,7 +233,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * @since 2.8
      */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, PropertyConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
     {
         super(src);
         _mixIns = mixins;
@@ -483,13 +483,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     
     @Override
-    public final PropertyConfigOverride findPropertyConfigOverride(Class<?> type) {
+    public final TypeConfigOverride findPropertyConfigOverride(Class<?> type) {
         return _propertyOverrides.findOverride(type);
     }
 
     @Override
     public JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
-        PropertyConfigOverride overrides = _propertyOverrides.findOverride(type);
+        TypeConfigOverride overrides = _propertyOverrides.findOverride(type);
         if (overrides != null) {
             JsonFormat.Value v = overrides.getFormat();
             if (v != null) {

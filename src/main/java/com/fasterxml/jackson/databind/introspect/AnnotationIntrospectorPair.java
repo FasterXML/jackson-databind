@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.Version;
@@ -114,6 +115,18 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
+    {
+        JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(a);
+        JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(a);
+
+        if (v2 == null) { // shouldn't occur but
+            return v1;
+        }
+        return v2.withOverrides(v1);
+    }
+    
+    @Override
     @Deprecated // since 2.6
     public String[] findPropertiesToIgnore(Annotated ac) {
         String[] result = _primary.findPropertiesToIgnore(ac);
@@ -124,6 +137,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    @Deprecated // since 2.8
     public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
         String[] result = _primary.findPropertiesToIgnore(ac, forSerialization);
         if (result == null) {

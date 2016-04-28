@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.Version;
@@ -226,6 +227,37 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Method for finding information about properties to ignore either by
+     * name, or by more general specification ("ignore all unknown").
+     * This method combines multiple aspects of ignorals and deprecates
+     * earlier methods such as
+     * {@link #findPropertiesToIgnore(Annotated, boolean)} and
+     * {@link #findIgnoreUnknownProperties(AnnotatedClass)}.
+     *
+     * @since 2.8
+     */
+    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated ac)
+    {
+        // 28-Apr-2016, tatu: For backwards compatibility let's delegate to older
+        //   methods, for Jackson 2.8
+        String[] ignorals = findPropertiesToIgnore(ac, true);
+        Boolean b = findIgnoreUnknownProperties((AnnotatedClass) ac);
+        JsonIgnoreProperties.Value v;
+        if (ignorals == null) {
+            if (b == null) {
+                return null;
+            }
+            v = JsonIgnoreProperties.Value.empty();
+        } else {
+            v = JsonIgnoreProperties.Value.forIgnoredProperties(ignorals);
+        }
+        if (b != null) {
+            v = b.booleanValue() ? v.withIgnoreUnknown() : v.withoutIgnoreUnknown();
+        }
+        return v;
+    }
+
+    /**
      * Method for finding list of properties to ignore for given class
      * (null is returned if not specified).
      * List of property names is applied
@@ -234,7 +266,12 @@ public abstract class AnnotationIntrospector
      * 
      * @param forSerialization True if requesting properties to ignore for serialization;
      *   false if for deserialization
+     * 
+     * @since 2.6
+     *
+     * @deprecated Since 2.8, use {@link #findPropertyIgnorals} instead
      */
+    @Deprecated // since 2.8
     public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
         return null;
     }
@@ -242,15 +279,17 @@ public abstract class AnnotationIntrospector
     /**
      * @deprecated Since 2.6, use variant that takes second argument.
      */
-    @Deprecated
+    @Deprecated // since 2.6
     public String[] findPropertiesToIgnore(Annotated ac) {
-        // Changed in 2.7 to call from old to new; with 2.6 was opposite
-        return findPropertiesToIgnore(ac, true);
+        return null;
     }
-    
+
     /**
      * Method for checking whether an annotation indicates that all unknown properties
+     *
+     * @deprecated Since 2.8, use {@link #findPropertyIgnorals} instead
      */
+    @Deprecated // since 2.8
     public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) { return null; }
 
     /**

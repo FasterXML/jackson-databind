@@ -265,36 +265,42 @@ public class JacksonAnnotationIntrospector
         return PropertyName.construct(ann.value(), ns);
     }
 
-    @Override
-    @Deprecated // since 2.6, remove from 2.7 or later
-    public String[] findPropertiesToIgnore(Annotated ac) {
-        JsonIgnoreProperties ignore = _findAnnotation(ac, JsonIgnoreProperties.class);
-        return (ignore == null) ? null : ignore.value();
+    @Override // since 2.8
+    public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated a)
+    {
+        JsonIgnoreProperties v = _findAnnotation(a, JsonIgnoreProperties.class);
+        if (v == null) {
+            return null;
+        }
+        return JsonIgnoreProperties.Value.from(v);
     }
-
+    
     @Override // since 2.6
-    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
-        JsonIgnoreProperties ignore = _findAnnotation(ac, JsonIgnoreProperties.class);
-        if (ignore == null) {
+    @Deprecated // since 2.8
+    public String[] findPropertiesToIgnore(Annotated a, boolean forSerialization) {
+        JsonIgnoreProperties.Value v = findPropertyIgnorals(a);
+        if (v == null) {
             return null;
         }
         // 13-May-2015, tatu: As per [databind#95], allow read-only/write-only props
         if (forSerialization) {
-            if (ignore.allowGetters()) {
+            if (v.getAllowGetters()) {
                 return null;
             }
         } else {
-            if (ignore.allowSetters()) {
+            if (v.getAllowSetters()) {
                 return null;
             }
         }
-        return ignore.value();
+        Set<String> ignored = v.getIgnored();
+        return ignored.toArray(new String[ignored.size()]);
     }
-    
+
     @Override
-    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) {
-        JsonIgnoreProperties ignore = _findAnnotation(ac, JsonIgnoreProperties.class);
-        return (ignore == null) ? null : ignore.ignoreUnknown();
+    @Deprecated // since 2.8
+    public Boolean findIgnoreUnknownProperties(AnnotatedClass a) {
+        JsonIgnoreProperties.Value v = findPropertyIgnorals(a);
+        return (v == null) ? null : v.getIgnoreUnknown();
     }
 
     @Override

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.4 (not yet released)
+2.7.4 (29-Apr-2016)
 
 #1122: Jackson 2.7 and Lombok: 'Conflicting/ambiguous property name definitions'
 #1178: `@JsonSerialize(contentAs=superType)` behavior disallowed in 2.7

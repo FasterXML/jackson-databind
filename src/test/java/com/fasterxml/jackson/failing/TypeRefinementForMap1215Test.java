@@ -57,24 +57,20 @@ public class TypeRefinementForMap1215Test extends BaseMapTest
         extends LinkedHashMap<K, V>
         implements AnotherMap<K, V>
     {
-        @JsonCreator
-        public static <K, V extends HasUniqueId<K>> MyHashMap<K, V> fromArray(V[] values) {
-            MyHashMap<K, V> map = new MyHashMap<K, V>();
+        @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
+        public MyHashMap(V[] values) {
             for (int i = 0; i < values.length; i++) {
                 V v = values[i];
                 if (v.getId() == null) {
                     throw new RuntimeException("Failed to get id");
                 }
-                if (map.containsKey(v.getId())) {
+                if (containsKey(v.getId())) {
                     throw new RuntimeException("Conflict on id");
                 }
-                map.put(v.getId(), v);
+                put(v.getId(), v);
             }
-            return map;
         }
-        
-        public MyHashMap() { }
-        
+
         @Override
         public void add(V v) {
             if (containsKey(v.getId())) {

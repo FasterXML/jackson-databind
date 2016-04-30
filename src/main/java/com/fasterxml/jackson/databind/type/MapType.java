@@ -119,7 +119,7 @@ public final class MapType extends MapLikeType
         return new MapType(_class, _bindings, _superClass, _superInterfaces,
                 keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {

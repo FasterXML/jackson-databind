@@ -3817,7 +3817,7 @@ public class ObjectMapper
             } catch (IOException ioe) { }
         }
     }
-    
+
     /**
      * Method called to ensure that given parser is ready for reading
      * content for data binding.

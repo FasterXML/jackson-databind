@@ -266,23 +266,23 @@ public class CreatorCollector
     /**********************************************************
      */
 
-    private JavaType _computeDelegateType(AnnotatedWithParams creator, SettableBeanProperty[] delegateArgs)
+    private JavaType _computeDelegateType(AnnotatedWithParams creator,
+            SettableBeanProperty[] delegateArgs)
     {
         if (!_hasNonDefaultCreator || (creator == null)) {
             return null;
-        } else {
-            // need to find type...
-            int ix = 0;
-            if (delegateArgs != null) {
-                for (int i = 0, len = delegateArgs.length; i < len; ++i) {
-                    if (delegateArgs[i] == null) { // marker for delegate itself
-                        ix = i;
-                        break;
-                    }
+        }
+        // need to find type...
+        int ix = 0;
+        if (delegateArgs != null) {
+            for (int i = 0, len = delegateArgs.length; i < len; ++i) {
+                if (delegateArgs[i] == null) { // marker for delegate itself
+                    ix = i;
+                    break;
                 }
             }
-            return creator.getParameterType(ix);
         }
+        return creator.getParameterType(ix);
     }
 
     private <T extends AnnotatedMember> T _fixAccess(T member)

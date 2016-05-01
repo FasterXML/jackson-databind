@@ -968,7 +968,7 @@ public class ObjectMapper
     public ObjectMapper findAndRegisterModules() {
         return registerModules(findModules());
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: main config object access

@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -13,10 +13,6 @@ public class TypeRefinementForMap1215Test extends BaseMapTest
 {
     interface HasUniqueId<K> {
         K getId();
-        String getIdFieldName();
-    }
-    interface AnotherMap<K, V extends HasUniqueId<K>> extends Map<K, V> {
-        public void add(V v);
     }
 
     static class Item implements HasUniqueId<String>
@@ -26,57 +22,29 @@ public class TypeRefinementForMap1215Test extends BaseMapTest
 
         @Override
         public String getId() { return id; }
-        
-        @Override
-        public String getIdFieldName() {
-            return "id";
-        }
     }
 
     static class Data
     {
         public String id;
 
-        @JsonProperty
-        private Map<String, Item> items;
-
-        public Data() { }
-
-        public Map<String, Item> getItems() {
-            return items;
-        }
-
         @JsonDeserialize(as = MyHashMap.class)
-        public void setItems(Map<String, Item> items) {
-            this.items = items;
-        }
+        public Map<String, Item> items;
+
+        // Would work with straight arguments:
+//        public MyHashMap<String, Item> items;
     }
 
     @SuppressWarnings("serial")
     static class MyHashMap<K, V extends HasUniqueId<K>>
         extends LinkedHashMap<K, V>
-        implements AnotherMap<K, V>
     {
         @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
         public MyHashMap(V[] values) {
             for (int i = 0; i < values.length; i++) {
                 V v = values[i];
-                if (v.getId() == null) {
-                    throw new RuntimeException("Failed to get id");
-                }
-                if (containsKey(v.getId())) {
-                    throw new RuntimeException("Conflict on id");
-                }
                 put(v.getId(), v);
             }
-        }
-
-        @Override
-        public void add(V v) {
-            if (containsKey(v.getId())) {
-                throw new RuntimeException("Conflict on add of id");
-            }
-            put(v.getId(), v);
         }
     }
 
@@ -99,6 +67,8 @@ public class TypeRefinementForMap1215Test extends BaseMapTest
         assertEquals(ID1, data.id);
         assertNotNull(data.items);
         assertEquals(1, data.items.size());
-        assertEquals(ID2, data.items.get(0).id);
+        Item value = data.items.get(ID2);
+        assertNotNull(value);
+        assertEquals("value", value.property);
     }
 }

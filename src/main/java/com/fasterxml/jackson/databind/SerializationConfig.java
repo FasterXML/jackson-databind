@@ -43,7 +43,7 @@ public final class SerializationConfig
     // since 2.7
     // Default is "USE_DEFAULTS, USE_DEFAULTS"
     protected final static JsonInclude.Value DEFAULT_INCLUSION = JsonInclude.Value.empty();
-    
+
     /*
     /**********************************************************
     /* Configured helper objects
@@ -132,9 +132,9 @@ public final class SerializationConfig
      */
     public SerializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        super(base, str, mixins, rootNames, propertyOverrides);
+        super(base, str, mixins, rootNames, configOverrides);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
         _filterProvider = null;
         _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
@@ -304,9 +304,9 @@ public final class SerializationConfig
      * @since 2.8
      */
     protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        super(src, mixins, rootNames, propertyOverrides);
+        super(src, mixins, rootNames, configOverrides);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
@@ -905,7 +905,7 @@ public final class SerializationConfig
 
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        TypeConfigOverride overrides = findPropertyConfigOverride(baseType);
+        ConfigOverride overrides = findConfigOverride(baseType);
         if (overrides != null) {
             JsonInclude.Value v = overrides.getInclude();
             if (v != null) {

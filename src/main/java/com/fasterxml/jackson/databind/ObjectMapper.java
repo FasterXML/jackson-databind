@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.cfg.MutableTypeConfigOverride;
-import com.fasterxml.jackson.databind.cfg.TypeConfigOverrides;
+import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
+import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -324,7 +324,7 @@ public class ObjectMapper
      *
      * @since 2.8
      */
-    protected TypeConfigOverrides _propertyOverrides;
+    protected ConfigOverrides _propertyOverrides;
 
     /*
     /**********************************************************
@@ -543,7 +543,7 @@ public class ObjectMapper
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
-        TypeConfigOverrides propOverrides = new TypeConfigOverrides();
+        ConfigOverrides propOverrides = new ConfigOverrides();
         _propertyOverrides = propOverrides;
         _serializationConfig = new SerializationConfig(base,
                     _subtypeResolver, mixins, rootNames, propOverrides);
@@ -786,7 +786,7 @@ public class ObjectMapper
             // // // Mutant accessors
 
             @Override
-            public MutableTypeConfigOverride configOverride(Class<?> type) {
+            public MutableConfigOverride configOverride(Class<?> type) {
                 return mapper.configOverride(type);
             }
 
@@ -1492,7 +1492,7 @@ public class ObjectMapper
      *
      * @since 2.8
      */
-    public MutableTypeConfigOverride configOverride(Class<?> type) {
+    public MutableConfigOverride configOverride(Class<?> type) {
         return _propertyOverrides.findOrCreateOverride(type);
     }
 

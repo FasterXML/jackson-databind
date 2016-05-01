@@ -270,6 +270,7 @@ public class JacksonAnnotationIntrospector
     {
         JsonIgnoreProperties v = _findAnnotation(a, JsonIgnoreProperties.class);
         if (v == null) {
+            // could alternatively return `Value.empty()`?
             return null;
         }
         return JsonIgnoreProperties.Value.from(v);

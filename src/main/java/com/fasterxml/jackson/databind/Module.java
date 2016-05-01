@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.cfg.MutableTypeConfigOverride;
+import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.Deserializers;
@@ -168,7 +168,7 @@ public abstract class Module
          *
          * @since 2.8
          */
-        public MutableTypeConfigOverride configOverride(Class<?> type);
+        public MutableConfigOverride configOverride(Class<?> type);
         
         /*
         /**********************************************************

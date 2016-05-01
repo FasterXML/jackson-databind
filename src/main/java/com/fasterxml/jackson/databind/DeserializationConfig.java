@@ -103,9 +103,9 @@ public final class DeserializationConfig
      */
     public DeserializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        super(base, str, mixins, rootNames, propertyOverrides);
+        super(base, str, mixins, rootNames, configOverrides);
         _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
         _nodeFactory = JsonNodeFactory.instance;
         _problemHandlers = null;
@@ -246,9 +246,9 @@ public final class DeserializationConfig
      * @since 2.8
      */
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
-        super(src, mixins, rootNames, propertyOverrides);
+        super(src, mixins, rootNames, configOverrides);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
@@ -795,8 +795,7 @@ public final class DeserializationConfig
     /* Configuration: default settings with per-type overrides
     /**********************************************************
      */
-    
-    // property inclusion not used on deserialization yet (2.7): may be added in future
+
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion() {
         return EMPTY_INCLUDE;
@@ -804,7 +803,7 @@ public final class DeserializationConfig
 
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        TypeConfigOverride overrides = findPropertyConfigOverride(baseType);
+        ConfigOverride overrides = findConfigOverride(baseType);
         if (overrides != null) {
             JsonInclude.Value v = overrides.getInclude();
             if (v != null) {

@@ -259,12 +259,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method for finding list of properties to ignore for given class
-     * (null is returned if not specified).
-     * List of property names is applied
-     * after other detection mechanisms, to filter out these specific
-     * properties from being serialized and deserialized.
-     * 
      * @param forSerialization True if requesting properties to ignore for serialization;
      *   false if for deserialization
      * 

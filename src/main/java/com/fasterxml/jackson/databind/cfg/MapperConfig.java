@@ -374,7 +374,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
 
     /**
-     * Accessor for finding possible {@link TypeConfigOverride} to use for
+     * Accessor for finding possible {@link ConfigOverride} to use for
      * properties of given type. Note that only directly associate override
      * is found; no type hierarchy traversal is performed.
      *
@@ -382,7 +382,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * 
      * @return Override object if there is an override for specified type; `null` if not
      */
-    public abstract TypeConfigOverride findPropertyConfigOverride(Class<?> type);
+    public abstract ConfigOverride findConfigOverride(Class<?> type);
 
     /*
     /**********************************************************

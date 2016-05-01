@@ -81,11 +81,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected final RootNameLookup _rootNames;
 
     /**
-     * Configured property overrides, accessed by declared type of property.
+     * Configuration overrides to apply, keyed by type of property.
      *
      * @since 2.8
      */
-    protected final TypeConfigOverrides _propertyOverrides;
+    protected final ConfigOverrides _configOverrides;
 
     /*
     /**********************************************************
@@ -101,7 +101,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected MapperConfigBase(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
         _mixIns = mixins;
@@ -111,7 +111,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = null;
         // default to "no attributes"
         _attributes = ContextAttributes.getEmpty();
-        _propertyOverrides = propertyOverrides;
+        _configOverrides = configOverrides;
     }
 
     /**
@@ -138,7 +138,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
@@ -150,7 +150,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
     
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
@@ -162,7 +162,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
@@ -173,7 +173,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
@@ -184,7 +184,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = rootName;
         _view = src._view;
         _attributes = src._attributes;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
@@ -196,7 +196,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = view;
         _attributes = src._attributes;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
 
     /**
@@ -211,7 +211,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
     
     /**
@@ -226,14 +226,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = attr;
-        _propertyOverrides = src._propertyOverrides;
+        _configOverrides = src._configOverrides;
     }
 
     /**
      * @since 2.8
      */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, TypeConfigOverrides propertyOverrides)
+            RootNameLookup rootNames, ConfigOverrides configOverrides)
     {
         super(src);
         _mixIns = mixins;
@@ -242,7 +242,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
-        _propertyOverrides = propertyOverrides;
+        _configOverrides = configOverrides;
     }
 
     /*
@@ -483,13 +483,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     
     @Override
-    public final TypeConfigOverride findPropertyConfigOverride(Class<?> type) {
-        return _propertyOverrides.findOverride(type);
+    public final ConfigOverride findConfigOverride(Class<?> type) {
+        return _configOverrides.findOverride(type);
     }
 
     @Override
     public JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
-        TypeConfigOverride overrides = _propertyOverrides.findOverride(type);
+        ConfigOverride overrides = _configOverrides.findOverride(type);
         if (overrides != null) {
             JsonFormat.Value v = overrides.getFormat();
             if (v != null) {

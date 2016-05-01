@@ -234,8 +234,9 @@ public class MapDeserializer
                 kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
             }
         }
+        
         JsonDeserializer<?> vd = _valueDeserializer;
-        // #125: May have a content converter
+        // [databind#125]: May have a content converter
         if (property != null) {
             vd = findConvertingContentDeserializer(ctxt, property, vd);
         }
@@ -329,7 +330,7 @@ public class MapDeserializer
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
         JsonToken t = p.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            // [JACKSON-620] (empty) String may be ok however:
+            // (empty) String may be ok however:
             if (t == JsonToken.VALUE_STRING) {
                 return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, p.getText());
             }
@@ -398,7 +399,7 @@ public class MapDeserializer
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
+        
         MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
@@ -465,7 +466,7 @@ public class MapDeserializer
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_mapType.getContentType().getRawClass(), result);
         }
-
+        
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();

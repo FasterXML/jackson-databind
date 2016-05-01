@@ -123,7 +123,7 @@ public final class AnnotatedClass
      * or have at least one annotation.
      */
     protected List<AnnotatedField> _fields;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -427,8 +427,12 @@ public final class AnnotatedClass
         // Then see which constructors we have
         List<AnnotatedConstructor> constructors = null;
         ClassUtil.Ctor[] declaredCtors = ClassUtil.getConstructors(_class);
-        // Constructor also always members of this class, so
-        TypeResolutionContext typeContext = this;        
+        // Constructor also always members of this class
+        TypeResolutionContext typeContext = this; 
+
+        // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
+        //   NOT apply to context since sub-class may have type bindings
+//        TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
         for (ClassUtil.Ctor ctor : declaredCtors) {
             if (_isIncludableConstructor(ctor.getConstructor())) {
                 if (ctor.getParamCount() == 0) {
@@ -524,9 +528,9 @@ public final class AnnotatedClass
         // and then augment these with annotations from super-types:
         for (JavaType type : _superTypes) {
             Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(type.getRawClass());
-            TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory,
-                    type.getBindings());
-            _addMemberMethods(type.getRawClass(), typeContext, _memberMethods, mixin, mixins);
+            _addMemberMethods(type.getRawClass(),
+                    new TypeResolutionContext.Basic(_typeFactory, type.getBindings()),
+                    _memberMethods, mixin, mixins);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)
         if (_mixInResolver != null) {
@@ -539,7 +543,7 @@ public final class AnnotatedClass
         /* Any unmatched mix-ins? Most likely error cases (not matching
          * any method); but there is one possible real use case:
          * exposing Object#hashCode (alas, Object#getClass can NOT be
-         * exposed, see [JACKSON-140])
+         * exposed)
          */
         // 14-Feb-2011, tatu: AnnotationIntrospector is null if annotations not enabled; if so, can skip:
         if (_annotationIntrospector != null) {
@@ -890,15 +894,15 @@ public final class AnnotatedClass
                     _emptyAnnotationMap(), _emptyAnnotationMaps(paramCount));
         }
 
-        /* [JACKSON-701]: Looks like JDK has discrepancy, whereas annotations for implicit 'this'
-         * (for non-static inner classes) are NOT included, but type is? Strange, sounds like
-         * a bug. Alas, we can't really fix that...
+        /* Looks like JDK has discrepancy, whereas annotations for implicit 'this'
+         * (for non-static inner classes) are NOT included, but type is?
+         * Strange, sounds like a bug. Alas, we can't really fix that...
          */
         if (paramCount == 0) { // no-arg default constructors, can simplify slightly
             return new AnnotatedConstructor(typeContext, ctor.getConstructor(),
                     _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), NO_ANNOTATION_MAPS);
         }
-        // Also: [JACKSON-757] (enum value constructors)
+        // Also: enum value constructors
         AnnotationMap[] resolvedAnnotations;
         Annotation[][] paramAnns = ctor.getParameterAnnotations();
         if (paramCount != paramAnns.length) {

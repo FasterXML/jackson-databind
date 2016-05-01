@@ -980,7 +980,7 @@ public class ObjectMapper
     public ObjectMapper findAndRegisterModules() {
         return registerModules(findModules());
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: main config object access
@@ -3819,7 +3819,7 @@ public class ObjectMapper
             } catch (IOException ioe) { }
         }
     }
-    
+
     /**
      * Method called to ensure that given parser is ready for reading
      * content for data binding.

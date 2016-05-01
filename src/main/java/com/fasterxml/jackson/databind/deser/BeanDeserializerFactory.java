@@ -2,9 +2,8 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.annotation.ObjectIdResolver;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
 
@@ -449,21 +447,23 @@ public class BeanDeserializerFactory
                 builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
         final boolean isConcrete = !beanDesc.getType().isAbstract();
         
-        // Things specified as "ok to ignore"? [JACKSON-77]
+        // Things specified as "ok to ignore"?
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        boolean ignoreAny = false;
-        {
-            Boolean B = intr.findIgnoreUnknownProperties(beanDesc.getClassInfo());
-            if (B != null) {
-                ignoreAny = B.booleanValue();
-                builder.setIgnoreUnknownProperties(ignoreAny);
+        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(beanDesc.getClassInfo());
+        Set<String> ignored;
+        
+        if (ignorals != null) {
+            boolean ignoreAny = ignorals.getIgnoreUnknown();
+            builder.setIgnoreUnknownProperties(ignoreAny);
+            // Or explicit/implicit definitions?
+            ignored = ignorals.getIgnored();
+            for (String propName : ignored) {
+                builder.addIgnorable(propName);
             }
+        } else {
+            ignored = Collections.emptySet();
         }
-        // Or explicit/implicit definitions?
-        Set<String> ignored = ArrayBuilders.arrayToSet(intr.findPropertiesToIgnore(beanDesc.getClassInfo(), false));        
-        for (String propName : ignored) {
-            builder.addIgnorable(propName);
-        }
+
         // Also, do we have a fallback "any" setter?
         AnnotatedMethod anySetter = beanDesc.findAnySetter();
         if (anySetter != null) {

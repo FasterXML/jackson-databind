@@ -181,7 +181,7 @@ public final class ArrayBuilders
             }
         };
     }
-    
+
     public static <T> HashSet<T> arrayToSet(T[] elements)
     {
         HashSet<T> result = new HashSet<T>();

@@ -5,9 +5,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -160,12 +158,16 @@ public abstract class BeanSerializerBase
         _serializationShape = src._serializationShape;
     }
 
+    @Deprecated // since 2.8, remove soon
     protected BeanSerializerBase(BeanSerializerBase src, String[] toIgnore)
+    {
+        this(src, ArrayBuilders.arrayToSet(toIgnore));
+    }
+    
+    protected BeanSerializerBase(BeanSerializerBase src, Set<String> toIgnore)
     {
         super(src._handledType);
 
-        // Bit clumsy, but has to do:
-        HashSet<String> ignoredSet = ArrayBuilders.arrayToSet(toIgnore);
         final BeanPropertyWriter[] propsIn = src._props;
         final BeanPropertyWriter[] fpropsIn = src._filteredProps;
         final int len = propsIn.length;
@@ -176,7 +178,7 @@ public abstract class BeanSerializerBase
         for (int i = 0; i < len; ++i) {
             BeanPropertyWriter bpw = propsIn[i];
             // should be ignored?
-            if (ignoredSet.contains(bpw.getName())) {
+            if ((toIgnore != null) && toIgnore.contains(bpw.getName())) {
                 continue;
             }
             propsOut.add(bpw);
@@ -206,9 +208,20 @@ public abstract class BeanSerializerBase
      * Mutant factory used for creating a new instance with additional
      * set of properties to ignore (from properties this instance otherwise has)
      * 
-     * @since 2.0
+     * @since 2.8
      */
-    protected abstract BeanSerializerBase withIgnorals(String[] toIgnore);
+    protected abstract BeanSerializerBase withIgnorals(Set<String> toIgnore);
+    
+    /**
+     * Mutant factory used for creating a new instance with additional
+     * set of properties to ignore (from properties this instance otherwise has)
+     * 
+     * @deprecated since 2.8
+     */
+    @Deprecated
+    protected BeanSerializerBase withIgnorals(String[] toIgnore) {
+        return withIgnorals(ArrayBuilders.arrayToSet(toIgnore));
+    }
 
     /**
      * Mutant factory for creating a variant that output POJO as a
@@ -415,12 +428,15 @@ public abstract class BeanSerializerBase
         }
 
         ObjectIdWriter oiw = _objectIdWriter;
-        String[] ignorals = null;
+        Set<String> ignoredProps = null;
         Object newFilterId = null;
-        
+
         // Then we may have an override for Object Id
         if (accessor != null) {
-            ignorals = intr.findPropertiesToIgnore(accessor, true);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(accessor);
+            if (ignorals != null) {
+                ignoredProps = ignorals.findIgnoredForSerialization();
+            }
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo == null) {
                 // no ObjectId override, but maybe ObjectIdRef?
@@ -498,8 +514,8 @@ public abstract class BeanSerializerBase
             }
         }
         // And possibly add more properties to ignore
-        if (ignorals != null && ignorals.length != 0) {
-            contextual = contextual.withIgnorals(ignorals);
+        if ((ignoredProps != null) && !ignoredProps.isEmpty()) {
+            contextual = contextual.withIgnorals(ignoredProps);
         }
         if (newFilterId != null) {
             contextual = contextual.withFilterId(newFilterId);

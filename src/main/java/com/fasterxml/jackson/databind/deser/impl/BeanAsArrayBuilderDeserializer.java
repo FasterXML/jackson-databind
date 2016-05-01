@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -65,7 +64,7 @@ public class BeanAsArrayBuilderDeserializer
     }
 
     @Override
-    public BeanAsArrayBuilderDeserializer withIgnorableProperties(HashSet<String> ignorableProps) {
+    public BeanAsArrayBuilderDeserializer withIgnorableProperties(Set<String> ignorableProps) {
         return new BeanAsArrayBuilderDeserializer(_delegate.withIgnorableProperties(ignorableProps),
                 _orderedProperties, _buildMethod);
     }

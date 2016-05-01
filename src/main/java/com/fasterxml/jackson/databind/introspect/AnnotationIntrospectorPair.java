@@ -147,6 +147,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    @Deprecated // since 2.8
     public Boolean findIgnoreUnknownProperties(AnnotatedClass ac)
     {
         Boolean result = _primary.findIgnoreUnknownProperties(ac);

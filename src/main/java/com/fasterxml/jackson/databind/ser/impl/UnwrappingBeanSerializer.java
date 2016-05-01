@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -9,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 import java.io.IOException;
+import java.util.Set;
 
 public class UnwrappingBeanSerializer
     extends BeanSerializerBase
@@ -49,7 +49,7 @@ public class UnwrappingBeanSerializer
         _nameTransformer = src._nameTransformer;
     }
 
-    protected UnwrappingBeanSerializer(UnwrappingBeanSerializer src, String[] toIgnore) {
+    protected UnwrappingBeanSerializer(UnwrappingBeanSerializer src, Set<String> toIgnore) {
         super(src, toIgnore);
         _nameTransformer = src._nameTransformer;
     }
@@ -82,7 +82,7 @@ public class UnwrappingBeanSerializer
     }
 
     @Override
-    protected BeanSerializerBase withIgnorals(String[] toIgnore) {
+    protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
         return new UnwrappingBeanSerializer(this, toIgnore);
     }
 

@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -769,7 +770,10 @@ public abstract class BasicSerializerFactory
             if (ser == null) {
                 Object filterId = findFilterId(config, beanDesc);
                 AnnotationIntrospector ai = config.getAnnotationIntrospector();
-                MapSerializer mapSer = MapSerializer.construct(ai.findPropertiesToIgnore(beanDesc.getClassInfo(), true),
+                JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnorals(beanDesc.getClassInfo());
+                Set<String> ignored = (ignorals == null) ? null
+                        : ignorals.findIgnoredForSerialization();
+                MapSerializer mapSer = MapSerializer.construct(ignored,
                         type, staticTyping, elementTypeSerializer,
                         keySerializer, elementValueSerializer, filterId);
                 Object suppressableValue = findSuppressableContentValue(config,

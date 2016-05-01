@@ -68,7 +68,7 @@ public class BeanDeserializer
         super(src, oir);
     }
 
-    public BeanDeserializer(BeanDeserializerBase src, HashSet<String> ignorableProps) {
+    public BeanDeserializer(BeanDeserializerBase src, Set<String> ignorableProps) {
         super(src, ignorableProps);
     }
 
@@ -94,7 +94,7 @@ public class BeanDeserializer
     }
 
     @Override
-    public BeanDeserializer withIgnorableProperties(HashSet<String> ignorableProps) {
+    public BeanDeserializer withIgnorableProperties(Set<String> ignorableProps) {
         return new BeanDeserializer(this, ignorableProps);
     }
 

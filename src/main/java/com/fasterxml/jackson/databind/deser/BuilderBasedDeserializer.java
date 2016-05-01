@@ -39,7 +39,7 @@ public class BuilderBasedDeserializer
     public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
             BeanDescription beanDesc,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
-            HashSet<String> ignorableProps, boolean ignoreAllUnknown,
+            Set<String> ignorableProps, boolean ignoreAllUnknown,
             boolean hasViews)
     {
         super(builder, beanDesc, properties, backRefs,
@@ -77,7 +77,7 @@ public class BuilderBasedDeserializer
         _buildMethod = src._buildMethod;
     }
 
-    public BuilderBasedDeserializer(BuilderBasedDeserializer src, HashSet<String> ignorableProps) {
+    public BuilderBasedDeserializer(BuilderBasedDeserializer src, Set<String> ignorableProps) {
         super(src, ignorableProps);
         _buildMethod = src._buildMethod;
     }
@@ -98,7 +98,7 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    public BuilderBasedDeserializer withIgnorableProperties(HashSet<String> ignorableProps) {
+    public BuilderBasedDeserializer withIgnorableProperties(Set<String> ignorableProps) {
         return new BuilderBasedDeserializer(this, ignorableProps);
     }
 

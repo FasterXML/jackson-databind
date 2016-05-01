@@ -241,7 +241,8 @@ public abstract class AnnotationIntrospector
         // 28-Apr-2016, tatu: For backwards compatibility let's delegate to older
         //   methods, for Jackson 2.8
         String[] ignorals = findPropertiesToIgnore(ac, true);
-        Boolean b = findIgnoreUnknownProperties((AnnotatedClass) ac);
+        Boolean b = (ac instanceof AnnotatedClass) ?
+                findIgnoreUnknownProperties((AnnotatedClass) ac) : null;
         JsonIgnoreProperties.Value v;
         if (ignorals == null) {
             if (b == null) {

@@ -256,7 +256,8 @@ public class TestUnknownPropertyDeserialization
 
     public void testPropertyIgnoralWithClass() throws Exception
     {
-        XYZWrapper2 result = MAPPER.readValue("{\"value\":{\"y\":2,\"x\":1,\"z\":3}}", XYZWrapper2.class);
+        XYZWrapper2 result = MAPPER.readValue("{\"value\":{\"y\":2,\"x\":1,\"z\":3}}",
+                XYZWrapper2.class);
         assertEquals(1, result.value.x);
     }
 

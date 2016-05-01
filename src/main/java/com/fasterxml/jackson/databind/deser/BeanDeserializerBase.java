@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -139,7 +140,7 @@ public abstract class BeanDeserializerBase
      * track of recognized but ignorable properties: these will
      * be skipped without errors or warnings.
      */
-    final protected HashSet<String> _ignorableProps;
+    final protected Set<String> _ignorableProps;
 
     /**
      * Flag that can be set to ignore and skip unknown properties.
@@ -206,7 +207,7 @@ public abstract class BeanDeserializerBase
     protected BeanDeserializerBase(BeanDeserializerBuilder builder,
             BeanDescription beanDesc,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
-            HashSet<String> ignorableProps, boolean ignoreAllUnknown,
+            Set<String> ignorableProps, boolean ignoreAllUnknown,
             boolean hasViews)
     {
         super(beanDesc.getType());
@@ -354,7 +355,7 @@ public abstract class BeanDeserializerBase
         }
     }
 
-    public BeanDeserializerBase(BeanDeserializerBase src, HashSet<String> ignorableProps)
+    public BeanDeserializerBase(BeanDeserializerBase src, Set<String> ignorableProps)
     {
         super(src._beanType);
         
@@ -386,7 +387,7 @@ public abstract class BeanDeserializerBase
 
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);
 
-    public abstract BeanDeserializerBase withIgnorableProperties(HashSet<String> ignorableProps);
+    public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps);
 
     /**
      * Fluent factory for creating a variant that can handle
@@ -669,10 +670,17 @@ public abstract class BeanDeserializerBase
         }
         // And possibly add more properties to ignore
         if (accessor != null) {
-            String[] ignorals = intr.findPropertiesToIgnore(accessor, false);
-            if (ignorals != null && ignorals.length != 0) {
-                HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
-                contextual = contextual.withIgnorableProperties(newIgnored);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(accessor);
+            if (ignorals != null) {
+                Set<String> ignored = ignorals.findIgnoredForDeserialization();
+                if (!ignored.isEmpty()) {
+                    Set<String> prev = contextual._ignorableProps;
+                    if ((prev != null) && !prev.isEmpty()) {
+                        ignored = new HashSet<String>(ignored);
+                        ignored.addAll(prev);
+                    }
+                    contextual = contextual.withIgnorableProperties(ignored);
+                }
             }
         }
 

@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -1161,12 +1162,14 @@ public abstract class BasicDeserializerFactory
                     ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
                     MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
                     AnnotationIntrospector ai = config.getAnnotationIntrospector();
-                    md.setIgnorableProperties(ai.findPropertiesToIgnore(beanDesc.getClassInfo(), false));
+                    JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnorals(beanDesc.getClassInfo());
+                    Set<String> ignored = (ignorals == null) ? null
+                            : ignorals.findIgnoredForDeserialization();
+                    md.setIgnorableProperties(ignored);
                     deser = md;
                 }
             }
         }
-        // and then new with 2.2: ability to post-process it too (Issue#120)
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyMapDeserializer(config, type, beanDesc, deser);

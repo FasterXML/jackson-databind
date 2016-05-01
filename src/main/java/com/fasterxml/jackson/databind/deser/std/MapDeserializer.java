@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -83,7 +84,7 @@ public class MapDeserializer
 
     // // Any properties to ignore if seen?
     
-    protected HashSet<String> _ignorableProperties;
+    protected Set<String> _ignorableProperties;
 
     /*
     /**********************************************************
@@ -131,7 +132,7 @@ public class MapDeserializer
     protected MapDeserializer(MapDeserializer src,
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser,
-            HashSet<String> ignorable)
+            Set<String> ignorable)
     {
         super(src._mapType);
         _mapType = src._mapType;
@@ -154,7 +155,7 @@ public class MapDeserializer
     @SuppressWarnings("unchecked")
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
-            HashSet<String> ignorable)
+            Set<String> ignorable)
     {
         
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
@@ -186,6 +187,11 @@ public class MapDeserializer
     public void setIgnorableProperties(String[] ignorable) {
         _ignorableProperties = (ignorable == null || ignorable.length == 0) ?
             null : ArrayBuilders.arrayToSet(ignorable);
+    }
+
+    public void setIgnorableProperties(Set<String> ignorable) {
+        _ignorableProperties = (ignorable == null || ignorable.size() == 0) ?
+                null : ignorable;
     }
 
     /*
@@ -250,16 +256,19 @@ public class MapDeserializer
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        HashSet<String> ignored = _ignorableProperties;
+        Set<String> ignored = _ignorableProperties;
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null && property != null) {
             AnnotatedMember member = property.getMember();
             if (member != null) {
-                String[] moreToIgnore = intr.findPropertiesToIgnore(member, false);
-                if (moreToIgnore != null) {
-                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
-                    for (String str : moreToIgnore) {
-                        ignored.add(str);
+                JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(member);
+                if (ignorals != null) {
+                    Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
+                    if (!ignoresToAdd.isEmpty()) {
+                        ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
+                        for (String str : ignoresToAdd) {
+                            ignored.add(str);
+                        }
                     }
                 }
             }

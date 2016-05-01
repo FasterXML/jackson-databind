@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
@@ -64,7 +64,7 @@ public class BeanSerializer
         super(src, objectIdWriter, filterId);
     }
     
-    protected BeanSerializer(BeanSerializerBase src, String[] toIgnore) {
+    protected BeanSerializer(BeanSerializerBase src, Set<String> toIgnore) {
         super(src, toIgnore);
     }
 
@@ -99,7 +99,7 @@ public class BeanSerializer
     }
 
     @Override
-    protected BeanSerializerBase withIgnorals(String[] toIgnore) {
+    protected BeanSerializerBase withIgnorals(Set<String> toIgnore) {
         return new BeanSerializer(this, toIgnore);
     }
 

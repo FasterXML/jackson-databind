@@ -3,9 +3,11 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.TypeConfigOverride;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
@@ -20,7 +22,6 @@ import com.fasterxml.jackson.databind.ser.std.AtomicReferenceSerializer;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -433,12 +434,12 @@ public class BeanSerializerFactory
             JavaType valueType = type.getContentType();
             TypeSerializer typeSer = createTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
-            // 23-Feb-2015, tatu: As per [#705], need to support custom serializers
+            // 23-Feb-2015, tatu: As per [databind#705], need to support custom serializers
             JsonSerializer<?> anySer = findSerializerFromAnnotation(prov, anyGetter);
             if (anySer == null) {
                 // TODO: support '@JsonIgnoreProperties' with any setter?
-                anySer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
-                        typeSer, null, null, /*filterId*/ null);
+                anySer = MapSerializer.construct(/* ignored props*/ (Set<String>) null,
+                        type, staticTyping, typeSer, null, null, /*filterId*/ null);
             }
             // TODO: can we find full PropertyName?
             PropertyName name = PropertyName.construct(anyGetter.getName());
@@ -455,9 +456,8 @@ public class BeanSerializerFactory
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
-        
+
         JsonSerializer<Object> ser = (JsonSerializer<Object>) builder.build();
-        
         if (ser == null) {
             // If we get this far, there were no properties found, so no regular BeanSerializer
             // would be constructed. But, couple of exceptions.
@@ -629,13 +629,15 @@ public class BeanSerializerFactory
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedClass ac = beanDesc.getClassInfo();
-        String[] ignored = intr.findPropertiesToIgnore(ac, true);
-        if (ignored != null && ignored.length > 0) {
-            HashSet<String> ignoredSet = ArrayBuilders.arrayToSet(ignored);
-            Iterator<BeanPropertyWriter> it = props.iterator();
-            while (it.hasNext()) {
-                if (ignoredSet.contains(it.next().getName())) {
-                    it.remove();
+        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(ac);
+        if (ignorals != null) {
+            Set<String> ignored = ignorals.findIgnoredForSerialization();
+            if (!ignored.isEmpty()) {
+                Iterator<BeanPropertyWriter> it = props.iterator();
+                while (it.hasNext()) {
+                    if (ignored.contains(it.next().getName())) {
+                        it.remove();
+                    }
                 }
             }
         }

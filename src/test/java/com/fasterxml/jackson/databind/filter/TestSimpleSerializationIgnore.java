@@ -70,11 +70,12 @@ public class TestSimpleSerializationIgnore
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testSimpleIgnore() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // Should see "x", not "y"
-        Map<String,Object> result = writeAndMap(m, new SizeClassEnabledIgnore());
+        Map<String,Object> result = writeAndMap(MAPPER, new SizeClassEnabledIgnore());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(1), result.get("x"));
         assertNull(result.get("y"));
@@ -82,9 +83,8 @@ public class TestSimpleSerializationIgnore
 
     public void testDisabledIgnore() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // Should see "x" and "y"
-        Map<String,Object> result = writeAndMap(m, new SizeClassDisabledIgnore());
+        Map<String,Object> result = writeAndMap(MAPPER, new SizeClassDisabledIgnore());
         assertEquals(2, result.size());
         assertEquals(Integer.valueOf(3), result.get("x"));
         assertEquals(Integer.valueOf(4), result.get("y"));
@@ -96,26 +96,20 @@ public class TestSimpleSerializationIgnore
      */
     public void testIgnoreOver() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-
         // should only see "y"
-        Map<String,Object> result = writeAndMap(m, new BaseClassIgnore());
+        Map<String,Object> result = writeAndMap(MAPPER, new BaseClassIgnore());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(2), result.get("y"));
 
         // Should see "x" and "y"
-        result = writeAndMap(m, new SubClassNonIgnore());
+        result = writeAndMap(MAPPER, new SubClassNonIgnore());
         assertEquals(2, result.size());
         assertEquals(Integer.valueOf(3), result.get("x"));
         assertEquals(Integer.valueOf(2), result.get("y"));
     }
 
-    /**
-     * @since 1.7
-     */
     public void testIgnoreType() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        assertEquals("{\"value\":13}", m.writeValueAsString(new NonIgnoredType()));
+        assertEquals("{\"value\":13}", MAPPER.writeValueAsString(new NonIgnoredType()));
     }
 }

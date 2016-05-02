@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class IgnorePropsTest
+public class IgnorePropsForSerTest
     extends BaseMapTest
 {
     @JsonIgnoreProperties({"b", "c"})
@@ -23,7 +23,7 @@ public class IgnorePropsTest
     @JsonIgnoreProperties({"@class"})
     static class MyMap extends HashMap<String,String> { }
 
-    // [JACKSON-787]: allow use of @JsonIgnoreProperties for properties
+    //allow use of @JsonIgnoreProperties for properties
     static class WrapperWithPropIgnore
     {
         @JsonIgnoreProperties("y")

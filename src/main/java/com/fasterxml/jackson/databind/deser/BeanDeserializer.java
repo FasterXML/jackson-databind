@@ -255,7 +255,7 @@ public class BeanDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _beanProperties.find(propName);
 
-                if (prop != null) { // normal case
+                if (prop != null && !isPropertyIgnored(propName)) { // normal case
                     try {
                         prop.deserializeAndSet(p, ctxt, bean);
                     } catch (Exception e) {
@@ -267,6 +267,22 @@ public class BeanDeserializer
             } while ((propName = p.nextFieldName()) != null);
         }
         return bean;
+    }
+    
+    /**
+     * Determines whether the property has been ignored. When the field is in a
+     * POJO and @JsonIgnoreProperties is declared on the field, need to
+     * determine and ignore the properties
+     * 
+     * @param propName The property name to check whether it is ignored
+     * @return true if the property is ignored, false otherwise
+     */
+    private boolean isPropertyIgnored(String propName) {
+        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+        	return true;
+        }
+        
+        return false;
     }
 
     /**

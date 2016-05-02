@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
@@ -488,7 +489,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
-    public JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
+    public final JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
         ConfigOverride overrides = _configOverrides.findOverride(type);
         if (overrides != null) {
             JsonFormat.Value v = overrides.getFormat();
@@ -497,6 +498,31 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             }
         }
         return EMPTY_FORMAT;
+    }
+
+    @Override
+    public final JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> type) {
+        ConfigOverride overrides = _configOverrides.findOverride(type);
+        if (overrides != null) {
+            JsonIgnoreProperties.Value v = overrides.getIgnorals();
+            if (v != null) {
+                return v;
+            }
+        }
+        // 01-May-2015, tatu: Could return `Value.empty()` but for now `null`
+        //   seems simpler as callers can avoid processing.
+        return null;
+    }
+
+    @Override
+    public final JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType,
+            AnnotatedClass actualClass)
+    {
+        AnnotationIntrospector intr = getAnnotationIntrospector();
+        JsonIgnoreProperties.Value base = (intr == null) ? null
+                : intr.findPropertyIgnorals(actualClass);
+        JsonIgnoreProperties.Value overrides = getDefaultPropertyIgnorals(baseType);
+        return JsonIgnoreProperties.Value.merge(base, overrides);
     }
 
     /*

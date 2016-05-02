@@ -769,8 +769,12 @@ public abstract class BasicSerializerFactory
             ser = findSerializerByAnnotations(prov, type, beanDesc); // (2) Annotations
             if (ser == null) {
                 Object filterId = findFilterId(config, beanDesc);
-                AnnotationIntrospector ai = config.getAnnotationIntrospector();
-                JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnorals(beanDesc.getClassInfo());
+                // 01-May-2016, tatu: Which base type to use here gets tricky, since
+                //   most often it ought to be `Map` or `EnumMap`, but due to abstract
+                //   mapping it will more likely be concrete type like `HashMap`.
+                //   So, for time being, just pass `Map.class`
+                JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
+                        beanDesc.getClassInfo());
                 Set<String> ignored = (ignorals == null) ? null
                         : ignorals.findIgnoredForSerialization();
                 MapSerializer mapSer = MapSerializer.construct(ignored,

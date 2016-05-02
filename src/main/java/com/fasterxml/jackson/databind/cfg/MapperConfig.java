@@ -5,14 +5,13 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
@@ -372,6 +371,25 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @since 2.7
      */
     public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
+
+    /**
+     * Accessor for default property ignorals to use, if any, for given base type,
+     * based on config overrides settings (see {@link #findConfigOverride(Class)}).
+     *
+     * @since 2.8
+     */
+    public abstract JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType);
+
+    /**
+     * Helper method that may be called to see if there are property ignoral
+     * definitions from annotations (via {@link AnnotatedClass}) or through
+     * "config overrides". If both exist, config overrides have precedence
+     * over class annotations.
+     *
+     * @since 2.8
+     */
+    public abstract JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType,
+            AnnotatedClass actualClass);
 
     /**
      * Accessor for finding possible {@link ConfigOverride} to use for

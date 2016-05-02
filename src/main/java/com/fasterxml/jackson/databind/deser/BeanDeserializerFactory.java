@@ -448,8 +448,13 @@ public class BeanDeserializerFactory
         final boolean isConcrete = !beanDesc.getType().isAbstract();
         
         // Things specified as "ok to ignore"?
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(beanDesc.getClassInfo());
+        // 01-May-2016, tatu: Which base type to use here gets tricky, since
+        //   it may often make most sense to use general type for overrides,
+        //   but what we have here may be more specific impl type. But for now
+        //   just use it as is.
+        JsonIgnoreProperties.Value ignorals = ctxt.getConfig()
+                .getDefaultPropertyIgnorals(beanDesc.getBeanClass(),
+                        beanDesc.getClassInfo());
         Set<String> ignored;
         
         if (ignorals != null) {

@@ -1105,16 +1105,16 @@ public abstract class BasicDeserializerFactory
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
         JsonDeserializer<Object> contentDeser = (JsonDeserializer<Object>) contentType.getValueHandler();
-        
+
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
-        // Then optional type info (1.5); either attached to type, or resolved separately:
+        // Then optional type info; either attached to type, or resolved separately:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
             contentTypeDeser = findTypeDeserializer(config, contentType);
         }
-        
+
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDesc,
                 keyDes, contentTypeDeser, contentDeser);
@@ -1151,7 +1151,7 @@ public abstract class BasicDeserializerFactory
                         // But if so, also need to re-check creators...
                         beanDesc = config.introspectForCreation(type);
                     } else {
-                        // [Issue#292]: Actually, may be fine, but only if polymorphich deser enabled
+                        // [databind#292]: Actually, may be fine, but only if polymorphic deser enabled
                         if (type.getTypeHandler() == null) {
                             throw new IllegalArgumentException("Can not find a deserializer for non-concrete Map type "+type);
                         }
@@ -1160,9 +1160,13 @@ public abstract class BasicDeserializerFactory
                 }
                 if (deser == null) {
                     ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+                    // 01-May-2016, tatu: Which base type to use here gets tricky, since
+                    //   most often it ought to be `Map` or `EnumMap`, but due to abstract
+                    //   mapping it will more likely be concrete type like `HashMap`.
+                    //   So, for time being, just pass `Map.class`
                     MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
-                    AnnotationIntrospector ai = config.getAnnotationIntrospector();
-                    JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnorals(beanDesc.getClassInfo());
+                    JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
+                            beanDesc.getClassInfo());
                     Set<String> ignored = (ignorals == null) ? null
                             : ignorals.findIgnoredForDeserialization();
                     md.setIgnorableProperties(ignored);

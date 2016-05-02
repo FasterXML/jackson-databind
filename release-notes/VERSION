@@ -24,6 +24,8 @@ Project: jackson-databind
  (suggested by Matt V, mveitas@github)
 #1187: Refactor `AtomicReferenceDeserializer` into `ReferenceTypeDeserializer`
 #1211: Change `JsonValueSerializer` to get `AnnotatedMethod`, not "raw" method
+#1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
+ (reported by Lokesh K)
 
 2.7.4 (29-Apr-2016)
 

@@ -208,7 +208,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
     }
 
     /**
-     * Factory method for constructing a map where all entries use given
+     * Mutant factory method for constructing a map where all entries use given
      * prefix
      */
     public BeanPropertyMap renameAll(NameTransformer transformer)
@@ -234,6 +234,36 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         return new BeanPropertyMap(_caseInsensitive, newProps);
     }
 
+    /**
+     * Mutant factory method that will use this instance as the base, and
+     * construct an instance that is otherwise same except for excluding
+     * properties with specified names.
+     *
+     * @since 2.8
+     */
+    public BeanPropertyMap withoutProperties(Collection<String> toExclude)
+    {
+        if (toExclude.isEmpty()) {
+            return this;
+        }
+        final int len = _propsInOrder.length;
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(len);
+
+        for (int i = 0; i < len; ++i) {
+            SettableBeanProperty prop = _propsInOrder[i];
+            // 01-May-2015, tatu: Not 100% sure if existing `null`s should be retained;
+            //   or, if entries to ignore should be retained as nulls. For now just
+            //   prune them out
+            if (prop != null) { // may contain holes, too, check.
+                if (!toExclude.contains(prop.getName())) {
+                    newProps.add(prop);
+                }
+            }
+        }
+        // should we try to re-index? Apparently no need
+        return new BeanPropertyMap(_caseInsensitive, newProps);
+    }
+    
     /**
      * Specialized method that can be used to replace an existing entry
      * (note: entry MUST exist; otherwise exception is thrown) with
@@ -481,7 +511,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
             if (!wrap || !(t instanceof JsonProcessingException)) {
                 throw (IOException) t;
             }
-        } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+        } else if (!wrap) { // allow disabling wrapping for unchecked exceptions
             if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             }

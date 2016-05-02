@@ -379,9 +379,12 @@ public abstract class BeanDeserializerBase
 
         _vanillaProcessing = src._vanillaProcessing;
         _objectIdReader = src._objectIdReader;
-        _beanProperties = src._beanProperties;
+
+        // 01-May-2016, tatu: [databind#1217]: Remove properties from mapping,
+        //    to avoid them being deserialized
+        _beanProperties = src._beanProperties.withoutProperties(ignorableProps);
     }
-    
+
     @Override
     public abstract JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper);
 

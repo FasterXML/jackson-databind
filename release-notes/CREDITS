@@ -459,4 +459,5 @@ Lokesh Kumar (LokeshN@github)
   * Contributed impl for #1082: Can not use static Creator factory methods for `Enum`s,
     with JsonCreator.Mode.PROPERTIES
    (2.8.0)
-
+  * Reported #1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
+   (2.8.0)

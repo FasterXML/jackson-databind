@@ -51,6 +51,9 @@ public class TestAnnotationIgnore
         
         @JsonIgnoreProperties({ "y" })
         public IgnoreObject obj1;
+        
+        @JsonIgnoreProperties({ "x", "y" })
+        public IgnoreObject obj2;
     }
     
     /*
@@ -110,13 +113,16 @@ public class TestAnnotationIgnore
         assertEquals(2, result.obj1.y);
         
         TestIgnoreObject result1 = MAPPER.readValue(
-        		aposToQuotes("{'obj':{'x': 20, 'y': 30}, 'obj1':{'x': 20, 'y': 40}}"), TestIgnoreObject.class);
+        		aposToQuotes("{'obj':{'x': 20, 'y': 30}, 'obj1':{'x': 20, 'y': 40}, 'obj2':{'x': 30, 'y': 40}}"), TestIgnoreObject.class);
         
         assertEquals(0, result1.obj.x);
         assertEquals(30, result1.obj.y);
         
         assertEquals(20, result1.obj1.x);
         assertEquals(2, result1.obj1.y);
+        
+        assertEquals(0, result1.obj2.x);
+        assertEquals(2, result1.obj2.y);
     
     }
 }

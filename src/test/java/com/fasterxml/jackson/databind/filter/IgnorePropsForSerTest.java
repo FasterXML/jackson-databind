@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.filter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BaseMapTest.Point;
 
 public class IgnorePropsForSerTest
     extends BaseMapTest
@@ -121,5 +121,13 @@ public class IgnorePropsForSerTest
     {
         assertEquals("{\"value\":{\"y\":2}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnore2()));
+    }
+
+    public void testIgnoreViaConfigOverride() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(Point.class)
+            .setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("x"));
+        assertEquals("{\"y\":3}", mapper.writeValueAsString(new Point(2, 3)));
     }
 }

@@ -15,13 +15,13 @@ public class TestBeanConversions
 {
     final ObjectMapper MAPPER = new ObjectMapper();
 
-    static class Point {
+    static class PointZ {
         public int x, y;
 
         public int z = -13;
 
-        public Point() { }
-        public Point(int a, int b, int c)
+        public PointZ() { }
+        public PointZ(int a, int b, int c)
         {
             x = a;
             y = b;
@@ -101,7 +101,7 @@ public class TestBeanConversions
     {
         // should have no problems convert between compatible beans...
         PointStrings input = new PointStrings("37", "-9");
-        Point point = MAPPER.convertValue(input, Point.class);
+        PointZ point = MAPPER.convertValue(input, PointZ.class);
         assertEquals(37, point.x);
         assertEquals(-9, point.y);
         // z not included in input, will be whatever default constructor provides
@@ -137,7 +137,7 @@ public class TestBeanConversions
         assertEquals("foo", a2.getData());
     }
 
-    // [JACKSON-710]: should work regardless of wrapping...
+    // should work regardless of wrapping...
     public void testWrapping() throws Exception
     {
         ObjectMapper wrappingMapper = new ObjectMapper();
@@ -182,15 +182,15 @@ public class TestBeanConversions
     
     private void _convertAndVerifyPoint(ObjectMapper m)
     {
-        final Point input = new Point(1, 2, 3);
-        Point output = m.convertValue(input, Point.class);
+        final PointZ input = new PointZ(1, 2, 3);
+        PointZ output = m.convertValue(input, PointZ.class);
         assertEquals(1, output.x);
         assertEquals(2, output.y);
         assertEquals(3, output.z);
     }
 
     /**
-     * Need to test "shortcuts" introduced by [Issue-11]
+     * Need to test "shortcuts" introduced by [databind#11]
      */
     public void testIssue11() throws Exception
     {

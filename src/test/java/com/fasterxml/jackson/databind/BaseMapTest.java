@@ -121,6 +121,31 @@ public abstract class BaseMapTest
 
     public enum ABC { A, B, C; }
 
+    // since 2.8
+    public static class Point {
+        public int x, y;
+
+        protected Point() { } // for deser
+        public Point(int x0, int y0) {
+            x = x0;
+            y = y0;
+        }
+    
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Point)) {
+                return false;
+            }
+            Point other = (Point) o;
+            return (other.x == x) && (other.y == y);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[x=%d, y=%d]", x, y);
+        }
+    }
+
     /*
     /**********************************************************
     /* Shared serializers

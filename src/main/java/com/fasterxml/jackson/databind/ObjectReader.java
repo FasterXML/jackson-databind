@@ -1554,9 +1554,9 @@ public class ObjectReader
                 ? p : new FilteringParserDelegate(p, _filter, false, multiValue);
     }
     
-    protected Object _bindAndClose(JsonParser p) throws IOException
+    protected Object _bindAndClose(JsonParser p0) throws IOException
     {
-        try {
+        try (JsonParser p = p0) {
             Object result;
             JsonToken t = _initForReading(p);
             if (t == JsonToken.VALUE_NULL) {
@@ -1583,20 +1583,12 @@ public class ObjectReader
                 }
             }
             return result;
-        } finally {
-            try {
-                p.close();
-            } catch (IOException ioe) { }
         }
     }
 
-    protected JsonNode _bindAndCloseAsTree(JsonParser p) throws IOException {
-        try {
+    protected JsonNode _bindAndCloseAsTree(JsonParser p0) throws IOException {
+        try (JsonParser p = p0) {
             return _bindAsTree(p);
-        } finally {
-            try {
-                p.close();
-            } catch (IOException ioe) { }
         }
     }
     

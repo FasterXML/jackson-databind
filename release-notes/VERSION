@@ -26,6 +26,7 @@ Project: jackson-databind
 #1211: Change `JsonValueSerializer` to get `AnnotatedMethod`, not "raw" method
 #1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
  (reported by Lokesh K)
+#1221: Use `Throwable.addSuppressed()` directly and/or via try-with-resources
 
 2.7.4 (29-Apr-2016)
 

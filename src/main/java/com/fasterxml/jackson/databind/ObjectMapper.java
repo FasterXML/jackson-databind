@@ -3718,15 +3718,15 @@ public class ObjectMapper
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected DefaultDeserializationContext createDeserializationContext(JsonParser jp,
+    protected DefaultDeserializationContext createDeserializationContext(JsonParser p,
             DeserializationConfig cfg) {
-        return _deserializationContext.createInstance(cfg, jp, _injectableValues);
+        return _deserializationContext.createInstance(cfg, p, _injectableValues);
     }
     
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _readValue(DeserializationConfig cfg, JsonParser jp, JavaType valueType)
+    protected Object _readValue(DeserializationConfig cfg, JsonParser p, JavaType valueType)
         throws IOException
     {
         /* First: may need to read the next token, to initialize
@@ -3734,59 +3734,55 @@ public class ObjectMapper
          * previous token has been cleared)
          */
         Object result;
-        JsonToken t = _initForReading(jp);
+        JsonToken t = _initForReading(p);
         if (t == JsonToken.VALUE_NULL) {
-            // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
-            DeserializationContext ctxt = createDeserializationContext(jp, cfg);
+            // Ask JsonDeserializer what 'null value' to use:
+            DeserializationContext ctxt = createDeserializationContext(p, cfg);
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
-            DeserializationContext ctxt = createDeserializationContext(jp, cfg);
+            DeserializationContext ctxt = createDeserializationContext(p, cfg);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
             // ok, let's get the value
             if (cfg.useRootWrapping()) {
-                result = _unwrapAndDeserialize(jp, ctxt, cfg, valueType, deser);
+                result = _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
             } else {
-                result = deser.deserialize(jp, ctxt);
+                result = deser.deserialize(p, ctxt);
             }
         }
         // Need to consume the token too
-        jp.clearCurrentToken();
+        p.clearCurrentToken();
         return result;
     }
     
-    protected Object _readMapAndClose(JsonParser jp, JavaType valueType)
+    protected Object _readMapAndClose(JsonParser p0, JavaType valueType)
         throws IOException
     {
-        try {
+        try (JsonParser p = p0) {
             Object result;
-            JsonToken t = _initForReading(jp);
+            JsonToken t = _initForReading(p);
             if (t == JsonToken.VALUE_NULL) {
-                // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
-                DeserializationContext ctxt = createDeserializationContext(jp,
+                // Ask JsonDeserializer what 'null value' to use:
+                DeserializationContext ctxt = createDeserializationContext(p,
                         getDeserializationConfig());
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {
                 DeserializationConfig cfg = getDeserializationConfig();
-                DeserializationContext ctxt = createDeserializationContext(jp, cfg);
+                DeserializationContext ctxt = createDeserializationContext(p, cfg);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
                 if (cfg.useRootWrapping()) {
-                    result = _unwrapAndDeserialize(jp, ctxt, cfg, valueType, deser);
+                    result = _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
                 } else {
-                    result = deser.deserialize(jp, ctxt);
+                    result = deser.deserialize(p, ctxt);
                 }
                 ctxt.checkUnresolvedObjectId();
             }
             // Need to consume the token too
-            jp.clearCurrentToken();
+            p.clearCurrentToken();
             return result;
-        } finally {
-            try {
-                jp.close();
-            } catch (IOException ioe) { }
         }
     }
 

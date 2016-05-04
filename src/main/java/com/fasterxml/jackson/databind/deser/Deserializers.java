@@ -76,6 +76,8 @@ public interface Deserializers
      *    by property annotation
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
+     *
+     * @since 2.7
      */
     public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,

@@ -136,17 +136,6 @@ public abstract class DefaultSerializerProvider
         return (JsonSerializer<Object>) _handleResolvable(ser);
     }
 
-    @Override
-    public JsonMappingException mappingException(String message, Object... args) {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
-        if (_generator != null) {
-            return JsonMappingException.from(_generator, message);
-        }
-        return JsonMappingException.from(this, message);
-    }
-
     /*
     /**********************************************************
     /* Object Id handling
@@ -252,6 +241,7 @@ public abstract class DefaultSerializerProvider
      *
      * @since 2.8
      */
+    @Override
     public JsonGenerator getGenerator() {
         return _generator;
     }
@@ -343,7 +333,6 @@ public abstract class DefaultSerializerProvider
         final boolean wrap;
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
-            // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 gen.writeStartObject();
@@ -352,7 +341,7 @@ public abstract class DefaultSerializerProvider
             }
         } else if (rootName.isEmpty()) {
             wrap = false;
-        } else { // [JACKSON-764]
+        } else {
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
             gen.writeStartObject();
@@ -370,7 +359,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw JsonMappingException.from(gen, msg, e);
+            reportMappingProblem(e, msg);
         }
     }
 
@@ -435,7 +424,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw JsonMappingException.from(gen, msg, e);
+            reportMappingProblem(e, msg);
         }
     }
 
@@ -499,7 +488,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw JsonMappingException.from(gen, msg, e);
+            reportMappingProblem(e, msg);
         }
     }
 
@@ -531,7 +520,7 @@ public abstract class DefaultSerializerProvider
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
             }
-            throw JsonMappingException.from(gen, msg, e);
+            reportMappingProblem(e, msg);
         }
     }
     /*

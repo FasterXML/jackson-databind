@@ -1096,17 +1096,60 @@ public abstract class SerializerProvider
      */
 
     /**
+     * Factory method for constructing a {@link JsonMappingException};
+     * usually only indirectly used by calling
+     * {@link #reportMappingProblem(String, Object...)}.
+     *
      * @since 2.6
      */
-    public abstract JsonMappingException mappingException(String message, Object... args);
+    public JsonMappingException mappingException(String message, Object... args) {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        return JsonMappingException.from(getGenerator(), message);
+    }
 
     /**
-     * Helper method called to indicate problem
+     * Factory method for constructing a {@link JsonMappingException};
+     * usually only indirectly used by calling
+     * {@link #reportMappingProblem(Throwable, String, Object...)}
+     * 
+     * @since 2.8
+     */
+    protected JsonMappingException mappingException(Throwable t, String message, Object... args) {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        return JsonMappingException.from(getGenerator(), message, t);
+    }
+
+    /**
+     * Helper method called to indicate problem; default behavior is to construct and
+     * throw a {@link JsonMappingException}, but in future may collect more than one
+     * and only throw after certain number, or at the end of serialization.
      *
      * @since 2.8
      */
-    public void reportMappingException(String message, Object... args) throws JsonMappingException {
+    public void reportMappingProblem(String message, Object... args) throws JsonMappingException {
         throw mappingException(message, args);
+    }
+
+    /**
+     * Helper method called to indicate problem; default behavior is to construct and
+     * throw a {@link JsonMappingException}, but in future may collect more than one
+     * and only throw after certain number, or at the end of serialization.
+     *
+     * @since 2.8
+     */
+    public void reportMappingProblem(Throwable t, String message, Object... args) throws JsonMappingException {
+        throw mappingException(t, message, args);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public JsonGenerator getGenerator() {
+        return null;
     }
 
     /*

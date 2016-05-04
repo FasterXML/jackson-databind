@@ -300,11 +300,7 @@ public class JsonMappingException
      * @since 2.7
      */
     public static JsonMappingException from(SerializerProvider ctxt, String msg) {
-        /* 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
-         *   SerializerProvider instance does not currently hold on to generator...
-         */
-        JsonGenerator g = null;
-        return new JsonMappingException(g, msg);
+        return new JsonMappingException(ctxt.getGenerator(), msg);
     }
 
     /**
@@ -314,8 +310,7 @@ public class JsonMappingException
         /* 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
          *   SerializerProvider instance does not currently hold on to generator...
          */
-        JsonGenerator g = null;
-        return new JsonMappingException(g, msg, problem);
+        return new JsonMappingException(ctxt.getGenerator(), msg, problem);
     }
     
     /**

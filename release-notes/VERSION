@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #621: Allow definition of "ignorable types" without annotation (using
   `Mapper.configOverride(type).setIsIgnoredType(true)`
+#903: Add `JsonGenerator` reference to `SerializerProvider`
 #931: Add new method in `Deserializers.Base` to support `ReferenceType`
 #990: Allow failing on `null` values for creator (add 
   `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)

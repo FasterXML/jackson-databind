@@ -75,8 +75,11 @@ public class TestJavaType
         assertFalse(baseType.isEnumType());
         assertFalse(baseType.isInterface());
         assertFalse(baseType.isPrimitive());
+        assertFalse(baseType.isReferenceType());
+        assertFalse(baseType.hasContentType());
 
         assertNull(baseType.getContentType());
+        assertNull(baseType.getKeyType());
         assertNull(baseType.getValueHandler());
     }
 
@@ -86,8 +89,12 @@ public class TestJavaType
         JavaType arrayT = ArrayType.construct(tf.constructType(String.class), null);
         assertNotNull(arrayT);
         assertTrue(arrayT.isContainerType());
+        assertFalse(arrayT.isReferenceType());
+        assertTrue(arrayT.hasContentType());
 
         assertNotNull(arrayT.toString());
+        assertNotNull(arrayT.getContentType());
+        assertNull(arrayT.getKeyType());
 
         assertTrue(arrayT.equals(arrayT));
         assertFalse(arrayT.equals(null));
@@ -97,6 +104,23 @@ public class TestJavaType
         assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null)));
     }
 
+    public void testMapType()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType mapT = tf.constructType(HashMap.class);
+        assertTrue(mapT.isContainerType());
+        assertFalse(mapT.isReferenceType());
+        assertTrue(mapT.hasContentType());
+
+        assertNotNull(mapT.toString());
+        assertNotNull(mapT.getContentType());
+        assertNotNull(mapT.getKeyType());
+
+        assertTrue(mapT.equals(mapT));
+        assertFalse(mapT.equals(null));
+        assertFalse(mapT.equals("xyz"));
+    }
+    
     public void testEnumType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();

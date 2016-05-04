@@ -241,6 +241,9 @@ public class SimpleType // note: until 2.6 was final
 
     @Override
     public boolean isContainerType() { return false; }
+    
+    @Override
+    public boolean hasContentType() { return false; }
 
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {

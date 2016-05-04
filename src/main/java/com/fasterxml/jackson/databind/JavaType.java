@@ -223,6 +223,17 @@ public abstract class JavaType
     public final boolean hasRawClass(Class<?> clz) { return _class == clz; }
 
     /**
+     * Accessor that allows determining whether {@link #getContentType()} should
+     * return a non-null value (that is, there is a "content type") or not.
+     * True if {@link #isContainerType()} or {@link #isReferenceType()} return true.
+     *
+     * @since 2.8
+     */
+    public boolean hasContentType() {
+        return true;
+    }
+
+    /**
      * @since 2.6
      */
     public final boolean isTypeOrSubTypeOf(Class<?> clz) {

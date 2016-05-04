@@ -25,6 +25,7 @@ Project: jackson-databind
 #1181: Add the ability to specify the initial capacity of the ArrayNode
  (suggested by Matt V, mveitas@github)
 #1187: Refactor `AtomicReferenceDeserializer` into `ReferenceTypeDeserializer`
+#1204: Add a convenience accessor in `JavaType` for "has content" (container or reference type)
 #1211: Change `JsonValueSerializer` to get `AnnotatedMethod`, not "raw" method
 #1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
  (reported by Lokesh K)

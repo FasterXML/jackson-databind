@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.*;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -3560,7 +3561,7 @@ public class ObjectMapper
             } else { // pointing to event other than null
                 DeserializationContext ctxt = createDeserializationContext(jp, deserConfig);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, toValueType);
-                // note: no handling of unwarpping
+                // note: no handling of unwrapping
                 result = deser.deserialize(jp, ctxt);
             }
             jp.close();
@@ -3657,25 +3658,13 @@ public class ObjectMapper
             _configAndWriteCloseable(g, value, cfg);
             return;
         }
-        boolean closed = false;
         try {
             _serializerProvider(cfg).serializeValue(g, value);
-            closed = true;
-            g.close();
-        } finally {
-            /* won't try to close twice; also, must catch exception (so it 
-             * will not mask exception that is pending)
-             */
-            if (!closed) {
-                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
-                 *    structures, which typically causes more damage.
-                 */
-                g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
-                try {
-                    g.close();
-                } catch (IOException ioe) { }
-            }
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIAE(g, e);
+            return;
         }
+        g.close();
     }
 
     /**
@@ -3688,30 +3677,16 @@ public class ObjectMapper
         Closeable toClose = (Closeable) value;
         try {
             _serializerProvider(cfg).serializeValue(g, value);
-            JsonGenerator tmpGen = g;
-            g = null;
-            tmpGen.close();
             Closeable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
-        } finally {
-            // Need to close both generator and value, as long as they haven't yet been closed
-            if (g != null) {
-                // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
-                //    structures, which typically causes more damage.
-                g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
-                try {
-                    g.close();
-                } catch (IOException ioe) { }
-            }
-            if (toClose != null) {
-                try {
-                    toClose.close();
-                } catch (IOException ioe) { }
-            }
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIAE(g, toClose, e);
+            return;
         }
+        g.close();
     }
-    
+
     /**
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
@@ -3725,16 +3700,11 @@ public class ObjectMapper
             if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 g.flush();
             }
-            Closeable tmpToClose = toClose;
-            toClose = null;
-            tmpToClose.close();
-        } finally {
-            if (toClose != null) {
-                try {
-                    toClose.close();
-                } catch (IOException ioe) { }
-            }
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIAE(null, toClose, e);
+            return;
         }
+        toClose.close();
     }
 
     /*

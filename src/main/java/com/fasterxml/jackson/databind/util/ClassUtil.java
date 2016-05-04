@@ -1,9 +1,12 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
@@ -565,6 +568,73 @@ public final class ClassUtil
     public static void unwrapAndThrowAsIAE(Throwable t, String msg)
     {
         throwAsIAE(getRootCause(t), msg);
+    }
+
+    /**
+     * Helper method that encapsulate logic in trying to close output generator
+     * in case of failure; useful mostly in forcing flush()ing as otherwise
+     * error conditions tend to be hard to diagnose. However, it is often the
+     * case that output state may be corrupt so we need to be prepared for
+     * secondary exception without masking original one.
+     *
+     * @since 2.8
+     */
+    public static void closeOnFailAndThrowAsIAE(JsonGenerator g, Exception fail)
+            throws IOException
+    {
+        /* 04-Mar-2014, tatu: Let's try to prevent auto-closing of
+         *    structures, which typically causes more damage.
+         */
+        g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+        try {
+            g.close();
+        } catch (Exception e) {
+            fail.addSuppressed(e);
+        }
+        if (fail instanceof IOException) {
+            throw (IOException) fail;
+        }
+        if (fail instanceof RuntimeException) {
+            throw (RuntimeException) fail;
+        }
+        throw new RuntimeException(fail);
+    }
+
+    /**
+     * Helper method that encapsulate logic in trying to close given {@link Closeable}
+     * in case of failure; useful mostly in forcing flush()ing as otherwise
+     * error conditions tend to be hard to diagnose. However, it is often the
+     * case that output state may be corrupt so we need to be prepared for
+     * secondary exception without masking original one.
+     *
+     * @since 2.8
+     */
+    public static void closeOnFailAndThrowAsIAE(JsonGenerator g,
+            Closeable toClose, Exception fail)
+        throws IOException
+    {
+        if (g != null) {
+            g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+            try {
+                g.close();
+            } catch (Exception e) {
+                fail.addSuppressed(e);
+            }
+        }
+        if (toClose != null) {
+            try {
+                toClose.close();
+            } catch (Exception e) {
+                fail.addSuppressed(e);
+            }
+        }
+        if (fail instanceof IOException) {
+            throw (IOException) fail;
+        }
+        if (fail instanceof RuntimeException) {
+            throw (RuntimeException) fail;
+        }
+        throw new RuntimeException(fail);
     }
 
     /*

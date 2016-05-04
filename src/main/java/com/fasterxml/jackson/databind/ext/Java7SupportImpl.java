@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
+/**
+ * @since 2.8
+ */
 public class Java7SupportImpl extends Java7Support
 {
     @SuppressWarnings("unused") // compiler warns, just needed side-effects

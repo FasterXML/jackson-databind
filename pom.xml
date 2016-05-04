@@ -56,7 +56,12 @@
     <!-- and for testing we need a few libraries
          libs for which we use reflection for code, but direct dep for testing
       -->
-    <!-- Mock -->
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>

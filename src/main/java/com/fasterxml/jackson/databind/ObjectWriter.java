@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -903,8 +904,7 @@ public class ObjectWriter
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator}.
      */
-    public void writeValue(JsonGenerator gen, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+    public void writeValue(JsonGenerator gen, Object value) throws IOException
     {
         _configureGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
@@ -916,16 +916,11 @@ public class ObjectWriter
                 if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                     gen.flush();
                 }
-                Closeable tmpToClose = toClose;
-                toClose = null;
-                tmpToClose.close();
-            } finally {
-                if (toClose != null) {
-                    try {
-                        toClose.close();
-                    } catch (IOException ioe) { }
-                }
+            } catch (Exception e) {
+                ClassUtil.closeOnFailAndThrowAsIAE(null, toClose, e);
+                return;
             }
+            toClose.close();
         } else {
             _prefetch.serialize(gen, value, _serializerProvider());
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
@@ -1124,24 +1119,13 @@ public class ObjectWriter
             _writeCloseable(gen, value);
             return;
         }
-        boolean closed = false;
         try {
             _prefetch.serialize(gen, value, _serializerProvider());
-            closed = true;
-            gen.close();
-        } finally {
-            // won't try to close twice; also, must catch exception (so it 
-            // will not mask exception that is pending)
-            if (!closed) {
-                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
-                 *    structures, which typically causes more damage.
-                 */
-                gen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
-                try {
-                    gen.close();
-                } catch (IOException ioe) { }
-            }
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIAE(gen, e);
+            return;
         }
+        gen.close();
     }
 
     /**
@@ -1154,31 +1138,14 @@ public class ObjectWriter
         Closeable toClose = (Closeable) value;
         try {
             _prefetch.serialize(gen, value, _serializerProvider());
-            JsonGenerator tmpGen = gen;
-            gen = null;
-            tmpGen.close();
             Closeable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
-        } finally {
-            /* Need to close both generator and value, as long as they haven't yet
-             * been closed
-             */
-            if (gen != null) {
-                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
-                 *    structures, which typically causes more damage.
-                 */
-                gen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
-                try {
-                    gen.close();
-                } catch (IOException ioe) { }
-            }
-            if (toClose != null) {
-                try {
-                    toClose.close();
-                } catch (IOException ioe) { }
-            }
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIAE(gen, toClose, e);
+            return;
         }
+        gen.close();
     }
 
     /**

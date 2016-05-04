@@ -407,7 +407,7 @@ public class BeanSerializerFactory
         // Any properties to suppress?
         props = filterBeanProperties(config, beanDesc, props);
 
-        // [JACKSON-440] Need to allow reordering of properties to serialize
+        // Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 props = mod.orderProperties(config, beanDesc, props);
@@ -569,7 +569,7 @@ public class BeanSerializerFactory
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
         final SerializationConfig config = prov.getConfig();
 
-        // [JACKSON-429]: ignore specified types
+        // ignore specified types
         removeIgnorableTypes(config, beanDesc, properties);
         
         // and possibly remove ones without matching mutator...
@@ -658,7 +658,7 @@ public class BeanSerializerFactory
      */
     protected void processViews(SerializationConfig config, BeanSerializerBuilder builder)
     {
-        // [JACKSON-232]: whether non-annotated fields are included by default or not is configurable
+        // whether non-annotated fields are included by default or not is configurable
         List<BeanPropertyWriter> props = builder.getProperties();
         boolean includeByDefault = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
         final int propCount = props.size();
@@ -737,7 +737,7 @@ public class BeanSerializerFactory
         Iterator<BeanPropertyDefinition> it = properties.iterator();
         while (it.hasNext()) {
             BeanPropertyDefinition property = it.next();
-            // one caveat: as per [JACKSON-806], only remove implicit properties;
+            // one caveat: only remove implicit properties;
             // explicitly annotated ones should remain
             if (!property.couldDeserialize() && !property.isExplicitlyIncluded()) {
                 it.remove();

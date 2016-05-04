@@ -389,16 +389,10 @@ public abstract class BasicSerializerFactory
         if (Map.Entry.class.isAssignableFrom(raw)) {
             // 18-Oct-2015, tatu: With 2.7, need to dig type info:
             JavaType mapEntryType = type.findSuperType(Map.Entry.class);
-            
+
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
-            JavaType kt = mapEntryType.containedType(0);
-            if (kt == null) {
-                kt = TypeFactory.unknownType();
-            }
-            JavaType vt = mapEntryType.containedType(1);
-            if (vt == null) {
-                vt = TypeFactory.unknownType();
-            }
+            JavaType kt = mapEntryType.containedTypeOrUnknown(0);
+            JavaType vt = mapEntryType.containedTypeOrUnknown(1);
             return buildMapEntrySerializer(prov.getConfig(), type, beanDesc, staticTyping, kt, vt);
         }
         if (ByteBuffer.class.isAssignableFrom(raw)) {
@@ -909,16 +903,6 @@ public abstract class BasicSerializerFactory
         return new IteratorSerializer(valueType, staticTyping, createTypeSerializer(config, valueType));
     }
 
-    @Deprecated // since 2.5
-    protected JsonSerializer<?> buildIteratorSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, boolean staticTyping) throws JsonMappingException
-    {
-        JavaType[] params = config.getTypeFactory().findTypeParameters(type, Iterator.class);
-        JavaType vt = (params == null || params.length != 1) ?
-                TypeFactory.unknownType() : params[0];
-        return buildIteratorSerializer(config, type, beanDesc, staticTyping, vt); 
-    }
-
     /**
      * @since 2.5
      */
@@ -930,18 +914,6 @@ public abstract class BasicSerializerFactory
         return new IterableSerializer(valueType, staticTyping, createTypeSerializer(config, valueType));
     }
 
-    @Deprecated // since 2.5
-    protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc,
-            boolean staticTyping)
-        throws JsonMappingException
-    {
-        JavaType[] params = config.getTypeFactory().findTypeParameters(type, Iterable.class);
-        JavaType vt = (params == null || params.length != 1) ?
-                TypeFactory.unknownType() : params[0];
-        return buildIterableSerializer(config, type, beanDesc, staticTyping, vt); 
-    }
-    
     /**
      * @since 2.5
      */

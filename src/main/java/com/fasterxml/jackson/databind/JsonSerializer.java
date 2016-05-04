@@ -157,16 +157,16 @@ public abstract class JsonSerializer<T>
         if (clz == null) {
             clz = value.getClass();
         }
-        throw serializers.mappingException("Type id handling not implemented for type %s (by serializer of type %s)",
+        serializers.reportMappingException("Type id handling not implemented for type %s (by serializer of type %s)",
                 clz.getName(), getClass().getName());
     }
-    
+
     /*
     /**********************************************************
     /* Other accessors
     /**********************************************************
      */
-    
+
     /**
      * Method for accessing type of Objects this serializer can handle.
      * Note that this information is not guaranteed to be exact -- it

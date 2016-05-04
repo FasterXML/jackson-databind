@@ -36,7 +36,7 @@ public abstract class DefaultSerializerProvider
 
     /*
     /**********************************************************
-    /* State, for non-blueprint instances: Object Id handling
+    /* State, for non-blueprint instances
     /**********************************************************
      */
 
@@ -47,7 +47,15 @@ public abstract class DefaultSerializerProvider
     protected transient Map<Object, WritableObjectId> _seenObjectIds;
     
     protected transient ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
-    
+
+    /**
+     * Generator used for serialization. Needed mostly for error reporting
+     * purposes.
+     *
+     * @since 2.8
+     */
+    protected transient JsonGenerator _generator;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -66,6 +74,14 @@ public abstract class DefaultSerializerProvider
     }
 
     /**
+     * Method that sub-classes need to implement: used to create a non-blueprint instances
+     * from the blueprint.
+     * This is needed to retain state during serialization.
+     */
+    public abstract DefaultSerializerProvider createInstance(SerializationConfig config,
+            SerializerFactory jsf);
+
+    /**
      * Method needed to ensure that {@link ObjectMapper#copy} will work
      * properly; specifically, that caches are cleared, but settings
      * will otherwise remain identical; and that no sharing of state
@@ -76,20 +92,176 @@ public abstract class DefaultSerializerProvider
     public DefaultSerializerProvider copy() {
         throw new IllegalStateException("DefaultSerializerProvider sub-class not overriding copy()");
     }
-    
+
     /*
     /**********************************************************
-    /* Extended API: methods that ObjectMapper will call
+    /* Abstract method impls, factory methods
+    /**********************************************************
+     */
+    
+    @Override
+    public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException
+    {
+        if (serDef == null) {
+            return null;
+        }
+        JsonSerializer<?> ser;
+        
+        if (serDef instanceof JsonSerializer) {
+            ser = (JsonSerializer<?>) serDef;
+        } else {
+            /* Alas, there's no way to force return type of "either class
+             * X or Y" -- need to throw an exception after the fact
+             */
+            if (!(serDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned serializer definition of type "
+                        +serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
+            }
+            Class<?> serClass = (Class<?>)serDef;
+            // there are some known "no class" markers to consider too:
+            if (serClass == JsonSerializer.None.class || ClassUtil.isBogusClass(serClass)) {
+                return null;
+            }
+            if (!JsonSerializer.class.isAssignableFrom(serClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "
+                        +serClass.getName()+"; expected Class<JsonSerializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            ser = (hi == null) ? null : hi.serializerInstance(_config, annotated, serClass);
+            if (ser == null) {
+                ser = (JsonSerializer<?>) ClassUtil.createInstance(serClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        return (JsonSerializer<Object>) _handleResolvable(ser);
+    }
+
+    @Override
+    public JsonMappingException mappingException(String message, Object... args) {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        if (_generator != null) {
+            return JsonMappingException.from(_generator, message);
+        }
+        return JsonMappingException.from(this, message);
+    }
+
+    /*
+    /**********************************************************
+    /* Object Id handling
+    /**********************************************************
+     */
+    
+    @Override
+    public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType)
+    {
+        if (_seenObjectIds == null) {
+            _seenObjectIds = _createObjectIdMap();
+        } else {
+            WritableObjectId oid = _seenObjectIds.get(forPojo);
+            if (oid != null) {
+                return oid;
+            }
+        }
+        // Not seen yet; must add an entry, return it. For that, we need generator
+        ObjectIdGenerator<?> generator = null;
+        
+        if (_objectIdGenerators == null) {
+            _objectIdGenerators = new ArrayList<ObjectIdGenerator<?>>(8);
+        } else {
+            for (int i = 0, len = _objectIdGenerators.size(); i < len; ++i) {
+                ObjectIdGenerator<?> gen = _objectIdGenerators.get(i);
+                if (gen.canUseFor(generatorType)) {
+                    generator = gen;
+                    break;
+                }
+            }
+        }
+        if (generator == null) {
+            generator = generatorType.newForSerialization(this);
+            _objectIdGenerators.add(generator);
+        }
+        WritableObjectId oid = new WritableObjectId(generator);
+        _seenObjectIds.put(forPojo, oid);
+        return oid;
+    }
+
+    /**
+     * Overridable helper method used for creating {@link java.util.Map}
+     * used for storing mappings from serializable objects to their
+     * Object Ids.
+     * 
+     * @since 2.3
+     */
+    protected Map<Object,WritableObjectId> _createObjectIdMap()
+    {
+        /* 06-Aug-2013, tatu: We may actually want to use equality,
+         *   instead of identity... so:
+         */
+        if (isEnabled(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)) {
+            return new HashMap<Object,WritableObjectId>();
+        }
+        return new IdentityHashMap<Object,WritableObjectId>();
+    }
+
+    /*
+    /**********************************************************
+    /* Extended API: simple accesors
     /**********************************************************
      */
 
     /**
-     * Overridable method, used to create a non-blueprint instances from the blueprint.
-     * This is needed to retain state during serialization.
+     * Method that can be called to see if this serializer provider
+     * can find a serializer for an instance of given class.
+     *<p>
+     * Note that no Exceptions are thrown, including unchecked ones:
+     * implementations are to swallow exceptions if necessary.
      */
-    public abstract DefaultSerializerProvider createInstance(SerializationConfig config,
-            SerializerFactory jsf);
+    public boolean hasSerializerFor(Class<?> cls, AtomicReference<Throwable> cause)
+    {
+        // 07-Nov-2015, tatu: One special case, Object.class; will work only if
+        //   empty beans are allowed or custom serializer registered. Easiest to
+        //   check here.
+        if (cls == Object.class) {
+            if (!_config.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
+                return true;
+            }
+        }
+        
+        try {
+            JsonSerializer<?> ser = _findExplicitUntypedSerializer(cls);
+            return (ser != null);
+        } catch (JsonMappingException e) {
+            if (cause != null) {
+                cause.set(e);
+            }
+        } catch (RuntimeException e) {
+            if (cause == null) { // earlier behavior
+                throw e;
+            }
+            cause.set(e);
+        }
+        return false;
+    }
 
+    /**
+     * Accessor for the {@link JsonGenerator} currently in use for serializing
+     * content. Null for blueprint instances; non-null for actual active
+     * provider instances.
+     *
+     * @since 2.8
+     */
+    public JsonGenerator getGenerator() {
+        return _generator;
+    }
+
+    /*
+    /**********************************************************
+    /* Extended API called by ObjectMapper: value serialization
+    /**********************************************************
+     */
+    
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
      * for serializing given value, using serializers that
@@ -98,6 +270,7 @@ public abstract class DefaultSerializerProvider
      */
     public void serializeValue(JsonGenerator gen, Object value) throws IOException
     {
+        _generator = gen;
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -111,7 +284,6 @@ public abstract class DefaultSerializerProvider
         PropertyName rootName = _config.getFullRootName();
 
         if (rootName == null) { // not explicitly specified
-            // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 gen.writeStartObject();
@@ -155,6 +327,7 @@ public abstract class DefaultSerializerProvider
      */
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType) throws IOException
     {
+        _generator = gen;
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -216,6 +389,7 @@ public abstract class DefaultSerializerProvider
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType,
             JsonSerializer<Object> ser) throws IOException
     {
+        _generator = gen;
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -275,6 +449,7 @@ public abstract class DefaultSerializerProvider
             JsonSerializer<Object> valueSer, TypeSerializer typeSer)
         throws IOException
     {
+        _generator = gen;
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -359,90 +534,6 @@ public abstract class DefaultSerializerProvider
             throw JsonMappingException.from(gen, msg, e);
         }
     }
-
-    /**
-     * The method to be called by {@link ObjectMapper}
-     * to generate <a href="http://json-schema.org/">JSON schema</a> for
-     * given type.
-     *
-     * @param type The type for which to generate schema
-     * 
-     * @deprecated Should not be used any more
-     */
-    @Deprecated // since 2.6
-    public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> type)
-        throws JsonMappingException
-    {
-        if (type == null) {
-            throw new IllegalArgumentException("A class must be provided");
-        }
-        /* no need for embedded type information for JSON schema generation (all
-         * type information it needs is accessible via "untyped" serializer)
-         */
-        JsonSerializer<Object> ser = findValueSerializer(type, null);
-        JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                ((SchemaAware) ser).getSchema(this, null) : com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
-        if (!(schemaNode instanceof ObjectNode)) {
-            throw new IllegalArgumentException("Class " + type.getName()
-                    +" would not be serialized as a JSON object and therefore has no schema");
-        }
-        return new com.fasterxml.jackson.databind.jsonschema.JsonSchema((ObjectNode) schemaNode);
-    }
-    
-    /**
-     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
-     * to to expose the format of the given to to the given visitor
-     *
-     * @param javaType The type for which to generate format
-     * @param visitor the visitor to accept the format
-     */
-    public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor)
-        throws JsonMappingException
-    {
-        if (javaType == null) {
-            throw new IllegalArgumentException("A class must be provided");
-        }
-        /* no need for embedded type information for JSON schema generation (all
-         * type information it needs is accessible via "untyped" serializer)
-         */
-        visitor.setProvider(this);
-        findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
-    }
-
-    /**
-     * Method that can be called to see if this serializer provider
-     * can find a serializer for an instance of given class.
-     *<p>
-     * Note that no Exceptions are thrown, including unchecked ones:
-     * implementations are to swallow exceptions if necessary.
-     */
-    public boolean hasSerializerFor(Class<?> cls, AtomicReference<Throwable> cause)
-    {
-        // 07-Nov-2015, tatu: One special case, Object.class; will work only if
-        //   empty beans are allowed or custom serializer registered. Easiest to
-        //   check here.
-        if (cls == Object.class) {
-            if (!_config.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-                return true;
-            }
-        }
-        
-        try {
-            JsonSerializer<?> ser = _findExplicitUntypedSerializer(cls);
-            return (ser != null);
-        } catch (JsonMappingException e) {
-            if (cause != null) {
-                cause.set(e);
-            }
-        } catch (RuntimeException e) {
-            if (cause == null) { // earlier behavior
-                throw e;
-            }
-            cause.set(e);
-        }
-        return false;
-    }
-
     /*
     /********************************************************
     /* Access to caching details
@@ -476,105 +567,60 @@ public abstract class DefaultSerializerProvider
 
     /*
     /**********************************************************
-    /* Object Id handling
+    /* Extended API called by ObjectMapper: other
     /**********************************************************
      */
-    
-    @Override
-    public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType)
+
+    /**
+     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
+     * to to expose the format of the given to to the given visitor
+     *
+     * @param javaType The type for which to generate format
+     * @param visitor the visitor to accept the format
+     */
+    public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor)
+        throws JsonMappingException
     {
-        if (_seenObjectIds == null) {
-            _seenObjectIds = _createObjectIdMap();
-        } else {
-            WritableObjectId oid = _seenObjectIds.get(forPojo);
-            if (oid != null) {
-                return oid;
-            }
+        if (javaType == null) {
+            throw new IllegalArgumentException("A class must be provided");
         }
-        // Not seen yet; must add an entry, return it. For that, we need generator
-        ObjectIdGenerator<?> generator = null;
-        
-        if (_objectIdGenerators == null) {
-            _objectIdGenerators = new ArrayList<ObjectIdGenerator<?>>(8);
-        } else {
-            for (int i = 0, len = _objectIdGenerators.size(); i < len; ++i) {
-                ObjectIdGenerator<?> gen = _objectIdGenerators.get(i);
-                if (gen.canUseFor(generatorType)) {
-                    generator = gen;
-                    break;
-                }
-            }
-        }
-        if (generator == null) {
-            generator = generatorType.newForSerialization(this);
-            _objectIdGenerators.add(generator);
-        }
-        WritableObjectId oid = new WritableObjectId(generator);
-        _seenObjectIds.put(forPojo, oid);
-        return oid;
+        /* no need for embedded type information for JSON schema generation (all
+         * type information it needs is accessible via "untyped" serializer)
+         */
+        visitor.setProvider(this);
+        findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
     }
 
     /**
-     * Overridable helper method used for creating {@link java.util.Map}
-     * used for storing mappings from serializable objects to their
-     * Object Ids.
+     * The method to be called by {@link ObjectMapper}
+     * to generate <a href="http://json-schema.org/">JSON schema</a> for
+     * given type.
+     *
+     * @param type The type for which to generate schema
      * 
-     * @since 2.3
+     * @deprecated Should not be used any more
      */
-    protected Map<Object,WritableObjectId> _createObjectIdMap()
+    @Deprecated // since 2.6
+    public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> type)
+        throws JsonMappingException
     {
-        /* 06-Aug-2013, tatu: We may actually want to use equality,
-         *   instead of identity... so:
+        if (type == null) {
+            throw new IllegalArgumentException("A class must be provided");
+        }
+        /* no need for embedded type information for JSON schema generation (all
+         * type information it needs is accessible via "untyped" serializer)
          */
-        if (isEnabled(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)) {
-            return new HashMap<Object,WritableObjectId>();
+        JsonSerializer<Object> ser = findValueSerializer(type, null);
+        JsonNode schemaNode = (ser instanceof SchemaAware) ?
+                ((SchemaAware) ser).getSchema(this, null) : com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
+        if (!(schemaNode instanceof ObjectNode)) {
+            throw new IllegalArgumentException("Class " + type.getName()
+                    +" would not be serialized as a JSON object and therefore has no schema");
         }
-        return new IdentityHashMap<Object,WritableObjectId>();
+        return new com.fasterxml.jackson.databind.jsonschema.JsonSchema((ObjectNode) schemaNode);
     }
     
-    /*
-    /**********************************************************
-    /* Factory method impls
-    /**********************************************************
-     */
     
-    @Override
-    public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException
-    {
-        if (serDef == null) {
-            return null;
-        }
-        JsonSerializer<?> ser;
-        
-        if (serDef instanceof JsonSerializer) {
-            ser = (JsonSerializer<?>) serDef;
-        } else {
-            /* Alas, there's no way to force return type of "either class
-             * X or Y" -- need to throw an exception after the fact
-             */
-            if (!(serDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector returned serializer definition of type "
-                        +serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
-            }
-            Class<?> serClass = (Class<?>)serDef;
-            // there are some known "no class" markers to consider too:
-            if (serClass == JsonSerializer.None.class || ClassUtil.isBogusClass(serClass)) {
-                return null;
-            }
-            if (!JsonSerializer.class.isAssignableFrom(serClass)) {
-                throw new IllegalStateException("AnnotationIntrospector returned Class "
-                        +serClass.getName()+"; expected Class<JsonSerializer>");
-            }
-            HandlerInstantiator hi = _config.getHandlerInstantiator();
-            ser = (hi == null) ? null : hi.serializerInstance(_config, annotated, serClass);
-            if (ser == null) {
-                ser = (JsonSerializer<?>) ClassUtil.createInstance(serClass,
-                        _config.canOverrideAccessModifiers());
-            }
-        }
-        return (JsonSerializer<Object>) _handleResolvable(ser);
-    }
-
     /*
     /**********************************************************
     /* Helper classes
@@ -591,7 +637,8 @@ public abstract class DefaultSerializerProvider
         public Impl() { super(); }
         public Impl(Impl src) { super(src); }
 
-        protected Impl(SerializerProvider src, SerializationConfig config,SerializerFactory f) {
+        protected Impl(SerializerProvider src, SerializationConfig config,
+                SerializerFactory f) {
             super(src, config, f);
         }
 

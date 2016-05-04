@@ -1080,12 +1080,12 @@ public abstract class SerializerProvider
         }
     }
 
-    public final void defaultSerializeNull(JsonGenerator jgen) throws IOException
+    public final void defaultSerializeNull(JsonGenerator gen) throws IOException
     {
         if (_stdNullValueSerializer) { // minor perf optimization
-            jgen.writeNull();
+            gen.writeNull();
         } else {
-            _nullValueSerializer.serialize(null, jgen, this);
+            _nullValueSerializer.serialize(null, gen, this);
         }
     }
 
@@ -1098,11 +1098,15 @@ public abstract class SerializerProvider
     /**
      * @since 2.6
      */
-    public JsonMappingException mappingException(String message, Object... args) {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
-        return JsonMappingException.from(this, message);
+    public abstract JsonMappingException mappingException(String message, Object... args);
+
+    /**
+     * Helper method called to indicate problem
+     *
+     * @since 2.8
+     */
+    public void reportMappingException(String message, Object... args) throws JsonMappingException {
+        throw mappingException(message, args);
     }
 
     /*

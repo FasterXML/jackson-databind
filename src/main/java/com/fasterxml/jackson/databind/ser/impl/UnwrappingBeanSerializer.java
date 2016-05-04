@@ -126,10 +126,8 @@ public class UnwrappingBeanSerializer
     		TypeSerializer typeSer) throws IOException
     {
         if (provider.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)) {
-            throw JsonMappingException.from(gen,
-                    "Unwrapped property requires use of type information: can not serialize without disabling `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`");
+            provider.reportMappingException("Unwrapped property requires use of type information: can not serialize without disabling `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`");
         }
-
         gen.setCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, typeSer);

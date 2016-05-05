@@ -1,19 +1,14 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
-import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -64,13 +59,12 @@ public class EnumDeserializer
             Class<?> enumClass, AnnotatedMethod factory) {
         return deserializerForCreator(config, enumClass, factory);
     }
-    
+
     /**
      * Factory method used when Enum instances are to be deserialized
      * using a creator (static factory method)
      * 
-     * @return Deserializer based on given factory method, if type was suitable;
-     *  null if type can not be used
+     * @return Deserializer based on given factory method
      *
      * @since 2.8
      */
@@ -78,14 +72,31 @@ public class EnumDeserializer
             Class<?> enumClass, AnnotatedMethod factory,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
     {
-        // note: caller has verified there's just one arg; but we must verify its type
         if (config.canOverrideAccessModifiers()) {
             ClassUtil.checkAndFixAccess(factory.getMember(),
                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        Class<?> paramClass = factory.getRawParameterType(0);
-        return new FactoryBasedDeserializer(enumClass, factory, paramClass,
+        return new FactoryBasedEnumDeserializer(enumClass, factory,
+                factory.getParameterType(0),
                 valueInstantiator, creatorProps);
+    }
+
+    /**
+     * Factory method used when Enum instances are to be deserialized
+     * using a zero-/no-args factory method
+     * 
+     * @return Deserializer based on given no-args factory method
+     *
+     * @since 2.8
+     */
+    public static JsonDeserializer<?> deserializerForNoArgsCreator(DeserializationConfig config,
+            Class<?> enumClass, AnnotatedMethod factory)
+    {
+        if (config.canOverrideAccessModifiers()) {
+            ClassUtil.checkAndFixAccess(factory.getMember(),
+                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+        }
+        return new FactoryBasedEnumDeserializer(enumClass, factory);
     }
 
     /*
@@ -234,166 +245,4 @@ public class EnumDeserializer
     /* Additional helper classes
     /**********************************************************
      */
-
-    /**
-     * Deserializer that uses a single-String static factory method
-     * for locating Enum values by String id.
-     */
-    protected static class FactoryBasedDeserializer
-        extends StdDeserializer<Object>
-        implements ContextualDeserializer
-    {
-        private static final long serialVersionUID = 1;
-
-        // Marker type; null if String expected; otherwise numeric wrapper
-        protected final Class<?> _inputType;
-        protected final AnnotatedMethod _factory;
-        protected final JsonDeserializer<?> _deser;
-        protected final ValueInstantiator _valueInstantiator;
-        protected final SettableBeanProperty[] _creatorProps;
-        
-        public FactoryBasedDeserializer(Class<?> cls, AnnotatedMethod f, Class<?> inputType,
-                ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
-        {
-            super(cls);
-            _factory = f;
-            _inputType = inputType;
-            _deser = null;
-            _valueInstantiator = valueInstantiator;
-            _creatorProps = creatorProps;
-        }
-
-        protected FactoryBasedDeserializer(FactoryBasedDeserializer base,
-                JsonDeserializer<?> deser) {
-            super(base._valueClass);
-            _inputType = base._inputType;
-            _factory = base._factory;
-            _valueInstantiator = base._valueInstantiator;
-            _creatorProps = base._creatorProps;
-
-            _deser = deser;
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-                BeanProperty property)
-            throws JsonMappingException
-        {
-            if ((_deser == null) && (_inputType != String.class)) {
-                return new FactoryBasedDeserializer(this,
-                        ctxt.findContextualValueDeserializer(ctxt.constructType(_inputType), property));
-            }
-            return this;
-        }
-        
-        @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
-            Object value = null;
-            if (_deser != null) {
-                value = _deser.deserialize(p, ctxt);
-            } else {
-                JsonToken curr = p.getCurrentToken();
-                //There can be a JSON object passed for deserializing an Enum,
-                //the below case handles it.
-                if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
-                    value = p.getText();
-                } else if (p.isExpectedStartObjectToken()) {
-                    p.nextToken();
-                    
-                    if (_creatorProps != null) {
-                        PropertyBasedCreator propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps);
-                        return deserializeEnumUsingPropertyBased(p, ctxt, propertyBasedCreator);
-                    }
-                } else {
-                    value = p.getValueAsString();
-                }
-            }
-            try {
-                return _factory.callOnWith(_valueClass, value);
-            } catch (Exception e) {
-                Throwable t = ClassUtil.getRootCause(e);
-                if (t instanceof IOException) {
-                    throw (IOException) t;
-                }
-                throw ctxt.instantiationException(_valueClass, t);
-            }
-        }
-
-        @Override
-        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
-            if (_deser == null) { // String never has type info
-                return deserialize(p, ctxt);
-            }
-            return typeDeserializer.deserializeTypedFromAny(p, ctxt);
-        }
-        
-        // Method to deserialize the Enum using property based methodology
-        protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
-        		final PropertyBasedCreator creator) throws IOException
-        {
-            PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
-        
-            JsonToken t = p.getCurrentToken();
-            for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-                String propName = p.getCurrentName();
-                p.nextToken(); // to point to value
-        
-                SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
-                if (creatorProp != null) {
-                    if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
-                        p.nextToken(); // to move to next field name
-                    }
-                    continue;
-                }
-                if (buffer.readIdProperty(propName)) {
-                    continue;
-                }
-            }
-            return creator.build(ctxt, buffer);
-        }
-
-        // ************ Got the below methods from BeanDeserializer ********************//
-	
-        protected final Object _deserializeWithErrorWrapping(JsonParser p, DeserializationContext ctxt,
-        		SettableBeanProperty prop) throws IOException {
-        	try {
-        		return prop.deserialize(p, ctxt);
-        	} catch (Exception e) {
-        		wrapAndThrow(e, _valueClass.getClass(), prop.getName(), ctxt);
-        		// never gets here, unless caller declines to throw an exception
-        		return null;
-        	}
-        }
-
-        public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-        		throws IOException
-        {
-            throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
-        }
-
-        private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) throws IOException
-        {
-            while (t instanceof InvocationTargetException && t.getCause() != null) {
-                t = t.getCause();
-            }
-            // Errors to be passed as is
-            if (t instanceof Error) {
-                throw (Error) t;
-            }
-            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        	    // Ditto for IOExceptions; except we may want to wrap JSON
-        	    // exceptions
-        	    if (t instanceof IOException) {
-        	        if (!wrap || !(t instanceof JsonProcessingException)) {
-        	            throw (IOException) t;
-        	        }
-        	    } else if (!wrap) {
-        	        if (t instanceof RuntimeException) {
-        	            throw (RuntimeException) t;
-        	        }
-        	    }
-        	    return t;
-        }
-    }
 }

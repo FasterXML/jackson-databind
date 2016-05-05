@@ -524,7 +524,22 @@ public final class ClassUtil
         }
         throw (Error) t;
     }
-    
+
+    /**
+     * Method that works like {@link #throwRootCause} if (and only if)
+     * root cause is an {@link IOException}; otherwise returns root cause
+     *
+     * @since 2.8
+     */
+    public static Throwable throwRootCauseIfIOE(Throwable t) throws IOException
+    {
+        t = getRootCause(t);
+        if (t instanceof IOException) {
+            throw (IOException) t;
+        }
+        return t;
+    }
+
     /**
      * Method that will wrap 't' as an {@link IllegalArgumentException} if it
      * is a checked exception; otherwise (runtime exception or error) throw as is

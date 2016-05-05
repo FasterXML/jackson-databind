@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -112,6 +113,59 @@ public class EnumDeserializationTest
                 if (e.name().toLowerCase().equals(value)) return e;
             }
             return null;
+        }
+    }
+
+    // // 
+    
+    public enum AnEnum {
+        ZERO,
+        ONE
+    }
+
+    public static class AnEnumDeserializer extends FromStringDeserializer<AnEnum> {
+
+        public AnEnumDeserializer() {
+            super(AnEnum.class);
+        }
+
+        @Override
+        protected AnEnum _deserialize(String value, DeserializationContext ctxt) throws IOException {
+            try {
+                return AnEnum.valueOf(value);
+            } catch (IllegalArgumentException e) {
+                throw ctxt.weirdKeyException(AnEnum.class, value, "Undefined AnEnum code");
+            }
+        }
+    }
+
+    public static class AnEnumKeyDeserializer extends KeyDeserializer {
+
+        @Override
+        public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+            try {
+                return AnEnum.valueOf(key);
+            } catch (IllegalArgumentException e) {
+                throw ctxt.weirdKeyException(AnEnum.class, key, "Undefined AnEnum code");
+            }
+        }
+    }
+
+
+    @JsonDeserialize(using = AnEnumDeserializer.class, keyUsing = AnEnumKeyDeserializer.class)
+    public enum LanguageCodeMixin {
+    }
+
+    public static class EnumModule extends SimpleModule {
+        @Override
+        public void setupModule(SetupContext context) {
+            context.setMixInAnnotations(AnEnum.class, LanguageCodeMixin.class);
+        }
+
+        public static ObjectMapper setupObjectMapper(ObjectMapper mapper) {
+            final EnumModule module = new EnumModule();
+            mapper.registerModule(module);
+            return mapper;
         }
     }
 
@@ -413,5 +467,17 @@ public class EnumDeserializationTest
 
         EnumWithDefaultAnnoAndConstructor myEnum = mapper.readValue("\"foo\"", EnumWithDefaultAnnoAndConstructor.class);
         assertNull("When using a constructor, the default value annotation shouldn't be used.", myEnum);
+    }
+
+    public void testExceptionFromCustomEnumKeyDeserializer() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new EnumModule());
+        try {
+            objectMapper.readValue("{\"TWO\": \"dumpling\"}",
+                    new TypeReference<Map<AnEnum, String>>() {});
+            fail("No exception");
+        } catch (IOException e) {
+            assertTrue(e.getMessage().contains("Undefined AnEnum"));
+        }
     }
 }

@@ -445,6 +445,10 @@ Tom Mack (tommack@github)
     the requested value type
    (2.7.4)
 
+Artur Jonkisz (ajonkisz@github)
+  * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type
+   (2.8.0)
+
 Ross Goldberg
   * Reported #1165, provided fix for: `CoreXMLDeserializers` does not handle
     time-only `XMLGregorianCalendar`s

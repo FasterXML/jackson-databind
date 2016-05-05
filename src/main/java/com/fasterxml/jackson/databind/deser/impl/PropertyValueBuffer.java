@@ -82,10 +82,10 @@ public class PropertyValueBuffer
     /**********************************************************
      */
     
-    public PropertyValueBuffer(JsonParser jp, DeserializationContext ctxt, int paramCount,
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir)
     {
-        _parser = jp;
+        _parser = p;
         _context = ctxt;
         _paramsNeeded = paramCount;
         _objectIdReader = oir;
@@ -237,17 +237,7 @@ public class PropertyValueBuffer
         }
         return false;
     }
-    
-    /**
-     * @deprecated Since 2.6
-     */
-    @Deprecated
-    public boolean assignParameter(int index, Object value) {
-        // !!! TODO: remove from 2.7
-        _creatorParameters[index] = value;
-        return false;
-    }
-    
+
     public void bufferProperty(SettableBeanProperty prop, Object value) {
         _buffered = new PropertyValue.Regular(_buffered, value, prop);
     }

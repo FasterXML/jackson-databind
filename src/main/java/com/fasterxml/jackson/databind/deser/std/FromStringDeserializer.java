@@ -105,8 +105,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             p.nextToken();
             final T value = deserialize(p, ctxt);
             if (p.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                                "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }
             return value;
         }

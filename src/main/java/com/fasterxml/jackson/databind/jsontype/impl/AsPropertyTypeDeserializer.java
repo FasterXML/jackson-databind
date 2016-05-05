@@ -150,8 +150,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         if (p.getCurrentToken() == JsonToken.START_ARRAY) {
             return super.deserializeTypedFromAny(p, ctxt);
         }
-        throw ctxt.wrongTokenException(p, JsonToken.FIELD_NAME,
+        ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,
                 "missing property '"+_typePropertyName+"' that is to contain type id  (for class "+baseTypeName()+")");
+        return null;
     }
 
     /* Also need to re-route "unknown" version. Need to think

@@ -270,6 +270,7 @@ public abstract class TypeDeserializerBase
         } else {
             extraDesc = null;
         }
-        throw ctxt.unknownTypeException(_baseType, typeId, extraDesc);
+        ctxt.reportUnknownTypeException(_baseType, typeId, extraDesc);
+        return null;
     }
 }

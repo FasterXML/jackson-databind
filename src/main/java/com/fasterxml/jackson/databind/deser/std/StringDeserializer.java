@@ -36,8 +36,7 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
             p.nextToken();
             final String parsed = _parseString(p, ctxt);
             if (p.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'String' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }

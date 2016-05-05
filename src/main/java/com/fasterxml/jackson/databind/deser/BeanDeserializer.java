@@ -172,7 +172,8 @@ public class BeanDeserializer
     }
 
     protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
-        throw ctxt.endOfInputException(handledType());
+        ctxt.reportEndOfInputException(handledType());
+        return null;
     }
 
     /**

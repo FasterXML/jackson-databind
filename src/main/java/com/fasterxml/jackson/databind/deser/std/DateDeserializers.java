@@ -166,8 +166,7 @@ public class DateDeserializers
                     final Date parsed = _parseDate(p, ctxt);
                     t = p.nextToken();
                     if (t != JsonToken.END_ARRAY) {
-                        throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                                "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
+                        handleMissingEndArrayForSingle(p, ctxt);
                     }            
                     return parsed;            
                 }

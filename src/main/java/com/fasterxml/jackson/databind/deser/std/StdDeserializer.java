@@ -165,8 +165,7 @@ public abstract class StdDeserializer<T>
             final boolean parsed = _parseBooleanPrimitive(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'boolean' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -219,8 +218,7 @@ public abstract class StdDeserializer<T>
             final Boolean parsed = _parseBoolean(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'Boolean' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -280,14 +278,13 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return (Byte) getNullValue(ctxt);
         }
-        // Issue#381
+        // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final Byte parsed = _parseByte(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -331,14 +328,13 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return (Short) getNullValue(ctxt);
         }
-        // Issue#381
+        // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final Short parsed = _parseShort(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'Short' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -401,8 +397,7 @@ public abstract class StdDeserializer<T>
             final int parsed = _parseIntPrimitive(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'int' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -451,8 +446,7 @@ public abstract class StdDeserializer<T>
                 p.nextToken();
                 final Integer parsed = _parseInteger(p, ctxt);
                 if (p.nextToken() != JsonToken.END_ARRAY) {
-                    throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                            "Attempted to unwrap single value array for single 'Integer' value but there was more than a single value in the array");
+                    handleMissingEndArrayForSingle(p, ctxt);
                 }            
                 return parsed;            
             }
@@ -495,8 +489,7 @@ public abstract class StdDeserializer<T>
                 final Long parsed = _parseLong(p, ctxt);
                 JsonToken t = p.nextToken();
                 if (t != JsonToken.END_ARRAY) {
-                    throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                            "Attempted to unwrap single value array for single 'Long' value but there was more than a single value in the array");
+                    handleMissingEndArrayForSingle(p, ctxt);
                 }            
                 return parsed;            
             }
@@ -530,14 +523,13 @@ public abstract class StdDeserializer<T>
             return 0L;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final long parsed = _parseLongPrimitive(p, ctxt);
-            JsonToken t = p.nextToken();
-            if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'long' value but there was more than a single value in the array");
-            }            
-            return parsed;
+                p.nextToken();
+                final long parsed = _parseLongPrimitive(p, ctxt);
+                JsonToken t = p.nextToken();
+                if (t != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }
+                return parsed;
             }
             break;
         }
@@ -593,8 +585,7 @@ public abstract class StdDeserializer<T>
             final Float parsed = _parseFloat(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -644,8 +635,7 @@ public abstract class StdDeserializer<T>
             final float parsed = _parseFloatPrimitive(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'float' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -699,8 +689,7 @@ public abstract class StdDeserializer<T>
             final Double parsed = _parseDouble(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'Double' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -754,8 +743,7 @@ public abstract class StdDeserializer<T>
             final double parsed = _parseDoublePrimitive(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -782,8 +770,7 @@ public abstract class StdDeserializer<T>
             final Date parsed = _parseDate(p, ctxt);
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -841,8 +828,7 @@ public abstract class StdDeserializer<T>
             p.nextToken();
             final String parsed = _parseString(p, ctxt);
             if (p.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
-                        "Attempted to unwrap single value array for single 'String' value but there was more than a single value in the array");
+                handleMissingEndArrayForSingle(p, ctxt);
             }            
             return parsed;            
         }
@@ -1094,6 +1080,16 @@ public abstract class StdDeserializer<T>
          * are pointing to now.
          */
         p.skipChildren();
+    }
+
+    protected void handleMissingEndArrayForSingle(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY, 
+"Attempted to unwrap single value array for single '%s' value but there was more than a single value in the array",
+handledType().getName());
+        // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);
+        //     but for now just fall through
     }
 
     protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,

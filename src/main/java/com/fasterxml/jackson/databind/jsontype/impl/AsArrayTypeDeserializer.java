@@ -113,33 +113,39 @@ public class AsArrayTypeDeserializer
         Object value = deser.deserialize(p, ctxt);
         // And then need the closing END_ARRAY
         if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {
-            throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY,
+            ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY,
                     "expected closing END_ARRAY after type information and deserialized value");
+            // 05-May-2016, tatu: Not 100% what to do if exception is stored for
+            //     future, and not thrown immediately: should probably skip until END_ARRAY
+
+            // ... but for now, fall through
         }
         return value;
     }    
     
-    protected String _locateTypeId(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected String _locateTypeId(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        if (!jp.isExpectedStartArrayToken()) {
+        if (!p.isExpectedStartArrayToken()) {
             // Need to allow even more customized handling, if something unexpected seen...
             // but should there be a way to limit this to likely success cases?
             if (_defaultImpl != null) {
                 return _idResolver.idFromBaseType();
             }
-            throw ctxt.wrongTokenException(jp, JsonToken.START_ARRAY, "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
+             ctxt.reportWrongTokenException(p, JsonToken.START_ARRAY, "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
+             return null;
         }
         // And then type id as a String
-        JsonToken t = jp.nextToken();
+        JsonToken t = p.nextToken();
         if (t == JsonToken.VALUE_STRING) {
-            String result = jp.getText();
-            jp.nextToken();
+            String result = p.getText();
+            p.nextToken();
             return result;
         }
         if (_defaultImpl != null) {
             return _idResolver.idFromBaseType();
         }
-        throw ctxt.wrongTokenException(jp, JsonToken.VALUE_STRING, "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
+        ctxt.reportWrongTokenException(p, JsonToken.VALUE_STRING, "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
+        return null;
     }
 
     /**

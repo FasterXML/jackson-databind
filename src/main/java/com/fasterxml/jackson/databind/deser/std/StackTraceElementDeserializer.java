@@ -17,46 +17,43 @@ public class StackTraceElementDeserializer
     public StackTraceElementDeserializer() { super(StackTraceElement.class); }
 
     @Override
-    public StackTraceElement deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public StackTraceElement deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         // Must get an Object
         if (t == JsonToken.START_OBJECT) {
             String className = "", methodName = "", fileName = "";
             int lineNumber = -1;
 
-            while ((t = jp.nextValue()) != JsonToken.END_OBJECT) {
-                String propName = jp.getCurrentName();
+            while ((t = p.nextValue()) != JsonToken.END_OBJECT) {
+                String propName = p.getCurrentName();
                 if ("className".equals(propName)) {
-                    className = jp.getText();
+                    className = p.getText();
                 } else if ("fileName".equals(propName)) {
-                    fileName = jp.getText();
+                    fileName = p.getText();
                 } else if ("lineNumber".equals(propName)) {
                     if (t.isNumeric()) {
-                        lineNumber = jp.getIntValue();
+                        lineNumber = p.getIntValue();
                     } else {
-                        throw JsonMappingException.from(jp, "Non-numeric token ("+t+") for property 'lineNumber'");
+                        throw JsonMappingException.from(p, "Non-numeric token ("+t+") for property 'lineNumber'");
                     }
                 } else if ("methodName".equals(propName)) {
-                    methodName = jp.getText();
+                    methodName = p.getText();
                 } else if ("nativeMethod".equals(propName)) {
                     // no setter, not passed via constructor: ignore
                 } else {
-                    handleUnknownProperty(jp, ctxt, _valueClass, propName);
+                    handleUnknownProperty(p, ctxt, _valueClass, propName);
                 }
             }
             return new StackTraceElement(className, methodName, fileName, lineNumber);
         } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final StackTraceElement value = deserialize(jp, ctxt);
-            if (jp.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
-                        "Attempted to unwrap single value array for single 'java.lang.StackTraceElement' value but there was more than a single value in the array"
-                    );
+            p.nextToken();
+            final StackTraceElement value = deserialize(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                handleMissingEndArrayForSingle(p, ctxt);
             }
             return value;
         }
-            
         throw ctxt.mappingException(_valueClass, t);
     }
 }

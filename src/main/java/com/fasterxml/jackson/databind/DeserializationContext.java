@@ -1050,7 +1050,10 @@ public abstract class DeserializationContext
     /**
      * Helper method for indicating that the current token was expected to be another
      * token.
+     * 
+     * @deprecated Since 2.8 use {@link #reportWrongTokenException} instead
      */
+    @Deprecated
     public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken, String msg0) {
         String msg = String.format("Unexpected token (%s), expected %s",
                 p.getCurrentToken(), expToken);
@@ -1061,17 +1064,11 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Helper method for constructing exception to indicate that given
-     * type id (parsed from JSON) could not be converted to a Java type.
-     */
-    @Deprecated // since 2.5, use overloaded variant
-    public JsonMappingException unknownTypeException(JavaType type, String id) {
-        return JsonMappingException.from(_parser, "Could not resolve type id '"+id+"' into a subtype of "+type);
-    }
-
-    /**
      * @since 2.5
+     *
+     * @deprecated Since 2.8 use {@link #reportUnknownTypeException} instead
      */
+    @Deprecated
     public JsonMappingException unknownTypeException(JavaType type, String id,
             String extraDesc) {
         String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
@@ -1082,6 +1079,10 @@ public abstract class DeserializationContext
         return JsonMappingException.from(_parser, msg);
     }
 
+    /**
+     * @deprecated Since 2.8 use {@link #reportEndOfInputException} instead
+     */
+    @Deprecated
     public JsonMappingException endOfInputException(Class<?> instClass) {
         return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
                 +instClass.getName());

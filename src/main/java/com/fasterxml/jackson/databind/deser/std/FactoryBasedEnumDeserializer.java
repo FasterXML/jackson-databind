@@ -133,7 +133,8 @@ class FactoryBasedEnumDeserializer
             return _factory.callOnWith(_valueClass, value);
         } catch (Exception e) {
             Throwable t = ClassUtil.throwRootCauseIfIOE(e);
-            return ctxt.reportInstantiationException(_valueClass, t);
+            ctxt.reportInstantiationException(_valueClass, t);
+            return null;
         }
     }
 

@@ -161,8 +161,9 @@ public abstract class ValueInstantiator
      * null or empty List.
      */
     public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s; no default creator found",
+        ctxt.reportMappingException("Can not instantiate value of type %s; no default creator found",
                 getValueTypeDesc());
+        return null;
     }
 
     /**
@@ -174,8 +175,9 @@ public abstract class ValueInstantiator
      * a non-empty List of arguments.
      */
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s with arguments",
+        ctxt.reportMappingException("Can not instantiate value of type %s with arguments",
                 getValueTypeDesc());
+        return null;
     }
 
     /**
@@ -183,8 +185,9 @@ public abstract class ValueInstantiator
      * an intermediate "delegate" value to pass to createor method
      */
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s using delegate",
+        ctxt.reportMappingException("Can not instantiate value of type %s using delegate",
                 getValueTypeDesc());
+        return null;
     }
 
     /**
@@ -192,8 +195,9 @@ public abstract class ValueInstantiator
      * an intermediate "delegate" value to pass to createor method
      */
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s using delegate",
+        ctxt.reportMappingException("Can not instantiate value of type %s using delegate",
                 getValueTypeDesc());
+        return null;
     }
 
     /*
@@ -208,23 +212,27 @@ public abstract class ValueInstantiator
     }
 
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s from Integer number (%s, int)",
+        ctxt.reportMappingException("Can not instantiate value of type %s from Integer number (%s, int)",
                 getValueTypeDesc(), value);
+        return null;
     }
 
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s from Integer number (%s, long)",
+        ctxt.reportMappingException("Can not instantiate value of type %s from Integer number (%s, long)",
                 getValueTypeDesc(), value);
+        return null;
     }
 
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s from Floating-point number (%s, double)",
+        ctxt.reportMappingException("Can not instantiate value of type %s from Floating-point number (%s, double)",
                 getValueTypeDesc(), value);
+        return null;
     }
     
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
-        throw ctxt.mappingException("Can not instantiate value of type %s from Boolean value (%s)",
+        ctxt.reportMappingException("Can not instantiate value of type %s from Boolean value (%s)",
                 getValueTypeDesc(), value);
+        return null;
     }
 
     /*
@@ -313,7 +321,8 @@ public abstract class ValueInstantiator
                 return null;
             }
         }
-        throw ctxt.mappingException("Can not instantiate value of type %s from String value ('%s'); no single-String constructor/factory method",
+        ctxt.reportMappingException("Can not instantiate value of type %s from String value ('%s'); no single-String constructor/factory method",
                 getValueTypeDesc(), value);
+        return null;
     }
 }

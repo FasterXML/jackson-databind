@@ -309,17 +309,19 @@ public class StdValueInstantiator
         } catch (Throwable t) {
             throw rewrapCtorProblem(ctxt, t);
         }
-        throw ctxt.mappingException("Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
+        ctxt.reportMappingException("Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
                 getValueTypeDesc(), value);
+        return null;
     }
 
     @Override
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
     {
         if (_fromLongCreator == null) {
-            throw ctxt.mappingException("Can not instantiate value of type %s"
+            ctxt.reportMappingException("Can not instantiate value of type %s"
                     +" from Long integral number (%s); no single-long-arg constructor/factory method",
                     getValueTypeDesc(), value);
+            return null;
         }
         try {
             return _fromLongCreator.call1(Long.valueOf(value));
@@ -332,9 +334,10 @@ public class StdValueInstantiator
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
     {
         if (_fromDoubleCreator == null) {
-            throw ctxt.mappingException("Can not instantiate value of type %s"
+            ctxt.reportMappingException("Can not instantiate value of type %s"
                     +" from Floating-point number (%s); no one-double/Double-arg constructor/factory method",
                     getValueTypeDesc(), value);
+            return null;
         }
         try {
             return _fromDoubleCreator.call1(Double.valueOf(value));
@@ -347,9 +350,10 @@ public class StdValueInstantiator
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException
     {
         if (_fromBooleanCreator == null) {
-            throw ctxt.mappingException("Can not instantiate value of type %s"
+            ctxt.reportMappingException("Can not instantiate value of type %s"
                     +" from Boolean value (%s); no single-boolean/Boolean-arg constructor/factory method",
                     getValueTypeDesc(), value);
+            return null;
         }
         try {
             return _fromBooleanCreator.call1(Boolean.valueOf(value));

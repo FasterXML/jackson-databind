@@ -129,7 +129,7 @@ public class PropertyValueBuffer
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
               if (_creatorParameters[ix] == null) {
-                  throw _context.mappingException("Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
+                  _context.reportMappingException("Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
                           props[ix].getName(), props[ix].getCreatorIndex());
               }
             }
@@ -148,11 +148,11 @@ public class PropertyValueBuffer
         }
         // Second: required?
         if (prop.isRequired()) {
-            throw _context.mappingException("Missing required creator property '%s' (index %d)",
+            _context.reportMappingException("Missing required creator property '%s' (index %d)",
                     prop.getName(), prop.getCreatorIndex());
         }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)) {
-            throw _context.mappingException("Missing creator property '%s' (index %d); DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES enabled",
+            _context.reportMappingException("Missing creator property '%s' (index %d); DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES enabled",
                     prop.getName(), prop.getCreatorIndex());
         }
         // Third: default value
@@ -165,7 +165,6 @@ public class PropertyValueBuffer
     /* Other methods
     /**********************************************************
      */
-
 
     /**
      * Helper method called to see if given non-creator property is the "id property";
@@ -198,7 +197,7 @@ public class PropertyValueBuffer
                 }
             } else {
                 // TODO: is this an error case?
-                throw ctxt.mappingException("No _idValue when handleIdValue called, on instance of %s",
+                ctxt.reportMappingException("No _idValue when handleIdValue called, on instance of %s",
                         bean.getClass().getName());
             }
         }

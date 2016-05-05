@@ -855,7 +855,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public JsonMappingException reportMappingException(String msg, Object... msgArgs)
+    public void reportMappingException(String msg, Object... msgArgs)
         throws JsonMappingException
     {
         if (msgArgs.length > 0) {
@@ -867,7 +867,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public JsonMappingException reportInstantiationException(Class<?> instClass, Throwable t)
+    public void reportInstantiationException(Class<?> instClass, Throwable t)
         throws JsonMappingException
     {
         throw instantiationException(instClass, t);
@@ -876,7 +876,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public JsonMappingException reportInstantiationException(Class<?> instClass,
+    public void reportInstantiationException(Class<?> instClass,
             String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -889,7 +889,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public <T> T reportWeirdStringException(String value, Class<?> instClass,
+    public void reportWeirdStringException(String value, Class<?> instClass,
             String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -902,7 +902,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public <T> T reportWeirdNumberException(Number value, Class<?> instClass,
+    public void reportWeirdNumberException(Number value, Class<?> instClass,
             String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -915,7 +915,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public <T> T reportWeirdKeyException(Class<?> keyClass, String keyValue,
+    public void reportWeirdKeyException(Class<?> keyClass, String keyValue,
             String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -928,7 +928,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public <T> T reportWrongTokenException(JsonParser p,
+    public JsonMappingException reportWrongTokenException(JsonParser p,
             JsonToken expToken, String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -941,7 +941,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public <T> T reportUnknownTypeException(JavaType type, String id,
+    public void reportUnknownTypeException(JavaType type, String id,
             String extraDesc) throws JsonMappingException
     {
         throw unknownTypeException(type, id, extraDesc);
@@ -950,13 +950,13 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public <T> T reportEndOfInputException(Class<?> instClass) throws JsonMappingException {
+    public void reportEndOfInputException(Class<?> instClass) throws JsonMappingException {
         throw endOfInputException(instClass);
     }
 
     /*
     /**********************************************************
-    /* Methods for constructing exceptions
+    /* Methods for constructing exceptions, "untyped"
     /**********************************************************
      */
     
@@ -986,11 +986,23 @@ public abstract class DeserializationContext
      * message and current location information
      * 
      * @since 2.6
+     *
+     * @deprecated Since 2.8 use {@link #reportMappingException(String, Object...)} instead
      */
+    @Deprecated
     public JsonMappingException mappingException(String msgTemplate, Object... args) {
-        String message = String.format(msgTemplate, args);
-        return JsonMappingException.from(getParser(), message);
+        if (args != null && args.length > 0) {
+            msgTemplate = String.format(msgTemplate, args);
+        }
+        return JsonMappingException.from(getParser(), msgTemplate);
     }
+
+    /*
+    /**********************************************************
+    /* Methods for constructing semantic exceptions; mostly
+    /* deprecated since 2.8; to be replaced by `reportXxx()`
+    /**********************************************************
+     */
     
     /**
      * Helper method for constructing instantiation exception for specified type,

@@ -132,7 +132,7 @@ public class NumberDeserializers
         public final T getNullValue(DeserializationContext ctxt) throws JsonMappingException
         {
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                throw ctxt.mappingException(
+                ctxt.reportMappingException(
                         "Can not map JSON null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
             }
@@ -150,7 +150,7 @@ public class NumberDeserializers
             // [databind#1095]: Should not allow coercion from into null from Empty String
             // either, if `null` not allowed
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                throw ctxt.mappingException(
+                ctxt.reportMappingException(
                         "Can not map Empty String as null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
             }

@@ -127,8 +127,9 @@ public class BeanAsArrayBuilderDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            throw ctxt.mappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+            ctxt.reportMappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
+            // fall through
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -172,8 +173,9 @@ public class BeanAsArrayBuilderDeserializer
         
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            throw ctxt.mappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+            ctxt.reportMappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
+            // fall through
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -240,8 +242,9 @@ public class BeanAsArrayBuilderDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            throw ctxt.mappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+            ctxt.reportMappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
+            // fall through
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -323,9 +326,10 @@ public class BeanAsArrayBuilderDeserializer
                          *   supported (since ordering of elements may not be guaranteed);
                          *   but make explicitly non-supported for now.
                          */
-                        throw ctxt.mappingException("Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: "
+                        ctxt.reportMappingException("Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: "
                                 +"nominal type %s, actual type %s",
                                 _beanType.getRawClass().getName(), builder.getClass().getName());
+                        return null;
                     }
                 }
                 continue;
@@ -360,11 +364,12 @@ public class BeanAsArrayBuilderDeserializer
         throws IOException
     {
         // Let's start with failure
-        throw ctxt.mappingException("Can not deserialize a POJO (of type %s) from non-Array representation (token: %s): "
+        ctxt.reportMappingException("Can not deserialize a POJO (of type %s) from non-Array representation (token: %s): "
                 +"type/property designed to be serialized as JSON Array",
                 _beanType.getRawClass().getName(),
                 p.getCurrentToken());
         // in future, may allow use of "standard" POJO serialization as well; if so, do:
         //return _delegate.deserialize(p, ctxt);
+        return null;
     }
 }

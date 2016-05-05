@@ -229,7 +229,8 @@ public class DateDeserializers
                 }
                 return c;
             } catch (Exception e) {
-                throw ctxt.instantiationException(_calendarClass, e);
+                ctxt.reportInstantiationException(_calendarClass, e);
+                return null;
             }
         }
     }

@@ -217,7 +217,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 try {
                     return ctxt.findClass(value);
                 } catch (Exception e) {
-                    throw ctxt.instantiationException(_valueClass, ClassUtil.getRootCause(e));
+                    ctxt.reportInstantiationException(_valueClass, ClassUtil.getRootCause(e));
+                    return null;
                 }
             case STD_JAVA_TYPE:
                 return ctxt.getTypeFactory().constructFromCanonical(value);

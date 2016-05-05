@@ -367,7 +367,6 @@ public class BeanDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
 
         JsonToken t = p.getCurrentToken();
@@ -389,7 +388,10 @@ public class BeanDeserializer
                         bean = null; // never gets here
                     }
                     if (bean == null) {
-                        throw ctxt.instantiationException(_beanType.getRawClass(), "JSON Creator returned null");
+                        ctxt.reportInstantiationException(_beanType.getRawClass(),
+                                "JSON Creator returned null");
+                        // 05-May-2016, tatu: This won't really work well at all but...
+                        return null;
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.setCurrentValue(bean);

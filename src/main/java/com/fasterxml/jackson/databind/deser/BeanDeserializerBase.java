@@ -1183,7 +1183,8 @@ public abstract class BeanDeserializerBase
             }
             return bean;
         }
-        throw ctxt.instantiationException(handledType(), "no suitable creator method found to deserialize from JSON integer number");
+        ctxt.reportInstantiationException(handledType(), "no suitable creator method found to deserialize from JSON integer number");
+        return null;
     }
 
     public Object deserializeFromString(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -1232,7 +1233,9 @@ public abstract class BeanDeserializerBase
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
         }
-        throw ctxt.instantiationException(handledType(), "no suitable creator method found to deserialize from JSON floating-point number");
+        ctxt.reportInstantiationException(handledType(),
+                "no suitable creator method found to deserialize from JSON floating-point number");
+        return null;
     }
 
     /**
@@ -1264,6 +1267,7 @@ public abstract class BeanDeserializerBase
                 return bean;
             } catch (Exception e) {
                 wrapInstantiationProblem(e, ctxt);
+                return null;
             }
         }
         // fallback to non-array delegate
@@ -1276,6 +1280,7 @@ public abstract class BeanDeserializerBase
                 return bean;
             } catch (Exception e) {
                 wrapInstantiationProblem(e, ctxt);
+                return null;
             }
         }
         if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -1570,6 +1575,7 @@ public abstract class BeanDeserializerBase
                 throw (RuntimeException) t;
             }
         }
-        throw ctxt.instantiationException(_beanType.getRawClass(), t);
+        ctxt.reportInstantiationException(_beanType.getRawClass(), t);
+        // may return here, if exceptions are deferred...
     }
 }

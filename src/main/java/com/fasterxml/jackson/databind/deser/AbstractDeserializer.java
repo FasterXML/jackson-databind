@@ -147,8 +147,10 @@ public class AbstractDeserializer
         throws IOException
     {
         // This method should never be called...
-        throw ctxt.instantiationException(_baseType.getRawClass(),
+        ctxt.reportInstantiationException(_baseType.getRawClass(),
                 "abstract types either need to be mapped to concrete types, have custom deserializer, or be instantiated with additional type information");
+        // 05-May-2016, tatu: Unlikely work as is but...
+        return null;
     }
 
     /*

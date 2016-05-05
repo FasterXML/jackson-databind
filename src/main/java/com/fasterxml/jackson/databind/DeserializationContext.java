@@ -996,12 +996,20 @@ public abstract class DeserializationContext
      * Helper method for constructing instantiation exception for specified type,
      * to indicate problem with physically constructing instance of
      * specified class (missing constructor, exception from constructor)
+     *
+     * @deprecated Since 2.8 use {@link #reportInstantiationException} instead
      */
+    @Deprecated
     public JsonMappingException instantiationException(Class<?> instClass, Throwable t) {
         return JsonMappingException.from(_parser,
                 String.format("Can not construct instance of %s, problem: %s", instClass.getName(), t.getMessage()), t);
     }
 
+    /**
+        *
+        * @deprecated Since 2.8 use {@link #reportInstantiationException} instead
+        */
+    @Deprecated
     public JsonMappingException instantiationException(Class<?> instClass, String msg) {
         return JsonMappingException.from(_parser,
                 String.format("Can not construct instance of %s, problem: %s", instClass.getName(), msg));

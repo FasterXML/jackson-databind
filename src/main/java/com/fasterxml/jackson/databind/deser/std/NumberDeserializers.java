@@ -475,7 +475,8 @@ public class NumberDeserializers
                     }
                     return Long.valueOf(value);
                 } catch (IllegalArgumentException iae) {
-                    throw ctxt.weirdStringException(text, _valueClass, "not a valid number");
+                    ctxt.reportWeirdStringException(text, _valueClass, "not a valid number");
+                    return null;
                 }
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -570,7 +571,8 @@ public class NumberDeserializers
                 try {
                     return new BigInteger(text);
                 } catch (IllegalArgumentException iae) {
-                    throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
+                    ctxt.reportWeirdStringException(text, _valueClass, "not a valid representation");
+                    return null;
                 }
             }
             // String is ok too, can easily convert; otherwise, no can do:
@@ -603,7 +605,8 @@ public class NumberDeserializers
                 try {
                     return new BigDecimal(text);
                 } catch (IllegalArgumentException iae) {
-                    throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
+                    ctxt.reportWeirdStringException(text, _valueClass, "not a valid representation");
+                    return null;
                 }
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {

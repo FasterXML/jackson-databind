@@ -143,8 +143,10 @@ public class EnumDeserializer
                 return _enumDefaultValue;
             }
             if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                throw ctxt.weirdNumberException(index, _enumClass(),
-                        "index value outside legal index range [0.."+(_enumsByIndex.length-1)+"]");
+                ctxt.reportWeirdNumberException(index, _enumClass(),
+                        "index value outside legal index range [0..%s]",
+                        _enumsByIndex.length-1);
+                // fall through, if nothing thrown immediately
             }
             return null;
         }
@@ -187,8 +189,9 @@ public class EnumDeserializer
             return _enumDefaultValue;
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-            throw ctxt.weirdStringException(name, _enumClass(),
-                    "value not one of declared Enum instance names: "+lookup.keys());
+            ctxt.reportWeirdStringException(name, _enumClass(),
+                    "value not one of declared Enum instance names: %s", lookup.keys());
+            // fall-through if not immediately thrown
         }
         return null;
     }

@@ -1016,7 +1016,10 @@ public abstract class DeserializationContext
      * @param msg Message that describes specific problem
      * 
      * @since 2.1
+     *
+     * @deprecated Since 2.8 use {@link #reportWeirdStringException} instead
      */
+    @Deprecated
     public JsonMappingException weirdStringException(String value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not construct instance of %s from String value (%s): %s",
@@ -1027,7 +1030,10 @@ public abstract class DeserializationContext
     /**
      * Helper method for constructing exception to indicate that input JSON
      * Number was not suitable for deserializing into given target type.
+     *
+     * @deprecated Since 2.8 use {@link #reportWeirdNumberException} instead
      */
+    @Deprecated
     public JsonMappingException weirdNumberException(Number value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not construct instance of %s from number value (%s): %s",
@@ -1039,7 +1045,7 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
      * key type.
-     * 
+     *
      * @deprecated Since 2.8 use {@link #reportWeirdKeyException} instead
      */
     @Deprecated

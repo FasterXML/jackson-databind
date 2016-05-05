@@ -124,12 +124,14 @@ public class StdKeyDeserializer extends KeyDeserializer
                 return result;
             }
         } catch (Exception re) {
-            throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation: "+re.getMessage());
+            ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation: %s", re.getMessage());
+            return null;
         }
         if (_keyClass.isEnum() && ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             return null;
         }
-        throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation");
+        ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation");
+        return null;
     }
 
     public Class<?> getKeyClass() { return _keyClass; }
@@ -144,13 +146,15 @@ public class StdKeyDeserializer extends KeyDeserializer
             if ("false".equals(key)) {
                 return Boolean.FALSE;
             }
-            throw ctxt.weirdKeyException(_keyClass, key, "value not 'true' or 'false'");
+            ctxt.reportWeirdKeyException(_keyClass, key, "value not 'true' or 'false'");
+            break;
         case TYPE_BYTE:
             {
                 int value = _parseInt(key);
                 // as per [JACKSON-804], allow range up to 255, inclusive
                 if (value < Byte.MIN_VALUE || value > 255) {
-                    throw ctxt.weirdKeyException(_keyClass, key, "overflow, value can not be represented as 8-bit value");
+                    ctxt.reportWeirdKeyException(_keyClass, key, "overflow, value can not be represented as 8-bit value");
+                    // fall-through and truncate if need be
                 }
                 return Byte.valueOf((byte) value);
             }
@@ -158,7 +162,8 @@ public class StdKeyDeserializer extends KeyDeserializer
             {
                 int value = _parseInt(key);
                 if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
-                    throw ctxt.weirdKeyException(_keyClass, key, "overflow, value can not be represented as 16-bit value");
+                    ctxt.reportWeirdKeyException(_keyClass, key, "overflow, value can not be represented as 16-bit value");
+                    // fall-through and truncate if need be
                 }
                 return Short.valueOf((short) value);
             }
@@ -166,7 +171,8 @@ public class StdKeyDeserializer extends KeyDeserializer
             if (key.length() == 1) {
                 return Character.valueOf(key.charAt(0));
             }
-            throw ctxt.weirdKeyException(_keyClass, key, "can only convert 1-character Strings");
+            ctxt.reportWeirdKeyException(_keyClass, key, "can only convert 1-character Strings");
+            break;
         case TYPE_INT:
             return _parseInt(key);
 
@@ -182,14 +188,16 @@ public class StdKeyDeserializer extends KeyDeserializer
             try {
                 return _deser._deserialize(key, ctxt);
             } catch (IOException e) {
-                throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as locale");
+                ctxt.reportWeirdKeyException(_keyClass, key, "unable to parse key as locale");
             }
+            break;
         case TYPE_CURRENCY:
             try {
                 return _deser._deserialize(key, ctxt);
             } catch (IOException e) {
-                throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as currency");
+                ctxt.reportWeirdKeyException(_keyClass, key, "unable to parse key as currency");
             }
+            break;
         case TYPE_DATE:
             return ctxt.parseDate(key);
         case TYPE_CALENDAR:
@@ -205,9 +213,15 @@ public class StdKeyDeserializer extends KeyDeserializer
             try {
                 return ctxt.findClass(key);
             } catch (Exception e) {
-                throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as Class");
+                ctxt.reportWeirdKeyException(_keyClass, key, "unable to parse key as Class");
             }
+            break;
+        default:
+            throw new IllegalStateException("Internal error: unknown key type "+_keyClass);
         }
+        // 05-May-2016, tatu: In future, we may end up here if `reportWeirdKeyException()`
+        //    collects failure messages and does not immediately throw. Not 100% sure what
+        //    should be done; returning `null` seems least evil for now
         return null;
     }
 
@@ -300,10 +314,13 @@ public class StdKeyDeserializer extends KeyDeserializer
                 if (result != null) {
                     return result;
                 }
+                ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation");
             } catch (Exception re) {
-                throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation: "+re.getMessage());
+                ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation: "+re.getMessage());
             }
-            throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation");
+            // 05-May-2016, tatu: Can't happen now (2.8), but in future exceptions may
+            //    be deferred.
+            return null;
         }
 
         public Class<?> getKeyClass() { return _keyClass; }
@@ -346,8 +363,9 @@ public class StdKeyDeserializer extends KeyDeserializer
                     ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
             if ((e == null) && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                throw ctxt.weirdKeyException(_keyClass, key, "not one of values excepted for Enum class: "
-                        +res.getEnumIds());
+                ctxt.reportWeirdKeyException(_keyClass, key, "not one of values excepted for Enum class: %s",
+                        res.getEnumIds());
+                // fall-through if problems are collected, not immediately thrown
             }
             return e;
         }

@@ -1039,7 +1039,10 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
      * key type.
+     * 
+     * @deprecated Since 2.8 use {@link #reportWeirdKeyException} instead
      */
+    @Deprecated
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not construct Map key of type %s from String (%s): %s",

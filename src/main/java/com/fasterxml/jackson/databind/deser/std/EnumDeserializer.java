@@ -330,30 +330,27 @@ public class EnumDeserializer
         
         // Method to deserialize the Enum using property based methodology
         protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
-        		final PropertyBasedCreator creator) throws IOException {
-        	PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
+        		final PropertyBasedCreator creator) throws IOException
+        {
+            PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
         
-        	JsonToken t = p.getCurrentToken();
-        	for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-        		String propName = p.getCurrentName();
-        		p.nextToken(); // to point to value
+            JsonToken t = p.getCurrentToken();
+            for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+                String propName = p.getCurrentName();
+                p.nextToken(); // to point to value
         
-        		SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
-        		if (creatorProp != null) {
-        
-        			if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
-        				p.nextToken(); // to move to next field name
-        			}
-        			continue;
-        		}
-        
-        		if (buffer.readIdProperty(propName)) {
-        			continue;
-        		}
-        
-        	}
-        
-        	return creator.build(ctxt, buffer);
+                SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
+                if (creatorProp != null) {
+                    if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
+                        p.nextToken(); // to move to next field name
+                    }
+                    continue;
+                }
+                if (buffer.readIdProperty(propName)) {
+                    continue;
+                }
+            }
+            return creator.build(ctxt, buffer);
         }
 
         // ************ Got the below methods from BeanDeserializer ********************//
@@ -368,36 +365,35 @@ public class EnumDeserializer
         		return null;
         	}
         }
-        
+
         public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         		throws IOException
         {
-        	throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
+            throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
         }
-        
+
         private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) throws IOException
         {
-        	while (t instanceof InvocationTargetException && t.getCause() != null) {
-        		t = t.getCause();
-        	}
-        	// Errors to be passed as is
-        	if (t instanceof Error) {
-        		throw (Error) t;
-        	}
-        	boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        	// Ditto for IOExceptions; except we may want to wrap JSON
-        	// exceptions
-        	if (t instanceof IOException) {
-        		if (!wrap || !(t instanceof JsonProcessingException)) {
-        			throw (IOException) t;
-        		}
-        	} else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for
-        						// unchecked exceptions
-        		if (t instanceof RuntimeException) {
-        			throw (RuntimeException) t;
-        		}
-        	}
-        	return t;
+            while (t instanceof InvocationTargetException && t.getCause() != null) {
+                t = t.getCause();
+            }
+            // Errors to be passed as is
+            if (t instanceof Error) {
+                throw (Error) t;
+            }
+            boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+        	    // Ditto for IOExceptions; except we may want to wrap JSON
+        	    // exceptions
+        	    if (t instanceof IOException) {
+        	        if (!wrap || !(t instanceof JsonProcessingException)) {
+        	            throw (IOException) t;
+        	        }
+        	    } else if (!wrap) {
+        	        if (t instanceof RuntimeException) {
+        	            throw (RuntimeException) t;
+        	        }
+        	    }
+        	    return t;
         }
     }
 }

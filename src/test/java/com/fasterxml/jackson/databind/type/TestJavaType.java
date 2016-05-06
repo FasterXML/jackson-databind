@@ -36,6 +36,9 @@ public class TestJavaType
         public Map<String,String> getMap();
     }
 
+    @SuppressWarnings("serial")
+    static class AtomicStringReference extends AtomicReference<String> { }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -170,5 +173,15 @@ public class TestJavaType
         m = Generic1194.class.getMethod("getGeneric");
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/concurrent/atomic/AtomicReference<Ljava/lang/String;>;", t.getGenericSignature());
+    }
+
+    public void testAnchorTypeForRefTypes1206() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType t  = tf.constructType(AtomicStringReference.class);
+        assertTrue(t.isReferenceType());
+        ReferenceType rt = (ReferenceType) t;
+        assertFalse(rt.isAnchorType());
+        assertEquals(AtomicReference.class, rt.getAnchorType().getRawClass());
     }
 }

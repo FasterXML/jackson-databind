@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
@@ -176,6 +177,13 @@ public abstract class ValueInstantiator
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
         throw ctxt.mappingException("Can not instantiate value of type %s with arguments",
                 getValueTypeDesc());
+    }
+
+    public Object createFromObjectWith(DeserializationContext ctxt,
+            SettableBeanProperty[] props, PropertyValueBuffer buffer)
+        throws IOException
+    {
+        return createFromObjectWith(ctxt, buffer.getParameters(props));
     }
 
     /**

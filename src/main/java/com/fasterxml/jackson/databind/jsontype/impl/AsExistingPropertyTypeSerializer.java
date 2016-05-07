@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 /**
  * Type serializer used with {@link As#EXISTING_PROPERTY} inclusion mechanism.
  * Expects type information to be a well-defined property on all sub-classes.
- * 
- * @author fleeman (modeled after code by tatus)
  */
 public class AsExistingPropertyTypeSerializer
     extends AsPropertyTypeSerializer

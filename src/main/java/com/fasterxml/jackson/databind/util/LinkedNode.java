@@ -4,8 +4,6 @@ package com.fasterxml.jackson.databind.util;
  * Node of a forward-only linked list.
  * 
  * @author tatu
- *
- * @param <T> Type of contained object
  */
 public final class LinkedNode<T>
 {

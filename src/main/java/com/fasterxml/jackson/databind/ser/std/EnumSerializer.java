@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.util.EnumValues;
  *<p>
  * Based on {@link StdScalarSerializer} since the JSON value is
  * scalar (String).
- * 
- * @author tatu
  */
 @JacksonStdImpl
 public class EnumSerializer

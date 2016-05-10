@@ -134,7 +134,7 @@ public class EnumDeserializationTest
             try {
                 return AnEnum.valueOf(value);
             } catch (IllegalArgumentException e) {
-                ctxt.reportWeirdKeyException(AnEnum.class, value, "Undefined AnEnum code");
+                ctxt.reportWeirdStringException(value, AnEnum.class, "Undefined AnEnum code");
                 return null;
             }
         }
@@ -147,8 +147,7 @@ public class EnumDeserializationTest
             try {
                 return AnEnum.valueOf(key);
             } catch (IllegalArgumentException e) {
-                ctxt.reportWeirdKeyException(AnEnum.class, key, "Undefined AnEnum code");
-                return null;
+                return ctxt.handleWeirdKey(AnEnum.class, key, "Undefined AnEnum code");
             }
         }
     }

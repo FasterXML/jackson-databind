@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
@@ -110,7 +111,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         }
         return new StdKeyDeserializer(kind, raw);
     }
-    
+
     @Override
     public Object deserializeKey(String key, DeserializationContext ctxt)
         throws IOException
@@ -124,14 +125,12 @@ public class StdKeyDeserializer extends KeyDeserializer
                 return result;
             }
         } catch (Exception re) {
-            ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation: %s", re.getMessage());
-            return null;
+            return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation: %s", re.getMessage());
         }
         if (_keyClass.isEnum() && ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             return null;
         }
-        ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation");
-        return null;
+        return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation");
     }
 
     public Class<?> getKeyClass() { return _keyClass; }
@@ -146,15 +145,13 @@ public class StdKeyDeserializer extends KeyDeserializer
             if ("false".equals(key)) {
                 return Boolean.FALSE;
             }
-            ctxt.reportWeirdKeyException(_keyClass, key, "value not 'true' or 'false'");
-            break;
+            return ctxt.handleWeirdKey(_keyClass, key, "value not 'true' or 'false'");
         case TYPE_BYTE:
             {
                 int value = _parseInt(key);
-                // as per [JACKSON-804], allow range up to 255, inclusive
+                // allow range up to 255, inclusive (to support "unsigned" byte)
                 if (value < Byte.MIN_VALUE || value > 255) {
-                    ctxt.reportWeirdKeyException(_keyClass, key, "overflow, value can not be represented as 8-bit value");
-                    // fall-through and truncate if need be
+                    return ctxt.handleWeirdKey(_keyClass, key, "overflow, value can not be represented as 8-bit value");
                 }
                 return Byte.valueOf((byte) value);
             }
@@ -162,7 +159,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             {
                 int value = _parseInt(key);
                 if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
-                    ctxt.reportWeirdKeyException(_keyClass, key, "overflow, value can not be represented as 16-bit value");
+                    return ctxt.handleWeirdKey(_keyClass, key, "overflow, value can not be represented as 16-bit value");
                     // fall-through and truncate if need be
                 }
                 return Short.valueOf((short) value);
@@ -171,8 +168,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             if (key.length() == 1) {
                 return Character.valueOf(key.charAt(0));
             }
-            ctxt.reportWeirdKeyException(_keyClass, key, "can only convert 1-character Strings");
-            break;
+            return ctxt.handleWeirdKey(_keyClass, key, "can only convert 1-character Strings");
         case TYPE_INT:
             return _parseInt(key);
 
@@ -188,41 +184,46 @@ public class StdKeyDeserializer extends KeyDeserializer
             try {
                 return _deser._deserialize(key, ctxt);
             } catch (IOException e) {
-                ctxt.reportWeirdKeyException(_keyClass, key, "unable to parse key as locale");
+                return ctxt.handleWeirdKey(_keyClass, key, "unable to parse key as locale");
             }
-            break;
         case TYPE_CURRENCY:
             try {
                 return _deser._deserialize(key, ctxt);
             } catch (IOException e) {
-                ctxt.reportWeirdKeyException(_keyClass, key, "unable to parse key as currency");
+                return ctxt.handleWeirdKey(_keyClass, key, "unable to parse key as currency");
             }
-            break;
         case TYPE_DATE:
             return ctxt.parseDate(key);
         case TYPE_CALENDAR:
             java.util.Date date = ctxt.parseDate(key);
             return (date == null)  ? null : ctxt.constructCalendar(date);
         case TYPE_UUID:
-            return UUID.fromString(key);
+            try {
+                return UUID.fromString(key);
+            } catch (Exception e) {
+                return ctxt.handleWeirdKey(_keyClass, key, "problem: %s", e.getMessage());
+            }
         case TYPE_URI:
-            return URI.create(key);
+            try {
+                return URI.create(key);
+            } catch (Exception e) {
+                return ctxt.handleWeirdKey(_keyClass, key, "problem: %s", e.getMessage());
+            }
         case TYPE_URL:
-            return new URL(key);
+            try {
+                return new URL(key);
+            } catch (MalformedURLException e) {
+                return ctxt.handleWeirdKey(_keyClass, key, "problem: %s", e.getMessage());
+            }
         case TYPE_CLASS:
             try {
                 return ctxt.findClass(key);
             } catch (Exception e) {
-                ctxt.reportWeirdKeyException(_keyClass, key, "unable to parse key as Class");
+                return ctxt.handleWeirdKey(_keyClass, key, "unable to parse key as Class");
             }
-            break;
         default:
             throw new IllegalStateException("Internal error: unknown key type "+_keyClass);
         }
-        // 05-May-2016, tatu: In future, we may end up here if `reportWeirdKeyException()`
-        //    collects failure messages and does not immediately throw. Not 100% sure what
-        //    should be done; returning `null` seems least evil for now
-        return null;
     }
 
     /*
@@ -314,13 +315,10 @@ public class StdKeyDeserializer extends KeyDeserializer
                 if (result != null) {
                     return result;
                 }
-                ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation");
+                return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation");
             } catch (Exception re) {
-                ctxt.reportWeirdKeyException(_keyClass, key, "not a valid representation: "+re.getMessage());
+                return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation: %s", re.getMessage());
             }
-            // 05-May-2016, tatu: Can't happen now (2.8), but in future exceptions may
-            //    be deferred.
-            return null;
         }
 
         public Class<?> getKeyClass() { return _keyClass; }
@@ -350,7 +348,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         }
 
         @Override
-        public Object _parse(String key, DeserializationContext ctxt) throws JsonMappingException
+        public Object _parse(String key, DeserializationContext ctxt) throws IOException
         {
             if (_factory != null) {
                 try {
@@ -363,7 +361,7 @@ public class StdKeyDeserializer extends KeyDeserializer
                     ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
             if ((e == null) && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                ctxt.reportWeirdKeyException(_keyClass, key, "not one of values excepted for Enum class: %s",
+                return ctxt.handleWeirdKey(_keyClass, key, "not one of values excepted for Enum class: %s",
                         res.getEnumIds());
                 // fall-through if problems are collected, not immediately thrown
             }

@@ -71,8 +71,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
             try {
                 return TestEnum.lookup(key);
             } catch (IllegalArgumentException e) {
-                ctxt.reportWeirdKeyException(TestEnum.class, key, "Unknown code");
-                return null;
+                return ctxt.handleWeirdKey(TestEnum.class, key, "Unknown code");
             }
         }
     }

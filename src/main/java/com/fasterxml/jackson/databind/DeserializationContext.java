@@ -802,20 +802,22 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* Methods for problem handling, reporting
+    /* Methods for problem handling
     /**********************************************************
      */
 
     /**
-     * Method deserializers can call to inform configured {@link DeserializationProblemHandler}s
-     * of an unrecognized property.
+     * Method that deserializers should call if they encounter an unrecognized
+     * property (and once that is not explicitly designed as ignorable), to
+     * inform possibly configured {@link DeserializationProblemHandler}s and
+     * let it handle the problem.
      * 
      * @return True if there was a configured problem handler that was able to handle the
      *   problem
      */
     public boolean handleUnknownProperty(JsonParser p, JsonDeserializer<?> deser,
             Object instanceOrClass, String propName)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         if (h != null) {
@@ -831,7 +833,52 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Helper method for reporting a problem with unhandled unknown exception
+     * Method that deserializers should call if they encounter an unrecognized
+     * property (and once that is not explicitly designed as ignorable), to
+     * inform possibly configured {@link DeserializationProblemHandler}s and
+     * let it handle the problem.
+     *
+     * @param keyClass Expected type for key
+     * @param keyValue String value from which to deserialize key
+     * @param msg Error message template caller wants to use if exception is to be thrown
+     * @param msgArgs Optional arguments to use for message, if any
+     *
+     * @return Key value to use
+     *
+     * @throws JsonMappingException
+     * 
+     * @since 2.8
+     */
+    public Object handleWeirdKey(Class<?> keyClass, String keyValue,
+            String msg, Object... msgArgs)
+        throws IOException
+    {
+        // but if not handled, just throw exception
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        if (h != null) {
+            while (h != null) {
+                // Can bail out if it's handled
+                Object key = h.value().handleWeirdKey(this, keyClass, keyValue, msg);
+                if (key  != DeserializationProblemHandler.NOT_HANDLED) {
+                    return key;
+                }
+                h = h.next();
+            }
+        }
+        throw this.weirdKeyException(keyClass, keyValue, msg);
+    }
+
+    /*
+    /**********************************************************
+    /* Methods for problem reporting
+    /**********************************************************
+     */
+
+    /**
+     * Helper method for reporting a problem with unhandled unknown property.
      * 
      * @param instanceOrClass Either value being populated (if one has been
      *   instantiated), or Class that indicates type that would be (or
@@ -898,19 +945,6 @@ public abstract class DeserializationContext
             msg = String.format(msg, msgArgs);
         }
         throw weirdNumberException(value, instClass, msg);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public void reportWeirdKeyException(Class<?> keyClass, String keyValue,
-            String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        throw weirdKeyException(keyClass, keyValue, msg);
     }
 
     /**
@@ -1015,6 +1049,19 @@ public abstract class DeserializationContext
         return JsonMappingException.from(getParser(), msgTemplate);
     }
 
+    /**
+     * Helper method for constructing exception to indicate that given JSON
+     * Object field name was not in format to be able to deserialize specified
+     * key type.
+     */
+    public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue,
+            String msg) {
+        return InvalidFormatException.from(_parser,
+                String.format("Can not deserialize Map key of type %s from String %s: %s",
+                        keyClass.getName(), _quotedString(keyValue), msg),
+                keyValue, keyClass);
+    }
+
     /*
     /**********************************************************
     /* Methods for constructing semantic exceptions; mostly
@@ -1080,21 +1127,6 @@ public abstract class DeserializationContext
                 String.format("Can not deserialize value of type %s from number %s: %s",
                         instClass.getName(), String.valueOf(value), msg),
                 value, instClass);
-    }
-
-    /**
-     * Helper method for constructing exception to indicate that given JSON
-     * Object field name was not in format to be able to deserialize specified
-     * key type.
-     *
-     * @deprecated Since 2.8 use {@link #reportWeirdKeyException} instead
-     */
-    @Deprecated
-    public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
-        return InvalidFormatException.from(_parser,
-                String.format("Can not deserialize Map key of type %s from String %s: %s",
-                        keyClass.getName(), _quotedString(keyValue), msg),
-                keyValue, keyClass);
     }
 
     /**

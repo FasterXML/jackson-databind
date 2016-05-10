@@ -590,7 +590,8 @@ public class BuilderBasedDeserializer
                     if (bean.getClass() != _beanType.getRawClass()) {
                         // !!! 08-Jul-2011, tatu: Could probably support; but for now
                         //   it's too complicated, so bail out
-                        throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
+                        ctxt.reportMappingException("Can not create polymorphic instances with unwrapped values");
+                        return null;
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
                 }

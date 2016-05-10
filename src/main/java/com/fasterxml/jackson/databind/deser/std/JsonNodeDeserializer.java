@@ -212,7 +212,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 return node;
             }
             if (t != JsonToken.FIELD_NAME) {
-                throw ctxt.mappingException(handledType(), p.getCurrentToken());
+                ctxt.reportMappingException(handledType(), p.getCurrentToken());
+                return null;
             }
             key = p.getCurrentName();
         }
@@ -263,7 +264,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         while (true) {
             JsonToken t = p.nextToken();
             if (t == null) {
-                throw ctxt.mappingException("Unexpected end-of-input when binding data into ArrayNode");
+                ctxt.reportEndOfInputException(ArrayNode.class);
+                return node;
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:

@@ -1299,7 +1299,8 @@ public abstract class BeanDeserializerBase
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }
-            throw ctxt.mappingException(handledType(), JsonToken.START_ARRAY);
+            ctxt.reportMappingException(handledType(), JsonToken.START_ARRAY);
+            return null;
         }
         throw ctxt.mappingException(handledType());
     }

@@ -172,7 +172,8 @@ public abstract class StdDeserializer<T>
             return parsed;            
         }
         // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return false;
     }
 
     protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt)
@@ -226,7 +227,8 @@ public abstract class StdDeserializer<T>
             return parsed;            
         }
         // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return null;
     }
 
     protected final boolean _parseBooleanFromOther(JsonParser p, DeserializationContext ctxt)
@@ -293,7 +295,8 @@ public abstract class StdDeserializer<T>
             }            
             return parsed;            
         }
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return null;
     }
     
     protected Short _parseShort(JsonParser p, DeserializationContext ctxt)
@@ -345,7 +348,8 @@ public abstract class StdDeserializer<T>
             }            
             return parsed;            
         }
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return null;
     }
 
     protected final short _parseShortPrimitive(JsonParser p, DeserializationContext ctxt)
@@ -412,7 +416,8 @@ public abstract class StdDeserializer<T>
             return parsed;            
         }
         // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return 0;
     }
 
     protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt)
@@ -465,7 +470,8 @@ public abstract class StdDeserializer<T>
             break;
         }
         // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+        ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+        return null;
     }
 
     protected final Long _parseLong(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -509,7 +515,8 @@ public abstract class StdDeserializer<T>
             break;
         }
         // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+        ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+        return null;
     }
 
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt)
@@ -547,7 +554,8 @@ public abstract class StdDeserializer<T>
             }
             break;
         }
-        throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+        ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+        return 0L;
     }
     
     protected final Float _parseFloat(JsonParser p, DeserializationContext ctxt)
@@ -605,7 +613,8 @@ public abstract class StdDeserializer<T>
             return parsed;            
         }
         // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return null;
     }
     
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
@@ -645,7 +654,6 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return 0.0f;
         }
-        // Issue#381
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final float parsed = _parseFloatPrimitive(p, ctxt);
@@ -656,7 +664,8 @@ public abstract class StdDeserializer<T>
             return parsed;            
         }
         // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return 0.0f;
     }
 
     protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt)
@@ -710,8 +719,9 @@ public abstract class StdDeserializer<T>
             }            
             return parsed;            
         }
-            // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, t);
+        // Otherwise, no can do:
+        ctxt.reportMappingException(_valueClass, t);
+        return null;
     }
 
     protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt)
@@ -765,8 +775,9 @@ public abstract class StdDeserializer<T>
             }            
             return parsed;            
         }
-            // Otherwise, no can do:
-        throw ctxt.mappingException(_valueClass, t);
+        // Otherwise, no can do:
+        ctxt.reportMappingException(_valueClass, t);
+        return 0.0;
     }
 
     protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
@@ -792,7 +803,8 @@ public abstract class StdDeserializer<T>
             }            
             return parsed;            
         }
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return null;
     }
 
     /**
@@ -855,7 +867,8 @@ public abstract class StdDeserializer<T>
         if (value != null) {
             return value;
         }
-        throw ctxt.mappingException(String.class, p.getCurrentToken());
+        ctxt.reportMappingException(String.class, p.getCurrentToken());
+        return value;
     }
 
     /**
@@ -874,7 +887,8 @@ public abstract class StdDeserializer<T>
                 if (t == JsonToken.END_ARRAY) {
                     return null;
                 }
-                throw ctxt.mappingException(handledType(), JsonToken.START_ARRAY);
+                ctxt.reportMappingException(handledType(), JsonToken.START_ARRAY);
+                return null;
             }
         } else if (t == JsonToken.VALUE_STRING) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
@@ -884,7 +898,8 @@ public abstract class StdDeserializer<T>
                 }
             }
         }
-        throw ctxt.mappingException(handledType());
+        ctxt.reportMappingException(handledType());
+        return null;
     }
     
     /**

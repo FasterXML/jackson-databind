@@ -448,7 +448,8 @@ public class TokenBuffer
             copyCurrentStructure(p);
         } while ((t = p.nextToken()) == JsonToken.FIELD_NAME);
         if (t != JsonToken.END_OBJECT) {
-            throw ctxt.mappingException("Expected END_OBJECT after copying contents of a JsonParser into TokenBuffer, got "+t);
+            ctxt.reportMappingException("Expected END_OBJECT after copying contents of a JsonParser into TokenBuffer, got "+t);
+            return this;
         }
         writeEndObject();
         return this;

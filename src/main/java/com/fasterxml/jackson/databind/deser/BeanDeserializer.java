@@ -168,7 +168,8 @@ public class BeanDeserializer
             return deserializeFromObject(p, ctxt);
         default:
         }
-        throw ctxt.mappingException(handledType());
+        ctxt.reportMappingException(handledType());
+        return null;
     }
 
     protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -691,7 +692,8 @@ public class BeanDeserializer
                         // !!! 08-Jul-2011, tatu: Could probably support; but for now
                         //   it's too complicated, so bail out
                         tokens.close();
-                        throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
+                        ctxt.reportMappingException("Can not create polymorphic instances with unwrapped values");
+                        return null;
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
                 }
@@ -856,7 +858,8 @@ public class BeanDeserializer
                         if (bean.getClass() != _beanType.getRawClass()) {
                             // !!! 08-Jul-2011, tatu: Could theoretically support; but for now
                             //   it's too complicated, so bail out
-                            throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
+                            ctxt.reportMappingException("Can not create polymorphic instances with unwrapped values");
+                            return null;
                         }
                         return ext.complete(p, ctxt, bean);
                     }

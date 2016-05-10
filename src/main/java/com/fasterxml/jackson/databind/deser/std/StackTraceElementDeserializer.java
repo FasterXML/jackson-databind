@@ -54,6 +54,7 @@ public class StackTraceElementDeserializer
             }
             return value;
         }
-        throw ctxt.mappingException(_valueClass, t);
+        ctxt.reportMappingException(_valueClass, t);
+        return null;
     }
 }

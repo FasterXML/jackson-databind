@@ -855,18 +855,6 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public void reportMappingException(String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        throw mappingException(msg);
-    }
-
-    /**
-     * @since 2.8
-     */
     public void reportInstantiationException(Class<?> instClass, Throwable t)
         throws JsonMappingException
     {
@@ -954,6 +942,32 @@ public abstract class DeserializationContext
         throw endOfInputException(instClass);
     }
 
+    /**
+     * @since 2.8
+     */
+    public void reportMappingException(String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw mappingException(msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public void reportMappingException(Class<?> targetClass, JsonToken t) throws JsonMappingException {
+        throw mappingException(targetClass, t);
+    }
+    
+    /**
+     * @since 2.8
+     */
+    public void reportMappingException(Class<?> targetClass) throws JsonMappingException {
+        throw mappingException(targetClass);
+    }
+
     /*
     /**********************************************************
     /* Methods for constructing exceptions, "untyped"
@@ -967,16 +981,20 @@ public abstract class DeserializationContext
         return mappingException(targetClass, _parser.getCurrentToken());
     }
 
+    /**
+     * @deprecated Since 2.8 use {@link #reportMappingException(String, Object...)} instead
+     */
+    @Deprecated
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
         return JsonMappingException.from(_parser,
                 String.format("Can not deserialize instance of %s out of %s token",
                         _calcName(targetClass), token));
     }
-    
+
     /**
-     * Helper method for constructing generic mapping exception with specified
-     * message and current location information
+     * @deprecated Since 2.8 use {@link #reportMappingException(String, Object...)} instead
      */
+    @Deprecated
     public JsonMappingException mappingException(String message) {
         return JsonMappingException.from(getParser(), message);
     }

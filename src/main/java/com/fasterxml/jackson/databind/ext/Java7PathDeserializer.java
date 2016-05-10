@@ -24,6 +24,7 @@ public class Java7PathDeserializer extends StdScalarDeserializer<Path>
             }
             // 16-Oct-2015: should we perhaps allow JSON Arrays (of Strings) as well?
         }
-        throw ctxt.mappingException(Path.class, t);
+        ctxt.reportMappingException(Path.class, t);
+        return null;
     }
 }

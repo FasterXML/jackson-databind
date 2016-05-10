@@ -173,7 +173,7 @@ public class MapEntryDeserializer
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
         JsonToken t = jp.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            // [JACKSON-620] (empty) String may be ok however:
+            // String may be ok however:
             // slightly redundant (since String was passed above), but
             return _deserializeFromEmpty(jp, ctxt);
         }
@@ -182,9 +182,11 @@ public class MapEntryDeserializer
         }
         if (t != JsonToken.FIELD_NAME) {
             if (t == JsonToken.END_OBJECT) {
-                throw ctxt.mappingException("Can not deserialize a Map.Entry out of empty JSON Object");
+                ctxt.reportMappingException("Can not deserialize a Map.Entry out of empty JSON Object");
+                return null;
             }
-            throw ctxt.mappingException(handledType(), t);
+            ctxt.reportMappingException(handledType(), t);
+            return null;
         }
         
         final KeyDeserializer keyDes = _keyDeserializer;
@@ -213,10 +215,12 @@ public class MapEntryDeserializer
         t = jp.nextToken();
         if (t != JsonToken.END_OBJECT) {
             if (t == JsonToken.FIELD_NAME) { // most likely
-                throw ctxt.mappingException("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '"+jp.getCurrentName()+"')");
+                ctxt.reportMappingException("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '"+jp.getCurrentName()+"')");
+            } else {
+                // how would this occur?
+                ctxt.reportMappingException("Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);
             }
-            // how would this occur?
-            throw ctxt.mappingException("Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);
+            return null;
         }
         return new AbstractMap.SimpleEntry<Object,Object>(key, value);
     }

@@ -426,7 +426,8 @@ public class MapDeserializer
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
-                throw ctxt.mappingException(_mapType.getRawClass(), p.getCurrentToken());
+                ctxt.reportMappingException(_mapType.getRawClass(), p.getCurrentToken());
+                return;
             }
             keyStr = p.getCurrentName();
         }
@@ -487,7 +488,8 @@ public class MapDeserializer
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
-                throw ctxt.mappingException(_mapType.getRawClass(), p.getCurrentToken());
+                ctxt.reportMappingException(_mapType.getRawClass(), p.getCurrentToken());
+                return;
             }
             key = p.getCurrentName();
         }

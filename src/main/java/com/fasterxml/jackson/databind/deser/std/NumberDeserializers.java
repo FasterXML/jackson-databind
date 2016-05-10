@@ -284,7 +284,8 @@ public class NumberDeserializers
                     return C;
                 }
             }
-            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+            return null;
         }
     }
 
@@ -490,7 +491,8 @@ public class NumberDeserializers
                 break;
             }
             // Otherwise, no can do:
-            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+            return null;
         }
 
         /**
@@ -576,7 +578,8 @@ public class NumberDeserializers
                 }
             }
             // String is ok too, can easily convert; otherwise, no can do:
-            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+            return null;
         }
     }
     
@@ -620,7 +623,8 @@ public class NumberDeserializers
                 break;
             }
             // Otherwise, no can do:
-            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+            return null;
         }
     }
 }

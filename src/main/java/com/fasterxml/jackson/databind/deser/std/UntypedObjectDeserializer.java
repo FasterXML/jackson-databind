@@ -397,7 +397,8 @@ public class UntypedObjectDeserializer
             key1 = p.getCurrentName();
         } else {
             if (t != JsonToken.END_OBJECT) {
-                throw ctxt.mappingException(handledType(), p.getCurrentToken());
+                ctxt.reportMappingException(handledType(), p.getCurrentToken());
+                return null;
             }
             key1 = null;
         }

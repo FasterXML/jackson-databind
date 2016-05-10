@@ -57,7 +57,8 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
         if (text != null) {
             return text;
         }
-        throw ctxt.mappingException(_valueClass, p.getCurrentToken());
+        ctxt.reportMappingException(_valueClass, p.getCurrentToken());
+        return null;
     }
 
     // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):

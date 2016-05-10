@@ -448,14 +448,12 @@ public class BeanDeserializerFactory
                 builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
         final boolean isConcrete = !beanDesc.getType().isAbstract();
         
-        // Things specified as "ok to ignore"? [JACKSON-77]
+        // Things specified as "ok to ignore"?
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        boolean ignoreAny = false;
-        {
+        if (intr != null) {
             Boolean B = intr.findIgnoreUnknownProperties(beanDesc.getClassInfo());
             if (B != null) {
-                ignoreAny = B.booleanValue();
-                builder.setIgnoreUnknownProperties(ignoreAny);
+                builder.setIgnoreUnknownProperties(B.booleanValue());
             }
         }
         // Or explicit/implicit definitions?

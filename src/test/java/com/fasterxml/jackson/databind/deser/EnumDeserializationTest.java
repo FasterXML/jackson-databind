@@ -280,7 +280,8 @@ public class EnumDeserializationTest
             value = r.readValue("1");
             fail("Expected an error");
         } catch (JsonMappingException e) {
-            verifyException(e, "Not allowed to deserialize Enum value out of JSON number");
+            verifyException(e, "Can not deserialize");
+            verifyException(e, "not allowed to deserialize Enum value out of number: disable");
         }
 
         // and [databind#684]
@@ -288,7 +289,8 @@ public class EnumDeserializationTest
             value = r.readValue(quote("1"));
             fail("Expected an error");
         } catch (JsonMappingException e) {
-            verifyException(e, "Not allowed to deserialize Enum value out of JSON number");
+            verifyException(e, "Can not deserialize");
+            verifyException(e, "not allowed to deserialize Enum value out of number: disable");
         }
     }
 
@@ -359,7 +361,7 @@ public class EnumDeserializationTest
              MAPPER.readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}", ClassWithEnumMapKey.class);
              fail("Expected an exception for bogus enum value...");
          } catch (JsonMappingException jex) {
-             verifyException(jex, "Can not construct Map key");
+             verifyException(jex, "Can not deserialize Map key of type com.fasterxml.jackson.databind.deser");
          }
     }
 

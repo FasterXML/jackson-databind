@@ -6,10 +6,8 @@ import java.text.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -155,8 +153,9 @@ public class DateDeserializers
                         try {
                             return _customFormat.parse(str);
                         } catch (ParseException e) {
-                            throw new IllegalArgumentException("Failed to parse Date value '"+str
-                                    +"' (format: \""+_formatString+"\"): "+e.getMessage());
+                            ctxt.reportWeirdStringException(str, handledType(),
+                                    "expected format \"%s\"", _formatString);
+                            return null;
                         }
                     }
                 }
@@ -180,7 +179,7 @@ public class DateDeserializers
     /* Deserializer implementations for Date types
     /**********************************************************
      */
-    
+
     @JacksonStdImpl
     public static class CalendarDeserializer extends DateBasedDeserializer<Calendar>
     {
@@ -242,6 +241,7 @@ public class DateDeserializers
      * {@link DeserializationContext#parseDate} that this basic
      * deserializer calls.
      */
+    @JacksonStdImpl
     public static class DateDeserializer extends DateBasedDeserializer<Date>
     {
         public final static DateDeserializer instance = new DateDeserializer();

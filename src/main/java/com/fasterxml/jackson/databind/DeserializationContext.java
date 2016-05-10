@@ -1024,7 +1024,8 @@ public abstract class DeserializationContext
     @Deprecated
     public JsonMappingException instantiationException(Class<?> instClass, String msg) {
         return JsonMappingException.from(_parser,
-                String.format("Can not construct instance of %s, problem: %s", instClass.getName(), msg));
+                String.format("Can not construct instance of %s: %s",
+                        instClass.getName(), msg));
     }
 
     /**
@@ -1040,9 +1041,10 @@ public abstract class DeserializationContext
      * @deprecated Since 2.8 use {@link #reportWeirdStringException} instead
      */
     @Deprecated
-    public JsonMappingException weirdStringException(String value, Class<?> instClass, String msg) {
+    public JsonMappingException weirdStringException(String value, Class<?> instClass,
+            String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not construct instance of %s from String value (%s): %s",
+                String.format("Can not deserialize value of type %s from String %s: %s",
                         instClass.getName(), _quotedString(value), msg),
                 value, instClass);
     }
@@ -1054,9 +1056,10 @@ public abstract class DeserializationContext
      * @deprecated Since 2.8 use {@link #reportWeirdNumberException} instead
      */
     @Deprecated
-    public JsonMappingException weirdNumberException(Number value, Class<?> instClass, String msg) {
+    public JsonMappingException weirdNumberException(Number value, Class<?> instClass,
+            String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not construct instance of %s from number value (%s): %s",
+                String.format("Can not deserialize value of type %s from number %s: %s",
                         instClass.getName(), String.valueOf(value), msg),
                 value, instClass);
     }
@@ -1071,7 +1074,7 @@ public abstract class DeserializationContext
     @Deprecated
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not construct Map key of type %s from String (%s): %s",
+                String.format("Can not deserialize Map key of type %s from String %s: %s",
                         keyClass.getName(), _quotedString(keyValue), msg),
                 keyValue, keyClass);
     }

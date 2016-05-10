@@ -516,7 +516,7 @@ public class TestDateDeserialization
             MAPPER.readValue(quote("foobar"), Date.class);
             fail("Should have failed with an exception");
         } catch (InvalidFormatException e) {
-            verifyException(e, "Can not construct instance");
+            verifyException(e, "Can not deserialize value of type java.util.Date from String");
             assertEquals("foobar", e.getValue());
             assertEquals(Date.class, e.getTargetType());
         } catch (Exception e) {

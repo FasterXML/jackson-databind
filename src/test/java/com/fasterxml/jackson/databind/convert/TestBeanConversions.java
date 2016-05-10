@@ -124,7 +124,7 @@ public class TestBeanConversions
         try {
             MAPPER.readValue("{\"boolProp\":\"foobar\"}", BooleanBean.class);
         } catch (JsonMappingException e) {
-            verifyException(e, "from String value (\"foobar\")");
+            verifyException(e, "Can not deserialize value of type boolean from String");
         }
     }
 

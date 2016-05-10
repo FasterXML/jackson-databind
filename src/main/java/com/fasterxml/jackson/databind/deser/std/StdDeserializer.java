@@ -780,7 +780,7 @@ public abstract class StdDeserializer<T>
             return (java.util.Date) getNullValue(ctxt);
         }
         if (t == JsonToken.VALUE_STRING) {
-            return _parseDate(p.getText(), ctxt);
+            return _parseDate(p.getText().trim(), ctxt);
         }
         // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {

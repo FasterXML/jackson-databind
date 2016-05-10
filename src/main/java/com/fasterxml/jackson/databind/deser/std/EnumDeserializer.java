@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
@@ -134,6 +133,7 @@ public class EnumDeserializer
             int index = p.getIntValue();
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                 _failOnNumber(ctxt, p, index);
+                return null;
             }
             if (index >= 0 && index <= _enumsByIndex.length) {
                 return _enumsByIndex[index];
@@ -175,6 +175,7 @@ public class EnumDeserializer
                     int ix = Integer.parseInt(name);
                     if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                         _failOnNumber(ctxt, p, ix);
+                        return null;
                     }
                     if (ix >= 0 && ix <= _enumsByIndex.length) {
                         return _enumsByIndex[ix];
@@ -216,10 +217,9 @@ public class EnumDeserializer
     protected void _failOnNumber(DeserializationContext ctxt, JsonParser p, int index)
         throws IOException
     {
-        throw InvalidFormatException.from(p,
-                String.format("Not allowed to deserialize Enum value out of JSON number (%d): disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow",
-                        index),
-                        index, _enumClass());
+        ctxt.reportWeirdNumberException(index, _enumClass(),
+                "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
+                );
     }
 
     protected Class<?> _enumClass() {

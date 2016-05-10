@@ -447,7 +447,6 @@ public class BeanDeserializerFactory
                 builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
         final boolean isConcrete = !beanDesc.getType().isAbstract();
         
-        // Things specified as "ok to ignore"?
         // 01-May-2016, tatu: Which base type to use here gets tricky, since
         //   it may often make most sense to use general type for overrides,
         //   but what we have here may be more specific impl type. But for now
@@ -456,7 +455,7 @@ public class BeanDeserializerFactory
                 .getDefaultPropertyIgnorals(beanDesc.getBeanClass(),
                         beanDesc.getClassInfo());
         Set<String> ignored;
-        
+
         if (ignorals != null) {
             boolean ignoreAny = ignorals.getIgnoreUnknown();
             builder.setIgnoreUnknownProperties(ignoreAny);

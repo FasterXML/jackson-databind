@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
@@ -359,7 +358,7 @@ public class BeanDeserializerBuilder
     public AbstractDeserializer buildAbstract() {
         return new AbstractDeserializer(this, _beanDesc, _backRefProperties);
     }
-    
+
     /**
      * Method for constructing a specialized deserializer that uses
      * additional external Builder object during data binding.
@@ -411,7 +410,7 @@ public class BeanDeserializerBuilder
                     PropertyMetadata.STD_REQUIRED);
             propertyMap = propertyMap.withProperty(prop);
         }
-        
+
         return new BuilderBasedDeserializer(this,
                 _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 anyViews);

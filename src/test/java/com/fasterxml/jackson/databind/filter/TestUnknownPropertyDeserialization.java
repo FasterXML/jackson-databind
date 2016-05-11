@@ -42,7 +42,7 @@ public class TestUnknownPropertyDeserialization
      * just marks unknown property/ies when encountered, along with
      * Json value of the property.
      */
-    final static class MyHandler
+    static class MyHandler
         extends DeserializationProblemHandler
     {
         @Override

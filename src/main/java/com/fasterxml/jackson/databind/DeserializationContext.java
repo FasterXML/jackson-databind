@@ -889,7 +889,12 @@ public abstract class DeserializationContext
                 if (type.hasRawClass(Void.class)) {
                     return null;
                 }
-                return type;
+                // But ensure there's type compatibility
+                if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
+                    return type;
+                }
+                throw unknownTypeException(baseType, id,
+                        "problem handler tried to resolve into non-subtype: "+type);
             }
             h = h.next();
         }

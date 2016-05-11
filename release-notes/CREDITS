@@ -445,6 +445,10 @@ Tom Mack (tommack@github)
     the requested value type
    (2.7.4)
 
+Nick Babcock (nickbabcock)
+  * Reported #1225: `JsonMappingException` should override getProcessor()
+   (2.7.5)
+
 Artur Jonkisz (ajonkisz@github)
   * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type
    (2.8.0)
@@ -465,3 +469,4 @@ Lokesh Kumar (LokeshN@github)
    (2.8.0)
   * Reported #1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
    (2.8.0)
+

@@ -184,6 +184,7 @@ public final class StringArrayDeserializer
                 return null;
             }
         }
-        throw ctxt.mappingException(_valueClass);
+        ctxt.reportMappingException(_valueClass);
+        return null;
     }
 }

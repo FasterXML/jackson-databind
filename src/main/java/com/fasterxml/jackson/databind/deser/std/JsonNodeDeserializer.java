@@ -102,7 +102,8 @@ public class JsonNodeDeserializer
             if (p.hasToken(JsonToken.END_OBJECT)) {
                 return ctxt.getNodeFactory().objectNode();
             }
-            throw ctxt.mappingException(ObjectNode.class);
+            ctxt.reportMappingException(ObjectNode.class);
+            return null;
          }
     }
         
@@ -123,7 +124,8 @@ public class JsonNodeDeserializer
             if (p.isExpectedStartArrayToken()) {
                 return deserializeArray(p, ctxt, ctxt.getNodeFactory());
             }
-            throw ctxt.mappingException(ArrayNode.class);
+            ctxt.reportMappingException(ArrayNode.class);
+            return null;
         }
     }
 }
@@ -332,7 +334,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         //case END_OBJECT:
         //case END_ARRAY:
         default:
-            throw ctxt.mappingException(handledType());
+            ctxt.reportMappingException(handledType());
+            return null;
         }
     }
 

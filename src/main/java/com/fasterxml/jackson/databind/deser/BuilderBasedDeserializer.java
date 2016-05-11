@@ -164,10 +164,11 @@ public class BuilderBasedDeserializer
             // these only work if there's a (delegating) creator...
             return finishBuild(ctxt, deserializeFromArray(p, ctxt));
         case FIELD_NAME:
-        case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
+        case END_OBJECT:
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         default:
-            throw ctxt.mappingException(handledType());
+            ctxt.reportMappingException(handledType());
+            return null;
         }
     }
 

@@ -368,7 +368,8 @@ public class MapDeserializer
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
-            throw ctxt.mappingException(getMapClass());
+            ctxt.reportMappingException(getMapClass());
+            return null;
         }
         if (_standardStringKey) {
             _readAndBindStringMap(p, ctxt, result);

@@ -274,7 +274,8 @@ public class UntypedObjectDeserializer
 //        case JsonTokenId.ID_END_ARRAY: // invalid
         default:
         }
-        throw ctxt.mappingException(Object.class);
+        ctxt.reportMappingException(Object.class);
+        return null;
     }
 
     @Override
@@ -330,7 +331,8 @@ public class UntypedObjectDeserializer
             return null;
         default:
         }
-        throw ctxt.mappingException(Object.class);
+        ctxt.reportMappingException(Object.class);
+        return null;
     }
 
     /*
@@ -338,7 +340,7 @@ public class UntypedObjectDeserializer
     /* Internal methods
     /**********************************************************
      */
-    
+
     /**
      * Method called to map a JSON Array into a Java value.
      */
@@ -541,7 +543,8 @@ public class UntypedObjectDeserializer
 
             //case JsonTokenId.ID_END_ARRAY: // invalid
             default:
-                throw ctxt.mappingException(Object.class);
+                ctxt.reportMappingException(Object.class);
+                return null;
             }
         }
 
@@ -579,7 +582,8 @@ public class UntypedObjectDeserializer
             case JsonTokenId.ID_NULL: // should not get this far really but...
                 return null;
             default:
-                throw ctxt.mappingException(Object.class);
+                ctxt.reportMappingException(Object.class);
+                return null;
             }
         }
 

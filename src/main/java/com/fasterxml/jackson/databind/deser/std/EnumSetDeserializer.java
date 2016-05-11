@@ -137,7 +137,8 @@ public class EnumSetDeserializer
                  * deserializers)
                  */
                 if (t == JsonToken.VALUE_NULL) {
-                    throw ctxt.mappingException(_enumClass);
+                    ctxt.reportMappingException(_enumClass);
+                    return null;
                 }
                 Enum<?> value = _enumDeserializer.deserialize(p, ctxt);
                 /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
@@ -177,13 +178,15 @@ public class EnumSetDeserializer
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
 
         if (!canWrap) {
-            throw ctxt.mappingException(EnumSet.class);
+            ctxt.reportMappingException(EnumSet.class);
+            return null;
         }
 
         EnumSet result = constructSet();
         // First: since `null`s not allowed, slightly simpler...
         if (p.hasToken(JsonToken.VALUE_NULL)) {
-            throw ctxt.mappingException(_enumClass);
+            ctxt.reportMappingException(_enumClass);
+            return null;
         }
         try {
             Enum<?> value = _enumDeserializer.deserialize(p, ctxt);

@@ -67,13 +67,14 @@ public class TestValueAnnotations
         public RootStringDeserializer() { super(RootString.class); }
 
         @Override
-        public RootString deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public RootString deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
         {
-            if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-                return new RootStringImpl(jp.getText());
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                return new RootStringImpl(p.getText());
             }
-            throw ctxt.mappingException(_valueClass);
+            ctxt.reportMappingException(_valueClass);
+            return null;
         }
     }
 

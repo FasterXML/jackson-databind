@@ -271,7 +271,8 @@ public class ObjectArrayDeserializer
                     && _elementClass == Byte.class) {
                 return deserializeFromBase64(p, ctxt);
             }
-            throw ctxt.mappingException(_arrayType.getRawClass());
+            ctxt.reportMappingException(_arrayType.getRawClass());
+            return null;
         }
         JsonToken t = p.getCurrentToken();
         Object value;

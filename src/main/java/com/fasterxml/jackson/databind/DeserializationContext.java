@@ -1010,13 +1010,16 @@ public abstract class DeserializationContext
     
     /**
      * Helper method for constructing generic mapping exception for specified type
+     * 
+     * @deprecated Since 2.8 use {@link #reportMappingException(Class)} instead
      */
+    @Deprecated
     public JsonMappingException mappingException(Class<?> targetClass) {
         return mappingException(targetClass, _parser.getCurrentToken());
     }
 
     /**
-     * @deprecated Since 2.8 use {@link #reportMappingException(String, Object...)} instead
+     * @deprecated Since 2.8 use {@link #reportMappingException(Class, JsonToken)} instead
      */
     @Deprecated
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {

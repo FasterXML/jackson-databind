@@ -98,7 +98,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
          */
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
-    
+
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // [JACKSON-620] Empty String can become null...
@@ -114,12 +114,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         if (canWrap) {
             return handleSingleElementUnwrapped(p, ctxt);
         }
-        throw ctxt.mappingException(_valueClass);
+        ctxt.reportMappingException(_valueClass);
+        return null;
     }
 
     protected abstract T handleSingleElementUnwrapped(JsonParser p,
             DeserializationContext ctxt) throws IOException;
-    
+
     /*
     /********************************************************
     /* Actual deserializers: efficient String[], char[] deserializers
@@ -166,7 +167,8 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 StringBuilder sb = new StringBuilder(64);
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     if (t != JsonToken.VALUE_STRING) {
-                        throw ctxt.mappingException(Character.TYPE);
+                        ctxt.reportMappingException(Character.TYPE);
+                        return null;
                     }
                     String str = p.getText();
                     if (str.length() != 1) {
@@ -192,14 +194,16 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 }
                 // not recognized, just fall through
             }
-            throw ctxt.mappingException(_valueClass);
+            ctxt.reportMappingException(_valueClass);
+            return null;
         }
 
         @Override
         protected char[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
-            // not sure how this should work so just return `null` so:
-            throw ctxt.mappingException(_valueClass);
+            // not sure how this should work...
+            ctxt.reportMappingException(_valueClass);
+            return null;
         }
     }
 
@@ -311,9 +315,10 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         // should we catch overflow exceptions?
                         value = p.getByteValue();
                     } else {
-                        // [JACKSON-79]: should probably accept nulls as 0
+                        // should probably accept nulls as 0
                         if (t != JsonToken.VALUE_NULL) {
-                            throw ctxt.mappingException(_valueClass.getComponentType());
+                            ctxt.reportMappingException(_valueClass.getComponentType());
+                            return null;
                         }
                         value = (byte) 0;
                     }
@@ -341,7 +346,8 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             } else {
                 // should probably accept nulls as 'false'
                 if (t != JsonToken.VALUE_NULL) {
-                    throw ctxt.mappingException(_valueClass.getComponentType());
+                    ctxt.reportMappingException(_valueClass.getComponentType());
+                    return null;
                 }
                 value = (byte) 0;
             }

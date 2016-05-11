@@ -152,7 +152,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             return _deserializeEmbedded(ob, ctxt);
         }
-        throw ctxt.mappingException(_valueClass);
+        ctxt.reportMappingException(_valueClass);
+        return null;
     }
         
     protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;

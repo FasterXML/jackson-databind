@@ -211,7 +211,8 @@ public class EnumDeserializer
             }
             return parsed;
         }
-        throw ctxt.mappingException(_enumClass());
+        ctxt.reportMappingException(_enumClass());
+        return null;
     }
 
     protected void _failOnNumber(DeserializationContext ctxt, JsonParser p, int index)

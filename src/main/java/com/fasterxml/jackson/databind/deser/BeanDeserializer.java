@@ -500,9 +500,10 @@ public class BeanDeserializer
             p2.close();
             return ob;
         }
-        throw ctxt.mappingException(handledType());
+        ctxt.reportMappingException(handledType());
+        return null;
     }
-    
+
     /*
     /**********************************************************
     /* Deserializing when we have to consider an active View

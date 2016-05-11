@@ -324,7 +324,8 @@ public class CollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            throw ctxt.mappingException(_collectionType.getRawClass());
+            ctxt.reportMappingException(_collectionType.getRawClass());
+            return null;
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

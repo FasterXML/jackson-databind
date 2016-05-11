@@ -256,7 +256,8 @@ public final class StringCollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            throw ctxt.mappingException(_collectionType.getRawClass());
+            ctxt.reportMappingException(_collectionType.getRawClass());
+            return null;
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
         JsonDeserializer<String> valueDes = _valueDeserializer;

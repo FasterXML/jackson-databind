@@ -1302,7 +1302,8 @@ public abstract class BeanDeserializerBase
             ctxt.reportMappingException(handledType(), JsonToken.START_ARRAY);
             return null;
         }
-        throw ctxt.mappingException(handledType());
+        ctxt.reportMappingException(handledType());
+        return null;
     }
 
     public Object deserializeFromEmbedded(JsonParser p, DeserializationContext ctxt)

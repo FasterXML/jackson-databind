@@ -172,9 +172,9 @@ public class BeanDeserializer
         return null;
     }
 
+    @Deprecated // since 2.8; remove unless getting used
     protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
-        ctxt.reportEndOfInputException(handledType());
-        return null;
+        throw ctxt.endOfInputException(handledType());
     }
 
     /**

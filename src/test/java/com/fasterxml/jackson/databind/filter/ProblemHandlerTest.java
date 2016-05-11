@@ -7,6 +7,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
+/**
+ * Tests to exercise handler methods of {@link DeserializationProblemHandler}.
+ *
+ * @since 2.8
+ */
 public class ProblemHandlerTest extends BaseMapTest
 {
     static class WeirdKeyHandler
@@ -54,7 +59,7 @@ public class ProblemHandlerTest extends BaseMapTest
     static class BaseWrapper {
         public Base value;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

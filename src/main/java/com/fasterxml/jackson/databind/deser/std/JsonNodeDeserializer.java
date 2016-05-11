@@ -265,10 +265,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         ArrayNode node = nodeFactory.arrayNode();
         while (true) {
             JsonToken t = p.nextToken();
-            if (t == null) {
-                ctxt.reportEndOfInputException(ArrayNode.class);
-                return node;
-            }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 node.add(deserializeObject(p, ctxt, nodeFactory));
@@ -378,7 +374,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt,
             JsonNodeFactory nodeFactory) throws IOException
     {
-        // [JACKSON-796]
         Object ob = p.getEmbeddedObject();
         if (ob == null) { // should this occur?
             return nodeFactory.nullNode();

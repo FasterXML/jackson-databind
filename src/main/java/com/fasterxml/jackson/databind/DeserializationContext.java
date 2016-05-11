@@ -867,7 +867,7 @@ public abstract class DeserializationContext
         while (h != null) {
             // Can bail out if it's handled
             Object key = h.value().handleWeirdKey(this, keyClass, keyValue, msg);
-            if (key  != DeserializationProblemHandler.NOT_HANDLED) {
+            if (key != DeserializationProblemHandler.NOT_HANDLED) {
                 return key;
             }
             h = h.next();
@@ -996,13 +996,6 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public void reportEndOfInputException(Class<?> instClass) throws JsonMappingException {
-        throw endOfInputException(instClass);
-    }
-
-    /**
-     * @since 2.8
-     */
     public void reportMappingException(String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -1076,6 +1069,13 @@ public abstract class DeserializationContext
         return JsonMappingException.from(getParser(), msgTemplate);
     }
 
+    /*
+    /**********************************************************
+    /* Methods for constructing semantic exceptions; usually not
+    /* to be called direclty, call `handleXxx()` instead
+    /**********************************************************
+     */
+
     /**
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
@@ -1089,6 +1089,18 @@ public abstract class DeserializationContext
                 keyValue, keyClass);
     }
 
+    /**
+     * Helper method for constructing exception to indicate that end-of-input was
+     * reached while still expecting more tokens to deserialize value of specified type.
+     *
+     * @deprecated Since 2.8; currently no way to catch EOF at databind level
+     */
+    @Deprecated
+    public JsonMappingException endOfInputException(Class<?> instClass) {
+        return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
+                +instClass.getName());
+    }
+    
     /*
     /**********************************************************
     /* Methods for constructing semantic exceptions; mostly
@@ -1186,15 +1198,6 @@ public abstract class DeserializationContext
             msg = msg + ": "+extraDesc;
         }
         return JsonMappingException.from(_parser, msg);
-    }
-
-    /**
-     * @deprecated Since 2.8 use {@link #reportEndOfInputException} instead
-     */
-    @Deprecated
-    public JsonMappingException endOfInputException(Class<?> instClass) {
-        return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
-                +instClass.getName());
     }
 
     /*

@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.5 (not yet released)
+
+#1225: `JsonMappingException` should override getProcessor()
+ (reported by Nick B)
+
 2.7.4 (29-Apr-2016)
 
 #1122: Jackson 2.7 and Lombok: 'Conflicting/ambiguous property name definitions'

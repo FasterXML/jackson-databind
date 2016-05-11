@@ -444,3 +444,7 @@ Tom Mack (tommack@github)
   * Reported #1208: treeToValue doesn't handle POJONodes that contain exactly
     the requested value type
    (2.7.4)
+
+Nick Babcock (nickbabcock)
+  * Reported #1225: `JsonMappingException` should override getProcessor()
+   (2.7.5)

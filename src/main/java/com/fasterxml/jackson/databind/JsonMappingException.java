@@ -453,6 +453,9 @@ public class JsonMappingException
     /**********************************************************
      */
 
+    @Override // since 2.7.5
+    public Object getProcessor() { return _processor; }
+
     @Override
     public String getLocalizedMessage() {
         return _buildMessage();

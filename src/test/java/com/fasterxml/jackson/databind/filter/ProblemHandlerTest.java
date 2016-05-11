@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.filter;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
@@ -8,6 +9,29 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
 public class ProblemHandlerTest extends BaseMapTest
 {
+    static class WeirdKeyHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object key;
+
+        public WeirdKeyHandler(Object key0) {
+            key = key0;
+        }
+
+        @Override
+        public Object handleWeirdKey(DeserializationContext ctxt,
+                Class<?> rawKeyType, String keyValue,
+                String failureMsg)
+            throws IOException
+        {
+            return key;
+        }
+    }
+
+    static class IntKeyMapWrapper {
+        public Map<Integer,String> stuff;
+    }
+
     static class TypeIdHandler
         extends DeserializationProblemHandler
     {
@@ -36,6 +60,18 @@ public class ProblemHandlerTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
+
+    public void testWeirdKeyHandling() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new WeirdKeyHandler(7));
+        IntKeyMapWrapper w = mapper.readValue("{\"stuff\":{\"foo\":\"abc\"}}",
+                IntKeyMapWrapper.class);
+        Map<Integer,String> map = w.stuff;
+        assertEquals(1, map.size());
+        assertEquals("abc", map.values().iterator().next());
+        assertEquals(Integer.valueOf(7), map.keySet().iterator().next());
+    }
 
     public void testInvalidTypeId() throws Exception
     {

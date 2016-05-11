@@ -41,7 +41,7 @@ public class JSONWrappedObject implements JsonSerializable
      * to include (if any).
      */
     protected final JavaType _serializationType;
-    
+
     public JSONWrappedObject(String prefix, String suffix, Object value) {
         this(prefix, suffix, value, (JavaType) null);
     }

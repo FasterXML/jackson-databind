@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.misc;
 
-import com.fasterxml.jackson.databind.*;
+import java.util.Arrays;
 
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 
 public class TestJSONP
     extends BaseMapTest
@@ -18,23 +20,23 @@ public class TestJSONP
             this.b = b;
         }
     }
-    
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testSimpleScalars() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         assertEquals("callback(\"abc\")",
-                serializeAsString(m, new JSONPObject("callback", "abc")));
+                MAPPER.writeValueAsString(new JSONPObject("callback", "abc")));
         assertEquals("calc(123)",
-                serializeAsString(m, new JSONPObject("calc", Integer.valueOf(123))));
+                MAPPER.writeValueAsString(new JSONPObject("calc", Integer.valueOf(123))));
         assertEquals("dummy(null)",
-                serializeAsString(m, new JSONPObject("dummy", null)));
+                MAPPER.writeValueAsString(new JSONPObject("dummy", null)));
     }
 
     public void testSimpleBean() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         assertEquals("xxx({\"a\":\"123\",\"b\":\"456\"})",
-                serializeAsString(m, new JSONPObject("xxx",
+                MAPPER.writeValueAsString(new JSONPObject("xxx",
                         new Impl("123", "456"))));
     }
     
@@ -44,10 +46,16 @@ public class TestJSONP
      */
     public void testWithType() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         Object ob = new Impl("abc", "def");
-        JavaType type = m.constructType(Base.class);
+        JavaType type = MAPPER.constructType(Base.class);
         assertEquals("do({\"a\":\"abc\"})",
-                serializeAsString(m, new JSONPObject("do", ob, type)));
+                MAPPER.writeValueAsString(new JSONPObject("do", ob, type)));
+    }
+
+    public void testGeneralWrapping() throws Exception
+    {
+        JSONWrappedObject input = new JSONWrappedObject("/*Foo*/", "\n// the end",
+                Arrays.asList());
+        assertEquals("/*Foo*/[]\n// the end", MAPPER.writeValueAsString(input));
     }
 }

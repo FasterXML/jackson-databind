@@ -820,16 +820,22 @@ public abstract class DeserializationContext
         throws IOException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        if (h != null) {
-            while (h != null) {
-                // Can bail out if it's handled
-                if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
-                    return true;
-                }
-                h = h.next();
+        while (h != null) {
+            // Can bail out if it's handled
+            if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
+                return true;
             }
+            h = h.next();
         }
-        return false;
+        // Nope, not handled. Potentially that's a problem...
+        if (!isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+            p.skipChildren();
+            return true;
+        }
+        // Do we know properties that are expected instead?
+        Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
+        throw UnrecognizedPropertyException.from(_parser,
+                instanceOrClass, propName, propIds);
     }
 
     /**
@@ -845,7 +851,7 @@ public abstract class DeserializationContext
      *
      * @return Key value to use
      *
-     * @throws JsonMappingException
+     * @throws IOException
      * 
      * @since 2.8
      */
@@ -858,17 +864,36 @@ public abstract class DeserializationContext
             msg = String.format(msg, msgArgs);
         }
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        if (h != null) {
-            while (h != null) {
-                // Can bail out if it's handled
-                Object key = h.value().handleWeirdKey(this, keyClass, keyValue, msg);
-                if (key  != DeserializationProblemHandler.NOT_HANDLED) {
-                    return key;
-                }
-                h = h.next();
+        while (h != null) {
+            // Can bail out if it's handled
+            Object key = h.value().handleWeirdKey(this, keyClass, keyValue, msg);
+            if (key  != DeserializationProblemHandler.NOT_HANDLED) {
+                return key;
             }
+            h = h.next();
         }
-        throw this.weirdKeyException(keyClass, keyValue, msg);
+        throw weirdKeyException(keyClass, keyValue, msg);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public JavaType handleUnknownTypeId(JavaType baseType, String id,
+            String extraDesc) throws IOException
+    {
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            JavaType type = h.value().handleUnknownTypeId(this, baseType, id, extraDesc);
+            if (type != null) {
+                if (type.hasRawClass(Void.class)) {
+                    return null;
+                }
+                return type;
+            }
+            h = h.next();
+        }
+        throw unknownTypeException(baseType, id, extraDesc);
     }
 
     /*
@@ -885,7 +910,10 @@ public abstract class DeserializationContext
      *   have been) instantiated
      * @param deser Deserializer that had the problem, if called by deserializer
      *   (or on behalf of one)
+     *
+     * @deprecated Since 2.8 call {@link #handleUnknownProperty} instead
      */
+    @Deprecated
     public void reportUnknownProperty(Object instanceOrClass, String fieldName,
             JsonDeserializer<?> deser)
         throws JsonMappingException
@@ -958,15 +986,6 @@ public abstract class DeserializationContext
             msg = String.format(msg, msgArgs);
         }
         throw wrongTokenException(p, expToken, msg);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public void reportUnknownTypeException(JavaType type, String id,
-            String extraDesc) throws JsonMappingException
-    {
-        throw unknownTypeException(type, id, extraDesc);
     }
 
     /**
@@ -1151,7 +1170,7 @@ public abstract class DeserializationContext
     /**
      * @since 2.5
      *
-     * @deprecated Since 2.8 use {@link #reportUnknownTypeException} instead
+     * @deprecated Since 2.8 use {@link #handleUnknownTypeId} instead
      */
     @Deprecated
     public JsonMappingException unknownTypeException(JavaType type, String id,

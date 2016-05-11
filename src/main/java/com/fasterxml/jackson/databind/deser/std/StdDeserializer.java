@@ -1084,10 +1084,6 @@ public abstract class StdDeserializer<T>
      * Bean property. Method can deal with the problem as it sees fit (ignore,
      * throw exception); but if it does return, it has to skip the matching
      * Json content parser has.
-     *<p>
-     * NOTE: method signature was changed in version 1.5; explicit JsonParser
-     * <b>must</b> be passed since it may be something other than what
-     * context has. Prior versions did not include the first parameter.
      *
      * @param p Parser that points to value of the unknown property
      * @param ctxt Context for deserialization; allows access to the parser,
@@ -1107,11 +1103,8 @@ public abstract class StdDeserializer<T>
         if (ctxt.handleUnknownProperty(p, this, instanceOrClass, propName)) {
             return;
         }
-        // Nope, not handled. Potentially that's a problem...
-        ctxt.reportUnknownProperty(instanceOrClass, propName, this);
-
         /* But if we do get this far, need to skip whatever value we
-         * are pointing to now.
+         * are pointing to now (although handler is likely to have done that already)
          */
         p.skipChildren();
     }

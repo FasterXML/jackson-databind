@@ -152,7 +152,14 @@ public abstract class TypeDeserializerBase
                 // As per [JACKSON-614], use the default impl if no type id available:
                 deser = _findDefaultImplDeserializer(ctxt);
                 if (deser == null) {
-                    deser = _handleUnknownTypeId(ctxt, typeId, _idResolver, _baseType);
+                    // 10-May-2016, tatu: We may get some help...
+                    JavaType actual = _handleUnknownTypeId(ctxt, typeId, _idResolver, _baseType);
+                    if (actual == null) { // what should this be taken to mean?
+                        // TODO: try to figure out something better
+                        return null;
+                    }
+                    // ... would this actually work?
+                    deser = ctxt.findContextualValueDeserializer(actual, _property);
                 }
             } else {
                 /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
@@ -254,9 +261,9 @@ public abstract class TypeDeserializerBase
      *   should return that deserializer; otherwise throw an exception to indicate
      *   the problem.
      *
-     * @since 2.5
+     * @since 2.8
      */
-    protected JsonDeserializer<Object> _handleUnknownTypeId(DeserializationContext ctxt, String typeId,
+    protected JavaType _handleUnknownTypeId(DeserializationContext ctxt, String typeId,
             TypeIdResolver idResolver, JavaType baseType)
         throws IOException
     {
@@ -271,7 +278,6 @@ public abstract class TypeDeserializerBase
         } else {
             extraDesc = null;
         }
-        ctxt.reportUnknownTypeException(_baseType, typeId, extraDesc);
-        return null;
+        return ctxt.handleUnknownTypeId(_baseType, typeId, extraDesc);
     }
 }

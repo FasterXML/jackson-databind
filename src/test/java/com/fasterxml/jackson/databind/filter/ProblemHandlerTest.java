@@ -6,6 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 /**
  * Tests to exercise handler methods of {@link DeserializationProblemHandler}.
@@ -66,6 +67,8 @@ public class ProblemHandlerTest extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testWeirdKeyHandling() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
@@ -85,5 +88,19 @@ public class ProblemHandlerTest extends BaseMapTest
         BaseWrapper w = mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
                 BaseWrapper.class);
         assertNotNull(w);
+    }
+
+    // verify that by default we get special exception type
+    public void testInvalidTypeIdFail() throws Exception
+    {
+        try {
+            MAPPER.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
+                BaseWrapper.class);
+            fail("Should not pass");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'foo'");
+            assertEquals(Base.class, e.getBaseType().getRawClass());
+            assertEquals("foo", e.getTypeId());
+        }
     }
 }

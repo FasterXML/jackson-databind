@@ -15,6 +15,8 @@ Project: jackson-databind
 #990: Allow failing on `null` values for creator (add 
   `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)
  (contributed by mkokho@github)
+#1017: Add new mapping exception type ('InvalidTypeIdException') for subtype resolution errors
+ (suggested by natnan@github)
 #1082: Can not use static Creator factory methods for `Enum`s, with JsonCreator.Mode.PROPERTIES
  (contributed by Lokesh K)
 #1084: Change `TypeDeserializerBase` to take `JavaType` for `defaultImpl`, NOT `Class`

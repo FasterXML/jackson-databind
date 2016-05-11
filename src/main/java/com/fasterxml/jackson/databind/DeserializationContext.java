@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -893,12 +894,12 @@ public abstract class DeserializationContext
                 if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
                     return type;
                 }
-                throw unknownTypeException(baseType, id,
+                throw unknownTypeIdException(baseType, id,
                         "problem handler tried to resolve into non-subtype: "+type);
             }
             h = h.next();
         }
-        throw unknownTypeException(baseType, id, extraDesc);
+        throw unknownTypeIdException(baseType, id, extraDesc);
     }
 
     /*
@@ -1072,7 +1073,7 @@ public abstract class DeserializationContext
     /*
     /**********************************************************
     /* Methods for constructing semantic exceptions; usually not
-    /* to be called direclty, call `handleXxx()` instead
+    /* to be called directly, call `handleXxx()` instead
     /**********************************************************
      */
 
@@ -1090,17 +1091,20 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Helper method for constructing exception to indicate that end-of-input was
-     * reached while still expecting more tokens to deserialize value of specified type.
-     *
-     * @deprecated Since 2.8; currently no way to catch EOF at databind level
+     * Helper method for constructing exception to indicate that given JSON
+     * Object field name was not in format to be able to deserialize specified
+     * key type.
      */
-    @Deprecated
-    public JsonMappingException endOfInputException(Class<?> instClass) {
-        return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
-                +instClass.getName());
+    public JsonMappingException unknownTypeIdException(JavaType baseType, String typeId,
+            String extraDesc) {
+        String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
+                typeId, baseType);
+        if (extraDesc != null) {
+            msg = msg + ": "+extraDesc;
+        }
+        return InvalidTypeIdException.from(_parser, msg, baseType, typeId);
     }
-    
+
     /*
     /**********************************************************
     /* Methods for constructing semantic exceptions; mostly
@@ -1198,6 +1202,18 @@ public abstract class DeserializationContext
             msg = msg + ": "+extraDesc;
         }
         return JsonMappingException.from(_parser, msg);
+    }
+
+    /**
+     * Helper method for constructing exception to indicate that end-of-input was
+     * reached while still expecting more tokens to deserialize value of specified type.
+     *
+     * @deprecated Since 2.8; currently no way to catch EOF at databind level
+     */
+    @Deprecated
+    public JsonMappingException endOfInputException(Class<?> instClass) {
+        return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
+                +instClass.getName());
     }
 
     /*

@@ -376,7 +376,7 @@ and as long as source and result types are compatible -- that is, if to-JSON, fr
 But here are couple of potentially useful use cases:
 
 ```java
-// Convert from int[] to List<Integer>
+// Convert from List<Integer> to int[]
 List<Integer> sourceList = ...;
 int[] ints = mapper.convertValue(sourceList, int[].class);
 // Convert a POJO into Map!

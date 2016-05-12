@@ -119,9 +119,9 @@ public abstract class ArraySerializerBase<T>
                 return;
             }
         }
+        gen.setCurrentValue(value);
         gen.writeStartArray();
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }

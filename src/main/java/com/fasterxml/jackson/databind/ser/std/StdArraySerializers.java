@@ -391,20 +391,20 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(int[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public final void serialize(int[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
             if (len == 1) {
                 if (((_unwrapSingle == null) &&
                         provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                         || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, jgen, provider);
+                    serializeContents(value, gen, provider);
                     return;
                 }
             }
-            jgen.writeStartArray(len);
-            serializeContents(value, jgen, provider);
-            jgen.writeEndArray();
+            // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
+            gen.setCurrentValue(value);
+            gen.writeArray(value, 0, value.length);
         }
 
         @Override

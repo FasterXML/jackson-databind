@@ -130,7 +130,7 @@ public class SettableAnyProperty
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NULL) {
-            return null;
+            return _valueDeserializer.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
             return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);

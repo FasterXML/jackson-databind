@@ -2,10 +2,11 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -23,11 +24,50 @@ public class TestNullHandling extends BaseMapTest
         public String getNullValue(DeserializationContext ctxt) { return "funny"; }
     }
 
+    static class AnySetter{
+
+        private Map<String,String> any = new HashMap<String,String>();
+
+        @JsonAnySetter
+        public void setAny(String name, String value){
+            this.any.put(name,value);
+        }
+
+        public Map<String,String> getAny(){
+            return this.any;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
+
+    public void testAnySetterNulls() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addDeserializer(String.class, new FunnyNullDeserializer());
+        mapper.registerModule(module);
+
+        String fieldName = "fieldName";
+        String nullValue = "{\""+fieldName+"\":null}";
+
+        // should get non-default null directly:
+        AnySetter result = mapper.readValue(nullValue, AnySetter.class);
+
+        assertEquals(1, result.getAny().size());
+        assertNotNull(result.getAny().get(fieldName));
+        assertEquals("funny", result.getAny().get(fieldName));
+
+        // as well as via ObjectReader
+        ObjectReader reader = mapper.readerFor(AnySetter.class);
+        result = reader.readValue(nullValue);
+
+        assertEquals(1, result.getAny().size());
+        assertNotNull(result.getAny().get(fieldName));
+        assertEquals("funny", result.getAny().get(fieldName));
+    }
 
     // Test for [JACKSON-643]
     public void testCustomRootNulls() throws Exception

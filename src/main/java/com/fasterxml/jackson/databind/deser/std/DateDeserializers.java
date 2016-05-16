@@ -153,9 +153,8 @@ public class DateDeserializers
                         try {
                             return _customFormat.parse(str);
                         } catch (ParseException e) {
-                            ctxt.reportWeirdStringException(str, handledType(),
+                            return (java.util.Date) ctxt.handleWeirdStringValue(handledType(), str,
                                     "expected format \"%s\"", _formatString);
-                            return null;
                         }
                     }
                 }

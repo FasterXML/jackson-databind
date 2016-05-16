@@ -191,9 +191,8 @@ public class EnumDeserializer
             return _enumDefaultValue;
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-            ctxt.reportWeirdStringException(name, _enumClass(),
+            return ctxt.handleWeirdStringValue(_enumClass(), name,
                     "value not one of declared Enum instance names: %s", lookup.keys());
-            // fall-through if not immediately thrown
         }
         return null;
     }

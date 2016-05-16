@@ -52,6 +52,25 @@ public class ProblemHandlerTest extends BaseMapTest
             return value;
         }
     }
+
+    static class WeirdStringHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+    
+        public WeirdStringHandler(Object v0) {
+            value = v0;
+        }
+    
+        @Override
+        public Object handleWeirdStringValue(DeserializationContext ctxt,
+                Class<?> targetType, String v,
+                String failureMsg)
+            throws IOException
+        {
+            return value;
+        }
+    }
     
     static class IntKeyMapWrapper {
         public Map<Integer,String> stuff;
@@ -110,6 +129,15 @@ public class ProblemHandlerTest extends BaseMapTest
             .addHandler(new WeirdNumberHandler(SingleValuedEnum.A))
             ;
         SingleValuedEnum result = mapper.readValue("3", SingleValuedEnum.class);
+        assertEquals(SingleValuedEnum.A, result);
+    }
+
+    public void testWeirdStringHandling() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
+            ;
+        SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
         assertEquals(SingleValuedEnum.A, result);
     }
 

@@ -105,7 +105,41 @@ public abstract class DeserializationProblemHandler
     }
 
     /**
-     * Method called when a number value (integral or floating-point from input
+     * Method called when a String value
+     * can not be converted to a non-String value type due to specific problem
+     * (as opposed to String values never being usable).
+     * Handler may choose to do one of 3 things:
+     *<ul>
+     * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
+     *  </li>
+     * <li>Throw a {@link IOException} to indicate specific fail message (instead of
+     *    standard exception caller would throw
+     *  </li>
+     * <li>Return actual converted value (of type <code>targetType</code>) to use as
+     *    replacement, and continue processing.
+     *  </li>
+     * </ul>
+     *
+     * @param failureMsg Message that will be used by caller (by calling
+     *    {@link DeserializationContext#weirdNumberException})
+     *    to indicate type of failure unless handler produces key to use
+     *
+     * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
+     *    what to do (and exception may be thrown), or value to use as key (possibly
+     *    <code>null</code>
+     *
+     * @since 2.8
+     */
+    public Object handleWeirdStringValue(DeserializationContext ctxt,
+            Class<?> targetType, String valueToConvert,
+            String failureMsg)
+        throws IOException
+    {
+        return NOT_HANDLED;
+    }
+    
+    /**
+     * Method called when a numeric value (integral or floating-point from input
      * can not be converted to a non-numeric value type due to specific problem
      * (as opposed to numeric values never being usable).
      * Handler may choose to do one of 3 things:
@@ -115,7 +149,7 @@ public abstract class DeserializationProblemHandler
      * <li>Throw a {@link IOException} to indicate specific fail message (instead of
      *    standard exception caller would throw
      *  </li>
-     * <li>Return actual converted value (of type <code>targetType</code> to use as
+     * <li>Return actual converted value (of type <code>targetType</code>) to use as
      *    replacement, and continue processing.
      *  </li>
      * </ul>

@@ -122,35 +122,36 @@ public class EnumMapDeserializer
      */
     
     @Override
-    public EnumMap<?,?> deserialize(JsonParser jp, DeserializationContext ctxt)
+    public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // Ok: must point to START_OBJECT
-        if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
-            return _deserializeFromEmpty(jp, ctxt);
+        if (p.getCurrentToken() != JsonToken.START_OBJECT) {
+            return _deserializeFromEmpty(p, ctxt);
         }
         EnumMap result = constructMap();
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        while ((jp.nextToken()) == JsonToken.FIELD_NAME) {
-            String keyName = jp.getCurrentName(); // just for error message
+        while ((p.nextToken()) == JsonToken.FIELD_NAME) {
+            String keyName = p.getCurrentName(); // just for error message
             // but we need to let key deserializer handle it separately, nonetheless
             Enum<?> key = (Enum<?>) _keyDeserializer.deserializeKey(keyName, ctxt);
             if (key == null) {
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                    ctxt.reportWeirdStringException(keyName, _enumClass, "value not one of declared Enum instance names for %s",
+                    return (EnumMap<?,?>) ctxt.handleWeirdStringValue(_enumClass, keyName,
+                            "value not one of declared Enum instance names for %s",
                             _mapType.getKeyType());
                 }
                 /* 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                  *  just skip the entry then. But we must skip the value as well, if so.
                  */
-                jp.nextToken();
-                jp.skipChildren();
+                p.nextToken();
+                p.skipChildren();
                 continue;
             }
             // And then the value...
-            JsonToken t = jp.nextToken();
+            JsonToken t = p.nextToken();
             /* note: MUST check for nulls separately: deserializers will
              * not handle them (and maybe fail or return bogus data)
              */
@@ -160,9 +161,9 @@ public class EnumMapDeserializer
                 if (t == JsonToken.VALUE_NULL) {
                     value = valueDes.getNullValue(ctxt);
                 } else if (typeDeser == null) {
-                    value =  valueDes.deserialize(jp, ctxt);
+                    value =  valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
             } catch (Exception e) {
                 wrapAndThrow(e, result, keyName);

@@ -81,7 +81,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             // For most types, use super impl; but GregorianCalendar also allows
             // integer value (timestamp), which needs separate handling
@@ -94,7 +94,8 @@ public class CoreXMLDeserializers extends Deserializers.Base
         }
 
         @Override
-        protected Object _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException
+        protected Object _deserialize(String value, DeserializationContext ctxt)
+            throws IOException
         {
             switch (_kind) {
             case TYPE_DURATION:

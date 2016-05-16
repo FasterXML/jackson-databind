@@ -879,6 +879,46 @@ public abstract class DeserializationContext
     }
 
     /**
+     * Method that deserializers should call if they encounter a String value
+     * that can not be converted to target property type, in cases where some
+     * String values could be acceptable (either with different settings,
+     * or different value).
+     * Default implementation will try to call {@link DeserializationProblemHandler#handleWeirdStringValue}
+     * on configured handlers, if any, to allow for recovery; if recovery does not
+     * succeed, will throw {@link InvalidFormatException} with given message.
+     *
+     * @param targetClass Type of property into which incoming number should be converted
+     * @param value String value from which to deserialize property value
+     * @param msg Error message template caller wants to use if exception is to be thrown
+     * @param msgArgs Optional arguments to use for message, if any
+     *
+     * @return Property value to use
+     *
+     * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
+     * 
+     * @since 2.8
+     */
+    public Object handleWeirdStringValue(Class<?> targetClass, String value,
+            String msg, Object... msgArgs)
+        throws IOException
+    {
+        // but if not handled, just throw exception
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            Object key = h.value().handleWeirdStringValue(this, targetClass, value, msg);
+            if (key != DeserializationProblemHandler.NOT_HANDLED) {
+                return key;
+            }
+            h = h.next();
+        }
+        throw weirdStringException(value, targetClass, msg);
+    }
+
+    /**
      * Method that deserializers should call if they encounter a numeric value
      * that can not be converted to target property type, in cases where some
      * numeric values could be acceptable (either with different settings,
@@ -917,7 +957,7 @@ public abstract class DeserializationContext
         }
         throw weirdNumberException(value, targetClass, msg);
     }
-    
+
     /**
      * @since 2.8
      */
@@ -995,19 +1035,6 @@ public abstract class DeserializationContext
             msg = String.format(msg, msgArgs);
         }
         throw instantiationException(instClass, msg);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public void reportWeirdStringException(String value, Class<?> instClass,
-            String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        throw weirdStringException(value, instClass, msg);
     }
 
     /**
@@ -1112,7 +1139,7 @@ public abstract class DeserializationContext
      * key type.
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleWeirdKey} should be called which will call this method
-     * if necessary, but may also use overrides.
+     * if necessary.
      */
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue,
             String msg) {
@@ -1124,7 +1151,31 @@ public abstract class DeserializationContext
 
     /**
      * Helper method for constructing exception to indicate that input JSON
+     * String was not suitable for deserializing into given target type.
+     * Note that most of the time this method should NOT be called; instead,
+     * {@link #handleWeirdStringValue} should be called which will call this method
+     * if necessary.
+     * 
+     * @param value String value from input being deserialized
+     * @param instClass Type that String should be deserialized into
+     * @param msg Message that describes specific problem
+     * 
+     * @since 2.1
+     */
+    public JsonMappingException weirdStringException(String value, Class<?> instClass,
+            String msg) {
+        return InvalidFormatException.from(_parser,
+                String.format("Can not deserialize value of type %s from String %s: %s",
+                        instClass.getName(), _quotedString(value), msg),
+                value, instClass);
+    }
+
+    /**
+     * Helper method for constructing exception to indicate that input JSON
      * Number was not suitable for deserializing into given target type.
+     * Note that most of the time this method should NOT be called; instead,
+     * {@link #handleWeirdNumberValue} should be called which will call this method
+     * if necessary.
      */
     public JsonMappingException weirdNumberException(Number value, Class<?> instClass,
             String msg) {
@@ -1135,9 +1186,12 @@ public abstract class DeserializationContext
     }
     
     /**
-     * Helper method for constructing exception to indicate that given JSON
-     * Object field name was not in format to be able to deserialize specified
-     * key type.
+     * Helper method for constructing exception to indicate that given type id
+     * could not be resolved to a valid subtype of specified base type, during
+     * polymorphic deserialization.
+     * Note that most of the time this method should NOT be called; instead,
+     * {@link #handleUnknownTypeId} should be called which will call this method
+     * if necessary.
      */
     public JsonMappingException unknownTypeIdException(JavaType baseType, String typeId,
             String extraDesc) {
@@ -1178,27 +1232,6 @@ public abstract class DeserializationContext
         return JsonMappingException.from(_parser,
                 String.format("Can not construct instance of %s: %s",
                         instClass.getName(), msg));
-    }
-
-    /**
-     * Method that will construct an exception suitable for throwing when
-     * some String values are acceptable, but the one encountered is not.
-     * 
-     * @param value String value from input being deserialized
-     * @param instClass Type that String should be deserialized into
-     * @param msg Message that describes specific problem
-     * 
-     * @since 2.1
-     *
-     * @deprecated Since 2.8 use {@link #reportWeirdStringException} instead
-     */
-    @Deprecated
-    public JsonMappingException weirdStringException(String value, Class<?> instClass,
-            String msg) {
-        return InvalidFormatException.from(_parser,
-                String.format("Can not deserialize value of type %s from String %s: %s",
-                        instClass.getName(), _quotedString(value), msg),
-                value, instClass);
     }
 
     /**

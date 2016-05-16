@@ -134,8 +134,8 @@ public class EnumDeserializationTest
             try {
                 return AnEnum.valueOf(value);
             } catch (IllegalArgumentException e) {
-                ctxt.reportWeirdStringException(value, AnEnum.class, "Undefined AnEnum code");
-                return null;
+                return (AnEnum) ctxt.handleWeirdStringValue(AnEnum.class, value,
+                        "Undefined AnEnum code");
             }
         }
     }

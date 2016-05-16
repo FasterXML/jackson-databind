@@ -131,7 +131,8 @@ public class AsArrayTypeDeserializer
             if (_defaultImpl != null) {
                 return _idResolver.idFromBaseType();
             }
-             ctxt.reportWrongTokenException(p, JsonToken.START_ARRAY, "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
+             ctxt.reportWrongTokenException(p, JsonToken.START_ARRAY,
+                     "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
              return null;
         }
         // And then type id as a String

@@ -1134,6 +1134,25 @@ public abstract class DeserializationContext
      */
 
     /**
+     * Helper method for constructing {@link JsonMappingException} to indicated
+     * that the token encountered was of type different than what <b>should</b>
+     * be seen at that position, usually within a sequence of expected tokens.
+     * Note that most of the time this method should NOT be directly called;
+     * instead, {@link #reportWrongTokenException} should be called and will
+     * call this method as necessary.
+     */
+    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken,
+            String msg0)
+    {
+        String msg = String.format("Unexpected token (%s), expected %s",
+                p.getCurrentToken(), expToken);
+        if (msg0 != null) {
+            msg = msg + ": "+msg0;
+        }
+        return JsonMappingException.from(p, msg);
+    }
+
+    /**
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
      * key type.
@@ -1232,22 +1251,6 @@ public abstract class DeserializationContext
         return JsonMappingException.from(_parser,
                 String.format("Can not construct instance of %s: %s",
                         instClass.getName(), msg));
-    }
-
-    /**
-     * Helper method for indicating that the current token was expected to be another
-     * token.
-     * 
-     * @deprecated Since 2.8 use {@link #reportWrongTokenException} instead
-     */
-    @Deprecated
-    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken, String msg0) {
-        String msg = String.format("Unexpected token (%s), expected %s",
-                p.getCurrentToken(), expToken);
-        if (msg0 != null) {
-            msg = msg + ": "+msg0;
-        }
-        return JsonMappingException.from(p, msg);
     }
 
     /**

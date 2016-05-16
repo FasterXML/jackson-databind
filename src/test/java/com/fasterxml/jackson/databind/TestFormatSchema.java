@@ -123,11 +123,6 @@ public class TestFormatSchema extends BaseMapTest
         public void setCodec(ObjectCodec c) { }
 
         @Override
-        protected boolean loadMore() throws IOException {
-            return false;
-        }
-
-        @Override
         protected void _closeInput() throws IOException {
         }
 

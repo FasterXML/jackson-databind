@@ -34,6 +34,25 @@ public class ProblemHandlerTest extends BaseMapTest
         }
     }
 
+    static class WeirdNumberHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+
+        public WeirdNumberHandler(Object v0) {
+            value = v0;
+        }
+
+        @Override
+        public Object handleWeirdNumberValue(DeserializationContext ctxt,
+                Class<?> targetType, Number n,
+                String failureMsg)
+            throws IOException
+        {
+            return value;
+        }
+    }
+    
     static class IntKeyMapWrapper {
         public Map<Integer,String> stuff;
     }
@@ -61,6 +80,10 @@ public class ProblemHandlerTest extends BaseMapTest
         public Base value;
     }
 
+    enum SingleValuedEnum {
+        A;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -79,6 +102,15 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(1, map.size());
         assertEquals("abc", map.values().iterator().next());
         assertEquals(Integer.valueOf(7), map.keySet().iterator().next());
+    }
+
+    public void testWeirdNumberHandling() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new WeirdNumberHandler(SingleValuedEnum.A))
+            ;
+        SingleValuedEnum result = mapper.readValue("3", SingleValuedEnum.class);
+        assertEquals(SingleValuedEnum.A, result);
     }
 
     public void testInvalidTypeId() throws Exception

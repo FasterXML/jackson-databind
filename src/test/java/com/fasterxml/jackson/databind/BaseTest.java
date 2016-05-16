@@ -290,22 +290,21 @@ public abstract class BaseTest
     }
 
     protected JsonParser createParserUsingReader(JsonFactory f, String input)
-        throws IOException, JsonParseException
+        throws IOException
     {
         return f.createParser(new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
-        throws IOException, JsonParseException
+        throws IOException
     {
         return createParserUsingStream(new JsonFactory(), input, encoding);
     }
 
     protected JsonParser createParserUsingStream(JsonFactory f,
-                                                 String input, String encoding)
-        throws IOException, JsonParseException
+            String input, String encoding)
+        throws IOException
     {
-
         /* 23-Apr-2008, tatus: UTF-32 is not supported by JDK, have to
          *   use our own codec too (which is not optimal since there's
          *   a chance both encoder and decoder might have bugs, but ones

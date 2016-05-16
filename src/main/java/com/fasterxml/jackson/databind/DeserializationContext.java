@@ -840,10 +840,12 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Method that deserializers should call if they encounter an unrecognized
-     * property (and once that is not explicitly designed as ignorable), to
-     * inform possibly configured {@link DeserializationProblemHandler}s and
-     * let it handle the problem.
+     * Method that deserializers should call if they encounter a String value
+     * that can not be converted to expected key of a {@link java.util.Map}
+     * valued property.
+     * Default implementation will try to call {@link DeserializationProblemHandler#handleWeirdNumberValue}
+     * on configured handlers, if any, to allow for recovery; if recovery does not
+     * succeed, will throw {@link InvalidFormatException} with given message.
      *
      * @param keyClass Expected type for key
      * @param keyValue String value from which to deserialize key
@@ -852,7 +854,7 @@ public abstract class DeserializationContext
      *
      * @return Key value to use
      *
-     * @throws IOException
+     * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
      * 
      * @since 2.8
      */
@@ -876,6 +878,46 @@ public abstract class DeserializationContext
         throw weirdKeyException(keyClass, keyValue, msg);
     }
 
+    /**
+     * Method that deserializers should call if they encounter a numeric value
+     * that can not be converted to target property type, in cases where some
+     * numeric values could be acceptable (either with different settings,
+     * or different numeric value).
+     * Default implementation will try to call {@link DeserializationProblemHandler#handleWeirdNumberValue}
+     * on configured handlers, if any, to allow for recovery; if recovery does not
+     * succeed, will throw {@link InvalidFormatException} with given message.
+     *
+     * @param targetClass Type of property into which incoming number should be converted
+     * @param value Number value from which to deserialize property value
+     * @param msg Error message template caller wants to use if exception is to be thrown
+     * @param msgArgs Optional arguments to use for message, if any
+     *
+     * @return Property value to use
+     *
+     * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
+     * 
+     * @since 2.8
+     */
+    public Object handleWeirdNumberValue(Class<?> targetClass, Number value,
+            String msg, Object... msgArgs)
+        throws IOException
+    {
+        // but if not handled, just throw exception
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            Object key = h.value().handleWeirdNumberValue(this, targetClass, value, msg);
+            if (key != DeserializationProblemHandler.NOT_HANDLED) {
+                return key;
+            }
+            h = h.next();
+        }
+        throw weirdNumberException(value, targetClass, msg);
+    }
+    
     /**
      * @since 2.8
      */
@@ -966,19 +1008,6 @@ public abstract class DeserializationContext
             msg = String.format(msg, msgArgs);
         }
         throw weirdStringException(value, instClass, msg);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public void reportWeirdNumberException(Number value, Class<?> instClass,
-            String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        throw weirdNumberException(value, instClass, msg);
     }
 
     /**
@@ -1081,6 +1110,9 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
      * key type.
+     * Note that most of the time this method should NOT be called; instead,
+     * {@link #handleWeirdKey} should be called which will call this method
+     * if necessary, but may also use overrides.
      */
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue,
             String msg) {
@@ -1090,6 +1122,18 @@ public abstract class DeserializationContext
                 keyValue, keyClass);
     }
 
+    /**
+     * Helper method for constructing exception to indicate that input JSON
+     * Number was not suitable for deserializing into given target type.
+     */
+    public JsonMappingException weirdNumberException(Number value, Class<?> instClass,
+            String msg) {
+        return InvalidFormatException.from(_parser,
+                String.format("Can not deserialize value of type %s from number %s: %s",
+                        instClass.getName(), String.valueOf(value), msg),
+                value, instClass);
+    }
+    
     /**
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
@@ -1154,21 +1198,6 @@ public abstract class DeserializationContext
         return InvalidFormatException.from(_parser,
                 String.format("Can not deserialize value of type %s from String %s: %s",
                         instClass.getName(), _quotedString(value), msg),
-                value, instClass);
-    }
-
-    /**
-     * Helper method for constructing exception to indicate that input JSON
-     * Number was not suitable for deserializing into given target type.
-     *
-     * @deprecated Since 2.8 use {@link #reportWeirdNumberException} instead
-     */
-    @Deprecated
-    public JsonMappingException weirdNumberException(Number value, Class<?> instClass,
-            String msg) {
-        return InvalidFormatException.from(_parser,
-                String.format("Can not deserialize value of type %s from number %s: %s",
-                        instClass.getName(), String.valueOf(value), msg),
                 value, instClass);
     }
 

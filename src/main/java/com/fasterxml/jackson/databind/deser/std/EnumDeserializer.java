@@ -132,8 +132,9 @@ public class EnumDeserializer
             // ... unless told not to do that
             int index = p.getIntValue();
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-                _failOnNumber(ctxt, p, index);
-                return null;
+                return ctxt.handleWeirdNumberValue(_enumClass(), index,
+                        "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
+                        );
             }
             if (index >= 0 && index <= _enumsByIndex.length) {
                 return _enumsByIndex[index];
@@ -143,10 +144,9 @@ public class EnumDeserializer
                 return _enumDefaultValue;
             }
             if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                ctxt.reportWeirdNumberException(index, _enumClass(),
+                return ctxt.handleWeirdNumberValue(_enumClass(), index,
                         "index value outside legal index range [0..%s]",
                         _enumsByIndex.length-1);
-                // fall through, if nothing thrown immediately
             }
             return null;
         }
@@ -172,13 +172,14 @@ public class EnumDeserializer
             char c = name.charAt(0);
             if (c >= '0' && c <= '9') {
                 try {
-                    int ix = Integer.parseInt(name);
+                    int index = Integer.parseInt(name);
                     if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-                        _failOnNumber(ctxt, p, ix);
-                        return null;
+                        return ctxt.handleWeirdNumberValue(_enumClass(), index,
+                                "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
+                                );
                     }
-                    if (ix >= 0 && ix <= _enumsByIndex.length) {
-                        return _enumsByIndex[ix];
+                    if (index >= 0 && index <= _enumsByIndex.length) {
+                        return _enumsByIndex[index];
                     }
                 } catch (NumberFormatException e) {
                     // fine, ignore, was not an integer
@@ -213,14 +214,6 @@ public class EnumDeserializer
         }
         ctxt.reportMappingException(_enumClass());
         return null;
-    }
-
-    protected void _failOnNumber(DeserializationContext ctxt, JsonParser p, int index)
-        throws IOException
-    {
-        ctxt.reportWeirdNumberException(index, _enumClass(),
-                "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
-                );
     }
 
     protected Class<?> _enumClass() {

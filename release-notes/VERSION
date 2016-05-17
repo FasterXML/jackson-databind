@@ -35,6 +35,7 @@ Project: jackson-databind
 #1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
  (reported by Lokesh K)
 #1221: Use `Throwable.addSuppressed()` directly and/or via try-with-resources
+#1232: Add support for `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
 
 2.7.5 (not yet released)
 

@@ -81,6 +81,11 @@ public class BuilderBasedDeserializer
         super(src, ignorableProps);
         _buildMethod = src._buildMethod;
     }
+
+    public BuilderBasedDeserializer(BuilderBasedDeserializer src, BeanPropertyMap props) {
+        super(src, props);
+        _buildMethod = src._buildMethod;
+    }
     
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
@@ -93,17 +98,22 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    public BuilderBasedDeserializer withObjectIdReader(ObjectIdReader oir) {
+    public BeanDeserializerBase withObjectIdReader(ObjectIdReader oir) {
         return new BuilderBasedDeserializer(this, oir);
     }
 
     @Override
-    public BuilderBasedDeserializer withIgnorableProperties(Set<String> ignorableProps) {
+    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps) {
         return new BuilderBasedDeserializer(this, ignorableProps);
     }
 
     @Override
-    protected BeanAsArrayBuilderDeserializer asArrayDeserializer() {
+    public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
+        return new BuilderBasedDeserializer(this, props);
+    }
+
+    @Override
+    protected BeanDeserializerBase asArrayDeserializer() {
         SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
         return new BeanAsArrayBuilderDeserializer(this, props, _buildMethod);
     }

@@ -24,12 +24,23 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
 
+    /**
+     * Introspected information about POJO for deserializer to handle
+     */
     final protected BeanDescription _beanDesc;
 
+    /**
+     * Whether default setting for properties without any view annotations
+     * is to include (true) or exclude (false).
+     */
     final protected boolean _defaultViewInclusion;
-    
+
+    /**
+     * Flag that indicates whether default settings suggest use of case-insensitive
+     * property comparison or not.
+     */
     final protected boolean _caseInsensitivePropertyComparison;
-    
+
     /*
     /**********************************************************
     /* Accumulated information about properties
@@ -63,6 +74,10 @@ public class BeanDeserializerBuilder
      */
     protected ValueInstantiator _valueInstantiator;
 
+    /**
+     * Handler for Object Id values, if Object Ids are enabled for the
+     * bean type.
+     */
     protected ObjectIdReader _objectIdReader;
     
     /**
@@ -88,7 +103,7 @@ public class BeanDeserializerBuilder
      * In addition, Builder may have additional configuration
      */
     protected JsonPOJOBuilder.Value _builderConfig;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: construction
@@ -309,9 +324,6 @@ public class BeanDeserializerBuilder
     /**
      * Method for constructing a {@link BeanDeserializer}, given all
      * information collected.
-     *<p>
-     * NOTE: Signature of this method did unfortunately change between Jackson 2.1
-     * and Jackson 2.2
      */
     public JsonDeserializer<?> build()
     {
@@ -342,7 +354,7 @@ public class BeanDeserializerBuilder
             ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED);
             propertyMap = propertyMap.withProperty(prop);
         }
-        
+
         return new BeanDeserializer(this,
                 _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 anyViews);

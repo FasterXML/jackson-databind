@@ -385,6 +385,36 @@ public abstract class BeanDeserializerBase
         _beanProperties = src._beanProperties.withoutProperties(ignorableProps);
     }
 
+    /**
+     * @since 2.8
+     */
+    protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)
+    {
+        super(src._beanType);
+        
+        _classAnnotations = src._classAnnotations;
+        _beanType = src._beanType;
+        
+        _valueInstantiator = src._valueInstantiator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        
+        _beanProperties = beanProps;
+        _backRefs = src._backRefs;
+        _ignorableProps = src._ignorableProps;
+        _ignoreAllUnknown = src._ignoreAllUnknown;
+        _anySetter = src._anySetter;
+        _injectables = src._injectables;
+        _objectIdReader = src._objectIdReader;
+        
+        _nonStandardCreation = src._nonStandardCreation;
+        _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _needViewProcesing = src._needViewProcesing;
+        _serializationShape = src._serializationShape;
+
+        _vanillaProcessing = src._vanillaProcessing;
+    }
+    
     @Override
     public abstract JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper);
 
@@ -392,6 +422,17 @@ public abstract class BeanDeserializerBase
 
     public abstract BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps);
 
+    /**
+     * Mutant factory method that custom sub-classes must override; not left as
+     * abstract to prevent more drastic backwards compatibility problems.
+     *
+     * @since 2.8
+     */
+    public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
+        throw new UnsupportedOperationException("Class "+getClass().getName()
+                +" does not override `withBeanProperties()`, needs to");
+    }
+    
     /**
      * Fluent factory for creating a variant that can handle
      * POJO output as a JSON Array. Implementations may ignore this request
@@ -690,9 +731,22 @@ public abstract class BeanDeserializerBase
         // One more thing: are we asked to serialize POJO as array?
         JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         JsonFormat.Shape shape = null;
-        if ((format != null) && format.hasShape()) {
-            shape = format.getShape();
+        if (format != null) {
+            if (format.hasShape()) {
+                shape = format.getShape();
+            }
+            // 16-May-2016, tatu: How about per-property case-insensitivity?
+            Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+            if (B != null) {
+                // !!! TODO
+                BeanPropertyMap propsOrig = _beanProperties;
+                BeanPropertyMap props = propsOrig.withCaseInsensitivity(B.booleanValue());
+                if (props != propsOrig) {
+                    contextual = contextual.withBeanProperties(props);
+                }
+            }
         }
+
         if (shape == null) {
             shape = _serializationShape;
         }

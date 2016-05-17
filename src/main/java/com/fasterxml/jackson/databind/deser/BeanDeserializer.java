@@ -72,6 +72,10 @@ public class BeanDeserializer
         super(src, ignorableProps);
     }
 
+    public BeanDeserializer(BeanDeserializerBase src, BeanPropertyMap props) {
+        super(src, props);
+    }
+
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
@@ -99,11 +103,16 @@ public class BeanDeserializer
     }
 
     @Override
+    public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
+        return new BeanDeserializer(this, props);
+    }
+
+    @Override
     protected BeanDeserializerBase asArrayDeserializer() {
         SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
         return new BeanAsArrayDeserializer(this, props);
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializer implementation

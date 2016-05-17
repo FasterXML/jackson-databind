@@ -61,7 +61,34 @@ public class BeanPropertyMap
         _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
         init(props);
     }
-    
+
+    /**
+     * @since 2.8
+     */
+    protected BeanPropertyMap(BeanPropertyMap base, boolean caseInsensitive)
+    {
+        _caseInsensitive = caseInsensitive;
+
+        // 16-May-2016, tatu: Alas, not enough to just change flag, need to re-init
+        //    as well.
+        _propsInOrder = Arrays.copyOf(base._propsInOrder, base._propsInOrder.length);
+        init(Arrays.asList(_propsInOrder));
+    }
+
+    /**
+     * Mutant factory method that constructs a new instance if desired case-insensitivity
+     * state differs from the state of this instance; if states are the same, returns
+     * <code>this</code>.
+     *
+     * @since 2.8
+     */
+    public BeanPropertyMap withCaseInsensitivity(boolean state) {
+        if (_caseInsensitive == state) {
+            return this;
+        }
+        return new BeanPropertyMap(this, state);
+    }
+
     protected void init(Collection<SettableBeanProperty> props)
     {
         _size = props.size();
@@ -346,7 +373,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         if (_caseInsensitive) {
             key = key.toLowerCase();
         }
-
+            
         // inlined `_hashCode(key)`
         int slot = key.hashCode() & _hashMask;
 //        int h = key.hashCode();

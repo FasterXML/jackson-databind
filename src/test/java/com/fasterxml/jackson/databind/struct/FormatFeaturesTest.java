@@ -26,7 +26,7 @@ public class FormatFeaturesTest extends BaseMapTest
 
         public boolean[] bools = new boolean[] { true };
     }
-    
+
     @JsonPropertyOrder( { "strings", "ints", "bools", "enums" })
     static class WrapWriteWithCollections
     {
@@ -87,6 +87,12 @@ public class FormatFeaturesTest extends BaseMapTest
     static class Role {
         public String ID;
         public String Name;
+    }
+
+    static class CaseInsensitiveRoleWrapper
+    {
+        @JsonFormat(with={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES })
+        public Role role;
     }
 
     /*
@@ -208,10 +214,20 @@ public class FormatFeaturesTest extends BaseMapTest
     }
 
     public void testSingleEnumSetRead() throws Exception {
-        String json = aposToQuotes("{ 'values': 'B' }");
-        EnumSetWrapper result = MAPPER.readValue(json, EnumSetWrapper.class);
+        EnumSetWrapper result = MAPPER.readValue(aposToQuotes("{ 'values': 'B' }"),
+                EnumSetWrapper.class);
         assertNotNull(result.values);
         assertEquals(1, result.values.size());
         assertEquals(ABC.B, result.values.iterator().next());
+    }
+
+    // [databind#1232]: allow per-property case-insensitivity
+    public void testCaseInsensitive() throws Exception {
+        CaseInsensitiveRoleWrapper w = MAPPER.readValue
+                (aposToQuotes("{'role':{'id':'12','name':'Foo'}}"),
+                        CaseInsensitiveRoleWrapper.class);
+        assertNotNull(w);
+        assertEquals("12", w.role.ID);
+        assertEquals("Foo", w.role.Name);
     }
 }

@@ -60,17 +60,23 @@ public class BeanAsArrayDeserializer
     }
 
     @Override
-    public BeanAsArrayDeserializer withObjectIdReader(ObjectIdReader oir) {
+    public BeanDeserializerBase withObjectIdReader(ObjectIdReader oir) {
         return new BeanAsArrayDeserializer(_delegate.withObjectIdReader(oir),
                 _orderedProperties);
     }
 
     @Override
-    public BeanAsArrayDeserializer withIgnorableProperties(Set<String> ignorableProps) {
+    public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps) {
         return new BeanAsArrayDeserializer(_delegate.withIgnorableProperties(ignorableProps),
                 _orderedProperties);
     }
 
+    @Override
+    public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
+        return new BeanAsArrayDeserializer(_delegate.withBeanProperties(props),
+                _orderedProperties);
+    }
+    
     @Override
     protected BeanDeserializerBase asArrayDeserializer() {
         return this;

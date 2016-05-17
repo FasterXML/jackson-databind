@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.misc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 
-public class CaseInsensitiveDeser extends BaseMapTest
+public class CaseInsensitiveDeserTest extends BaseMapTest
 {
     // [databind#1036]
     static class BaseResponse {
@@ -45,7 +45,7 @@ public class CaseInsensitiveDeser extends BaseMapTest
     // [databind#566]
     public void testCaseInsensitiveDeserialization() throws Exception
     {
-     final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";
+        final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";
         
         // first, verify default settings which do not accept improper case
         ObjectMapper mapper = new ObjectMapper();
@@ -62,7 +62,7 @@ public class CaseInsensitiveDeser extends BaseMapTest
 
         // Definitely not OK to enable dynamically - the BeanPropertyMap (which is the consumer of this particular feature) gets cached.
         mapper = new ObjectMapper();
-        mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
         ObjectReader r = mapper.readerFor(Issue476Bean.class);
         Issue476Bean result = r.readValue(JSON);
         assertEquals(result.value1.name, "fruit");

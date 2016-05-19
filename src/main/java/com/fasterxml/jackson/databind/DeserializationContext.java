@@ -959,6 +959,23 @@ public abstract class DeserializationContext
     }
 
     /**
+     * Method that deserializers should call if they encounter a type id
+     * (for polymorphic deserialization) that can not be resolved to an
+     * actual type; usually since there is no mapping defined.
+     * Default implementation will try to call {@link DeserializationProblemHandler#handleUnknownTypeId}
+     * on configured handlers, if any, to allow for recovery; if recovery does not
+     * succeed, will throw exception constructed with {@link #unknownTypeIdException}.
+     *
+     * @param baseType Base type from which resolution starts
+     * @param id Type id that could not be converted
+     * @param extraDesc Additional problem description to add to default exception message,
+     *    if resolution fails.
+     *
+     * @return {@link JavaType} that id resolves to
+     *
+     * @throws IOException To indicate unrecoverable problem, if resolution can not
+     *    be made to work
+     *
      * @since 2.8
      */
     public JavaType handleUnknownTypeId(JavaType baseType, String id,
@@ -982,6 +999,43 @@ public abstract class DeserializationContext
             h = h.next();
         }
         throw unknownTypeIdException(baseType, id, extraDesc);
+    }
+
+    /**
+     * Method that deserializers should call if they fail to instantiate value
+     * due to an exception that was thrown by constructor (or other mechanism used
+     * to create instances).
+     * Default implementation will try to call {@link DeserializationProblemHandler#handleInstantiationProblem}
+     * on configured handlers, if any, to allow for recovery; if recovery does not
+     * succeed, will throw exception constructed with {@link #instantiationException}.
+     *
+     * @param instClass Type that was to be instantiated
+     * @param argument (optional) Argument that was passed to constructor or equivalent
+     *    instantiator; often a {@link java.lang.String}.
+     * @param t Exception that caused failure
+     *
+     * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
+     *
+     * @since 2.8
+     */
+    public Object handleInstantiationProblem(Class<?> instClass, Object argument,
+            Throwable t)
+        throws IOException
+    {
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            Object key = h.value().handleInstantiationProblem(this, instClass, argument, t);
+            if (key != DeserializationProblemHandler.NOT_HANDLED) {
+                return key;
+            }
+            h = h.next();
+        }
+        // 18-May-2016, tatu: Only wrap if not already a valid type to throw
+        if (t instanceof IOException) {
+            throw (IOException) t;
+        }
+        throw instantiationException(instClass, t);
     }
 
     /*
@@ -1013,15 +1067,6 @@ public abstract class DeserializationContext
         Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
         throw UnrecognizedPropertyException.from(_parser,
                 instanceOrClass, fieldName, propIds);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public void reportInstantiationException(Class<?> instClass, Throwable t)
-        throws JsonMappingException
-    {
-        throw instantiationException(instClass, t);
     }
 
     /**

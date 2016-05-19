@@ -242,7 +242,8 @@ public class StdValueInstantiator
         try {
             return _defaultCreator.call();
         } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
+            return ctxt.handleInstantiationProblem(_defaultCreator.getDeclaringClass(),
+                    null, rewrapCtorProblem(ctxt, t));
         }
     }
     
@@ -255,7 +256,8 @@ public class StdValueInstantiator
         try {
             return _withArgsCreator.call(args);
         } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
+            return ctxt.handleInstantiationProblem(_withArgsCreator.getDeclaringClass(),
+                    args, rewrapCtorProblem(ctxt, t));
         }
     }
 
@@ -290,24 +292,33 @@ public class StdValueInstantiator
         try {
             return _fromStringCreator.call1(value);
         } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
+            return ctxt.handleInstantiationProblem(_fromStringCreator.getDeclaringClass(),
+                    value, rewrapCtorProblem(ctxt, t));
         }
     }
     
     @Override
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException
     {
-        try {
-            // First: "native" int methods work best:
-            if (_fromIntCreator != null) {
-                return _fromIntCreator.call1(Integer.valueOf(value));
+        // First: "native" int methods work best:
+        if (_fromIntCreator != null) {
+            Object arg = Integer.valueOf(value);
+            try {
+                return _fromIntCreator.call1(arg);
+            } catch (Throwable t0) {
+                return ctxt.handleInstantiationProblem(_fromIntCreator.getDeclaringClass(),
+                        arg, rewrapCtorProblem(ctxt, t0));
             }
-            // but if not, can do widening conversion
-            if (_fromLongCreator != null) {
-                return _fromLongCreator.call1(Long.valueOf(value));
+        }
+        // but if not, can do widening conversion
+        if (_fromLongCreator != null) {
+            Object arg = Long.valueOf(value);
+            try {
+                return _fromLongCreator.call1(arg);
+            } catch (Throwable t0) {
+                return ctxt.handleInstantiationProblem(_fromLongCreator.getDeclaringClass(),
+                        arg, rewrapCtorProblem(ctxt, t0));
             }
-        } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
         }
         ctxt.reportMappingException("Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
                 getValueTypeDesc(), value);
@@ -323,10 +334,12 @@ public class StdValueInstantiator
                     getValueTypeDesc(), value);
             return null;
         }
+        Object arg = Long.valueOf(value);
         try {
-            return _fromLongCreator.call1(Long.valueOf(value));
-        } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
+            return _fromLongCreator.call1(arg);
+        } catch (Throwable t0) {
+            return ctxt.handleInstantiationProblem(_fromLongCreator.getDeclaringClass(),
+                    arg, rewrapCtorProblem(ctxt, t0));
         }
     }
 
@@ -339,10 +352,12 @@ public class StdValueInstantiator
                     getValueTypeDesc(), value);
             return null;
         }
+        Object arg = Double.valueOf(value);
         try {
-            return _fromDoubleCreator.call1(Double.valueOf(value));
-        } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
+            return _fromDoubleCreator.call1(arg);
+        } catch (Throwable t0) {
+            return ctxt.handleInstantiationProblem(_fromDoubleCreator.getDeclaringClass(),
+                    arg, rewrapCtorProblem(ctxt, t0));
         }
     }
 
@@ -355,10 +370,12 @@ public class StdValueInstantiator
                     getValueTypeDesc(), value);
             return null;
         }
+        final Boolean arg = Boolean.valueOf(value);
         try {
-            return _fromBooleanCreator.call1(Boolean.valueOf(value));
-        } catch (Throwable t) {
-            throw rewrapCtorProblem(ctxt, t);
+            return _fromBooleanCreator.call1(arg);
+        } catch (Throwable t0) {
+            return ctxt.handleInstantiationProblem(_fromBooleanCreator.getDeclaringClass(),
+                    arg, rewrapCtorProblem(ctxt, t0));
         }
     }
     

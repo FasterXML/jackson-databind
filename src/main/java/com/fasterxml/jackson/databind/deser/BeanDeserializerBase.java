@@ -1320,8 +1320,7 @@ public abstract class BeanDeserializerBase
                 }
                 return bean;
             } catch (Exception e) {
-                wrapInstantiationProblem(e, ctxt);
-                return null;
+                return wrapInstantiationProblem(e, ctxt);
             }
         }
         // fallback to non-array delegate
@@ -1612,7 +1611,7 @@ public abstract class BeanDeserializerBase
         return t;
     }
 
-    protected void wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
+    protected Object wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
         throws IOException
     {
         while (t instanceof InvocationTargetException && t.getCause() != null) {
@@ -1631,7 +1630,6 @@ public abstract class BeanDeserializerBase
                 throw (RuntimeException) t;
             }
         }
-        ctxt.reportInstantiationException(_beanType.getRawClass(), t);
-        // may return here, if exceptions are deferred...
+        return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }
 }

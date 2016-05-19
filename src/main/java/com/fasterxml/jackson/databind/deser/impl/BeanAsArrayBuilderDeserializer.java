@@ -92,11 +92,10 @@ public class BeanAsArrayBuilderDeserializer
         try {
             return _buildMethod.getMember().invoke(builder);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null;
+            return wrapInstantiationProblem(e, ctxt);
         }
     }
-    
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
@@ -353,8 +352,7 @@ public class BeanAsArrayBuilderDeserializer
             try {
                 builder = creator.build(ctxt, buffer);
             } catch (Exception e) {
-                wrapInstantiationProblem(e, ctxt);
-                return null; // never gets here
+                return wrapInstantiationProblem(e, ctxt);
             }
         }
         return builder;

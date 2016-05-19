@@ -350,8 +350,7 @@ public class BeanAsArrayDeserializer
             try {
                 bean = creator.build(ctxt, buffer);
             } catch (Exception e) {
-                wrapInstantiationProblem(e, ctxt);
-                return null; // never gets here
+                return wrapInstantiationProblem(e, ctxt);
             }
         }
         return bean;

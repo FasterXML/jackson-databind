@@ -394,8 +394,7 @@ public class BeanDeserializer
                     try {
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapInstantiationProblem(e, ctxt);
-                        bean = null; // never gets here
+                        bean = wrapInstantiationProblem(e, ctxt);
                     }
                     if (bean == null) {
                         ctxt.reportInstantiationException(_beanType.getRawClass(),
@@ -686,8 +685,7 @@ public class BeanDeserializer
                     try {
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapInstantiationProblem(e, ctxt);
-                        continue; // never gets here
+                        bean = wrapInstantiationProblem(e, ctxt);
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.setCurrentValue(bean);
@@ -905,8 +903,7 @@ public class BeanDeserializer
         try {
             return ext.complete(p, ctxt, buffer, creator);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null; // never gets here
+            return wrapInstantiationProblem(e, ctxt);
         }
     }
 }

@@ -137,7 +137,7 @@ public abstract class DeserializationProblemHandler
     {
         return NOT_HANDLED;
     }
-    
+
     /**
      * Method called when a numeric value (integral or floating-point from input
      * can not be converted to a non-numeric value type due to specific problem
@@ -171,7 +171,41 @@ public abstract class DeserializationProblemHandler
     {
         return NOT_HANDLED;
     }
-    
+
+    /**
+     * Method called when instance creation for a type fails due to an exception.
+     * Handler may choose to do one of following things:
+     *<ul>
+     * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
+     *  </li>
+     * <li>Throw a {@link IOException} to indicate specific fail message (instead of
+     *    standard exception caller would throw
+     *  </li>
+     * <li>Return actual instantiated value (of type <code>targetType</code>) to use as
+     *    replacement, and continue processing.
+     *  </li>
+     * <li>Return <code>null</code> to use null as value but not to try further
+     *   processing (in cases where properties would otherwise be bound)
+     *  </li>
+     * </ul>
+     *
+     * @param instClass Type that was to be instantiated
+     * @param argument (optional) Additional argument that was passed to creator, if any
+     * @param t Exception that caused instantiation failure
+     *
+     * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
+     *    what to do (and exception may be thrown), or value to use as key (possibly
+     *    <code>null</code>
+     *
+     * @since 2.8
+     */
+    public Object handleInstantiationProblem(DeserializationContext ctxt,
+            Class<?> instClass, Object argument, Throwable t)
+        throws IOException
+    {
+        return NOT_HANDLED;
+    }
+
     /**
      * Handler method called if resolution of type id from given String failed
      * to produce a subtype; usually because logical id is not mapped to actual

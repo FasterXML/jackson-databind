@@ -133,7 +133,6 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 }
             }
             // 05-May-2016, tatu: Unlike most usage, this seems legit, so...
-            @SuppressWarnings("deprecation")
             JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
             if (cause != null) {
                 e.initCause(cause);
@@ -219,8 +218,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 try {
                     return ctxt.findClass(value);
                 } catch (Exception e) {
-                    ctxt.reportInstantiationException(_valueClass, ClassUtil.getRootCause(e));
-                    return null;
+                    return ctxt.handleInstantiationProblem(_valueClass, value,
+                            ClassUtil.getRootCause(e));
                 }
             case STD_JAVA_TYPE:
                 return ctxt.getTypeFactory().constructFromCanonical(value);

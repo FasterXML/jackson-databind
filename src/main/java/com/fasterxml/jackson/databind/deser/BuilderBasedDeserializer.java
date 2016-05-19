@@ -134,8 +134,7 @@ public class BuilderBasedDeserializer
         try {
             return _buildMethod.getMember().invoke(builder);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null;
+            return wrapInstantiationProblem(e, ctxt);
         }
     }
     
@@ -402,8 +401,7 @@ public class BuilderBasedDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null; // never gets here
+            bean = wrapInstantiationProblem(e, ctxt);
         }
         if (unknown != null) {
             // polymorphic?
@@ -636,8 +634,7 @@ public class BuilderBasedDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null; // never gets here
+            return wrapInstantiationProblem(e, ctxt);
         }
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
     }

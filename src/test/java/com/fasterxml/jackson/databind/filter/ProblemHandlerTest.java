@@ -71,6 +71,24 @@ public class ProblemHandlerTest extends BaseMapTest
             return value;
         }
     }
+
+    static class InstantiationProblemHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+    
+        public InstantiationProblemHandler(Object v0) {
+            value = v0;
+        }
+    
+        @Override
+        public Object handleInstantiationProblem(DeserializationContext ctxt,
+                Class<?> instClass, Object argument, Throwable t)
+            throws IOException
+        {
+            return value;
+        }
+    }
     
     static class IntKeyMapWrapper {
         public Map<Integer,String> stuff;
@@ -103,6 +121,15 @@ public class ProblemHandlerTest extends BaseMapTest
         A;
     }
 
+    static class BustedCtor {
+        public final static BustedCtor INST = new BustedCtor(true);
+
+        public BustedCtor() {
+            throw new RuntimeException("Fail!");
+        }
+        private BustedCtor(boolean b) { }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -162,5 +189,14 @@ public class ProblemHandlerTest extends BaseMapTest
             assertEquals(Base.class, e.getBaseType().getRawClass());
             assertEquals("foo", e.getTypeId());
         }
+    }
+
+    public void testInstantiationExceptionHandling() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new InstantiationProblemHandler(BustedCtor.INST));
+        BustedCtor w = mapper.readValue("{ }",
+                BustedCtor.class);
+        assertNotNull(w);
     }
 }

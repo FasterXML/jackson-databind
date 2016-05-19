@@ -1,33 +1,40 @@
 package com.fasterxml.jackson.databind.ext;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+
 /**
- *
+ * @since 2.8
  */
-public class NioPathDeserializer extends JsonDeserializer<Path> {
+public class NioPathDeserializer extends StdScalarDeserializer<Path>
+{
+    private static final long serialVersionUID = 1;
+
+    public NioPathDeserializer() { super(Path.class); }
+
     @Override
     public Path deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        if (p.getCurrentToken() == JsonToken.VALUE_NULL) {
-            return null;
-        } else if (p.getCurrentToken() != JsonToken.VALUE_STRING) {
-            throw ctxt.wrongTokenException(p, JsonToken.VALUE_STRING, "The value of a java.nio.file.Path must be a string");
+        if (!p.hasToken(JsonToken.VALUE_STRING)) {
+// 19-May-2016, tatu: Need to rework as part of exception handling improvements for 2.8;
+//    for now use simpler call only because `wrongTokenException()` will mean something
+//    different, and mismatch will need different call
+//            throw ctxt.wrongTokenException(p, JsonToken.VALUE_STRING, "The value of a java.nio.file.Path must be a string");
+            ctxt.reportMappingException(Path.class, p.getCurrentToken());
         }
-        URI uri;
+        final String value = p.getText();
         try {
-            uri = new URI(p.readValueAs(String.class));
+            URI uri = new URI(value);
+            return Paths.get(uri);
         } catch (URISyntaxException e) {
-            throw ctxt.instantiationException(Path.class, e);
+            return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }
-        return Paths.get(uri);
     }
 }

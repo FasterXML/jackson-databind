@@ -871,7 +871,13 @@ public abstract class DeserializationContext
             // Can bail out if it's handled
             Object key = h.value().handleWeirdKey(this, keyClass, keyValue, msg);
             if (key != DeserializationProblemHandler.NOT_HANDLED) {
-                return key;
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if ((key == null) || keyClass.isInstance(key)) {
+                    return key;
+                }
+                throw weirdStringException(keyValue, keyClass, String.format(
+                        "DeserializationProblemHandler.handleWeirdStringValue() for type %s returned value of type %s",
+                        keyClass, key.getClass()));
             }
             h = h.next();
         }
@@ -909,9 +915,15 @@ public abstract class DeserializationContext
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
-            Object key = h.value().handleWeirdStringValue(this, targetClass, value, msg);
-            if (key != DeserializationProblemHandler.NOT_HANDLED) {
-                return key;
+            Object instance = h.value().handleWeirdStringValue(this, targetClass, value, msg);
+            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if ((instance == null) || targetClass.isInstance(instance)) {
+                    return instance;
+                }
+                throw weirdStringException(value, targetClass, String.format(
+                        "DeserializationProblemHandler.handleWeirdStringValue() for type %s returned value of type %s",
+                        targetClass, instance.getClass()));
             }
             h = h.next();
         }
@@ -951,7 +963,13 @@ public abstract class DeserializationContext
             // Can bail out if it's handled
             Object key = h.value().handleWeirdNumberValue(this, targetClass, value, msg);
             if (key != DeserializationProblemHandler.NOT_HANDLED) {
-                return key;
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if ((key == null) || targetClass.isInstance(key)) {
+                    return key;
+                }
+                throw weirdNumberException(value, targetClass, String.format(
+                        "DeserializationProblemHandler.handleWeirdNumberValue() for type %s returned value of type %s",
+                        targetClass, key.getClass()));
             }
             h = h.next();
         }
@@ -1025,9 +1043,15 @@ public abstract class DeserializationContext
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
-            Object key = h.value().handleInstantiationProblem(this, instClass, argument, t);
-            if (key != DeserializationProblemHandler.NOT_HANDLED) {
-                return key;
+            Object instance = h.value().handleInstantiationProblem(this, instClass, argument, t);
+            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if ((instance == null) || instClass.isInstance(instance)) {
+                    return instance;
+                }
+                throw instantiationException(instClass, String.format(
+                        "DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
+                        instClass, instance.getClass()));
             }
             h = h.next();
         }

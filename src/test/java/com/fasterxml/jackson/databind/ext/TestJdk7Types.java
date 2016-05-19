@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.ext;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.*;
+
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 
@@ -28,5 +28,6 @@ public class TestJdk7Types extends BaseMapTest
         
         assertEquals(input.toUri(), p.toUri());
         assertEquals(input, p);
+        fs.close();
     }
 }

@@ -147,6 +147,8 @@ Benson Margulies:
    (2.6.3)
   * Reported #1120: String value omitted from weirdStringException
    (2.6.6)
+  * Reported, fixed #1235: `java.nio.file.Path` support incomplete
+   (2.8.0)
 
 Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK

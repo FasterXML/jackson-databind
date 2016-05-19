@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * Helper class used for isolating details of handling optional+external types

@@ -9,6 +9,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
+/**
+ * Obsolete deserializer for Java.nio.file.Path that only handles the default file system.
+ */
+@Deprecated
 public class Java7PathDeserializer extends StdScalarDeserializer<Path>
 {
     private static final long serialVersionUID = 1;

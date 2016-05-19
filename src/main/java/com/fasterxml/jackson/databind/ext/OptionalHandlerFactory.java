@@ -85,9 +85,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
         final Class<?> rawType = type.getRawClass();
 
         if (_jdk7Helper != null) {
-            Class<?> path = _jdk7Helper.getClassJavaNioFilePath();
-            if (path.isAssignableFrom(rawType)) {
-                return ToStringSerializer.instance;
+            JsonSerializer<?> ser = _jdk7Helper.getSerializerForJavaNioFilePath(rawType);
+            if (ser != null) {
+                return ser;
             }
         }
         if ((CLASS_DOM_NODE != null) && CLASS_DOM_NODE.isAssignableFrom(rawType)) {

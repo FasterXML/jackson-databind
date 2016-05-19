@@ -1,9 +1,12 @@
 package com.fasterxml.jackson.databind.ext;
 
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.*;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 
 /**
  * @since 2.7
@@ -13,9 +16,9 @@ public class TestJdk7Types extends BaseMapTest
     public void testPathRoundtrip() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-    
-        // Start with serialization, actually
-        Path input = Paths.get("tmp", "foo.txt");
+
+        FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
+        Path input = fs.getPath("/tmp", "foo.txt");
 
         String json = mapper.writeValueAsString(input);
         assertNotNull(json);
@@ -24,5 +27,6 @@ public class TestJdk7Types extends BaseMapTest
         assertNotNull(p);
         
         assertEquals(input.toUri(), p.toUri());
+        assertEquals(input, p);
     }
 }

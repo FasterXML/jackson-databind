@@ -847,10 +847,19 @@ public abstract class AnnotationIntrospector
                 //    static typing this way
                 type = type.withStaticTyping();
             } else {
+                Class<?> currRaw = type.getRawClass();
                 try {
                     // 11-Oct-2015, tatu: For deser, we call `TypeFactory.constructSpecializedType()`,
                     //   may be needed here too in future?
-                    type = tf.constructGeneralizedType(type, serClass);
+                    if (serClass.isAssignableFrom(currRaw)) { // common case
+                        type = tf.constructGeneralizedType(type, serClass);
+                    } else if (currRaw.isAssignableFrom(serClass)) { // specialization, ok as well
+                        type = tf.constructSpecializedType(type, serClass);
+                    } else {
+                        throw new JsonMappingException(null,
+                                String.format("Can not refine serialization type %s into %s; types not related",
+                                        type, serClass.getName()));
+                    }
                 } catch (IllegalArgumentException iae) {
                     throw new JsonMappingException(null,
                             String.format("Failed to widen type %s with annotation (value %s), from '%s': %s",
@@ -869,8 +878,20 @@ public abstract class AnnotationIntrospector
                 if (keyType.hasRawClass(keyClass)) {
                     keyType = keyType.withStaticTyping();
                 } else {
+                    Class<?> currRaw = keyType.getRawClass();
                     try {
-                        keyType = tf.constructGeneralizedType(keyType, keyClass);
+                        // 19-May-2016, tatu: As per [databind#1231], [databind#1178] may need to actually
+                        //   specialize (narrow) type sometimes, even if more commonly opposite
+                        //   is needed.
+                        if (keyClass.isAssignableFrom(currRaw)) { // common case
+                            keyType = tf.constructGeneralizedType(keyType, keyClass);
+                        } else if (currRaw.isAssignableFrom(keyClass)) { // specialization, ok as well
+                            keyType = tf.constructSpecializedType(keyType, keyClass);
+                        } else {
+                            throw new JsonMappingException(null,
+                                    String.format("Can not refine serialization key type %s into %s; types not related",
+                                            keyType, keyClass.getName()));
+                        }
                     } catch (IllegalArgumentException iae) {
                         throw new JsonMappingException(null,
                                 String.format("Failed to widen key type of %s with concrete-type annotation (value %s), from '%s': %s",

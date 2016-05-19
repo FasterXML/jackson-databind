@@ -46,6 +46,8 @@ Project: jackson-databind
  (reported by Nick B)
 #1228: @JsonAnySetter does not deserialize null to Deserializer's NullValue
  (contributed by Eric S)
+#1231: `@JsonSerialize(as=superType)` behavior disallowed in 2.7.4
+ (reported by Mark W)
 
 2.7.4 (29-Apr-2016)
 

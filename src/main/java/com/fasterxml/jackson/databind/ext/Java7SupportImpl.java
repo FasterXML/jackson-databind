@@ -5,6 +5,7 @@ import java.beans.Transient;
 import java.nio.file.Path;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -33,11 +34,19 @@ public class Java7SupportImpl extends Java7Support
     @Override
     public JsonDeserializer<?> getDeserializerForJavaNioFilePath(Class<?> rawType) {
         if (rawType == Path.class) {
-            return new Java7PathDeserializer();
+            return new NioPathDeserializer();
         }
         return null;
     }
-    
+
+    @Override
+    public JsonSerializer<?> getSerializerForJavaNioFilePath(Class<?> rawType) {
+        if (Path.class.isAssignableFrom(rawType)) {
+            return new NioPathSerializer();
+        }
+        return null;
+    }
+
     @Override
     public Boolean findTransient(Annotated a) {
         Transient t = a.getAnnotation(Transient.class);

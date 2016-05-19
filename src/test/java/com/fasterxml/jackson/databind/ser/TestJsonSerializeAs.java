@@ -73,7 +73,12 @@ public class TestJsonSerializeAs extends BaseMapTest
             }
         }
     }
-    
+
+    static class Bean1178Holder {
+        @JsonSerialize(as=Bean1178Abstract.class)
+        public Bean1178Base value = new Bean1178Impl();
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -106,5 +111,11 @@ public class TestJsonSerializeAs extends BaseMapTest
     public void testSpecializedContentAs() throws IOException {
         assertEquals(aposToQuotes("{'values':[{'a':1,'b':2}]}"),
                 WRITER.writeValueAsString(new Bean1178Wrapper(1)));
+    }
+
+    // for [databind#1231] (and continuation of [databind#1178])
+    public void testSpecializedAsIntermediate() throws IOException {
+        assertEquals(aposToQuotes("{'value':{'a':1,'b':2}}"),
+                WRITER.writeValueAsString(new Bean1178Holder()));
     }
 }

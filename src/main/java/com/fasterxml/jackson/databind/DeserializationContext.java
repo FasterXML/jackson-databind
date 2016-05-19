@@ -1248,11 +1248,27 @@ public abstract class DeserializationContext
                         instClass.getName(), String.valueOf(value), msg),
                 value, instClass);
     }
-    
+
+    /**
+     * Helper method for constructing instantiation exception for specified type,
+     * to indicate problem with physically constructing instance of
+     * specified class (missing constructor, exception from constructor)
+     *<p>
+     * Note that most of the time this method should NOT be called; instead,
+     * {@link #handleInstantiationProblem} should be called which will call this method
+     * if necessary.
+     */
+    public JsonMappingException instantiationException(Class<?> instClass, Throwable t) {
+        return JsonMappingException.from(_parser,
+                String.format("Can not construct instance of %s, problem: %s",
+                        instClass.getName(), t.getMessage()), t);
+    }
+
     /**
      * Helper method for constructing exception to indicate that given type id
      * could not be resolved to a valid subtype of specified base type, during
      * polymorphic deserialization.
+     *<p>
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleUnknownTypeId} should be called which will call this method
      * if necessary.
@@ -1269,28 +1285,13 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* Methods for constructing semantic exceptions; mostly
-    /* deprecated since 2.8; to be replaced by `reportXxx()`
+    /* Methods for constructing semantic exceptions
     /**********************************************************
      */
-    
-    /**
-     * Helper method for constructing instantiation exception for specified type,
-     * to indicate problem with physically constructing instance of
-     * specified class (missing constructor, exception from constructor)
-     *
-     * @deprecated Since 2.8 use {@link #reportInstantiationException} instead
-     */
-    @Deprecated
-    public JsonMappingException instantiationException(Class<?> instClass, Throwable t) {
-        return JsonMappingException.from(_parser,
-                String.format("Can not construct instance of %s, problem: %s", instClass.getName(), t.getMessage()), t);
-    }
 
     /**
-        *
-        * @deprecated Since 2.8 use {@link #reportInstantiationException} instead
-        */
+     * @deprecated Since 2.8 use {@link #reportInstantiationException} instead
+     */
     @Deprecated
     public JsonMappingException instantiationException(Class<?> instClass, String msg) {
         return JsonMappingException.from(_parser,

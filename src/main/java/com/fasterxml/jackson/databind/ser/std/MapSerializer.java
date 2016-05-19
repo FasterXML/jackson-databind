@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.*;
@@ -386,6 +387,13 @@ public class MapSerializer
             }
             Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
             sortKeys = (b != null) && b.booleanValue();
+        }
+        JsonFormat.Value format = findFormatOverrides(provider, property, Map.class);
+        if (format != null) {
+            Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
+            if (B != null) {
+                sortKeys = B.booleanValue();
+            }
         }
         MapSerializer mser = withResolved(property, keySer, ser, ignored, sortKeys);
         if (suppressableValue != _suppressableValue) {

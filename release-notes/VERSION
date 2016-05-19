@@ -36,6 +36,7 @@ Project: jackson-databind
  (reported by Lokesh K)
 #1221: Use `Throwable.addSuppressed()` directly and/or via try-with-resources
 #1232: Add support for `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
+#1232: Add support for `JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES`
 
 2.7.5 (not yet released)
 

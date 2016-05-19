@@ -95,6 +95,18 @@ public class FormatFeaturesTest extends BaseMapTest
         public Role role;
     }
 
+    static class SortedKeysMap {
+        @JsonFormat(with = JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES)
+        public Map<String,Integer> values = new LinkedHashMap<>();
+
+        protected SortedKeysMap() { }
+
+        public SortedKeysMap put(String key, int value) {
+            values.put(key, value);
+            return this;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods, writing with single-element unwrapping
@@ -229,5 +241,14 @@ public class FormatFeaturesTest extends BaseMapTest
         assertNotNull(w);
         assertEquals("12", w.role.ID);
         assertEquals("Foo", w.role.Name);
+    }
+
+    // [databind#1232]: allow forcing sorting on Map keys
+    public void testOrderedMaps() throws Exception {
+        SortedKeysMap map = new SortedKeysMap()
+            .put("b", 2)
+            .put("a", 1);
+        assertEquals(aposToQuotes("{'values':{'a':1,'b':2}}"),
+                MAPPER.writeValueAsString(map));
     }
 }

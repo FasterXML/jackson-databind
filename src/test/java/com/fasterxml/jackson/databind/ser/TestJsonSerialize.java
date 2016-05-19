@@ -149,7 +149,7 @@ public class TestJsonSerialize
         try {
             serializeAsString(MAPPER, new BrokenClass());
         } catch (Exception e) {
-            verifyException(e, "not a super-type of");
+            verifyException(e, "types not related");
         }
     }
 

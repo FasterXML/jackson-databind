@@ -796,12 +796,17 @@ public final class TypeFactory
     }
 
     /**
-     * Method that will force construction of a simple type, without trying to
-     * check for more specialized types.
+     * Method that use by core Databind functionality, and that should NOT be called
+     * by application code outside databind package.
      *<p> 
-     * NOTE: no type modifiers are called on type either, so calling this method
-     * should only be used if caller really knows what it's doing...
+     * Unchecked here not only means that no checks are made as to whether given class
+     * might be non-simple type (like {@link CollectionType}) but also that most of supertype
+     * information is not gathered. This means that unless called on primitive types or
+     * {@link java.lang.String}, results are probably not what you want to use.
+     *
+     * @deprecated Since 2.8, to indicate users should never call this method.
      */
+    @Deprecated // since 2.8
     public JavaType uncheckedSimpleType(Class<?> cls) {
         // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
         return _constructSimple(cls, EMPTY_BINDINGS, null, null);

@@ -25,6 +25,17 @@ import com.fasterxml.jackson.databind.util.Converter;
  *  )
  *</pre>
  *<p>
+ * Something to note on usage:
+ *<ul>
+ * <li>All other annotations regarding behavior during building should be on <b>Builder</b>
+ *    class and NOT on target POJO class: for example &#64;JsonIgnoreProperties should be on
+ *    Builder to prevent "unknown property" errors.
+ *  </li>
+ * <li>Similarly configuration overrides (see {@link com.fasterxml.jackson.databind.ObjectMapper#configOverride})
+ *    should be targeted at Builder class, not target POJO class.
+ *  </li>
+ * </ul>
+ *
  */
 @Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

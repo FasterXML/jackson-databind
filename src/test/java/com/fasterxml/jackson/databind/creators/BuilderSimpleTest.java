@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -302,19 +303,46 @@ public class BuilderSimpleTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimple() throws Exception
     {
         String json = "{\"x\":1,\"y\":2}";
         Object o = MAPPER.readValue(json, ValueClassXY.class);
         assertNotNull(o);
-    	    assertSame(ValueClassXY.class, o.getClass());
-    	    ValueClassXY value = (ValueClassXY) o;
-    	    // note: ctor adds one to both values
-    	    assertEquals(value._x, 2);
-    	    assertEquals(value._y, 3);
+        assertSame(ValueClassXY.class, o.getClass());
+        ValueClassXY value = (ValueClassXY) o;
+        // note: ctor adds one to both values
+        assertEquals(value._x, 2);
+        assertEquals(value._y, 3);
     }
 
+    // related to [databind#1214]
+    public void testSimpleWithIgnores() throws Exception
+    {
+        // 'z' is unknown, and would fail by default:
+        String json = "{\"x\":1,\"y\":2,\"z\":3}";
+        Object o = null;
+
+        try {
+            o = MAPPER.readValue(json, ValueClassXY.class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Unrecognized field \"z\"");
+        }
+
+        // but with config overrides should pass
+        ObjectMapper ignorantMapper = new ObjectMapper();
+        ignorantMapper.configOverride(SimpleBuilderXY.class)
+                .setIgnorals(JsonIgnoreProperties.Value.forIgnoreUnknown(true));
+        o = ignorantMapper.readValue(json, ValueClassXY.class);
+        assertNotNull(o);
+        assertSame(ValueClassXY.class, o.getClass());
+        ValueClassXY value = (ValueClassXY) o;
+        // note: ctor adds one to both values
+        assertEquals(value._x, 2);
+        assertEquals(value._y, 3);
+    }
+    
     public void testMultiAccess() throws Exception
     {
         String json = "{\"c\":3,\"a\":2,\"b\":-9}";

@@ -14,8 +14,16 @@ import java.lang.annotation.*;
  * Annotation is typically used if the naming convention
  * of a Builder class is different from defaults:
  *<ul>
+ * <li>By default, setters are expected to have names like `withName()` (for property "name");
+ *     override by {@link #withPrefix()} property.
+ *  </li>
  * </ul>
- * 
+ *<p>
+ * In addition to configuration using this annotation, note that many other configuration
+ * annotations are also applied to Builders, for example
+ * {@link com.fasterxml.jackson.annotation.JsonIgnoreProperties} can be used to ignore
+ * "unknown" properties.
+ *
  * @since 2.0
  */
 @Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})

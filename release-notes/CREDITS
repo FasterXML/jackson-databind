@@ -478,3 +478,7 @@ Maarten Billemont (lhunath@github)
   * Suggested #1184: Allow overriding of `transient` with explicit inclusion with `@JsonProperty`
    (2.8.0)
 
+Vladimir Kulev (lightoze@github)
+  * Reported #1028: Ignore USE_BIG_DECIMAL_FOR_FLOATS for NaN/Infinity
+   (2.8.0)
+

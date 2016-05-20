@@ -367,7 +367,8 @@ public class POJOPropertiesCollector
             } else {
                 pn = ai.findNameForDeserialization(f);
             }
-            boolean nameExplicit = (pn != null);
+            boolean hasName = (pn != null);
+            boolean nameExplicit = hasName;
 
             if (nameExplicit && pn.isEmpty()) { // empty String meaning "use default name", here just means "same as field name"
                 pn = _propNameFromSimple(implName);
@@ -383,9 +384,13 @@ public class POJOPropertiesCollector
 
             // 13-May-2015, tatu: Moved from earlier place (AnnotatedClass) in 2.6
             if (f.isTransient()) {
-                visible = false;
-                if (transientAsIgnoral) {
-                    ignored = true;
+                // 20-May-2016, tatu: as per [databind#1184] explicit annotation should override
+                //    "default" `transient`
+                if (!hasName) {
+                    visible = false;
+                    if (transientAsIgnoral) {
+                        ignored = true;
+                    }
                 }
             }
             /* [databind#190]: this is the place to prune final fields, if they are not

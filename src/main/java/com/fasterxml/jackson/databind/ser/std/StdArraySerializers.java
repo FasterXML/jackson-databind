@@ -86,6 +86,7 @@ public class StdArraySerializers
         extends ArraySerializerBase<boolean[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
+        @SuppressWarnings("deprecation")
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
 
         public BooleanArraySerializer() { super(boolean[].class); }
@@ -176,6 +177,7 @@ public class StdArraySerializers
     public static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
+        @SuppressWarnings("deprecation")
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
 
         public ShortArraySerializer() { super(short[].class); }
@@ -343,6 +345,7 @@ public class StdArraySerializers
     public static class IntArraySerializer extends ArraySerializerBase<int[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
+        @SuppressWarnings("deprecation")
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
 
         public IntArraySerializer() { super(int[].class); }
@@ -432,6 +435,7 @@ public class StdArraySerializers
     public static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
+        @SuppressWarnings("deprecation")
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
 
         public LongArraySerializer() { super(long[].class); }
@@ -525,6 +529,7 @@ public class StdArraySerializers
     public static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
+        @SuppressWarnings("deprecation")
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
         
         public FloatArraySerializer() {
@@ -616,6 +621,7 @@ public class StdArraySerializers
     public static class DoubleArraySerializer extends ArraySerializerBase<double[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
+        @SuppressWarnings("deprecation")
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
 
         public DoubleArraySerializer() { super(double[].class); }

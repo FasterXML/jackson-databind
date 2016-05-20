@@ -30,17 +30,16 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
             ctxt.reportMappingException(Path.class, p.getCurrentToken());
         }
         final String value = p.getText();
-        if (value.contains(":")) {
-            try {
-                URI uri = new URI(value);
-                return Paths.get(uri);
-            } catch (URISyntaxException e) {
-                return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
-            }
-        } else {
-            // If someone gives us an input with no : at all, treat as local path, instead of failing
-            // with invalid URI.
+        // If someone gives us an input with no : at all, treat as local path, instead of failing
+        // with invalid URI.
+        if (value.indexOf(':') < 0) {
             return Paths.get(value);
+        }
+        try {
+            URI uri = new URI(value);
+            return Paths.get(uri);
+        } catch (URISyntaxException e) {
+            return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }
     }
 }

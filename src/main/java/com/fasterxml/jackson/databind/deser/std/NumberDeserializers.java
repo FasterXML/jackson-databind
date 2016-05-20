@@ -140,12 +140,6 @@ public class NumberDeserializers
         }
 
         @Override
-        @Deprecated // remove in 2.7
-        public final T getNullValue() {
-            return _nullValue;
-        }
-
-        @Override
         public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
             // [databind#1095]: Should not allow coercion from into null from Empty String
             // either, if `null` not allowed

@@ -474,3 +474,7 @@ Lokesh Kumar (LokeshN@github)
   * Reported #1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
    (2.8.0)
 
+Maarten Billemont (lhunath@github)
+  * Suggested #1184: Allow overriding of `transient` with explicit inclusion with `@JsonProperty`
+   (2.8.0)
+

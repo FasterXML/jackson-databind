@@ -28,6 +28,7 @@ public class StringArraySerializer
     /* Note: not clean in general, but we are betting against
      * anyone re-defining properties of String.class here...
      */
+    @SuppressWarnings("deprecation")
     private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(String.class);
 
     public final static StringArraySerializer instance = new StringArraySerializer();

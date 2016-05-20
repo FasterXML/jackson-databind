@@ -57,9 +57,9 @@ public class TextNode
      * base64 encoded; if so, they are decoded and resulting binary
      * data is returned.
      */
+    @SuppressWarnings("resource")
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
-        @SuppressWarnings("resource")
         ByteArrayBuilder builder = new ByteArrayBuilder(100);
         final String str = _value;
         int ptr = 0;

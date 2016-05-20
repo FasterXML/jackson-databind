@@ -28,6 +28,8 @@ Project: jackson-databind
  (reported, contributed fix by Ross G)
 #1181: Add the ability to specify the initial capacity of the ArrayNode
  (suggested by Matt V, mveitas@github)
+#1184: Allow overriding of `transient` with explicit inclusion with `@JsonProperty`
+ (suggested by Maarten B)
 #1187: Refactor `AtomicReferenceDeserializer` into `ReferenceTypeDeserializer`
 #1204: Add a convenience accessor `JavaType.hasContentType()` (true for container or reference type)
 #1206: Add "anchor type" member for `ReferenceType`

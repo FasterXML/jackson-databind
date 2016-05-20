@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.beans.Transient;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 
@@ -28,6 +29,15 @@ public class TransientTest extends BaseMapTest
         public int getX() { return 3; }
 
         public int getY() { return 4; }
+    }
+
+    // for [databind#1184]
+    static class OverridableTransient {
+        @JsonProperty
+//        @JsonProperty("value") // should override transient here, to force inclusion
+        public transient int value;
+
+        public OverridableTransient(int v) { value = v; }
     }
 
     /*
@@ -57,5 +67,12 @@ public class TransientTest extends BaseMapTest
     {
         assertEquals(aposToQuotes("{'y':4}"),
                 MAPPER.writeValueAsString(new BeanTransient()));
+    }
+
+    // for [databind#1184]
+    public void testOverridingTransient() throws Exception
+    {
+        assertEquals(aposToQuotes("{'value':38}"),
+                MAPPER.writeValueAsString(new OverridableTransient(38)));
     }
 }

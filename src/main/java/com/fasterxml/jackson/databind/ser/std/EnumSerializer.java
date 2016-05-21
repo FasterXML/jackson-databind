@@ -139,11 +139,16 @@ public class EnumSerializer
         }
         gen.writeString(_values.serializedValueFor(en));
     }
-    
+
+    /*
+    /**********************************************************
+    /* Schema support
+    /**********************************************************
+     */
+
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
-        // [JACKSON-684]: serialize as index?
         if (_serializeAsIndex(provider)) {
             return createSchemaNode("integer", true);
         }
@@ -213,10 +218,12 @@ public class EnumSerializer
         if (shape == null) {
             return null;
         }
-        if (shape == Shape.ANY || shape == Shape.SCALAR) { // i.e. "default", check dynamically
+        // i.e. "default", check dynamically
+        if (shape == Shape.ANY || shape == Shape.SCALAR) {
             return null;
         }
-        if (shape == Shape.STRING) {
+        // 19-May-2016, tatu: also consider "natural" shape
+        if (shape == Shape.STRING || shape == Shape.NATURAL) {
             return Boolean.FALSE;
         }
         // 01-Oct-2014, tatu: For convenience, consider "as-array" to also mean 'yes, use index')

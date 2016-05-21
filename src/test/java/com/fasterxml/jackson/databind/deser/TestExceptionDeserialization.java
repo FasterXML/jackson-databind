@@ -91,14 +91,14 @@ public class TestExceptionDeserialization
         assertNotNull(exc);
     }
 
-    // [JACKSON-794]: try simulating JDK 7 behavior
+    // try simulating JDK 7 behavior
     public void testJDK7SuppressionProperty() throws IOException
     {
         Exception exc = MAPPER.readValue("{\"suppressed\":[]}", IOException.class);
         assertNotNull(exc);
     }
     
-    // [Issue#381]
+    // [databind#381]
     public void testSingleValueArrayDeserialization() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -115,10 +115,34 @@ public class TestExceptionDeserialization
         
         assertEquals(exp.getStackTrace().length, cloned.getStackTrace().length);
         for (int i = 0; i < exp.getStackTrace().length; i ++) {
-            assertEquals(exp.getStackTrace()[i], cloned.getStackTrace()[i]);
+            _assertEquality(i, exp.getStackTrace()[i], cloned.getStackTrace()[i]);
         }
     }
-    
+
+    protected void _assertEquality(int ix, StackTraceElement exp, StackTraceElement act)
+    {
+        _assertEquality(ix, "className", exp.getClassName(), act.getClassName());
+        _assertEquality(ix, "methodName", exp.getMethodName(), act.getMethodName());
+        _assertEquality(ix, "fileName", exp.getFileName(), act.getFileName());
+        _assertEquality(ix, "lineNumber", exp.getLineNumber(), act.getLineNumber());
+    }
+
+    protected void _assertEquality(int ix, String prop,
+            Object exp, Object act)
+    {
+        if (exp == null) {
+            if (act == null) {
+                return;
+            }
+        } else {
+            if (exp.equals(act)) {
+                return;
+            }
+        }
+        fail(String.format("StackTraceElement #%d, property '%s' differs: expected %s, actual %s",
+                ix, prop, exp, act));
+    }
+
     public void testSingleValueArrayDeserializationException() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);

@@ -1102,7 +1102,6 @@ public abstract class DeserializationContext
         if (msgArgs.length > 0) {
             msg = String.format(msg, msgArgs);
         }
-        /*
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             Object instance = h.value().handleUnexpectedToken(this,
@@ -1117,7 +1116,6 @@ public abstract class DeserializationContext
             }
             h = h.next();
         }
-        */
         if (msg == null) {
             msg = String.format("Can not deserialize instance of %s out of %s token",
                     _calcName(instClass), t);

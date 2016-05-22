@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -115,9 +116,24 @@ public class ProblemHandlerTest extends BaseMapTest
             return value;
         }
     }
+
+    static class WeirdTokenHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
     
-    static class IntKeyMapWrapper {
-        public Map<Integer,String> stuff;
+        public WeirdTokenHandler(Object v) {
+            value = v;
+        }
+    
+        @Override
+        public Object handleUnexpectedToken(DeserializationContext ctxt,
+                Class<?> targetType, JsonToken t, JsonParser p,
+                String failureMsg)
+            throws IOException
+        {
+            return value;
+        }
     }
 
     static class TypeIdHandler
@@ -138,6 +154,10 @@ public class ProblemHandlerTest extends BaseMapTest
     /* Other helper types
     /**********************************************************
      */
+
+    static class IntKeyMapWrapper {
+        public Map<Integer,String> stuff;
+    }
     
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     static class Base { }
@@ -246,5 +266,14 @@ public class ProblemHandlerTest extends BaseMapTest
         NoDefaultCtor w = mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
         assertNotNull(w);
         assertEquals(13, w.value);
+    }
+
+    public void testUnexpectedTokenHandling() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new WeirdTokenHandler(Integer.valueOf(13)))
+        ;
+        Integer v = mapper.readValue("true", Integer.class);
+        assertEquals(Integer.valueOf(13), v);
     }
 }

@@ -282,8 +282,18 @@ public class ObjectNode
     public void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
+    	SerializationConfig config = provider.getConfig();
         g.writeStartObject(this);
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+
+            // check if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
+            // if the feature is disabled, then should not write an empty array
+            // to the output, so continue to the next element in the iteration
+            if (!config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS) && en.getValue() instanceof ArrayNode
+                    && ((ArrayNode) en.getValue()).size() == 0) {
+            	continue;
+            }
+            
             g.writeFieldName(en.getKey());
                 /* 17-Feb-2009, tatu: Can we trust that all nodes will always
                  *   extend BaseJsonNode? Or if not, at least implement
@@ -300,8 +310,18 @@ public class ObjectNode
             TypeSerializer typeSer)
         throws IOException
     {
+    	SerializationConfig config = provider.getConfig();
         typeSer.writeTypePrefixForObject(this, g);
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+
+            // check if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
+            // if the feature is disabled, then should not write an empty array
+            // to the output, so continue to the next element in the iteration
+            if (!config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS) && en.getValue() instanceof ArrayNode
+                    && ((ArrayNode) en.getValue()).size() == 0) {
+            	continue;
+            }
+            
             g.writeFieldName(en.getKey());
             ((BaseJsonNode) en.getValue()).serialize(g, provider);
         }

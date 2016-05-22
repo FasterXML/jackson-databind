@@ -199,20 +199,18 @@ public class EnumDeserializer
 
     protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken curr = p.getCurrentToken();
         // [databind#381]
         if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 && p.isExpectedStartArrayToken()) {
             p.nextToken();
             final Object parsed = deserialize(p, ctxt);
-            curr = p.nextToken();
+            JsonToken curr = p.nextToken();
             if (curr != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
             }
             return parsed;
         }
-        ctxt.reportMappingException(_enumClass());
-        return null;
+        return ctxt.handleUnexpectedToken(_enumClass(), p);
     }
 
     protected Class<?> _enumClass() {
@@ -234,10 +232,4 @@ public class EnumDeserializer
         }
         return lookup;
     }
-
-    /*
-    /**********************************************************
-    /* Additional helper classes
-    /**********************************************************
-     */
 }

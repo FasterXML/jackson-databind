@@ -770,7 +770,7 @@ public abstract class DeserializationContext
     public <T> T readValue(JsonParser p, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findRootValueDeserializer(type);
         if (deser == null) {
-            throw mappingException("Could not find JsonDeserializer for type %s", type);
+            throw mappingException("Could not find JsonDeserializer for type "+type);
         }
         return (T) deser.deserialize(p, this);
     }
@@ -795,8 +795,9 @@ public abstract class DeserializationContext
         JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
             String propName = (prop == null) ? "NULL" : ("'"+prop.getName()+"'");
-            throw mappingException("Could not find JsonDeserializer for type %s (via property %s)",
-                    type, propName);
+            throw mappingException(String.format(
+                    "Could not find JsonDeserializer for type %s (via property %s)",
+                    type, propName));
         }
         return (T) deser.deserialize(p, this);
     }
@@ -1060,6 +1061,71 @@ public abstract class DeserializationContext
     }
 
     /**
+     * Method that deserializers should call if the first token of the value to
+     * deserialize is of unexpected type (that is, type of token that deserializer
+     * can not handle). This could occur, for example, if a Number deserializer
+     * encounter {@link JsonToken#START_ARRAY} instead of
+     * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     * 
+     * @param instClass Type that was to be instantiated
+     * @param p Parser that points to the JSON value to decode
+     *
+     * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
+     *
+     * @since 2.8
+     */
+    public Object handleUnexpectedToken(Class<?> instClass, JsonParser p)
+        throws IOException
+    {
+        return handleUnexpectedToken(instClass, p.getCurrentToken(), p, null);
+    }
+    
+    /**
+     * Method that deserializers should call if the first token of the value to
+     * deserialize is of unexpected type (that is, type of token that deserializer
+     * can not handle). This could occur, for example, if a Number deserializer
+     * encounter {@link JsonToken#START_ARRAY} instead of
+     * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     * 
+     * @param instClass Type that was to be instantiated
+     * @param p Parser that points to the JSON value to decode
+     *
+     * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
+     *
+     * @since 2.8
+     */
+    public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
+            JsonParser p,
+            String msg, Object... msgArgs)
+        throws IOException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        /*
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            Object instance = h.value().handleUnexpectedToken(this,
+                    instClass, t, p, msg);
+            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
+                if ((instance == null) || instClass.isInstance(instance)) {
+                    return instance;
+                }
+                throw mappingException(String.format(
+                        "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
+                        instClass, instance.getClass()));
+            }
+            h = h.next();
+        }
+        */
+        if (msg == null) {
+            msg = String.format("Can not deserialize instance of %s out of %s token",
+                    _calcName(instClass), t);
+        }
+        throw mappingException(msg);
+    }
+
+    /**
      * Method that deserializers should call if they encounter a type id
      * (for polymorphic deserialization) that can not be resolved to an
      * actual type; usually since there is no mapping defined.
@@ -1123,7 +1189,7 @@ public abstract class DeserializationContext
             JsonToken expToken, String msg, Object... msgArgs)
         throws JsonMappingException
     {
-        if (msgArgs.length > 0) {
+        if ((msg != null) && (msgArgs.length > 0)) {
             msg = String.format(msg, msgArgs);
         }
         throw wrongTokenException(p, expToken, msg);
@@ -1166,50 +1232,18 @@ public abstract class DeserializationContext
         throw mappingException(msg);
     }
 
-    /**
-     * @since 2.8
-     */
-    public void reportMappingException(Class<?> targetClass, JsonToken t) throws JsonMappingException {
-        throw mappingException(targetClass, t);
-    }
-    
-    /**
-     * @since 2.8
-     */
-    public void reportMappingException(Class<?> targetClass) throws JsonMappingException {
-        throw mappingException(targetClass);
-    }
-
     /*
     /**********************************************************
     /* Methods for constructing exceptions, "untyped"
     /**********************************************************
      */
-    
+
     /**
-     * Helper method for constructing generic mapping exception for specified type
+     * Helper method for constructing generic mapping exception with specified
+     * message and current location information
      * 
-     * @deprecated Since 2.8 use {@link #reportMappingException(Class)} instead
+     * @since 2.6
      */
-    @Deprecated
-    public JsonMappingException mappingException(Class<?> targetClass) {
-        return mappingException(targetClass, _parser.getCurrentToken());
-    }
-
-    /**
-     * @deprecated Since 2.8 use {@link #reportMappingException(Class, JsonToken)} instead
-     */
-    @Deprecated
-    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
-        return JsonMappingException.from(_parser,
-                String.format("Can not deserialize instance of %s out of %s token",
-                        _calcName(targetClass), token));
-    }
-
-    /**
-     * @deprecated Since 2.8 use {@link #reportMappingException(String, Object...)} instead
-     */
-    @Deprecated
     public JsonMappingException mappingException(String message) {
         return JsonMappingException.from(getParser(), message);
     }
@@ -1219,15 +1253,32 @@ public abstract class DeserializationContext
      * message and current location information
      * 
      * @since 2.6
-     *
-     * @deprecated Since 2.8 use {@link #reportMappingException(String, Object...)} instead
      */
-    @Deprecated
     public JsonMappingException mappingException(String msgTemplate, Object... args) {
         if (args != null && args.length > 0) {
             msgTemplate = String.format(msgTemplate, args);
         }
         return JsonMappingException.from(getParser(), msgTemplate);
+    }
+
+    /**
+     * Helper method for constructing generic mapping exception for specified type
+     * 
+     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
+     */
+    @Deprecated
+    public JsonMappingException mappingException(Class<?> targetClass) {
+        return mappingException(targetClass, _parser.getCurrentToken());
+    }
+
+    /**
+     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
+     */
+    @Deprecated
+    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
+        return JsonMappingException.from(_parser,
+                String.format("Can not deserialize instance of %s out of %s token",
+                        _calcName(targetClass), token));
     }
 
     /*
@@ -1359,7 +1410,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* Methods for constructing semantic exceptions
+    /* Deprecated exception factory methods
     /**********************************************************
      */
 
@@ -1393,7 +1444,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* Overridable internal methods
+    /* Other internal methods
     /**********************************************************
      */
 
@@ -1415,12 +1466,6 @@ public abstract class DeserializationContext
     protected String determineClassName(Object instance) {
         return ClassUtil.getClassDescription(instance);
     }
-    
-    /*
-    /**********************************************************
-    /* Other internal methods
-    /**********************************************************
-     */
 
     protected String _calcName(Class<?> cls) {
         if (cls.isArray()) {

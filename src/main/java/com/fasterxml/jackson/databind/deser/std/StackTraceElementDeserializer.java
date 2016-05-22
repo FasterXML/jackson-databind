@@ -62,8 +62,7 @@ public class StackTraceElementDeserializer
             }
             return value;
         }
-        ctxt.reportMappingException(_valueClass, t);
-        return null;
+        return (StackTraceElement) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
     /**

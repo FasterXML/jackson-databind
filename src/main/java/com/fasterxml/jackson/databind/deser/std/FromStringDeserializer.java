@@ -100,15 +100,6 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        // [databind#381]
-        if (p.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final T value = deserialize(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return value;
-        }
         // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
         String text = p.getValueAsString();
         if (text != null) { // has String representation
@@ -140,7 +131,17 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             throw e;
             // nothing to do here, yet? We'll fail anyway
         }
-        if (p.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
+        JsonToken t = p.getCurrentToken();
+        // [databind#381]
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            p.nextToken();
+            final T value = deserialize(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                handleMissingEndArrayForSingle(p, ctxt);
+            }
+            return value;
+        }
+        if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
             // Trivial cases; null to null, instance of type itself returned as is
             Object ob = p.getEmbeddedObject();
             if (ob == null) {
@@ -151,8 +152,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             return _deserializeEmbedded(ob, ctxt);
         }
-        ctxt.reportMappingException(_valueClass);
-        return null;
+        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
     }
         
     protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;

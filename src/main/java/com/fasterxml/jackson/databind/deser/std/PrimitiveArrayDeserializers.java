@@ -99,6 +99,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
+    @SuppressWarnings("unchecked")
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // [JACKSON-620] Empty String can become null...
@@ -114,8 +115,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         if (canWrap) {
             return handleSingleElementUnwrapped(p, ctxt);
         }
-        ctxt.reportMappingException(_valueClass);
-        return null;
+        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
     protected abstract T handleSingleElementUnwrapped(JsonParser p,
@@ -166,11 +166,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 // Let's actually build as a String, then get chars
                 StringBuilder sb = new StringBuilder(64);
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-                    if (t != JsonToken.VALUE_STRING) {
-                        ctxt.reportMappingException(Character.TYPE);
-                        return null;
+                    String str;
+                    if (t == JsonToken.VALUE_STRING) {
+                        str = p.getText();
+                    } else {
+                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
+                        str = cs.toString();
                     }
-                    String str = p.getText();
                     if (str.length() != 1) {
                         throw JsonMappingException.from(p, "Can not convert a JSON String of length "+str.length()+" into a char element of char array");
                     }
@@ -194,16 +196,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 }
                 // not recognized, just fall through
             }
-            ctxt.reportMappingException(_valueClass);
-            return null;
+            return (char[]) ctxt.handleUnexpectedToken(_valueClass, p);
         }
 
         @Override
         protected char[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             // not sure how this should work...
-            ctxt.reportMappingException(_valueClass);
-            return null;
+            return (char[]) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
 
@@ -316,11 +316,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         value = p.getByteValue();
                     } else {
                         // should probably accept nulls as 0
-                        if (t != JsonToken.VALUE_NULL) {
-                            ctxt.reportMappingException(_valueClass.getComponentType());
-                            return null;
+                        if (t == JsonToken.VALUE_NULL) {
+                            value = (byte) 0;
+                        } else {
+                            Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
+                            value = n.byteValue();
                         }
-                        value = (byte) 0;
                     }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -345,11 +346,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 value = p.getByteValue();
             } else {
                 // should probably accept nulls as 'false'
-                if (t != JsonToken.VALUE_NULL) {
-                    ctxt.reportMappingException(_valueClass.getComponentType());
+                if (t == JsonToken.VALUE_NULL) {
                     return null;
                 }
-                value = (byte) 0;
+                Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
+                value = n.byteValue();
             }
             return new byte[] { value };
         }

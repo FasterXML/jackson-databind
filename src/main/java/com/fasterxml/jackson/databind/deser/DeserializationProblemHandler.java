@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -173,6 +174,41 @@ public abstract class DeserializationProblemHandler
     }
 
     /**
+     * Method that deserializers should call if the first token of the value to
+     * deserialize is of unexpected type (that is, type of token that deserializer
+     * can not handle). This could occur, for example, if a Number deserializer
+     * encounter {@link JsonToken#START_ARRAY} instead of
+     * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     *<ul>
+     * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
+     *  </li>
+     * <li>Throw a {@link IOException} to indicate specific fail message (instead of
+     *    standard exception caller would throw
+     *  </li>
+     * <li>Handle content to match (by consuming or skipping it), and return actual
+     *    instantiated value (of type <code>targetType</code>) to use as replacement;
+     *    value may be `null` as well as expected target type.
+     *  </li>
+     * </ul>
+     *
+     * @param failureMsg Message that will be used by caller
+     *    to indicate type of failure unless handler produces value to use
+     *
+     * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
+     *    what to do (and exception may be thrown), or value to use (possibly
+     *    <code>null</code>
+     *
+     * @since 2.8
+     */
+    public Object handleUnexpectedToken(DeserializationContext ctxt,
+            Class<?> targetType, JsonToken t, JsonParser p,
+            String failureMsg)
+        throws IOException
+    {
+        return NOT_HANDLED;
+    }
+    
+    /**
      * Method called when instance creation for a type fails due to an exception.
      * Handler may choose to do one of following things:
      *<ul>
@@ -194,7 +230,7 @@ public abstract class DeserializationProblemHandler
      * @param t Exception that caused instantiation failure
      *
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
-     *    what to do (and exception may be thrown), or value to use as key (possibly
+     *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
      *
      * @since 2.8
@@ -227,7 +263,7 @@ public abstract class DeserializationProblemHandler
      *   use it or skip it (latter with {@link JsonParser#skipChildren()}.
      *
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
-     *    what to do (and exception may be thrown), or value to use as key (possibly
+     *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
      *
      * @since 2.8

@@ -184,7 +184,6 @@ public final class StringArrayDeserializer
                 return null;
             }
         }
-        ctxt.reportMappingException(_valueClass);
-        return null;
+        return (String[]) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 }

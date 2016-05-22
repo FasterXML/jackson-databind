@@ -143,7 +143,7 @@ public class BuilderBasedDeserializer
      */
     @Override
     public final Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = p.getCurrentToken();
         
@@ -157,28 +157,29 @@ public class BuilderBasedDeserializer
             return finishBuild(ctxt, builder);
         }
         // and then others, generally requiring use of @JsonCreator
-        switch (t) {
-        case VALUE_STRING:
-            return finishBuild(ctxt, deserializeFromString(p, ctxt));
-        case VALUE_NUMBER_INT:
-            return finishBuild(ctxt, deserializeFromNumber(p, ctxt));
-        case VALUE_NUMBER_FLOAT:
-        	return finishBuild(ctxt, deserializeFromDouble(p, ctxt));
-        case VALUE_EMBEDDED_OBJECT:
-            return p.getEmbeddedObject();
-        case VALUE_TRUE:
-        case VALUE_FALSE:
-            return finishBuild(ctxt, deserializeFromBoolean(p, ctxt));
-        case START_ARRAY:
-            // these only work if there's a (delegating) creator...
-            return finishBuild(ctxt, deserializeFromArray(p, ctxt));
-        case FIELD_NAME:
-        case END_OBJECT:
-            return finishBuild(ctxt, deserializeFromObject(p, ctxt));
-        default:
-            ctxt.reportMappingException(handledType());
-            return null;
+        if (t != null) {
+            switch (t) {
+            case VALUE_STRING:
+                return finishBuild(ctxt, deserializeFromString(p, ctxt));
+            case VALUE_NUMBER_INT:
+                return finishBuild(ctxt, deserializeFromNumber(p, ctxt));
+            case VALUE_NUMBER_FLOAT:
+            	return finishBuild(ctxt, deserializeFromDouble(p, ctxt));
+            case VALUE_EMBEDDED_OBJECT:
+                return p.getEmbeddedObject();
+            case VALUE_TRUE:
+            case VALUE_FALSE:
+                return finishBuild(ctxt, deserializeFromBoolean(p, ctxt));
+            case START_ARRAY:
+                // these only work if there's a (delegating) creator...
+                return finishBuild(ctxt, deserializeFromArray(p, ctxt));
+            case FIELD_NAME:
+            case END_OBJECT:
+                return finishBuild(ctxt, deserializeFromObject(p, ctxt));
+            default:
+            }
         }
+        return ctxt.handleUnexpectedToken(handledType(), p);
     }
 
     /**
@@ -189,7 +190,7 @@ public class BuilderBasedDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
     		Object builder)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         /* Important: we call separate method which does NOT call
          * 'finishBuild()', to avoid problems with recursion

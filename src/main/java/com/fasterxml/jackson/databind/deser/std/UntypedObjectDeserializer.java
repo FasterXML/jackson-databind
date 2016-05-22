@@ -274,8 +274,7 @@ public class UntypedObjectDeserializer
 //        case JsonTokenId.ID_END_ARRAY: // invalid
         default:
         }
-        ctxt.reportMappingException(Object.class);
-        return null;
+        return ctxt.handleUnexpectedToken(Object.class, p);
     }
 
     @Override
@@ -331,8 +330,7 @@ public class UntypedObjectDeserializer
             return null;
         default:
         }
-        ctxt.reportMappingException(Object.class);
-        return null;
+        return ctxt.handleUnexpectedToken(Object.class, p);
     }
 
     /*
@@ -344,20 +342,20 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java value.
      */
-    protected Object mapArray(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
-        if (jp.nextToken()  == JsonToken.END_ARRAY) {
+        if (p.nextToken()  == JsonToken.END_ARRAY) {
             return new ArrayList<Object>(2);
         }
-        Object value = deserialize(jp, ctxt);
-        if (jp.nextToken()  == JsonToken.END_ARRAY) {
+        Object value = deserialize(p, ctxt);
+        if (p.nextToken()  == JsonToken.END_ARRAY) {
             ArrayList<Object> l = new ArrayList<Object>(2);
             l.add(value);
             return l;
         }
-        Object value2 = deserialize(jp, ctxt);
-        if (jp.nextToken()  == JsonToken.END_ARRAY) {
+        Object value2 = deserialize(p, ctxt);
+        if (p.nextToken()  == JsonToken.END_ARRAY) {
             ArrayList<Object> l = new ArrayList<Object>(2);
             l.add(value);
             l.add(value2);
@@ -370,14 +368,14 @@ public class UntypedObjectDeserializer
         values[ptr++] = value2;
         int totalSize = ptr;
         do {
-            value = deserialize(jp, ctxt);
+            value = deserialize(p, ctxt);
             ++totalSize;
             if (ptr >= values.length) {
                 values = buffer.appendCompletedChunk(values);
                 ptr = 0;
             }
             values[ptr++] = value;
-        } while (jp.nextToken() != JsonToken.END_ARRAY);
+        } while (p.nextToken() != JsonToken.END_ARRAY);
         // let's create full array then
         ArrayList<Object> result = new ArrayList<Object>(totalSize);
         buffer.completeAndClearBuffer(values, ptr, result);
@@ -399,8 +397,7 @@ public class UntypedObjectDeserializer
             key1 = p.getCurrentName();
         } else {
             if (t != JsonToken.END_OBJECT) {
-                ctxt.reportMappingException(handledType(), p.getCurrentToken());
-                return null;
+                return ctxt.handleUnexpectedToken(handledType(), p);
             }
             key1 = null;
         }
@@ -447,23 +444,23 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java Object array (Object[]).
      */
-    protected Object[] mapArrayToArray(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
-        if (jp.nextToken()  == JsonToken.END_ARRAY) {
+        if (p.nextToken()  == JsonToken.END_ARRAY) {
             return NO_OBJECTS;
         }
         ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] values = buffer.resetAndStart();
         int ptr = 0;
         do {
-            Object value = deserialize(jp, ctxt);
+            Object value = deserialize(p, ctxt);
             if (ptr >= values.length) {
                 values = buffer.appendCompletedChunk(values);
                 ptr = 0;
             }
             values[ptr++] = value;
-        } while (jp.nextToken() != JsonToken.END_ARRAY);
+        } while (p.nextToken() != JsonToken.END_ARRAY);
         return buffer.completeAndClearBuffer(values, ptr);
     }
 
@@ -543,60 +540,58 @@ public class UntypedObjectDeserializer
 
             //case JsonTokenId.ID_END_ARRAY: // invalid
             default:
-                ctxt.reportMappingException(Object.class);
-                return null;
             }
+            return ctxt.handleUnexpectedToken(Object.class, p);
         }
 
         @Override
-        public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
+        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
         {
-            switch (jp.getCurrentTokenId()) {
+            switch (p.getCurrentTokenId()) {
             case JsonTokenId.ID_START_ARRAY:
             case JsonTokenId.ID_START_OBJECT:
             case JsonTokenId.ID_FIELD_NAME:
-                return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+                return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
             case JsonTokenId.ID_STRING:
-                return jp.getText();
+                return p.getText();
 
             case JsonTokenId.ID_NUMBER_INT:
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return jp.getBigIntegerValue();
+                    return p.getBigIntegerValue();
                 }
-                return jp.getNumberValue();
+                return p.getNumberValue();
 
             case JsonTokenId.ID_NUMBER_FLOAT:
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                    return jp.getDecimalValue();
+                    return p.getDecimalValue();
                 }
-                return Double.valueOf(jp.getDoubleValue());
+                return Double.valueOf(p.getDoubleValue());
 
             case JsonTokenId.ID_TRUE:
                 return Boolean.TRUE;
             case JsonTokenId.ID_FALSE:
                 return Boolean.FALSE;
             case JsonTokenId.ID_EMBEDDED_OBJECT:
-                return jp.getEmbeddedObject();
+                return p.getEmbeddedObject();
 
             case JsonTokenId.ID_NULL: // should not get this far really but...
                 return null;
             default:
-                ctxt.reportMappingException(Object.class);
-                return null;
             }
+            return ctxt.handleUnexpectedToken(Object.class, p);
         }
 
-        protected Object mapArray(JsonParser jp, DeserializationContext ctxt) throws IOException
+        protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            Object value = deserialize(jp, ctxt);
-            if (jp.nextToken()  == JsonToken.END_ARRAY) {
+            Object value = deserialize(p, ctxt);
+            if (p.nextToken()  == JsonToken.END_ARRAY) {
                 ArrayList<Object> l = new ArrayList<Object>(2);
                 l.add(value);
                 return l;
             }
-            Object value2 = deserialize(jp, ctxt);
-            if (jp.nextToken()  == JsonToken.END_ARRAY) {
+            Object value2 = deserialize(p, ctxt);
+            if (p.nextToken()  == JsonToken.END_ARRAY) {
                 ArrayList<Object> l = new ArrayList<Object>(2);
                 l.add(value);
                 l.add(value2);
@@ -609,14 +604,14 @@ public class UntypedObjectDeserializer
             values[ptr++] = value2;
             int totalSize = ptr;
             do {
-                value = deserialize(jp, ctxt);
+                value = deserialize(p, ctxt);
                 ++totalSize;
                 if (ptr >= values.length) {
                     values = buffer.appendCompletedChunk(values);
                     ptr = 0;
                 }
                 values[ptr++] = value;
-            } while (jp.nextToken() != JsonToken.END_ARRAY);
+            } while (p.nextToken() != JsonToken.END_ARRAY);
             // let's create full array then
             ArrayList<Object> result = new ArrayList<Object>(totalSize);
             buffer.completeAndClearBuffer(values, ptr, result);
@@ -663,18 +658,18 @@ public class UntypedObjectDeserializer
         /**
          * Method called to map a JSON Array into a Java Object array (Object[]).
          */
-        protected Object[] mapArrayToArray(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
             ObjectBuffer buffer = ctxt.leaseObjectBuffer();
             Object[] values = buffer.resetAndStart();
             int ptr = 0;
             do {
-                Object value = deserialize(jp, ctxt);
+                Object value = deserialize(p, ctxt);
                 if (ptr >= values.length) {
                     values = buffer.appendCompletedChunk(values);
                     ptr = 0;
                 }
                 values[ptr++] = value;
-            } while (jp.nextToken() != JsonToken.END_ARRAY);
+            } while (p.nextToken() != JsonToken.END_ARRAY);
             return buffer.completeAndClearBuffer(values, ptr);
         }
     }

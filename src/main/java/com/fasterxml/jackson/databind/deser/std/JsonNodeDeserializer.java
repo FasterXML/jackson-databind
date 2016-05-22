@@ -103,8 +103,7 @@ public class JsonNodeDeserializer
             if (p.hasToken(JsonToken.END_OBJECT)) {
                 return ctxt.getNodeFactory().objectNode();
             }
-            ctxt.reportMappingException(ObjectNode.class);
-            return null;
+            return (ObjectNode) ctxt.handleUnexpectedToken(ObjectNode.class, p);
          }
     }
         
@@ -125,8 +124,7 @@ public class JsonNodeDeserializer
             if (p.isExpectedStartArrayToken()) {
                 return deserializeArray(p, ctxt, ctxt.getNodeFactory());
             }
-            ctxt.reportMappingException(ArrayNode.class);
-            return null;
+            return (ArrayNode) ctxt.handleUnexpectedToken(ArrayNode.class, p);
         }
     }
 }
@@ -215,8 +213,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 return node;
             }
             if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportMappingException(handledType(), p.getCurrentToken());
-                return null;
+                return (ObjectNode) ctxt.handleUnexpectedToken(handledType(), p);
             }
             key = p.getCurrentName();
         }
@@ -331,9 +328,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         //case END_OBJECT:
         //case END_ARRAY:
         default:
-            ctxt.reportMappingException(handledType());
-            return null;
         }
+        return (JsonNode) ctxt.handleUnexpectedToken(handledType(), p);
     }
 
     protected final JsonNode _fromInt(JsonParser p, DeserializationContext ctxt,

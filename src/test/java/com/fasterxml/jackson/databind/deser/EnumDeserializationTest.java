@@ -395,10 +395,12 @@ public class EnumDeserializationTest
         final ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         try {
-            assertEquals(TestEnum.JACKSON, mapper.readValue("[" + quote("JACKSON") + "]", TestEnum.class));
-            fail("Exception was not thrown on deserializing a single array element of type enum");
+            Object v = mapper.readValue("[" + quote("JACKSON") + "]",
+                    TestEnum.class);
+            fail("Exception was not thrown on deserializing a single array element of type enum; instead got: "+v);
         } catch (JsonMappingException exp) {
             //exception as thrown correctly
+            verifyException(exp, "Can not deserialize");
         }
     }
 

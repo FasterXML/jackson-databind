@@ -277,9 +277,9 @@ public class NumberDeserializers
                     }
                     return C;
                 }
+            default:
             }
-            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
-            return null;
+            return (Character) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
 
@@ -485,8 +485,7 @@ public class NumberDeserializers
                 break;
             }
             // Otherwise, no can do:
-            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
-            return null;
+            return ctxt.handleUnexpectedToken(_valueClass, p);
         }
 
         /**
@@ -572,8 +571,7 @@ public class NumberDeserializers
                 }
             }
             // String is ok too, can easily convert; otherwise, no can do:
-            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
-            return null;
+            return (BigInteger) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
     
@@ -617,8 +615,7 @@ public class NumberDeserializers
                 break;
             }
             // Otherwise, no can do:
-            ctxt.reportMappingException(_valueClass, p.getCurrentToken());
-            return null;
+            return (BigDecimal) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
 }

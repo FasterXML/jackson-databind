@@ -185,8 +185,7 @@ public class BeanDeserializer
             return deserializeFromObject(p, ctxt);
         default:
         }
-        ctxt.reportMappingException(handledType());
-        return null;
+        return ctxt.handleUnexpectedToken(handledType(), p);
     }
 
     @Deprecated // since 2.8; remove unless getting used
@@ -514,8 +513,7 @@ public class BeanDeserializer
             p2.close();
             return ob;
         }
-        ctxt.reportMappingException(handledType());
-        return null;
+        return ctxt.handleUnexpectedToken(handledType(), p);
     }
 
     /*

@@ -315,6 +315,7 @@ public class CollectionDeserializer
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
+    @SuppressWarnings("unchecked")
     protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
         throws IOException
@@ -324,8 +325,7 @@ public class CollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            ctxt.reportMappingException(_collectionType.getRawClass());
-            return null;
+            return (Collection<Object>) ctxt.handleUnexpectedToken(_collectionType.getRawClass(), p);
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

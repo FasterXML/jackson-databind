@@ -249,6 +249,7 @@ public final class StringCollectionDeserializer
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
+    @SuppressWarnings("unchecked")
     private final Collection<String> handleNonArray(JsonParser p, DeserializationContext ctxt, Collection<String> result) throws IOException
     {
         // implicit arrays from single values?
@@ -256,8 +257,7 @@ public final class StringCollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            ctxt.reportMappingException(_collectionType.getRawClass());
-            return null;
+            return (Collection<String>) ctxt.handleUnexpectedToken(_collectionType.getRawClass(), p);
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
         JsonDeserializer<String> valueDes = _valueDeserializer;

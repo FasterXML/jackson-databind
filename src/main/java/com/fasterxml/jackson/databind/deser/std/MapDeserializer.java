@@ -356,6 +356,7 @@ public class MapDeserializer
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result)
@@ -367,8 +368,7 @@ public class MapDeserializer
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
-            ctxt.reportMappingException(getMapClass());
-            return null;
+            return (Map<Object,Object>) ctxt.handleUnexpectedToken(getMapClass(), p);
         }
         if (_standardStringKey) {
             _readAndBindStringMap(p, ctxt, result);
@@ -426,8 +426,7 @@ public class MapDeserializer
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportMappingException(_mapType.getRawClass(), p.getCurrentToken());
-                return;
+                ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME, null);
             }
             keyStr = p.getCurrentName();
         }
@@ -488,8 +487,7 @@ public class MapDeserializer
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportMappingException(_mapType.getRawClass(), p.getCurrentToken());
-                return;
+                ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME, null);
             }
             key = p.getCurrentName();
         }

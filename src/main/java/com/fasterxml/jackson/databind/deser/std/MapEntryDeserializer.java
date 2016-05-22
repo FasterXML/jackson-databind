@@ -167,55 +167,55 @@ public class MapEntryDeserializer
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Map.Entry<Object,Object> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
             // String may be ok however:
             // slightly redundant (since String was passed above), but
-            return _deserializeFromEmpty(jp, ctxt);
+            return _deserializeFromEmpty(p, ctxt);
         }
         if (t == JsonToken.START_OBJECT) {
-            t = jp.nextToken();
+            t = p.nextToken();
         }
         if (t != JsonToken.FIELD_NAME) {
             if (t == JsonToken.END_OBJECT) {
                 ctxt.reportMappingException("Can not deserialize a Map.Entry out of empty JSON Object");
                 return null;
             }
-            ctxt.reportMappingException(handledType(), t);
-            return null;
+            return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(handledType(), p);
         }
-        
+
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        final String keyStr = jp.getCurrentName();
+        final String keyStr = p.getCurrentName();
         Object key = keyDes.deserializeKey(keyStr, ctxt);
         Object value = null;
         // And then the value...
-        t = jp.nextToken();
+        t = p.nextToken();
         try {
             // Note: must handle null explicitly here; value deserializers won't
             if (t == JsonToken.VALUE_NULL) {
                 value = valueDes.getNullValue(ctxt);
             } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
+                value = valueDes.deserialize(p, ctxt);
             } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
         } catch (Exception e) {
             wrapAndThrow(e, Map.Entry.class, keyStr);
         }
 
         // Close, but also verify that we reached the END_OBJECT
-        t = jp.nextToken();
+        t = p.nextToken();
         if (t != JsonToken.END_OBJECT) {
             if (t == JsonToken.FIELD_NAME) { // most likely
-                ctxt.reportMappingException("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '"+jp.getCurrentName()+"')");
+                ctxt.reportMappingException("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '"+p.getCurrentName()+"')");
             } else {
                 // how would this occur?
                 ctxt.reportMappingException("Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);
@@ -226,19 +226,19 @@ public class MapEntryDeserializer
     }
 
     @Override
-    public Map.Entry<Object,Object> deserialize(JsonParser jp, DeserializationContext ctxt,
+    public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Map.Entry<Object,Object> result) throws IOException
     {
         throw new IllegalStateException("Can not update Map.Entry values");
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
         // In future could check current token... for now this should be enough:
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
     /*

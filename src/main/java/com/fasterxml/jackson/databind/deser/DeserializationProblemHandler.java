@@ -207,6 +207,39 @@ public abstract class DeserializationProblemHandler
     }
 
     /**
+     * Method called when instance creation for a type fails due to lack of an
+     * instantiator. Method is called before actual deserialization from input
+     * is attempted, so handler may do one of following things:
+     *<ul>
+     * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
+     *  </li>
+     * <li>Throw a {@link IOException} to indicate specific fail message (instead of
+     *    standard exception caller would throw
+     *  </li>
+     * <li>Handle content to match (by consuming or skipping it), and return actual
+     *    instantiated value (of type <code>targetType</code>) to use as replacement;
+     *    value may be `null` as well as expected target type.
+     *  </li>
+     * </ul>
+     *
+     * @param instClass Type that was to be instantiated
+     * @param p Parser to use for accessing content that needs handling, to either
+     *   use it or skip it (latter with {@link JsonParser#skipChildren()}.
+     *
+     * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
+     *    what to do (and exception may be thrown), or value to use as key (possibly
+     *    <code>null</code>
+     *
+     * @since 2.8
+     */
+    public Object handleMissingInstantiator(DeserializationContext ctxt,
+            Class<?> instClass, JsonParser p, String msg)
+        throws IOException
+    {
+        return NOT_HANDLED;
+    }
+    
+    /**
      * Handler method called if resolution of type id from given String failed
      * to produce a subtype; usually because logical id is not mapped to actual
      * implementation class.

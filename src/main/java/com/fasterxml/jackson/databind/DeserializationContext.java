@@ -954,7 +954,6 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs)
         throws IOException
     {
-        // but if not handled, just throw exception
         if (msgArgs.length > 0) {
             msg = String.format(msg, msgArgs);
         }
@@ -977,46 +976,44 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Method that deserializers should call if they encounter a type id
-     * (for polymorphic deserialization) that can not be resolved to an
-     * actual type; usually since there is no mapping defined.
-     * Default implementation will try to call {@link DeserializationProblemHandler#handleUnknownTypeId}
-     * on configured handlers, if any, to allow for recovery; if recovery does not
-     * succeed, will throw exception constructed with {@link #unknownTypeIdException}.
+     * Method that deserializers should call if they fail to instantiate value
+     * due to lack of viable instantiator (usually creator, that is, constructor
+     * or static factory method). Method should be called at point where value
+     * has not been decoded, so that handler has a chance to handle decoding
+     * using alternate mechanism, and handle underlying content (possibly by
+     * just skipping it) to keep input state valid
      *
-     * @param baseType Base type from which resolution starts
-     * @param id Type id that could not be converted
-     * @param extraDesc Additional problem description to add to default exception message,
-     *    if resolution fails.
+     * @param instClass Type that was to be instantiated
+     * @param p Parser that points to the JSON value to decode
      *
-     * @return {@link JavaType} that id resolves to
-     *
-     * @throws IOException To indicate unrecoverable problem, if resolution can not
-     *    be made to work
+     * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      *
      * @since 2.8
      */
-    public JavaType handleUnknownTypeId(JavaType baseType, String id,
-            String extraDesc) throws IOException
+    public Object handleMissingInstantiator(Class<?> instClass, JsonParser p,
+            String msg, Object... msgArgs)
+        throws IOException
     {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
-            JavaType type = h.value().handleUnknownTypeId(this, baseType, id, extraDesc);
-            if (type != null) {
-                if (type.hasRawClass(Void.class)) {
-                    return null;
+            Object instance = h.value().handleMissingInstantiator(this,
+                    instClass, p, msg);
+            if (instance != DeserializationProblemHandler.NOT_HANDLED) {
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if ((instance == null) || instClass.isInstance(instance)) {
+                    return instance;
                 }
-                // But ensure there's type compatibility
-                if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
-                    return type;
-                }
-                throw unknownTypeIdException(baseType, id,
-                        "problem handler tried to resolve into non-subtype: "+type);
+                throw instantiationException(instClass, String.format(
+                        "DeserializationProblemHandler.handleMissingInstantiator() for type %s returned value of type %s",
+                        instClass, instance.getClass()));
             }
             h = h.next();
         }
-        throw unknownTypeIdException(baseType, id, extraDesc);
+        throw instantiationException(instClass, msg);
     }
 
     /**
@@ -1062,12 +1059,76 @@ public abstract class DeserializationContext
         throw instantiationException(instClass, t);
     }
 
+    /**
+     * Method that deserializers should call if they encounter a type id
+     * (for polymorphic deserialization) that can not be resolved to an
+     * actual type; usually since there is no mapping defined.
+     * Default implementation will try to call {@link DeserializationProblemHandler#handleUnknownTypeId}
+     * on configured handlers, if any, to allow for recovery; if recovery does not
+     * succeed, will throw exception constructed with {@link #unknownTypeIdException}.
+     *
+     * @param baseType Base type from which resolution starts
+     * @param id Type id that could not be converted
+     * @param extraDesc Additional problem description to add to default exception message,
+     *    if resolution fails.
+     *
+     * @return {@link JavaType} that id resolves to
+     *
+     * @throws IOException To indicate unrecoverable problem, if resolution can not
+     *    be made to work
+     *
+     * @since 2.8
+     */
+    public JavaType handleUnknownTypeId(JavaType baseType, String id,
+            String extraDesc) throws IOException
+    {
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            JavaType type = h.value().handleUnknownTypeId(this, baseType, id, extraDesc);
+            if (type != null) {
+                if (type.hasRawClass(Void.class)) {
+                    return null;
+                }
+                // But ensure there's type compatibility
+                if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
+                    return type;
+                }
+                throw unknownTypeIdException(baseType, id,
+                        "problem handler tried to resolve into non-subtype: "+type);
+            }
+            h = h.next();
+        }
+        throw unknownTypeIdException(baseType, id, extraDesc);
+    }
+
     /*
     /**********************************************************
-    /* Methods for problem reporting
+    /* Methods for problem reporting, in cases where recovery
+    /* is not considered possible
     /**********************************************************
      */
 
+    /**
+     * Method for deserializers to call 
+     * when the token encountered was of type different than what <b>should</b>
+     * be seen at that position, usually within a sequence of expected tokens.
+     * Note that this method will throw a {@link JsonMappingException} and no
+     * recovery is attempted (via {@link DeserializationProblemHandler}, as
+     * problem is considered to be difficult to recover from, in general.
+     * 
+     * @since 2.8
+     */
+    public void reportWrongTokenException(JsonParser p,
+            JsonToken expToken, String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw wrongTokenException(p, expToken, msg);
+    }
+    
     /**
      * Helper method for reporting a problem with unhandled unknown property.
      * 
@@ -1091,32 +1152,6 @@ public abstract class DeserializationContext
         Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
         throw UnrecognizedPropertyException.from(_parser,
                 instanceOrClass, fieldName, propIds);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public void reportInstantiationException(Class<?> instClass,
-            String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        throw instantiationException(instClass, msg);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public JsonMappingException reportWrongTokenException(JsonParser p,
-            JsonToken expToken, String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        throw wrongTokenException(p, expToken, msg);
     }
 
     /**
@@ -1203,7 +1238,7 @@ public abstract class DeserializationContext
      */
 
     /**
-     * Helper method for constructing {@link JsonMappingException} to indicated
+     * Helper method for constructing {@link JsonMappingException} to indicate
      * that the token encountered was of type different than what <b>should</b>
      * be seen at that position, usually within a sequence of expected tokens.
      * Note that most of the time this method should NOT be directly called;
@@ -1289,6 +1324,21 @@ public abstract class DeserializationContext
     }
 
     /**
+     * Helper method for constructing instantiation exception for specified type,
+     * to indicate that instantiation failed due to missing instantiator
+     * (creator; constructor or factory method).
+     *<p>
+     * Note that most of the time this method should NOT be called; instead,
+     * {@link #handleMissingInstantiator} should be called which will call this method
+     * if necessary.
+     */
+    public JsonMappingException instantiationException(Class<?> instClass, String msg) {
+        return JsonMappingException.from(_parser,
+                String.format("Can not construct instance of %s: %s",
+                        instClass.getName(), msg));
+    }
+
+    /**
      * Helper method for constructing exception to indicate that given type id
      * could not be resolved to a valid subtype of specified base type, during
      * polymorphic deserialization.
@@ -1312,16 +1362,6 @@ public abstract class DeserializationContext
     /* Methods for constructing semantic exceptions
     /**********************************************************
      */
-
-    /**
-     * @deprecated Since 2.8 use {@link #reportInstantiationException} instead
-     */
-    @Deprecated
-    public JsonMappingException instantiationException(Class<?> instClass, String msg) {
-        return JsonMappingException.from(_parser,
-                String.format("Can not construct instance of %s: %s",
-                        instClass.getName(), msg));
-    }
 
     /**
      * @since 2.5

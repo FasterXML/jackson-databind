@@ -1186,11 +1186,13 @@ public abstract class BeanDeserializerBase
         }
         // should only occur for abstract types...
         if (_beanType.isAbstract()) {
-            throw JsonMappingException.from(p, "Can not instantiate abstract type "+_beanType
-                    +" (need to add/enable type information?)");
+            return ctxt.handleMissingInstantiator(_beanType.getRawClass(), p,
+                    "Can not instantiate abstract type %s (need to add/enable type information?)",
+                    _beanType);
         }
-        throw JsonMappingException.from(p, "No suitable constructor found for type "
-                +_beanType+": can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)");
+        return ctxt.handleMissingInstantiator(_beanType.getRawClass(), p,
+                "No suitable constructor found for type %s: can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)",
+                _beanType);
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,
@@ -1237,8 +1239,8 @@ public abstract class BeanDeserializerBase
             }
             return bean;
         }
-        ctxt.reportInstantiationException(handledType(), "no suitable creator method found to deserialize from JSON integer number");
-        return null;
+        return ctxt.handleMissingInstantiator(handledType(), p,
+                "no suitable creator method found to deserialize from JSON integer number");
     }
 
     public Object deserializeFromString(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -1287,9 +1289,8 @@ public abstract class BeanDeserializerBase
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
         }
-        ctxt.reportInstantiationException(handledType(),
+        return ctxt.handleMissingInstantiator(handledType(), p,
                 "no suitable creator method found to deserialize from JSON floating-point number");
-        return null;
     }
 
     /**

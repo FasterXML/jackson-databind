@@ -334,9 +334,8 @@ public class MapDeserializer
                     _delegateDeserializer.deserialize(p, ctxt));
         }
         if (!_hasDefaultCreator) {
-            ctxt.reportInstantiationException(getMapClass(), "No default constructor found");
-            // 05-May-2016, tatu: Unlikely to really work...
-            return null;
+            return (Map<Object,Object> ) ctxt.handleMissingInstantiator(getMapClass(), p,
+                    "No default constructor found");
         }
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
         JsonToken t = p.getCurrentToken();

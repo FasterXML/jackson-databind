@@ -146,11 +146,8 @@ public class AbstractDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        // This method should never be called...
-        ctxt.reportInstantiationException(_baseType.getRawClass(),
+        return ctxt.handleMissingInstantiator(_baseType.getRawClass(), p,
                 "abstract types either need to be mapped to concrete types, have custom deserializer, or be instantiated with additional type information");
-        // 05-May-2016, tatu: Unlikely work as is but...
-        return null;
     }
 
     /*

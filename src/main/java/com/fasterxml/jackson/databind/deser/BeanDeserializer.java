@@ -30,6 +30,14 @@ public class BeanDeserializer
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Lazily constructed exception used as root cause if reporting problem
+     * with creator method that returns <code>null</code> (which is not allowed)
+     *
+     * @since 3.8
+     */
+    protected transient Exception _nullFromCreator;
+    
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization
@@ -397,10 +405,8 @@ public class BeanDeserializer
                         bean = wrapInstantiationProblem(e, ctxt);
                     }
                     if (bean == null) {
-                        ctxt.reportInstantiationException(_beanType.getRawClass(),
-                                "JSON Creator returned null");
-                        // 05-May-2016, tatu: This won't really work well at all but...
-                        return null;
+                        return ctxt.handleInstantiationProblem(handledType(), null,
+                                _creatorReturnedNullException());
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.setCurrentValue(bean);
@@ -905,5 +911,18 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
+    }
+
+    /**
+     * Helper method for getting a lazily construct exception to be reported
+     * to {@link DeserializationContext#handleInstantiationProblem(Class, Object, Throwable)}.
+     *
+     * @since 2.8
+     */
+    protected Exception _creatorReturnedNullException() {
+        if (_nullFromCreator == null) {
+            _nullFromCreator = new NullPointerException("JSON Creator returned null");
+        }
+        return _nullFromCreator;
     }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -15,6 +16,12 @@ import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
  */
 public class ProblemHandlerTest extends BaseMapTest
 {
+    /*
+    /**********************************************************
+    /* Test handler types
+    /**********************************************************
+     */
+
     static class WeirdKeyHandler
         extends DeserializationProblemHandler
     {
@@ -89,6 +96,25 @@ public class ProblemHandlerTest extends BaseMapTest
             return value;
         }
     }
+
+    static class MissingInstantiationHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Object value;
+    
+        public MissingInstantiationHandler(Object v0) {
+            value = v0;
+        }
+    
+        @Override
+        public Object handleMissingInstantiator(DeserializationContext ctxt,
+                Class<?> instClass, JsonParser p, String msg)
+            throws IOException
+        {
+            p.skipChildren();
+            return value;
+        }
+    }
     
     static class IntKeyMapWrapper {
         public Map<Integer,String> stuff;
@@ -107,6 +133,12 @@ public class ProblemHandlerTest extends BaseMapTest
         }
     }
 
+    /*
+    /**********************************************************
+    /* Other helper types
+    /**********************************************************
+     */
+    
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     static class Base { }
     static class Impl extends Base {
@@ -129,7 +161,13 @@ public class ProblemHandlerTest extends BaseMapTest
         }
         private BustedCtor(boolean b) { }
     }
-    
+
+    static class NoDefaultCtor {
+        public int value;
+
+        public NoDefaultCtor(int v) { value = v; }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -198,5 +236,15 @@ public class ProblemHandlerTest extends BaseMapTest
         BustedCtor w = mapper.readValue("{ }",
                 BustedCtor.class);
         assertNotNull(w);
+    }
+
+    public void testMissingInstantiatorHandling() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new MissingInstantiationHandler(new NoDefaultCtor(13)))
+            ;
+        NoDefaultCtor w = mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
+        assertNotNull(w);
+        assertEquals(13, w.value);
     }
 }

@@ -69,6 +69,10 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 2.7 use constructor that takes {@link JavaType} instead
+     */
+    @Deprecated
     public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.getName();
     }

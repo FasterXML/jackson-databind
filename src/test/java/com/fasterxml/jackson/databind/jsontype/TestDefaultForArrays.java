@@ -1,5 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
@@ -65,6 +70,24 @@ public class TestDefaultForArrays extends BaseMapTest
         assertEquals(1, result.length);
         Object ob = result[0];
         assertTrue(ob instanceof JsonNode);
+    }
+    
+    public void testNodeInEmptyArray() throws Exception {
+        Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
+        outerMap.put("inner", new ArrayList<String>());
+        ObjectMapper m = new ObjectMapper().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+        JsonNode tree = m.convertValue(outerMap, JsonNode.class);
+        
+        String json = m.writeValueAsString(tree);
+        assertEquals("{}", json);
+        
+        JsonNode node = new ObjectMapper().readTree("{\"a\":[]}");
+        
+        m.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT);
+        Object[] obs = new Object[] { node };
+        json = m.writeValueAsString(obs);
+        Object[] result = m.readValue(json, Object[].class);
+        assertEquals("{}", result[0].toString());
     }
 
     // test for [JACKSON-845]

@@ -37,10 +37,30 @@ public abstract class ValueInstantiator
      */
 
     /**
+     * Accessor for raw (type-erased) type of instances to create.
+     *<p>
+     * NOTE: since this method has not existed since beginning of
+     * Jackson 2.0 series, default implementation will just return
+     * <code>Object.class</code>; implementations are expected
+     * to override it with real value.
+     *
+     * @since 2.8
+     */
+    public Class<?> getValueClass() {
+        return Object.class;
+    }
+
+    /**
      * Method that returns description of the value type this instantiator
      * handles. Used for error messages, diagnostics.
      */
-    public abstract String getValueTypeDesc();
+    public String getValueTypeDesc() {
+        Class<?> cls = getValueClass();
+        if (cls == null) {
+            return "UNKNOWN";
+        }
+        return cls.getName();
+    }
 
     /**
      * Method that will return true if any of <code>canCreateXxx</code> method
@@ -324,5 +344,38 @@ public abstract class ValueInstantiator
         ctxt.reportMappingException("Can not instantiate value of type %s from String value ('%s'); no single-String constructor/factory method",
                 getValueTypeDesc(), value);
         return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Standard Base implementation (since 2.8)
+    /**********************************************************
+     */
+
+    /**
+     * Partial {@link ValueInstantiator} implementation that is strongly recommended
+     * to be used instead of directly extending {@link ValueInstantiator} itself.
+     */
+    public static class Base extends ValueInstantiator
+    {
+        protected final Class<?> _valueType;
+
+        public Base(Class<?> type) {
+            _valueType = type;
+        }
+
+        public Base(JavaType type) {
+            _valueType = type.getRawClass();
+        }
+        
+        @Override
+        public String getValueTypeDesc() {
+            return _valueType.getName();
+        }
+
+        @Override
+        public Class<?> getValueClass() {
+            return _valueType;
+        }
     }
 }

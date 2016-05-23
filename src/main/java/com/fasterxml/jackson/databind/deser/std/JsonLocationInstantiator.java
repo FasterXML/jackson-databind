@@ -15,13 +15,13 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
  * {@link ValueInstantiator} (not that explicit one would be very
  * hard but...)
  */
-public class JsonLocationInstantiator extends ValueInstantiator
+public class JsonLocationInstantiator
+    extends ValueInstantiator.Base
 {
-    @Override
-    public String getValueTypeDesc() {
-        return JsonLocation.class.getName();
+    public JsonLocationInstantiator() {
+        super(JsonLocation.class);
     }
-    
+
     @Override
     public boolean canCreateFromObjectWith() { return true; }
     

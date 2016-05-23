@@ -345,7 +345,7 @@ public class CreatorCollector
      */
 
     protected final static class Vanilla
-        extends ValueInstantiator
+        extends ValueInstantiator.Base
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -357,18 +357,17 @@ public class CreatorCollector
         private final int _type;
         
         public Vanilla(int t) {
+            super(_type(t));
             _type = t;
         }
-        
-        
-        @Override
-        public String getValueTypeDesc() {
-            switch (_type) {
-            case TYPE_COLLECTION: return ArrayList.class.getName();
-            case TYPE_MAP: return LinkedHashMap.class.getName();
-            case TYPE_HASH_MAP: return HashMap.class.getName();
+
+        private static Class<?> _type(int t) {
+            switch (t) {
+            case TYPE_COLLECTION: return ArrayList.class;
+            case TYPE_MAP: return LinkedHashMap.class;
+            case TYPE_HASH_MAP: return HashMap.class;
             }
-            return Object.class.getName();
+            return Object.class;
         }
 
         @Override

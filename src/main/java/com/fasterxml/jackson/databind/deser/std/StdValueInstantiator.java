@@ -27,6 +27,11 @@ public class StdValueInstantiator
      */
     protected final String _valueTypeDesc;
 
+    /**
+     * @since 2.8
+     */
+    protected final Class<?> _valueClass;
+
     // // // Default (no-args) construction
 
     /**
@@ -75,10 +80,12 @@ public class StdValueInstantiator
     @Deprecated
     public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.getName();
+        _valueClass = (valueType == null) ? Object.class : valueType;
     }
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
+        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
     }
 
     /**
@@ -88,6 +95,7 @@ public class StdValueInstantiator
     protected StdValueInstantiator(StdValueInstantiator src)
     {
         _valueTypeDesc = src._valueTypeDesc;
+        _valueClass = src._valueClass;
 
         _defaultCreator = src._defaultCreator;
 
@@ -169,6 +177,11 @@ public class StdValueInstantiator
     @Override
     public String getValueTypeDesc() {
         return _valueTypeDesc;
+    }
+
+    @Override
+    public Class<?> getValueClass() {
+        return _valueClass;
     }
     
     @Override

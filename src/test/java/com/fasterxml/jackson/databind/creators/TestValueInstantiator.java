@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
- * Test related to [JACKSON-580] (allow specifying custom instantiators)
+ * Test custom instantiators.
  */
 public class TestValueInstantiator extends BaseMapTest
 {
@@ -43,8 +43,12 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
 
-    static abstract class InstantiatorBase extends ValueInstantiator
+    static abstract class InstantiatorBase extends ValueInstantiator.Base
     {
+        public InstantiatorBase() {
+            super(Object.class);
+        }
+
         @Override
         public String getValueTypeDesc() {
             return "UNKNOWN";
@@ -153,8 +157,10 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
     
-    static class MyDelegateBeanInstantiator extends ValueInstantiator
+    static class MyDelegateBeanInstantiator extends ValueInstantiator.Base
     {
+        public MyDelegateBeanInstantiator() { super(Object.class); }
+
         @Override
         public String getValueTypeDesc() { return "xxx"; }
         
@@ -188,8 +194,10 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
 
-    static class MyDelegateListInstantiator extends ValueInstantiator
+    static class MyDelegateListInstantiator extends ValueInstantiator.Base
     {
+        public MyDelegateListInstantiator() { super(Object.class); }
+
         @Override
         public String getValueTypeDesc() { return "xxx"; }
         
@@ -225,8 +233,10 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
 
-    static class MyDelegateMapInstantiator extends ValueInstantiator
+    static class MyDelegateMapInstantiator extends ValueInstantiator.Base
     {
+        public MyDelegateMapInstantiator() { super(Object.class); }
+
         @Override
         public String getValueTypeDesc() { return "xxx"; }
         

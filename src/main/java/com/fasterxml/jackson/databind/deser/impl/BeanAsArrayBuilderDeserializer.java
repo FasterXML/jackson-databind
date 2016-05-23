@@ -178,14 +178,15 @@ public class BeanAsArrayBuilderDeserializer
         
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            ctxt.reportMappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+            ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY,
+                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
-            // fall through
+            // never gets here
         }
         // otherwise, skip until end
-        while (p.nextToken() != JsonToken.END_ARRAY) {
+        do {
             p.skipChildren();
-        }
+        } while (p.nextToken() != JsonToken.END_ARRAY);
         return finishBuild(ctxt, builder);
     }
 
@@ -247,9 +248,10 @@ public class BeanAsArrayBuilderDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            ctxt.reportMappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+            ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY,
+                    "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);
-            // fall through
+            // will never reach here as exception has been thrown
         }
         // otherwise, skip until end
         while (p.nextToken() != JsonToken.END_ARRAY) {

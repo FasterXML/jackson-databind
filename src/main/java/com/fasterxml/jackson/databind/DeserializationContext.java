@@ -406,11 +406,6 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    @Deprecated // since 2.3, use overloaded variant
-    public boolean hasValueDeserializerFor(JavaType type) {
-        return hasValueDeserializerFor(type, null);
-    }
-
     /**
      * Method for checking whether we could find a deserializer
      * for given type.
@@ -518,9 +513,6 @@ public abstract class DeserializationContext
      * Object Id: will add an entry if necessary, and never returns null
      */
     public abstract ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator, ObjectIdResolver resolver);
-
-    @Deprecated // since 2.4
-    public abstract ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator);
 
     /**
      * Method called to ensure that every object id encounter during processing
@@ -691,12 +683,12 @@ public abstract class DeserializationContext
         return deser;
     }
 
-    @Deprecated // since 2.5; remove from 2.7
+    @Deprecated // since 2.5; remove from 2.9
     public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
         return handlePrimaryContextualization(deser, prop, TypeFactory.unknownType());
     }
 
-    @Deprecated // since 2.5; remove from 2.7
+    @Deprecated // since 2.5; remove from 2.9
     public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
         if (deser instanceof ContextualDeserializer) {
             deser = ((ContextualDeserializer) deser).createContextual(this, prop);

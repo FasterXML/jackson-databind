@@ -188,7 +188,7 @@ public class ExternalTypeHandler
                     continue;
                 }
                 // but not just one
-                // 26-Oct-2012, tatu: As per [Issue#94], must allow use of 'defaultImpl'
+                // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                 if (!_properties[i].hasDefaultType()) {
                     ctxt.reportMappingException("Missing external type id property '%s'",
                             _properties[i].getTypePropertyName());

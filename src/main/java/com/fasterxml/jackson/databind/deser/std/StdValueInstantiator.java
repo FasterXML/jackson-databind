@@ -337,19 +337,18 @@ public class StdValueInstantiator
                         arg, rewrapCtorProblem(ctxt, t0));
             }
         }
-        ctxt.reportMappingException("Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
                 getValueTypeDesc(), value);
-        return null;
     }
 
     @Override
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
     {
         if (_fromLongCreator == null) {
-            ctxt.reportMappingException("Can not instantiate value of type %s"
-                    +" from Long integral number (%s); no single-long-arg constructor/factory method",
+            return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                    "Can not instantiate value of type %s from Long integral number (%s); no single-long-arg constructor/factory method",
                     getValueTypeDesc(), value);
-            return null;
         }
         Object arg = Long.valueOf(value);
         try {
@@ -364,10 +363,9 @@ public class StdValueInstantiator
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
     {
         if (_fromDoubleCreator == null) {
-            ctxt.reportMappingException("Can not instantiate value of type %s"
-                    +" from Floating-point number (%s); no one-double/Double-arg constructor/factory method",
+            return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                    "Can not instantiate value of type %s from Floating-point number (%s); no one-double/Double-arg constructor/factory method",
                     getValueTypeDesc(), value);
-            return null;
         }
         Object arg = Double.valueOf(value);
         try {
@@ -382,10 +380,9 @@ public class StdValueInstantiator
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException
     {
         if (_fromBooleanCreator == null) {
-            ctxt.reportMappingException("Can not instantiate value of type %s"
-                    +" from Boolean value (%s); no single-boolean/Boolean-arg constructor/factory method",
+            return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                    "Can not instantiate value of type %s from Boolean value (%s); no single-boolean/Boolean-arg constructor/factory method",
                     getValueTypeDesc(), value);
-            return null;
         }
         final Boolean arg = Boolean.valueOf(value);
         try {

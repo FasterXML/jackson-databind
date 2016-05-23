@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -181,9 +180,9 @@ public abstract class ValueInstantiator
      * null or empty List.
      */
     public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s; no default creator found",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s; no default creator found",
                 getValueTypeDesc());
-        return null;
     }
 
     /**
@@ -195,9 +194,9 @@ public abstract class ValueInstantiator
      * a non-empty List of arguments.
      */
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s with arguments",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s with arguments",
                 getValueTypeDesc());
-        return null;
     }
 
     /**
@@ -205,9 +204,9 @@ public abstract class ValueInstantiator
      * an intermediate "delegate" value to pass to createor method
      */
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s using delegate",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s using delegate",
                 getValueTypeDesc());
-        return null;
     }
 
     /**
@@ -215,9 +214,9 @@ public abstract class ValueInstantiator
      * an intermediate "delegate" value to pass to createor method
      */
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s using delegate",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s using delegate",
                 getValueTypeDesc());
-        return null;
     }
 
     /*
@@ -232,27 +231,27 @@ public abstract class ValueInstantiator
     }
 
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s from Integer number (%s, int)",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s from Integer number (%s, int)",
                 getValueTypeDesc(), value);
-        return null;
     }
 
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s from Integer number (%s, long)",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s from Integer number (%s, long)",
                 getValueTypeDesc(), value);
-        return null;
     }
 
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s from Floating-point number (%s, double)",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s from Floating-point number (%s, double)",
                 getValueTypeDesc(), value);
-        return null;
     }
-    
+
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
-        ctxt.reportMappingException("Can not instantiate value of type %s from Boolean value (%s)",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s from Boolean value (%s)",
                 getValueTypeDesc(), value);
-        return null;
     }
 
     /*
@@ -320,7 +319,7 @@ public abstract class ValueInstantiator
      * @since 2.4 (demoted from <code>StdValueInstantiator</code>)
      */
     protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
-            throws IOException, JsonProcessingException
+            throws IOException
     {
         /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
          *   systems that expect conversions in some cases, let's just add a minimal
@@ -341,9 +340,9 @@ public abstract class ValueInstantiator
                 return null;
             }
         }
-        ctxt.reportMappingException("Can not instantiate value of type %s from String value ('%s'); no single-String constructor/factory method",
+        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+                "Can not instantiate value of type %s from String value ('%s'); no single-String constructor/factory method",
                 getValueTypeDesc(), value);
-        return null;
     }
 
     /*

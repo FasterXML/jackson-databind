@@ -140,12 +140,6 @@ public abstract class DefaultDeserializationContext
         return new ReadableObjectId(key);
     }
 
-    @Deprecated // since 2.4
-    @Override
-    public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen) {
-        return findObjectId(id, gen, new SimpleObjectIdResolver());
-    }
-
     @Override
     public void checkUnresolvedObjectId() throws UnresolvedForwardReference
     {

@@ -338,10 +338,6 @@ public class ObjectReader
     /**********************************************************
      */
 
-    /**
-     * NOTE: changed from static to non-static in 2.5; unfortunate but
-     * necessary change to support overridability
-     */
     protected JsonToken _initForReading(JsonParser p) throws IOException
     {
         if (_schema != null) {
@@ -1631,17 +1627,19 @@ public class ObjectReader
         String expSimpleName = expRootName.getSimpleName();
 
         if (p.getCurrentToken() != JsonToken.START_OBJECT) {
-            throw JsonMappingException.from(p, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +expSimpleName+"'), but "+p.getCurrentToken());
+            ctxt.reportWrongTokenException(p, JsonToken.START_OBJECT,
+                    "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
+                    expSimpleName, p.getCurrentToken());
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
-            throw JsonMappingException.from(p, "Current token not FIELD_NAME (to contain expected root name '"
-                    +expSimpleName+"'), but "+p.getCurrentToken());
+            ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,
+                    "Current token not FIELD_NAME (to contain expected root name '%s'), but %s", 
+                    expSimpleName, p.getCurrentToken());
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
-            throw JsonMappingException.from(p, "Root name '"+actualName+"' does not match expected ('"
-                    +expSimpleName+"') for type "+rootType);
+            ctxt.reportMappingException("Root name '%s' does not match expected ('%s') for type %s",
+                    actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
         p.nextToken();
@@ -1654,8 +1652,9 @@ public class ObjectReader
         }
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {
-            throw JsonMappingException.from(p, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +expSimpleName+"'), but "+p.getCurrentToken());
+            ctxt.reportWrongTokenException(p, JsonToken.END_OBJECT,
+                    "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
+                    expSimpleName, p.getCurrentToken());
         }
         return result;
     }
@@ -1796,7 +1795,7 @@ public class ObjectReader
         // Sanity check: must have actual type...
         JavaType t = _valueType;
         if (t == null) {
-            throw JsonMappingException.from(ctxt, "No value type configured for ObjectReader");
+            ctxt.reportMappingException("No value type configured for ObjectReader");
         }
         
         // First: have we already seen it?
@@ -1807,7 +1806,7 @@ public class ObjectReader
         // Nope: need to ask provider to resolve it
         deser = ctxt.findRootValueDeserializer(t);
         if (deser == null) { // can this happen?
-            throw JsonMappingException.from(ctxt, "Can not find a deserializer for type "+t);
+            ctxt.reportMappingException("Can not find a deserializer for type %s", t);
         }
         _rootDeserializers.put(t, deser);
         return deser;
@@ -1824,8 +1823,8 @@ public class ObjectReader
             // Nope: need to ask provider to resolve it
             deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
             if (deser == null) { // can this happen?
-                throw JsonMappingException.from(ctxt,
-                        "Can not find a deserializer for type "+JSON_NODE_TYPE);
+                ctxt.reportMappingException("Can not find a deserializer for type %s",
+                        JSON_NODE_TYPE);
             }
             _rootDeserializers.put(JSON_NODE_TYPE, deser);
         }

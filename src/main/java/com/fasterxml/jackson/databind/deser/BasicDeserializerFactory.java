@@ -260,8 +260,9 @@ public abstract class BasicDeserializerFactory
                 instantiator = insts.findValueInstantiator(config, beanDesc, instantiator);
                 // let's do sanity check; easier to spot buggy handlers
                 if (instantiator == null) {
-                    throw JsonMappingException.from(ctxt.getParser(),
-                            "Broken registered ValueInstantiators (of type "+insts.getClass().getName()+"): returned null ValueInstantiator");
+		    ctxt.reportMappingException(
+						"Broken registered ValueInstantiators (of type %s): returned null ValueInstantiator",
+						insts.getClass().getName());
                 }
             }
         }

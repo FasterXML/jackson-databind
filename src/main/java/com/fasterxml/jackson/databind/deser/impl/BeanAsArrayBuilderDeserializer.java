@@ -262,7 +262,7 @@ public class BeanAsArrayBuilderDeserializer
     
     protected Object _deserializeWithCreator(JsonParser p, DeserializationContext ctxt)
         throws IOException
-    {        
+    {
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserialize(p, ctxt));
@@ -272,11 +272,13 @@ public class BeanAsArrayBuilderDeserializer
         }
         // should only occur for abstract types...
         if (_beanType.isAbstract()) {
-            throw JsonMappingException.from(p, "Can not instantiate abstract type "+_beanType
-                    +" (need to add/enable type information?)");
+            return ctxt.handleMissingInstantiator(handledType(), p,
+                    "Can not instantiate abstract type %s (need to add/enable type information?)",
+                    _beanType);
         }
-        throw JsonMappingException.from(p, "No suitable constructor found for type "
-                +_beanType+": can not instantiate from JSON object (need to add/enable type information?)");
+        return ctxt.handleMissingInstantiator(handledType(), p,
+                "No suitable constructor found for type %s: can not instantiate from JSON object (need to add/enable type information?)",
+                _beanType);
     }
 
     /**
@@ -370,12 +372,12 @@ public class BeanAsArrayBuilderDeserializer
         throws IOException
     {
         // Let's start with failure
-        ctxt.reportMappingException("Can not deserialize a POJO (of type %s) from non-Array representation (token: %s): "
+        return ctxt.handleUnexpectedToken(handledType(), p.getCurrentToken(), p,
+                "Can not deserialize a POJO (of type %s) from non-Array representation (token: %s): "
                 +"type/property designed to be serialized as JSON Array",
                 _beanType.getRawClass().getName(),
                 p.getCurrentToken());
         // in future, may allow use of "standard" POJO serialization as well; if so, do:
         //return _delegate.deserialize(p, ctxt);
-        return null;
     }
 }

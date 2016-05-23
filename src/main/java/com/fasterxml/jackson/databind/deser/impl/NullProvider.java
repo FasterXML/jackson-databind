@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
- * @deprecated
+ * @deprecated Since 2.6
  */
-@Deprecated // since 2.6, remove in 2.7
+@Deprecated // since 2.6, remove in 2.9?
 public final class NullProvider
     implements java.io.Serializable
 {
@@ -30,9 +30,8 @@ public final class NullProvider
     public Object nullValue(DeserializationContext ctxt) throws JsonProcessingException
     {
         if (_isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            throw ctxt.mappingException(String.format(
-                    "Can not map JSON null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    _rawType.getName()));
+            ctxt.reportMappingException("Can not map JSON null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    _rawType.getName());
         }
         return _nullValue;
     }

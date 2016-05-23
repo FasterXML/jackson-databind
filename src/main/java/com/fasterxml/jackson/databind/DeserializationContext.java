@@ -762,7 +762,7 @@ public abstract class DeserializationContext
     public <T> T readValue(JsonParser p, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findRootValueDeserializer(type);
         if (deser == null) {
-            throw mappingException("Could not find JsonDeserializer for type "+type);
+            reportMappingException("Could not find JsonDeserializer for type %s", type);
         }
         return (T) deser.deserialize(p, this);
     }
@@ -787,9 +787,9 @@ public abstract class DeserializationContext
         JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
             String propName = (prop == null) ? "NULL" : ("'"+prop.getName()+"'");
-            throw mappingException(String.format(
+            reportMappingException(
                     "Could not find JsonDeserializer for type %s (via property %s)",
-                    type, propName));
+                    type, propName);
         }
         return (T) deser.deserialize(p, this);
     }
@@ -1102,9 +1102,8 @@ public abstract class DeserializationContext
                 if ((instance == null) || instClass.isInstance(instance)) {
                     return instance;
                 }
-                throw mappingException(String.format(
-                        "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        instClass, instance.getClass()));
+                reportMappingException("DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
+                        instClass, instance.getClass());
             }
             h = h.next();
         }
@@ -1112,7 +1111,8 @@ public abstract class DeserializationContext
             msg = String.format("Can not deserialize instance of %s out of %s token",
                     _calcName(instClass), t);
         }
-        throw mappingException(msg);
+        reportMappingException(msg);
+        return null; // never gets here
     }
 
     /**
@@ -1219,7 +1219,7 @@ public abstract class DeserializationContext
         if (msgArgs.length > 0) {
             msg = String.format(msg, msgArgs);
         }
-        throw mappingException(msg);
+        throw JsonMappingException.from(getParser(), msg);
     }
 
     /*
@@ -1230,7 +1230,10 @@ public abstract class DeserializationContext
 
     /**
      * Helper method for constructing generic mapping exception with specified
-     * message and current location information
+     * message and current location information.
+     * Note that application code should almost always call
+     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
+     * instead.
      * 
      * @since 2.6
      */
@@ -1241,6 +1244,9 @@ public abstract class DeserializationContext
     /**
      * Helper method for constructing generic mapping exception with specified
      * message and current location information
+     * Note that application code should almost always call
+     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
+     * instead.
      * 
      * @since 2.6
      */

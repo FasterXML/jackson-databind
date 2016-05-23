@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 public class StackTraceElementDeserializer
     extends StdScalarDeserializer<StackTraceElement>
@@ -38,7 +37,8 @@ public class StackTraceElementDeserializer
                     if (t.isNumeric()) {
                         lineNumber = p.getIntValue();
                     } else {
-                        throw JsonMappingException.from(p, "Non-numeric token ("+t+") for property 'lineNumber'");
+                        return (StackTraceElement) ctxt.handleUnexpectedToken(handledType(), t, p,
+"Non-numeric token (%s) for property 'lineNumber'", t);
                     }
                 } else if ("methodName".equals(propName)) {
                     methodName = p.getText();

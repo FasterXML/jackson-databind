@@ -3831,25 +3831,29 @@ public class ObjectMapper
         // 12-Jun-2015, tatu: Should try to support namespaces etc but...
         String expSimpleName = expRootName.getSimpleName();
         if (p.getCurrentToken() != JsonToken.START_OBJECT) {
-            throw JsonMappingException.from(p, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +expSimpleName+"'), but "+p.getCurrentToken());
+            ctxt.reportWrongTokenException(p, JsonToken.START_OBJECT,
+                    "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
+                    expSimpleName, p.getCurrentToken());
+            
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
-            throw JsonMappingException.from(p, "Current token not FIELD_NAME (to contain expected root name '"
+            ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,
+                    "Current token not FIELD_NAME (to contain expected root name '"
                     +expSimpleName+"'), but "+p.getCurrentToken());
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
-            throw JsonMappingException.from(p, "Root name '"+actualName+"' does not match expected ('"
-                    +expSimpleName+"') for type "+rootType);
+            ctxt.reportMappingException("Root name '%s' does not match expected ('%s') for type %s",
+                    actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
         p.nextToken();
         Object result = deser.deserialize(p, ctxt);
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {
-            throw JsonMappingException.from(p, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +expSimpleName+"'), but "+p.getCurrentToken());
+            ctxt.reportWrongTokenException(p, JsonToken.END_OBJECT,
+                    "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
+                    expSimpleName, p.getCurrentToken());
         }
         return result;
     }

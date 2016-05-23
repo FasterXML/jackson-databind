@@ -94,9 +94,10 @@ public final class SetterlessProperty
 
         // For [#501] fix we need to implement this but:
         if (_valueTypeDeserializer != null) {
-            throw JsonMappingException.from(p,
-                    "Problem deserializing 'setterless' property (\""+getName()+"\"): no way to handle typed deser with setterless yet");
-//            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
+            ctxt.reportMappingException(
+                    "Problem deserializing 'setterless' property (\"%s\"): no way to handle typed deser with setterless yet",
+                    getName());
+//            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         
         // Ok: then, need to fetch Collection/Map to modify:

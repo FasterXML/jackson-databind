@@ -302,12 +302,12 @@ public class CollectionDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException
     {
         // In future could check current token... for now this should be enough:
-        return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
     /**

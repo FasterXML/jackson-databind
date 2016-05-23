@@ -165,6 +165,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**********************************************************
      */
 
+    @Deprecated // since 2.8
     protected void _reportProblem(JsonParser p, String msg) throws JsonMappingException {
         throw JsonMappingException.from(p, msg);
     }
@@ -188,9 +189,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonNode oldValue, JsonNode newValue)
         throws JsonProcessingException
     {
-        // [Issue#237]: Report an error if asked to do so:
+        // [databind#237]: Report an error if asked to do so:
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
-            _reportProblem(p, "Duplicate field '"+fieldName+"' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled");
+            ctxt.reportMappingException("Duplicate field '%s' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled",
+                    fieldName);
         }
     }
 

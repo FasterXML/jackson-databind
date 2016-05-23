@@ -257,7 +257,7 @@ public final class AnnotatedClass
     public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
         return _classAnnotations().hasOneOf(annoClasses);
     }
-    
+
     @Override
     public Class<?> getRawType() {
         return _class;

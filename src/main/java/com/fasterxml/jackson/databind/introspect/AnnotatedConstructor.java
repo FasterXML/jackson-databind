@@ -71,7 +71,7 @@ public final class AnnotatedConstructor
     public JavaType getType() {
         return _typeContext.resolveType(getRawType());
     }
-    
+
     @Override
     public Class<?> getRawType() {
         return _constructor.getDeclaringClass();

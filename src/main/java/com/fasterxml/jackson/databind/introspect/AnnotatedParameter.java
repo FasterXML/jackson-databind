@@ -88,7 +88,7 @@ public final class AnnotatedParameter
 
     @Override
     public JavaType getType() {
-        return _typeContext.resolveType(_type);
+        return _type;
     }
 
     /*

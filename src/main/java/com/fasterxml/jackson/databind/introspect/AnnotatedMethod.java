@@ -90,6 +90,12 @@ public final class AnnotatedMethod
         return _typeContext.resolveType(_method.getGenericReturnType());
     }
 
+    @Deprecated
+    @Override
+    public Type getGenericType() {
+        return _method.getGenericReturnType();
+    }
+
     /**
      * For methods, this returns declared return type, which is only
      * useful with getters (setters do not usually return anything;

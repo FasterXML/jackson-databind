@@ -52,6 +52,8 @@ Project: jackson-databind
  (contributed by Eric S)
 #1231: `@JsonSerialize(as=superType)` behavior disallowed in 2.7.4
  (reported by Mark W)
+#1248: `Annotated` returns raw type in place of Generic Type in 2.7.x
+ (reported by Andrew J, apjoseph@github)
 
 2.7.4 (29-Apr-2016)
 

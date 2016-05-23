@@ -453,6 +453,10 @@ Nick Babcock (nickbabcock)
   * Reported #1225: `JsonMappingException` should override getProcessor()
    (2.7.5)
 
+Andrew Joseph (apjoseph@github)
+  * Reported #1248: `Annotated` returns raw type in place of Generic Type in 2.7.x
+   (2.7.5)
+
 Artur Jonkisz (ajonkisz@github)
   * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type
    (2.8.0)
@@ -481,4 +485,3 @@ Maarten Billemont (lhunath@github)
 Vladimir Kulev (lightoze@github)
   * Reported #1028: Ignore USE_BIG_DECIMAL_FOR_FLOATS for NaN/Infinity
    (2.8.0)
-

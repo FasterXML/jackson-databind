@@ -75,6 +75,12 @@ public final class AnnotatedField
         return _field.getType();
     }
 
+    @Deprecated
+    @Override
+    public Type getGenericType() {
+        return _field.getGenericType();
+    }
+    
     @Override
     public JavaType getType() {
         return _typeContext.resolveType(_field.getGenericType());

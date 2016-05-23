@@ -71,8 +71,11 @@ public abstract class Annotated
     }
 
     /**
-     * Full generic type of the annotated element; definition
-     * of what exactly this means depends on sub-class.
+     * JDK declared generic type of the annotated element; definition
+     * of what exactly this means depends on sub-class. Note that such type
+     * can not be reliably resolved without {@link TypeResolutionContext}, and
+     * as a result use of this method was deprecated in Jackson 2.7: see
+     * {@link #getType} for replacement.
      *
      * @deprecated Since 2.7 should instead use {@link #getType()}. To be removed from 2.9
      */

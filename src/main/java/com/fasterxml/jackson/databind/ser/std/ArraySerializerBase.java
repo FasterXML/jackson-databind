@@ -131,7 +131,6 @@ public abstract class ArraySerializerBase<T>
             TypeSerializer typeSer)
         throws IOException
     {
-        // note: let's NOT consider [JACKSON-805] here; gets too complicated, and probably just won't work
         typeSer.writeTypePrefixForArray(value, gen);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);

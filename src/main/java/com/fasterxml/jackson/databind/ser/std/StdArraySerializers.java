@@ -132,28 +132,28 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(boolean[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public final void serialize(boolean[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
             if (len == 1) {
                 if (((_unwrapSingle == null) &&
                         provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                         || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, jgen, provider);
+                    serializeContents(value, g, provider);
                     return;
                 }
             }
-            jgen.writeStartArray(len);
-            serializeContents(value, jgen, provider);
-            jgen.writeEndArray();
+            g.writeStartArray(len);
+            serializeContents(value, g, provider);
+            g.writeEndArray();
         }
         
         @Override
-        public void serializeContents(boolean[] value, JsonGenerator jgen, SerializerProvider provider)
+        public void serializeContents(boolean[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
-                jgen.writeBoolean(value[i]);
+                g.writeBoolean(value[i]);
             }
         }
 
@@ -218,37 +218,37 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(short[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public final void serialize(short[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
         	final int len = value.length;
             if (len == 1) {
                 if (((_unwrapSingle == null) &&
                         provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                         || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, jgen, provider);
+                    serializeContents(value, g, provider);
                     return;
                 }
             }
-            jgen.writeStartArray(len);
-            serializeContents(value, jgen, provider);
-            jgen.writeEndArray();
+            g.writeStartArray(len);
+            serializeContents(value, g, provider);
+            g.writeEndArray();
         }
         
         @SuppressWarnings("cast")
         @Override
-        public void serializeContents(short[] value, JsonGenerator jgen, SerializerProvider provider)
+        public void serializeContents(short[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
-                    _valueTypeSerializer.writeTypePrefixForScalar(null, jgen, Short.TYPE);
-                    jgen.writeNumber(value[i]);
-                    _valueTypeSerializer.writeTypeSuffixForScalar(null, jgen);
+                    _valueTypeSerializer.writeTypePrefixForScalar(null, g, Short.TYPE);
+                    g.writeNumber(value[i]);
+                    _valueTypeSerializer.writeTypeSuffixForScalar(null, g);
                 }
                 return;
             }
             for (int i = 0, len = value.length; i < len; ++i) {
-                jgen.writeNumber((int)value[i]);
+                g.writeNumber((int)value[i]);
             }
         }
 
@@ -286,41 +286,41 @@ public class StdArraySerializers
         }
         
         @Override
-        public void serialize(char[] value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(char[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-                jgen.writeStartArray(value.length);
-                _writeArrayContents(jgen, value);
-                jgen.writeEndArray();
+                g.writeStartArray(value.length);
+                _writeArrayContents(g, value);
+                g.writeEndArray();
             } else {
-                jgen.writeString(value, 0, value.length);
+                g.writeString(value, 0, value.length);
             }
         }
 
         @Override
-        public void serializeWithType(char[] value, JsonGenerator jgen, SerializerProvider provider,
+        public void serializeWithType(char[] value, JsonGenerator g, SerializerProvider provider,
                 TypeSerializer typeSer)
             throws IOException, JsonGenerationException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-                typeSer.writeTypePrefixForArray(value, jgen);
-                _writeArrayContents(jgen, value);
-                typeSer.writeTypeSuffixForArray(value, jgen);
+                typeSer.writeTypePrefixForArray(value, g);
+                _writeArrayContents(g, value);
+                typeSer.writeTypeSuffixForArray(value, g);
             } else { // default is to write as simple String
-                typeSer.writeTypePrefixForScalar(value, jgen);
-                jgen.writeString(value, 0, value.length);
-                typeSer.writeTypeSuffixForScalar(value, jgen);
+                typeSer.writeTypePrefixForScalar(value, g);
+                g.writeString(value, 0, value.length);
+                typeSer.writeTypeSuffixForScalar(value, g);
             }
         }
 
-        private final void _writeArrayContents(JsonGenerator jgen, char[] value)
+        private final void _writeArrayContents(JsonGenerator g, char[] value)
             throws IOException, JsonGenerationException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
-                jgen.writeString(value, i, 1);
+                g.writeString(value, i, 1);
             }
         }
 
@@ -394,28 +394,28 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(int[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
+        public final void serialize(int[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
             if (len == 1) {
                 if (((_unwrapSingle == null) &&
                         provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                         || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, gen, provider);
+                    serializeContents(value, g, provider);
                     return;
                 }
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
-            gen.setCurrentValue(value);
-            gen.writeArray(value, 0, value.length);
+            g.setCurrentValue(value);
+            g.writeArray(value, 0, value.length);
         }
 
         @Override
-        public void serializeContents(int[] value, JsonGenerator jgen, SerializerProvider provider)
+        public void serializeContents(int[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
-                jgen.writeNumber(value[i]);
+                g.writeNumber(value[i]);
             }
         }
 
@@ -476,37 +476,37 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(long[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public final void serialize(long[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
             if (len == 1) {
                 if (((_unwrapSingle == null) &&
                         provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                         || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, jgen, provider);
+                    serializeContents(value, g, provider);
                     return;
                 }
             }
-            jgen.writeStartArray(len);
-            serializeContents(value, jgen, provider);
-            jgen.writeEndArray();
+            // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
+            g.setCurrentValue(value);
+            g.writeArray(value, 0, value.length);
         }
         
         @Override
-        public void serializeContents(long[] value, JsonGenerator jgen, SerializerProvider provider)
+        public void serializeContents(long[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
-                    _valueTypeSerializer.writeTypePrefixForScalar(null, jgen, Long.TYPE);
-                    jgen.writeNumber(value[i]);
-                    _valueTypeSerializer.writeTypeSuffixForScalar(null, jgen);
+                    _valueTypeSerializer.writeTypePrefixForScalar(null, g, Long.TYPE);
+                    g.writeNumber(value[i]);
+                    _valueTypeSerializer.writeTypeSuffixForScalar(null, g);
                 }
                 return;
             }
             
             for (int i = 0, len = value.length; i < len; ++i) {
-                jgen.writeNumber(value[i]);
+                g.writeNumber(value[i]);
             }
         }
 
@@ -572,36 +572,36 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(float[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
+        public final void serialize(float[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
             if (len == 1) {
                 if (((_unwrapSingle == null) &&
                         provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                         || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, gen, provider);
+                    serializeContents(value, g, provider);
                     return;
                 }
             }
-            gen.writeStartArray(len);
-            serializeContents(value, gen, provider);
-            gen.writeEndArray();
+            g.writeStartArray(len);
+            serializeContents(value, g, provider);
+            g.writeEndArray();
         }
         
         @Override
-        public void serializeContents(float[] value, JsonGenerator gen, SerializerProvider provider)
+        public void serializeContents(float[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
-                    _valueTypeSerializer.writeTypePrefixForScalar(null, gen, Float.TYPE);
-                    gen.writeNumber(value[i]);
-                    _valueTypeSerializer.writeTypeSuffixForScalar(null, gen);
+                    _valueTypeSerializer.writeTypePrefixForScalar(null, g, Float.TYPE);
+                    g.writeNumber(value[i]);
+                    _valueTypeSerializer.writeTypeSuffixForScalar(null, g);
                 }
                 return;
             }
             for (int i = 0, len = value.length; i < len; ++i) {
-                gen.writeNumber(value[i]);
+                g.writeNumber(value[i]);
             }
         }
 
@@ -670,27 +670,27 @@ public class StdArraySerializers
         }
 
         @Override
-        public final void serialize(double[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
+        public final void serialize(double[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
             if (len == 1) {
                 if (((_unwrapSingle == null) &&
                         provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                         || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, gen, provider);
+                    serializeContents(value, g, provider);
                     return;
                 }
             }
-            gen.writeStartArray(len);
-            serializeContents(value, gen, provider);
-            gen.writeEndArray();
+            // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
+            g.setCurrentValue(value);
+            g.writeArray(value, 0, value.length);
         }
 
         @Override
-        public void serializeContents(double[] value, JsonGenerator gen, SerializerProvider provider) throws IOException
+        public void serializeContents(double[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
-                gen.writeNumber(value[i]);
+                g.writeNumber(value[i]);
             }
         }
 

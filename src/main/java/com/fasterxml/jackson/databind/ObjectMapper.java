@@ -1597,10 +1597,10 @@ public class ObjectMapper
      * @since 2.4
      */
     public ObjectMapper setConfig(DeserializationConfig config) {
-    	_deserializationConfig = config;
-    	return this;
+        _deserializationConfig = config;
+        return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, serialization

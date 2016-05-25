@@ -37,8 +37,8 @@ public final class AnnotatedParameter
     /**********************************************************
      */
 
-    public AnnotatedParameter(AnnotatedWithParams owner, JavaType type,  AnnotationMap annotations,
-            int index)
+    public AnnotatedParameter(AnnotatedWithParams owner, JavaType type,
+            AnnotationMap annotations, int index)
     {
         super((owner == null) ? null : owner.getTypeContext(), annotations);
         _owner = owner;
@@ -89,6 +89,12 @@ public final class AnnotatedParameter
     @Override
     public JavaType getType() {
         return _type;
+    }
+
+    @Deprecated
+    @Override
+    public Type getGenericType() {
+        return _owner.getGenericParameterType(_index);
     }
 
     /*

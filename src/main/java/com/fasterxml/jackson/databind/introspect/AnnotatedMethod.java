@@ -65,11 +65,6 @@ public final class AnnotatedMethod
         return new AnnotatedMethod(_typeContext, _method, ann, _paramAnnotations);
     }
 
-    /*
-    /*****************************************************
-    /* Annotated impl
-    /*****************************************************
-     */
 
     @Override
     public Method getAnnotated() { return _method; }
@@ -90,12 +85,6 @@ public final class AnnotatedMethod
         return _typeContext.resolveType(_method.getGenericReturnType());
     }
 
-    @Deprecated
-    @Override
-    public Type getGenericType() {
-        return _method.getGenericReturnType();
-    }
-
     /**
      * For methods, this returns declared return type, which is only
      * useful with getters (setters do not usually return anything;
@@ -106,6 +95,18 @@ public final class AnnotatedMethod
         return _method.getReturnType();
     }
 
+    @Deprecated
+    @Override
+    public Type getGenericType() {
+        return _method.getGenericReturnType();
+    }
+    
+    /*
+    /*****************************************************
+    /* AnnotatedWithParams
+    /*****************************************************
+     */
+    
     @Override
     public final Object call() throws Exception {
         return _method.invoke(null);
@@ -134,6 +135,27 @@ public final class AnnotatedMethod
     /* AnnotatedMember impl
     /********************************************************
      */
+
+    @Override
+    public int getParameterCount() {
+        return getRawParameterTypes().length;
+    }
+    
+    @Override
+    public Class<?> getRawParameterType(int index)
+    {
+        Class<?>[] types = getRawParameterTypes();
+        return (index >= types.length) ? null : types[index];
+    }
+
+    @Override
+    public JavaType getParameterType(int index) {
+        Type[] types = _method.getGenericParameterTypes();
+        if (index >= types.length) {
+            return null;
+        }
+        return _typeContext.resolveType(types[index]);
+    }
 
     @Override
     public Class<?> getDeclaringClass() { return _method.getDeclaringClass(); }
@@ -175,11 +197,6 @@ public final class AnnotatedMethod
     /*****************************************************
      */
 
-    @Override
-    public int getParameterCount() {
-        return getRawParameterTypes().length;
-    }
-
     public String getFullName() {
         return getDeclaringClass().getName() + "#" + getName() + "("
             +getParameterCount()+" params)";
@@ -195,22 +212,6 @@ public final class AnnotatedMethod
     
     public Type[] getGenericParameterTypes() {
         return _method.getGenericParameterTypes();
-    }
-
-    @Override
-    public Class<?> getRawParameterType(int index)
-    {
-        Class<?>[] types = getRawParameterTypes();
-        return (index >= types.length) ? null : types[index];
-    }
-
-    @Override
-    public JavaType getParameterType(int index) {
-        Type[] types = _method.getGenericParameterTypes();
-        if (index >= types.length) {
-            return null;
-        }
-        return _typeContext.resolveType(types[index]);
     }
 
     public Class<?> getRawReturnType() {

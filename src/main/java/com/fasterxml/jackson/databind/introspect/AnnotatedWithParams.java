@@ -120,7 +120,7 @@ public abstract class AnnotatedWithParams
      */
     @Deprecated
     public final Type getGenericParameterType(int index) {
-        return getRawParameterType(index);
+        return getParameterType(index);
     }
 
     public final int getAnnotationCount() { return _annotations.size(); }

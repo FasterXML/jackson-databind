@@ -119,9 +119,7 @@ public abstract class AnnotatedWithParams
      * @deprecated Since 2.7, remove in 2.9
      */
     @Deprecated
-    public final Type getGenericParameterType(int index) {
-        return getRawParameterType(index);
-    }
+    public abstract Type getGenericParameterType(int index);
 
     public final int getAnnotationCount() { return _annotations.size(); }
 

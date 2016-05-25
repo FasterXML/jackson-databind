@@ -469,13 +469,20 @@ public class BeanDeserializerFactory
         }
 
         // Also, do we have a fallback "any" setter?
-        AnnotatedMethod anySetter = beanDesc.findAnySetter();
-        if (anySetter != null) {
-            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
+        AnnotatedMethod anySetterMethod = beanDesc.findAnySetter();
+        AnnotatedMember anySetterField = null;
+        if (anySetterMethod != null) {
+            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetterMethod));
+        }
+        else {
+        	anySetterField = beanDesc.findAnySetterField();
+        	if(anySetterField != null) {
+        		builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetterField));
+        	}
         }
         // NOTE: we do NOT add @JsonIgnore'd properties into blocked ones if there's any-setter
         // Implicit ones via @JsonIgnore and equivalent?
-        if (anySetter == null) {
+        if (anySetterMethod == null && anySetterField == null) {
             Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
             if (ignored2 != null) {
                 for (String propName : ignored2) {
@@ -670,14 +677,23 @@ public class BeanDeserializerFactory
      * has been designated as such setter.
      */
     protected SettableAnyProperty constructAnySetter(DeserializationContext ctxt,
-            BeanDescription beanDesc, AnnotatedMethod setter)
+            BeanDescription beanDesc, AnnotatedMember setter)
         throws JsonMappingException
     {
         if (ctxt.canOverrideAccessModifiers()) {
             setter.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)); // to ensure we can call it
         }
-        // we know it's a 2-arg method, second arg is the value
-        JavaType type = setter.getParameterType(1);
+
+        //find the java type based on the annotated setter method or setter field 
+        JavaType type = null;
+		if (setter instanceof AnnotatedMethod) {
+			// we know it's a 2-arg method, second arg is the value
+			type = ((AnnotatedMethod) setter).getParameterType(1);
+		} else if (setter instanceof AnnotatedField) {
+			// get the type from the content type of the map object
+			type = ((AnnotatedField) setter).getType().getContentType();
+		}
+
         BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(setter.getName()),
                 type, null, beanDesc.getClassAnnotations(), setter,
                 PropertyMetadata.STD_OPTIONAL);

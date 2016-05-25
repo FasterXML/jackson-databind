@@ -4,10 +4,11 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
+
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
@@ -863,23 +864,6 @@ public final class SerializationConfig
     @Override
     public BeanDescription introspectDirectClassAnnotations(JavaType type) {
         return getClassIntrospector().forDirectClassAnnotations(this, type, this);
-    }
-
-    @Override
-    public VisibilityChecker<?> getDefaultVisibilityChecker()
-    {
-        VisibilityChecker<?> vchecker = super.getDefaultVisibilityChecker();
-        if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
-            vchecker = vchecker.withGetterVisibility(Visibility.NONE);
-        }
-        // then global overrides (disabling)
-        if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
-            vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-        }
-        return vchecker;
     }
 
     /*

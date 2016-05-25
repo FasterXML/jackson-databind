@@ -3,12 +3,13 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 
 /**
  * Unit tests for checking handling of some of {@link MapperFeature}s
@@ -81,7 +82,19 @@ public class SerializationFeaturesTest
         
         public StringListBean(Collection<String> v) { values = v; }
     }
-    
+
+    static class TCls {
+        @JsonProperty("groupname")
+        private String groupname;
+
+        public void setName(String str) {
+            this.groupname = str;
+        }
+        public String getName() {
+            return groupname;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -258,18 +271,6 @@ public class SerializationFeaturesTest
         assertEquals("true", writer.writeValueAsString(new Boolean[] { Boolean.TRUE }));
         assertEquals("3", writer.writeValueAsString(new int[] { 3 }));
         assertEquals(quote("foo"), writer.writeValueAsString(new String[] { "foo" }));
-    }
-
-    static class TCls {
-        @JsonProperty("groupname")
-        private String groupname;
-
-        public void setName(String str) {
-            this.groupname = str;
-        }
-        public String getName() {
-            return groupname;
-        }
     }
 
     public void testVisibilityFeatures() throws Exception

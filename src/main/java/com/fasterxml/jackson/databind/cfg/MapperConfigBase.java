@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -244,6 +245,36 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = configOverrides;
+    }
+
+    /*
+    /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
+
+    // note: demoted in 2.8 from sub-classes, as there's no difference
+    @Override
+    public VisibilityChecker<?> getDefaultVisibilityChecker()
+    {
+        VisibilityChecker<?> vchecker = super.getDefaultVisibilityChecker();
+        // then global overrides (disabling)
+        if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
+            vchecker = vchecker.withSetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
+            vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
+            vchecker = vchecker.withGetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
+            vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
+            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
+        }
+        return vchecker;
     }
 
     /*

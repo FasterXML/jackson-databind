@@ -46,6 +46,9 @@ Project: jackson-databind
 
 2.7.5 (not yet released)
 
+#1223: `BasicClassIntrospector.forSerialization(...).findProperties` should
+  respect MapperFeature.AUTO_DETECT_GETTERS/SETTERS?
+ (reported by William H)
 #1225: `JsonMappingException` should override getProcessor()
  (reported by Nick B)
 #1228: @JsonAnySetter does not deserialize null to Deserializer's NullValue

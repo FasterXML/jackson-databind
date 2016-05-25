@@ -449,6 +449,11 @@ Tom Mack (tommack@github)
     the requested value type
    (2.7.4)
 
+William Headrick (headw01@github)
+   * Reported#1223: `BasicClassIntrospector.forSerialization(...).findProperties` should
+    respect MapperFeature.AUTO_DETECT_GETTERS/SETTERS?
+   (2.7.5)
+
 Nick Babcock (nickbabcock)
   * Reported #1225: `JsonMappingException` should override getProcessor()
    (2.7.5)

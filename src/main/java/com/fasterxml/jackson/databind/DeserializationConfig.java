@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import com.fasterxml.jackson.core.*;
 
@@ -772,22 +771,6 @@ public final class DeserializationConfig
     @Override
     public BeanDescription introspectDirectClassAnnotations(JavaType type) {
         return getClassIntrospector().forDirectClassAnnotations(this, type, this);
-    }
-
-    @Override
-    public VisibilityChecker<?> getDefaultVisibilityChecker()
-    {
-        VisibilityChecker<?> vchecker = super.getDefaultVisibilityChecker();
-        if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
-            vchecker = vchecker.withSetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-            vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-        }
-        return vchecker;
     }
 
     /*

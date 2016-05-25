@@ -1155,6 +1155,10 @@ public abstract class DeserializationContext
             }
             h = h.next();
         }
+        // 24-May-2016, tatu: Actually we may still not want to fail quite yet
+        if (!isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)) {
+            return null;
+        }
         throw unknownTypeIdException(baseType, id, extraDesc);
     }
 

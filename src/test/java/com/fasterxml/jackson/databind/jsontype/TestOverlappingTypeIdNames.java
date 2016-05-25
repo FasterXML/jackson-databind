@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
-public class TestOverlappingTypeIdNames312 extends BaseMapTest
+public class TestOverlappingTypeIdNames extends BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({

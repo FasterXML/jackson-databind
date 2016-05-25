@@ -139,13 +139,17 @@ public class ProblemHandlerTest extends BaseMapTest
     static class TypeIdHandler
         extends DeserializationProblemHandler
     {
+        protected final Class<?> raw;
+
+        public TypeIdHandler(Class<?> r) { raw = r; }
+        
         @Override
         public JavaType handleUnknownTypeId(DeserializationContext ctxt,
                 JavaType baseType, String subTypeId,
                 String failureMsg)
             throws IOException
         {
-            return ctxt.constructType(Impl.class);
+            return ctxt.constructType(raw);
         }
     }
 
@@ -158,10 +162,10 @@ public class ProblemHandlerTest extends BaseMapTest
     static class IntKeyMapWrapper {
         public Map<Integer,String> stuff;
     }
-    
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     static class Base { }
-    static class Impl extends Base {
+    static class BaseImpl extends Base {
         public int a;
     }
 
@@ -169,6 +173,16 @@ public class ProblemHandlerTest extends BaseMapTest
         public Base value;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "clazz")
+    static class Base2 { }
+    static class Base2Impl extends Base2 {
+        public int a;
+    }
+
+    static class Base2Wrapper {
+        public Base2 value;
+    }
+    
     enum SingleValuedEnum {
         A;
     }
@@ -229,10 +243,22 @@ public class ProblemHandlerTest extends BaseMapTest
     public void testInvalidTypeId() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
-            .addHandler(new TypeIdHandler());
+            .addHandler(new TypeIdHandler(BaseImpl.class));
         BaseWrapper w = mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
                 BaseWrapper.class);
         assertNotNull(w);
+        assertEquals(BaseImpl.class, w.value.getClass());
+    }
+
+
+    public void testInvalidClassAsId() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new TypeIdHandler(Base2Impl.class));
+        Base2Wrapper w = mapper.readValue("{\"value\":{\"clazz\":\"com.fizz\",\"a\":4}}",
+                Base2Wrapper.class);
+        assertNotNull(w);
+        assertEquals(Base2Impl.class, w.value.getClass());
     }
 
     // verify that by default we get special exception type

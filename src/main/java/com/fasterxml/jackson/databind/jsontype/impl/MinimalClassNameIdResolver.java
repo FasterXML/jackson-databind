@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -48,7 +51,7 @@ public class MinimalClassNameIdResolver
     }
 
     @Override
-    protected JavaType _typeFromId(String id, TypeFactory typeFactory)
+    protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
     {
         if (id.startsWith(".")) {
             StringBuilder sb = new StringBuilder(id.length() + _basePackageName.length());
@@ -61,6 +64,6 @@ public class MinimalClassNameIdResolver
             }
             id = sb.toString();
         }
-        return super._typeFromId(id, typeFactory);
+        return super._typeFromId(id, ctxt);
     }
 }

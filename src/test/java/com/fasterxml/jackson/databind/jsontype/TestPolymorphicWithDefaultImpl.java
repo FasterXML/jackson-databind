@@ -3,10 +3,8 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 
 /**
@@ -123,6 +121,14 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         public Event() {}
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
+            property = "clazz")
+    abstract static class BaseClass { }    
+
+    static class BaseWrapper {
+        public BaseClass value;
+    }
+
     /*
     /**********************************************************
     /* Unit tests, deserialization
@@ -228,6 +234,17 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         CallRecord r3 = reader.readValue(json);
         assertNull(r3.item);
         assertEquals("123", r3.application);
+    }
+
+    public void testUnknownClassAsSubtype() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
+        BaseWrapper w = mapper.readValue(aposToQuotes
+                ("{'value':{'clazz':'com.foobar.Nothing'}}'"),
+                BaseWrapper.class);
+        assertNotNull(w);
+        assertNull(w.value);
     }
 
     /*

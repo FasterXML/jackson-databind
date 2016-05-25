@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -68,9 +70,9 @@ public interface TypeIdResolver
     /**
      * Method called to resolve type from given type identifier.
      * 
-     * @since 2.5
+     * @since 2.5 (throws clause added in 2.8)
      */
-    public JavaType typeFromId(DatabindContext context, String id);
+    public JavaType typeFromId(DatabindContext context, String id) throws IOException;
 
     /**
      * Method called for error-reporting and diagnostics purposes.

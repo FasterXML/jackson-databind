@@ -5,22 +5,18 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 /**
- * Unit tests for checking whether JsonSerializerFactory.Feature
- * configuration works
+ * Unit tests for checking handling of some of {@link MapperFeature}s
+ * and {@link SerializationFeature}s for serialization.
  */
-public class TestFeatures
+public class SerializationFeaturesTest
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     /**
      * Class with one explicitly defined getter, one name-based
      * auto-detectable getter.
@@ -192,49 +188,47 @@ public class TestFeatures
         assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
         // default is to flush after writeValue()
         StringWriter sw = new StringWriter();
-        JsonGenerator jgen = mapper.getFactory().createGenerator(sw);
-        mapper.writeValue(jgen, Integer.valueOf(13));
+        JsonGenerator g = mapper.getFactory().createGenerator(sw);
+        mapper.writeValue(g, Integer.valueOf(13));
         assertEquals("13", sw.toString());
-        jgen.close();
+        g.close();
 
         // ditto with ObjectWriter
         sw = new StringWriter();
-        jgen = mapper.getFactory().createGenerator(sw);
+        g = mapper.getFactory().createGenerator(sw);
         ObjectWriter ow = mapper.writer();
-        ow.writeValue(jgen, Integer.valueOf(99));
+        ow.writeValue(g, Integer.valueOf(99));
         assertEquals("99", sw.toString());
-        jgen.close();
+        g.close();
     }
 
-    // Test for [JACKSON-401]
     public void testFlushingNotAutomatic() throws IOException
     {
         // but should not occur if configured otherwise
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false);
         StringWriter sw = new StringWriter();
-        JsonGenerator jgen = mapper.getFactory().createGenerator(sw);
+        JsonGenerator g = mapper.getFactory().createGenerator(sw);
 
-        mapper.writeValue(jgen, Integer.valueOf(13));
+        mapper.writeValue(g, Integer.valueOf(13));
         // no flushing now:
         assertEquals("", sw.toString());
         // except when actually flushing
-        jgen.flush();
+        g.flush();
         assertEquals("13", sw.toString());
-        jgen.close();
+        g.close();
         // Also, same should happen with ObjectWriter
         sw = new StringWriter();
-        jgen = mapper.getFactory().createGenerator(sw);
+        g = mapper.getFactory().createGenerator(sw);
         ObjectWriter ow = mapper.writer();
-        ow.writeValue(jgen, Integer.valueOf(99));
+        ow.writeValue(g, Integer.valueOf(99));
         assertEquals("", sw.toString());
         // except when actually flushing
-        jgen.flush();
+        g.flush();
         assertEquals("99", sw.toString());
-        jgen.close();
+        g.close();
     }
 
-    // Test for [JACKSON-805]
     public void testSingleElementCollections() throws IOException
     {
         final ObjectWriter writer = objectWriter().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
@@ -264,6 +258,38 @@ public class TestFeatures
         assertEquals("true", writer.writeValueAsString(new Boolean[] { Boolean.TRUE }));
         assertEquals("3", writer.writeValueAsString(new int[] { 3 }));
         assertEquals(quote("foo"), writer.writeValueAsString(new String[] { "foo" }));
-        
+    }
+
+    static class TCls {
+        @JsonProperty("groupname")
+        private String groupname;
+
+        public void setName(String str) {
+            this.groupname = str;
+        }
+        public String getName() {
+            return groupname;
+        }
+    }
+
+    public void testVisibilityFeatures() throws Exception
+    {
+        ObjectMapper om = new ObjectMapper();
+        // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
+        om.configure(MapperFeature.AUTO_DETECT_FIELDS, false);
+        om.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        om.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
+        om.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+        om.configure(MapperFeature.USE_GETTERS_AS_SETTERS, false);
+        om.configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
+        om.configure(MapperFeature.INFER_PROPERTY_MUTATORS, false);
+        om.configure(MapperFeature.USE_ANNOTATIONS, true);
+
+        JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
+        BeanDescription desc = (BeanDescription) om.getSerializationConfig().introspect(javaType);
+        List<BeanPropertyDefinition> props = desc.findProperties();
+        if (props.size() != 1) {
+            fail("Should find 1 property, not "+props.size()+"; properties = "+props);
+        }
     }
 }

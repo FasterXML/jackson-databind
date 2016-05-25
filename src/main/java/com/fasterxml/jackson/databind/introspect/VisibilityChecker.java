@@ -241,11 +241,11 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         {
             Std curr = this;
             if (ann != null) {
-        	    curr = curr.withGetterVisibility(ann.getterVisibility());
-        	    curr = curr.withIsGetterVisibility(ann.isGetterVisibility());
-                    curr  = curr.withSetterVisibility(ann.setterVisibility());
-                    curr = curr.withCreatorVisibility(ann.creatorVisibility());
-                    curr = curr.withFieldVisibility(ann.fieldVisibility());
+                curr = curr.withGetterVisibility(ann.getterVisibility());
+                curr = curr.withIsGetterVisibility(ann.isGetterVisibility());
+                curr  = curr.withSetterVisibility(ann.setterVisibility());
+                curr = curr.withCreatorVisibility(ann.creatorVisibility());
+                curr = curr.withFieldVisibility(ann.fieldVisibility());
             }
             return curr;
         }

@@ -127,7 +127,7 @@ public class POJOPropertiesCollector
                     _config.getDefaultVisibilityChecker());
         }
     }
-    
+
     /*
     /**********************************************************
     /* Public API

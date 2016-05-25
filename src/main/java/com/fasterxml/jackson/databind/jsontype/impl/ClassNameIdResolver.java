@@ -4,7 +4,10 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DatabindContext;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -40,33 +43,44 @@ public class ClassNameIdResolver
     @Deprecated // since 2.3
     @Override
     public JavaType typeFromId(String id) {
-        return _typeFromId(id, _typeFactory);
+        return _typeFromId(id, null);
     }
 
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
-        return _typeFromId(id, context.getTypeFactory());
+        return _typeFromId(id, context);
     }
 
-    protected JavaType _typeFromId(String id, TypeFactory typeFactory)
+    protected JavaType _typeFromId(String id, DatabindContext ctxt)
     {
         /* 30-Jan-2010, tatu: Most ids are basic class names; so let's first
          *    check if any generics info is added; and only then ask factory
          *    to do translation when necessary
          */
+        TypeFactory tf = (ctxt == null) ? _typeFactory : ctxt.getTypeFactory();
         if (id.indexOf('<') > 0) {
-            JavaType t = typeFactory.constructFromCanonical(id);
+            JavaType t = tf.constructFromCanonical(id);
             // note: may want to try combining with specialization (esp for EnumMap)?
             return t;
         }
+        Class<?> cls;
         try {
-            Class<?> cls =  typeFactory.findClass(id);
-            return typeFactory.constructSpecializedType(_baseType, cls);
+            cls =  tf.findClass(id);
         } catch (ClassNotFoundException e) {
+            // 24-May-2016, tatu: Ok, this is supremely ugly, from multiple persepctives.
+            //    But fixes [databind#1098], so has to do for now.
+            MapperConfig<?> cfg = ctxt.getConfig();
+            if (cfg instanceof DeserializationConfig) {
+                DeserializationConfig dc = (DeserializationConfig) cfg;
+                if (!dc.isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)) {
+                    return null;
+                }
+            }
             throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): no such class found");
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): "+e.getMessage(), e);
         }
+        return tf.constructSpecializedType(_baseType, cls);
     }
     
     /*

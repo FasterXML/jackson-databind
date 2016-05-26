@@ -11,7 +11,7 @@ import com.google.common.jimfs.Jimfs;
 /**
  * @since 2.7
  */
-public class TestJdk7Types extends BaseMapTest
+public class TestJava7Types extends BaseMapTest
 {
     public void testPathRoundtrip() throws Exception
     {

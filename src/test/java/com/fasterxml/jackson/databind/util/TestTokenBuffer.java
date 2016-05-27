@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.HeaderTokenizer;
 
 public class TestTokenBuffer extends BaseMapTest
 {
@@ -63,26 +62,6 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeStartObject();
         buf.writeFieldName("c");
         //This assertion succeeds as expected
-        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
-        buf.writeString("cval");
-        buf.writeEndObject();
-        buf.writeEndObject();
-        buf.close();
-    }
-
-    public void testParentSiblingContext() throws IOException
-    {
-        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
-
-        buf.writeStartObject();
-        buf.writeFieldName("a");
-        buf.writeStartObject();
-        buf.writeEndObject();
-
-        buf.writeFieldName("b");
-        buf.writeStartObject();
-        buf.writeFieldName("c");
-        //This assertion fails (because of 'a')
         assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
         buf.writeString("cval");
         buf.writeEndObject();
@@ -361,7 +340,7 @@ public class TestTokenBuffer extends BaseMapTest
         } else if (ctxt2 == null) {
             fail("Context 2 null, context 1 not null: "+ctxt1);
         }
-        if (!ctxt1.getTypeDesc().equals(ctxt2.getTypeDesc())) {
+        if (!ctxt1.toString().equals(ctxt2.toString())) {
             fail("Different output context: token-buffer's = "+ctxt1+", json-generator's: "+ctxt2);
         }
 

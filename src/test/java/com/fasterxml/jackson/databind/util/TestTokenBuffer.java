@@ -325,7 +325,7 @@ public class TestTokenBuffer extends BaseMapTest
         } else if (ctxt2 == null) {
             fail("Context 2 null, context 1 not null: "+ctxt1);
         }
-        if (!ctxt1.getTypeDesc().equals(ctxt2.getTypeDesc())) {
+        if (!ctxt1.typeDesc().equals(ctxt2.typeDesc())) {
             fail("Different output context: token-buffer's = "+ctxt1+", json-generator's: "+ctxt2);
         }
 

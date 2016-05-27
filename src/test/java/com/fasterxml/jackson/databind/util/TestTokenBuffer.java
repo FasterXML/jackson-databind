@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.HeaderTokenizer;
 
 public class TestTokenBuffer extends BaseMapTest
 {
@@ -51,6 +52,41 @@ public class TestTokenBuffer extends BaseMapTest
         assertEquals(13, jp.getIntValue());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
+    }
+
+    public void testParentContext() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+        buf.writeStartObject();
+        buf.writeFieldName("b");
+        buf.writeStartObject();
+        buf.writeFieldName("c");
+        //This assertion succeeds as expected
+        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
+        buf.writeString("cval");
+        buf.writeEndObject();
+        buf.writeEndObject();
+        buf.close();
+    }
+
+    public void testParentSiblingContext() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+
+        buf.writeStartObject();
+        buf.writeFieldName("a");
+        buf.writeStartObject();
+        buf.writeEndObject();
+
+        buf.writeFieldName("b");
+        buf.writeStartObject();
+        buf.writeFieldName("c");
+        //This assertion fails (because of 'a')
+        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
+        buf.writeString("cval");
+        buf.writeEndObject();
+        buf.writeEndObject();
         buf.close();
     }
 

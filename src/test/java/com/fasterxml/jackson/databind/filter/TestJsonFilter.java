@@ -2,8 +2,12 @@ package com.fasterxml.jackson.databind.filter;
 
 import com.fasterxml.jackson.annotation.*;
 
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.*;
 
 /**
@@ -17,6 +21,46 @@ public class TestJsonFilter extends BaseMapTest
     static class Bean {
         public String a = "a";
         public String b = "b";
+    }
+
+    @JsonFilter("checkSiblingContextFilter")
+    static class CheckSiblingContextBean {
+        public A a = new A();
+        public B b = new B();
+        @JsonFilter("checkSiblingContextFilter")
+        static class A {
+        }
+        @JsonFilter("checkSiblingContextFilter")
+        static class B {
+            public C c = new C();
+            @JsonFilter("checkSiblingContextFilter")
+            static class C {
+            }
+        }
+    }
+
+    static class CheckSiblingContextFilter extends SimpleBeanPropertyFilter {
+        @Override
+        public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer) throws Exception {
+            JsonStreamContext sc = jgen.getOutputContext();
+
+            if (writer.getName() != null && writer.getName().equals("c")) {
+                //This assertion is failing as sc.getParent() incorrectly returns 'a'. If you comment out the member 'a'
+                // in the CheckSiblingContextBean, you'll see that the sc.getParent() correctly returns 'b'
+                assertEquals("b", sc.getParent().getCurrentName());
+            }
+            writer.serializeAsField(bean, jgen, prov);
+        }
+    }
+
+    public void testCheckSiblingContextFilter() {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("checkSiblingContextFilter",
+                new CheckSiblingContextFilter());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setFilterProvider(prov);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.valueToTree(new CheckSiblingContextBean());
     }
 
     // [Issue#89]

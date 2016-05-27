@@ -621,6 +621,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public final void writeStartArray() throws IOException
     {
+        _writeContext.writeValue();
         _append(JsonToken.START_ARRAY);
         _writeContext = _writeContext.createChildArrayContext();
     }
@@ -639,6 +640,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public final void writeStartObject() throws IOException
     {
+        _writeContext.writeValue();
         _append(JsonToken.START_OBJECT);
         _writeContext = _writeContext.createChildObjectContext();
     }
@@ -657,15 +659,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public final void writeFieldName(String name) throws IOException
     {
-        _append(JsonToken.FIELD_NAME, name);
         _writeContext.writeFieldName(name);
+        _append(JsonToken.FIELD_NAME, name);
     }
 
     @Override
     public void writeFieldName(SerializableString name) throws IOException
     {
-        _append(JsonToken.FIELD_NAME, name);
         _writeContext.writeFieldName(name.getValue());
+        _append(JsonToken.FIELD_NAME, name);
     }
     
     /*

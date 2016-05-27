@@ -650,6 +650,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override // since 2.8
     public void writeStartObject(Object forValue) throws IOException
     {
+        _writeContext.writeValue();
         _append(JsonToken.START_OBJECT);
         JsonWriteContext ctxt = _writeContext.createChildObjectContext();
         _writeContext = ctxt;

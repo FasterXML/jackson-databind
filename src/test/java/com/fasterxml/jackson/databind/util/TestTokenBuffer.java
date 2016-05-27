@@ -359,6 +359,29 @@ public class TestTokenBuffer extends BaseMapTest
         _verifyOutputContext(ctxt1.getParent(), ctxt2.getParent());
     }
 
+    // [databind#1253]
+    public void testParentSiblingContext() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+
+        // {"a":{},"b":{"c":"cval"}}
+        
+        buf.writeStartObject();
+        buf.writeFieldName("a");
+        buf.writeStartObject();
+        buf.writeEndObject();
+
+        buf.writeFieldName("b");
+        buf.writeStartObject();
+        buf.writeFieldName("c");
+        //This assertion fails (because of 'a')
+        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
+        buf.writeString("cval");
+        buf.writeEndObject();
+        buf.writeEndObject();
+        buf.close();
+    }
+
     /*
     /**********************************************************
     /* Tests to verify interaction of TokenBuffer and JsonParserSequence

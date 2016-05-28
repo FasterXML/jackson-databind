@@ -54,6 +54,21 @@ public class TestTokenBuffer extends BaseMapTest
         buf.close();
     }
 
+    public void testParentContext() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+        buf.writeStartObject();
+        buf.writeFieldName("b");
+        buf.writeStartObject();
+        buf.writeFieldName("c");
+        //This assertion succeeds as expected
+        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
+        buf.writeString("cval");
+        buf.writeEndObject();
+        buf.writeEndObject();
+        buf.close();
+    }
+
     public void testSimpleArray() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
@@ -325,7 +340,7 @@ public class TestTokenBuffer extends BaseMapTest
         } else if (ctxt2 == null) {
             fail("Context 2 null, context 1 not null: "+ctxt1);
         }
-        if (!ctxt1.typeDesc().equals(ctxt2.typeDesc())) {
+        if (!ctxt1.toString().equals(ctxt2.toString())) {
             fail("Different output context: token-buffer's = "+ctxt1+", json-generator's: "+ctxt2);
         }
 
@@ -342,6 +357,29 @@ public class TestTokenBuffer extends BaseMapTest
             assertEquals(ctxt1.getCurrentIndex(), ctxt2.getCurrentIndex());
         }
         _verifyOutputContext(ctxt1.getParent(), ctxt2.getParent());
+    }
+
+    // [databind#1253]
+    public void testParentSiblingContext() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+
+        // {"a":{},"b":{"c":"cval"}}
+        
+        buf.writeStartObject();
+        buf.writeFieldName("a");
+        buf.writeStartObject();
+        buf.writeEndObject();
+
+        buf.writeFieldName("b");
+        buf.writeStartObject();
+        buf.writeFieldName("c");
+        //This assertion fails (because of 'a')
+        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
+        buf.writeString("cval");
+        buf.writeEndObject();
+        buf.writeEndObject();
+        buf.close();
     }
 
     /*

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.*;
@@ -1136,12 +1137,12 @@ public abstract class DeserializationContext
      * @since 2.8
      */
     public JavaType handleUnknownTypeId(JavaType baseType, String id,
-            String extraDesc) throws IOException
+            TypeIdResolver idResolver, String extraDesc) throws IOException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
-            JavaType type = h.value().handleUnknownTypeId(this, baseType, id, extraDesc);
+            JavaType type = h.value().handleUnknownTypeId(this, baseType, id, idResolver, extraDesc);
             if (type != null) {
                 if (type.hasRawClass(Void.class)) {
                     return null;

@@ -1082,7 +1082,7 @@ public class JacksonAnnotationIntrospector
         }
         return null;
     }
-    
+
     @Override
     public boolean hasAnySetterAnnotation(AnnotatedMethod am)
     {

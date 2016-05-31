@@ -278,6 +278,6 @@ public abstract class TypeDeserializerBase
         } else {
             extraDesc = null;
         }
-        return ctxt.handleUnknownTypeId(_baseType, typeId, extraDesc);
+        return ctxt.handleUnknownTypeId(_baseType, typeId, idResolver, extraDesc);
     }
 }

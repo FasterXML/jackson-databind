@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
  * Tests to exercise handler methods of {@link DeserializationProblemHandler}.
@@ -145,7 +146,7 @@ public class ProblemHandlerTest extends BaseMapTest
         
         @Override
         public JavaType handleUnknownTypeId(DeserializationContext ctxt,
-                JavaType baseType, String subTypeId,
+                JavaType baseType, String subTypeId, TypeIdResolver idResolver,
                 String failureMsg)
             throws IOException
         {

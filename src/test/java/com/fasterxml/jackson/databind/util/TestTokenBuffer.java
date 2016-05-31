@@ -26,31 +26,31 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
 
         // First, with empty buffer
-        JsonParser jp = buf.asParser();
-        assertNull(jp.getCurrentToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        JsonParser p = buf.asParser();
+        assertNull(p.getCurrentToken());
+        assertNull(p.nextToken());
+        p.close();
 
         // Then with simple text
         buf.writeString("abc");
 
         // First, simple text
-        jp = buf.asParser();
-        assertNull(jp.getCurrentToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("abc", jp.getText());
-        assertNull(jp.nextToken());
-        jp.close();
+        p = buf.asParser();
+        assertNull(p.getCurrentToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("abc", p.getText());
+        assertNull(p.nextToken());
+        p.close();
 
         // Then, let's append at root level
         buf.writeNumber(13);
-        jp = buf.asParser();
-        assertNull(jp.getCurrentToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(13, jp.getIntValue());
-        assertNull(jp.nextToken());
-        jp.close();
+        p = buf.asParser();
+        assertNull(p.getCurrentToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(13, p.getIntValue());
+        assertNull(p.nextToken());
+        p.close();
         buf.close();
     }
 
@@ -80,15 +80,15 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeEndArray();
         assertTrue(buf.getOutputContext().inRoot());
 
-        JsonParser jp = buf.asParser();
-        assertNull(jp.getCurrentToken());
-        assertTrue(jp.getParsingContext().inRoot());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertTrue(jp.getParsingContext().inArray());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertTrue(jp.getParsingContext().inRoot());
-        assertNull(jp.nextToken());
-        jp.close();
+        JsonParser p = buf.asParser();
+        assertNull(p.getCurrentToken());
+        assertTrue(p.getParsingContext().inRoot());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertTrue(p.getParsingContext().inArray());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertTrue(p.getParsingContext().inRoot());
+        assertNull(p.nextToken());
+        p.close();
         buf.close();
 
         // Then one with simple contents
@@ -97,14 +97,14 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeBoolean(true);
         buf.writeNull();
         buf.writeEndArray();
-        jp = buf.asParser();
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertTrue(jp.getBooleanValue());
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        p = buf.asParser();
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertTrue(p.getBooleanValue());
+        assertToken(JsonToken.VALUE_NULL, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
         buf.close();
 
         // And finally, with array-in-array
@@ -114,19 +114,19 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeBinary(new byte[3]);
         buf.writeEndArray();
         buf.writeEndArray();
-        jp = buf.asParser();
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        p = buf.asParser();
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         // TokenBuffer exposes it as embedded object...
-        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, jp.nextToken());
-        Object ob = jp.getEmbeddedObject();
+        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+        Object ob = p.getEmbeddedObject();
         assertNotNull(ob);
         assertTrue(ob instanceof byte[]);
         assertEquals(3, ((byte[]) ob).length);
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
         buf.close();
     }
     
@@ -141,15 +141,15 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeEndObject();
         assertTrue(buf.getOutputContext().inRoot());
 
-        JsonParser jp = buf.asParser();
-        assertNull(jp.getCurrentToken());
-        assertTrue(jp.getParsingContext().inRoot());
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertTrue(jp.getParsingContext().inObject());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        assertTrue(jp.getParsingContext().inRoot());
-        assertNull(jp.nextToken());
-        jp.close();
+        JsonParser p = buf.asParser();
+        assertNull(p.getCurrentToken());
+        assertTrue(p.getParsingContext().inRoot());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertTrue(p.getParsingContext().inObject());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertTrue(p.getParsingContext().inRoot());
+        assertNull(p.nextToken());
+        p.close();
         buf.close();
 
         // Then one with simple contents
@@ -158,25 +158,25 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeNumberField("num", 1.25);
         buf.writeEndObject();
 
-        jp = buf.asParser();
-        assertNull(jp.getCurrentToken());
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertNull(jp.getCurrentName());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("num", jp.getCurrentName());
+        p = buf.asParser();
+        assertNull(p.getCurrentToken());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertNull(p.getCurrentName());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("num", p.getCurrentName());
         // and override should also work:
-        jp.overrideCurrentName("bah");
-        assertEquals("bah", jp.getCurrentName());
+        p.overrideCurrentName("bah");
+        assertEquals("bah", p.getCurrentName());
         
-        assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-        assertEquals(1.25, jp.getDoubleValue());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(1.25, p.getDoubleValue());
         // should still have access to (overridden) name
-        assertEquals("bah", jp.getCurrentName());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        assertEquals("bah", p.getCurrentName());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
         // but not any more
-        assertNull(jp.getCurrentName());
-        assertNull(jp.nextToken());
-        jp.close();
+        assertNull(p.getCurrentName());
+        assertNull(p.nextToken());
+        p.close();
         buf.close();
     }
 
@@ -187,10 +187,10 @@ public class TestTokenBuffer extends BaseMapTest
     public void testWithJSONSampleDoc() throws Exception
     {
         // First, copy events from known good source (StringReader)
-        JsonParser jp = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
+        JsonParser p = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
         TokenBuffer tb = new TokenBuffer(null, false);
-        while (jp.nextToken() != null) {
-            tb.copyCurrentEvent(jp);
+        while (p.nextToken() != null) {
+            tb.copyCurrentEvent(p);
         }
 
         // And then request verification; first structure only:
@@ -199,7 +199,7 @@ public class TestTokenBuffer extends BaseMapTest
         // then content check too:
         verifyJsonSpecSampleDoc(tb.asParser(), true);
         tb.close();
-        jp.close();
+        p.close();
     }
 
     public void testAppend() throws IOException
@@ -217,17 +217,17 @@ public class TestTokenBuffer extends BaseMapTest
         buf1.append(buf2);
         
         // and verify that we got it all...
-        JsonParser jp = buf1.asParser();
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("a", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("b", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(13, jp.getIntValue());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        jp.close();
+        JsonParser p = buf1.asParser();
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("a", p.getCurrentName());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("b", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(13, p.getIntValue());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
         buf1.close();
         buf2.close();
     }
@@ -254,11 +254,11 @@ public class TestTokenBuffer extends BaseMapTest
             assertEquals(uuid.toString(), out.toString());
 
             // second part: As per [databind#362], should NOT use binary with TokenBuffer
-            JsonParser jp = buf.asParser();
-            assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-            String str = jp.getText();
+            JsonParser p = buf.asParser();
+            assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+            String str = p.getText();
             assertEquals(value, str);
-            jp.close();
+            p.close();
         }
     }
 
@@ -394,12 +394,12 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf = new TokenBuffer(null, false);
         buf.writeStartArray();
         buf.writeString("test");
-        JsonParser jp = createParserUsingReader("[ true, null ]");
+        JsonParser p = createParserUsingReader("[ true, null ]");
         
-        JsonParserSequence seq = JsonParserSequence.createFlattened(buf.asParser(), jp);
+        JsonParserSequence seq = JsonParserSequence.createFlattened(buf.asParser(), p);
         assertEquals(2, seq.containedParsersCount());
 
-        assertFalse(jp.isClosed());
+        assertFalse(p.isClosed());
         
         assertFalse(seq.hasCurrentToken());
         assertNull(seq.getCurrentToken());
@@ -427,8 +427,8 @@ public class TestTokenBuffer extends BaseMapTest
         assertNull(seq.nextToken());
 
         // also: original parsers should be closed
-        assertTrue(jp.isClosed());
-        jp.close();
+        assertTrue(p.isClosed());
+        p.close();
         buf.close();
         seq.close();
     }

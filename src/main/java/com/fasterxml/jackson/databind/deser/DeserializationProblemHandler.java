@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
  * This is the class that can be registered (via
@@ -306,7 +307,7 @@ public abstract class DeserializationProblemHandler
      * @since 2.8
      */
     public JavaType handleUnknownTypeId(DeserializationContext ctxt,
-            JavaType baseType, String subTypeId,
+            JavaType baseType, String subTypeId, TypeIdResolver idResolver,
             String failureMsg)
         throws IOException
     {

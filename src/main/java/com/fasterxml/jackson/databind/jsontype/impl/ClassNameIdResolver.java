@@ -62,7 +62,7 @@ public class ClassNameIdResolver
             if (ctxt instanceof DeserializationContext) {
                 DeserializationContext dctxt = (DeserializationContext) ctxt;
                 // First: we may have problem handlers that can deal with it?
-                return dctxt.handleUnknownTypeId(_baseType, id, "no such class found");
+                return dctxt.handleUnknownTypeId(_baseType, id, this, "no such class found");
             }
             // ... meaning that we really should never get here.
             return null;

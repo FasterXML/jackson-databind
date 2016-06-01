@@ -97,6 +97,10 @@ public class PropertyValueBuffer
         }
     }
 
+  /**
+   * Returns {@code true} if the given property was seen in the JSON source by
+   * this buffer.
+   */
     public boolean hasParameter(SettableBeanProperty prop)
     {
         if (_paramsSeenBig == null) {
@@ -106,6 +110,14 @@ public class PropertyValueBuffer
         }
     }
 
+    /**
+     * A variation of {@link #getParameters(SettableBeanProperty[])} that
+     * accepts a single property.  Whereas the plural form eagerly fetches and
+     * validates all properties, this method may be used (along with
+     * {@link #hasParameter(SettableBeanProperty)}) to let applications only
+     * fetch the properties defined in the JSON source itself, and to have some
+     * other customized behavior for missing properties.
+     */
     public Object getParameter(SettableBeanProperty prop)
         throws JsonMappingException
     {

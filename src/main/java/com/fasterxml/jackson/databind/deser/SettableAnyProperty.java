@@ -35,6 +35,8 @@ public class SettableAnyProperty
      * Annotated variant is needed for JDK serialization only
      */
     final protected AnnotatedMember _setter;
+
+    final boolean _setterIsField;
     
     protected final JavaType _type;
 
@@ -56,6 +58,7 @@ public class SettableAnyProperty
         _type = type;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = typeDeser;
+        _setterIsField = setter instanceof AnnotatedField;
     }
     
     public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
@@ -73,8 +76,9 @@ public class SettableAnyProperty
         _type = src._type;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
+        _setterIsField = src._setterIsField;
     }
-    
+
     /*
     /**********************************************************
     /* JDK serialization handling
@@ -146,25 +150,23 @@ public class SettableAnyProperty
     public void set(Object instance, String propName, Object value) throws IOException
     {
         try {
-			// note: can not use 'setValue()' due to taking 2 args
-			if (_setter instanceof AnnotatedMethod) {
-				((AnnotatedMethod) _setter).getAnnotated().invoke(instance, propName, value);
-			}
-			// if annotation in the field (only map is supported now)
-			else if (_setter instanceof AnnotatedField) {
-				AnnotatedField field = ((AnnotatedField) _setter);
-
-				// get the field value..
-				Object val = field.getValue(instance);
-				
-				if (val != null) {
-					// add the property key and value
-					((Map) val).put(propName, value);
-
-					// set the value back to the field
-					field.setValue(instance, val);
-				}
-			}
+            // if annotation in the field (only map is supported now)
+            if (_setterIsField) {
+                AnnotatedField field = (AnnotatedField) _setter;
+                Map<Object,Object> val = (Map<Object,Object>) field.getValue(instance);
+                /* 01-Jun-2016, tatu: At this point it is not quite clear what to do if
+                 *    field is `null` -- we can not necessarily count on zero-args
+                 *    constructor except for a small set of types, so for now just
+                 *    ignore if null. May need to figure out something better in future.
+                 */
+                if (val != null) {
+                    // add the property key and value
+                    val.put(propName, value);
+                }
+            } else {
+                // note: can not use 'setValue()' due to taking 2 args
+                ((AnnotatedMethod) _setter).callOnWith(instance, propName, value);
+            }
         } catch (Exception e) {
             _throwAsIOE(e, propName, value);
         }

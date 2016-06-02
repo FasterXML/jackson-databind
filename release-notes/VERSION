@@ -10,7 +10,7 @@ Project: jackson-databind
   `Mapper.configOverride(type).setIsIgnoredType(true)`
 #903: Add `JsonGenerator` reference to `SerializerProvider`
 #931: Add new method in `Deserializers.Base` to support `ReferenceType`
-#960: `@JsonCreator` not working on a factory with no arguments for ae enum type
+#960: `@JsonCreator` not working on a factory with no arguments for an enum type
  (reported by Artur J)
 #990: Allow failing on `null` values for creator (add 
   `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)
@@ -19,6 +19,7 @@ Project: jackson-databind
  (suggested by natnan@github)
 #1028: Ignore USE_BIG_DECIMAL_FOR_FLOATS for NaN/Infinity
  (reported by Vladimir K, lightoze@github)
+#1047: Allow use of `@JsonAnySetter` on a Map-valued field, no need for setter
 #1082: Can not use static Creator factory methods for `Enum`s, with JsonCreator.Mode.PROPERTIES
  (contributed by Lokesh K)
 #1084: Change `TypeDeserializerBase` to take `JavaType` for `defaultImpl`, NOT `Class`
@@ -40,7 +41,7 @@ Project: jackson-databind
  (reported by Lokesh K)
 #1221: Use `Throwable.addSuppressed()` directly and/or via try-with-resources
 #1232: Add support for `JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`
-#1232: Add support for `JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES`
+#1233: Add support for `JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES`
 #1235: `java.nio.file.Path` support incomplete
  (reported by, fix contributed by Benson M)
 

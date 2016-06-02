@@ -165,15 +165,14 @@ public abstract class BeanDescription
      */
     public abstract AnnotatedMethod findAnySetter();
 
-	/**
-	 * Method used to locate the field of the class that implements
-	 * {@link com.fasterxml.jackson.annotation.JsonAnySetter} If no such method
-	 * exists null is returned. If more than one are found, an exception is
-	 * thrown.
-	 * 
-	 * @since 2.8
-	 */
-	public abstract AnnotatedMember findAnySetterField();
+    /**
+     * Method used to locate the field of the class that implements
+     * {@link com.fasterxml.jackson.annotation.JsonAnySetter} If no such method
+     * exists null is returned. If more than one are found, an exception is thrown.
+     * 
+     * @since 2.8
+     */
+    public abstract AnnotatedMember findAnySetterField();
 
     /**
      * Method for locating the getter method that is annotated with

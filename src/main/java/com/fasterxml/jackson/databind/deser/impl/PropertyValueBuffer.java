@@ -97,11 +97,13 @@ public class PropertyValueBuffer
         }
     }
 
-  /**
-   * Returns {@code true} if the given property was seen in the JSON source by
-   * this buffer.
-   */
-    public boolean hasParameter(SettableBeanProperty prop)
+    /**
+     * Returns {@code true} if the given property was seen in the JSON source by
+     * this buffer.
+     *
+     * @since 2.8
+     */
+    public final boolean hasParameter(SettableBeanProperty prop)
     {
         if (_paramsSeenBig == null) {
             return ((_paramsSeen >> prop.getCreatorIndex()) & 1) == 1;
@@ -117,6 +119,8 @@ public class PropertyValueBuffer
      * {@link #hasParameter(SettableBeanProperty)}) to let applications only
      * fetch the properties defined in the JSON source itself, and to have some
      * other customized behavior for missing properties.
+     *
+     * @since 2.8
      */
     public Object getParameter(SettableBeanProperty prop)
         throws JsonMappingException

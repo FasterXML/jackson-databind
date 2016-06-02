@@ -418,6 +418,22 @@ public class BasicBeanDescription extends BeanDescription
         }
         return anyGetter;
     }
+    
+	public AnnotatedMember findAnySetterField() throws IllegalArgumentException {
+		AnnotatedMember anySetter = (_propCollector == null) ? null : _propCollector.getAnySetterField();
+		if (anySetter != null) {
+			/*
+			 * For now let's require a Map; in future can add support for other
+			 * types like perhaps Iterable<Map.Entry>?
+			 */
+			Class<?> type = anySetter.getRawType();
+			if (!Map.class.isAssignableFrom(type)) {
+				throw new IllegalArgumentException("Invalid 'any-setter' annotation on field " + anySetter.getName()
+				        + "(): type is not instance of java.util.Map");
+			}
+		}
+		return anySetter;
+	}
 
     @Override
     public Map<String,AnnotatedMember> findBackReferenceProperties()

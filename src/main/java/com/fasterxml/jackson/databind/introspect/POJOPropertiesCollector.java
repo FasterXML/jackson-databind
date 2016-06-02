@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -83,6 +84,8 @@ public class POJOPropertiesCollector
     protected LinkedList<AnnotatedMember> _anyGetters;
 
     protected LinkedList<AnnotatedMethod> _anySetters;
+    
+    protected LinkedList<AnnotatedMember> _anySetterField;
 
     /**
      * Method(s) marked with 'JsonValue' annotation
@@ -192,6 +195,21 @@ public class POJOPropertiesCollector
             }
             return _anyGetters.getFirst();
         }        
+        return null;
+    }
+    
+    public AnnotatedMember getAnySetterField()
+    {
+        if (!_collected) {
+            collectAll();
+        }
+        if (_anySetterField != null) {
+            if (_anySetterField.size() > 1) {
+                reportProblem("Multiple 'any-Setters' defined ("+_anySetters.get(0)+" vs "
+                        +_anySetterField.get(1)+")");
+            }
+            return _anySetterField.getFirst();
+        }
         return null;
     }
 
@@ -401,6 +419,15 @@ public class POJOPropertiesCollector
             if (pruneFinalFields && (pn == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
                 continue;
             }
+
+            //if field has annotation @JsonAnySetter
+            if(f.hasAnnotation(JsonAnySetter.class)) {
+            	if (_anySetterField == null) {
+            		_anySetterField = new LinkedList<AnnotatedMember>();
+            	}
+            	_anySetterField.add(f);
+            }
+            
             _property(props, implName).addField(f, pn, nameExplicit, visible, ignored);
         }
     }

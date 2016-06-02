@@ -97,6 +97,44 @@ public class PropertyValueBuffer
         }
     }
 
+  /**
+   * Returns {@code true} if the given property was seen in the JSON source by
+   * this buffer.
+   */
+    public boolean hasParameter(SettableBeanProperty prop)
+    {
+        if (_paramsSeenBig == null) {
+            return ((_paramsSeen >> prop.getCreatorIndex()) & 1) == 1;
+        } else {
+            return _paramsSeenBig.get(prop.getCreatorIndex());
+        }
+    }
+
+    /**
+     * A variation of {@link #getParameters(SettableBeanProperty[])} that
+     * accepts a single property.  Whereas the plural form eagerly fetches and
+     * validates all properties, this method may be used (along with
+     * {@link #hasParameter(SettableBeanProperty)}) to let applications only
+     * fetch the properties defined in the JSON source itself, and to have some
+     * other customized behavior for missing properties.
+     */
+    public Object getParameter(SettableBeanProperty prop)
+        throws JsonMappingException
+    {
+        Object value;
+        if (hasParameter(prop)) {
+            value = _creatorParameters[prop.getCreatorIndex()];
+        } else {
+            value = _creatorParameters[prop.getCreatorIndex()] = _findMissing(prop);
+        }
+        if (value == null && _context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
+            throw _context.mappingException(
+                "Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
+                prop.getName(), prop.getCreatorIndex());
+        }
+        return value;
+    }
+
     /**
      * Method called to do necessary post-processing such as injection of values
      * and verification of values for required properties,
@@ -104,7 +142,7 @@ public class PropertyValueBuffer
      * returns <code>true</code> (to indicate all creator properties are found), or when
      * then whole JSON Object has been processed,
      */
-    protected Object[] getParameters(SettableBeanProperty[] props)
+    public Object[] getParameters(SettableBeanProperty[] props)
         throws JsonMappingException
     {
         // quick check to see if anything else is needed
@@ -250,4 +288,3 @@ public class PropertyValueBuffer
         _buffered = new PropertyValue.Map(_buffered, value, key);
     }
 }
-

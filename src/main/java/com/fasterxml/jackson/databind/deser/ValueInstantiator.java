@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
@@ -197,6 +198,29 @@ public abstract class ValueInstantiator
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
                 "Can not instantiate value of type %s with arguments",
                 getValueTypeDesc());
+    }
+
+    /**
+     * Method that delegates to
+     * {@link #createFromObjectWith(DeserializationContext, Object[])} by
+     * default, but can be overridden if the application should have customized
+     * behavior with respect to missing properties.
+     *<p>
+     * The default implementation of this method uses
+     * {@link PropertyValueBuffer#getParameters(SettableBeanProperty[])} to read
+     * and validate all properties in bulk, possibly substituting defaults for
+     * missing properties or throwing exceptions for missing properties.  An
+     * overridden implementation of this method could, for example, use
+     * {@link PropertyValueBuffer#hasParameter(SettableBeanProperty)} and
+     * {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} to safely
+     * read the present properties only, and to have some other behavior for the
+     * missing properties.
+     */
+    public Object createFromObjectWith(DeserializationContext ctxt,
+            SettableBeanProperty[] props, PropertyValueBuffer buffer)
+        throws IOException
+    {
+        return createFromObjectWith(ctxt, buffer.getParameters(props));
     }
 
     /**

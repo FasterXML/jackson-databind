@@ -282,28 +282,26 @@ public class ObjectNode
     public void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
-        SerializationConfig config = null;
-        if (provider != null) {
-        	config = provider.getConfig();
-        }
+        @SuppressWarnings("deprecation")
+        boolean trimEmptyArray = (provider != null) &&
+                !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
         g.writeStartObject(this);
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            /* 17-Feb-2009, tatu: Can we trust that all nodes will always
+             *   extend BaseJsonNode? Or if not, at least implement
+             *   JsonSerializable? Let's start with former, change if
+             *   we must.
+             */
+            BaseJsonNode value = (BaseJsonNode) en.getValue();
 
-            // check if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
+            // as per [databind#867], see if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
             // if the feature is disabled, then should not write an empty array
             // to the output, so continue to the next element in the iteration
-            if (config != null && !config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS) && en.getValue() instanceof ArrayNode
-                    && ((ArrayNode) en.getValue()).size() == 0) {
+            if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
             	continue;
             }
-            
             g.writeFieldName(en.getKey());
-                /* 17-Feb-2009, tatu: Can we trust that all nodes will always
-                 *   extend BaseJsonNode? Or if not, at least implement
-                 *   JsonSerializable? Let's start with former, change if
-                 *   we must.
-                 */
-            ((BaseJsonNode) en.getValue()).serialize(g, provider);
+            value.serialize(g, provider);
         }
         g.writeEndObject();
     }
@@ -313,23 +311,22 @@ public class ObjectNode
             TypeSerializer typeSer)
         throws IOException
     {
-        SerializationConfig config = null;
-        if (provider != null) {
-        	config = provider.getConfig();
-        }
+        @SuppressWarnings("deprecation")
+        boolean trimEmptyArray = (provider != null) &&
+                !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
         typeSer.writeTypePrefixForObject(this, g);
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            BaseJsonNode value = (BaseJsonNode) en.getValue();
 
             // check if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
             // if the feature is disabled, then should not write an empty array
             // to the output, so continue to the next element in the iteration
-            if (!config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS) && en.getValue() instanceof ArrayNode
-                    && ((ArrayNode) en.getValue()).size() == 0) {
-            	continue;
+            if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
+                continue;
             }
             
             g.writeFieldName(en.getKey());
-            ((BaseJsonNode) en.getValue()).serialize(g, provider);
+            value.serialize(g, provider);
         }
         typeSer.writeTypeSuffixForObject(this, g);
     }

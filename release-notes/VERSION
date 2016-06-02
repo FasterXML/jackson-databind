@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #621: Allow definition of "ignorable types" without annotation (using
   `Mapper.configOverride(type).setIsIgnoredType(true)`
+#867: Support `SerializationFeature.WRITE_EMPTY_JSON_ARRAYS ` for `JsonNode`
 #903: Add `JsonGenerator` reference to `SerializerProvider`
 #931: Add new method in `Deserializers.Base` to support `ReferenceType`
 #960: `@JsonCreator` not working on a factory with no arguments for an enum type

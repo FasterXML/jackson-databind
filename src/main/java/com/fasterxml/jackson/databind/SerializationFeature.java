@@ -288,8 +288,16 @@ public enum SerializationFeature implements ConfigFeature
      * Note that this does not change behavior of {@link java.util.Map}s, or
      * "Collection-like" types.
      *<p>
+     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>can not</b> be
+     * dynamically changed on per-call basis, because its effect is considered during
+     * construction of serializers and property handlers.
+     *<p>
      * Feature is enabled by default.
+     *
+     * @deprecated Since 2.8 there are better mechanism for specifying filtering; specifically
+     *   using {@link com.fasterxml.jackson.annotation.JsonFormat} or configuration overrides.
      */
+    @Deprecated // since 2.8
     WRITE_EMPTY_JSON_ARRAYS(true),
 
     /**

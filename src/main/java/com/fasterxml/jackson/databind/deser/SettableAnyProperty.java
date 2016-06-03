@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.*;

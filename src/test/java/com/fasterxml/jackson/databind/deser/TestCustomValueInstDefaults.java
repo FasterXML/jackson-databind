@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * as well as the {@link PropertyValueBuffer#hasParameter(SettableBeanProperty)}
  * and {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} methods.
  */
+@SuppressWarnings("serial")
 public class TestCustomValueInstDefaults extends BaseTest
 {
     static class Bucket

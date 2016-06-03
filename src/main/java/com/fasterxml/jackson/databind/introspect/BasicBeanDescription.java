@@ -418,9 +418,10 @@ public class BasicBeanDescription extends BeanDescription
         }
         return anyGetter;
     }
-    
-	public AnnotatedMember findAnySetterField() throws IllegalArgumentException {
-		AnnotatedMember anySetter = (_propCollector == null) ? null : _propCollector.getAnySetterField();
+
+    @Override
+    public AnnotatedMember findAnySetterField() throws IllegalArgumentException {
+        AnnotatedMember anySetter = (_propCollector == null) ? null : _propCollector.getAnySetterField();
 		if (anySetter != null) {
 			/*
 			 * For now let's require a Map; in future can add support for other

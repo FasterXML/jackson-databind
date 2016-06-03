@@ -355,7 +355,11 @@ public class ObjectReader
             t = p.nextToken();
             if (t == null) {
                 // Throw mapping exception, since it's failure to map, not an actual parsing problem
-                ctxt.reportMissingContent(null); // default msg is fine
+                if (this._config.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                    t = JsonToken.VALUE_NULL;
+                } else {
+                    ctxt.reportMissingContent(null); // default msg is fine
+                }
             }
         }
         return t;
@@ -527,8 +531,8 @@ public class ObjectReader
      */
 
     /**
-     * Convenience method to bind from {@link JsonPointer}.  
-     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
+     * Convenience method to bind from {@link JsonPointer}.
+     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
      * @since 2.6
      */
     public ObjectReader at(final String value) {

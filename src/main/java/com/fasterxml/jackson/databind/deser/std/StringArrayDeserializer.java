@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
@@ -38,15 +39,25 @@ public final class StringArrayDeserializer
      */
     protected final Boolean _unwrapSingle;
 
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether null and missing values may be interpreted as empty collections.
+     * If null, left to global defaults.
+     *
+     * @since 2.8
+     */
+    protected final Boolean _readNullAsEmpty;
+
     public StringArrayDeserializer() {
-        this(null, null);
+        this(null, null, null);
     }
 
     @SuppressWarnings("unchecked")
-    protected StringArrayDeserializer(JsonDeserializer<?> deser, Boolean unwrapSingle) {
+    protected StringArrayDeserializer(JsonDeserializer<?> deser, Boolean unwrapSingle, Boolean readNullAsEmpty) {
         super(String[].class);
         _elementDeserializer = (JsonDeserializer<String>) deser;
         _unwrapSingle = unwrapSingle;
+        _readNullAsEmpty = readNullAsEmpty;
     }
 
     /**
@@ -68,6 +79,8 @@ public final class StringArrayDeserializer
         // One more thing: allow unwrapping?
         Boolean unwrapSingle = findFormatFeature(ctxt, property, String[].class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
+                DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask());
         // Ok ok: if all we got is the default String deserializer, can just forget about it
         if ((deser != null) && isDefaultDeserializer(deser)) {
             deser = null;
@@ -75,7 +88,7 @@ public final class StringArrayDeserializer
         if ((_elementDeserializer == deser) && (_unwrapSingle == unwrapSingle)) {
             return this;
         }
-        return new StringArrayDeserializer(deser, unwrapSingle);
+        return new StringArrayDeserializer(deser, unwrapSingle, readNullAsEmpty);
     }
 
     @Override
@@ -186,4 +199,31 @@ public final class StringArrayDeserializer
         }
         return (String[]) ctxt.handleUnexpectedToken(_valueClass, p);
     }
+
+
+    @Override
+    public String[] getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+            return createEmptyArray();
+        } else {
+            return super.getNullValue(ctxt);
+        }
+
+    }
+
+    @Override
+    public String[] getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+            return createEmptyArray();
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+    private String[] createEmptyArray() {
+        return new String[0];
+    }
+
 }

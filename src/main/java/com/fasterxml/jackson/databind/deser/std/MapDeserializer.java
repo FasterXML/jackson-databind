@@ -86,6 +86,16 @@ public class MapDeserializer
     
     protected Set<String> _ignorableProperties;
 
+
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether null and missing values may be interpreted as empty collections.
+     * If null, left to global defaults.
+     *
+     * @since 2.8
+     */
+    protected final Boolean _readNullAsEmpty;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -93,8 +103,8 @@ public class MapDeserializer
      */
 
     public MapDeserializer(JavaType mapType, ValueInstantiator valueInstantiator,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
-            TypeDeserializer valueTypeDeser)
+                           KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+                           TypeDeserializer valueTypeDeser, Boolean readNullAsEmpty)
     {
         super(mapType);
         _mapType = mapType;
@@ -106,6 +116,7 @@ public class MapDeserializer
         _delegateDeserializer = null;
         _propertyBasedCreator = null;
         _standardStringKey = _isStdKeyDeser(mapType, keyDeser);
+        _readNullAsEmpty = readNullAsEmpty;
     }
 
     /**
@@ -127,6 +138,7 @@ public class MapDeserializer
         _ignorableProperties = src._ignorableProperties;
 
         _standardStringKey = src._standardStringKey;
+        _readNullAsEmpty = src._readNullAsEmpty;
     }
 
     protected MapDeserializer(MapDeserializer src,
@@ -136,6 +148,7 @@ public class MapDeserializer
     {
         super(src._mapType);
         _mapType = src._mapType;
+        _readNullAsEmpty = src._readNullAsEmpty;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -386,7 +399,37 @@ public class MapDeserializer
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
     }
-    
+
+    @Override
+    public Map<Object, Object> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+            return createEmptyCollection(ctxt.getParser(), ctxt);
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+    @Override
+    public Map<Object, Object> getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+            return createEmptyCollection(ctxt.getParser(), ctxt);
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private Map<Object, Object> createEmptyCollection(JsonParser parser, DeserializationContext ctxt) throws JsonMappingException {
+        try {
+            return (Map<Object, Object>) _valueInstantiator.createUsingDefault(ctxt);
+        } catch (IOException ex) {
+            throw new JsonMappingException(parser, "Could not create collection of type " + _mapType.getRawClass().getSimpleName(), ex);
+        }
+    }
+
     /*
     /**********************************************************
     /* Other public accessors

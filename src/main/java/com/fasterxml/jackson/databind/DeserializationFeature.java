@@ -434,7 +434,19 @@ public enum DeserializationFeature implements ConfigFeature
      * 
      * @since 2.1
      */
-    EAGER_DESERIALIZER_FETCH(true)
+    EAGER_DESERIALIZER_FETCH(true),
+
+
+    /**
+     * Feature that determines whether {@link ObjectReader} should
+     * try to deserialize missing or null fields into empty collections or arrays
+     * of the appropriate type.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.8
+     */
+    READ_NULL_AS_EMPTY_COLLECTION(false)
     
     ;
 

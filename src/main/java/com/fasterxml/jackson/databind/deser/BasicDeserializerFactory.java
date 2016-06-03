@@ -1165,7 +1165,8 @@ public abstract class BasicDeserializerFactory
                     //   most often it ought to be `Map` or `EnumMap`, but due to abstract
                     //   mapping it will more likely be concrete type like `HashMap`.
                     //   So, for time being, just pass `Map.class`
-                    MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
+                    boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask());
+                    MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser, readNullAsEmpty);
                     JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Map.class,
                             beanDesc.getClassInfo());
                     Set<String> ignored = (ignorals == null) ? null

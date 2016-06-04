@@ -3005,6 +3005,15 @@ public class ObjectMapper
     }
 
     /**
+     * @since 2.8
+     */
+    public void writeValue(DataOutput out, Object value)
+        throws IOException
+    {
+        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
+    }
+
+    /**
      * Method that can be used to serialize any Java value as
      * JSON output, using Writer provided.
      *<p>

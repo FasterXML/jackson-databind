@@ -979,6 +979,15 @@ public class ObjectWriter
     }
 
     /**
+     * @since 2.8
+     */
+    public void writeValue(DataOutput out, Object value)
+        throws IOException
+    {
+        _configAndWriteValue(_generatorFactory.createGenerator(out), value);
+    }
+
+    /**
      * Method that can be used to serialize any Java value as
      * a String. Functionally equivalent to calling
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}

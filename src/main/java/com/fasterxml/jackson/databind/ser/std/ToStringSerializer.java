@@ -47,12 +47,6 @@ public class ToStringSerializer
     }
 
     @Override
-    @Deprecated
-    public boolean isEmpty(Object value) {
-        return isEmpty(null, value);
-    }
-
-    @Override
     public boolean isEmpty(SerializerProvider prov, Object value) {
         if (value == null) {
             return true;

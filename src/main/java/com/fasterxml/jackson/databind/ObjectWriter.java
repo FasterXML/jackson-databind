@@ -761,6 +761,14 @@ public class ObjectWriter
     }
 
     /**
+     * @since 2.8
+     */
+    public SequenceWriter writeValues(DataOutput out) throws IOException {
+        return _newSequenceWriter(false,
+                _generatorFactory.createGenerator(out), true);
+    }
+
+    /**
      * Method for creating a {@link SequenceWriter} to write an array of
      * root-level values, using configuration of this {@link ObjectWriter}.
      * Resulting writer needs to be {@link SequenceWriter#close()}d after all
@@ -837,6 +845,13 @@ public class ObjectWriter
     public SequenceWriter writeValuesAsArray(OutputStream out) throws IOException {
         return _newSequenceWriter(true,
                 _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public SequenceWriter writeValuesAsArray(DataOutput out) throws IOException {
+        return _newSequenceWriter(true, _generatorFactory.createGenerator(out), true);
     }
 
     /*

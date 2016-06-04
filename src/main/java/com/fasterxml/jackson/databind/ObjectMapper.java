@@ -2084,10 +2084,10 @@ public class ObjectMapper
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, Class<T> valueType)
+    public <T> T readValue(JsonParser p, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(getDeserializationConfig(), jp, _typeFactory.constructType(valueType));
+        return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueType));
     } 
 
     /**
@@ -2108,10 +2108,10 @@ public class ObjectMapper
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, TypeReference<?> valueTypeRef)
+    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(getDeserializationConfig(), jp, _typeFactory.constructType(valueTypeRef));
+        return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueTypeRef));
     }
 
     /**
@@ -2131,10 +2131,10 @@ public class ObjectMapper
      */
     @Override
     @SuppressWarnings("unchecked")
-    public final <T> T readValue(JsonParser jp, ResolvedType valueType)
+    public final <T> T readValue(JsonParser p, ResolvedType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(getDeserializationConfig(), jp, (JavaType) valueType);
+        return (T) _readValue(getDeserializationConfig(), p, (JavaType) valueType);
     }
 
     /**
@@ -2150,10 +2150,10 @@ public class ObjectMapper
      *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, JavaType valueType)
+    public <T> T readValue(JsonParser p, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(getDeserializationConfig(), jp, valueType);
+        return (T) _readValue(getDeserializationConfig(), p, valueType);
     }
     
     /**
@@ -2177,7 +2177,7 @@ public class ObjectMapper
      *    of type {@link JsonParser} supports (JSON for default case)
      */
     @Override
-    public <T extends TreeNode> T readTree(JsonParser jp)
+    public <T extends TreeNode> T readTree(JsonParser p)
         throws IOException, JsonProcessingException
     {
         /* 02-Mar-2009, tatu: One twist; deserialization provider
@@ -2188,14 +2188,14 @@ public class ObjectMapper
          *   calling readValue(), since that'll choke on it otherwise
          */
         DeserializationConfig cfg = getDeserializationConfig();
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == null) {
-            t = jp.nextToken();
+            t = p.nextToken();
             if (t == null) {
                 return null;
             }
         }
-        JsonNode n = (JsonNode) _readValue(cfg, jp, JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readValue(cfg, p, JSON_NODE_TYPE);
         if (n == null) {
             n = getNodeFactory().nullNode();
         }
@@ -2624,9 +2624,9 @@ public class ObjectMapper
         JsonNode result;
         try {
             writeValue(buf, fromValue);
-            JsonParser jp = buf.asParser();
-            result = readTree(jp);
-            jp.close();
+            JsonParser p = buf.asParser();
+            result = readTree(p);
+            p.close();
         } catch (IOException e) { // should not occur, no real i/o...
             throw new IllegalArgumentException(e.getMessage(), e);
         }
@@ -3557,23 +3557,23 @@ public class ObjectMapper
             _serializerProvider(config).serializeValue(buf, fromValue);
 
             // then matching read, inlined 'readValue' with minor mods:
-            final JsonParser jp = buf.asParser();
+            final JsonParser p = buf.asParser();
             Object result;
             // ok to pass in existing feature flags; unwrapping handled by mapper
             final DeserializationConfig deserConfig = getDeserializationConfig();
-            JsonToken t = _initForReading(jp);
+            JsonToken t = _initForReading(p);
             if (t == JsonToken.VALUE_NULL) {
-                DeserializationContext ctxt = createDeserializationContext(jp, deserConfig);
+                DeserializationContext ctxt = createDeserializationContext(p, deserConfig);
                 result = _findRootDeserializer(ctxt, toValueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else { // pointing to event other than null
-                DeserializationContext ctxt = createDeserializationContext(jp, deserConfig);
+                DeserializationContext ctxt = createDeserializationContext(p, deserConfig);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, toValueType);
                 // note: no handling of unwrapping
-                result = deser.deserialize(jp, ctxt);
+                result = deser.deserialize(p, ctxt);
             }
-            jp.close();
+            p.close();
             return result;
         } catch (IOException e) { // should not occur, no real i/o...
             throw new IllegalArgumentException(e.getMessage(), e);

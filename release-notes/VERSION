@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.7 (not yet released)
+2.6.7 (05-Jun-2016)
 
 #1194: Incorrect signature for generic type via `JavaType.getGenericSignature
 #1228: @JsonAnySetter does not deserialize null to Deserializer's NullValue

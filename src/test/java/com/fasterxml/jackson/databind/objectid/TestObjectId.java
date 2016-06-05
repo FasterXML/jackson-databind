@@ -6,10 +6,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonJdbcSchema;
-import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonMapSchema;
-import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonRoot;
-import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonSchema;
 
 public class TestObjectId extends BaseMapTest
 {

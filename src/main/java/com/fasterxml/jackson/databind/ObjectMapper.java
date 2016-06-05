@@ -2785,8 +2785,6 @@ public class ObjectMapper
     public <T> T readValue(URL src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -2832,8 +2830,6 @@ public class ObjectMapper
     public <T> T readValue(String content, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueType));
     } 
 
@@ -2879,8 +2875,6 @@ public class ObjectMapper
     public <T> T readValue(Reader src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -2902,8 +2896,6 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -2925,8 +2917,6 @@ public class ObjectMapper
     public <T> T readValue(byte[] src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//      _setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
     
@@ -2935,8 +2925,6 @@ public class ObjectMapper
                                Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
     } 
 
@@ -2969,7 +2957,20 @@ public class ObjectMapper
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), valueType);
     } 
-    
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(DataInput src, Class<T> valueType) throws IOException
+    {
+        return (T) _readMapAndClose(_jsonFactory.createParser(src),
+                _typeFactory.constructType(valueType));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(DataInput src, JavaType valueType) throws IOException
+    {
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
+    }
+
     /*
     /**********************************************************
     /* Extended Public API: serialization

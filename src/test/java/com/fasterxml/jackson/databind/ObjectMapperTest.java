@@ -317,4 +317,19 @@ public class ObjectMapperTest extends BaseMapTest
         MAPPER.writer().writeValue(data, input);
         assertEquals(exp, bytes.toString("UTF-8"));
     }
+
+    // since 2.8
+    @SuppressWarnings("unchecked")
+    public void testDataInputViaMapper() throws Exception
+    {
+        byte[] src = "{\"a\":1}".getBytes("UTF-8");
+        DataInput input = new DataInputStream(new ByteArrayInputStream(src));
+        Map<String,Object> map = (Map<String,Object>) MAPPER.readValue(input, Map.class);
+        assertEquals(Integer.valueOf(1), map.get("a"));
+
+        input = new DataInputStream(new ByteArrayInputStream(src));
+        map = MAPPER.readerFor(Map.class)
+                .readValue(input);
+        assertEquals(Integer.valueOf(1), map.get("a"));
+    }
 }

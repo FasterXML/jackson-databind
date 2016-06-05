@@ -338,7 +338,8 @@ public class ObjectReader
     /**********************************************************
      */
 
-    protected JsonToken _initForReading(JsonParser p) throws IOException
+    protected JsonToken _initForReading(DeserializationContext ctxt, JsonParser p)
+        throws IOException
     {
         if (_schema != null) {
             p.setSchema(_schema);
@@ -354,26 +355,28 @@ public class ObjectReader
             t = p.nextToken();
             if (t == null) {
                 // Throw mapping exception, since it's failure to map, not an actual parsing problem
-                throw JsonMappingException.from(p, "No content to map due to end-of-input");
+                ctxt.reportMissingContent(null); // default msg is fine
             }
         }
         return t;
     }
 
     /**
-     * Alternative to {@link #_initForReading(JsonParser)} used in cases where reading
+     * Alternative to {@link #_initForReading} used in cases where reading
      * of multiple values means that we may or may not want to advance the stream,
      * but need to do other initialization.
      *<p>
      * Base implementation only sets configured {@link FormatSchema}, if any, on parser.
      * 
-     * @since 2.5
+     * @since 2.8
      */
-    protected void _initForMultiRead(JsonParser p) throws IOException {
+    protected void _initForMultiRead(DeserializationContext ctxt, JsonParser p)
+        throws IOException
+    {
         if (_schema != null) {
             p.setSchema(_schema);
         }
-        _config.initialize(p); // since 2.5
+        _config.initialize(p);
     }
 
     /*
@@ -522,6 +525,24 @@ public class ObjectReader
     /* Life-cycle, fluent factory methods, other
     /**********************************************************
      */
+
+    /**
+     * Convenience method to bind from {@link JsonPointer}.  
+     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
+     * @since 2.6
+     */
+    public ObjectReader at(final String value) {
+        return new ObjectReader(this, new JsonPointerBasedFilter(value));
+    }
+
+    /**
+     * Convenience method to bind from {@link JsonPointer}
+      * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
+     * @since 2.6
+     */
+    public ObjectReader at(final JsonPointer pointer) {
+        return new ObjectReader(this, new JsonPointerBasedFilter(pointer));
+    }
 
     /**
      * Mutant factory method that will construct a new instance that has
@@ -1276,7 +1297,19 @@ public class ObjectReader
         
         return (T) _bindAndClose(_considerFilter(treeAsTokens(src), false));
     }
-    
+
+    /**
+     * @since 2.8
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(DataInput src) throws IOException
+    {
+        if (_dataFormatReaders != null) {
+            _reportUndetectableSource(src);
+        }
+        return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
+    }
+
     /**
      * Method that reads content from given input source,
      * using configuration of this reader, and binds it as JSON Tree.
@@ -1292,7 +1325,6 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndCloseAsTree(in);
         }
-
         return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(in), false));
     }
     
@@ -1311,7 +1343,6 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(r);
         }
-        
         return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(r), false));
     }
 
@@ -1330,8 +1361,15 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-
         return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(json), false));
+    }
+
+    public JsonNode readTree(DataInput src) throws IOException
+    {
+        if (_dataFormatReaders != null) {
+            _reportUndetectableSource(src);
+        }
+        return _bindAndCloseAsTree(_considerFilter(_parserFactory.createParser(src), false));
     }
 
     /*
@@ -1400,9 +1438,9 @@ public class ObjectReader
             _reportUndetectableSource(src);
         }
         JsonParser p = _considerFilter(_parserFactory.createParser(src), true);
-        _initForMultiRead(p);
-        p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p);
+        _initForMultiRead(ctxt, p);
+        p.nextToken();
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
     
@@ -1419,9 +1457,9 @@ public class ObjectReader
             _reportUndetectableSource(json);
         }
         JsonParser p = _considerFilter(_parserFactory.createParser(json), true);
-        _initForMultiRead(p);
-        p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p);
+        _initForMultiRead(ctxt, p);
+        p.nextToken();
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
 
@@ -1473,6 +1511,17 @@ public class ObjectReader
         return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
     }
 
+    /**
+     * @since 2.8
+     */
+    public <T> MappingIterator<T> readValues(DataInput src) throws IOException
+    {
+        if (_dataFormatReaders != null) {
+            _reportUndetectableSource(src);
+        }
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
+    }
+
     /*
     /**********************************************************
     /* Implementation of rest of ObjectCodec methods
@@ -1511,10 +1560,10 @@ public class ObjectReader
          * before first read from parser, or after previous token has been cleared)
          */
         Object result;
-        JsonToken t = _initForReading(p);
+        final DeserializationContext ctxt = createDeserializationContext(p);
+        JsonToken t = _initForReading(ctxt, p);
         if (t == JsonToken.VALUE_NULL) {
             if (valueToUpdate == null) {
-                DeserializationContext ctxt = createDeserializationContext(p);
                 result = _findRootDeserializer(ctxt).getNullValue(ctxt);
             } else {
                 result = valueToUpdate;
@@ -1522,7 +1571,6 @@ public class ObjectReader
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = valueToUpdate;
         } else { // pointing to event other than null
-            DeserializationContext ctxt = createDeserializationContext(p);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt);
             if (_unwrapRoot) {
                 result = _unwrapAndDeserialize(p, ctxt, _valueType, deser);
@@ -1554,10 +1602,11 @@ public class ObjectReader
     {
         try (JsonParser p = p0) {
             Object result;
-            JsonToken t = _initForReading(p);
+
+            DeserializationContext ctxt = createDeserializationContext(p);
+            JsonToken t = _initForReading(ctxt, p);
             if (t == JsonToken.VALUE_NULL) {
                 if (_valueToUpdate == null) {
-                    DeserializationContext ctxt = createDeserializationContext(p);
                     result = _findRootDeserializer(ctxt).getNullValue(ctxt);
                 } else {
                     result = _valueToUpdate;
@@ -1565,7 +1614,6 @@ public class ObjectReader
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = _valueToUpdate;
             } else {
-                DeserializationContext ctxt = createDeserializationContext(p);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt);
                 if (_unwrapRoot) {
                     result = _unwrapAndDeserialize(p, ctxt, _valueType, deser);
@@ -1591,11 +1639,11 @@ public class ObjectReader
     protected JsonNode _bindAsTree(JsonParser p) throws IOException
     {
         JsonNode result;
-        JsonToken t = _initForReading(p);
+        DeserializationContext ctxt = createDeserializationContext(p);
+        JsonToken t = _initForReading(ctxt, p);
         if (t == JsonToken.VALUE_NULL || t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = NullNode.instance;
         } else {
-            DeserializationContext ctxt = createDeserializationContext(p);
             JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
                 result = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
@@ -1613,9 +1661,9 @@ public class ObjectReader
      */
     protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p) throws IOException
     {
-        _initForMultiRead(p);
-        p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p);
+        _initForMultiRead(ctxt, p);
+        p.nextToken();
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
 
@@ -1857,23 +1905,5 @@ public class ObjectReader
             }
         }
         return deser;
-    }
-
-    /**
-     * Convenience method to bind from {@link JsonPointer}.  
-     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
-     * @since 2.6
-     */
-    public ObjectReader at(final String value) {
-        return new ObjectReader(this, new JsonPointerBasedFilter(value));
-    }
-
-    /**
-     * Convenience method to bind from {@link JsonPointer}
-	 * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
-     * @since 2.6
-     */
-    public ObjectReader at(final JsonPointer pointer) {
-        return new ObjectReader(this, new JsonPointerBasedFilter(pointer));
     }
 }

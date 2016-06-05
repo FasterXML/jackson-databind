@@ -1227,6 +1227,20 @@ public abstract class DeserializationContext
         throw JsonMappingException.from(getParser(), msg);
     }
 
+    /**
+     * @since 2.8
+     */
+    public void reportMissingContent(String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msg == null) {
+            msg = "No content to map due to end-of-input";
+        } else if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw JsonMappingException.from(getParser(), msg);
+    }
+    
     /*
     /**********************************************************
     /* Methods for constructing exceptions, "untyped"

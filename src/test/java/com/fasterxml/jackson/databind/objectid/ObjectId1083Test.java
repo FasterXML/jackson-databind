@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class Objecid1083Test extends BaseMapTest
+public class ObjectId1083Test extends BaseMapTest
 {
     public static class JsonRoot {
         public final List<JsonSchema> schemas = new ArrayList<JsonSchema>();

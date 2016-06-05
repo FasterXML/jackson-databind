@@ -6,6 +6,10 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonJdbcSchema;
+import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonMapSchema;
+import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonRoot;
+import com.fasterxml.jackson.databind.objectid.ObjectId1083Test.JsonSchema;
 
 public class TestObjectId extends BaseMapTest
 {
@@ -102,6 +106,22 @@ public class TestObjectId extends BaseMapTest
         public Foo next;
     }
 
+    // for [databind#1083]
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            property = "type",
+            defaultImpl = JsonMapSchema.class)
+      @JsonSubTypes({
+            @JsonSubTypes.Type(value = JsonMapSchema.class, name = "map"),
+            @JsonSubTypes.Type(value = JsonJdbcSchema.class, name = "jdbc") })
+      public static abstract class JsonSchema {
+          public String name;
+    }
+
+    static class JsonMapSchema extends JsonSchema { }
+
+    static class JsonJdbcSchema extends JsonSchema { }
+
     /*
     /**********************************************************
     /* Test methods
@@ -171,5 +191,16 @@ public class TestObjectId extends BaseMapTest
         Foo second = (Foo) first.next;
         assertNotNull(second.ref);
         assertSame(first, second.ref);
-    }    
+    }
+
+    public static class JsonRoot {
+        public final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
+    }
+
+    public void testWithFieldsInBaseClass1083() throws Exception {
+          final String json = aposToQuotes("{'schemas': [{\n"
+              + "  'name': 'FoodMart'\n"
+              + "}]}\n");
+          MAPPER.readValue(json, JsonRoot.class);
+    }
 }

@@ -19,6 +19,10 @@ public final class WritableObjectId
 
     public Object id;
 
+    /**
+     * Marker to denote whether Object Id value has been written as part of an Object,
+     * to be referencible. Remains false when forward-reference is written.
+     */
     protected boolean idWritten = false;
 
     public WritableObjectId(ObjectIdGenerator<?> generator) {
@@ -27,7 +31,7 @@ public final class WritableObjectId
 
     public boolean writeAsId(JsonGenerator gen, SerializerProvider provider, ObjectIdWriter w) throws IOException
     {
-        if (id != null && (idWritten || w.alwaysAsId)) {
+        if ((id != null) && (idWritten || w.alwaysAsId)) {
             // 03-Aug-2013, tatu: Prefer Native Object Ids if available
             if (gen.canWriteObjectId()) {
                 gen.writeObjectRef(String.valueOf(id));
@@ -40,7 +44,13 @@ public final class WritableObjectId
     }
     
     public Object generateId(Object forPojo) {
-        return (id = generator.generateId(forPojo));
+        // 04-Jun-2016, tatu: As per [databind#1255], need to consider possibility of
+        //    id being generated for "alwaysAsId", but not being written as POJO; regardless,
+        //    need to use existing id if there is one:
+        if (id == null) {
+            id = generator.generateId(forPojo);
+        }
+        return id;
     }
 
     /**

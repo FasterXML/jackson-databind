@@ -222,6 +222,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         for (; key != null; key = p.nextFieldName()) {
             JsonNode value;
             JsonToken t = p.nextToken();
+            if (t == null) {
+                throw new JsonParseException(p, "end-of-input while reading object.");
+            }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 value = deserializeObject(p, ctxt, nodeFactory);

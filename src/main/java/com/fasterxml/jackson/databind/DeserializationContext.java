@@ -1109,8 +1109,13 @@ public abstract class DeserializationContext
             h = h.next();
         }
         if (msg == null) {
-            msg = String.format("Can not deserialize instance of %s out of %s token",
-                    _calcName(instClass), t);
+            if (t == null) {
+                msg = String.format("Unexpected end-of-input when binding data into %s",
+                        _calcName(instClass));
+            } else {
+                msg = String.format("Can not deserialize instance of %s out of %s token",
+                        _calcName(instClass), t);
+            }
         }
         reportMappingException(msg);
         return null; // never gets here
@@ -1291,9 +1296,10 @@ public abstract class DeserializationContext
      */
     @Deprecated
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
+        String tokenDesc = (token == null) ? "<end of input>" : String.format("%s token", token);
         return JsonMappingException.from(_parser,
-                String.format("Can not deserialize instance of %s out of %s token",
-                        _calcName(targetClass), token));
+                String.format("Can not deserialize instance of %s out of %s",
+                        _calcName(targetClass), tokenDesc));
     }
 
     /*

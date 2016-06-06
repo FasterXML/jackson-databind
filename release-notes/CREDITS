@@ -462,6 +462,10 @@ Andrew Joseph (apjoseph@github)
   * Reported #1248: `Annotated` returns raw type in place of Generic Type in 2.7.x
    (2.7.5)
 
+Erich Schubert (kno10@github)
+  * Reported #1260: `NullPointerException` in `JsonNodeDeserializer`, provided fix
+   (2.7.5)
+
 Artur Jonkisz (ajonkisz@github)
   * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type
    (2.8.0)

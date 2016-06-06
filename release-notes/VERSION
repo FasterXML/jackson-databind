@@ -21,6 +21,8 @@ Project: jackson-databind
 #1248: `Annotated` returns raw type in place of Generic Type in 2.7.x
  (reported by Andrew J, apjoseph@github)
 #1253: Problem with context handling for `TokenBuffer`, field name
+#1260: `NullPointerException` in `JsonNodeDeserializer`
+ (reported by Eric S)
 
 2.7.4 (29-Apr-2016)
 

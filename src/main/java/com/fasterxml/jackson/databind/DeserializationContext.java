@@ -968,9 +968,10 @@ public abstract class DeserializationContext
     }
 
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
+        String tokenDesc = (token == null) ? "<end of input>" : String.format("%s token", token);
         return JsonMappingException.from(_parser,
-                String.format("Can not deserialize instance of %s out of %s token",
-                        _calcName(targetClass), token));
+                String.format("Can not deserialize instance of %s out of %s",
+                        _calcName(targetClass), tokenDesc));
     }
     
     /**

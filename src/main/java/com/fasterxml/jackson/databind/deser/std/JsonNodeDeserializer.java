@@ -219,6 +219,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         for (; key != null; key = p.nextFieldName()) {
             JsonNode value;
             JsonToken t = p.nextToken();
+            if (t == null) {
+                throw ctxt.mappingException("Unexpected end-of-input when binding data into ObjectNode");
+            }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 value = deserializeObject(p, ctxt, nodeFactory);

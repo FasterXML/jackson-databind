@@ -631,6 +631,8 @@ Special one-off "micro patch" for:
  (reported by metanet@github)
 #327: Should not consider explicitly differing renames a fail, as long as all are explicit
 #335: Allow use of `@JsonPropertyOrder(alphabetic=true)` for Map properties
+#351: ObjectId does not properly handle forward references during deserialization
+ (contributed by pgelinas)
 #352 Add `ObjectMapper.setConfig()` for overriding `SerializationConfig`/`DeserializationConfig`
 #353: Problems with polymorphic types, `JsonNode` (related to #88)
  (reported by cemo@github)

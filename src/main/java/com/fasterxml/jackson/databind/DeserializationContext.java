@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -1245,7 +1246,18 @@ public abstract class DeserializationContext
         }
         throw JsonMappingException.from(getParser(), msg);
     }
-    
+
+    /**
+     * @since 2.8
+     */
+    public void reportUnresolvedObjectId(ObjectIdReader oidReader, Object bean)
+        throws JsonMappingException
+    {
+        String msg = String.format("No Object Id found for an instance of %s, to assign to property '%s'",
+                bean.getClass().getName(), oidReader.propertyName);
+        throw JsonMappingException.from(getParser(), msg);
+    }
+
     /*
     /**********************************************************
     /* Methods for constructing exceptions, "untyped"

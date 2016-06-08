@@ -238,9 +238,8 @@ public class PropertyValueBuffer
                     return idProp.setAndReturn(bean, _idValue);
                 }
             } else {
-                // TODO: is this an error case?
-                ctxt.reportMappingException("No _idValue when handleIdValue called, on instance of %s",
-                        bean.getClass().getName());
+                // 07-Jun-2016, tatu: Trying to improve error messaging here...
+                ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
             }
         }
         return bean;

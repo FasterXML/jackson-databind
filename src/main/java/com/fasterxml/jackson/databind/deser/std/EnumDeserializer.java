@@ -56,7 +56,7 @@ public class EnumDeserializer
     @Deprecated
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory) {
-        return deserializerForCreator(config, enumClass, factory);
+        return deserializerForCreator(config, enumClass, factory, null, null);
     }
 
     /**

@@ -102,7 +102,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             return this;
         }
         Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
-                DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask());
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
 
         return withResolved(unwrapSingle, readNullAsEmpty);
     }
@@ -142,7 +142,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     @Override
     public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyArray();
         } else {
             return super.getNullValue(ctxt);
@@ -153,7 +153,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     @Override
     public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyArray();
         } else {
             return super.getNullValue(ctxt);

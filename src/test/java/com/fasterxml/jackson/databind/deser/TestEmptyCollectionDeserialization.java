@@ -92,18 +92,18 @@ public class TestEmptyCollectionDeserialization
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        MAPPER.configure(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION, true);
+        MAPPER.configure(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY, true);
     }
 
     public void testListFromNull() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         List<?> result = r.forType(List.class).readValue("null");
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     public void testListFromEmpty() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         List<?> result = r.forType(List.class).readValue("");
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -132,14 +132,14 @@ public class TestEmptyCollectionDeserialization
     }
 
     public void testSetFromNull() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         Set<?> result = r.forType(Set.class).readValue("null");
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     public void testSetFromEmpty() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         Set<?> result = r.forType(Set.class).readValue("");
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -166,14 +166,14 @@ public class TestEmptyCollectionDeserialization
     }
 
     public void testMapFromNull() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         Map<?, ?> result = r.forType(Map.class).readValue("null");
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     public void testMapFromEmpty() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         Map<?, ?> result = r.forType(Map.class).readValue("");
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -208,14 +208,14 @@ public class TestEmptyCollectionDeserialization
     }
 
     public void testIterableFromNull() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         Iterable<?> result = r.forType(Iterable.class).readValue("null");
         assertNotNull(result);
         assertFalse(result.iterator().hasNext());
     }
 
     public void testIterableFromEmpty() throws Exception {
-        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY);
         Iterable<?> result = r.forType(Iterable.class).readValue("");
         assertNotNull(result);
         assertFalse(result.iterator().hasNext());

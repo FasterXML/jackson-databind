@@ -140,7 +140,7 @@ public class ObjectArrayDeserializer
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _arrayType.getRawClass(),
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
-                DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask());
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
         // May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
         final JavaType vt = _arrayType.getContentType();
@@ -313,7 +313,7 @@ public class ObjectArrayDeserializer
     @Override
     public Object[] getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyArray();
         } else {
             return super.getNullValue(ctxt);
@@ -324,7 +324,7 @@ public class ObjectArrayDeserializer
     @Override
     public Object[] getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyArray();
         } else {
             return super.getNullValue(ctxt);

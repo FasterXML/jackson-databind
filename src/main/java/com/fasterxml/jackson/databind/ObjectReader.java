@@ -355,7 +355,7 @@ public class ObjectReader
             t = p.nextToken();
             if (t == null) {
                 // Throw mapping exception, since it's failure to map, not an actual parsing problem
-                if (this._config.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                if (this._config.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
                     t = JsonToken.VALUE_NULL;
                 } else {
                     ctxt.reportMissingContent(null); // default msg is fine

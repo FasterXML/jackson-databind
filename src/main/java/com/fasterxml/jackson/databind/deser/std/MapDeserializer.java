@@ -403,7 +403,7 @@ public class MapDeserializer
     @Override
     public Map<Object, Object> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyCollection(ctxt.getParser(), ctxt);
         } else {
             return super.getNullValue(ctxt);
@@ -413,7 +413,7 @@ public class MapDeserializer
     @Override
     public Map<Object, Object> getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyCollection(ctxt.getParser(), ctxt);
         } else {
             return super.getNullValue(ctxt);

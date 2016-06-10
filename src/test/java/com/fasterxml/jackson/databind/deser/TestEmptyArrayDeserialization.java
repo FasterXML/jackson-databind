@@ -34,7 +34,7 @@ public class TestEmptyArrayDeserialization
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        MAPPER.configure(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION, true);
+        MAPPER.configure(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY, true);
     }
 
 

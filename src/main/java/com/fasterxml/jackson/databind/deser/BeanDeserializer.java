@@ -287,7 +287,7 @@ public class BeanDeserializer
             } while ((propName = p.nextFieldName()) != null);
         }
 
-        if (ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+        if (ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             Iterator<SettableBeanProperty> itr = _beanProperties.iterator();
             while (itr.hasNext()) {
                 SettableBeanProperty property = itr.next();

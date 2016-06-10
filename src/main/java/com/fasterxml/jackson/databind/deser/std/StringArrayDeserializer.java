@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
@@ -80,7 +79,7 @@ public final class StringArrayDeserializer
         Boolean unwrapSingle = findFormatFeature(ctxt, property, String[].class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
-                DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask());
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
         // Ok ok: if all we got is the default String deserializer, can just forget about it
         if ((deser != null) && isDefaultDeserializer(deser)) {
             deser = null;
@@ -204,7 +203,7 @@ public final class StringArrayDeserializer
     @Override
     public String[] getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyArray();
         } else {
             return super.getNullValue(ctxt);
@@ -215,7 +214,7 @@ public final class StringArrayDeserializer
     @Override
     public String[] getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyArray();
         } else {
             return super.getNullValue(ctxt);

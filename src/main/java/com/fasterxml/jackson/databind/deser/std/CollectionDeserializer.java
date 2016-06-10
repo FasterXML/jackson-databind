@@ -200,7 +200,7 @@ public class CollectionDeserializer
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 
         Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
-                DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask());
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
 
         // also, often value deserializer is resolved here:
         JsonDeserializer<?> valueDeser = _valueDeserializer;
@@ -444,7 +444,7 @@ public class CollectionDeserializer
     @Override
     public Collection<Object> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyCollection(ctxt.getParser(), ctxt);
         } else {
             return super.getNullValue(ctxt);
@@ -454,7 +454,7 @@ public class CollectionDeserializer
     @Override
     public Collection<Object> getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         if (_readNullAsEmpty == Boolean.TRUE ||
-                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_AS_EMPTY_COLLECTION.getMask())) {
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
             return createEmptyCollection(ctxt.getParser(), ctxt);
         } else {
             return super.getNullValue(ctxt);

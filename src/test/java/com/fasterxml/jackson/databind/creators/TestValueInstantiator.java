@@ -577,4 +577,30 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals("foo", bean.a);
         assertEquals(3, bean.b);
     }
+
+    // @since 2.8
+    public void testErrorMessageForMissingCtor() throws Exception
+    {
+        // first fail, check message from JSON Object (no default ctor)
+        try {
+            MAPPER.readValue("{ }", MyBean.class);
+            fail("Should not succeed");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not construct instance of");
+            verifyException(e, "missing default constructor");
+        }
+    }
+
+    // @since 2.8
+    public void testErrorMessageForMissingStringCtor() throws Exception
+    {
+        // then from JSON String
+        try {
+            MAPPER.readValue("\"foo\"", MyBean.class);
+            fail("Should not succeed");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not construct instance of");
+            verifyException(e, "no String-argument constructor/factory");
+        }
+    }
 }

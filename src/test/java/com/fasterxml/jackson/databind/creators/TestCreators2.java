@@ -276,7 +276,7 @@ public class TestCreators2 extends BaseMapTest
             MAPPER.readValue(quote("abc"), IgnoredCtor.class);
             fail("Should have caught missing constructor problem");
         } catch (JsonMappingException e) {
-            verifyException(e, "no single-String constructor/factory method");
+            verifyException(e, "no String-argument constructor/factory method");
         }
     }
 

@@ -1186,13 +1186,11 @@ public abstract class BeanDeserializerBase
         }
         // should only occur for abstract types...
         if (_beanType.isAbstract()) {
-            return ctxt.handleMissingInstantiator(_beanType.getRawClass(), p,
-                    "Can not instantiate abstract type %s (need to add/enable type information?)",
-                    _beanType);
+            return ctxt.handleMissingInstantiator(handledType(), p,
+                    "abstract type (need to add/enable type information?)");
         }
         return ctxt.handleMissingInstantiator(_beanType.getRawClass(), p,
-                "No suitable constructor found for type %s: can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)",
-                _beanType);
+                "no suitable constructor found, can not deserialize from Object value (missing default constructor or creator, or perhaps need to add/enable type information?)");
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,

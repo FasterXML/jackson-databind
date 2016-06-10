@@ -214,7 +214,7 @@ public class BeanAsArrayBuilderDeserializer
         throws IOException
     {
         if (_nonStandardCreation) {
-            return _deserializeWithCreator(p, ctxt);
+            return deserializeFromObjectUsingNonDefault(p, ctxt);
         }
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
         if (_injectables != null) {
@@ -258,27 +258,6 @@ public class BeanAsArrayBuilderDeserializer
             p.skipChildren();
         }
         return builder;
-    }
-    
-    protected Object _deserializeWithCreator(JsonParser p, DeserializationContext ctxt)
-        throws IOException
-    {
-        if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(p, ctxt));
-        }
-        if (_propertyBasedCreator != null) {
-            return _deserializeUsingPropertyBased(p, ctxt);
-        }
-        // should only occur for abstract types...
-        if (_beanType.isAbstract()) {
-            return ctxt.handleMissingInstantiator(handledType(), p,
-                    "Can not instantiate abstract type %s (need to add/enable type information?)",
-                    _beanType);
-        }
-        return ctxt.handleMissingInstantiator(handledType(), p,
-                "No suitable constructor found for type %s: can not instantiate from JSON object (need to add/enable type information?)",
-                _beanType);
     }
 
     /**

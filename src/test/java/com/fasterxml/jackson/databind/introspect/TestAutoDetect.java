@@ -32,7 +32,6 @@ public class TestAutoDetect
 
         // then by increasing visibility requirement:
         m = new ObjectMapper();
-        // note: clumsy code, but needed for Eclipse/JDK1.5 compilation (not for 1.6)
         VisibilityChecker<?> vc = m.getVisibilityChecker();
         vc = vc.withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY);
         m.setVisibility(vc);
@@ -40,7 +39,7 @@ public class TestAutoDetect
             m.readValue("\"abc\"", PrivateBean.class);
             fail("Expected exception for missing constructor");
         } catch (JsonProcessingException e) {
-            verifyException(e, "no single-String constructor/factory");
+            verifyException(e, "no String-argument constructor/factory");
         }
     }
 

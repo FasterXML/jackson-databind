@@ -182,8 +182,7 @@ public abstract class ValueInstantiator
      */
     public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s; no default creator found",
-                getValueTypeDesc());
+                "no default no-arguments constructor found");
     }
 
     /**
@@ -195,9 +194,9 @@ public abstract class ValueInstantiator
      * a non-empty List of arguments.
      */
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+        // sanity check; shouldn't really get called if no Creator specified
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s with arguments",
-                getValueTypeDesc());
+                "no creator with arguments specified");
     }
 
     /**
@@ -231,8 +230,7 @@ public abstract class ValueInstantiator
      */
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s using delegate",
-                getValueTypeDesc());
+                "no delegate creator specified");
     }
 
     /**
@@ -241,8 +239,7 @@ public abstract class ValueInstantiator
      */
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s using delegate",
-                getValueTypeDesc());
+                "no array delegate creator specified");
     }
 
     /*
@@ -258,26 +255,26 @@ public abstract class ValueInstantiator
 
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s from Integer number (%s, int)",
-                getValueTypeDesc(), value);
+                "no int/Int-argument constructor/factory method to deserialize from Number value (%s)",
+                value);
     }
 
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s from Integer number (%s, long)",
-                getValueTypeDesc(), value);
+                "no long/Long-argument constructor/factory method to deserialize from Number value (%s)",
+                value);
     }
 
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s from Floating-point number (%s, double)",
-                getValueTypeDesc(), value);
+                "no double/Double-argument constructor/factory method to deserialize from Number value (%s)",
+                value);
     }
 
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s from Boolean value (%s)",
-                getValueTypeDesc(), value);
+                "no boolean/Boolean-argument constructor/factory method to deserialize from boolean value (%s)",
+                value);
     }
 
     /*
@@ -367,8 +364,8 @@ public abstract class ValueInstantiator
             }
         }
         return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s from String value ('%s'); no single-String constructor/factory method",
-                getValueTypeDesc(), value);
+                "no String-argument constructor/factory method to deserialize from String value ('%s')",
+                value);
     }
 
     /*

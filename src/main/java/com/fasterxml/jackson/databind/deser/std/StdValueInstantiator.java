@@ -254,7 +254,7 @@ public class StdValueInstantiator
     public Object createUsingDefault(DeserializationContext ctxt) throws IOException
     {
         if (_defaultCreator == null) { // sanity-check; caller should check
-            throw new IllegalStateException("No default constructor for "+getValueTypeDesc());
+            return super.createUsingDefault(ctxt);
         }
         try {
             return _defaultCreator.call();
@@ -268,7 +268,7 @@ public class StdValueInstantiator
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException
     {
         if (_withArgsCreator == null) { // sanity-check; caller should check
-            throw new IllegalStateException("No with-args constructor for "+getValueTypeDesc());
+            return super.createFromObjectWith(ctxt, args);
         }
         try {
             return _withArgsCreator.call(args);
@@ -337,18 +337,14 @@ public class StdValueInstantiator
                         arg, rewrapCtorProblem(ctxt, t0));
             }
         }
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                "Can not instantiate value of type %s from Integral number (%s); no single-int-arg constructor/factory method",
-                getValueTypeDesc(), value);
+        return super.createFromInt(ctxt, value);
     }
 
     @Override
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
     {
         if (_fromLongCreator == null) {
-            return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                    "Can not instantiate value of type %s from Long integral number (%s); no single-long-arg constructor/factory method",
-                    getValueTypeDesc(), value);
+            return super.createFromLong(ctxt, value);
         }
         Object arg = Long.valueOf(value);
         try {
@@ -363,9 +359,7 @@ public class StdValueInstantiator
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
     {
         if (_fromDoubleCreator == null) {
-            return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                    "Can not instantiate value of type %s from Floating-point number (%s); no one-double/Double-arg constructor/factory method",
-                    getValueTypeDesc(), value);
+            return super.createFromDouble(ctxt, value);
         }
         Object arg = Double.valueOf(value);
         try {
@@ -380,9 +374,7 @@ public class StdValueInstantiator
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException
     {
         if (_fromBooleanCreator == null) {
-            return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
-                    "Can not instantiate value of type %s from Boolean value (%s); no single-boolean/Boolean-arg constructor/factory method",
-                    getValueTypeDesc(), value);
+            return super.createFromBoolean(ctxt, value);
         }
         final Boolean arg = Boolean.valueOf(value);
         try {
@@ -460,9 +452,7 @@ public class StdValueInstantiator
                 return (JsonMappingException) curr;
             }
         }
-        String msg = String.format("Instantiation of %s value failed (%s): %s",
-                getValueTypeDesc(), t.getClass().getName(), t.getMessage());
-        return JsonMappingException.from(ctxt.getParser(), msg, t);
+        return ctxt.instantiationException(getValueClass(), t);
     }
 
     /**
@@ -475,9 +465,7 @@ public class StdValueInstantiator
         if (t instanceof JsonMappingException) {
             return (JsonMappingException) t;
         }
-        String msg = String.format("Instantiation of %s value failed (%s): %s",
-                getValueTypeDesc(), t.getClass().getName(), t.getMessage());
-        return JsonMappingException.from(ctxt.getParser(), msg, t);
+        return ctxt.instantiationException(getValueClass(), t);
     }
 
     /**

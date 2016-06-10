@@ -1209,7 +1209,8 @@ public abstract class BeanDeserializerBase
         case INT:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                            _delegateDeserializer.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
@@ -1220,7 +1221,8 @@ public abstract class BeanDeserializerBase
         case LONG:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                            _delegateDeserializer.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
@@ -1231,14 +1233,16 @@ public abstract class BeanDeserializerBase
         }
         // actually, could also be BigInteger, so:
         if (_delegateDeserializer != null) {
-            Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+            Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                    _delegateDeserializer.deserialize(p, ctxt));
             if (_injectables != null) {
                 injectValues(ctxt, bean);
             }
             return bean;
         }
         return ctxt.handleMissingInstantiator(handledType(), p,
-                "no suitable creator method found to deserialize from JSON integer number");
+                "no suitable creator method found to deserialize from Number value (%s)",
+                p.getNumberValue());
     }
 
     public Object deserializeFromString(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -1288,7 +1292,8 @@ public abstract class BeanDeserializerBase
             return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
         }
         return ctxt.handleMissingInstantiator(handledType(), p,
-                "no suitable creator method found to deserialize from JSON floating-point number");
+                "no suitable creator method found to deserialize from Number value (%s)",
+                p.getNumberValue());
     }
 
     /**

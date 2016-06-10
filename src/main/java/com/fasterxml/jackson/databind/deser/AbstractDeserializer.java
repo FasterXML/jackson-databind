@@ -147,7 +147,7 @@ public class AbstractDeserializer
         throws IOException
     {
         return ctxt.handleMissingInstantiator(_baseType.getRawClass(), p,
-                "abstract types either need to be mapped to concrete types, have custom deserializer, or be instantiated with additional type information");
+                "abstract types either need to be mapped to concrete types, have custom deserializer, or contain additional type information");
     }
 
     /*

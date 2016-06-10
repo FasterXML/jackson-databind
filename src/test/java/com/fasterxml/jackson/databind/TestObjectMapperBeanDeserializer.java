@@ -217,7 +217,8 @@ public class TestObjectMapperBeanDeserializer
             OtherBean otherResult = MAPPER.readValue("13", OtherBean.class);
             fail("Expected an exception, but got result value: "+otherResult.o);
         } catch (JsonMappingException e) {
-            verifyException(e, "from Integral number", "no single-int-arg constructor/factory method");
+            verifyException(e, "deserialize from Number value",
+                    "no int/Integer-argument constructor/factory method");
             assertValidLocation(e.getLocation());
         }
     }
@@ -233,7 +234,8 @@ public class TestObjectMapperBeanDeserializer
             OtherBean otherResult = MAPPER.readValue(""+value, OtherBean.class);
             fail("Expected an exception, but got result value: "+otherResult.o);
         } catch (JsonMappingException e) {
-            verifyException(e, "from Long integral number", "no single-long-arg constructor/factory method");
+            verifyException(e, "deserialize from Number value",
+                    "no long/Long-argument constructor/factory method");
             assertValidLocation(e.getLocation());
         }
     }
@@ -247,7 +249,8 @@ public class TestObjectMapperBeanDeserializer
             OtherBean otherResult = MAPPER.readValue("13.5", OtherBean.class);
             fail("Expected an exception, but got result value: "+otherResult.o);
         } catch (JsonMappingException e) {
-            verifyException(e, "from Floating-point number", "no one-double/Double-arg constructor/factory method");
+            verifyException(e, "deserialize from Number value",
+                    "no double/Double-argument constructor/factory method");
             assertValidLocation(e.getLocation());
         }
     }

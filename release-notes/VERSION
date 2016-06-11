@@ -46,7 +46,7 @@ Project: jackson-databind
 #1235: `java.nio.file.Path` support incomplete
  (reported by, fix contributed by Benson M)
 
-2.7.5 (not yet released)
+2.7.5 (11-Jun-2016)
 
 #1098: DeserializationFeature.FAIL_ON_INVALID_SUBTYPE does not work with
   `JsonTypeInfo.Id.CLASS`

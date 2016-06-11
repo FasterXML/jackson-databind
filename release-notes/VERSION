@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.5 (not yet released)
+2.7.5 (11-Jun-2016)
 
 #1098: DeserializationFeature.FAIL_ON_INVALID_SUBTYPE does not work with
   `JsonTypeInfo.Id.CLASS`

@@ -285,7 +285,7 @@ public class ObjectMapper
             STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
-            null, // to indicate "use default TimeZone"
+            null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
             Base64Variants.getDefaultVariant() // 2.1
     );
 
@@ -1757,7 +1757,7 @@ public class ObjectMapper
 
     /**
      * Method for overriding default TimeZone to use for formatting.
-     * Default value used is UTC (NOT local timezone).
+     * Default value used is UTC (NOT default TimeZone of JVM).
      */
     public ObjectMapper setTimeZone(TimeZone tz) {
         _deserializationConfig = _deserializationConfig.with(tz);

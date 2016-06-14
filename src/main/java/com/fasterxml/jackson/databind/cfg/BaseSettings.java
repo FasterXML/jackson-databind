@@ -121,7 +121,8 @@ public final class BaseSettings
     /**
      * Default {@link java.util.TimeZone} used with serialization formats,
      * if (and only if!) explicitly set by use; otherwise `null` to indicate
-     * "use default", which currently (Jackson 2.6) means "GMT"
+     * "use default", which means "UTC" (from Jackson 2.7); earlier versions
+     * (up to 2.6) used "GMT".
      *<p>
      * Note that if a new value is set, timezone is also assigned to
      * {@link #_dateFormat} of this object.

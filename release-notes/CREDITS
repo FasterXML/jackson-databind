@@ -494,3 +494,8 @@ Maarten Billemont (lhunath@github)
 Vladimir Kulev (lightoze@github)
   * Reported #1028: Ignore USE_BIG_DECIMAL_FOR_FLOATS for NaN/Infinity
    (2.8.0)
+
+Ari Fogel (arifogel@github)
+  * Reported 1261, contributed fix for: `@JsonIdentityInfo` deserialization fails with
+    combination of forward references, `@JsonCreator`
+   (2.8.0)

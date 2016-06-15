@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -384,6 +385,7 @@ public class BeanDeserializer
         TokenBuffer unknown = null;
 
         JsonToken t = p.getCurrentToken();
+        List<BeanReferring> referrings = null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
@@ -426,11 +428,21 @@ public class BeanDeserializer
             // regular property? needs buffering
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
-                buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
+                try {
+                    buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
+                } catch (UnresolvedForwardReference reference) {
+                    // 14-Jun-2016, tatu: As per [databind#1261], looks like we need additional
+                    //    handling of forward references here. Not exactly sure why existing
+                    //    facilities did not cover, but this does appear to solve the problem
+                    BeanReferring referring = handleUnresolvedReference(p, prop, buffer, reference);
+                    if (referrings == null) {
+                        referrings = new ArrayList<BeanReferring>();
+                    }
+                    referrings.add(referring);
+                }
                 continue;
             }
-            // As per [JACKSON-313], things marked as ignorable should not be
-            // passed to any setter
+            // Things marked as ignorable should not be passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
@@ -460,6 +472,11 @@ public class BeanDeserializer
             wrapInstantiationProblem(e, ctxt);
             bean = null; // never gets here
         }
+        if (referrings != null) {
+            for (BeanReferring referring : referrings) {
+               referring.setBean(bean);
+            }
+        }
         if (unknown != null) {
             // polymorphic?
             if (bean.getClass() != _beanType.getRawClass()) {
@@ -469,6 +486,20 @@ public class BeanDeserializer
             return handleUnknownProperties(ctxt, bean, unknown);
         }
         return bean;
+    }
+
+    /**
+     * @since 2.8
+     */
+    private BeanReferring handleUnresolvedReference(JsonParser p,
+            SettableBeanProperty prop, PropertyValueBuffer buffer,
+            UnresolvedForwardReference reference)
+        throws JsonMappingException
+    {
+        BeanReferring referring = new BeanReferring(reference, prop.getType().getRawClass(),
+                buffer, prop);
+        reference.getRoid().appendReferring(referring);
+        return referring;
     }
 
     protected final Object _deserializeWithErrorWrapping(JsonParser p,
@@ -919,5 +950,29 @@ public class BeanDeserializer
             _nullFromCreator = new NullPointerException("JSON Creator returned null");
         }
         return _nullFromCreator;
+    }
+
+    /**
+     * @since 2.8
+     */
+    static class BeanReferring extends Referring {
+        private final SettableBeanProperty _prop;
+        private Object _bean;
+
+        public void setBean(Object bean) {
+            _bean = bean;
+        }
+
+        BeanReferring(UnresolvedForwardReference ref,
+                Class<?> valueType, PropertyValueBuffer buffer, SettableBeanProperty prop)
+        {
+            super(ref, valueType);
+            _prop = prop;
+        }
+
+        @Override
+        public void handleResolvedForwardReference(Object id, Object value) throws IOException {
+            _prop.set(_bean, value);
+        }
     }
 }

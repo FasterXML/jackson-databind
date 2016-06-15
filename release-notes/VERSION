@@ -45,6 +45,8 @@ Project: jackson-databind
 #1233: Add support for `JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES`
 #1235: `java.nio.file.Path` support incomplete
  (reported by, fix contributed by Benson M)
+#1261: JsonIdentityInfo broken deserialization involving forward references and/or cycles
+ (reported by, fix contributed by Ari F)
 
 2.7.5 (11-Jun-2016)
 

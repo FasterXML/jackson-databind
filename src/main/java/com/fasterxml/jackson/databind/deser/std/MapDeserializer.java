@@ -247,7 +247,6 @@ public class MapDeserializer
             vd = findConvertingContentDeserializer(ctxt, property, vd);
         }
         final JavaType vt = _mapType.getContentType();
-System.err.println("Map deser for "+_mapType+":\n   vt == "+vt);
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -668,7 +667,7 @@ System.err.println("Map deser for "+_mapType+":\n   vt == "+vt);
      * The resolved object associated with {@link #key} comes before the values in
      * {@link #next}.
      */
-    final static class MapReferring extends Referring {
+    static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
         public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.failing;
 
-import java.io.StringReader;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;

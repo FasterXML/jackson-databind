@@ -129,9 +129,6 @@ public class BeanDeserializer
 
     /**
      * Main deserialization method for bean-based objects (POJOs).
-     *<p>
-     * NOTE: was declared 'final' in 2.2; should NOT be to let extensions
-     * like Afterburner change definition.
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException

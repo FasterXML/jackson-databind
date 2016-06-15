@@ -247,6 +247,7 @@ public class MapDeserializer
             vd = findConvertingContentDeserializer(ctxt, property, vd);
         }
         final JavaType vt = _mapType.getContentType();
+System.err.println("Map deser for "+_mapType+":\n   vt == "+vt);
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -349,7 +350,7 @@ public class MapDeserializer
         }
         final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
         if (_standardStringKey) {
-            _readAndBindStringMap(p, ctxt, result);
+            _readAndBindStringKeyMap(p, ctxt, result);
             return result;
         }
         _readAndBind(p, ctxt, result);
@@ -371,7 +372,7 @@ public class MapDeserializer
             return (Map<Object,Object>) ctxt.handleUnexpectedToken(getMapClass(), p);
         }
         if (_standardStringKey) {
-            _readAndBindStringMap(p, ctxt, result);
+            _readAndBindStringKeyMap(p, ctxt, result);
             return result;
         }
         _readAndBind(p, ctxt, result);
@@ -467,7 +468,7 @@ public class MapDeserializer
      * {@link java.lang.String}s, and there is no custom deserialized
      * specified.
      */
-    protected final void _readAndBindStringMap(JsonParser p, DeserializationContext ctxt,
+    protected final void _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
         final JsonDeserializer<Object> valueDes = _valueDeserializer;

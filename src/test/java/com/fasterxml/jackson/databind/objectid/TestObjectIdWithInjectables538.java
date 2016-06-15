@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.objectid;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -18,6 +18,7 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
     public static class B {
         public A a;
 
+        @JsonCreator
         public B(@JacksonInject("i2") String injected) {
         }
     } 
@@ -50,8 +51,8 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
             throw new IllegalStateException("Failed to deserialize from JSON '"+json+"'", e);
         }
         assertNotNull(output);
-
         assertNotNull(output.b);
+        assertSame(output, output.b.a);
     }
 }
 

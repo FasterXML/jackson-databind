@@ -791,7 +791,7 @@ public abstract class BeanDeserializerBase
      * in case where object id resolution is required.
      */
     protected SettableBeanProperty _resolvedObjectIdProperty(DeserializationContext ctxt,
-            SettableBeanProperty prop)
+            SettableBeanProperty prop) throws JsonMappingException
     {
         ObjectIdInfo objectIdInfo = prop.getObjectIdInfo();
         JsonDeserializer<Object> valueDeser = prop.getValueDeserializer();

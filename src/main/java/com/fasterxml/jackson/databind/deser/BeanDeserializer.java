@@ -434,7 +434,8 @@ public class BeanDeserializer
                     // 14-Jun-2016, tatu: As per [databind#1261], looks like we need additional
                     //    handling of forward references here. Not exactly sure why existing
                     //    facilities did not cover, but this does appear to solve the problem
-                    BeanReferring referring = handleUnresolvedReference(p, prop, buffer, reference);
+                    BeanReferring referring = handleUnresolvedReference(ctxt,
+                            prop, buffer, reference);
                     if (referrings == null) {
                         referrings = new ArrayList<BeanReferring>();
                     }
@@ -491,13 +492,13 @@ public class BeanDeserializer
     /**
      * @since 2.8
      */
-    private BeanReferring handleUnresolvedReference(JsonParser p,
+    private BeanReferring handleUnresolvedReference(DeserializationContext ctxt,
             SettableBeanProperty prop, PropertyValueBuffer buffer,
             UnresolvedForwardReference reference)
         throws JsonMappingException
     {
-        BeanReferring referring = new BeanReferring(reference, prop.getType().getRawClass(),
-                buffer, prop);
+        BeanReferring referring = new BeanReferring(ctxt, reference,
+                prop.getType(), buffer, prop);
         reference.getRoid().appendReferring(referring);
         return referring;
     }
@@ -955,23 +956,32 @@ public class BeanDeserializer
     /**
      * @since 2.8
      */
-    static class BeanReferring extends Referring {
+    static class BeanReferring extends Referring
+    {
+        private final DeserializationContext _context;
         private final SettableBeanProperty _prop;
         private Object _bean;
+
+        BeanReferring(DeserializationContext ctxt, UnresolvedForwardReference ref,
+                JavaType valueType, PropertyValueBuffer buffer, SettableBeanProperty prop)
+        {
+            super(ref, valueType);
+            _context = ctxt;
+            _prop = prop;
+        }
 
         public void setBean(Object bean) {
             _bean = bean;
         }
 
-        BeanReferring(UnresolvedForwardReference ref,
-                Class<?> valueType, PropertyValueBuffer buffer, SettableBeanProperty prop)
-        {
-            super(ref, valueType);
-            _prop = prop;
-        }
-
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws IOException {
+        public void handleResolvedForwardReference(Object id, Object value) throws IOException
+        {
+            if (_bean == null) {
+                _context.reportMappingException(
+"Can not resolve ObjectId forward reference using property '%s' (of type %s): Bean not yet resolved",
+_prop.getName(), _prop.getDeclaringClass().getName());
+        }
             _prop.set(_bean, value);
         }
     }

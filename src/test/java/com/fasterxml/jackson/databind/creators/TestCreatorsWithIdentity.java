@@ -25,7 +25,6 @@ public class TestCreatorsWithIdentity extends BaseMapTest
 	    }
 	}
 
-
 	public static class Child {
 	    @JsonProperty
 	    Parent parent;
@@ -50,5 +49,6 @@ public class TestCreatorsWithIdentity extends BaseMapTest
 	    assertNotNull(parent);
 	    Child child = JSON_MAPPER.readValue(childStr, Child.class);
 	    assertNotNull(child);
+	    assertNotNull(child.parent);
 	}
 }

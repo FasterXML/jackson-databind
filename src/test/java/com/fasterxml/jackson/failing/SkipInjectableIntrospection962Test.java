@@ -11,9 +11,7 @@ public class SkipInjectableIntrospection962Test extends BaseMapTest
     {
         private String a;
 
-        public void setA(String a) {
-            this.a = a;
-        }
+        public InjectMe(boolean dummy) { }
 
         public void setA(Integer a) {
             this.a = a.toString();
@@ -42,20 +40,16 @@ public class SkipInjectableIntrospection962Test extends BaseMapTest
         }
     }
 
-    public void testInjected()
+    // 14-Jun-2016, tatu: For some odd reason, this test sometimes fails, other times not...
+    //    possibly related to unstable ordering of properties?
+    public void testInjected() throws Exception
     {
-        InjectMe im = new InjectMe();
-        ObjectMapper sut = new ObjectMapper()
+        InjectMe im = new InjectMe(true);
+        ObjectMapper mapper = new ObjectMapper()
             .setInjectableValues(new InjectableValues.Std().addValue(InjectMe.class, im));
         String test = "{\"b\":\"bbb\"}";
 
-        Injectee actual = null;
-        try {
-            actual = sut.readValue(test, Injectee.class);
-        }
-        catch (Exception e) {
-            fail("failed to deserialize: "+e);
-        }
+        Injectee actual = mapper.readValue(test, Injectee.class);
         assertEquals("bbb", actual.getB());
     }
 }

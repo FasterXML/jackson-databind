@@ -40,9 +40,9 @@ public class POJOPropertyBuilder
     protected final PropertyName _internalName;
 
     protected Linked<AnnotatedField> _fields;
-    
+
     protected Linked<AnnotatedParameter> _ctorParameters;
-    
+
     protected Linked<AnnotatedMethod> _getters;
 
     protected Linked<AnnotatedMethod> _setters;
@@ -316,9 +316,9 @@ public class POJOPropertyBuilder
                     continue;
                 }
             }
-            
-            throw new IllegalArgumentException("Conflicting setter definitions for property \""+getName()+"\": "
-                    +curr.value.getFullName()+" vs "+next.value.getFullName());
+            throw new IllegalArgumentException(String.format(
+ "Conflicting setter definitions for property \"%s\": %s vs %s",
+ getName(), curr.value.getFullName(), next.value.getFullName()));
         }
         // One more thing; to avoid having to do it again...
         _setters = curr.withoutNext();

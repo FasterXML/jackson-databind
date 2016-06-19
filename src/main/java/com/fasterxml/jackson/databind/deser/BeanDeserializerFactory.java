@@ -686,17 +686,13 @@ public class BeanDeserializerFactory
 
         //find the java type based on the annotated setter method or setter field 
         JavaType type = null;
-		if (setter instanceof AnnotatedMethod) {
-			// we know it's a 2-arg method, second arg is the value
-			type = ((AnnotatedMethod) setter).getParameterType(1);
-		} else if (setter instanceof AnnotatedField) {
-			// get the type from the content type of the map object
-			type = ((AnnotatedField) setter).getType().getContentType();
-		}
-
-        BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(setter.getName()),
-                type, null, beanDesc.getClassAnnotations(), setter,
-                PropertyMetadata.STD_OPTIONAL);
+        if (setter instanceof AnnotatedMethod) {
+            // we know it's a 2-arg method, second arg is the value
+            type = ((AnnotatedMethod) setter).getParameterType(1);
+        } else if (setter instanceof AnnotatedField) {
+            // get the type from the content type of the map object
+            type = ((AnnotatedField) setter).getType().getContentType();
+        }
         type = resolveTypeOverrides(ctxt, type, setter);
 
         /* AnySetter can be annotated with @JsonDeserialize (etc) just like a
@@ -712,6 +708,9 @@ public class BeanDeserializerFactory
         if (deser == null) {
             deser = type.getValueHandler();
         }
+        BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(setter.getName()),
+                type, null, beanDesc.getClassAnnotations(), setter,
+                PropertyMetadata.STD_OPTIONAL);
         TypeDeserializer typeDeser = type.getTypeHandler();
         return new SettableAnyProperty(property, setter, type,
                 deser, typeDeser);
@@ -735,18 +734,8 @@ public class BeanDeserializerFactory
             mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         // note: this works since we know there's exactly one argument for methods
-        BeanProperty.Std property = new BeanProperty.Std(propDef.getFullName(),
-                propType0, propDef.getWrapperName(),
-                beanDesc.getClassAnnotations(), mutator, propDef.getMetadata());
         JavaType type = resolveTypeOverrides(ctxt, propType0, mutator);
-        // did type change?
-        if (type != propType0) {
-            property = property.withType(type);
-        }
-
-        /* First: does the Method specify the deserializer to use?
-         * If so, let's use it.
-         */
+        // Does the Method specify the deserializer to use? If so, let's use it.
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, mutator);
         type = modifyTypeByAnnotation(ctxt, mutator, type);
         TypeDeserializer typeDeser = type.getTypeHandler();
@@ -761,7 +750,7 @@ public class BeanDeserializerFactory
         if (propDeser != null) {
             prop = prop.withValueDeserializer(propDeser);
         }
-        // [JACKSON-235]: need to retain name of managed forward references:
+        // need to retain name of managed forward references:
         AnnotationIntrospector.ReferenceProperty ref = propDef.findReferenceType();
         if (ref != null && ref.isManagedReference()) {
             prop.setManagedReferenceName(ref.getName());

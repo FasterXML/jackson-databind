@@ -837,8 +837,8 @@ public abstract class BasicDeserializerFactory
                 metadata = PropertyMetadata.construct(req, desc, idx, def);
             }
         }
-        JavaType t0 = param.getType();
-        JavaType type = resolveTypeOverrides(ctxt, t0, param);
+        JavaType type = param.getType();
+        type = resolveTypeOverrides(ctxt, type, param);
         BeanProperty.Std property = new BeanProperty.Std(name, type,
                 intr.findWrapperName(param),
                 beanDesc.getClassAnnotations(), param, metadata);

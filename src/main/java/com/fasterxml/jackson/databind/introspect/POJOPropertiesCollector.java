@@ -438,22 +438,23 @@ public class POJOPropertiesCollector
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
         // can be null if annotation processing is disabled...
-        if (_annotationIntrospector != null) {
-            for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
-                if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-                }
-                for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
-                    _addCreatorParam(props, ctor.getParameter(i));
-                }
+        if (_annotationIntrospector == null) {
+            return;
+        }
+        for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
+            if (_creatorProperties == null) {
+                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
             }
-            for (AnnotatedMethod factory : _classDef.getStaticMethods()) {
-                if (_creatorProperties == null) {
-                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-                }
-                for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
-                    _addCreatorParam(props, factory.getParameter(i));
-                }
+            for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
+                _addCreatorParam(props, ctor.getParameter(i));
+            }
+        }
+        for (AnnotatedMethod factory : _classDef.getStaticMethods()) {
+            if (_creatorProperties == null) {
+                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+            }
+            for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
+                _addCreatorParam(props, factory.getParameter(i));
             }
         }
     }

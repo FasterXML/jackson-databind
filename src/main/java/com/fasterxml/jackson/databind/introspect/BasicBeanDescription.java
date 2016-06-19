@@ -569,51 +569,6 @@ public class BasicBeanDescription extends BeanDescription
         return false;
     }
 
-    /**
-     * @deprecated Since 2.4, use <code>findCreatorParameterNames()</code> instead.
-     */
-    @Deprecated
-    public List<String> findCreatorPropertyNames()
-    {
-        List<PropertyName> params = findCreatorParameterNames();
-        if (params.isEmpty()) {
-    		    return Collections.emptyList();
-        }
-        List<String> result = new ArrayList<String>(params.size());
-        for (PropertyName name : params) {
-    		    result.add(name.getSimpleName());
-        }
-        return result;
-    }
-    
-    /**
-     * @deprecated Since 2.5, does not seem to be used at all.
-     */
-    @Deprecated
-    public List<PropertyName> findCreatorParameterNames()
-    {
-        for (int i = 0; i < 2; ++i) {
-            List<? extends AnnotatedWithParams> l = (i == 0)
-                ? getConstructors() : getFactoryMethods();
-            for (AnnotatedWithParams creator : l) {
-                int argCount = creator.getParameterCount();
-                if (argCount < 1) continue;
-                PropertyName name = _findCreatorPropertyName(creator.getParameter(0));
-                if (name == null || name.isEmpty()) {
-                    continue;
-                }
-                List<PropertyName> names = new ArrayList<PropertyName>();
-                names.add(name);
-                for (int p = 1; p < argCount; ++p) {
-                    name = _findCreatorPropertyName(creator.getParameter(p));
-                    names.add(name);
-                }
-                return names;
-            }
-        }
-        return Collections.emptyList();
-    }
-
     protected PropertyName _findCreatorPropertyName(AnnotatedParameter param)
     {
         PropertyName name = _annotationIntrospector.findNameForDeserialization(param);

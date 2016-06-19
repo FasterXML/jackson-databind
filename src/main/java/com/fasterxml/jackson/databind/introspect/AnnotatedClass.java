@@ -424,24 +424,33 @@ public final class AnnotatedClass
      */
     private void resolveCreators()
     {
-        // Then see which constructors we have
-        List<AnnotatedConstructor> constructors = null;
-        ClassUtil.Ctor[] declaredCtors = ClassUtil.getConstructors(_class);
         // Constructor also always members of this class
         TypeResolutionContext typeContext = this; 
 
-        // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
-        //   NOT apply to context since sub-class may have type bindings
-//        TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
-        for (ClassUtil.Ctor ctor : declaredCtors) {
-            if (_isIncludableConstructor(ctor.getConstructor())) {
-                if (ctor.getParamCount() == 0) {
-                    _defaultConstructor = _constructDefaultConstructor(ctor, typeContext);
-                } else {
-                    if (constructors == null) {
-                        constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
+    // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
+    //   NOT apply to context since sub-class may have type bindings
+//    TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
+
+        // Then see which constructors we have
+        List<AnnotatedConstructor> constructors = null;
+
+        // 18-Jun-2016, tatu: Enum constructors will never be useful (unlike
+        //    possibly static factory methods); but they can be royal PITA
+        //    due to some oddities by JVM; see:
+        //    [https://github.com/FasterXML/jackson-module-parameter-names/issues/35]
+        //    for more. So, let's just skip them.
+        if (!_type.isEnumType()) {
+            ClassUtil.Ctor[] declaredCtors = ClassUtil.getConstructors(_class);
+            for (ClassUtil.Ctor ctor : declaredCtors) {
+                if (_isIncludableConstructor(ctor.getConstructor())) {
+                    if (ctor.getParamCount() == 0) {
+                        _defaultConstructor = _constructDefaultConstructor(ctor, typeContext);
+                    } else {
+                        if (constructors == null) {
+                            constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
+                        }
+                        constructors.add(_constructNonDefaultConstructor(ctor, typeContext));
                     }
-                    constructors.add(_constructNonDefaultConstructor(ctor, typeContext));
                 }
             }
         }
@@ -456,7 +465,6 @@ public final class AnnotatedClass
                 _addConstructorMixIns(_primaryMixIn);
             }
         }
-
 
         /* And then... let's remove all constructors that are deemed
          * ignorable after all annotations have been properly collapsed.

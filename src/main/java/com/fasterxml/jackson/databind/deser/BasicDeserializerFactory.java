@@ -838,15 +838,12 @@ public abstract class BasicDeserializerFactory
             }
         }
         JavaType type = param.getType();
-        type = resolveTypeOverrides(ctxt, type, param);
+        type = resolveMemberAndTypeAnnotations(ctxt, type, param);
         BeanProperty.Std property = new BeanProperty.Std(name, type,
                 intr.findWrapperName(param),
                 beanDesc.getClassAnnotations(), param, metadata);
         // Is there an annotation that specifies exact deserializer?
         JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
-
-        // If yes, we are mostly done:
-        type = modifyTypeByAnnotation(ctxt, param, type);
 
         // Type deserializer: either comes from property (and already resolved)
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
@@ -1770,11 +1767,14 @@ public abstract class BasicDeserializerFactory
             Annotated ann)
         throws JsonMappingException
     {
-        Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ann);
-        if (deserDef == null) {
-            return null;
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            Object deserDef = intr.findDeserializer(ann);
+            if (deserDef != null) {
+                return ctxt.deserializerInstance(ann, deserDef);
+            }
         }
-        return ctxt.deserializerInstance(ann, deserDef);
+        return null;
     }
 
     /**
@@ -1783,35 +1783,111 @@ public abstract class BasicDeserializerFactory
      * Returns null if no such annotation found.
      */
     protected KeyDeserializer findKeyDeserializerFromAnnotation(DeserializationContext ctxt,
-                                                                      Annotated ann)
+            Annotated ann)
             throws JsonMappingException
     {
-        Object deserDef = ctxt.getAnnotationIntrospector().findKeyDeserializer(ann);
-        if (deserDef == null) {
-            return null;
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            Object deserDef = intr.findKeyDeserializer(ann);
+            if (deserDef != null) {
+                return ctxt.keyDeserializerInstance(ann, deserDef);
+            }
         }
-        return ctxt.keyDeserializerInstance(ann, deserDef);
+        return null;
     }
 
     /**
+     * Helper method used to resolve additional type-related annotation information
+     * like type overrides, or handler (serializer, deserializer) overrides,
+     * so that from declared field, property or constructor parameter type
+     * is used as the base and modified based on annotations, if any.
+     * 
+     * @since 2.8 Combines functionality of <code>modifyTypeByAnnotation</code>
+     *     and <code>resolveType</code>
+     */
+    protected JavaType resolveMemberAndTypeAnnotations(DeserializationContext ctxt,
+            JavaType type, AnnotatedMember member)
+        throws JsonMappingException
+    {
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr == null) {
+            return type;
+        }
+
+        // First things first: see if we can find annotations on declared
+        // type
+        
+        // Also need to handle keyUsing, contentUsing
+
+        if (type.isMapLikeType()) {
+            JavaType keyType = type.getKeyType();
+            if (keyType != null) {
+                Object kdDef = intr.findKeyDeserializer(member);
+                KeyDeserializer kd = ctxt.keyDeserializerInstance(member, kdDef);
+                if (kd != null) {
+                    type = ((MapLikeType) type).withKeyValueHandler(kd);
+                    keyType = type.getKeyType(); // just in case it's used below
+                }
+            }
+        }
+
+        if (type.hasContentType()) { // that is, is either container- or reference-type
+            Object cdDef = intr.findContentDeserializer(member);
+            JsonDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
+            if (cd != null) {
+                type = type.withContentValueHandler(cd);
+            }
+            TypeDeserializer contentTypeDeser = findPropertyContentTypeDeserializer(
+                    ctxt.getConfig(), type, (AnnotatedMember) member);            	
+            if (contentTypeDeser != null) {
+                type = type.withContentTypeHandler(contentTypeDeser);
+            }
+        }
+        TypeDeserializer valueTypeDeser = findPropertyTypeDeserializer(ctxt.getConfig(),
+                    type, (AnnotatedMember) member);
+        if (valueTypeDeser != null) {
+            type = type.withTypeHandler(valueTypeDeser);
+        }
+
+        // Second part: find actual type-override annotations on member, if any
+
+        // 18-Jun-2016, tatu: Should we re-do checks for annotations on refined
+        //   subtypes as well? Code pre-2.8 did not do this, but if we get bug
+        //   reports may need to consider
+        type = intr.refineDeserializationType(ctxt.getConfig(), member, type);
+        return type;
+    }
+
+    protected EnumResolver constructEnumResolver(Class<?> enumClass,
+            DeserializationConfig config, AnnotatedMethod jsonValueMethod)
+    {
+        if (jsonValueMethod != null) {
+            Method accessor = jsonValueMethod.getAnnotated();
+            if (config.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(accessor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
+            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor, config.getAnnotationIntrospector());
+        }
+        // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
+        //   here, but that won't do: it must be dynamically changeable...
+        return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated helper methods
+    /**********************************************************
+     */
+    
+    /**
      * Method called to see if given method has annotations that indicate
      * a more specific type than what the argument specifies.
-     * If annotations are present, they must specify compatible Class;
-     * instance of which can be assigned using the method. This means
-     * that the Class has to be raw class of type, or its sub-class
-     * (or, implementing class if original Class instance is an interface).
      *
-     * @param a Method or field that the type is associated with
-     * @param type Type of field, or the setter argument
-     *
-     * @return Original type if no annotations are present; or a more
-     *   specific type derived from it if type annotation(s) was found
-     *
-     * @throws JsonMappingException if invalid annotation is found
+     * @deprecated Since 2.8; call {@link #resolveMemberAndTypeAnnotations} instead
      */
-    @SuppressWarnings({ "unchecked" })
-    protected <T extends JavaType> T modifyTypeByAnnotation(DeserializationContext ctxt,
-            Annotated a, T type)
+    @Deprecated
+    protected JavaType modifyTypeByAnnotation(DeserializationContext ctxt,
+            Annotated a, JavaType type)
         throws JsonMappingException
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -1820,6 +1896,7 @@ public abstract class BasicDeserializerFactory
         }
 
         // First, deserializers for key/value types?
+        /*
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
             // 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
@@ -1845,100 +1922,20 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
+        */
         // then: type refinement(s)?
-        type = (T) intr.refineDeserializationType(ctxt.getConfig(), a, type);
-        return type;
+        return intr.refineDeserializationType(ctxt.getConfig(), a, type);
     }
 
     /**
-     * Helper method used to resolve additional type-related annotation information
-     * like type overrides, or handler (serializer, deserializer) overrides,
-     * so that from declared field, property or constructor parameter type
-     * is used as the base and modified based on annotations, if any.
-     * 
-     * @since 2.8 Renamed in 2.8, used to be called <code>resolveType</code>
-     */
-    protected JavaType resolveTypeOverrides(DeserializationContext ctxt,
-            JavaType type, AnnotatedMember member)
-        throws JsonMappingException
-    {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return type;
-        }
-        
-        // Also need to handle keyUsing, contentUsing
-
-        if (type.isMapLikeType()) {
-            JavaType keyType = type.getKeyType();
-            if (keyType != null) {
-                Object kdDef = intr.findKeyDeserializer(member);
-                KeyDeserializer kd = ctxt.keyDeserializerInstance(member, kdDef);
-                if (kd != null) {
-                    type = ((MapLikeType) type).withKeyValueHandler(kd);
-                    keyType = type.getKeyType(); // just in case it's used below
-                }
-            }
-        }
-
-        if (type.isContainerType() || type.isReferenceType()) {
-            Object cdDef = intr.findContentDeserializer(member);
-            JsonDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
-            if (cd != null) {
-                type = type.withContentValueHandler(cd);
-            }
-            /* 04-Feb-2010, tatu: Need to figure out JAXB annotations that indicate type
-             *    information to use for polymorphic members; and specifically types for
-             *    collection values (contents).
-             *    ... but only applies to members (fields, methods), not classes
-             */
-            if (member instanceof AnnotatedMember) {
-            	TypeDeserializer contentTypeDeser = findPropertyContentTypeDeserializer(
-            	        ctxt.getConfig(), type, (AnnotatedMember) member);            	
-            	if (contentTypeDeser != null) {
-            	    type = type.withContentTypeHandler(contentTypeDeser);
-            	}
-            }
-        }
-        TypeDeserializer valueTypeDeser;
-
-        if (member instanceof AnnotatedMember) { // JAXB allows per-property annotations
-            valueTypeDeser = findPropertyTypeDeserializer(ctxt.getConfig(),
-                    type, (AnnotatedMember) member);
-        } else { // classes just have Jackson annotations
-            // probably only occurs if 'property' is null anyway
-            valueTypeDeser = findTypeDeserializer(ctxt.getConfig(), type);
-        }
-        if (valueTypeDeser != null) {
-            type = type.withTypeHandler(valueTypeDeser);
-        }
-        return type;
-    }
-
-    /**
-     * @deprecated since 2.8 call {@link #resolveTypeOverrides} instead.
+     * @deprecated since 2.8 call {@link #resolveMemberAndTypeAnnotations} instead.
      */
     @Deprecated // since 2.8
     protected JavaType resolveType(DeserializationContext ctxt,
             BeanDescription beanDesc, JavaType type, AnnotatedMember member)
         throws JsonMappingException
     {
-        return resolveTypeOverrides(ctxt, type, member);
-    }
-
-    protected EnumResolver constructEnumResolver(Class<?> enumClass,
-            DeserializationConfig config, AnnotatedMethod jsonValueMethod)
-    {
-        if (jsonValueMethod != null) {
-            Method accessor = jsonValueMethod.getAnnotated();
-            if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(accessor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-            }
-            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor, config.getAnnotationIntrospector());
-        }
-        // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
-        //   here, but that won't do: it must be dynamically changeable...
-        return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
+        return resolveMemberAndTypeAnnotations(ctxt, type, member);
     }
 
     /**

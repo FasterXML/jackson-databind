@@ -195,10 +195,15 @@ public class ReferenceType extends SimpleType
     public JavaType getContentType() {
         return _referencedType;
     }
-    
+
     @Override
     public JavaType getReferencedType() {
         return _referencedType;
+    }
+
+    @Override
+    public boolean hasContentType() {
+        return true;
     }
 
     @Override

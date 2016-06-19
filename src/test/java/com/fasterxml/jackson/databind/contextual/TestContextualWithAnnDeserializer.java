@@ -46,9 +46,9 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
         }
 
         @Override
-        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public StringValue deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            return new StringValue(""+_fieldName+"="+jp.getText());
+            return new StringValue(""+_fieldName+"="+p.getText());
         }
 
         @Override
@@ -61,38 +61,10 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
                 ann = property.getContextAnnotation(Name.class);
             }
             String propertyName = (ann == null) ?  "UNKNOWN" : ann.value();
-            return new MyContextualDeserializer(propertyName);
+            return new AnnotatedContextualDeserializer(propertyName);
         }
     }
 
-    static class MyContextualDeserializer
-        extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
-    {
-        protected final String _fieldName;
-        
-        public MyContextualDeserializer() { this(""); }
-        public MyContextualDeserializer(String fieldName) {
-            _fieldName = fieldName;
-        }
-    
-        @Override
-        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
-        {
-            return new StringValue(""+_fieldName+"="+jp.getText());
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-                BeanProperty property)
-            throws JsonMappingException
-        {
-            String name = (property == null) ? "NULL" : property.getName();
-            return new MyContextualDeserializer(name);
-        }
-    }
-
-    
     // ensure that direct associations also work
     public void testAnnotatedContextual() throws Exception
     {
@@ -103,5 +75,4 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
         assertNotNull(bean);
         assertEquals("xyz=a", bean.value.value);
     }
-
 }

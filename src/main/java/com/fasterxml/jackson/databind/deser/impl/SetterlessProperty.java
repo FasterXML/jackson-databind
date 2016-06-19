@@ -33,7 +33,8 @@ public final class SetterlessProperty
     protected final Method _getter;
 
     public SetterlessProperty(BeanPropertyDefinition propDef, JavaType type,
-            TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedMethod method) {
+            TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedMethod method)
+    {
         super(propDef, type, typeDeser, contextAnnotations);
         _annotated = method;
         _getter = method.getAnnotated();

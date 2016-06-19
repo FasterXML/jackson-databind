@@ -480,7 +480,7 @@ public abstract class SettableBeanProperty
     public final Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = p.getCurrentToken();
-        
+
         if (t == JsonToken.VALUE_NULL) {
             return _valueDeserializer.getNullValue(ctxt);
         }

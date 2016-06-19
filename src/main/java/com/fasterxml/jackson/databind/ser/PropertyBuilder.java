@@ -64,6 +64,7 @@ public class PropertyBuilder
      *    to use for contained values (only used for properties that are
      *    of container type)
      */
+    @SuppressWarnings("deprecation")
     protected BeanPropertyWriter buildWriter(SerializerProvider prov,
             BeanPropertyDefinition propDef, JavaType declaredType, JsonSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
@@ -101,16 +102,6 @@ public class PropertyBuilder
         if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // should not occur but...
             inclusion = JsonInclude.Include.ALWAYS;
         }
-
-        /*
-        JsonInclude.Include inclusion = propDef.findInclusion().getValueInclusion();
-        if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // since 2.6
-            inclusion = _defaultInclusion;
-            if (inclusion == null) {
-                inclusion = JsonInclude.Include.ALWAYS;
-            }
-        }
-        */
 
         switch (inclusion) {
         case NON_DEFAULT:

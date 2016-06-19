@@ -837,14 +837,10 @@ public abstract class BasicDeserializerFactory
                 metadata = PropertyMetadata.construct(req, desc, idx, def);
             }
         }
-        JavaType type = param.getType();
-        type = resolveMemberAndTypeAnnotations(ctxt, type, param);
+        JavaType type = resolveMemberAndTypeAnnotations(ctxt, param, param.getType());
         BeanProperty.Std property = new BeanProperty.Std(name, type,
                 intr.findWrapperName(param),
                 beanDesc.getClassAnnotations(), param, metadata);
-        // Is there an annotation that specifies exact deserializer?
-        JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
-
         // Type deserializer: either comes from property (and already resolved)
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
         // or if not, based on type being referenced:
@@ -856,6 +852,10 @@ public abstract class BasicDeserializerFactory
         SettableBeanProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
                 metadata);
+        JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
+        if (deser == null) {
+            deser = type.getValueHandler();
+        }
         if (deser != null) {
             // As per [databind#462] need to ensure we contextualize deserializer before passing it on
             deser = ctxt.handlePrimaryContextualization(deser, prop, type);
@@ -1760,7 +1760,10 @@ public abstract class BasicDeserializerFactory
     
     /**
      * Helper method called to check if a class or method
-     * has annotation that tells which class to use for deserialization.
+     * has annotation that tells which class to use for deserialization; and if
+     * so, to instantiate, that deserializer to use.
+     * Note that deserializer will NOT yet be contextualized so caller needs to
+     * take care to call contextualization appropriately.
      * Returns null if no such annotation found.
      */
     protected JsonDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
@@ -1806,7 +1809,7 @@ public abstract class BasicDeserializerFactory
      *     and <code>resolveType</code>
      */
     protected JavaType resolveMemberAndTypeAnnotations(DeserializationContext ctxt,
-            JavaType type, AnnotatedMember member)
+            AnnotatedMember member, JavaType type)
         throws JsonMappingException
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -1816,8 +1819,6 @@ public abstract class BasicDeserializerFactory
 
         // First things first: see if we can find annotations on declared
         // type
-        
-        // Also need to handle keyUsing, contentUsing
 
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
@@ -1935,7 +1936,7 @@ public abstract class BasicDeserializerFactory
             BeanDescription beanDesc, JavaType type, AnnotatedMember member)
         throws JsonMappingException
     {
-        return resolveMemberAndTypeAnnotations(ctxt, type, member);
+        return resolveMemberAndTypeAnnotations(ctxt, member, type);
     }
 
     /**

@@ -175,11 +175,12 @@ public class TestJavaType
         assertEquals("Ljava/util/concurrent/atomic/AtomicReference<Ljava/lang/String;>;", t.getGenericSignature());
     }
 
-    public void testAnchorTypeForRefTypes1206() throws Exception
+    public void testAnchorTypeForRefTypes() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         JavaType t  = tf.constructType(AtomicStringReference.class);
         assertTrue(t.isReferenceType());
+        assertTrue(t.hasContentType());
         ReferenceType rt = (ReferenceType) t;
         assertFalse(rt.isAnchorType());
         assertEquals(AtomicReference.class, rt.getAnchorType().getRawClass());

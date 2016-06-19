@@ -679,6 +679,7 @@ public class BeanDeserializerFactory
      * @param mutator Either 2-argument method (setter, with key and value), or Field
      *     that contains Map; either way accessor used for passing "any values"
      */
+    @SuppressWarnings("unchecked")
     protected SettableAnyProperty constructAnySetter(DeserializationContext ctxt,
             BeanDescription beanDesc, AnnotatedMember mutator)
         throws JsonMappingException
@@ -698,18 +699,21 @@ public class BeanDeserializerFactory
         }
         // First: various annotations on type itself, as well as type-overrides
         // on accessor need to be resolved
-        type = resolveMemberAndTypeAnnotations(ctxt, type, mutator);
+        type = resolveMemberAndTypeAnnotations(ctxt, mutator, type);
+        BeanProperty.Std prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                type, null, beanDesc.getClassAnnotations(), mutator,
+                PropertyMetadata.STD_OPTIONAL);
         // and then possible direct deserializer override on accessor
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
             deser = type.getValueHandler();
         }
-        BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                type, null, beanDesc.getClassAnnotations(), mutator,
-                PropertyMetadata.STD_OPTIONAL);
+        if (deser != null) {
+            // As per [databind#462] need to ensure we contextualize deserializer before passing it on
+            deser = (JsonDeserializer<Object>) ctxt.handlePrimaryContextualization(deser, prop, type);
+        }
         TypeDeserializer typeDeser = type.getTypeHandler();
-        return new SettableAnyProperty(property, mutator, type,
-                deser, typeDeser);
+        return new SettableAnyProperty(prop, mutator, type, deser, typeDeser);
     }
 
     /**
@@ -729,9 +733,8 @@ public class BeanDeserializerFactory
         if (ctxt.canOverrideAccessModifiers()) {
             mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        JavaType type = resolveMemberAndTypeAnnotations(ctxt, propType0, mutator);
+        JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
-        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, mutator);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
@@ -741,8 +744,13 @@ public class BeanDeserializerFactory
             prop = new FieldProperty(propDef, type, typeDeser,
                     beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
         }
-        if (propDeser != null) {
-            prop = prop.withValueDeserializer(propDeser);
+        JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
+        if (deser == null) {
+            deser = type.getValueHandler();
+        }
+        if (deser != null) {
+            deser = ctxt.handlePrimaryContextualization(deser, prop, type);
+            prop = prop.withValueDeserializer(deser);
         }
         // need to retain name of managed forward references:
         AnnotationIntrospector.ReferenceProperty ref = propDef.findReferenceType();
@@ -750,7 +758,7 @@ public class BeanDeserializerFactory
             prop.setManagedReferenceName(ref.getName());
         }
         ObjectIdInfo objectIdInfo = propDef.findObjectIdInfo();
-        if(objectIdInfo != null){
+        if (objectIdInfo != null){
             prop.setObjectIdInfo(objectIdInfo);
         }
         return prop;
@@ -769,15 +777,17 @@ public class BeanDeserializerFactory
         if (ctxt.canOverrideAccessModifiers()) {
             getter.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
-        JavaType type = getter.getType();
-        // First: does the Method specify the deserializer to use? If so, let's use it.
-        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter);
-        type = resolveMemberAndTypeAnnotations(ctxt, type, getter);
+        JavaType type = resolveMemberAndTypeAnnotations(ctxt, getter, getter.getType());
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop = new SetterlessProperty(propDef, type, typeDeser,
                 beanDesc.getClassAnnotations(), getter);
-        if (propDeser != null) {
-            prop = prop.withValueDeserializer(propDeser);
+        JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, getter);
+        if (deser == null) {
+            deser = type.getValueHandler();
+        }
+        if (deser != null) {
+            deser = ctxt.handlePrimaryContextualization(deser, prop, type);
+            prop = prop.withValueDeserializer(deser);
         }
         return prop;
     }

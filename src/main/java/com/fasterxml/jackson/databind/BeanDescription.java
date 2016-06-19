@@ -74,7 +74,7 @@ public abstract class BeanDescription
      * types of member object, such as return and argument types of
      * methods and constructors, and types of fields.
      *
-     * @deprecated Since 2.7, use {@link #resolveType(java.lang.reflect.Type)} instead.
+     * @deprecated Since 2.7, should not need to access bindings directly
      */
     @Deprecated
     public abstract TypeBindings bindingsForBeanType();
@@ -82,7 +82,11 @@ public abstract class BeanDescription
     /**
      * Method for resolving given JDK type, using this bean as the
      * generic type resolution context.
+     *
+     * @deprecated Since 2.8, should simply call <code>getType</code> of
+     *    property accessor directly.
      */
+    @Deprecated
     public abstract JavaType resolveType(java.lang.reflect.Type jdkType);
 
     /**

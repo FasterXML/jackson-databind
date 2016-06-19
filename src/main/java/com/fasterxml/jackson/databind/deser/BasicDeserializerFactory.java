@@ -837,16 +837,11 @@ public abstract class BasicDeserializerFactory
                 metadata = PropertyMetadata.construct(req, desc, idx, def);
             }
         }
-        // 15-Oct-2015, tatu: Not 100% if context needed; removing it does not make any
-        //    existing unit tests fail. Still seems like the right thing to do.
-        JavaType t0 = beanDesc.resolveType(param.getParameterType());
-        BeanProperty.Std property = new BeanProperty.Std(name, t0,
+        JavaType t0 = param.getType();
+        JavaType type = resolveTypeOverrides(ctxt, t0, param);
+        BeanProperty.Std property = new BeanProperty.Std(name, type,
                 intr.findWrapperName(param),
                 beanDesc.getClassAnnotations(), param, metadata);
-        JavaType type = resolveType(ctxt, beanDesc, t0, param);
-        if (type != t0) {
-            property = property.withType(type);
-        }
         // Is there an annotation that specifies exact deserializer?
         JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
 
@@ -865,7 +860,7 @@ public abstract class BasicDeserializerFactory
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
                 metadata);
         if (deser != null) {
-            // As per [Issue#462] need to ensure we contextualize deserializer before passing it on
+            // As per [databind#462] need to ensure we contextualize deserializer before passing it on
             deser = ctxt.handlePrimaryContextualization(deser, prop, type);
             prop = prop.withValueDeserializer(deser);
         }
@@ -1856,14 +1851,15 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * Helper method used to resolve method return types and field
-     * types. The main trick here is that the containing bean may
-     * have type variable binding information (when deserializing
-     * using generic type passed as type reference), which is
-     * needed in some cases.
+     * Helper method used to resolve additional type-related annotation information
+     * like type overrides, or handler (serializer, deserializer) overrides,
+     * so that from declared field, property or constructor parameter type
+     * is used as the base and modified based on annotations, if any.
+     * 
+     * @since 2.8 Renamed in 2.8, used to be called <code>resolveType</code>
      */
-    protected JavaType resolveType(DeserializationContext ctxt,
-            BeanDescription beanDesc, JavaType type, AnnotatedMember member)
+    protected JavaType resolveTypeOverrides(DeserializationContext ctxt,
+            JavaType type, AnnotatedMember member)
         throws JsonMappingException
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -1918,7 +1914,18 @@ public abstract class BasicDeserializerFactory
         }
         return type;
     }
-    
+
+    /**
+     * @deprecated since 2.8 call {@link #resolveTypeOverrides} instead.
+     */
+    @Deprecated // since 2.8
+    protected JavaType resolveType(DeserializationContext ctxt,
+            BeanDescription beanDesc, JavaType type, AnnotatedMember member)
+        throws JsonMappingException
+    {
+        return resolveTypeOverrides(ctxt, type, member);
+    }
+
     protected EnumResolver constructEnumResolver(Class<?> enumClass,
             DeserializationConfig config, AnnotatedMethod jsonValueMethod)
     {
@@ -1934,6 +1941,10 @@ public abstract class BasicDeserializerFactory
         return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
     }
 
+    /**
+     * @deprecated since 2.8 call <code>findJsonValueMethod</code> on {@link BeanDescription} instead
+     */
+    @Deprecated // not used, possibly remove as early as 2.9
     protected AnnotatedMethod _findJsonValueFor(DeserializationConfig config, JavaType enumType)
     {
         if (enumType == null) {

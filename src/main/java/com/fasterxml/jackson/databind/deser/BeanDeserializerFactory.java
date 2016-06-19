@@ -697,7 +697,7 @@ public class BeanDeserializerFactory
         BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(setter.getName()),
                 type, null, beanDesc.getClassAnnotations(), setter,
                 PropertyMetadata.STD_OPTIONAL);
-        type = resolveType(ctxt, beanDesc, type, setter);
+        type = resolveTypeOverrides(ctxt, type, setter);
 
         /* AnySetter can be annotated with @JsonDeserialize (etc) just like a
          * regular setter... so let's see if those are used.
@@ -738,7 +738,7 @@ public class BeanDeserializerFactory
         BeanProperty.Std property = new BeanProperty.Std(propDef.getFullName(),
                 propType0, propDef.getWrapperName(),
                 beanDesc.getClassAnnotations(), mutator, propDef.getMetadata());
-        JavaType type = resolveType(ctxt, beanDesc, propType0, mutator);
+        JavaType type = resolveTypeOverrides(ctxt, propType0, mutator);
         // did type change?
         if (type != propType0) {
             property = property.withType(type);
@@ -790,8 +790,8 @@ public class BeanDeserializerFactory
         // First: does the Method specify the deserializer to use? If so, let's use it.
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter);
         type = modifyTypeByAnnotation(ctxt, getter, type);
-        // As per [Issue#501], need full resolution:
-        type = resolveType(ctxt, beanDesc, type, getter);
+        // As per [databind#501], need full resolution:
+        type = resolveTypeOverrides(ctxt, type, getter);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop = new SetterlessProperty(propDef, type, typeDeser,
                 beanDesc.getClassAnnotations(), getter);

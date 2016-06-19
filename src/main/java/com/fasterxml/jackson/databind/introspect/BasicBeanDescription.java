@@ -252,6 +252,7 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
+    @Deprecated // since 2.8
     public JavaType resolveType(java.lang.reflect.Type jdkType) {
         if (jdkType == null) {
             return null;

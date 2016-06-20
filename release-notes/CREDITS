@@ -149,6 +149,8 @@ Benson Margulies:
    (2.6.6)
   * Reported, fixed #1235: `java.nio.file.Path` support incomplete
    (2.8.0)
+  * Reported #1270: Generic type returned from type id resolver seems to be ignored
+   (2.8.0)
 
 Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK

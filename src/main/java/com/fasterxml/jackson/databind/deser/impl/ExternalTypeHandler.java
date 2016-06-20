@@ -53,7 +53,7 @@ public class ExternalTypeHandler
      * containing POJO has similarly named property as the external type id;
      * otherwise {@link #handlePropertyValue} should be called instead.
      */
-    public boolean handleTypePropertyValue(JsonParser jp, DeserializationContext ctxt,
+    public boolean handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
             String propName, Object bean)
         throws IOException
     {
@@ -66,12 +66,12 @@ public class ExternalTypeHandler
         if (!prop.hasTypePropertyName(propName)) {
             return false;
         }
-        String typeId = jp.getText();
+        String typeId = p.getText();
         // note: can NOT skip child values (should always be String anyway)
         boolean canDeserialize = (bean != null) && (_tokens[index] != null);
         // Minor optimization: deserialize properties as soon as we have all we need:
         if (canDeserialize) {
-            _deserializeAndSet(jp, ctxt, bean, index, typeId);
+            _deserializeAndSet(p, ctxt, bean, index, typeId);
             // clear stored data, to avoid deserializing+setting twice:
             _tokens[index] = null;
         } else {
@@ -173,7 +173,7 @@ public class ExternalTypeHandler
      * Variant called when creation of the POJO involves buffering of creator properties
      * as well as property-based creator.
      */
-    public Object complete(JsonParser jp, DeserializationContext ctxt,
+    public Object complete(JsonParser p, DeserializationContext ctxt,
             PropertyValueBuffer buffer, PropertyBasedCreator creator)
         throws IOException
     {
@@ -200,7 +200,7 @@ public class ExternalTypeHandler
                 ctxt.reportMappingException("Missing property '%s' for external type id '%s'",
                         prop.getName(), _properties[i].getTypePropertyName());
             }
-            values[i] = _deserialize(jp, ctxt, i, typeId);
+            values[i] = _deserialize(p, ctxt, i, typeId);
         }
         // second: fill in creator properties:
         for (int i = 0; i < len; ++i) {

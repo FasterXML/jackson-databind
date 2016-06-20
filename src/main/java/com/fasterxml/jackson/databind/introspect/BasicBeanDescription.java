@@ -557,7 +557,7 @@ public class BasicBeanDescription extends BeanDescription
         if ("valueOf".equals(name)) {
             return true;
         }
-        // [Issue#208] Also accept "fromString()", if takes String or CharSequence
+        // [databind#208] Also accept "fromString()", if takes String or CharSequence
         if ("fromString".equals(name)) {
             if (1 == am.getParameterCount()) {
                 Class<?> cls = am.getRawParameterType(0);
@@ -569,6 +569,10 @@ public class BasicBeanDescription extends BeanDescription
         return false;
     }
 
+    /**
+     * @deprecated since 2.8
+     */
+    @Deprecated // since 2.8, not used at least since 2.7
     protected PropertyName _findCreatorPropertyName(AnnotatedParameter param)
     {
         PropertyName name = _annotationIntrospector.findNameForDeserialization(param);

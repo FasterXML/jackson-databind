@@ -5,7 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
@@ -102,7 +102,71 @@ public class TestCustomTypeIdResolver extends BaseMapTest
             return "xxx";
         }
     }
-    
+
+    // for [databind#1270]
+    static class Top1270 {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "type")
+        @JsonTypeIdResolver(Resolver1270.class)
+        public Base1270<?> b;
+    }
+
+    static class Base1270<O extends Poly1Base> {
+        public O options;
+        public String val;
+    }
+
+    static abstract class Poly1Base { }
+
+    static class Poly1 extends Poly1Base {
+        public String val;
+    }
+
+    static class Resolver1270 implements TypeIdResolver {
+        public Resolver1270() { }
+
+        @Override
+        public void init(JavaType baseType) { }
+     
+        @Override
+        public String idFromValue(Object value) {
+            if (value.getClass() == Base1270.class) {
+                return "poly1";
+            }
+            return null;
+        }
+
+        @Override
+        public String idFromValueAndType(Object value, Class<?> suggestedType) {
+            return idFromValue(value);
+        }
+
+        @Override
+        public String idFromBaseType() {
+            return null;
+        }
+
+        @Override
+        public JavaType typeFromId(DatabindContext context, String id) {
+            if ("poly1".equals(id)) {
+                return context.getTypeFactory()
+                        .constructType(new TypeReference<Base1270<Poly1>>() { });
+            }
+            return null;
+        }
+
+        @Override
+        public String getDescForKnownTypeIds() {
+            return null;
+        }
+
+        @Override
+        public JsonTypeInfo.Id getMechanism() {
+            return JsonTypeInfo.Id.CUSTOM;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -110,8 +174,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
-    // for [JACKSON-359]
+
     public void testCustomTypeIdResolver() throws Exception
     {
         List<JavaType> types = new ArrayList<JavaType>();
@@ -142,5 +205,26 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         assertNotNull(out);
         
         assertEquals(12, ((ExtBeanImpl) out.value).y);
+    }
+
+    // for [databind#1270]
+    public void testPolymorphicTypeViaCustom() throws Exception {
+        Base1270<Poly1> req = new Base1270<Poly1>();
+        Poly1 o = new Poly1();
+        o.val = "optionValue";
+        req.options = o;
+        req.val = "some value";
+        Top1270 top = new Top1270();
+        top.b = req;
+        String json = MAPPER.writeValueAsString(top);
+        JsonNode tree = MAPPER.readTree(json);
+        assertNotNull(tree.get("b"));
+        assertNotNull(tree.get("b").get("options"));
+        assertNotNull(tree.get("b").get("options").get("val"));
+
+        // Can we reverse the process? I have some doubts
+        Top1270 itemRead = MAPPER.readValue(json, Top1270.class);
+        assertNotNull(itemRead);
+        assertNotNull(itemRead.b);
     }
 }

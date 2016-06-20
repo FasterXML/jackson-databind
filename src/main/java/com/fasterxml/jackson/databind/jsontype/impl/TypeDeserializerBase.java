@@ -177,7 +177,13 @@ public abstract class TypeDeserializerBase
                      *   important for some reason?
                      *   Disabling the check will break 2 Enum-related tests.
                      */
-                    type = ctxt.getTypeFactory().constructSpecializedType(_baseType, type.getRawClass());
+                    // 19-Jun-2016, tatu: As per [databind#1270] we may actually get full
+                    //   generic type with custom type resolvers. If so, should try to retain them.
+                    //  Whether this is sufficient to avoid problems remains to be seen, but for
+                    //  now it should improve things.
+                    if (!type.hasGenericTypes()) {
+                        type = ctxt.getTypeFactory().constructSpecializedType(_baseType, type.getRawClass());
+                    }
                 }
                 deser = ctxt.findContextualValueDeserializer(type, _property);
             }

@@ -572,13 +572,11 @@ public abstract class BeanDeserializerBase
                 }
             }
         }
-
         // "any setter" may also need to be resolved now
         if (_anySetter != null && !_anySetter.hasValueDeserializer()) {
             _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
                     _anySetter.getType(), _anySetter.getProperty()));
         }
-
         // as well as delegate-based constructor:
         if (_valueInstantiator.canCreateUsingDelegate()) {
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
@@ -609,7 +607,9 @@ public abstract class BeanDeserializerBase
         }
 
         if (extTypes != null) {
-            _externalTypeIdHandler = extTypes.build();
+            // 21-Jun-2016, tatu: related to [databind#999], may need to link type ids too,
+            //    so need to pass collected properties
+            _externalTypeIdHandler = extTypes.build(_beanProperties);
             // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
         }

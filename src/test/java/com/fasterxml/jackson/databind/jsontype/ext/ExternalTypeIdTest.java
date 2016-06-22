@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsontype;
+package com.fasterxml.jackson.databind.jsontype.ext;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
-public class TestExternalId extends BaseMapTest
+public class ExternalTypeIdTest extends BaseMapTest
 {
     static class ExternalBean
     {

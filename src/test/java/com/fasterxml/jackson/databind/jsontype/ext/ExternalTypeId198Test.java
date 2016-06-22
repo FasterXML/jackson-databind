@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsontype;
+package com.fasterxml.jackson.databind.jsontype.ext;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -33,38 +33,38 @@ public class ExternalTypeId198Test extends BaseMapTest
     }
 
     public static class Kick extends Attack {
-      @JsonCreator
-      public Kick(String side) {
-        super(side);
-      }
+        @JsonCreator
+        public Kick(String side) {
+            super(side);
+        }
     }
 
     public static class Punch extends Attack {
-      @JsonCreator
-      public Punch(String side) {
-        super(side);
-      }
+        @JsonCreator
+        public Punch(String side) {
+            super(side);
+        }
     }
 
     final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testFails() throws Exception {
-      String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
+        String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
 
-      Character character = MAPPER.readValue(json, Character.class);
+        Character character = MAPPER.readValue(json, Character.class);
 
-      assertNotNull(character);
-      assertNotNull(character.attack);
-      assertEquals("foo", character.name);
+        assertNotNull(character);
+        assertNotNull(character.attack);
+        assertEquals("foo", character.name);
     }
 
     public void testWorks() throws Exception {
-      String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
+        String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
 
-      Character character = MAPPER.readValue(json, Character.class);
+        Character character = MAPPER.readValue(json, Character.class);
 
-      assertNotNull(character);
-      assertNotNull(character.attack);
-      assertEquals("foo", character.name);
+        assertNotNull(character);
+        assertNotNull(character.attack);
+        assertEquals("foo", character.name);
     }
 }

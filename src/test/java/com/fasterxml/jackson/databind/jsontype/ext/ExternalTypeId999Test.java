@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.jsontype.ext;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,7 +18,8 @@ public class ExternalTypeId999Test extends BaseMapTest
     {
         final String type;
 
-        @JsonTypeInfo(visible = true, use = JsonTypeInfo.Id.NAME,
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                visible = true,
                 include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
         @JsonSubTypes({
                 @JsonSubTypes.Type(FooPayload.class),
@@ -29,24 +30,26 @@ public class ExternalTypeId999Test extends BaseMapTest
         public Message(@JsonProperty("type") String type,
                 @JsonProperty("payload") P payload)
         {
-            if (payload == null) {
-                throw new RuntimeException("'payload' is null");
-            }
-            if (type == null) {
-                throw new RuntimeException("'type' is null");
-            }
             this.type = type;
             this.payload = payload;
         }
     }
 
+    private final ObjectMapper MAPPER = objectMapper();
 
     public void testExternalTypeId() throws Exception
     {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Message<?> msg = objectMapper.readValue(
-                "{ \"type\": \"foo\", \"payload\": {} }",
-                new TypeReference<Message<FooPayload>>() { });
+        TypeReference<?> type = new TypeReference<Message<FooPayload>>() { };
+
+        Message<?> msg = MAPPER.readValue(aposToQuotes("{ 'type':'foo', 'payload': {} }"), type);
         assertNotNull(msg);
+        assertNotNull(msg.payload);
+        assertEquals("foo", msg.type);
+
+        // and then with different order
+        msg = MAPPER.readValue(aposToQuotes("{'payload': {}, 'type':'foo' }"), type);
+        assertNotNull(msg);
+        assertNotNull(msg.payload);
+        assertEquals("foo", msg.type);
     }
 }

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
-public class ExternalId96Test extends BaseMapTest
+public class ExternalTypeId96Test extends BaseMapTest
 {
     // for [databind#96]
     static class ExternalBeanWithDefault

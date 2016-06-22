@@ -472,14 +472,13 @@ Artur Jonkisz (ajonkisz@github)
   * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type
    (2.8.0)
 
-Ross Goldberg
-  * Reported #1165, provided fix for: `CoreXMLDeserializers` does not handle
-    time-only `XMLGregorianCalendar`s
-   (2.8.0)
-
 Mikhail Kokho (mkokho@github)
   * Contributed impl for #990: Allow failing on `null` values for creator (add
   `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)
+   (2.8.0)
+
+Aleksandr Oksenenko (oleksandr-oksenenko@github)
+  * Reported #999: External property is not deserialized
    (2.8.0)
 
 Lokesh Kumar (LokeshN@github)
@@ -487,6 +486,11 @@ Lokesh Kumar (LokeshN@github)
     with JsonCreator.Mode.PROPERTIES
    (2.8.0)
   * Reported #1217: `@JsonIgnoreProperties` on Pojo fields not working for deserialization
+   (2.8.0)
+
+Ross Goldberg
+  * Reported #1165, provided fix for: `CoreXMLDeserializers` does not handle
+    time-only `XMLGregorianCalendar`s
    (2.8.0)
 
 Maarten Billemont (lhunath@github)

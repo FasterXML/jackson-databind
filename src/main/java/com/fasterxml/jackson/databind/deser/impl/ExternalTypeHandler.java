@@ -23,12 +23,12 @@ public class ExternalTypeHandler
 
     private final String[] _typeIds;
     private final TokenBuffer[] _tokens;
-    
+
     protected ExternalTypeHandler(ExtTypedProperty[] properties,
             HashMap<String, Integer> nameToPropertyIndex,
             String[] typeIds, TokenBuffer[] tokens)
     {
-        _properties = properties;        
+        _properties = properties;
         _nameToPropertyIndex = nameToPropertyIndex;
         _typeIds = typeIds;
         _tokens = tokens;
@@ -42,7 +42,11 @@ public class ExternalTypeHandler
         _typeIds = new String[len];
         _tokens = new TokenBuffer[len];
     }
-    
+
+    /**
+     * Method called to start collection process by creating non-blueprint
+     * instances.
+     */
     public ExternalTypeHandler start() {
         return new ExternalTypeHandler(this);
     }
@@ -79,7 +83,7 @@ public class ExternalTypeHandler
         }
         return true;
     }
-    
+
     /**
      * Method called to ask handler to handle value of given property,
      * at point where parser points to the first token of the value.
@@ -182,6 +186,8 @@ public class ExternalTypeHandler
         Object[] values = new Object[len];
         for (int i = 0; i < len; ++i) {
             String typeId = _typeIds[i];
+            final ExtTypedProperty extProp = _properties[i];
+
             if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
                 if (_tokens[i] == null) {
@@ -189,31 +195,38 @@ public class ExternalTypeHandler
                 }
                 // but not just one
                 // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
-                if (!_properties[i].hasDefaultType()) {
+                if (!extProp.hasDefaultType()) {
                     ctxt.reportMappingException("Missing external type id property '%s'",
-                            _properties[i].getTypePropertyName());
+                            extProp.getTypePropertyName());
                 } else {
-                    typeId = _properties[i].getDefaultTypeId();
+                    typeId = extProp.getDefaultTypeId();
                 }
             } else if (_tokens[i] == null) {
-                SettableBeanProperty prop = _properties[i].getProperty();
+                SettableBeanProperty prop = extProp.getProperty();
                 ctxt.reportMappingException("Missing property '%s' for external type id '%s'",
                         prop.getName(), _properties[i].getTypePropertyName());
             }
             values[i] = _deserialize(p, ctxt, i, typeId);
-        }
-        // second: fill in creator properties:
-        for (int i = 0; i < len; ++i) {
-            SettableBeanProperty prop = _properties[i].getProperty();
-            if (creator.findCreatorProperty(prop.getName()) != null) {
+
+            final SettableBeanProperty prop = extProp.getProperty();
+            // also: if it's creator prop, fill in
+            if (prop.getCreatorIndex() >= 0) {
                 buffer.assignParameter(prop, values[i]);
+
+                // [databind#999] And maybe there's creator property for type id too?
+                SettableBeanProperty typeProp = extProp.getTypeProperty();
+                // for now, should only be needed for creator properties, too
+                if ((typeProp != null) && (typeProp.getCreatorIndex() >= 0)) {
+                    buffer.assignParameter(typeProp, typeId);
+                }
             }
         }
+
         Object bean = creator.build(ctxt, buffer);
         // third: assign non-creator properties
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _properties[i].getProperty();
-            if (creator.findCreatorProperty(prop.getName()) == null) {
+            if (prop.getCreatorIndex() < 0) {
                 prop.set(bean, values[i]);
             }
         }
@@ -287,6 +300,30 @@ public class ExternalTypeHandler
             _nameToPropertyIndex.put(typeDeser.getPropertyName(), index);
         }
 
+        /**
+         * Method called after all external properties have been assigned, to further
+         * link property with polymorphic value with possible property for type id
+         * itself. This is needed to support type ids as Creator properties.
+         *
+         * @since 2.8
+         */
+        public ExternalTypeHandler build(BeanPropertyMap otherProps) {
+            // 21-Jun-2016, tatu: as per [databind#999], may need to link type id property also
+            final int len = _properties.size();
+            ExtTypedProperty[] extProps = new ExtTypedProperty[len];
+            for (int i = 0; i < len; ++i) {
+                ExtTypedProperty extProp = _properties.get(i);
+                String typePropId = extProp.getTypePropertyName();
+                SettableBeanProperty typeProp = otherProps.find(typePropId);
+                if (typeProp != null) {
+                    extProp.linkTypeProperty(typeProp);
+                }
+                extProps[i] = extProp;
+            }
+            return new ExternalTypeHandler(extProps, _nameToPropertyIndex, null, null);
+        }
+
+        @Deprecated // since 2.8; may be removed as early as 2.9
         public ExternalTypeHandler build() {
             return new ExternalTypeHandler(_properties.toArray(new ExtTypedProperty[_properties.size()]),
                     _nameToPropertyIndex, null, null);
@@ -299,11 +336,23 @@ public class ExternalTypeHandler
         private final TypeDeserializer _typeDeserializer;
         private final String _typePropertyName;
 
+        /**
+         * @since 2.8
+         */
+        private SettableBeanProperty _typeProperty;
+
         public ExtTypedProperty(SettableBeanProperty property, TypeDeserializer typeDeser)
         {
             _property = property;
             _typeDeserializer = typeDeser;
             _typePropertyName = typeDeser.getPropertyName();
+        }
+
+        /**
+         * @since 2.8
+         */
+        public void linkTypeProperty(SettableBeanProperty p) {
+            _typeProperty = p;
         }
 
         public boolean hasTypePropertyName(String n) {
@@ -331,6 +380,13 @@ public class ExternalTypeHandler
 
         public SettableBeanProperty getProperty() {
             return _property;
+        }
+
+        /**
+         * @since 2.8
+         */
+        public SettableBeanProperty getTypeProperty() {
+            return _typeProperty;
         }
     }
 }

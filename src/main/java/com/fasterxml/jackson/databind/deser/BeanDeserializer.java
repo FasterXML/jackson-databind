@@ -899,7 +899,7 @@ public class BeanDeserializer
                         if (bean.getClass() != _beanType.getRawClass()) {
                             // !!! 08-Jul-2011, tatu: Could theoretically support; but for now
                             //   it's too complicated, so bail out
-                            ctxt.reportMappingException("Can not create polymorphic instances with unwrapped values");
+                            ctxt.reportMappingException("Can not create polymorphic instances with external type ids");
                             return null;
                         }
                         return ext.complete(p, ctxt, bean);

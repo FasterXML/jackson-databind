@@ -16,6 +16,8 @@ Project: jackson-databind
 #990: Allow failing on `null` values for creator (add 
   `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES`)
  (contributed by mkokho@github)
+#999: External property is not deserialized
+ (reported by Aleksandr O)
 #1017: Add new mapping exception type ('InvalidTypeIdException') for subtype resolution errors
  (suggested by natnan@github)
 #1028: Ignore USE_BIG_DECIMAL_FOR_FLOATS for NaN/Infinity

@@ -460,8 +460,16 @@ public abstract class BeanDeserializerBase
         ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         SettableBeanProperty[] creatorProps;
+
         if (_valueInstantiator.canCreateFromObjectWith()) {
             creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+
+            // 21-Jun-2015, tatu: This resolution was duplicated later on and seems like
+            //    it really should be only done at a later point. So commented out in 2.8.
+            //   However, just in case there was a reason for it, leaving commented out
+            //   here instead of immediately removing.
+
+            /*
             // also: need to try to resolve 'external' type ids...
             for (SettableBeanProperty prop : creatorProps) {
                 if (prop.hasValueTypeDeserializer()) {
@@ -474,6 +482,7 @@ public abstract class BeanDeserializerBase
                     }
                 }
             }
+            */
         } else {
             creatorProps = null;
         }

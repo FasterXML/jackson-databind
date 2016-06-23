@@ -114,7 +114,9 @@ public final class TypeFactory
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final LRUMap<Class<?>, JavaType> _typeCache = new LRUMap<Class<?>, JavaType>(16, 100);
+    protected final LRUMap<ClassWithTypeBindingsKey, JavaType> _typeCache =
+            new LRUMap<ClassWithTypeBindingsKey, JavaType>(16,
+                    Integer.getInteger("com.fasterxml.jackson.databind.type.factory.cache-reset-limit", new Integer(8194)));
 
     /*
     /**********************************************************
@@ -1157,15 +1159,10 @@ public final class TypeFactory
         if (result != null) {
             return result;
         }
-        // Barring that, we may have recently constructed an instance:
-        // !!! TODO 16-Oct-2015, tatu: For now let's only cached non-parameterized; otherwise
-        //     need better cache key
-        boolean cachable = (bindings == null) || bindings.isEmpty();
-        if (cachable) {
-            result = _typeCache.get(rawType); // ok, cache object is synced
-            if (result != null) {
-                return result;
-            }
+        ClassWithTypeBindingsKey key = new ClassWithTypeBindingsKey(rawType, bindings);
+        result = _typeCache.get(key); // ok, cache object is synced
+        if (result != null) {
+            return result;
         }
 
         // 15-Oct-2015, tatu: recursive reference?
@@ -1226,9 +1223,7 @@ public final class TypeFactory
         }
         context.resolveSelfReferences(result);
 
-        if (cachable) {
-            _typeCache.putIfAbsent(rawType, result); // cache object syncs
-        }
+        _typeCache.putIfAbsent(key, result); // cache object syncs
         return result;
     }
 

@@ -117,6 +117,19 @@ public class TestJavaType
         assertEquals(String.class.getName(), key.toString());
     }
 
+    public void testClassWithTypeBindingsKey()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType stringType = tf.constructType(String.class);
+        TypeBindings bindings = TypeBindings.create(List.class, stringType);
+        ClassWithTypeBindingsKey key = new ClassWithTypeBindingsKey(List.class, bindings);
+        assertTrue(key.equals(key));
+        assertFalse(key.equals(null));
+        assertFalse(key.equals("foo"));
+        assertFalse(key.equals(new ClassWithTypeBindingsKey(Set.class, bindings)));
+        assertEquals("java.util.List<Ljava/lang/String;>", key.toString());
+    }
+
     // [databind#116]
     public void testJavaTypeAsJLRType()
     {

@@ -111,8 +111,7 @@ public final class TypeFactory
 
     /**
      * Since type resolution can be expensive (specifically when resolving
-     * actual generic types), we will use small cache to avoid repetitive
-     * resolution of core types
+     * actual generic types), we will use a cache to avoid repetitive resolution.
      */
     protected final LRUMap<ClassWithTypeBindingsKey, JavaType> _typeCache =
             new LRUMap<ClassWithTypeBindingsKey, JavaType>(16,

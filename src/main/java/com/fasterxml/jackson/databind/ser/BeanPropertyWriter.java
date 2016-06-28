@@ -383,7 +383,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     public void assignNullSerializer(JsonSerializer<Object> nullSer) {
         // may need to disable check in future?
-        if (_nullSerializer != null && _nullSerializer != nullSer) {
+        if ((_nullSerializer != null) && (_nullSerializer != nullSer)) {
             throw new IllegalStateException("Can not override null serializer");
         }
         _nullSerializer = nullSer;

@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.6 (not yet released)
+
+#1279: Ensure DOM parsing defaults to not expanding external entities
+
 2.7.5 (11-Jun-2016)
 
 #1098: DeserializationFeature.FAIL_ON_INVALID_SUBTYPE does not work with

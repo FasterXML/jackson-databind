@@ -115,7 +115,7 @@ public class BeanDeserializerFactory
          */
         // 29-Nov-2015, tatu: Also, filter out calls to primitive types, they are
         //    not something we could materialize anything for
-        if (type.isAbstract() && !type.isPrimitive()) {
+        if (type.isAbstract() && !type.isPrimitive() && !type.isEnumType()) {
             // Let's make it possible to materialize abstract types.
             JavaType concreteType = materializeAbstractType(ctxt, type, beanDesc);
             if (concreteType != null) {
@@ -126,7 +126,6 @@ public class BeanDeserializerFactory
                 return buildBeanDeserializer(ctxt, concreteType, beanDesc);
             }
         }
-
         // Otherwise, may want to check handlers for standard types, from superclass:
         @SuppressWarnings("unchecked")
         JsonDeserializer<Object> deser = (JsonDeserializer<Object>) findStdDeserializer(ctxt, type, beanDesc);

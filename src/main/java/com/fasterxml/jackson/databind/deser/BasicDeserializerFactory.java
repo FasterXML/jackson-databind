@@ -1561,7 +1561,7 @@ public abstract class BasicDeserializerFactory
             return StringDeserializer.instance;
         }
         if (rawType == CLASS_ITERABLE) {
-            // [Issue#199]: Can and should 'upgrade' to a Collection type:
+            // [databind#199]: Can and should 'upgrade' to a Collection type:
             TypeFactory tf = ctxt.getTypeFactory();
             JavaType[] tps = tf.findTypeParameters(type, CLASS_ITERABLE);
             JavaType elemType = (tps == null || tps.length != 1) ? TypeFactory.unknownType() : tps[0];

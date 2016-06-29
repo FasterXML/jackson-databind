@@ -6,11 +6,13 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 @SuppressWarnings("serial")
 public class StdKeySerializers
 {
+    @SuppressWarnings("deprecation")
     protected final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
 
     protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
@@ -40,7 +42,9 @@ public class StdKeySerializers
             return DEFAULT_STRING_SERIALIZER;
         }
         if (rawKeyType.isPrimitive() || Number.class.isAssignableFrom(rawKeyType)) {
-            return DEFAULT_KEY_SERIALIZER;
+            // 28-Jun-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER, but makes
+            //   more sense to use simpler one directly
+            return new Default(Default.TYPE_TO_STRING, rawKeyType);
         }
         if (rawKeyType == Class.class) {
             return new Default(Default.TYPE_CLASS, rawKeyType);
@@ -55,7 +59,10 @@ public class StdKeySerializers
         if (rawKeyType == java.util.UUID.class) {
             return new Default(Default.TYPE_TO_STRING, rawKeyType);
         }
-        return useDefault ? DEFAULT_KEY_SERIALIZER : null;
+        if (useDefault) {
+            return DEFAULT_KEY_SERIALIZER;
+        }
+        return null;
     }
 
     /**
@@ -174,6 +181,11 @@ public class StdKeySerializers
                 ser = _findAndAddDynamic(m, cls, provider);
             }
             ser.serialize(value, g, provider);
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+            visitStringFormat(visitor, typeHint);
         }
 
         protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

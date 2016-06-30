@@ -1171,12 +1171,11 @@ public final class TypeFactory
         if ((bindings == null) || bindings.isEmpty()) {
             key = rawType;
             result = _typeCache.get(key); // ok, cache object is synced
+            if (result != null) {
+                return result;
+            }
         } else {
-            key = bindings.asKey(rawType);
-        }
-        result = _typeCache.get(key); // ok, cache object is synced
-        if (result != null) {
-            return result;
+            key = null;
         }
 
         // 15-Oct-2015, tatu: recursive reference?
@@ -1236,7 +1235,9 @@ public final class TypeFactory
             }
         }
         context.resolveSelfReferences(result);
-        _typeCache.putIfAbsent(key, result); // cache object syncs
+        if (key != null) {
+            _typeCache.putIfAbsent(key, result); // cache object syncs
+        }
         return result;
     }
 

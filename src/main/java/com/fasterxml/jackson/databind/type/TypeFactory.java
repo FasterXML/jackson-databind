@@ -114,7 +114,7 @@ public final class TypeFactory
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final LRUMap<Class<?>, JavaType> _typeCache = new LRUMap<Class<?>, JavaType>(16, 100);
+    protected final LRUMap<Object,JavaType> _typeCache = new LRUMap<Object,JavaType>(16, 100);
 
     /*
     /**********************************************************
@@ -380,31 +380,17 @@ public final class TypeFactory
             //    our specific neeeds.
             // 29-Mar-2016, tatu: See [databind#1173]  (and test `TypeResolverTest`)
             //  for a case where this code does get invoked: not ideal
+            // 29-Jun-2016, tatu: As to bindings, this works for [databind#1215], but
+            //  not certain it would reliably work... but let's hope for best for now
+            TypeBindings tb = _bindingsForSubtype(baseType, typeParamCount, subclass);
             if (baseType.isInterface()) {
-                newType = baseType.refine(subclass, TypeBindings.emptyBindings(), null,
-                        new JavaType[] { baseType });
+                newType = baseType.refine(subclass, tb, null, new JavaType[] { baseType });
             } else {
-                newType = baseType.refine(subclass, TypeBindings.emptyBindings(), baseType,
-                        NO_TYPES);
+                newType = baseType.refine(subclass, tb, baseType, NO_TYPES);
             }
             // Only SimpleType returns null, but if so just resolve regularly
             if (newType == null) {
-                // But otherwise gets bit tricky, as we need to partially resolve the type hierarchy
-                // (hopefully passing null Class for root is ok)
-                TypeBindings tb = null;
-
-                // 14-Apr-2016, tatu: One possible short-cut; if type parameter counts
-                //   match, chances are they ought to match. Let's take our chances...
-                if (baseType.containedTypeCount() == typeParamCount) {
-                    if (typeParamCount == 1) {
-                        tb = TypeBindings.create(subclass, baseType.containedType(0));
-                    } else if (typeParamCount == 2) {
-                        tb = TypeBindings.create(subclass, baseType.containedType(0),
-                                baseType.containedType(1));
-                    }
-                }
-                newType = _fromClass(null, subclass,
-                        (tb == null) ? TypeBindings.emptyBindings() : tb);
+                newType = _fromClass(null, subclass, tb);
             }
         } while (false);
 
@@ -456,6 +442,29 @@ public final class TypeFactory
         // otherwise regular narrowing should work just fine
         return baseType.narrowBy(subclass);
         */
+    }
+
+    private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount, Class<?> subclass)
+    {
+        // But otherwise gets bit tricky, as we need to partially resolve the type hierarchy
+        // (hopefully passing null Class for root is ok)
+        int baseCount = baseType.containedTypeCount();
+        if (baseCount == typeParamCount) {
+            if (typeParamCount == 1) {
+                return TypeBindings.create(subclass, baseType.containedType(0));
+            }
+            if (typeParamCount == 2) {
+                return TypeBindings.create(subclass, baseType.containedType(0),
+                        baseType.containedType(1));
+            }
+            List<JavaType> types = new ArrayList<JavaType>(baseCount);
+            for (int i = 0; i < baseCount; ++i) {
+                types.add(baseType.containedType(i));
+            }
+            return TypeBindings.create(subclass, types);
+        }
+        // Otherwise, two choices: match N first, or empty. Do latter, for now
+        return TypeBindings.emptyBindings();
     }
 
     /**
@@ -1157,15 +1166,17 @@ public final class TypeFactory
         if (result != null) {
             return result;
         }
-        // Barring that, we may have recently constructed an instance:
-        // !!! TODO 16-Oct-2015, tatu: For now let's only cached non-parameterized; otherwise
-        //     need better cache key
-        boolean cachable = (bindings == null) || bindings.isEmpty();
-        if (cachable) {
-            result = _typeCache.get(rawType); // ok, cache object is synced
-            if (result != null) {
-                return result;
-            }
+        // Barring that, we may have recently constructed an instance
+        final Object key;
+        if ((bindings == null) || bindings.isEmpty()) {
+            key = rawType;
+            result = _typeCache.get(key); // ok, cache object is synced
+        } else {
+            key = bindings.asKey(rawType);
+        }
+        result = _typeCache.get(key); // ok, cache object is synced
+        if (result != null) {
+            return result;
         }
 
         // 15-Oct-2015, tatu: recursive reference?
@@ -1225,10 +1236,7 @@ public final class TypeFactory
             }
         }
         context.resolveSelfReferences(result);
-
-        if (cachable) {
-            _typeCache.putIfAbsent(rawType, result); // cache object syncs
-        }
+        _typeCache.putIfAbsent(key, result); // cache object syncs
         return result;
     }
 

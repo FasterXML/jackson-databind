@@ -209,7 +209,7 @@ public class TypeBindings
     /* Accessors
     /**********************************************************************
      */
-    
+
     /**
      * Find type bound to specified name, if there is one; returns bound type if so, null if not.
      */
@@ -293,6 +293,18 @@ name, i, t.getRawClass()));
         return false;
     }
 
+    /**
+     * Factory method that will create an object that can be used as a key for
+     * caching purposes by {@link TypeFactory}
+     *
+     * @since 2.8
+     */
+    public Object asKey(Class<?> rawBase) {
+        // safe to pass _types array without copy since it is not exposed via
+        // any access, nor modified by this class
+        return new AsKey(rawBase, _types, _hashCode);
+    }
+
     /*
     /**********************************************************************
     /* Standard methods
@@ -302,7 +314,7 @@ name, i, t.getRawClass()));
     @Override public String toString()
     {
         if (_types.length == 0) {
-            return "";
+            return "<>";
         }
         StringBuilder sb = new StringBuilder();
         sb.append('<');
@@ -409,5 +421,53 @@ name, i, t.getRawClass()));
             }
             return erasedType.getTypeParameters();
         }    
-    }    
+    }
+
+    /**
+     * Helper type used to allow caching of generic types
+     *
+     * @since 2.8
+     */
+    final static class AsKey {
+        private final Class<?> _raw;
+        private final JavaType[] _params;
+        private final int _hash;
+
+        public AsKey(Class<?> raw, JavaType[] params, int hash) {
+            _raw = raw ;
+            _params = params;
+            _hash = hash;
+        }
+
+        @Override
+        public int hashCode() { return _hash; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) return true;
+            if (o == null) return false;
+            if (o.getClass() != getClass()) return false;
+            AsKey other = (AsKey) o;
+
+            if ((_hash == other._hash) && (_raw == other._raw)) {
+                final JavaType[] otherParams = other._params;
+                final int len = _params.length;
+
+                if (len == otherParams.length) {
+                    for (int i = 0; i < len; ++i) {
+                        if (!_params[i].equals(otherParams[i])) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return _raw.getName()+"<>";
+        }
+    }
 }

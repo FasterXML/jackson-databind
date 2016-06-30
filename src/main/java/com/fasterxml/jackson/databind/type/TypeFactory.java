@@ -1175,7 +1175,6 @@ public final class TypeFactory
         final Object key;
         if ((bindings == null) || bindings.isEmpty()) {
             key = rawType;
-            result = _typeCache.get(key); // ok, cache object is synced
         } else {
             key = bindings.asKey(rawType);
         }

@@ -1,7 +1,7 @@
 package perf;
 
 import java.io.*;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -14,34 +14,49 @@ import com.fasterxml.jackson.databind.*;
  */
 public class ManualReadWithTypeResolution
 {
+    private final String _desc1, _desc2;
+    private final byte[] _input;
+    private final Class<?> _inputType;
+    private final TypeReference<?> _inputTypeRef;
+
+    private final ObjectMapper _mapper;
+    private final int REPS;
+
     protected int hash;
     // wait for 3 seconds
     protected long startMeasure = System.currentTimeMillis() + 3000L;
     protected int roundsDone = 0;
-    protected int REPS;
     private double[] timeMsecs;
 
-    protected String _desc1, _desc2;
-    
-    public static void main(String[] args) throws Exception
-    {
-//        byte[] data = "{\"id\":124}".getBytes("UTF-8");
-        byte[] data = "{\"key\":\"value\",\"id\":124}".getBytes("UTF-8");
-        ObjectMapper m = new ObjectMapper();
-        new ManualReadWithTypeResolution().doTest(m, data);
+    public static void main(String[] args) throws Exception {
+        new ManualReadWithTypeResolution().doTest();
+    }
+
+    private ManualReadWithTypeResolution() throws IOException {
+        _desc1 = "Raw type";
+        _desc2 = "Generic type";
+        _mapper = new ObjectMapper();
+
+        _input = "[\"value\",\"123\"]".getBytes("UTF-8");
+        _inputType = List.class;
+        _inputTypeRef = new TypeReference<List<String>>() { };
+
+        /*
+        _input = "{\"id\":124}".getBytes("UTF-8");
+        _inputType = Map.class;
+        _inputTypeRef = new TypeReference<Map<String,Object>>() { };
+        */
+        
+        REPS = (int) ((double) (15 * 1000 * 1000) / (double) _input.length);
     }
 
     // When comparing to simple streaming parsing, uncomment:
 
-    private void doTest(ObjectMapper mapper, byte[] byteInput)
-        throws Exception
+    private void doTest() throws Exception
     {
-        REPS = (int) ((double) (15 * 1000 * 1000) / (double) byteInput.length);
-        _desc1 = "Raw type";
-        _desc2 = "Generic type";
 
         System.out.printf("Read %d bytes to bind; will do %d repetitions\n",
-                byteInput.length, REPS);
+                _input.length, REPS);
         System.out.print("Warming up");
 
         int i = 0;
@@ -49,8 +64,6 @@ public class ManualReadWithTypeResolution
 
 
         timeMsecs = new double[TYPES];
-        final TypeReference<?> typeRef = new TypeReference<Map<String,Object>>() { };
-        final JavaType typeResolved = mapper.getTypeFactory().constructType(typeRef);
 
         while (true) {
             Thread.sleep(100L);
@@ -61,11 +74,11 @@ public class ManualReadWithTypeResolution
             
             switch (type) {
             case 0:
-                msesc = testDeser(REPS, byteInput, mapper, Map.class);
+                msesc = testDeser(REPS, _input, _mapper, _inputType);
                 msg = _desc1;
                 break;
             case 1:
-                msesc = testDeser(REPS, byteInput, mapper, typeRef);
+                msesc = testDeser(REPS, _input, _mapper, _inputTypeRef);
                 msg = _desc2;
                 break;
             default:

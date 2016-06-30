@@ -1240,7 +1240,9 @@ public final class TypeFactory
             }
         }
         context.resolveSelfReferences(result);
-        _typeCache.putIfAbsent(key, result); // cache object syncs
+        if (key != null) {
+            _typeCache.putIfAbsent(key, result); // cache object syncs
+        }
         return result;
     }
 

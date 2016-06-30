@@ -56,8 +56,6 @@ Project: jackson-databind
 
 #1215: Problem with type specialization for Maps with `@JsonDeserialize(as=subtype)`
  (reported by brentryan@github)
-#1277: Inefficient resolution of parametrized types
- (reported by Andriy P, plokhotnyuk@github)
 #1279: Ensure DOM parsing defaults to not expanding external entities
 
 2.7.5 (11-Jun-2016)

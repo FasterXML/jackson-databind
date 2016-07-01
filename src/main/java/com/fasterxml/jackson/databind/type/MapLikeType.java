@@ -27,8 +27,9 @@ public class MapLikeType extends TypeBase {
     protected final JavaType _valueType;
 
     /*
-     * /********************************************************** /* Life-cycle
-     * /**********************************************************
+    /**********************************************************
+    * Life-cycle
+    /**********************************************************
      */
 
     protected MapLikeType(Class<?> mapType, TypeBindings bindings,
@@ -176,8 +177,9 @@ public class MapLikeType extends TypeBase {
     }
 
     /*
-     * /********************************************************** /* Public API
-     * /**********************************************************
+    /**********************************************************
+    /* Public API
+    /**********************************************************
      */
 
     @Override
@@ -211,6 +213,12 @@ public class MapLikeType extends TypeBase {
     }
 
     @Override
+    public boolean hasHandlers() {
+        return super.hasHandlers() || _valueType.hasHandlers()
+                || _keyType.hasHandlers();
+    }
+
+    @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }
@@ -226,8 +234,9 @@ public class MapLikeType extends TypeBase {
     }
 
     /*
-     * /********************************************************** /* Extended
-     * API /**********************************************************
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
      */
 
     public MapLikeType withKeyTypeHandler(Object h) {
@@ -252,24 +261,22 @@ public class MapLikeType extends TypeBase {
     }
 
     /*
-     * /********************************************************** /* Standard
-     * methods /**********************************************************
+    /**********************************************************
+    /* Standard methods
+    /**********************************************************
      */
 
     @Override
     public String toString() {
-        return "[map-like type; class " + _class.getName() + ", " + _keyType
-                + " -> " + _valueType + "]";
+        return String.format("[map-like type; class %s, %s -> %s]",
+                _class.getName(), _keyType, _valueType);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (o == null)
-            return false;
-        if (o.getClass() != getClass())
-            return false;
+        if (o == this) return true;
+        if (o == null) return false;
+        if (o.getClass() != getClass()) return false;
 
         MapLikeType other = (MapLikeType) o;
         return (_class == other._class) && _keyType.equals(other._keyType)

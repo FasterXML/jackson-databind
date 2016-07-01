@@ -182,6 +182,11 @@ public final class ArrayType
     }
 
     @Override
+    public boolean hasHandlers() {
+        return super.hasHandlers() || _componentType.hasHandlers();
+    }
+    
+    @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {
         sb.append('[');
         return _componentType.getGenericSignature(sb);

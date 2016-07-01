@@ -81,14 +81,6 @@ public abstract class TypeBase
     public abstract StringBuilder getErasedSignature(StringBuilder sb);
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getValueHandler() { return (T) _valueHandler; }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getTypeHandler() { return (T) _typeHandler; }
-
-    @Override
     public TypeBindings getBindings() {
         return _bindings;
     }

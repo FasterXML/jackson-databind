@@ -114,7 +114,7 @@ public final class TypeFactory
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final LRUMap<Object,JavaType> _typeCache = new LRUMap<Object,JavaType>(16, 100);
+    protected final LRUMap<Object,JavaType> _typeCache;
 
     /*
     /**********************************************************
@@ -142,16 +142,29 @@ public final class TypeFactory
      */
 
     private TypeFactory() {
+        this(null);
+    }
+
+    /**
+     * @since 2.8
+     */
+    protected TypeFactory(LRUMap<Object,JavaType> typeCache) {
+        if (typeCache == null) {
+            typeCache = new LRUMap<Object,JavaType>(16, 200);
+        }
+        _typeCache = typeCache;
         _parser = new TypeParser(this);
         _modifiers = null;
         _classLoader = null;
     }
 
-    protected TypeFactory(TypeParser p, TypeModifier[] mods) {
-        this(p, mods, null);
-    }
-    
-    protected TypeFactory(TypeParser p, TypeModifier[] mods, ClassLoader classLoader) {
+    protected TypeFactory(LRUMap<Object,JavaType> typeCache, TypeParser p,
+            TypeModifier[] mods, ClassLoader classLoader)
+    {
+        if (typeCache == null) {
+            typeCache = new LRUMap<Object,JavaType>(16, 200);
+        }
+        _typeCache = typeCache;
         // As per [databind#894] must ensure we have back-linkage from TypeFactory:
         _parser = p.withFactory(this);
         _modifiers = mods;
@@ -160,17 +173,23 @@ public final class TypeFactory
 
     public TypeFactory withModifier(TypeModifier mod) 
     {
+        LRUMap<Object,JavaType> typeCache = _typeCache;
+        TypeModifier[] mods;
         if (mod == null) { // mostly for unit tests
-            return new TypeFactory(_parser, _modifiers, _classLoader);
+            mods = null;
+            // 30-Jun-2016, tatu: for some reason expected semantics are to clear cache
+            //    in this case; can't recall why, but keeping the same
+            typeCache = null;
+        } else if (_modifiers == null) {
+            mods = new TypeModifier[] { mod };
+        } else {
+            mods = ArrayBuilders.insertInListNoDup(_modifiers, mod);
         }
-        if (_modifiers == null) {
-            return new TypeFactory(_parser, new TypeModifier[] { mod }, _classLoader);
-        }
-        return new TypeFactory(_parser, ArrayBuilders.insertInListNoDup(_modifiers, mod), _classLoader);
+        return new TypeFactory(typeCache, _parser, mods, _classLoader);
     }
     
     public TypeFactory withClassLoader(ClassLoader classLoader) {
-        return new TypeFactory(_parser, _modifiers, classLoader);
+        return new TypeFactory(_typeCache, _parser, _modifiers, classLoader);
     }
 
     /**
@@ -1240,7 +1259,7 @@ public final class TypeFactory
             }
         }
         context.resolveSelfReferences(result);
-        if (key != null) {
+        if (!result.hasHandlers()) {
             _typeCache.putIfAbsent(key, result); // cache object syncs
         }
         return result;

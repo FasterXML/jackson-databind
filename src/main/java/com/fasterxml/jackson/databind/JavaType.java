@@ -458,6 +458,18 @@ public abstract class JavaType
      */
     public boolean hasValueHandler() { return _valueHandler != null; }
 
+    /**
+     * Helper method that checks whether this type, or its (optional) key
+     * or content type has {@link #getValueHandler} or {@link #getTypeHandler()};
+     * that is, are there any non-standard handlers associated with this
+     * type object.
+     *
+     * @since 2.8
+     */
+    public boolean hasHandlers() {
+        return (_typeHandler != null) || (_valueHandler != null);
+    }
+    
     /*
     /**********************************************************
     /* Support for producing signatures

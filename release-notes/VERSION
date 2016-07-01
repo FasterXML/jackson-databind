@@ -51,6 +51,8 @@ Project: jackson-databind
  (reported by, fix contributed by Ari F)
 #1270: Generic type returned from type id resolver seems to be ignored
  (reported by Benson M)
+#1277: Add caching of resolved generic types for `TypeFactory`
+ (requested by Andriy P)
 
 2.7.6 (not yet released)
 

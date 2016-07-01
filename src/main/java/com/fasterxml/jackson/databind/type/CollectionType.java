@@ -42,7 +42,7 @@ public final class CollectionType
     }
 
     /**
-     * @deprecated Since 2.7, remove from 2.8
+     * @deprecated Since 2.7, remove from 2.9
      */
     @Deprecated // since 2.7
     public static CollectionType construct(Class<?> rawType, JavaType elemT) {

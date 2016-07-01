@@ -177,6 +177,11 @@ public class CollectionLikeType extends TypeBase
     }    
 
     @Override
+    public boolean hasHandlers() {
+        return super.hasHandlers() || _elementType.hasHandlers();
+    }
+
+    @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }

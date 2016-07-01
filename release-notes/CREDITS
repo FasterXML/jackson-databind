@@ -502,6 +502,10 @@ Vladimir Kulev (lightoze@github)
    (2.8.0)
 
 Ari Fogel (arifogel@github)
-  * Reported 1261, contributed fix for: `@JsonIdentityInfo` deserialization fails with
+  * Reported #1261, contributed fix for: `@JsonIdentityInfo` deserialization fails with
     combination of forward references, `@JsonCreator`
+   (2.8.0)
+
+Andriy Plokhotnyuk (plokhotnyuk@github)
+  * Requested #1277: Add caching of resolved generic types for `TypeFactory`
    (2.8.0)

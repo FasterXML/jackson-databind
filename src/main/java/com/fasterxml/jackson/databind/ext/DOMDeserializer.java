@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ext;
 
 import java.io.StringReader;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,6 +30,12 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
         parserFactory.setNamespaceAware(true);
         // [databind#1279]: make sure external entities NOT expanded by default
         parserFactory.setExpandEntityReferences(false);
+        // ... and in general, aim for "safety"
+        try {
+            parserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch(ParserConfigurationException pce) {
+            // not much point to do anything; could log but...
+        }
         DEFAULT_PARSER_FACTORY = parserFactory;
     }
 

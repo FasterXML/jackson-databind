@@ -187,9 +187,20 @@ public final class TypeFactory
         }
         return new TypeFactory(typeCache, _parser, mods, _classLoader);
     }
-    
+
     public TypeFactory withClassLoader(ClassLoader classLoader) {
         return new TypeFactory(_typeCache, _parser, _modifiers, classLoader);
+    }
+
+    /**
+     * Mutant factory method that will construct new {@link TypeFactory} with
+     * identical settings except for different cache; most likely one with
+     * bigger maximum size.
+     *
+     * @since 2.8
+     */
+    public TypeFactory withCache(LRUMap<Object,JavaType> cache)  {
+        return new TypeFactory(cache, _parser, _modifiers, _classLoader);
     }
 
     /**
@@ -1262,6 +1273,11 @@ public final class TypeFactory
         if (!result.hasHandlers()) {
             _typeCache.putIfAbsent(key, result); // cache object syncs
         }
+else {
+    System.err.println("DEBUG: prob for "+rawType);
+    System.err.println("DEBUG: resolved as "+result);
+    throw new Error("Handlers for: "+result);
+}
         return result;
     }
 

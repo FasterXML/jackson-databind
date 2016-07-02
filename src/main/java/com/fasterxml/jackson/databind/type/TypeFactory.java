@@ -1273,11 +1273,6 @@ public final class TypeFactory
         if (!result.hasHandlers()) {
             _typeCache.putIfAbsent(key, result); // cache object syncs
         }
-else {
-    System.err.println("DEBUG: prob for "+rawType);
-    System.err.println("DEBUG: resolved as "+result);
-    throw new Error("Handlers for: "+result);
-}
         return result;
     }
 

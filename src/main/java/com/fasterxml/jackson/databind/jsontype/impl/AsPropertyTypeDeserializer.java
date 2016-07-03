@@ -118,6 +118,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             tb.writeString(typeId);
         }
         if (tb != null) { // need to put back skipped properties?
+            // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
+            //   try to access current token; ensure there isn't one
+            p.clearCurrentToken();
             p = JsonParserSequence.createFlattened(tb.asParser(p), p);
         }
         // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
@@ -128,7 +131,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     
     // off-lined to keep main method lean and mean...
     @SuppressWarnings("resource")
-    protected Object _deserializeTypedUsingDefaultImpl(JsonParser p, DeserializationContext ctxt, TokenBuffer tb) throws IOException
+    protected Object _deserializeTypedUsingDefaultImpl(JsonParser p, DeserializationContext ctxt,
+            TokenBuffer tb) throws IOException
     {
         // As per [JACKSON-614], may have default implementation to use
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);

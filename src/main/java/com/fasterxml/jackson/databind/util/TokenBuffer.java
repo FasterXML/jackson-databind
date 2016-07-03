@@ -1032,41 +1032,41 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
     
     @Override
-    public void copyCurrentStructure(JsonParser jp) throws IOException
+    public void copyCurrentStructure(JsonParser p) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
 
         // Let's handle field-name separately first
         if (t == JsonToken.FIELD_NAME) {
             if (_mayHaveNativeIds) {
-                _checkNativeIds(jp);
+                _checkNativeIds(p);
             }
-            writeFieldName(jp.getCurrentName());
-            t = jp.nextToken();
+            writeFieldName(p.getCurrentName());
+            t = p.nextToken();
             // fall-through to copy the associated value
         }
 
         if (_mayHaveNativeIds) {
-            _checkNativeIds(jp);
+            _checkNativeIds(p);
         }
         
         switch (t) {
         case START_ARRAY:
             writeStartArray();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(jp);
+            while (p.nextToken() != JsonToken.END_ARRAY) {
+                copyCurrentStructure(p);
             }
             writeEndArray();
             break;
         case START_OBJECT:
             writeStartObject();
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
-                copyCurrentStructure(jp);
+            while (p.nextToken() != JsonToken.END_OBJECT) {
+                copyCurrentStructure(p);
             }
             writeEndObject();
             break;
         default: // others are simple:
-            copyCurrentEvent(jp);
+            copyCurrentEvent(p);
         }
     }
 

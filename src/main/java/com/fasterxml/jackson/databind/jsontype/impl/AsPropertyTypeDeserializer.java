@@ -121,7 +121,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one
             p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(tb.asParser(p), p);
+            p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
         }
         // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
         p.nextToken(); // to skip past String value

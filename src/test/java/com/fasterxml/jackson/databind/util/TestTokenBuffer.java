@@ -396,7 +396,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeString("test");
         JsonParser p = createParserUsingReader("[ true, null ]");
         
-        JsonParserSequence seq = JsonParserSequence.createFlattened(buf.asParser(), p);
+        JsonParserSequence seq = JsonParserSequence.createFlattened(false, buf.asParser(), p);
         assertEquals(2, seq.containedParsersCount());
 
         assertFalse(p.isClosed());
@@ -449,11 +449,11 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf4 = new TokenBuffer(null, false);
         buf4.writeEndArray();
 
-        JsonParserSequence seq1 = JsonParserSequence.createFlattened(buf1.asParser(), buf2.asParser());
+        JsonParserSequence seq1 = JsonParserSequence.createFlattened(false, buf1.asParser(), buf2.asParser());
         assertEquals(2, seq1.containedParsersCount());
-        JsonParserSequence seq2 = JsonParserSequence.createFlattened(buf3.asParser(), buf4.asParser());
+        JsonParserSequence seq2 = JsonParserSequence.createFlattened(false, buf3.asParser(), buf4.asParser());
         assertEquals(2, seq2.containedParsersCount());
-        JsonParserSequence combo = JsonParserSequence.createFlattened(seq1, seq2);
+        JsonParserSequence combo = JsonParserSequence.createFlattened(false, seq1, seq2);
         // should flatten it to have 4 underlying parsers
         assertEquals(4, combo.containedParsersCount());
 

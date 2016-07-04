@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.0 (not released yet)
+2.8.0 (04-Jul-2016)
 
 #621: Allow definition of "ignorable types" without annotation (using
   `Mapper.configOverride(type).setIsIgnoredType(true)`

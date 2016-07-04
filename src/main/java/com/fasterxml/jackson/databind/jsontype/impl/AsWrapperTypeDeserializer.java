@@ -114,7 +114,7 @@ public class AsWrapperTypeDeserializer
             // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one
             p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(tb.asParser(p), p);
+            p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
             p.nextToken();
         }
         

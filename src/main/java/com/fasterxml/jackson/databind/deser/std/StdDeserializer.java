@@ -850,7 +850,7 @@ public abstract class StdDeserializer<T>
             return p.getText();
         }
         // [databind#381]
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+        if ((t == JsonToken.START_ARRAY) && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final String parsed = _parseString(p, ctxt);
             if (p.nextToken() != JsonToken.END_ARRAY) {

@@ -19,7 +19,7 @@ public final class AnnotatedConstructor
      * @since 2.1
      */
     protected Serialization _serialization;
-    
+
     /*
     /**********************************************************
     /* Life-cycle

@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -77,7 +79,7 @@ public class CreatorCollector
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public CreatorCollector(BeanDescription beanDesc, MapperConfig<?> config)
     {
         _beanDesc = beanDesc;
@@ -91,26 +93,12 @@ public class CreatorCollector
         final JavaType arrayDelegateType = _computeDelegateType(_creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
         final JavaType type = _beanDesc.getType();
 
-        // Any non-standard creator will prevent; with one exception: int-valued constructor
-        // that standard containers have can be ignored
-        if (!_hasNonDefaultCreator) {
-            /* 10-May-2014, tatu: If we have nothing special, and we are dealing with one
-             *   of "well-known" types, can create a non-reflection-based instantiator.
-             */
-            final Class<?> rawType = type.getRawClass();
-            if (rawType == Collection.class || rawType == List.class || rawType == ArrayList.class) {
-                return new Vanilla(Vanilla.TYPE_COLLECTION);
-            }
-            if (rawType == Map.class || rawType == LinkedHashMap.class) {
-                return new Vanilla(Vanilla.TYPE_MAP);
-            }
-            if (rawType == HashMap.class) {
-                return new Vanilla(Vanilla.TYPE_HASH_MAP);
-            }
-        }
-        
+        // 11-Jul-2016, tatu: Earlier optimization by replacing the whole instantiator did not
+        //   work well, so let's replace by lower-level check:
+        AnnotatedWithParams defaultCtor = StdTypeConstructor.tryToOptimize(_creators[C_DEFAULT]);
+
         StdValueInstantiator inst = new StdValueInstantiator(config, type);
-        inst.configureFromObjectSettings(_creators[C_DEFAULT],
+        inst.configureFromObjectSettings(defaultCtor,
                 _creators[C_DELEGATE], delegateType, _delegateArgs,
                 _creators[C_PROPS], _propertyBasedArgs);
         inst.configureFromArraySettings(_creators[C_ARRAY_DELEGATE], arrayDelegateType, _arrayDelegateArgs);
@@ -122,13 +110,13 @@ public class CreatorCollector
         inst.configureIncompleteParameter(_incompleteParameter);
         return inst;
     }
-    
+
     /*
     /**********************************************************
     /* Setters
     /**********************************************************
      */
-    
+
     /**
      * Method called to indicate the default creator: no-arguments
      * constructor or factory method that is called to instantiate
@@ -179,15 +167,16 @@ public class CreatorCollector
             HashMap<String,Integer> names = new HashMap<String,Integer>();
             for (int i = 0, len = properties.length; i < len; ++i) {
                 String name = properties[i].getName();
-                /* [Issue-13]: Need to consider Injectables, which may not have
-                 *   a name at all, and need to be skipped
-                 */
+                // Need to consider Injectables, which may not have
+                // a name at all, and need to be skipped
                 if (name.length() == 0 && properties[i].getInjectableValueId() != null) {
                     continue;
                 }
                 Integer old = names.put(name, Integer.valueOf(i));
                 if (old != null) {
-                    throw new IllegalArgumentException("Duplicate creator property \""+name+"\" (index "+old+" vs "+i+")");
+                    throw new IllegalArgumentException(String.format(
+                            "Duplicate creator property \"%s\" (index %s vs %d)",
+                            name, old, i));
                 }
             }
         }
@@ -344,46 +333,164 @@ public class CreatorCollector
     /**********************************************************
      */
 
-    protected final static class Vanilla
-        extends ValueInstantiator.Base
+    /**
+     * Replacement for default constructor to use for a small set of
+     * "well-known" types.
+     *<p>
+     * Note: replaces earlier <code>Vanilla</code> <code>ValueInstantiator</code>
+     * implementation
+     *
+     * @since 2.8.1 (replacing earlier <code>Vanilla</code> instantiator
+     */
+    protected final static class StdTypeConstructor
+        extends AnnotatedWithParams
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        public final static int TYPE_COLLECTION = 1;
-        public final static int TYPE_MAP = 2;
-        public final static int TYPE_HASH_MAP = 3;
+        public final static int TYPE_ARRAY_LIST = 1;
+        public final static int TYPE_HASH_MAP = 2;
+        public final static int TYPE_LINKED_HASH_MAP = 3;
+
+        private final AnnotatedWithParams _base;
 
         private final int _type;
         
-        public Vanilla(int t) {
-            super(_type(t));
+        public StdTypeConstructor(AnnotatedWithParams base, int t)
+        {
+            super(base, null);
+            _base = base;
             _type = t;
         }
 
-        private static Class<?> _type(int t) {
-            switch (t) {
-            case TYPE_COLLECTION: return ArrayList.class;
-            case TYPE_MAP: return LinkedHashMap.class;
-            case TYPE_HASH_MAP: return HashMap.class;
+        public static AnnotatedWithParams tryToOptimize(AnnotatedWithParams src)
+        {
+            if (src != null) {
+                final Class<?> rawType = src.getDeclaringClass();
+                if (rawType == List.class || rawType == ArrayList.class) {
+                    return new StdTypeConstructor(src, TYPE_ARRAY_LIST);
+                }
+                if (rawType == LinkedHashMap.class) {
+                    return new StdTypeConstructor(src, TYPE_LINKED_HASH_MAP);
+                }
+                if (rawType == HashMap.class) {
+                    return new StdTypeConstructor(src, TYPE_HASH_MAP);
+                }
             }
-            return Object.class;
+            return src;
+        }
+        
+        protected final Object _construct() {
+            switch (_type) {
+            case TYPE_ARRAY_LIST:
+                return new ArrayList<Object>();
+            case TYPE_LINKED_HASH_MAP:
+                return new LinkedHashMap<String,Object>();
+            case TYPE_HASH_MAP:
+                return new HashMap<String,Object>();
+            }
+            throw new IllegalStateException("Unknown type "+_type);
         }
 
         @Override
-        public boolean canInstantiate() { return true; }
+        public int getParameterCount() {
+            return _base.getParameterCount();
+        }
 
         @Override
-        public boolean canCreateUsingDefault() {  return true; }
+        public Class<?> getRawParameterType(int index) {
+            return _base.getRawParameterType(index);
+        }
 
         @Override
-        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
-            switch (_type) {
-            case TYPE_COLLECTION: return new ArrayList<Object>();
-            case TYPE_MAP: return new LinkedHashMap<String,Object>();
-            case TYPE_HASH_MAP: return new HashMap<String,Object>();
-            }
-            throw new IllegalStateException("Unknown type "+_type);
+        public JavaType getParameterType(int index) {
+            return _base.getParameterType(index);
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public Type getGenericParameterType(int index) {
+            return _base.getGenericParameterType(index);
+        }
+
+        @Override
+        public Object call() throws Exception {
+            return _construct();
+        }
+
+        @Override
+        public Object call(Object[] args) throws Exception {
+            return _construct();
+        }
+
+        @Override
+        public Object call1(Object arg) throws Exception {
+            return _construct();
+        }
+
+        @Override
+        public Class<?> getDeclaringClass() {
+            return _base.getDeclaringClass();
+        }
+
+        @Override
+        public Member getMember() {
+            return _base.getMember();
+        }
+
+        @Override
+        public void setValue(Object pojo, Object value) throws UnsupportedOperationException, IllegalArgumentException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object getValue(Object pojo) throws UnsupportedOperationException, IllegalArgumentException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Annotated withAnnotations(AnnotationMap fallback) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public AnnotatedElement getAnnotated() {
+            return _base.getAnnotated();
+        }
+
+        @Override
+        protected int getModifiers() {
+            return _base.getMember().getModifiers();
+        }
+
+        @Override
+        public String getName() {
+            return _base.getName();
+        }
+
+        @Override
+        public JavaType getType() {
+            return _base.getType();
+        }
+
+        @Override
+        public Class<?> getRawType() {
+            return _base.getRawType();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o == this);
+        }
+
+        @Override
+        public int hashCode() {
+            return _base.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return _base.toString();
         }
     }
 }

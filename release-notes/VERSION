@@ -9,6 +9,7 @@ Project: jackson-databind
 #1215: Problem with type specialization for Maps with `@JsonDeserialize(as=subtype)`
  (reported by brentryan@github)
 #1279: Ensure DOM parsing defaults to not expanding external entities
+#1288: Type id not exposed for `JsonTypeInfo.As.EXTERNAL_PROPERTY` even when `visible` set to `true`
 
 2.7.5 (11-Jun-2016)
 

@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.1 (not yet released)
+
+#1288: Type id not exposed for `JsonTypeInfo.As.EXTERNAL_PROPERTY` even when `visible` set to `true`
+ (reported by libetl@github)
+#1289: Optimize construction of `ArrayList`, `LinkedHashMap` instances
+
 2.8.0 (04-Jul-2016)
 
 #621: Allow definition of "ignorable types" without annotation (using

@@ -1,21 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype.ext;
 
-import java.io.IOException;
 import java.util.UUID;
-
-import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
-import com.fasterxml.jackson.core.JsonParseException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeIdTest1288.ClassesWithBuilder.PaymentMean;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 @SuppressWarnings("hiding")
@@ -510,12 +504,10 @@ public class ExternalTypeIdTest1288 extends BaseMapTest
                 + "\"csc\":666,\"address\":\"10 boulevard de Sebastopol\",\"zip_code\":\"75001\",\"city\":\"Paris\",\"province\":\"Ile-de-France\",\"country_code\":\"FR\",\"description\":\"John Doe personal credit card\"}}";
         final String asJson2 = "{\"form_of_payment\":\"INSTRUMENTED_CREDIT_CARD\",\"payment_details\":{\"payment_instrument_id\":\"00000000-0000-0000-0000-000000000000\", \"name\":\"Mr John Doe encrypted credit card\"}}";
         final ObjectMapper objectMapper = new ObjectMapper ().setPropertyNamingStrategy (PropertyNamingStrategy.SNAKE_CASE);
-//                .disable (DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         ClassesWithoutBuilder.PaymentMean ob1 = objectMapper.readValue (asJson1, ClassesWithoutBuilder.PaymentMean.class);
         assertNotNull(ob1);
         ClassesWithBuilder.PaymentMean ob2 = objectMapper.readValue (asJson2, ClassesWithBuilder.PaymentMean.class);
         assertNotNull(ob2);
-
     }
 }

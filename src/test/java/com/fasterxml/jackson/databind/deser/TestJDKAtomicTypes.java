@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class TestJDKAtomicTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
@@ -84,6 +85,13 @@ public class TestJDKAtomicTypes
         public AtomicReference<String> value;
 
         public LCStringWrapper() { }
+    }
+
+    @JsonPropertyOrder({ "a", "b" })
+    static class Issue1256Bean {
+        @JsonSerialize(as=AtomicReference.class)
+        public Object a = new AtomicReference<Object>();
+        public AtomicReference<Object> b = new AtomicReference<Object>();
     }
 
     /*
@@ -249,5 +257,14 @@ public class TestJDKAtomicTypes
         LCStringWrapper w = MAPPER.readValue(aposToQuotes("{'value':'FoobaR'}"),
                 LCStringWrapper.class);
         assertEquals("foobar", w.value.get());
+    }
+
+    public void testEmpty1256() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
+
+        String json = mapper.writeValueAsString(new Issue1256Bean());
+        assertEquals("{}", json);
     }
 }

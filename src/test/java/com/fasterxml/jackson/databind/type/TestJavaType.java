@@ -185,4 +185,16 @@ public class TestJavaType
         assertFalse(rt.isAnchorType());
         assertEquals(AtomicReference.class, rt.getAnchorType().getRawClass());
     }
+
+    // for [databind#1290]
+    public void testObjectToReferenceSpecialization() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType base = tf.constructType(Object.class);
+        assertTrue(base.isJavaLangObject());
+
+        JavaType sub = tf.constructSpecializedType(base, AtomicReference.class);
+        assertEquals(AtomicReference.class, sub.getRawClass());
+        assertTrue(sub.isReferenceType());
+    }
 }

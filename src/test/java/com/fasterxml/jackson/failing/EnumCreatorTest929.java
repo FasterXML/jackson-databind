@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
+// Ideally should allow multiple-parameter Creator; but not
+// yet allowed or supported
 public class EnumCreatorTest929 extends BaseMapTest
 {
     static enum MyEnum

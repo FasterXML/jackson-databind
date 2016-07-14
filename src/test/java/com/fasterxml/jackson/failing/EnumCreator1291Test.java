@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.failing;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,6 +21,7 @@ public class EnumCreator1291Test extends BaseMapTest
             this.name = name;
         }
 
+//        @JsonCreator
         public static Enum1291 fromString(String name) {
             for (Enum1291 type : Enum1291.values()) {
                 if (type.name.equals(name)) {

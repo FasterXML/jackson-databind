@@ -19,8 +19,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Container class for storing information on creators (based on annotations,
  * visibility), to be able to build actual instantiator later on.
  */
-public class CreatorCollector
-{
+public class CreatorCollector {
     // Since 2.5
     protected final static int C_DEFAULT = 0;
     protected final static int C_STRING = 1;
@@ -32,11 +31,9 @@ public class CreatorCollector
     protected final static int C_PROPS = 7;
     protected final static int C_ARRAY_DELEGATE = 8;
 
-    protected final static String[] TYPE_DESCS = new String[] {
-        "default",
-        "String", "int", "long", "double", "boolean",
-        "delegate", "property-based"
-    };
+    protected final static String[] TYPE_DESCS = new String[] { "default",
+            "from-String", "from-int", "from-long", "from-double",
+            "from-boolean", "delegate", "property-based" };
 
     /// Type of bean being created
     final protected BeanDescription _beanDesc;
@@ -47,7 +44,7 @@ public class CreatorCollector
      * @since 2.7
      */
     final protected boolean _forceAccess;
-    
+
     /**
      * Set of creators we have collected so far
      * 
@@ -56,8 +53,9 @@ public class CreatorCollector
     protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[9];
 
     /**
-     * Bitmask of creators that were explicitly marked as creators; false for auto-detected
-     * (ones included base on naming and/or visibility, not annotation)
+     * Bitmask of creators that were explicitly marked as creators; false for
+     * auto-detected (ones included base on naming and/or visibility, not
+     * annotation)
      * 
      * @since 2.5
      */
@@ -75,33 +73,37 @@ public class CreatorCollector
     protected AnnotatedParameter _incompleteParameter;
 
     /*
-    /**********************************************************
-    /* Life-cycle
-    /**********************************************************
+     * /********************************************************** /* Life-cycle
+     * /**********************************************************
      */
 
-    public CreatorCollector(BeanDescription beanDesc, MapperConfig<?> config)
-    {
+    public CreatorCollector(BeanDescription beanDesc, MapperConfig<?> config) {
         _beanDesc = beanDesc;
         _canFixAccess = config.canOverrideAccessModifiers();
-        _forceAccess = config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+        _forceAccess = config
+                .isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
     }
 
-    public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
-    {
-        final JavaType delegateType = _computeDelegateType(_creators[C_DELEGATE], _delegateArgs);
-        final JavaType arrayDelegateType = _computeDelegateType(_creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
+    public ValueInstantiator constructValueInstantiator(
+            DeserializationConfig config) {
+        final JavaType delegateType = _computeDelegateType(
+                _creators[C_DELEGATE], _delegateArgs);
+        final JavaType arrayDelegateType = _computeDelegateType(
+                _creators[C_ARRAY_DELEGATE], _arrayDelegateArgs);
         final JavaType type = _beanDesc.getType();
 
-        // 11-Jul-2016, tatu: Earlier optimization by replacing the whole instantiator did not
-        //   work well, so let's replace by lower-level check:
-        AnnotatedWithParams defaultCtor = StdTypeConstructor.tryToOptimize(_creators[C_DEFAULT]);
+        // 11-Jul-2016, tatu: Earlier optimization by replacing the whole
+        // instantiator did not
+        // work well, so let's replace by lower-level check:
+        AnnotatedWithParams defaultCtor = StdTypeConstructor
+                .tryToOptimize(_creators[C_DEFAULT]);
 
         StdValueInstantiator inst = new StdValueInstantiator(config, type);
-        inst.configureFromObjectSettings(defaultCtor,
-                _creators[C_DELEGATE], delegateType, _delegateArgs,
-                _creators[C_PROPS], _propertyBasedArgs);
-        inst.configureFromArraySettings(_creators[C_ARRAY_DELEGATE], arrayDelegateType, _arrayDelegateArgs);
+        inst.configureFromObjectSettings(defaultCtor, _creators[C_DELEGATE],
+                delegateType, _delegateArgs, _creators[C_PROPS],
+                _propertyBasedArgs);
+        inst.configureFromArraySettings(_creators[C_ARRAY_DELEGATE],
+                arrayDelegateType, _arrayDelegateArgs);
         inst.configureFromStringCreator(_creators[C_STRING]);
         inst.configureFromIntCreator(_creators[C_INT]);
         inst.configureFromLongCreator(_creators[C_LONG]);
@@ -112,43 +114,49 @@ public class CreatorCollector
     }
 
     /*
-    /**********************************************************
-    /* Setters
-    /**********************************************************
+     * /********************************************************** /* Setters
+     * /**********************************************************
      */
 
     /**
-     * Method called to indicate the default creator: no-arguments
-     * constructor or factory method that is called to instantiate
-     * a value before populating it with data. Default creator is
-     * only used if no other creators are indicated.
+     * Method called to indicate the default creator: no-arguments constructor
+     * or factory method that is called to instantiate a value before populating
+     * it with data. Default creator is only used if no other creators are
+     * indicated.
      * 
-     * @param creator Creator method; no-arguments constructor or static
-     *   factory method.
+     * @param creator
+     *            Creator method; no-arguments constructor or static factory
+     *            method.
      */
     public void setDefaultCreator(AnnotatedWithParams creator) {
         _creators[C_DEFAULT] = _fixAccess(creator);
     }
-    
-    public void addStringCreator(AnnotatedWithParams creator, boolean explicit) {
+
+    public void addStringCreator(AnnotatedWithParams creator,
+            boolean explicit) {
         verifyNonDup(creator, C_STRING, explicit);
     }
+
     public void addIntCreator(AnnotatedWithParams creator, boolean explicit) {
         verifyNonDup(creator, C_INT, explicit);
     }
+
     public void addLongCreator(AnnotatedWithParams creator, boolean explicit) {
         verifyNonDup(creator, C_LONG, explicit);
     }
-    public void addDoubleCreator(AnnotatedWithParams creator, boolean explicit) {
+
+    public void addDoubleCreator(AnnotatedWithParams creator,
+            boolean explicit) {
         verifyNonDup(creator, C_DOUBLE, explicit);
     }
-    public void addBooleanCreator(AnnotatedWithParams creator, boolean explicit) {
+
+    public void addBooleanCreator(AnnotatedWithParams creator,
+            boolean explicit) {
         verifyNonDup(creator, C_BOOLEAN, explicit);
     }
 
-    public void addDelegatingCreator(AnnotatedWithParams creator, boolean explicit,
-            SettableBeanProperty[] injectables)
-    {
+    public void addDelegatingCreator(AnnotatedWithParams creator,
+            boolean explicit, SettableBeanProperty[] injectables) {
         if (creator.getParameterType(0).isCollectionLikeType()) {
             verifyNonDup(creator, C_ARRAY_DELEGATE, explicit);
             _arrayDelegateArgs = injectables;
@@ -157,19 +165,19 @@ public class CreatorCollector
             _delegateArgs = injectables;
         }
     }
-    
-    public void addPropertyCreator(AnnotatedWithParams creator, boolean explicit,
-            SettableBeanProperty[] properties)
-    {
+
+    public void addPropertyCreator(AnnotatedWithParams creator,
+            boolean explicit, SettableBeanProperty[] properties) {
         verifyNonDup(creator, C_PROPS, explicit);
         // Better ensure we have no duplicate names either...
         if (properties.length > 1) {
-            HashMap<String,Integer> names = new HashMap<String,Integer>();
+            HashMap<String, Integer> names = new HashMap<String, Integer>();
             for (int i = 0, len = properties.length; i < len; ++i) {
                 String name = properties[i].getName();
                 // Need to consider Injectables, which may not have
                 // a name at all, and need to be skipped
-                if (name.length() == 0 && properties[i].getInjectableValueId() != null) {
+                if (name.length() == 0
+                        && properties[i].getInjectableValueId() != null) {
                     continue;
                 }
                 Integer old = names.put(name, Integer.valueOf(i));
@@ -190,42 +198,47 @@ public class CreatorCollector
     }
 
     // Bunch of methods deprecated in 2.5, to be removed from 2.6 or later
-    
+
     @Deprecated // since 2.5
     public void addStringCreator(AnnotatedWithParams creator) {
         addStringCreator(creator, false);
     }
+
     @Deprecated // since 2.5
     public void addIntCreator(AnnotatedWithParams creator) {
         addBooleanCreator(creator, false);
     }
+
     @Deprecated // since 2.5
     public void addLongCreator(AnnotatedWithParams creator) {
         addBooleanCreator(creator, false);
     }
+
     @Deprecated // since 2.5
     public void addDoubleCreator(AnnotatedWithParams creator) {
         addBooleanCreator(creator, false);
     }
+
     @Deprecated // since 2.5
     public void addBooleanCreator(AnnotatedWithParams creator) {
         addBooleanCreator(creator, false);
     }
 
     @Deprecated // since 2.5
-    public void addDelegatingCreator(AnnotatedWithParams creator, CreatorProperty[] injectables) {
+    public void addDelegatingCreator(AnnotatedWithParams creator,
+            CreatorProperty[] injectables) {
         addDelegatingCreator(creator, false, injectables);
     }
 
     @Deprecated // since 2.5
-    public void addPropertyCreator(AnnotatedWithParams creator, CreatorProperty[] properties) {
+    public void addPropertyCreator(AnnotatedWithParams creator,
+            CreatorProperty[] properties) {
         addPropertyCreator(creator, false, properties);
     }
 
     /*
-    /**********************************************************
-    /* Accessors
-    /**********************************************************
+     * /********************************************************** /* Accessors
+     * /**********************************************************
      */
 
     /**
@@ -248,16 +261,14 @@ public class CreatorCollector
     public boolean hasPropertyBasedCreator() {
         return _creators[C_PROPS] != null;
     }
-    
+
     /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
+     * /********************************************************** /* Helper
+     * methods /**********************************************************
      */
 
     private JavaType _computeDelegateType(AnnotatedWithParams creator,
-            SettableBeanProperty[] delegateArgs)
-    {
+            SettableBeanProperty[] delegateArgs) {
         if (!_hasNonDefaultCreator || (creator == null)) {
             return null;
         }
@@ -274,16 +285,16 @@ public class CreatorCollector
         return creator.getParameterType(ix);
     }
 
-    private <T extends AnnotatedMember> T _fixAccess(T member)
-    {
+    private <T extends AnnotatedMember> T _fixAccess(T member) {
         if (member != null && _canFixAccess) {
-            ClassUtil.checkAndFixAccess((Member) member.getAnnotated(), _forceAccess);
+            ClassUtil.checkAndFixAccess((Member) member.getAnnotated(),
+                    _forceAccess);
         }
         return member;
     }
 
-    protected void verifyNonDup(AnnotatedWithParams newOne, int typeIndex, boolean explicit)
-    {
+    protected void verifyNonDup(AnnotatedWithParams newOne, int typeIndex,
+            boolean explicit) {
         final int mask = (1 << typeIndex);
         _hasNonDefaultCreator = true;
         AnnotatedWithParams oldOne = _creators[typeIndex];
@@ -291,7 +302,8 @@ public class CreatorCollector
         if (oldOne != null) {
             boolean verify;
 
-            if ((_explicitCreators & mask) != 0) { // already had explicitly annotated, leave as-is
+            if ((_explicitCreators & mask) != 0) { // already had explicitly
+                                                   // annotated, leave as-is
                 // but skip, if new one not annotated
                 if (!explicit) {
                     return;
@@ -310,11 +322,27 @@ public class CreatorCollector
                 Class<?> newType = newOne.getRawParameterType(0);
 
                 if (oldType == newType) {
-                    throw new IllegalArgumentException("Conflicting "+TYPE_DESCS[typeIndex]
-                            +" creators: already had explicitly marked "+oldOne+", encountered "+newOne);
+                    // 13-Jul-2016, tatu: One more thing to check; since Enum
+                    // classes always have
+                    // implicitly created `valueOf()`, let's resolve in favor of
+                    // other implicit
+                    // creator (`fromString()`)
+                    if (_isEnumValueOf(newOne)) {
+                        return; // ignore
+                    }
+                    if (_isEnumValueOf(oldOne)) {
+                        ;
+                    } else {
+                        throw new IllegalArgumentException(String.format(
+                                "Conflicting %s creators: already had %s creator %s, encountered another: %s",
+                                TYPE_DESCS[typeIndex],
+                                explicit ? "explicitly marked"
+                                        : "implicitly discovered",
+                                oldOne, newOne));
+                    }
                 }
                 // otherwise, which one to choose?
-                if (newType.isAssignableFrom(oldType)) {
+                else if (newType.isAssignableFrom(oldType)) {
                     // new type more generic, use old
                     return;
                 }
@@ -327,25 +355,32 @@ public class CreatorCollector
         _creators[typeIndex] = _fixAccess(newOne);
     }
 
+    /**
+     * Helper method for recognizing `Enum.valueOf()` factory method
+     *
+     * @since 2.8.1
+     */
+    protected boolean _isEnumValueOf(AnnotatedWithParams creator) {
+        return creator.getDeclaringClass().isEnum()
+                && "valueOf".equals(creator.getName());
+    }
+
     /*
-    /**********************************************************
-    /* Helper class(es)
-    /**********************************************************
+     * /********************************************************** /* Helper
+     * class(es) /**********************************************************
      */
 
     /**
      * Replacement for default constructor to use for a small set of
      * "well-known" types.
-     *<p>
-     * Note: replaces earlier <code>Vanilla</code> <code>ValueInstantiator</code>
-     * implementation
+     * <p>
+     * Note: replaces earlier <code>Vanilla</code>
+     * <code>ValueInstantiator</code> implementation
      *
      * @since 2.8.1 (replacing earlier <code>Vanilla</code> instantiator
      */
-    protected final static class StdTypeConstructor
-        extends AnnotatedWithParams
-        implements java.io.Serializable
-    {
+    protected final static class StdTypeConstructor extends AnnotatedWithParams
+            implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
 
         public final static int TYPE_ARRAY_LIST = 1;
@@ -355,16 +390,15 @@ public class CreatorCollector
         private final AnnotatedWithParams _base;
 
         private final int _type;
-        
-        public StdTypeConstructor(AnnotatedWithParams base, int t)
-        {
+
+        public StdTypeConstructor(AnnotatedWithParams base, int t) {
             super(base, null);
             _base = base;
             _type = t;
         }
 
-        public static AnnotatedWithParams tryToOptimize(AnnotatedWithParams src)
-        {
+        public static AnnotatedWithParams tryToOptimize(
+                AnnotatedWithParams src) {
             if (src != null) {
                 final Class<?> rawType = src.getDeclaringClass();
                 if (rawType == List.class || rawType == ArrayList.class) {
@@ -379,17 +413,17 @@ public class CreatorCollector
             }
             return src;
         }
-        
+
         protected final Object _construct() {
             switch (_type) {
             case TYPE_ARRAY_LIST:
                 return new ArrayList<Object>();
             case TYPE_LINKED_HASH_MAP:
-                return new LinkedHashMap<String,Object>();
+                return new LinkedHashMap<String, Object>();
             case TYPE_HASH_MAP:
-                return new HashMap<String,Object>();
+                return new HashMap<String, Object>();
             }
-            throw new IllegalStateException("Unknown type "+_type);
+            throw new IllegalStateException("Unknown type " + _type);
         }
 
         @Override
@@ -439,12 +473,14 @@ public class CreatorCollector
         }
 
         @Override
-        public void setValue(Object pojo, Object value) throws UnsupportedOperationException, IllegalArgumentException {
+        public void setValue(Object pojo, Object value)
+                throws UnsupportedOperationException, IllegalArgumentException {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public Object getValue(Object pojo) throws UnsupportedOperationException, IllegalArgumentException {
+        public Object getValue(Object pojo)
+                throws UnsupportedOperationException, IllegalArgumentException {
             throw new UnsupportedOperationException();
         }
 

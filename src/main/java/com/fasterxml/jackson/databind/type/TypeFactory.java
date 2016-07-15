@@ -281,7 +281,7 @@ public final class TypeFactory
         Throwable prob = null;
         ClassLoader loader = this.getClassLoader();
         if (loader == null) {
-          loader = 	Thread.currentThread().getContextClassLoader();
+            loader = 	Thread.currentThread().getContextClassLoader();
         }
         if (loader != null) {
             try {
@@ -1013,7 +1013,7 @@ public final class TypeFactory
             JavaType superClass, JavaType[] superInterfaces)
     {
         JavaType kt, vt;
-        
+
         // 28-May-2015, tatu: Properties are special, as per [databind#810]; fake "correct" parameter sig
         if (rawClass == Properties.class) {
             kt = vt = CORE_TYPE_STRING;
@@ -1307,6 +1307,10 @@ public final class TypeFactory
     protected JavaType _fromWellKnownClass(ClassStack context, Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces)
     {
+        if (bindings == null) {
+            bindings = TypeBindings.emptyBindings();
+        }
+        
         // Quite simple when we resolving exact class/interface; start with that
         if (rawType == Map.class) {
             return _mapType(rawType, bindings, superClass, superInterfaces);

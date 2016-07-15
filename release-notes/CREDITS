@@ -509,3 +509,7 @@ Ari Fogel (arifogel@github)
 Andriy Plokhotnyuk (plokhotnyuk@github)
   * Requested #1277: Add caching of resolved generic types for `TypeFactory`
    (2.8.0)
+
+Arek Gabiga (arekgabiga@github)
+  * Reported #1297: Deserialization of generic type with Map.class
+   (2.8.1)

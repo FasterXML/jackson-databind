@@ -12,6 +12,8 @@ Project: jackson-databind
 #1289: Optimize construction of `ArrayList`, `LinkedHashMap` instances
 #1291: Backward-incompatible behaviour of 2.8: deserializing enum types
    with two static factory methods fail by default
+#1297: Deserialization of generic type with Map.class
+ (reported by Arek G)
 
 2.8.0 (04-Jul-2016)
 

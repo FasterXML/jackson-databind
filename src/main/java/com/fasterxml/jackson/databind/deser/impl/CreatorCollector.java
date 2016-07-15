@@ -441,8 +441,8 @@ public class CreatorCollector {
             return _base.getParameterType(index);
         }
 
-        @SuppressWarnings("deprecation")
         @Override
+        @Deprecated
         public Type getGenericParameterType(int index) {
             return _base.getGenericParameterType(index);
         }

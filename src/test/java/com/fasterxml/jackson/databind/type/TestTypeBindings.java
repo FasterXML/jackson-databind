@@ -29,14 +29,17 @@ public class TestTypeBindings
             }
         }
     }
-    
+
+    // for [databind#76]
+    @SuppressWarnings("serial")
+    static class HashTree<K, V> extends HashMap<K, HashTree<K, V>> { }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    // [JACKSON-677]
     public void testInnerType() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -48,5 +51,13 @@ public class TestTypeBindings
         assertEquals(Collection.class, valueType.getRawClass());
         JavaType vt2 = valueType.getContentType();
         assertEquals(Object.class, vt2.getRawClass());
+    }
+
+    // for [databind#76]
+    public void testRecursiveType()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType type = tf.constructType(HashTree.class);
+        assertNotNull(type);
     }
 }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.*;
 /**
  * Failing test related to [databind#609]
  */
-public class TestLocalType609 extends BaseMapTest
+public class TestLocalTypes extends BaseMapTest
 {
     static class EntityContainer {
         RuleForm entity;

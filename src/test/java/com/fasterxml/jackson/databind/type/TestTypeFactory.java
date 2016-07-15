@@ -70,7 +70,11 @@ public class TestTypeFactory
 
     static class CollectionLike<E> { }
     static class MapLike<K,V> { }
-    
+
+    static class Wrapper1297<T> {
+        public T content;
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -565,5 +569,14 @@ public class TestTypeFactory
         tf.clearCache();
         assertEquals(0, tf._typeCache.size());
     }
+
+    // for [databind#1297]
+    public void testRawMapType()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance().withModifier(null); // to get a new copy
+
+        JavaType type = tf.constructParametricType(Wrapper1297.class, Map.class);
+        assertNotNull(type);
+        assertEquals(Wrapper1297.class, type.getRawClass());
+    }
 }
-        

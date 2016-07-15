@@ -14,6 +14,8 @@ public class TestDOM extends com.fasterxml.jackson.databind.BaseMapTest
         "<root attr='3'><leaf>Rock &amp; Roll!</leaf><?proc instr?></root>";
     final static String SIMPLE_XML_NS =
         "<root ns:attr='abc' xmlns:ns='http://foo' />";
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testSerializeSimpleNonNS() throws Exception
     {
@@ -21,11 +23,10 @@ public class TestDOM extends com.fasterxml.jackson.databind.BaseMapTest
         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
             (new InputSource(new StringReader(SIMPLE_XML)));
         assertNotNull(doc);
-        ObjectMapper mapper = new ObjectMapper();
         // need to strip xml declaration, if any
-        String outputRaw = mapper.writeValueAsString(doc);
+        String outputRaw = MAPPER.writeValueAsString(doc);
         // And re-parse as String, since JSON has quotes...
-        String output = mapper.readValue(outputRaw, String.class);
+        String output = MAPPER.readValue(outputRaw, String.class);
         /* ... and finally, normalize to (close to) canonical XML
          * output (single vs double quotes, xml declaration etc)
          */
@@ -34,16 +35,15 @@ public class TestDOM extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testDeserializeNonNS() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         for (int i = 0; i < 2; ++i) {
             Document doc;
 
             if (i == 0) {
                 // First, as Document:
-                doc = mapper.readValue(quote(SIMPLE_XML), Document.class);
+                doc = MAPPER.readValue(quote(SIMPLE_XML), Document.class);
             } else {
                 // and then as plain Node (no difference)
-                Node node = mapper.readValue(quote(SIMPLE_XML), Node.class);
+                Node node = MAPPER.readValue(quote(SIMPLE_XML), Node.class);
                 doc = (Document) node;
             }
             Element root = doc.getDocumentElement();
@@ -66,8 +66,7 @@ public class TestDOM extends com.fasterxml.jackson.databind.BaseMapTest
     
     public void testDeserializeNS() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        Document doc = mapper.readValue(quote(SIMPLE_XML_NS), Document.class);
+        Document doc = MAPPER.readValue(quote(SIMPLE_XML_NS), Document.class);
         Element root = doc.getDocumentElement();
         assertNotNull(root);
         assertEquals("root", root.getTagName());
@@ -82,9 +81,9 @@ public class TestDOM extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     /*
-     **********************************************************
-     * Helper methods
-     **********************************************************
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
      */
 
     protected static String normalizeOutput(String output)

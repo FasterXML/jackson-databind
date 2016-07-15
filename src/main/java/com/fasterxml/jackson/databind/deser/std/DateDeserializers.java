@@ -306,7 +306,12 @@ public class DateDeserializers
         @Override
         public java.sql.Timestamp deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
-            return new Timestamp(_parseDate(jp, ctxt).getTime());
+            Date d = _parseDate(jp, ctxt);
+            if (d == null){
+                return null;
+            }else{
+                return new Timestamp(_parseDate(jp, ctxt).getTime());
+            }
         }
     }
 }

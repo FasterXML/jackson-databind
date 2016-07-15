@@ -310,7 +310,7 @@ public class DateDeserializers
             if (d == null){
                 return null;
             }else{
-                return new Timestamp(_parseDate(jp, ctxt).getTime());
+                return new Timestamp(d.getTime());
             }
         }
     }

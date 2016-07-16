@@ -14,6 +14,7 @@ Project: jackson-databind
    with two static factory methods fail by default
 #1297: Deserialization of generic type with Map.class
  (reported by Arek G)
+#1302: NPE for `ResolvedRecursiveType` in 2.8.0 due to caching
 
 2.8.0 (04-Jul-2016)
 

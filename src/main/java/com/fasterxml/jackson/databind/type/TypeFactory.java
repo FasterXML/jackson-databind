@@ -1269,6 +1269,8 @@ public final class TypeFactory
             }
         }
         context.resolveSelfReferences(result);
+        // 16-Jul-2016, tatu: [databind#1302] is solved different way, but ideally we shouldn't
+        //     cache anything with partially resolved `ResolvedRecursiveType`... so maybe improve
         if (!result.hasHandlers()) {
             _typeCache.putIfAbsent(key, result); // cache object syncs
         }

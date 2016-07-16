@@ -128,7 +128,7 @@ public class SimpleType // note: until 2.6 was final
         // Should we check that there is a sub-class relationship?
         // 15-Jan-2016, tatu: Almost yes, but there are some complications with
         //    placeholder values (`Void`, `NoClass`), so can not quite do yet.
-        // TODO: fix in 2.8
+        // TODO: fix in 2.9
         if (!_class.isAssignableFrom(subclass)) {
             /*
             throw new IllegalArgumentException("Class "+subclass.getName()+" not sub-type of "

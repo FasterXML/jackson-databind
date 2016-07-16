@@ -98,8 +98,11 @@ public class ResolvedRecursiveType extends TypeBase
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) return false;
-
-        return ((ResolvedRecursiveType) o).getSelfReferencedType().equals(getSelfReferencedType());
+        // Do NOT ever match unresolved references
+        if (_referencedType == null) {
+            return false;
+        }
+        return (o.getClass() == getClass()
+                && _referencedType.equals(((ResolvedRecursiveType) o).getSelfReferencedType()));
     }
 }

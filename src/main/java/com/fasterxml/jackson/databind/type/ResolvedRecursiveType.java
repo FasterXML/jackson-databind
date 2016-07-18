@@ -87,11 +87,16 @@ public class ResolvedRecursiveType extends TypeBase
 
     @Override
     public String toString() {
-        return new StringBuilder(40)
-        .append("[resolved recursive type -> ")
-        .append(_referencedType)
-        .append(']')
-        .toString();
+        StringBuilder sb = new StringBuilder(40)
+                .append("[recursive type; ");
+        if (_referencedType == null) {
+            sb.append("UNRESOLVED");
+        } else {
+            // [databind#1301]: Typically resolves to a loop so short-cut
+            //   and only include type-erased class
+            sb.append(_referencedType.getRawClass().getName());
+        }
+        return sb.toString();
     }
 
     @Override

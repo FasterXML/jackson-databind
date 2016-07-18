@@ -463,3 +463,7 @@ Andrew Joseph (apjoseph@github)
 Erich Schubert (kno10@github)
   * Reported #1260: `NullPointerException` in `JsonNodeDeserializer`, provided fix
    (2.7.5)
+
+Brian Pontarelli (voidmain@github)
+  * Reported #1301: Problem with `JavaType.toString()` for recursive (self-referential) types
+   (2.7.6)

@@ -4,9 +4,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 
-// for [databind#938]
-public class RecursiveType938Test extends BaseMapTest
+public class RecursiveTypeTest extends BaseMapTest
 {
+    // for [databind#1301]
+    @SuppressWarnings("serial")
+    static class HashTree<K, V> extends HashMap<K, HashTree<K, V>> { }
+
+ // for [databind#938]
     public static interface Ability<T> { }
 
     public static final class ImmutablePair<L, R> implements Map.Entry<L, R>, Ability<ImmutablePair<L, R>> {
@@ -38,8 +42,27 @@ public class RecursiveType938Test extends BaseMapTest
         }
     }
 
+    // for [databind#1301]
+    public void testRecursiveType()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType type = tf.constructType(HashTree.class);
+        assertNotNull(type);
+    }
+    
+    // for [databind#1301]
+    @SuppressWarnings("serial")
+    static class DataDefinition extends HashMap<String, DataDefinition> {
+        public DataDefinition definition;
+        public DataDefinition elements;
+        public String regex;
+        public boolean required;
+        public String type;
+    }
+    
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    // [databind#938]
     public void testRecursivePair() throws Exception
     {
         JavaType t = MAPPER.constructType(ImmutablePair.class);
@@ -54,5 +77,20 @@ public class RecursiveType938Test extends BaseMapTest
         assertNotNull(json);
 
         // can not deserialize with current definition, however
+    }
+
+    // for [databind#1301]
+    public void testJavaTypeToString() throws Exception
+    {
+        TypeFactory tf = objectMapper().getTypeFactory();
+        String desc = tf.constructType(DataDefinition.class).toString();
+        assertNotNull(desc);
+        // could try comparing exact message, but since it's informational try looser:
+        if (!desc.contains("map type")) {
+            fail("Description should contain 'map type', did not: "+desc);
+        }
+        if (!desc.contains("recursive type")) {
+            fail("Description should contain 'recursive type', did not: "+desc);
+        }
     }
 }

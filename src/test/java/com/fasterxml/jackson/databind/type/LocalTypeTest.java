@@ -2,11 +2,9 @@ package com.fasterxml.jackson.databind.type;
 
 import com.fasterxml.jackson.databind.*;
 
-/**
- * Failing test related to [databind#609]
- */
-public class TestLocalTypes extends BaseMapTest
+public class LocalTypeTest extends BaseMapTest
 {
+    // [databind#609]
     static class EntityContainer {
         RuleForm entity;
         
@@ -22,6 +20,7 @@ public class TestLocalTypes extends BaseMapTest
         public RuleForm(int v) { value = v; }
     }
 
+    // [databind#609]
     public void testLocalPartialType609() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         

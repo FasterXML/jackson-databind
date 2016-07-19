@@ -9,12 +9,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class TestAbstractTypes extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes; simple beans and their handlers
-    /**********************************************************
-     */
-
     static class MyString implements CharSequence
     {
         protected String value;
@@ -34,10 +28,10 @@ public class TestAbstractTypes extends BaseMapTest
         @Override
         public CharSequence subSequence(int arg0, int arg1) { return this; }
     }
-    
+
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 

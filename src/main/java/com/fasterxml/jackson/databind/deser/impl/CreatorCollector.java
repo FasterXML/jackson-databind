@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
@@ -34,6 +35,26 @@ public final class TypeWrappedDeserializer
     @Override
     public Class<?> handledType() {
         return _deserializer.handledType();
+    }
+
+    @Override
+    public JsonDeserializer<?> getDelegatee() {
+        return _deserializer.getDelegatee();
+    }
+
+    @Override
+    public Collection<Object> getKnownPropertyNames() {
+        return _deserializer.getKnownPropertyNames();
+    }
+
+    @Override
+    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _deserializer.getNullValue(ctxt);
+    }
+
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _deserializer.getEmptyValue(ctxt);
     }
     
     @Override

@@ -250,4 +250,16 @@ public class TestJDKAtomicTypes
                 LCStringWrapper.class);
         assertEquals("foobar", w.value.get());
     }
+
+    // [databind#1307]
+    @SuppressWarnings("unchecked")
+    public void testNullValueHandling() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        AtomicReference<Double> inputData = new AtomicReference<Double>();
+        String json = mapper.writeValueAsString(inputData);
+        AtomicReference<Double> readData = (AtomicReference<Double>) mapper.readValue(json, AtomicReference.class);
+        assertNotNull(readData);
+        assertNull(readData.get());
+    }
 }

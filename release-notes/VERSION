@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.6 (not yet released)
+2.7.6 (23-Jul-2016)
 
 #1215: Problem with type specialization for Maps with `@JsonDeserialize(as=subtype)`
  (reported by brentryan@github)

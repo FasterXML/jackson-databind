@@ -334,14 +334,4 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(5, impl.b);
         assertEquals(9, impl.def);
     }
-
-    // [databind#1311]
-    public void testSubtypeAssignmentCheck() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerSubtypes(Factory1311ImplA.class, Factory1311ImplB.class);
-        Factory1311ImplB result = mapper.readValue("{\"type\":\"implB\"}", Factory1311ImplB.class);
-        assertNotNull(result);
-        assertEquals(Factory1311ImplB.class, result.getClass());
-    }
 }

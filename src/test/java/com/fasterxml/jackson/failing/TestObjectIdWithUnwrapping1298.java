@@ -15,7 +15,6 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
     private static Long nextId = 1L;
 
     public static final class ListOfParents{
-        @JsonUnwrapped
         public List<Parent> parents = new ArrayList<>();
 
         public void addParent( Parent parent) { parents.add(parent);}
@@ -31,12 +30,11 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Child.class)
-    public static final class Child {
-
+    public static final class Child
+    {
         public Long id;
 
-        @JsonProperty
-        private final String name;
+        public final String name;
 
         public Child(@JsonProperty("name") String name) {
             this.name = name;
@@ -76,10 +74,10 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 //                .writerWithDefaultPrettyPrinter()
                 .writeValue(sw, parents);
         } catch (Exception e) {
-            System.out.println("Failed output so far: " + json);
+            System.out.println("Failed output so far: " + sw);
             throw e;
         }
 
-//        System.out.println("Also works: " + sw);
+        System.out.println("Also works: " + sw);
     }
 }

@@ -133,7 +133,17 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     		def = def0;
     	}
     }
-    
+
+    // [databind#1311]
+    @JsonTypeInfo(property = "type", use = JsonTypeInfo.Id.NAME, defaultImpl = Factory1311ImplA.class)
+    interface Factory1311 { }
+
+    @JsonTypeName("implA")
+    static class Factory1311ImplA implements Factory1311 { }
+
+    @JsonTypeName("implB")
+    static class Factory1311ImplB implements Factory1311 { }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -141,8 +151,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
-    // JACKSON-510
+
     public void testPropertyWithSubtypes() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -324,5 +333,15 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(3, impl.a);
         assertEquals(5, impl.b);
         assertEquals(9, impl.def);
+    }
+
+    // [databind#1311]
+    public void testSubtypeAssignmentCheck() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerSubtypes(Factory1311ImplA.class, Factory1311ImplB.class);
+        Factory1311ImplB result = mapper.readValue("{\"type\":\"implB\"}", Factory1311ImplB.class);
+        assertNotNull(result);
+        assertEquals(Factory1311ImplB.class, result.getClass());
     }
 }

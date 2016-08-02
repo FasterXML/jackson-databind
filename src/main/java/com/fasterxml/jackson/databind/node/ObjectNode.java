@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.util.RawValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -756,6 +757,16 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, BigDecimal v) {
+        return _put(fieldName, (v == null) ? nullNode()
+                : numberNode(v));
+    }
+
+    /**
+     * Method for setting value of a field to specified numeric value.
+     * 
+     * @return This node (to allow chaining)
+     */
+    public ObjectNode put(String fieldName, BigInteger v) {
         return _put(fieldName, (v == null) ? nullNode()
                 : numberNode(v));
     }

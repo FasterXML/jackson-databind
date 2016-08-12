@@ -136,7 +136,7 @@ public class EnumDeserializer
                         "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
                         );
             }
-            if (index >= 0 && index <= _enumsByIndex.length) {
+            if (index >= 0 && index < _enumsByIndex.length) {
                 return _enumsByIndex[index];
             }
             if ((_enumDefaultValue != null)

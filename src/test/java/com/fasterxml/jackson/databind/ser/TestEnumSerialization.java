@@ -61,7 +61,7 @@ public class TestEnumSerialization
         @JsonValue
         public String external() { return "value:"+name; }
     }
-    
+
     protected static interface ToStringMixin {
         @Override
         @JsonValue public String toString();
@@ -215,6 +215,12 @@ public class TestEnumSerialization
         public String toString() { return name().toLowerCase(); }
     }
 
+    // for [databind#1322]
+    protected enum EnumWithJsonProperty {
+        @JsonProperty("aleph")
+        A;
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -254,8 +260,7 @@ public class TestEnumSerialization
         assertEquals("\"B\"", MAPPER.writeValueAsString(EnumWithSubClass.B));
     }
 
-    public void testEnumsWithJsonValue() throws Exception
-    {
+    public void testEnumsWithJsonValue() throws Exception {
         assertEquals("\"value:bar\"", MAPPER.writeValueAsString(EnumWithJsonValue.B));
     }
 
@@ -414,6 +419,18 @@ public class TestEnumSerialization
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"a\":\"value\"}", w.writeValueAsString(m));
+    }
+
+    // [databind#1322]
+    public void testEnumsWithJsonProperty() throws Exception {
+        assertEquals(quote("aleph"), MAPPER.writeValueAsString(EnumWithJsonProperty.A));
+    }
+
+    // [databind#1322]
+    public void testEnumsWithJsonPropertyInSet() throws Exception
+    {
+        assertEquals("[\"aleph\"]",
+                MAPPER.writeValueAsString(EnumSet.of(EnumWithJsonProperty.A)));
     }
 }
 

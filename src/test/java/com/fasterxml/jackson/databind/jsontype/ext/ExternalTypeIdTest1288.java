@@ -1,21 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype.ext;
 
-import java.io.IOException;
 import java.util.UUID;
-
-import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
-import com.fasterxml.jackson.core.JsonParseException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeIdTest1288.ClassesWithBuilder.PaymentMean;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 @SuppressWarnings("hiding")

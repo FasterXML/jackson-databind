@@ -273,16 +273,11 @@ public abstract class TypeDeserializerBase
             TypeIdResolver idResolver, JavaType baseType)
         throws IOException
     {
-        String extraDesc;
-        if (idResolver instanceof TypeIdResolverBase) {
-            extraDesc = ((TypeIdResolverBase) idResolver).getDescForKnownTypeIds();
-            if (extraDesc == null) {
-                extraDesc = "known type ids are not statically known";
-            } else {
-                extraDesc = "known type ids = " + extraDesc;
-            }
+        String extraDesc = idResolver.getDescForKnownTypeIds();
+        if (extraDesc == null) {
+            extraDesc = "known type ids are not statically known";
         } else {
-            extraDesc = null;
+            extraDesc = "known type ids = " + extraDesc;
         }
         return ctxt.handleUnknownTypeId(_baseType, typeId, idResolver, extraDesc);
     }

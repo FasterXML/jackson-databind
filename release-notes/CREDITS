@@ -517,3 +517,7 @@ Andriy Plokhotnyuk (plokhotnyuk@github)
 Arek Gabiga (arekgabiga@github)
   * Reported #1297: Deserialization of generic type with Map.class
    (2.8.1)
+
+Chris Jester-Young (cky@github)
+  * Contributed #1335: Unconditionally call `TypeIdResolver.getDescForKnownTypeIds`
+   (2.8.2)

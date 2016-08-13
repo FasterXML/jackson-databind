@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.2 (not yet released)
+
+#1335: Unconditionally call `TypeIdResolver.getDescForKnownTypeIds`
+ (contributed by Chris J-Y)
+
 2.8.1 (20-Jul-2016)
 
 #1256: `Optional.empty()` not excluded if property declared with type `Object`

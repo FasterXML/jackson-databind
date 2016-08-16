@@ -467,3 +467,7 @@ Erich Schubert (kno10@github)
 Brian Pontarelli (voidmain@github)
   * Reported #1301: Problem with `JavaType.toString()` for recursive (self-referential) types
    (2.7.6)
+
+Max Drobotov (fizmax@github)
+  * Reported, contributed fix for #1332: `ArrayIndexOutOfBoundException` for enum by index deser
+   (2.7.7)

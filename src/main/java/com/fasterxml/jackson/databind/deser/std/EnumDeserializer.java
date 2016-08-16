@@ -104,7 +104,7 @@ public class EnumDeserializer
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                 _failOnNumber(ctxt, p, index);
             }
-            if (index >= 0 && index <= _enumsByIndex.length) {
+            if (index >= 0 && index < _enumsByIndex.length) {
                 return _enumsByIndex[index];
             }
             if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
@@ -139,7 +139,7 @@ public class EnumDeserializer
                     if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                         _failOnNumber(ctxt, p, ix);
                     }
-                    if (ix >= 0 && ix <= _enumsByIndex.length) {
+                    if (ix >= 0 && ix < _enumsByIndex.length) {
                         return _enumsByIndex[ix];
                     }
                 } catch (NumberFormatException e) {

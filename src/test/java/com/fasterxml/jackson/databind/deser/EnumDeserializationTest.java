@@ -458,11 +458,35 @@ public class EnumDeserializationTest
         assertSame(EnumWithDefaultAnno.OTHER, myEnum);
     }
 
-    public void testEnumWithDefaultAnnotationUsingIndexes() throws Exception {
+    public void testEnumWithDefaultAnnotationUsingIndexInBound1() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
 
-        EnumWithDefaultAnno myEnum = mapper.readValue("9", EnumWithDefaultAnno.class);
+        EnumWithDefaultAnno myEnum = mapper.readValue("1", EnumWithDefaultAnno.class);
+        assertSame(EnumWithDefaultAnno.B, myEnum);
+    }
+
+    public void testEnumWithDefaultAnnotationUsingIndexInBound2() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+
+        EnumWithDefaultAnno myEnum = mapper.readValue("2", EnumWithDefaultAnno.class);
+        assertSame(EnumWithDefaultAnno.OTHER, myEnum);
+    }
+
+    public void testEnumWithDefaultAnnotationUsingIndexSameAsLength() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+
+        EnumWithDefaultAnno myEnum = mapper.readValue("3", EnumWithDefaultAnno.class);
+        assertSame(EnumWithDefaultAnno.OTHER, myEnum);
+    }
+
+    public void testEnumWithDefaultAnnotationUsingIndexOutOfBound() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+
+        EnumWithDefaultAnno myEnum = mapper.readValue("4", EnumWithDefaultAnno.class);
         assertSame(EnumWithDefaultAnno.OTHER, myEnum);
     }
 

@@ -472,6 +472,10 @@ Brian Pontarelli (voidmain@github)
   * Reported #1301: Problem with `JavaType.toString()` for recursive (self-referential) types
    (2.7.6)
 
+Max Drobotov (fizmax@github)
+  * Reported, contributed fix for #1332: `ArrayIndexOutOfBoundException` for enum by index deser
+   (2.7.7)
+
 Artur Jonkisz (ajonkisz@github)
   * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type
    (2.8.0)
@@ -521,3 +525,4 @@ Arek Gabiga (arekgabiga@github)
 Chris Jester-Young (cky@github)
   * Contributed #1335: Unconditionally call `TypeIdResolver.getDescForKnownTypeIds`
    (2.8.2)
+

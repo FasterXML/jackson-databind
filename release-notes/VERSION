@@ -75,6 +75,8 @@ Project: jackson-databind
 
 #1322: EnumMap keys not using enum's `@JsonProperty` values unlike Enum values
  (reported by MichaelChambers@github)
+#1332: Fixed ArrayIndexOutOfBoundException for enum by index deser
+ (reported by Max D)
 
 2.7.6 (23-Jul-2016)
 

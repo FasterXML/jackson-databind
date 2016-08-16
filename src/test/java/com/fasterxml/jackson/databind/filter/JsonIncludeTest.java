@@ -126,7 +126,7 @@ public class JsonIncludeTest
 
         public Map<String,String> map = Collections.emptyMap();
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

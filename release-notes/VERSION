@@ -71,6 +71,11 @@ Project: jackson-databind
 #1277: Add caching of resolved generic types for `TypeFactory`
  (requested by Andriy P)
 
+2.7.7 (not yet released)
+
+#1322: EnumMap keys not using enum's `@JsonProperty` values unlike Enum values
+ (reported by MichaelChambers@github)
+
 2.7.6 (23-Jul-2016)
 
 #1215: Problem with type specialization for Maps with `@JsonDeserialize(as=subtype)`

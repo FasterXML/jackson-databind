@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import com.fasterxml.jackson.databind.util.EnumValues;
 
 @SuppressWarnings("serial")
 public class StdKeySerializers
@@ -71,6 +72,7 @@ public class StdKeySerializers
      *
      * @since 2.7
      */
+    @SuppressWarnings("unchecked")
     public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
             Class<?> rawKeyType)
     {
@@ -85,7 +87,8 @@ public class StdKeySerializers
                 return new Dynamic();
             }
             if (rawKeyType.isEnum()) {
-                return new Default(Default.TYPE_ENUM, rawKeyType);
+                return EnumKeySerializer.construct(rawKeyType,
+                        EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType));
             }
         }
         return DEFAULT_KEY_SERIALIZER;
@@ -215,6 +218,39 @@ public class StdKeySerializers
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
             g.writeFieldName((String) value);
+        }
+    }
+
+    /**
+     * Specialized instance to use for Enum keys, as per [databind#1322]
+     *
+     * @since 2.8
+     */
+    public static class EnumKeySerializer extends StdSerializer<Object>
+    {
+        protected final EnumValues _values;
+
+        protected EnumKeySerializer(Class<?> enumType, EnumValues values) {
+            super(enumType, false);
+            _values = values;
+        }
+
+        public static EnumKeySerializer construct(Class<?> enumType,
+                EnumValues enumValues)
+        {
+            return new EnumKeySerializer(enumType, enumValues);
+        }
+        
+        @Override
+        public void serialize(Object value, JsonGenerator g, SerializerProvider serializers)
+                throws IOException
+        {
+            if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                g.writeFieldName(value.toString());
+                return;
+            }
+            Enum<?> en = (Enum<?>) value;
+            g.writeFieldName(_values.serializedValueFor(en));
         }
     }
 }

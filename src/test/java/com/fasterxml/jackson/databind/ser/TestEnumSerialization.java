@@ -432,6 +432,14 @@ public class TestEnumSerialization
         assertEquals("[\"aleph\"]",
                 MAPPER.writeValueAsString(EnumSet.of(EnumWithJsonProperty.A)));
     }
+
+    // [databind#1322]
+    public void testEnumsWithJsonPropertyAsKey() throws Exception
+    {
+        EnumMap<EnumWithJsonProperty,String> input = new EnumMap<EnumWithJsonProperty,String>(EnumWithJsonProperty.class);
+        input.put(EnumWithJsonProperty.A, "b");
+        assertEquals("{\"aleph\":\"b\"}", MAPPER.writeValueAsString(input));
+    }
 }
 
 // [JACKSON-757], non-inner enum

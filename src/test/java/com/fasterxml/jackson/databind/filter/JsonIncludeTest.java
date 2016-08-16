@@ -118,7 +118,13 @@ public class JsonIncludeTest
 
         public NonEmptyDouble(double v) { value = v; }
     }
-    
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public static class Issues1327Bean {
+        public String myString = "stuff";
+        public List<String> myList = new ArrayList<String>();
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -230,5 +236,17 @@ public class JsonIncludeTest
         IntWrapper zero = new IntWrapper(0);
         assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
         assertEquals("{\"i\":0}", inclMapper.writeValueAsString(zero));
+    }
+
+    public void testIssue1327() throws Exception {
+        ObjectMapper om = new ObjectMapper();
+        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        final Issues1327Bean input = new Issues1327Bean();
+        final String jsonString = om.writeValueAsString(input);
+
+        if (jsonString.contains("myList")) {
+            fail("Should not contain `myList`: "+jsonString);
+        }
     }
 }

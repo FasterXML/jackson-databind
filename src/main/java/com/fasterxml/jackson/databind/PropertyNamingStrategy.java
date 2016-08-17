@@ -422,7 +422,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class LowerCaseWithUnderscoresStrategy extends SnakeCaseStrategy {}
 
     /**
-     * @deprecated In 2.7 use {@link SnakeCaseStrategy} instead
+     * @deprecated In 2.7 use {@link UpperCamelCaseStrategy} instead
      */
     @Deprecated
     public static class PascalCaseStrategy extends UpperCamelCaseStrategy {}

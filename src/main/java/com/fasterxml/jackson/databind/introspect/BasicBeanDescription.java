@@ -391,7 +391,8 @@ public class BasicBeanDescription extends BeanDescription
         if (_annotationIntrospector != null) {
             JsonInclude.Value incl = _annotationIntrospector.findPropertyInclusion(_classInfo);
             if (incl != null) {
-                return defValue.withOverrides(incl);
+                return (defValue == null) ? incl
+                        : defValue.withOverrides(incl);
             }
         }
         return defValue;

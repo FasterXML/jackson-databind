@@ -44,6 +44,8 @@ public class PropertyBuilder
     {
         _config = config;
         _beanDesc = beanDesc;
+        // NOTE: this includes global defaults and defaults of POJO that contains property,
+        // but not defaults for types of properties referenced
         _defaultInclusion = beanDesc.findPropertyInclusion(
                 config.getDefaultPropertyInclusion(beanDesc.getBeanClass()));
         _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -97,14 +99,23 @@ public class PropertyBuilder
         Object valueToSuppress = null;
         boolean suppressNulls = false;
 
-        JsonInclude.Value inclV = _defaultInclusion.withOverrides(propDef.findInclusion());
+        // 12-Jul-2016, tatu: [databind#1256] Need to make sure we consider type refinement
+        JavaType actualType = (serializationType == null) ? declaredType : serializationType;
+        
+        // 17-Aug-2016, tatu: Default inclusion covers global default (for all types), as well
+        //   as type-default for enclosing POJO. What we need, then, is per-type default (if any)
+        //   for declared property type... and finally property annotation overrides
+        JsonInclude.Value inclV = _config.getDefaultPropertyInclusion(actualType.getRawClass(),
+                _defaultInclusion);
+
+        // property annotation override
+        
+        inclV = inclV.withOverrides(propDef.findInclusion());
         JsonInclude.Include inclusion = inclV.getValueInclusion();
+
         if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // should not occur but...
             inclusion = JsonInclude.Include.ALWAYS;
         }
-
-        // 12-Jul-2016, tatu: [databind#1256] Need to make sure we consider type refinement
-        JavaType actualType = (serializationType == null) ? declaredType : serializationType;
         
         switch (inclusion) {
         case NON_DEFAULT:

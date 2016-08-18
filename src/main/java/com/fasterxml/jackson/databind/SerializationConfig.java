@@ -899,6 +899,20 @@ public final class SerializationConfig
         return _serializationInclusion;
     }
 
+    @Override
+    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
+            JsonInclude.Value defaultIncl)
+    {
+        ConfigOverride overrides = findConfigOverride(baseType);
+        if (overrides != null) {
+            JsonInclude.Value v = overrides.getInclude();
+            if (v != null) {
+                return v;
+            }
+        }
+        return defaultIncl;
+    }
+
     /*
     /**********************************************************
     /* Configuration: other

@@ -230,6 +230,8 @@ public abstract class BeanPropertyDefinition
     /**
      * Method used to check if this property has specific inclusion override
      * associated with it or not.
+     * It should NOT check for any default settings (global, per-type, or
+     * containing POJO settings)
      * 
      * @since 2.5
      */

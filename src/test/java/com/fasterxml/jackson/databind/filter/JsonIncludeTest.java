@@ -249,13 +249,12 @@ public class JsonIncludeTest
         ObjectMapper mapper;
 
         // and then change inclusion criteria for either
-
         mapper = new ObjectMapper();
         mapper.configOverride(Map.class)
             .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
         assertEquals(aposToQuotes("{'list':[]}"),
                 mapper.writeValueAsString(empty));
-        
+
         mapper = new ObjectMapper();
         mapper.configOverride(List.class)
             .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));

@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
+/**
+ * Test for [databind#1035], wherein key type of a `Map` not used with `@JsonAnySetter`
+ * (value type is).
+ */
 public class AnySetter1035Test extends BaseMapTest
 {
     static class MyGeneric<T>
@@ -63,7 +67,9 @@ public class AnySetter1035Test extends BaseMapTest
         Map<Integer, Integer> integerGenericMap = new HashMap<Integer, Integer>();
         integerGenericMap.put(111, 6);
 
-        MyWrapper deserialized = mapper.readValue("{\"myStringGeneric\":{\"staticallyMappedProperty\":\"Test\",\"testStringKey\":5},\"myIntegerGeneric\":{\"staticallyMappedProperty\":\"Test2\",\"111\":6}}", MyWrapper.class);
+        MyWrapper deserialized = mapper.readValue(aposToQuotes(
+                "{'myStringGeneric':{'staticallyMappedProperty':'Test','testStringKey':5},'myIntegerGeneric':{'staticallyMappedProperty':'Test2','111':6}}"
+                ), MyWrapper.class);
         MyGeneric<String> stringGeneric = deserialized.getMyStringGeneric();
         MyGeneric<Integer> integerGeneric = deserialized.getMyIntegerGeneric();
 

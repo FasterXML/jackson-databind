@@ -16,9 +16,14 @@ public class JsonInclude1327Test
     extends BaseMapTest
 {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    public static class Issues1327Bean {
+    static class Issue1327BeanEmpty {
         public String myString = "stuff";
         public List<String> myList = new ArrayList<String>();
+    }
+
+    static class Issue1327BeanAlways {
+        @JsonInclude(JsonInclude.Include.ALWAYS)
+        public List<String> strings = new ArrayList<String>();
     }
 
     /*
@@ -28,15 +33,25 @@ public class JsonInclude1327Test
      */
 
     // for [databind#1327]
-    public void testIssue1327() throws Exception {
+    public void testClassDefaultsForEmpty() throws Exception {
         ObjectMapper om = new ObjectMapper();
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        final Issues1327Bean input = new Issues1327Bean();
-        final String jsonString = om.writeValueAsString(input);
+        final String jsonString = om.writeValueAsString(new Issue1327BeanEmpty());
 
         if (jsonString.contains("myList")) {
             fail("Should not contain `myList`: "+jsonString);
+        }
+    }
+
+    public void testClassDefaultsForAlways() throws Exception {
+        ObjectMapper om = new ObjectMapper();
+        om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+        final String jsonString = om.writeValueAsString(new Issue1327BeanAlways());
+
+        if (!jsonString.contains("myList")) {
+            fail("Should contain `myList` with Include.ALWAYS: "+jsonString);
         }
     }
 }

@@ -295,7 +295,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is enabled by default.
      *
      * @deprecated Since 2.8 there are better mechanism for specifying filtering; specifically
-     *   using {@link com.fasterxml.jackson.annotation.JsonFormat} or configuration overrides.
+     *   using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides.
      */
     @Deprecated // since 2.8
     WRITE_EMPTY_JSON_ARRAYS(true),

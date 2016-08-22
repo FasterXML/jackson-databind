@@ -526,3 +526,6 @@ Chris Jester-Young (cky@github)
   * Contributed #1335: Unconditionally call `TypeIdResolver.getDescForKnownTypeIds`
    (2.8.2)
 
+Andrew Snare (asnare@github)
+  * Reported #1315: Binding numeric values can BigDecimal lose precision
+   (2.8.2)

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -372,11 +371,14 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             // 20-May-2016, tatu: As per [databind#1028], need to be careful
             //   (note: JDK 1.8 would have `Double.isFinite()`)
+            // 21-Aug-2016, tatu: Not optimal, really, because this may result in
+            //   value getting parsed twice. But has to do for now, to resolve
+            //  [databind#1315]
             double d = p.getDoubleValue();
             if (Double.isInfinite(d) || Double.isNaN(d)) {
                 return nodeFactory.numberNode(d);
             }
-            return nodeFactory.numberNode(BigDecimal.valueOf(d));
+            return nodeFactory.numberNode(p.getDecimalValue());
         }
         return nodeFactory.numberNode(p.getDoubleValue());
     }

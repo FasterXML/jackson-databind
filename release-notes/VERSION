@@ -6,6 +6,10 @@ Project: jackson-databind
 
 2.8.2 (not yet released)
 
+#1315: Binding numeric values can BigDecimal lose precision
+ (reported by Andrew S)
+#1327: Class level `@JsonInclude(JsonInclude.Include.NON_EMPTY)` is ignored
+ (reported by elruwen@github)
 #1335: Unconditionally call `TypeIdResolver.getDescForKnownTypeIds`
  (contributed by Chris J-Y)
 

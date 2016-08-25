@@ -68,7 +68,7 @@ public class TestJdkTypes extends BaseMapTest
         }
     }
 
-    // [Issue#429]
+    // [databind#429]
     static class StackTraceBean {
         public final static int NUM = 13;
 
@@ -145,6 +145,9 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
         assertEquals(new Locale("FI", "fi", "savo"),
                 MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
+        assertEquals(new Locale("en", "US"),
+                MAPPER.readValue(quote("en-US"), Locale.class));
+
         // [databind#1123]
         Locale loc = MAPPER.readValue(quote(""), Locale.class);
         assertSame(Locale.ROOT, loc);

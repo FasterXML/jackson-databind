@@ -167,7 +167,7 @@ public class ExternalTypeHandler
                 SettableBeanProperty prop = _properties[i].getProperty();
 
                 if(prop.isRequired() ||
-                        ctxt.isEnabled(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY)) {
+                        ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
                     ctxt.reportMappingException("Missing property '%s' for external type id '%s'",
                             prop.getName(), _properties[i].getTypePropertyName());
                 }

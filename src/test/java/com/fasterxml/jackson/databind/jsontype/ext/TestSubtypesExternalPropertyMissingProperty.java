@@ -1,26 +1,23 @@
-package com.fasterxml.jackson.databind.jsontype;
+package com.fasterxml.jackson.databind.jsontype.ext;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.*;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-public class TestSubtypesExternalPropertyMissingProperty {
+// for [databind#1341]
+public class TestSubtypesExternalPropertyMissingProperty
+{
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -131,11 +128,11 @@ public class TestSubtypesExternalPropertyMissingProperty {
      */
     @Test
     public void testDeserializationPresent() throws Exception {
-        MAPPER.disable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBox();
         checkAppleBox();
 
-        MAPPER.enable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBox();
         checkAppleBox();
     }
@@ -145,11 +142,11 @@ public class TestSubtypesExternalPropertyMissingProperty {
      */
     @Test
     public void testDeserializationNull() throws Exception {
-        MAPPER.disable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxNull(orangeBoxNullJson);
         checkAppleBoxNull(appleBoxNullJson);
 
-        MAPPER.enable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxNull(orangeBoxNullJson);
         checkAppleBoxNull(appleBoxNullJson);
     }
@@ -159,11 +156,11 @@ public class TestSubtypesExternalPropertyMissingProperty {
      */
     @Test
     public void testDeserializationEmpty() throws Exception {
-        MAPPER.disable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxEmpty(orangeBoxEmptyJson);
         checkAppleBoxEmpty(appleBoxEmptyJson);
 
-        MAPPER.enable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxEmpty(orangeBoxEmptyJson);
         checkAppleBoxEmpty(appleBoxEmptyJson);
     }
@@ -173,11 +170,11 @@ public class TestSubtypesExternalPropertyMissingProperty {
      */
     @Test
     public void testDeserializationMissing() throws Exception {
-        MAPPER.disable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkOrangeBoxNull(orangeBoxMissingJson);
         checkAppleBoxNull(appleBoxMissingJson);
 
-        MAPPER.enable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkBoxJsonMappingException(orangeBoxMissingJson);
         checkBoxJsonMappingException(appleBoxMissingJson);
     }
@@ -187,11 +184,11 @@ public class TestSubtypesExternalPropertyMissingProperty {
      */
     @Test
     public void testDeserializationMissingRequired() throws Exception {
-        MAPPER.disable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkReqBoxJsonMappingException(orangeBoxMissingJson);
         checkReqBoxJsonMappingException(appleBoxMissingJson);
 
-        MAPPER.enable(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY);
+        MAPPER.enable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY);
         checkReqBoxJsonMappingException(orangeBoxMissingJson);
         checkReqBoxJsonMappingException(appleBoxMissingJson);
     }

@@ -256,7 +256,7 @@ public enum DeserializationFeature implements ConfigFeature
      *
      * @since 2.9
      */
-    FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY(true),
+    FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY(true),
 
     /**
      * Feature that determines whether Jackson code should catch

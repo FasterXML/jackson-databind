@@ -228,13 +228,13 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 return Pattern.compile(value);
             case STD_LOCALE:
                 {
-                    int ix = value.indexOf('_');
+                    int ix = _firstHyphenOrUnderscore(value);
                     if (ix < 0) { // single argument
                         return new Locale(value);
                     }
                     String first = value.substring(0, ix);
                     value = value.substring(ix+1);
-                    ix = value.indexOf('_');
+                    ix = _firstHyphenOrUnderscore(value);
                     if (ix < 0) { // two pieces
                         return new Locale(first, value);
                     }
@@ -286,6 +286,18 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 return Locale.ROOT;
             }
             return super._deserializeFromEmptyString();
+        }
+
+
+        protected int _firstHyphenOrUnderscore(String str)
+        {
+            for (int i = 0, end = str.length(); i < end; ++i) {
+                char c = str.charAt(i);
+                if (c == '_' || c == '-') {
+                    return i;
+                }
+            }
+            return -1;
         }
     }
 }

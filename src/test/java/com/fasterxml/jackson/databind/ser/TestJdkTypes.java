@@ -74,6 +74,8 @@ public class TestJdkTypes
         assertEquals(quote("es_ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
         assertEquals(quote("fi_FI_savo"), MAPPER.writeValueAsString(new Locale("FI", "fi", "savo")));
 
+        assertEquals(quote("en_US"), MAPPER.writeValueAsString(Locale.US));
+
         // [databind#1123]
         assertEquals(quote(""), MAPPER.writeValueAsString(Locale.ROOT));
     }

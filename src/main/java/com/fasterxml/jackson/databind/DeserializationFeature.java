@@ -245,6 +245,17 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_NULL_CREATOR_PROPERTIES(false),
 
     /**
+     * Feature that determines what happens when a property annotated with
+     * {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#EXTERNAL_PROPERTY} is missing.
+     * This is disabled by default, so that no error is thrown when a subtype property is
+     * missing, unless the property is explicitly marked as `required`. If it is enabled, or
+     * the property is marked as 'required' then a {@link JsonMappingException} will be thrown.
+     *
+     * @since 2.8
+     */
+    FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY(false),
+
+    /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about

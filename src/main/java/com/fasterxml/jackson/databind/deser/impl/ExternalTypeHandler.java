@@ -165,8 +165,13 @@ public class ExternalTypeHandler
                 }
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = _properties[i].getProperty();
-                ctxt.reportMappingException("Missing property '%s' for external type id '%s'",
-                        prop.getName(), _properties[i].getTypePropertyName());
+
+                if(prop.isRequired() ||
+                        ctxt.isEnabled(DeserializationFeature.FAIL_ON_EXTERNAL_TYPE_ID_MISSING_PROPERTY)) {
+                    ctxt.reportMappingException("Missing property '%s' for external type id '%s'",
+                            prop.getName(), _properties[i].getTypePropertyName());
+                }
+                return bean;
             }
             _deserializeAndSet(p, ctxt, bean, i, typeId);
         }

@@ -9,7 +9,7 @@ Project: jackson-databind
 #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
  (contributed by Connor K)
 
-2.8.2 (not yet released)
+2.8.2 (30-Aug-2016)
 
 #1315: Binding numeric values can BigDecimal lose precision
  (reported by Andrew S)

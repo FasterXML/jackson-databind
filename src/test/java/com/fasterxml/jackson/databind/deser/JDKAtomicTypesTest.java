@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class TestJDKAtomicTypes
+public class JDKAtomicTypesTest
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)

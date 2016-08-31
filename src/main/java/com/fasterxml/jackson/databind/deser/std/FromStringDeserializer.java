@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -115,6 +116,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 }
             } catch (IllegalArgumentException iae) {
                 cause = iae;
+            } catch (MalformedURLException me) {
+                cause = me;
             }
             String msg = "not a valid textual representation";
             if (cause != null) {

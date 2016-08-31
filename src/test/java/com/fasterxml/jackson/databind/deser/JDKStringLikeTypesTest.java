@@ -66,6 +66,20 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = objectMapper();
 
+    // [databind#239]
+    public void testByteBuffer() throws Exception
+    {
+        byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
+        String exp = MAPPER.writeValueAsString(INPUT);
+        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class); 
+        assertNotNull(result);
+        assertEquals(INPUT.length, result.remaining());
+        for (int i = 0; i < INPUT.length; ++i) {
+            assertEquals(INPUT[i], result.get());
+        }
+        assertEquals(0, result.remaining());
+    }
+
     public void testCharset() throws Exception
     {
         Charset UTF8 = Charset.forName("UTF-8");
@@ -226,6 +240,62 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         Pattern result = MAPPER.readValue(json, Pattern.class);
         assertEquals(exp.pattern(), result.pattern());
     }
+    public void testStackTraceElement() throws Exception
+    {
+        StackTraceElement elem = null;
+        try {
+            throw new IllegalStateException();
+        } catch (Exception e) {
+            elem = e.getStackTrace()[0];
+        }
+        String json = MAPPER.writeValueAsString(elem);
+        StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
+        
+        assertEquals("testStackTraceElement", back.getMethodName());
+        assertEquals(elem.getLineNumber(), back.getLineNumber());
+        assertEquals(elem.getClassName(), back.getClassName());
+        assertEquals(elem.isNativeMethod(), back.isNativeMethod());
+        assertTrue(back.getClassName().endsWith("JDKStringLikeTypesTest"));
+        assertFalse(back.isNativeMethod());
+    }
+
+    // [databind#429]
+    public void testStackTraceElementWithCustom() throws Exception
+    {
+        // first, via bean that contains StackTraceElement
+        StackTraceBean bean = MAPPER.readValue(aposToQuotes("{'Location':'foobar'}"),
+                StackTraceBean.class);
+        assertNotNull(bean);
+        assertNotNull(bean.location);
+        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
+
+        // and then directly, iff registered
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
+        mapper.registerModule(module);
+        
+        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
+        assertNotNull(elem);
+        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
+ 
+        // and finally, even as part of real exception
+        
+        IOException ioe = mapper.readValue(aposToQuotes("{'stackTrace':[ 123, 456 ]}"),
+                IOException.class);
+        assertNotNull(ioe);
+        StackTraceElement[] traces = ioe.getStackTrace();
+        assertNotNull(traces);
+        assertEquals(2, traces.length);
+        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
+        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
+    }
+
+    public void testStringBuilder() throws Exception
+    {
+        StringBuilder sb = MAPPER.readValue(quote("abc"), StringBuilder.class);
+        assertEquals("abc", sb.toString());
+    }
 
     public void testURI() throws Exception
     {
@@ -271,75 +341,30 @@ public class JDKStringLikeTypesTest extends BaseMapTest
                 .readValue("[\""+value.toString()+"\"]"));
     }
 
-    public void testStackTraceElement() throws Exception
+    public void testURL() throws Exception
     {
-        StackTraceElement elem = null;
+        URL exp = new URL("http://foo.com");
+        assertEquals(exp, MAPPER.readValue("\""+exp.toString()+"\"", URL.class));
+
+        // trivial case; null to null, embedded URL to URL
+        TokenBuffer buf = new TokenBuffer(null, false);
+        buf.writeObject(null);
+        assertNull(MAPPER.readValue(buf.asParser(), URL.class));
+        buf.close();
+
+        // then, URLitself come as is:
+        buf = new TokenBuffer(null, false);
+        buf.writeObject(exp);
+        assertSame(exp, MAPPER.readValue(buf.asParser(), URL.class));
+        buf.close();
+
+        // and finally, invalid URL should be handled appropriately too
         try {
-            throw new IllegalStateException();
-        } catch (Exception e) {
-            elem = e.getStackTrace()[0];
+            URL result = MAPPER.readValue(quote("a b"), URL.class);
+            fail("Should not accept malformed URI, instead got: "+result);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not a valid textual representation");
         }
-        String json = MAPPER.writeValueAsString(elem);
-        StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
-        
-        assertEquals("testStackTraceElement", back.getMethodName());
-        assertEquals(elem.getLineNumber(), back.getLineNumber());
-        assertEquals(elem.getClassName(), back.getClassName());
-        assertEquals(elem.isNativeMethod(), back.isNativeMethod());
-        assertTrue(back.getClassName().endsWith("JDKStringLikeTypesTest"));
-        assertFalse(back.isNativeMethod());
-    }
-
-    // [databind#239]
-    public void testByteBuffer() throws Exception
-    {
-        byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
-        String exp = MAPPER.writeValueAsString(INPUT);
-        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class); 
-        assertNotNull(result);
-        assertEquals(INPUT.length, result.remaining());
-        for (int i = 0; i < INPUT.length; ++i) {
-            assertEquals(INPUT[i], result.get());
-        }
-        assertEquals(0, result.remaining());
-    }
-
-    public void testStringBuilder() throws Exception
-    {
-        StringBuilder sb = MAPPER.readValue(quote("abc"), StringBuilder.class);
-        assertEquals("abc", sb.toString());
-    }
-    
-    // [databind#429]
-    public void testStackTraceElementWithCustom() throws Exception
-    {
-        // first, via bean that contains StackTraceElement
-        StackTraceBean bean = MAPPER.readValue(aposToQuotes("{'Location':'foobar'}"),
-                StackTraceBean.class);
-        assertNotNull(bean);
-        assertNotNull(bean.location);
-        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
-
-        // and then directly, iff registered
-        ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        mapper.registerModule(module);
-        
-        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
-        assertNotNull(elem);
-        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
- 
-        // and finally, even as part of real exception
-        
-        IOException ioe = mapper.readValue(aposToQuotes("{'stackTrace':[ 123, 456 ]}"),
-                IOException.class);
-        assertNotNull(ioe);
-        StackTraceElement[] traces = ioe.getStackTrace();
-        assertNotNull(traces);
-        assertEquals(2, traces.length);
-        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
-        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
     }
 
     public void testUUID() throws Exception
@@ -447,24 +472,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
         
         assertEquals(value, value2);
-        buf.close();
-    }
-
-    public void testURL() throws Exception
-    {
-        URL value = new URL("http://foo.com");
-        assertEquals(value, MAPPER.readValue("\""+value.toString()+"\"", URL.class));
-
-        // trivial case; null to null, embedded URL to URL
-        TokenBuffer buf = new TokenBuffer(null, false);
-        buf.writeObject(null);
-        assertNull(MAPPER.readValue(buf.asParser(), URL.class));
-        buf.close();
-
-        // then, URLitself come as is:
-        buf = new TokenBuffer(null, false);
-        buf.writeObject(value);
-        assertSame(value, MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
     }
 }

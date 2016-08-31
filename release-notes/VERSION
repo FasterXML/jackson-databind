@@ -9,6 +9,10 @@ Project: jackson-databind
 #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
  (contributed by Connor K)
 
+2.8.3 (not yet released)
+
+#1353: Improve error-handling for `java.net.URL` deserialization
+
 2.8.2 (30-Aug-2016)
 
 #1315: Binding numeric values can BigDecimal lose precision

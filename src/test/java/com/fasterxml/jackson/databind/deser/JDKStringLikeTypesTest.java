@@ -5,7 +5,6 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Currency;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -58,7 +57,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         }
         
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -67,133 +66,12 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = objectMapper();
 
-    /**
-     * Related to issues [JACKSON-155], [#170].
-     */
-    public void testFile() throws Exception
+    public void testCharset() throws Exception
     {
-        // Not portable etc... has to do:
-        File src = new File("/test").getAbsoluteFile();
-        String abs = src.getAbsolutePath();
-
-        // escape backslashes (for portability with windows)
-        String json = MAPPER.writeValueAsString(abs);
-        File result = MAPPER.readValue(json, File.class);
-        assertEquals(abs, result.getAbsolutePath());
-
-        // Then #170
-        final ObjectMapper mapper2 = new ObjectMapper();
-        mapper2.setVisibility(PropertyAccessor.CREATOR, Visibility.NONE);
-
-        result = mapper2.readValue(json, File.class);
-        assertEquals(abs, result.getAbsolutePath());
+        Charset UTF8 = Charset.forName("UTF-8");
+        assertSame(UTF8, MAPPER.readValue(quote("UTF-8"), Charset.class));
     }
-
-    public void testRegexps() throws IOException
-    {
-        final String PATTERN_STR = "abc:\\s?(\\d+)";
-        Pattern exp = Pattern.compile(PATTERN_STR);
-        /* Ok: easiest way is to just serialize first; problem
-         * is the backslash
-         */
-        String json = MAPPER.writeValueAsString(exp);
-        Pattern result = MAPPER.readValue(json, Pattern.class);
-        assertEquals(exp.pattern(), result.pattern());
-    }
-
-    public void testCurrency() throws IOException
-    {
-        Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, new ObjectMapper().readValue(quote("USD"), Currency.class));
-    }
-
-    public void testLocale() throws IOException
-    {
-        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
-        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
-        assertEquals(new Locale("FI", "fi", "savo"),
-                MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
-        assertEquals(new Locale("en", "US"),
-                MAPPER.readValue(quote("en-US"), Locale.class));
-
-        // [databind#1123]
-        Locale loc = MAPPER.readValue(quote(""), Locale.class);
-        assertSame(Locale.ROOT, loc);
-    }
-
-    public void testCharSequence() throws IOException
-    {
-        CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
-        assertEquals(String.class, cs.getClass());
-        assertEquals("abc", cs.toString());
-    }
-
-    public void testInetAddress() throws IOException
-    {
-        InetAddress address = MAPPER.readValue(quote("127.0.0.1"), InetAddress.class);
-        assertEquals("127.0.0.1", address.getHostAddress());
-
-        // should we try resolving host names? That requires connectivity... 
-        final String HOST = "google.com";
-        address = MAPPER.readValue(quote(HOST), InetAddress.class);
-        assertEquals(HOST, address.getHostName());
-    }
-
-    public void testInetSocketAddress() throws IOException
-    {
-        InetSocketAddress address = MAPPER.readValue(quote("127.0.0.1"), InetSocketAddress.class);
-        assertEquals("127.0.0.1", address.getAddress().getHostAddress());
-
-        InetSocketAddress ip6 = MAPPER.readValue(
-                quote("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
-
-        InetSocketAddress ip6port = MAPPER.readValue(
-                quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
-        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
-        assertEquals(443, ip6port.getPort());
-
-        // should we try resolving host names? That requires connectivity...
-        final String HOST = "www.google.com";
-        address = MAPPER.readValue(quote(HOST), InetSocketAddress.class);
-        assertEquals(HOST, address.getHostName());
-
-        final String HOST_AND_PORT = HOST+":80";
-        address = MAPPER.readValue(quote(HOST_AND_PORT), InetSocketAddress.class);
-        assertEquals(HOST, address.getHostName());
-        assertEquals(80, address.getPort());
-    }
-
-    public void testURI() throws Exception
-    {
-        final ObjectMapper mapper = new ObjectMapper();
-        
-        URI value = new URI("http://foo.com");
-        assertEquals(value, mapper.readValue("\""+value.toString()+"\"", URI.class));
-
-        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        try {            
-            assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
-            fail("Did not throw exception for single value array when UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException exp) {
-            //exception thrown successfully
-        }
-        
-        try {
-            assertEquals(value, mapper.readValue("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class));
-            fail("Did not throw exception for single value array when there were multiple values");
-        } catch (JsonMappingException exp) {
-            //exception thrown successfully
-        }
-        
-        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
-
-        value = mapper.readValue(quote(""), URI.class);
-        assertNotNull(value);
-        assertEquals(URI.create(""), value);
-    }
-
+    
     public void testClass() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -255,22 +133,142 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(String.class, result);
     }
 
-    public void testUntypedWithJsonArrays() throws Exception
+    public void testCurrency() throws IOException
     {
-        // by default we get:
-        Object ob = MAPPER.readValue("[1]", Object.class);
-        assertTrue(ob instanceof List<?>);
-
-        // but can change to produce Object[]:
-        MAPPER.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-        ob = MAPPER.readValue("[1]", Object.class);
-        assertEquals(Object[].class, ob.getClass());
+        Currency usd = Currency.getInstance("USD");
+        assertEquals(usd, new ObjectMapper().readValue(quote("USD"), Currency.class));
     }
 
-    public void testCharset() throws Exception
+    public void testFile() throws Exception
     {
-        Charset UTF8 = Charset.forName("UTF-8");
-        assertSame(UTF8, MAPPER.readValue(quote("UTF-8"), Charset.class));
+        // Not portable etc... has to do:
+        File src = new File("/test").getAbsoluteFile();
+        String abs = src.getAbsolutePath();
+
+        // escape backslashes (for portability with windows)
+        String json = MAPPER.writeValueAsString(abs);
+        File result = MAPPER.readValue(json, File.class);
+        assertEquals(abs, result.getAbsolutePath());
+
+        // Then #170
+        final ObjectMapper mapper2 = new ObjectMapper();
+        mapper2.setVisibility(PropertyAccessor.CREATOR, Visibility.NONE);
+
+        result = mapper2.readValue(json, File.class);
+        assertEquals(abs, result.getAbsolutePath());
+    }
+
+    public void testLocale() throws IOException
+    {
+        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
+        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
+        assertEquals(new Locale("FI", "fi", "savo"),
+                MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
+        assertEquals(new Locale("en", "US"),
+                MAPPER.readValue(quote("en-US"), Locale.class));
+
+        // [databind#1123]
+        Locale loc = MAPPER.readValue(quote(""), Locale.class);
+        assertSame(Locale.ROOT, loc);
+    }
+
+    public void testCharSequence() throws IOException
+    {
+        CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
+        assertEquals(String.class, cs.getClass());
+        assertEquals("abc", cs.toString());
+    }
+
+    public void testInetAddress() throws IOException
+    {
+        InetAddress address = MAPPER.readValue(quote("127.0.0.1"), InetAddress.class);
+        assertEquals("127.0.0.1", address.getHostAddress());
+
+        // should we try resolving host names? That requires connectivity... 
+        final String HOST = "google.com";
+        address = MAPPER.readValue(quote(HOST), InetAddress.class);
+        assertEquals(HOST, address.getHostName());
+    }
+
+    public void testInetSocketAddress() throws IOException
+    {
+        InetSocketAddress address = MAPPER.readValue(quote("127.0.0.1"), InetSocketAddress.class);
+        assertEquals("127.0.0.1", address.getAddress().getHostAddress());
+
+        InetSocketAddress ip6 = MAPPER.readValue(
+                quote("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
+
+        InetSocketAddress ip6port = MAPPER.readValue(
+                quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
+        assertEquals(443, ip6port.getPort());
+
+        // should we try resolving host names? That requires connectivity...
+        final String HOST = "www.google.com";
+        address = MAPPER.readValue(quote(HOST), InetSocketAddress.class);
+        assertEquals(HOST, address.getHostName());
+
+        final String HOST_AND_PORT = HOST+":80";
+        address = MAPPER.readValue(quote(HOST_AND_PORT), InetSocketAddress.class);
+        assertEquals(HOST, address.getHostName());
+        assertEquals(80, address.getPort());
+    }
+
+    public void testRegexps() throws IOException
+    {
+        final String PATTERN_STR = "abc:\\s?(\\d+)";
+        Pattern exp = Pattern.compile(PATTERN_STR);
+        /* Ok: easiest way is to just serialize first; problem
+         * is the backslash
+         */
+        String json = MAPPER.writeValueAsString(exp);
+        Pattern result = MAPPER.readValue(json, Pattern.class);
+        assertEquals(exp.pattern(), result.pattern());
+    }
+
+    public void testURI() throws Exception
+    {
+        final ObjectReader reader = MAPPER.readerFor(URI.class);
+        final URI value = new URI("http://foo.com");
+        assertEquals(value, reader.readValue("\""+value.toString()+"\""));
+
+        // Also: empty String should be handled properly
+        URI result = reader.readValue(quote(""));
+        assertNotNull(result);
+        assertEquals(URI.create(""), result);
+        
+        // and finally: broken URI should give proper failure
+        try {
+            result = reader.readValue(quote("a b"));
+            fail("Should not accept malformed URI, instead got: "+result);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not a valid textual representation");
+        }
+    }
+
+    public void testURIAsArray() throws Exception
+    {
+        final ObjectReader reader = MAPPER.readerFor(URI.class);
+        final URI value = new URI("http://foo.com");
+        try {
+            reader.without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("[\""+value.toString()+"\"]");
+            fail("Did not throw exception for single value array when UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException e) {
+            verifyException(e, "out of START_ARRAY token");
+        }
+        
+        try {
+            reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                    .readValue("[\""+value.toString()+"\",\""+value.toString()+"\"]");
+            fail("Did not throw exception for single value array when there were multiple values");
+        } catch (JsonMappingException e) {
+            verifyException(e, "more than a single value in the array");
+        }
+        assertEquals(value,
+                reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("[\""+value.toString()+"\"]"));
     }
 
     public void testStackTraceElement() throws Exception
@@ -469,11 +467,4 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertSame(value, MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
     }
-
-    public void testNull() throws Exception
-    {
-        // null doesn't really have a type, fake by assuming Object
-        Object result = MAPPER.readValue("   null", Object.class);
-        assertNull(result);
-    }  
 }

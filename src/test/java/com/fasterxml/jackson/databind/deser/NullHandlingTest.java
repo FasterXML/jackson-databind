@@ -39,12 +39,21 @@ public class NullHandlingTest extends BaseMapTest
         }
     }
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
+    public void testNull() throws Exception
+    {
+        // null doesn't really have a type, fake by assuming Object
+        Object result = MAPPER.readValue("   null", Object.class);
+        assertNull(result);
+    }  
+    
     public void testAnySetterNulls() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -91,9 +100,9 @@ public class NullHandlingTest extends BaseMapTest
 
     public void testNullForPrimitives() throws IOException
     {
-        final ObjectMapper MAPPER = new ObjectMapper();
         // by default, ok to rely on defaults
-        PrimitivesBean bean = MAPPER.readValue("{\"intValue\":null, \"booleanValue\":null, \"doubleValue\":null}",
+        PrimitivesBean bean = MAPPER.readValue(
+                "{\"intValue\":null, \"booleanValue\":null, \"doubleValue\":null}",
                 PrimitivesBean.class);
         assertNotNull(bean);
         assertEquals(0, bean.intValue);
@@ -108,43 +117,43 @@ public class NullHandlingTest extends BaseMapTest
         assertEquals(0.0f, bean.floatValue);
         
         // but not when enabled
-        final ObjectMapper mapper2 = new ObjectMapper();
-        mapper2.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true);
-
+        final ObjectReader reader = MAPPER
+                .readerFor(PrimitivesBean.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         // boolean
         try {
-            mapper2.readValue("{\"booleanValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"booleanValue\":null}");
             fail("Expected failure for boolean + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type boolean");
         }
         // byte/char/short/int/long
         try {
-            mapper2.readValue("{\"byteValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"byteValue\":null}");
             fail("Expected failure for byte + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type byte");
         }
         try {
-            mapper2.readValue("{\"charValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"charValue\":null}");
             fail("Expected failure for char + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type char");
         }
         try {
-            mapper2.readValue("{\"shortValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"shortValue\":null}");
             fail("Expected failure for short + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type short");
         }
         try {
-            mapper2.readValue("{\"intValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"intValue\":null}");
             fail("Expected failure for int + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type int");
         }
         try {
-            mapper2.readValue("{\"longValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"longValue\":null}");
             fail("Expected failure for long + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type long");
@@ -152,13 +161,13 @@ public class NullHandlingTest extends BaseMapTest
 
         // float/double
         try {
-            mapper2.readValue("{\"floatValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"floatValue\":null}");
             fail("Expected failure for float + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type float");
         }
         try {
-            mapper2.readValue("{\"doubleValue\":null}", PrimitivesBean.class);
+            reader.readValue("{\"doubleValue\":null}");
             fail("Expected failure for double + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map JSON null into type double");

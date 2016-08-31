@@ -266,4 +266,16 @@ public class TestUntypedDeserialization
         pojo = r.readValue("{\"a\":[]}");
         assertTrue(pojo.value instanceof Map);
     }
+
+    public void testUntypedWithJsonArrays() throws Exception
+    {
+        // by default we get:
+        Object ob = MAPPER.readValue("[1]", Object.class);
+        assertTrue(ob instanceof List<?>);
+
+        // but can change to produce Object[]:
+        MAPPER.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+        ob = MAPPER.readValue("[1]", Object.class);
+        assertEquals(Object[].class, ob.getClass());
+    }
 }

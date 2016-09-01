@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.8 (not yet released)
+
+#1359: Improve `JsonNode` deserializer to create `FloatNode` if parser supports
+
 2.7.7 (27-Aug-2016)
 
 #1322: EnumMap keys not using enum's `@JsonProperty` values unlike Enum values

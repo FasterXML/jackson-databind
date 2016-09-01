@@ -370,6 +370,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             || ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             return nodeFactory.numberNode(p.getDecimalValue());
         }
+        if (nt == JsonParser.NumberType.FLOAT) {
+            return nodeFactory.numberNode(p.getFloatValue());
+        }
         return nodeFactory.numberNode(p.getDoubleValue());
     }
 

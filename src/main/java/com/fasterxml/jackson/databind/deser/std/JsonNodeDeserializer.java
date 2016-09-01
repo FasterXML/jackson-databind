@@ -380,6 +380,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             return nodeFactory.numberNode(p.getDecimalValue());
         }
+        if (nt == JsonParser.NumberType.FLOAT) {
+            return nodeFactory.numberNode(p.getFloatValue());
+        }
         return nodeFactory.numberNode(p.getDoubleValue());
     }
 

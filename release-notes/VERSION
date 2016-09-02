@@ -12,6 +12,7 @@ Project: jackson-databind
 2.8.3 (not yet released)
 
 #1353: Improve error-handling for `java.net.URL` deserialization
+#1361: Change `TokenBuffer` to use new `writeEmbeddedObject()` if possible
 
 2.8.2 (30-Aug-2016)
 

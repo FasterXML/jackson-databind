@@ -414,10 +414,15 @@ public class TokenBuffer
             case VALUE_EMBEDDED_OBJECT:
                 {
                     Object value = segment.get(ptr);
+                    // 01-Sep-2016, tatu: as per [databind#1361], should use `writeEmbeddedObject()`;
+                    //    however, may need to consider alternatives for some well-known types
+                    //    first
                     if (value instanceof RawValue) {
                         ((RawValue) value).serialize(gen);
-                    } else {
+                    } else if (value instanceof JsonSerializable) {
                         gen.writeObject(value);
+                    } else {
+                        gen.writeEmbeddedObject(value);
                     }
                 }
                 break;

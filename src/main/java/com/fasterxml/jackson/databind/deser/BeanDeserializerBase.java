@@ -1144,7 +1144,9 @@ public abstract class BeanDeserializerBase
         } else {
             // should we worry about UUIDs? They should be fine, right?
             // 07-Aug-2014, tatu: Maybe, but not necessarily; had issues with
-            //   Smile format; [Smile#19], possibly related.
+            //   Smile format; [dataformat-smile#19], possibly related.
+            // 01-Sep-2016, tatu: For non-JSON, might want to consider `writeEmbeddedObject`
+            //   but that won't work for default impl (JSON and most dataformats)
             buf.writeObject(rawId);
         }
         JsonParser bufParser = buf.asParser();

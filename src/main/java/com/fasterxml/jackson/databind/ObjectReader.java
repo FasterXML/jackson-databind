@@ -1472,7 +1472,8 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
-        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
+        return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src, offset, length),
+                true));
     }
 
     /**

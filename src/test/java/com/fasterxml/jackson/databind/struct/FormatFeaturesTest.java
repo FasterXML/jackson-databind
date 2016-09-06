@@ -122,7 +122,7 @@ public class FormatFeaturesTest extends BaseMapTest
                 MAPPER.writeValueAsString(new WrapWriteWithArrays()));
 
         // change global default to "yes, unwrap"; changes 'bools' only
-        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':true}"),
+        assertEquals(aposToQuotes("{'strings':'a','ints':1,'bools':true}"),
                 MAPPER.writer().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithArrays()));
 

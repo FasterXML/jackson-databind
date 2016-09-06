@@ -37,6 +37,8 @@ public final class StringArrayDeserializer
      * @since 2.7
      */
     protected final Boolean _unwrapSingle;
+    
+    protected JsonFormat.Value _format;
 
     public StringArrayDeserializer() {
         this(null, null);
@@ -56,6 +58,11 @@ public final class StringArrayDeserializer
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
     {
+    	if(property != null) {
+    		//store the json format
+    		_format =  property.findPropertyFormat(ctxt.getConfig(), property.getType().getRawClass());
+    	}
+    	
         JsonDeserializer<?> deser = _elementDeserializer;
         // May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
@@ -183,6 +190,12 @@ public final class StringArrayDeserializer
             if (str.length() == 0) {
                 return null;
             }
+        } else if (p.hasToken(JsonToken.VALUE_STRING) && _format != null
+        		&& ("".equals(_format.getPattern()) || "\\s*,\\s*".equalsIgnoreCase(_format.getPattern()))) {
+        	String delimitedList = p.getText();
+        	if (delimitedList != null) {
+        		return delimitedList.split(",");
+        	}
         }
         return (String[]) ctxt.handleUnexpectedToken(_valueClass, p);
     }

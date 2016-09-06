@@ -5,6 +5,8 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -585,4 +587,112 @@ public class TestArrayDeserialization
         assertEquals(1, result.length);
         assertEquals("a", result[0].value);
     }
+    
+    public void testShortArrayDeserAsDelimitedList() throws Exception		
+    {
+    	StringWriter sw = new StringWriter();
+    	
+    	ShortArr arr = new ShortArr(new short[]{1, 2, 3}, new short[]{4, 5, 6});
+        MAPPER.writeValue(sw, arr);
+        ShortArr arrDeser = MAPPER.readValue(sw.toString(), ShortArr.class);
+
+        assertEquals("[1, 2, 3]", Arrays.toString(arrDeser.shortArr1));
+        assertEquals("[4, 5, 6]", Arrays.toString(arrDeser.shortArr2));
+    }
+    
+    public void testIntArrayDeserAsDelimitedList() throws Exception		
+    {
+    	StringWriter sw = new StringWriter();
+    	
+    	IntArr arr = new IntArr(new int[]{1, 2, 3}, new int[]{4, 5, 6});
+        MAPPER.writeValue(sw, arr);
+        IntArr arrDeser = MAPPER.readValue(sw.toString(), IntArr.class);
+
+        assertEquals("[1, 2, 3]", Arrays.toString(arrDeser.intArr1));
+        assertEquals("[4, 5, 6]", Arrays.toString(arrDeser.intArr2));
+    }
+    
+    public void testStringArrayDeserAsDelimitedList() throws Exception		
+    {
+    	StringWriter sw = new StringWriter();
+    	
+    	StringArr arr = new StringArr(new String[]{"item1", "item2", "item3"}, new String[]{"item4", "item5", "item6"});
+        MAPPER.writeValue(sw, arr);
+        StringArr arrDeser = MAPPER.readValue(sw.toString(), StringArr.class);
+
+        assertEquals("[item1, item2, item3]", Arrays.toString(arrDeser.stringArr1));
+        assertEquals("[item4, item5, item6]", Arrays.toString(arrDeser.stringArr2));
+    }
+    
+    public void testNullValueArrayDeserAsDelimitedList() throws Exception		
+    {
+    	StringWriter sw = new StringWriter();
+    	
+    	StringArr arr = new StringArr(new String[]{null, "item2", "item3"}, new String[]{"item4", null, "item6"});
+        MAPPER.writeValue(sw, arr);
+        StringArr arrDeser = MAPPER.readValue(sw.toString(), StringArr.class);
+
+        assertEquals("[null, item2, item3]", Arrays.toString(arrDeser.stringArr1));
+        assertEquals("[item4, null, item6]", Arrays.toString(arrDeser.stringArr2));
+        
+        IntArr intArr = new IntArr(null, new int[]{4, 5, 6});
+        sw = new StringWriter();
+        MAPPER.writeValue(sw, intArr);
+        IntArr intArrDeser = MAPPER.readValue(sw.toString(), IntArr.class);
+
+        assertEquals(null, intArrDeser.intArr1);
+        assertEquals("[4, 5, 6]", Arrays.toString(intArrDeser.intArr2));
+    }
+    
+    static class ShortArr {
+    	@JsonFormat(shape = Shape.STRING, pattern = "\\s*,\\s*")
+    	public short[] shortArr1;
+    	
+    	@JsonFormat(shape = Shape.STRING, pattern = "")
+    	public short[] shortArr2;
+    	
+    	public ShortArr() {
+    		
+    	}
+    	
+    	public ShortArr(short[] shortArr1, short[] shortArr2) {
+    		this.shortArr1 = shortArr1;
+    		this.shortArr2 = shortArr2;
+    	}
+    }
+    
+    static class IntArr {
+    	@JsonFormat(shape = Shape.STRING, pattern = "\\s*,\\s*")
+    	public int[] intArr1;
+    	
+    	@JsonFormat(shape = Shape.STRING, pattern = "")
+    	public int[] intArr2;
+    	
+    	public IntArr() {
+    		
+    	}
+    	
+    	public IntArr(int[] intArr1, int[] intArr2) {
+    		this.intArr1 = intArr1;
+    		this.intArr2 = intArr2;
+    	}
+    }
+    
+    static class StringArr {
+    	@JsonFormat(shape = Shape.STRING, pattern = "\\s*,\\s*")
+    	String[] stringArr1;
+    	
+    	@JsonFormat(shape = Shape.STRING, pattern = "")
+    	String[] stringArr2;
+    	
+    	public StringArr() {
+    		
+    	}
+    	
+    	public StringArr(String[] stringArr1, String[] stringArr2) {
+    		this.stringArr1 = stringArr1;
+    		this.stringArr2 = stringArr2;
+    	}
+    }
+    
 }

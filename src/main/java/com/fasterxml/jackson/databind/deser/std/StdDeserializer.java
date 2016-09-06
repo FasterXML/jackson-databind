@@ -361,6 +361,23 @@ public abstract class StdDeserializer<T>
         }
         return (short) value;
     }
+    
+    protected final short[] _parseShortPrimitiveArray(JsonParser p, DeserializationContext ctxt)
+            throws IOException, NumberFormatException
+    {
+    	short[] newArr = null;
+    	JsonToken t = p.getCurrentToken();
+    	if(t == JsonToken.VALUE_STRING) {
+    		String delimitedString = p.getText().trim();
+    		String[] delimitedList = delimitedString.split(",");
+    		newArr = new short[delimitedList.length];
+    		for(int i = 0; i < delimitedList.length; i++) {
+    			newArr[i] = Short.parseShort(delimitedList[i]);
+    		}
+    	}
+    	
+    	return newArr;
+    }
 
     protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
@@ -470,6 +487,23 @@ public abstract class StdDeserializer<T>
         }
         // Otherwise, no can do:
         return (Integer) ctxt.handleUnexpectedToken(_valueClass, p);
+    }
+    
+    protected final int[] _parseIntegerPrimitiveArray(JsonParser p, DeserializationContext ctxt)
+            throws IOException, NumberFormatException
+    {
+    	int[] newArr = null;
+    	JsonToken t = p.getCurrentToken();
+    	if(t == JsonToken.VALUE_STRING) {
+    		String delimitedString = p.getText().trim();
+    		String[] delimitedList = delimitedString.split(",");
+    		newArr = new int[delimitedList.length];
+    		for(int i = 0; i < delimitedList.length; i++) {
+    			newArr[i] = Integer.parseInt(delimitedList[i]);
+    		}
+    	}
+    	
+    	return newArr;
     }
 
     protected final Long _parseLong(JsonParser p, DeserializationContext ctxt) throws IOException

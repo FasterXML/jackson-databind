@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.ArraySerializerBase;
+import com.fasterxml.jackson.databind.ser.std.DelimitedListSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -82,6 +83,20 @@ public class StringArraySerializer
             BeanProperty property)
         throws JsonMappingException
     {
+    	
+    	// check whether @JsonFormat annotation is present with Shape option to serialize the string array into
+    	// delimited list
+    	JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
+        if (format != null) {
+            switch (format.getShape()) {
+            case STRING:
+            	String pattern = format.getPattern();
+            	if("".equals(pattern) || "\\s*,\\s*".equalsIgnoreCase(pattern)) {
+            		return DelimitedListSerializer.instance;
+            	}
+            }
+        }
+        
         /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
          *    checking here since we finally know for sure the property,
          *    and it may have overrides

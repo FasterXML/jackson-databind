@@ -26,6 +26,8 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
      * @since 2.7
      */
     protected final Boolean _unwrapSingle;
+    
+    protected JsonFormat.Value _format;
 
     protected PrimitiveArrayDeserializers(Class<T> cls) {
         super(cls);
@@ -81,6 +83,9 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
+    	if(property != null) {
+    		_format =  property.findPropertyFormat(ctxt.getConfig(), property.getType().getRawClass());
+    	}
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _valueClass,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         if (unwrapSingle == _unwrapSingle) {
@@ -112,15 +117,35 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+        
         if (canWrap) {
             return handleSingleElementUnwrapped(p, ctxt);
+        }
+        // Handling the delimited list
+        else if(_format != null && 
+        		("".equals(_format.getPattern()) || "\\s*,\\s*".equalsIgnoreCase(_format.getPattern()))){
+        	return handleDelimitedList(p, ctxt);	
         }
         return (T) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
     protected abstract T handleSingleElementUnwrapped(JsonParser p,
             DeserializationContext ctxt) throws IOException;
+    
+    /**
+     * Default implementation to handle the delimited list
+     * By default, none of the primitive arrays, support the deserialization of the delimited list
+     * Primitive arrays should implement this method to support the deserialization of the delimited list
+     * 
+     *  @since 2.9
+     */
+    @SuppressWarnings("unchecked")
+    protected T handleDelimitedList(JsonParser p,
+            DeserializationContext ctxt) throws IOException {
+    	return (T) ctxt.handleUnexpectedToken(_valueClass, p);
+    }
 
+    
     /*
     /********************************************************
     /* Actual deserializers: efficient String[], char[] deserializers
@@ -403,6 +428,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new short[] { _parseShortPrimitive(p, ctxt) };
         }
+        
+        @Override
+        protected short[] handleDelimitedList(JsonParser p,
+                DeserializationContext ctxt) throws IOException {
+        	return _parseShortPrimitiveArray(p, ctxt);
+        }
+        
     }
 
     @JacksonStdImpl
@@ -453,6 +485,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected int[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             return new int[] { _parseIntPrimitive(p, ctxt) };
+        }
+        
+        @Override
+        protected int[] handleDelimitedList(JsonParser p,
+                DeserializationContext ctxt) throws IOException {
+        	return _parseIntegerPrimitiveArray(p, ctxt);
         }
     }
 

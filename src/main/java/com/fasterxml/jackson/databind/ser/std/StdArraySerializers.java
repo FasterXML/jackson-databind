@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -266,6 +267,27 @@ public class StdArraySerializers
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.INTEGER);
         }
+        
+        @Override
+        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        		throws JsonMappingException {
+
+        	JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        	if (format != null) {
+        		switch (format.getShape()) {
+        		case STRING:
+        			String pattern = format.getPattern();
+        			if("".equals(pattern) || "\\s*,\\s*".equalsIgnoreCase(pattern)) {
+        				return DelimitedListSerializer.instance;
+        			}
+        		}
+        	}
+
+        	return this;
+
+        }
+        
+        
     }
 
     /**
@@ -428,6 +450,25 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.INTEGER);
+        }
+        
+        @Override
+        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        		throws JsonMappingException {
+
+        	JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        	if (format != null) {
+        		switch (format.getShape()) {
+        		case STRING:
+        			String pattern = format.getPattern();
+        			if("".equals(pattern) || "\\s*,\\s*".equalsIgnoreCase(pattern)) {
+        				return DelimitedListSerializer.instance;
+        			}
+        		}
+        	}
+
+        	return this;
+
         }
     }
 

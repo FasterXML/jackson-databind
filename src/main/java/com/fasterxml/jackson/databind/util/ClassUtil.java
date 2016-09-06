@@ -919,67 +919,67 @@ public final class ClassUtil
         private final Field enumMapTypeField;
     	
         private EnumTypeLocator() {
-    	    //JDK uses following fields to store information about actual Enumeration
-    	    // type for EnumSets, EnumMaps...
-    	    enumSetTypeField = locateField(EnumSet.class, "elementType", Class.class);
-    	    enumMapTypeField = locateField(EnumMap.class, "elementType", Class.class);
-    	}
+            //JDK uses following fields to store information about actual Enumeration
+            // type for EnumSets, EnumMaps...
+    	        enumSetTypeField = locateField(EnumSet.class, "elementType", Class.class);
+    	        enumMapTypeField = locateField(EnumMap.class, "elementType", Class.class);
+        }
 
-    	@SuppressWarnings("unchecked")
-    	public Class<? extends Enum<?>> enumTypeFor(EnumSet<?> set)
-    	{
-    	    if (enumSetTypeField != null) {
-    	        return (Class<? extends Enum<?>>) get(set, enumSetTypeField);
-    	    }
-    	    throw new IllegalStateException("Can not figure out type for EnumSet (odd JDK platform?)");
-    	}
-
-    	@SuppressWarnings("unchecked")
-    	public Class<? extends Enum<?>> enumTypeFor(EnumMap<?,?> set)
+        @SuppressWarnings("unchecked")
+        public Class<? extends Enum<?>> enumTypeFor(EnumSet<?> set)
         {
-    	    if (enumMapTypeField != null) {
-    	        return (Class<? extends Enum<?>>) get(set, enumMapTypeField);
-    	    }
-    	    throw new IllegalStateException("Can not figure out type for EnumMap (odd JDK platform?)");
+            if (enumSetTypeField != null) {
+                return (Class<? extends Enum<?>>) get(set, enumSetTypeField);
+            }
+            throw new IllegalStateException("Can not figure out type for EnumSet (odd JDK platform?)");
+        }
+
+        @SuppressWarnings("unchecked")
+        public Class<? extends Enum<?>> enumTypeFor(EnumMap<?,?> set)
+        {
+            if (enumMapTypeField != null) {
+                return (Class<? extends Enum<?>>) get(set, enumMapTypeField);
+            }
+            throw new IllegalStateException("Can not figure out type for EnumMap (odd JDK platform?)");
         }
     	
-    	private Object get(Object bean, Field field)
-    	{
-    	    try {
-    	        return field.get(bean);
-    	    } catch (Exception e) {
-    	        throw new IllegalArgumentException(e);
-    	    }
-    	}
+        private Object get(Object bean, Field field)
+        {
+            try {
+                return field.get(bean);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
     	
-    	private static Field locateField(Class<?> fromClass, String expectedName, Class<?> type)
-    	{
-    	    Field found = null;
-    	    // First: let's see if we can find exact match:
-    	    Field[] fields = getDeclaredFields(fromClass);
-    	    for (Field f : fields) {
-    	        if (expectedName.equals(f.getName()) && f.getType() == type) {
-    	            found = f;
-    	            break;
-    	        }
-    	    }
-    	    // And if not, if there is just one field with the type, that field
-    	    if (found == null) {
+        private static Field locateField(Class<?> fromClass, String expectedName, Class<?> type)
+        {
+            Field found = null;
+    	        // First: let's see if we can find exact match:
+            Field[] fields = getDeclaredFields(fromClass);
     	        for (Field f : fields) {
-    	            if (f.getType() == type) {
-    	                // If more than one, can't choose
-    	                if (found != null) return null;
+    	            if (expectedName.equals(f.getName()) && f.getType() == type) {
     	                found = f;
+    	                break;
     	            }
     	        }
-    	    }
-    	    if (found != null) { // it's non-public, need to force accessible
-    	        try {
-    	            found.setAccessible(true);
-    	        } catch (Throwable t) { }
-    	    }
-    	    return found;
-    	}
+    	        // And if not, if there is just one field with the type, that field
+    	        if (found == null) {
+    	            for (Field f : fields) {
+    	                if (f.getType() == type) {
+    	                    // If more than one, can't choose
+    	                    if (found != null) return null;
+    	                    found = f;
+    	                }
+    	            }
+    	        }
+    	        if (found != null) { // it's non-public, need to force accessible
+    	            try {
+    	                found.setAccessible(true);
+    	            } catch (Throwable t) { }
+    	        }
+    	        return found;
+        }
     }
 
     /*

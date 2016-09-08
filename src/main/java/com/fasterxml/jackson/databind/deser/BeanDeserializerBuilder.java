@@ -20,6 +20,14 @@ public class BeanDeserializerBuilder
 {
     /*
     /**********************************************************
+    /* Configuration
+    /**********************************************************
+     */
+
+    final protected DeserializationConfig _config;
+
+    /*
+    /**********************************************************
     /* General information about POJO
     /**********************************************************
      */
@@ -28,18 +36,6 @@ public class BeanDeserializerBuilder
      * Introspected information about POJO for deserializer to handle
      */
     final protected BeanDescription _beanDesc;
-
-    /**
-     * Whether default setting for properties without any view annotations
-     * is to include (true) or exclude (false).
-     */
-    final protected boolean _defaultViewInclusion;
-
-    /**
-     * Flag that indicates whether default settings suggest use of case-insensitive
-     * property comparison or not.
-     */
-    final protected boolean _caseInsensitivePropertyComparison;
 
     /*
     /**********************************************************
@@ -114,8 +110,7 @@ public class BeanDeserializerBuilder
             DeserializationConfig config)
     { 
         _beanDesc = beanDesc;
-        _defaultViewInclusion = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        _caseInsensitivePropertyComparison = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        _config = config;
     }
 
     /**
@@ -125,8 +120,7 @@ public class BeanDeserializerBuilder
     protected BeanDeserializerBuilder(BeanDeserializerBuilder src)
     {
         _beanDesc = src._beanDesc;
-        _defaultViewInclusion = src._defaultViewInclusion;
-        _caseInsensitivePropertyComparison = src._caseInsensitivePropertyComparison;
+        _config = src._config;
 
         // let's make copy of properties
         _properties.putAll(src._properties);
@@ -204,6 +198,11 @@ public class BeanDeserializerBuilder
     {
         if (_injectables == null) {
             _injectables = new ArrayList<ValueInjector>();
+        }
+        boolean fixAccess = _config.canOverrideAccessModifiers();
+        boolean forceAccess = fixAccess && _config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+        if (fixAccess) {
+            member.fixAccess(forceAccess);
         }
         _injectables.add(new ValueInjector(propName, propType,
                 contextAnnotations, member, valueId));
@@ -314,7 +313,7 @@ public class BeanDeserializerBuilder
     public JsonPOJOBuilder.Value getBuilderConfig() {
         return _builderConfig;
     }
-    
+
     /*
     /**********************************************************
     /* Build method(s)
@@ -328,14 +327,16 @@ public class BeanDeserializerBuilder
     public JsonDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props, _caseInsensitivePropertyComparison);
+        _fixAccess(props);
+
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
+                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         propertyMap.assignIndexes();
 
         // view processing must be enabled if:
         // (a) fields are not included by default (when deserializing with view), OR
         // (b) one of properties has view(s) to included in defined
-        boolean anyViews = !_defaultViewInclusion;
-
+        boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
         if (!anyViews) {
             for (SettableBeanProperty prop : props) {
                 if (prop.hasViews()) {
@@ -382,8 +383,10 @@ public class BeanDeserializerBuilder
         if (_buildMethod == null) {
             // as per [databind#777], allow empty name
             if (!expBuildMethodName.isEmpty()) {
-                throw new IllegalArgumentException("Builder class "+_beanDesc.getBeanClass().getName()
-                    +" does not have build method (name: '"+expBuildMethodName+"')");
+                throw new IllegalArgumentException(String.format(
+                        "Builder class %s does not have build method (name: '%s')",
+                        _beanDesc.getBeanClass().getName(),
+                        expBuildMethodName));
             }
         } else {
             // also: type of the method must be compatible
@@ -399,10 +402,12 @@ public class BeanDeserializerBuilder
         }
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props, _caseInsensitivePropertyComparison);
+        _fixAccess(props);
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
+                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         propertyMap.assignIndexes();
 
-        boolean anyViews = !_defaultViewInclusion;
+        boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
 
         if (!anyViews) {
             for (SettableBeanProperty prop : props) {
@@ -426,5 +431,47 @@ public class BeanDeserializerBuilder
         return new BuilderBasedDeserializer(this,
                 _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 anyViews);
+    }
+
+    /*
+    /**********************************************************
+    /* Internal helper method(s)
+    /**********************************************************
+     */
+
+    private void _fixAccess(Collection<SettableBeanProperty> mainProps)
+    {
+        /* 07-Sep-2016, tatu: Ideally we should be able to avoid forcing
+         *   access to properties that are likely ignored, but due to
+         *   renaming it seems this is not a safe thing to do (there was
+         *   at least one failing test). May need to dig deeper in future;
+         *   for now let's just play it safe.
+         */
+        /*
+        Set<String> ignorable = _ignorableProps;
+        if (ignorable == null) {
+            ignorable = Collections.emptySet();
+        }
+        */
+        for (SettableBeanProperty prop : mainProps) {
+            /*
+            // first: no point forcing access on to-be-ignored properties
+            if (ignorable.contains(prop.getName())) {
+                continue;
+            }
+            */
+            prop.fixAccess(_config);
+        }
+        if (_backRefProperties != null) {
+            for (SettableBeanProperty prop : _backRefProperties.values()) {
+                prop.fixAccess(_config);
+            }
+        }
+        if (_anySetter != null) {
+            _anySetter.fixAccess(_config);
+        }
+        if (_buildMethod != null) {
+            _buildMethod.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+        }
     }
 }

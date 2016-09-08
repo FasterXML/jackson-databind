@@ -47,8 +47,7 @@ public class TestAnnotationIgnore
     
     public void testSimpleIgnore() throws Exception
     {
-        SizeClassIgnore result = MAPPER.readValue
-            ("{ \"x\":1, \"y\" : 2 }",
+        SizeClassIgnore result = MAPPER.readValue("{ \"x\":1, \"y\" : 2 }",
              SizeClassIgnore.class);
         // x should be set, y not
         assertEquals(1, result._x);

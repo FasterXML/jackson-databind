@@ -59,11 +59,6 @@ public class SettableAnyProperty
         _valueTypeDeserializer = typeDeser;
         _setterIsField = setter instanceof AnnotatedField;
     }
-    
-    public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
-        return new SettableAnyProperty(_property, _setter, _type,
-                deser, _valueTypeDeserializer);
-    }
 
     /**
      * Constructor used for JDK Serialization when reading persisted object
@@ -76,6 +71,16 @@ public class SettableAnyProperty
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _setterIsField = src._setterIsField;
+    }
+
+    public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+        return new SettableAnyProperty(_property, _setter, _type,
+                deser, _valueTypeDeserializer);
+    }
+
+    public void fixAccess(DeserializationConfig config) {
+        _setter.fixAccess(
+                config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
     }
 
     /*

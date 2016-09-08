@@ -6,10 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
-
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -74,7 +71,13 @@ public final class ManagedReferenceProperty
     public ManagedReferenceProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new ManagedReferenceProperty(this, deser);
     }
-    
+ 
+    @Override
+    public void fixAccess(DeserializationConfig config) {
+        _managedProperty.fixAccess(config);
+        _backProperty.fixAccess(config);
+    }
+
     /*
     /**********************************************************
     /* BeanProperty impl

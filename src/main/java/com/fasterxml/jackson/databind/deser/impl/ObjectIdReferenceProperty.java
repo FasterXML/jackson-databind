@@ -49,6 +49,13 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     @Override
+    public void fixAccess(DeserializationConfig config) {
+        if (_forward != null) {
+            _forward.fixAccess(config);
+        }
+    }
+
+    @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _forward.getAnnotation(acls);
     }

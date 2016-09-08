@@ -36,7 +36,7 @@ public class TestValueUpdate extends BaseMapTest
         }
     }
 
-    // [Issue#318] (and Scala module issue #83]
+    // [databind#318] (and Scala module issue #83]
     public void testValueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");
@@ -44,5 +44,4 @@ public class TestValueUpdate extends BaseMapTest
         assertEquals("ghi", bean.getA());
         assertEquals("jkl", bean.getB());
     }
-
 }

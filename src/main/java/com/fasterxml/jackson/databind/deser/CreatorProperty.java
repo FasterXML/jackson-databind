@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -114,6 +114,13 @@ public class CreatorProperty
         return new CreatorProperty(this, deser);
     }
 
+    @Override
+    public void fixAccess(DeserializationConfig config) {
+        if (_fallbackSetter != null) {
+            _fallbackSetter.fixAccess(config);
+        }
+    }
+
     /**
      * NOTE: one exception to immutability, due to problems with CreatorProperty instances
      * being shared between Bean, separate PropertyBasedCreator
@@ -173,19 +180,17 @@ public class CreatorProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-                                  Object instance)
-        throws IOException, JsonProcessingException
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
+            Object instance) throws IOException
     {
-        set(instance, deserialize(jp, ctxt));
+        set(instance, deserialize(p, ctxt));
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    public Object deserializeSetAndReturn(JsonParser p,
+            DeserializationContext ctxt, Object instance) throws IOException
     {
-        return setAndReturn(instance, deserialize(jp, ctxt));
+        return setAndReturn(instance, deserialize(p, ctxt));
     }
     
     @Override

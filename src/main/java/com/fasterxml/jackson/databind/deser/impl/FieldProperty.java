@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * This concrete sub-class implements property that is set
@@ -74,7 +75,13 @@ public final class FieldProperty
     public FieldProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new FieldProperty(this, deser);
     }
-    
+
+    @Override
+    public void fixAccess(DeserializationConfig config) {
+        ClassUtil.checkAndFixAccess(_field,
+                config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+    }
+
     /*
     /**********************************************************
     /* BeanProperty impl

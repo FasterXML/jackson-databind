@@ -231,7 +231,6 @@ public class BeanDeserializerFactory
         addInjectables(ctxt, beanDesc, builder);
         
         final DeserializationConfig config = ctxt.getConfig();
-        // [JACKSON-440]: update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 builder = mod.updateBuilder(config, beanDesc, builder);
@@ -640,8 +639,8 @@ public class BeanDeserializerFactory
                 }
                 SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(
                 		ctxt.getConfig(), m);
-                builder.addBackReferenceProperty(name, constructSettableProperty(
-                        ctxt, beanDesc, propDef, type));
+                builder.addBackReferenceProperty(name, constructSettableProperty(ctxt,
+                        beanDesc, propDef, type));
             }
         }
     }
@@ -656,13 +655,8 @@ public class BeanDeserializerFactory
     {
         Map<Object, AnnotatedMember> raw = beanDesc.findInjectables();
         if (raw != null) {
-            boolean fixAccess = ctxt.canOverrideAccessModifiers();
-            boolean forceAccess = fixAccess && ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
             for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
                 AnnotatedMember m = entry.getValue();
-                if (fixAccess) {
-                    m.fixAccess(forceAccess); // to ensure we can call it
-                }
                 builder.addInjectable(PropertyName.construct(m.getName()),
                         m.getType(),
                         beanDesc.getClassAnnotations(), m, entry.getKey());
@@ -683,10 +677,6 @@ public class BeanDeserializerFactory
             BeanDescription beanDesc, AnnotatedMember mutator)
         throws JsonMappingException
     {
-        if (ctxt.canOverrideAccessModifiers()) {
-            mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)); // to ensure we can call it
-        }
-
         //find the java type based on the annotated setter method or setter field 
         JavaType type = null;
         if (mutator instanceof AnnotatedMethod) {
@@ -729,19 +719,6 @@ public class BeanDeserializerFactory
     {
         // need to ensure method is callable (for non-public)
         AnnotatedMember mutator = propDef.getNonConstructorMutator();
-
-        if (ctxt.canOverrideAccessModifiers()) {
-            // [databind#877]: explicitly prevent forced access to `cause` of `Throwable`;
-            // never needed and attempts may cause problems on some platforms.
-            // !!! NOTE: should be handled better for 2.8 and later
-            if ((mutator instanceof AnnotatedField)
-                    && "cause".equals(mutator.getName())
-                    && Throwable.class.isAssignableFrom(propType0.getRawClass())) {
-                ;
-            } else {
-                mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-            }
-        }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
         TypeDeserializer typeDeser = type.getTypeHandler();
@@ -782,10 +759,6 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         final AnnotatedMethod getter = propDef.getGetter();
-        // need to ensure it is callable now:
-        if (ctxt.canOverrideAccessModifiers()) {
-            getter.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-        }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, getter, getter.getType());
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop = new SetterlessProperty(propDef, type, typeDeser,

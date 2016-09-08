@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.introspect.ConcreteBeanPropertyBase;
-import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -309,7 +307,18 @@ public abstract class SettableBeanProperty
         }
         _propertyIndex = index;
     }
-    
+
+    /**
+     * Method called to ensure that the mutator has proper access rights to
+     * be called, as per configuration. Overridden by implementations that
+     * have mutators that require access, fields and setters.
+     *
+     * @since 2.8.3
+     */
+    public void fixAccess(DeserializationConfig config) {
+        ;
+    }
+
     /*
     /**********************************************************
     /* BeanProperty impl

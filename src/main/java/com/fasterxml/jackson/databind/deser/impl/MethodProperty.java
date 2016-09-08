@@ -68,7 +68,13 @@ public final class MethodProperty
     public MethodProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new MethodProperty(this, deser);
     }
-    
+
+    @Override
+    public void fixAccess(DeserializationConfig config) {
+        _annotated.fixAccess(
+                config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+    }
+
     /*
     /**********************************************************
     /* BeanProperty impl

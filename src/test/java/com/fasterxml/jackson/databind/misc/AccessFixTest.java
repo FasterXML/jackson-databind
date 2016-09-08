@@ -14,7 +14,7 @@ public class AccessFixTest extends BaseMapTest
         @Override
         public void checkPermission(Permission perm) throws SecurityException {
             if ("suppressAccessChecks".equals(perm.getName())) {
-throw new SecurityException("Can not force permission: "+perm);
+                throw new SecurityException("Can not force permission: "+perm);
             }
         }
     }
@@ -24,18 +24,18 @@ throw new SecurityException("Can not force permission: "+perm);
     public void testCauseOfThrowableIgnoral() throws Exception
     {
         final SecurityManager origSecMan = System.getSecurityManager();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
         try {
             System.setSecurityManager(new CauseBlockingSecurityManager());
-            _testCauseOfThrowableIgnoral();
+            _testCauseOfThrowableIgnoral(mapper);
         } finally {
             System.setSecurityManager(origSecMan);
         }
     }
 
-    private void _testCauseOfThrowableIgnoral() throws Exception
+    private void _testCauseOfThrowableIgnoral(ObjectMapper mapper) throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
         IOException e = mapper.readValue("{}", IOException.class);
         assertNotNull(e);
     }

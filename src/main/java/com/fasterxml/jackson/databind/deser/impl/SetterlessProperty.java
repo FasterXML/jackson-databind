@@ -61,7 +61,13 @@ public final class SetterlessProperty
     public SetterlessProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new SetterlessProperty(this, deser);
     }
-    
+
+    @Override
+    public void fixAccess(DeserializationConfig config) {
+        _annotated.fixAccess(
+                config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+    }
+
     /*
     /**********************************************************
     /* BeanProperty impl

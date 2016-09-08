@@ -84,6 +84,11 @@ public final class InnerClassProperty
         return new InnerClassProperty(this, deser);
     }
     
+    @Override
+    public void fixAccess(DeserializationConfig config) {
+        _delegate.fixAccess(config);
+    }
+
     // // // BeanProperty impl
     
     @Override

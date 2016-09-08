@@ -520,9 +520,9 @@ public class BeanDeserializerFactory
             // 25-Sep-2014, tatu: No point in finding constructor parameters for abstract types
             //   (since they are never used anyway)
             if (isConcrete && propDef.hasConstructorParameter()) {
-                /* [JACKSON-700] If property is passed via constructor parameter, we must
-                 *   handle things in special way. Not sure what is the most optimal way...
-                 *   for now, let's just call a (new) method in builder, which does nothing.
+                /* If property is passed via constructor parameter, we must
+                 * handle things in special way. Not sure what is the most optimal way...
+                 * for now, let's just call a (new) method in builder, which does nothing.
                  */
                 // but let's call a method just to allow custom builders to be aware...
                 final String name = propDef.getName();
@@ -707,6 +707,7 @@ public class BeanDeserializerFactory
     {
         // need to ensure method is callable (for non-public)
         AnnotatedMember mutator = propDef.getNonConstructorMutator();
+
         if (ctxt.canOverrideAccessModifiers()) {
             mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
@@ -720,16 +721,14 @@ public class BeanDeserializerFactory
             property = property.withType(type);
         }
 
-        /* First: does the Method specify the deserializer to use?
-         * If so, let's use it.
-         */
+        // First: does the Method specify the deserializer to use? If so, let's use it.
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, mutator);
         type = modifyTypeByAnnotation(ctxt, mutator, type);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
             prop = new MethodProperty(propDef, type, typeDeser,
-                beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
+                    beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {
             prop = new FieldProperty(propDef, type, typeDeser,
                     beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
@@ -737,7 +736,7 @@ public class BeanDeserializerFactory
         if (propDeser != null) {
             prop = prop.withValueDeserializer(propDeser);
         }
-        // [JACKSON-235]: need to retain name of managed forward references:
+        // need to retain name of managed forward references:
         AnnotationIntrospector.ReferenceProperty ref = propDef.findReferenceType();
         if (ref != null && ref.isManagedReference()) {
             prop.setManagedReferenceName(ref.getName());

@@ -51,7 +51,7 @@ public class TestExceptionDeserialization
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testIOException() throws IOException
     {
@@ -61,7 +61,6 @@ public class TestExceptionDeserialization
         assertEquals(ioe.getMessage(), result.getMessage());
     }
 
-    // As per [JACKSON-377]
     public void testWithCreator() throws IOException
     {
         final String MSG = "the message";
@@ -74,7 +73,6 @@ public class TestExceptionDeserialization
         assertEquals(result.getFoo(), result.stuff.get("foo"));
     }
 
-    // [JACKSON-388]
     public void testWithNullMessage() throws IOException
     {
         final ObjectMapper mapper = new ObjectMapper();

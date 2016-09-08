@@ -86,7 +86,6 @@ public class ReadValuesTest extends BaseMapTest
 
         MappingIterator<Bean> it = _iterator(MAPPER.readerFor(Bean.class),
                 JSON, srcType);
-                MAPPER.readerFor(Bean.class).readValues(JSON);
         assertNotNull(it.getCurrentLocation());
         assertTrue(it.hasNext());
         Bean b = it.next();
@@ -98,16 +97,17 @@ public class ReadValuesTest extends BaseMapTest
         it.close();
 
         // Also, test 'readAll()'
-        it = MAPPER.readerFor(Bean.class).readValues(JSON);
+        it = _iterator(MAPPER.readerFor(Bean.class), JSON, srcType);
         List<Bean> all = it.readAll();
         assertEquals(2, all.size());
         it.close();
 
-        it = MAPPER.readerFor(Bean.class).readValues("{\"a\":3}{\"a\":3}");
+        it = _iterator(MAPPER.readerFor(Bean.class), "{\"a\":3}{\"a\":3}", srcType);
         Set<Bean> set = it.readAll(new HashSet<Bean>());
         assertEquals(HashSet.class, set.getClass());
         assertEquals(1, set.size());
         assertEquals(3, set.iterator().next().a);
+        it.close();
     }
 
     public void testRootBeansInArray() throws Exception

@@ -119,10 +119,8 @@ public class ThrowableDeserializer
                     continue;
                 }
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            // Things marked as ignorable should not be passed to any setter
+            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
                 p.skipChildren();
                 continue;
             }

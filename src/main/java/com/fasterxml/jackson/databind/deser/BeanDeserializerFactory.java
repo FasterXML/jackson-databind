@@ -533,9 +533,9 @@ public class BeanDeserializerFactory
             // 25-Sep-2014, tatu: No point in finding constructor parameters for abstract types
             //   (since they are never used anyway)
             if (isConcrete && propDef.hasConstructorParameter()) {
-                /* [JACKSON-700] If property is passed via constructor parameter, we must
-                 *   handle things in special way. Not sure what is the most optimal way...
-                 *   for now, let's just call a (new) method in builder, which does nothing.
+                /* If property is passed via constructor parameter, we must
+                 * handle things in special way. Not sure what is the most optimal way...
+                 * for now, let's just call a (new) method in builder, which does nothing.
                  */
                 // but let's call a method just to allow custom builders to be aware...
                 final String name = propDef.getName();
@@ -729,8 +729,18 @@ public class BeanDeserializerFactory
     {
         // need to ensure method is callable (for non-public)
         AnnotatedMember mutator = propDef.getNonConstructorMutator();
+
         if (ctxt.canOverrideAccessModifiers()) {
-            mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            // [databind#877]: explicitly prevent forced access to `cause` of `Throwable`;
+            // never needed and attempts may cause problems on some platforms.
+            // !!! NOTE: should be handled better for 2.8 and later
+            if ((mutator instanceof AnnotatedField)
+                    && "cause".equals(mutator.getName())
+                    && Throwable.class.isAssignableFrom(propType0.getRawClass())) {
+                ;
+            } else {
+                mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
         }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
@@ -738,7 +748,7 @@ public class BeanDeserializerFactory
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
             prop = new MethodProperty(propDef, type, typeDeser,
-                beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
+                    beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {
             prop = new FieldProperty(propDef, type, typeDeser,
                     beanDesc.getClassAnnotations(), (AnnotatedField) mutator);

@@ -133,9 +133,12 @@ public abstract class AnnotatedMember
      * @since 2.7
      */
     public final void fixAccess(boolean force) {
-        ClassUtil.checkAndFixAccess(getMember(), force);
+        Member m = getMember();
+        if (m != null) { // may be null for virtual members
+            ClassUtil.checkAndFixAccess(m, force);
+        }
     }
-    
+
     /**
      * @deprecated Since 2.7 use {@link #fixAccess(boolean)} instead
      */

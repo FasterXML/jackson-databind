@@ -120,11 +120,15 @@ public class PropertyBuilder
         switch (inclusion) {
         case NON_DEFAULT:
             // 11-Nov-2015, tatu: This is tricky because semantics differ between cases,
-            //    so that if enclosing class has this, we may need to values of property,
+            //    so that if enclosing class has this, we may need to access values of property,
             //    whereas for global defaults OR per-property overrides, we have more
             //    static definition. Sigh.
             // First: case of class specifying it; try to find POJO property defaults
             if (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT) {
+                // 07-Sep-2016, tatu: may also need to front-load access forcing now
+                if (prov.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+                    am.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                }
                 valueToSuppress = getPropertyDefaultValue(propDef.getName(), am, actualType);
             } else {
                 valueToSuppress = getDefaultValue(actualType);

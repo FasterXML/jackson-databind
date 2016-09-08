@@ -406,6 +406,17 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         _nonTrivialBaseType = t;
     }
 
+    /**
+     * Method called to ensure that the mutator has proper access rights to
+     * be called, as per configuration. Overridden by implementations that
+     * have mutators that require access, fields and setters.
+     *
+     * @since 2.8.3
+     */
+    public void fixAccess(SerializationConfig config) {
+        _member.fixAccess(config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+    }
+
     /*
     /***********************************************************
     /* JDK Serializability

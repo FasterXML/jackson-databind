@@ -24,7 +24,7 @@ public class AnyGetterWriter
     protected JsonSerializer<Object> _serializer;
 
     protected MapSerializer _mapSerializer;
-    
+
     @SuppressWarnings("unchecked")
     public AnyGetterWriter(BeanProperty property,
             AnnotatedMember accessor, JsonSerializer<?> serializer)
@@ -35,6 +35,14 @@ public class AnyGetterWriter
         if (serializer instanceof MapSerializer) {
             _mapSerializer = (MapSerializer) serializer;
         }
+    }
+
+    /**
+     * @since 0.8.3
+     */
+    public void fixAccess(SerializationConfig config) {
+        _accessor.fixAccess(
+                config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
     }
 
     public void getAndSerialize(Object bean, JsonGenerator gen, SerializerProvider provider)

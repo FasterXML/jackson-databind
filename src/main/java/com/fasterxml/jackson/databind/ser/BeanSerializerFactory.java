@@ -425,9 +425,6 @@ public class BeanSerializerFactory
 
         AnnotatedMember anyGetter = beanDesc.findAnyGetter();
         if (anyGetter != null) {
-            if (config.canOverrideAccessModifiers()) {
-                anyGetter.fixAccess(config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-            }
             JavaType type = anyGetter.getType();
             // copied from BasicSerializerFactory.buildMapSerializer():
             boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
@@ -586,16 +583,11 @@ public class BeanSerializerFactory
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
         
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
-        final boolean fixAccess = config.canOverrideAccessModifiers();
-        final boolean forceAccess = fixAccess && config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:
             if (property.isTypeId()) {
-                if (accessor != null) { // only add if we can access... but otherwise?
-                    if (fixAccess) {
-                        accessor.fixAccess(forceAccess);
-                    }
+                if (accessor != null) {
                     builder.setTypeId(accessor);
                 }
                 continue;
@@ -790,9 +782,6 @@ public class BeanSerializerFactory
         throws JsonMappingException
     {
         final PropertyName name = propDef.getFullName();
-        if (prov.canOverrideAccessModifiers()) {
-            accessor.fixAccess(prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-        }
         JavaType type = accessor.getType();
         BeanProperty.Std property = new BeanProperty.Std(name, type, propDef.getWrapperName(),
                 pb.getClassAnnotations(), accessor, propDef.getMetadata());

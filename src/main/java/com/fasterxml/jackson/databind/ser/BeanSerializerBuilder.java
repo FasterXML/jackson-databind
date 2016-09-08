@@ -179,11 +179,24 @@ public class BeanSerializerBuilder
             properties = NO_PROPERTIES;
         } else {
             properties = _properties.toArray(new BeanPropertyWriter[_properties.size()]);
+            if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+                for (int i = 0, end = properties.length; i < end; ++i) {
+                    properties[i].fixAccess(_config);
+                }
+            }
+        }
+        if (_anyGetter != null) {
+            _anyGetter.fixAccess(_config);
+        }
+        if (_typeId != null) {
+            if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+                _typeId.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
         }
         return new BeanSerializer(_beanDesc.getType(), this,
                 properties, _filteredProperties);
     }
-    
+
     /**
      * Factory method for constructing an "empty" serializer; one that
      * outputs no properties (but handles JSON objects properly, including

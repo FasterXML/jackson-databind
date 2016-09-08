@@ -713,7 +713,8 @@ public class BeanDeserializerFactory
             // never needed and attempts may cause problems on some platforms.
             // !!! NOTE: should be handled better for 2.8 and later
             if ((mutator instanceof AnnotatedField)
-                    && "cause".equals(mutator.getName())) {
+                    && "cause".equals(mutator.getName())
+                    && Throwable.class.isAssignableFrom(propType0.getRawClass())) {
                 ;
             } else {
                 mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));

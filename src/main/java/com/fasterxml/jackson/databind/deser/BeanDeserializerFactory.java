@@ -709,7 +709,15 @@ public class BeanDeserializerFactory
         AnnotatedMember mutator = propDef.getNonConstructorMutator();
 
         if (ctxt.canOverrideAccessModifiers()) {
-            mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            // [databind#877]: explicitly prevent forced access to `cause` of `Throwable`;
+            // never needed and attempts may cause problems on some platforms.
+            // !!! NOTE: should be handled better for 2.8 and later
+            if ((mutator instanceof AnnotatedField)
+                    && "cause".equals(mutator.getName())) {
+                ;
+            } else {
+                mutator.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            }
         }
         // note: this works since we know there's exactly one argument for methods
         BeanProperty.Std property = new BeanProperty.Std(propDef.getFullName(),

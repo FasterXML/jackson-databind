@@ -1175,7 +1175,7 @@ public abstract class SerializerProvider
         if (args != null && args.length > 0) {
             message = String.format(message, args);
         }
-        String propName = (prop == null)  ? "N/A" : _desc(prop.getName());
+        String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
         throw mappingException("Invalid definition for property %s (of type %s): %s",
                 propName, beanDesc, message);
@@ -1345,6 +1345,13 @@ public abstract class SerializerProvider
             return "N/A";
         }
         return "'"+value+"'";
+    }
+
+    protected String _quotedString(Object value) {
+        if (value == null) {
+            return "N/A";
+        }
+        return String.valueOf(value);
     }
 
     protected final DateFormat _dateFormat()

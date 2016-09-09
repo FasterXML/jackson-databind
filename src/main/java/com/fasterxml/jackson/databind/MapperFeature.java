@@ -21,7 +21,7 @@ public enum MapperFeature implements ConfigFeature
     /* Introspection features
     /******************************************************
      */
-    
+
     /**
      * Feature that determines whether annotation introspection
      * is used for configuration; if enabled, configured

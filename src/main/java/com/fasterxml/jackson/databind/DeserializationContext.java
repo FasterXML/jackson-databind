@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -1256,6 +1257,41 @@ public abstract class DeserializationContext
         String msg = String.format("No Object Id found for an instance of %s, to assign to property '%s'",
                 bean.getClass().getName(), oidReader.propertyName);
         throw JsonMappingException.from(getParser(), msg);
+    }
+
+    /**
+     * Helper method called to indicate problem in POJO (serialization) definitions or settings
+     * regarding specific Java type, unrelated to actual JSON content to map.
+     * Default behavior is to construct and throw a {@link JsonMappingException}.
+     *
+     * @since 2.9
+     */
+    public <T> T reportBadTypeDefinition(BeanDescription bean,
+            String message, Object... args) throws JsonMappingException {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        throw mappingException("Invalid type definition for type %s: %s",
+                beanDesc, message);
+    }
+
+    /**
+     * Helper method called to indicate problem in POJO (serialization) definitions or settings
+     * regarding specific property (of a type), unrelated to actual JSON content to map.
+     * Default behavior is to construct and throw a {@link JsonMappingException}.
+     *
+     * @since 2.9
+     */
+    public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
+            String message, Object... args) throws JsonMappingException {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
+        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        throw mappingException("Invalid definition for property %s (of type %s): %s",
+                propName, beanDesc, message);
     }
 
     /*

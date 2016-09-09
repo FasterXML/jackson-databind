@@ -719,6 +719,12 @@ public class BeanDeserializerFactory
     {
         // need to ensure method is callable (for non-public)
         AnnotatedMember mutator = propDef.getNonConstructorMutator();
+        // 08-Sep-2016, tatu: issues like [databind#1342] suggest something fishy
+        //   going on; add sanity checks to try to pin down actual problem...
+        //   Possibly passing creator parameter?
+        if (mutator == null) {
+            ctxt.reportBadPropertyDefinition(beanDesc, propDef, "No non-constructor mutator available");
+        }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
         TypeDeserializer typeDeser = type.getTypeHandler();
@@ -727,6 +733,7 @@ public class BeanDeserializerFactory
             prop = new MethodProperty(propDef, type, typeDeser,
                     beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {
+            // 08-Sep-2016, tatu: wonder if we should verify it is `AnnotatedField` to be safe?
             prop = new FieldProperty(propDef, type, typeDeser,
                     beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
         }

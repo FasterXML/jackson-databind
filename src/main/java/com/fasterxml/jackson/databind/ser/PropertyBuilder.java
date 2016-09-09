@@ -94,7 +94,12 @@ public class PropertyBuilder
         throws JsonMappingException
     {
         // do we have annotation that forces type to use (to declared type or its super type)?
-        JavaType serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
+        JavaType serializationType;
+        try {
+            serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
+        } catch (JsonMappingException e) {
+            return prov.reportBadPropertyDefinition(_beanDesc, propDef, e.getMessage());
+        }
 
         // Container types can have separate type serializers for content (value / element) type
         if (contentTypeSer != null) {
@@ -109,13 +114,13 @@ public class PropertyBuilder
             JavaType ct = serializationType.getContentType();
             // Not exactly sure why, but this used to occur; better check explicitly:
             if (ct == null) {
-                throw new IllegalStateException("Problem trying to create BeanPropertyWriter for property '"
-                        +propDef.getName()+"' (of type "+_beanDesc.getType()+"); serialization type "+serializationType+" has no content");
+                prov.reportBadPropertyDefinition(_beanDesc, propDef,
+                        "serialization type "+serializationType+" has no content");
             }
             serializationType = serializationType.withContentTypeHandler(contentTypeSer);
             ct = serializationType.getContentType();
         }
-        
+
         Object valueToSuppress = null;
         boolean suppressNulls = false;
 
@@ -221,6 +226,7 @@ public class PropertyBuilder
         throws JsonMappingException
     {
         JavaType secondary = _annotationIntrospector.refineSerializationType(_config, a, declaredType);
+
         // 11-Oct-2015, tatu: As of 2.7, not 100% sure following checks are needed. But keeping
         //    for now, just in case
         if (secondary != declaredType) {

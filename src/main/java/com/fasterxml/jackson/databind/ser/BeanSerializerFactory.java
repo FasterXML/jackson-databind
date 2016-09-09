@@ -143,8 +143,17 @@ public class BeanSerializerFactory
         boolean staticTyping;
         // Next: we may have annotations that further indicate actual type to use (a super type)
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        JavaType type = (intr == null) ? origType
-                : intr.refineSerializationType(config, beanDesc.getClassInfo(), origType);
+        JavaType type;
+
+        if (intr == null) {
+            type = origType;
+        } else {
+            try {
+                type = intr.refineSerializationType(config, beanDesc.getClassInfo(), origType);
+            } catch (JsonMappingException e) {
+                return prov.reportBadTypeDefinition(beanDesc, e.getMessage());
+            }
+        }
         if (type == origType) { // no changes, won't force static typing
             staticTyping = false;
         } else { // changes; assume static typing; plus, need to re-introspect if class differs

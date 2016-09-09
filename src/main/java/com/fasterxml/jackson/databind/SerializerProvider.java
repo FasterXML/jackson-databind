@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
@@ -1146,6 +1147,41 @@ public abstract class SerializerProvider
     }
 
     /**
+     * Helper method called to indicate problem in POJO (serialization) definitions or settings
+     * regarding specific Java type, unrelated to actual JSON content to map.
+     * Default behavior is to construct and throw a {@link JsonMappingException}.
+     *
+     * @since 2.9
+     */
+    public <T> T reportBadTypeDefinition(BeanDescription bean,
+            String message, Object... args) throws JsonMappingException {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        throw mappingException("Invalid type definition for type %s: %s",
+                beanDesc, message);
+    }
+
+    /**
+     * Helper method called to indicate problem in POJO (serialization) definitions or settings
+     * regarding specific property (of a type), unrelated to actual JSON content to map.
+     * Default behavior is to construct and throw a {@link JsonMappingException}.
+     *
+     * @since 2.9
+     */
+    public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
+            String message, Object... args) throws JsonMappingException {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        String propName = (prop == null)  ? "N/A" : _desc(prop.getName());
+        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        throw mappingException("Invalid definition for property %s (of type %s): %s",
+                propName, beanDesc, message);
+    }
+
+    /**
      * @since 2.8
      */
     public JsonGenerator getGenerator() {
@@ -1303,6 +1339,13 @@ public abstract class SerializerProvider
     /* Internal methods
     /**********************************************************
      */
+
+    protected String _desc(Object value) {
+        if (value == null) {
+            return "N/A";
+        }
+        return "'"+value+"'";
+    }
 
     protected final DateFormat _dateFormat()
     {

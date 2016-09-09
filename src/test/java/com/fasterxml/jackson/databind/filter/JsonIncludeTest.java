@@ -261,4 +261,23 @@ public class JsonIncludeTest
         assertEquals(aposToQuotes("{'map':{}}"),
                 mapper.writeValueAsString(empty));
     }
+
+    static class Issue1351Bean
+    {
+        public final String first;
+        public final double second;
+
+        public Issue1351Bean(String first, double second) {
+            this.first = first;
+            this.second = second;
+        }
+    }
+    
+    public void testIssue1351() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        assertEquals(aposToQuotes("{}"),
+                mapper.writeValueAsString(new Issue1351Bean(null, (double) 0)));
+    }
 }

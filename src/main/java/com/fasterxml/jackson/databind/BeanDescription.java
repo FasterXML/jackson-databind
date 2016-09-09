@@ -195,6 +195,12 @@ public abstract class BeanDescription
      */
 
     /**
+     * Method for finding annotation-indicated inclusion definition (if any);
+     * possibly overriding given default value.
+     *<p>
+     * NOTE: does NOT use global inclusion default settings as the base, unless
+     * passed as `defValue`.
+     *
      * @since 2.7
      */
     public abstract JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue);

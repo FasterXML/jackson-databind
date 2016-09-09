@@ -16,16 +16,9 @@ public class PropertyBuilder
 {
     // @since 2.7
     private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
-    
+
     final protected SerializationConfig _config;
     final protected BeanDescription _beanDesc;
-
-    /**
-     * Default inclusion mode for properties of the POJO for which
-     * properties are collected; possibly overridden on
-     * per-property basis.
-     */
-    final protected JsonInclude.Value _defaultInclusion;
 
     final protected AnnotationIntrospector _annotationIntrospector;
 
@@ -40,14 +33,41 @@ public class PropertyBuilder
      */
     protected Object _defaultBean;
 
+    /**
+     * Default inclusion mode for properties of the POJO for which
+     * properties are collected; possibly overridden on
+     * per-property basis. Combines global inclusion defaults and
+     * per-type (annotation and type-override) inclusion overrides.
+     */
+    final protected JsonInclude.Value _defaultInclusion;
+
+    /**
+     * Marker flag used to indicate that "real" default values are to be used
+     * for properties, as per per-type value inclusion of type <code>NON_DEFAULT</code>
+     *
+     * @since 2.8
+     */
+    final protected boolean _useRealPropertyDefaults;
+    
     public PropertyBuilder(SerializationConfig config, BeanDescription beanDesc)
     {
         _config = config;
         _beanDesc = beanDesc;
-        // NOTE: this includes global defaults and defaults of POJO that contains property,
-        // but not defaults for types of properties referenced
-        _defaultInclusion = beanDesc.findPropertyInclusion(
-                config.getDefaultPropertyInclusion(beanDesc.getBeanClass()));
+        // 08-Sep-2016, tatu: This gets tricky, with 3 levels of definitions:
+        //  (a) global default inclusion
+        //  (b) per-type default inclusion (from annotation or config overrides;
+        //     latter having precedence
+        //  Cc) per-property override
+        //
+        //  and not only requiring merging, but also considering special handling
+        //  for NON_DEFAULT in case of (b) (vs (a) or (c))
+        JsonInclude.Value inclPerType = JsonInclude.Value.merge(
+                beanDesc.findPropertyInclusion(JsonInclude.Value.empty()),
+                config.getDefaultPropertyInclusion(beanDesc.getBeanClass(),
+                        JsonInclude.Value.empty()));
+        _defaultInclusion = JsonInclude.Value.merge(config.getDefaultPropertyInclusion(),
+                inclPerType);
+        _useRealPropertyDefaults = inclPerType.getValueInclusion() == JsonInclude.Include.NON_DEFAULT;
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -123,8 +143,8 @@ public class PropertyBuilder
             //    so that if enclosing class has this, we may need to access values of property,
             //    whereas for global defaults OR per-property overrides, we have more
             //    static definition. Sigh.
-            // First: case of class specifying it; try to find POJO property defaults
-            if (_defaultInclusion.getValueInclusion() == JsonInclude.Include.NON_DEFAULT) {
+            // First: case of class/type specifying it; try to find POJO property defaults
+            if (_useRealPropertyDefaults) {
                 // 07-Sep-2016, tatu: may also need to front-load access forcing now
                 if (prov.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                     am.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -132,6 +152,7 @@ public class PropertyBuilder
                 valueToSuppress = getPropertyDefaultValue(propDef.getName(), am, actualType);
             } else {
                 valueToSuppress = getDefaultValue(actualType);
+                suppressNulls = true;
             }
             if (valueToSuppress == null) {
                 suppressNulls = true;
@@ -140,7 +161,6 @@ public class PropertyBuilder
                     valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
                 }
             }
-
             break;
         case NON_ABSENT: // new with 2.6, to support Guava/JDK8 Optionals
             // always suppress nulls

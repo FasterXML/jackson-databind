@@ -189,6 +189,7 @@ public class JsonMappingException
      *
      * @since 2.7
      */
+    @JsonIgnore
     protected transient Closeable _processor;
     
     /*

@@ -12,12 +12,20 @@ public class TestJsonMappingException {
 			this.strVal = strVal;
 		}
 	}
+	// we know we can't serialize this dumb class above
+	@Test( expected = JsonMappingException.class )
+	public void testNoSerdeConstructor() throws IOException {
+		ObjectMapper mpr = new ObjectMapper();
+		mpr.readValue( "{ \"val\": \"foo\" }", NoSerdeConstructor.class );
+	}
+	// we should, however, be able to serialize the exception arising from the above test
 	@Test
-	public void test() throws IOException {
+	public void testJsonMappingExceptionIsJacksonSerializable() throws IOException {
 		ObjectMapper mpr = new ObjectMapper();
 		try {
-			mpr.readValue( "{ \"val\": \"foo\" }", NoSerdeConstructor.class );
+			testNoSerdeConstructor();
 		} catch ( JsonMappingException exc ) {
+			// without @JsonIgnore on getProcessor() this causes an error
 			mpr.writeValueAsString( exc );
 		}
 	}

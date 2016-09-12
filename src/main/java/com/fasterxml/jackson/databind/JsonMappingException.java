@@ -189,7 +189,6 @@ public class JsonMappingException
      *
      * @since 2.7
      */
-    @JsonIgnore
     protected transient Closeable _processor;
     
     /*
@@ -455,6 +454,7 @@ public class JsonMappingException
     /**********************************************************
      */
 
+    @JsonIgnore
     @Override // since 2.7.5
     public Object getProcessor() { return _processor; }
 

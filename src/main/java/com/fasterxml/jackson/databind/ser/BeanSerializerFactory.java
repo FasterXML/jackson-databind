@@ -587,6 +587,7 @@ public class BeanSerializerFactory
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
         final boolean fixAccess = config.canOverrideAccessModifiers();
         final boolean forceAccess = fixAccess && config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
+
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:

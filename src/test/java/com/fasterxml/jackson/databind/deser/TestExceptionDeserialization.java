@@ -136,4 +136,33 @@ public class TestExceptionDeserialization
             //Exception thrown correctly
         }
     }
+
+    static class NoSerdeConstructor {
+        private String strVal;
+        public String getVal() { return strVal; }
+        public NoSerdeConstructor( String strVal ) {
+            this.strVal = strVal;
+        }
+    }
+
+    // [databind#1368]
+    public void testFailingNoSerdeConstructor() throws IOException {
+        Exception e = null;
+        // cant deserialize due to unexpected constructor
+        try {
+            MAPPER.readValue( "{ \"val\": \"foo\" }", NoSerdeConstructor.class );
+            fail("Should not pass");
+        } catch (JsonMappingException e0) {
+            verifyException(e0, "No suitable constructor");
+            e = e0;
+        }
+        // but should be able to serialize new exception we got
+        String json = MAPPER.writeValueAsString(e);
+        JsonNode root = MAPPER.readTree(json);
+        String msg = root.path("message").asText();
+        String MATCH = "No suitable constructor";
+        if (!msg.contains(MATCH)) {
+            fail("Exception should contain '"+MATCH+"', does not: '"+msg+"'");
+        }
+    }
 }

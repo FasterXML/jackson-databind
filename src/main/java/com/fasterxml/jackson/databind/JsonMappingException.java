@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -400,7 +401,7 @@ public class JsonMappingException
     }
 
     /**
-     * Method for accesing description of path that lead to the
+     * Method for accessing description of path that lead to the
      * problem that triggered this exception
      */
     public String getPathReference()
@@ -454,6 +455,7 @@ public class JsonMappingException
      */
 
     @Override // since 2.7.5
+    @JsonIgnore // as per [databind#1368]
     public Object getProcessor() { return _processor; }
 
     @Override

@@ -44,7 +44,7 @@ public class TestExceptionDeserialization
     {
         @JsonCreator MyNoArgException() { }
     }
-    
+
     /*
     /**********************************************************
     /* Tests

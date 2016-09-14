@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
  (contributed by Connor K)
+#1369: Improve `@JsonCreator` detection via `AnnotationIntrospector`
+ by passing `MappingConfig`
 
 2.8.3 (not yet released)
 

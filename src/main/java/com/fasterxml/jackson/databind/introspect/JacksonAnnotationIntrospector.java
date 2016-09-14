@@ -172,7 +172,7 @@ public class JacksonAnnotationIntrospector
      * explicit serialized name
      */
     @Override
-    @Deprecated
+    @Deprecated // since 2.8
     public String findEnumValue(Enum<?> value)
     {
         // 11-Jun-2015, tatu: As per [databind#677], need to allow explicit naming.
@@ -675,7 +675,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @SuppressWarnings("deprecation")
+    @Deprecated // since 2.7
     public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
@@ -705,7 +705,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @Deprecated
+    @Deprecated // since 2.7
     public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
@@ -751,7 +751,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @Deprecated
+    @Deprecated // since 2.7
     public Class<?> findSerializationType(Annotated am)
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
@@ -759,7 +759,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @Deprecated
+    @Deprecated // since 2.7
     public Class<?> findSerializationKeyType(Annotated am, JavaType baseType)
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
@@ -767,7 +767,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @Deprecated
+    @Deprecated // since 2.7
     public Class<?> findSerializationContentType(Annotated am, JavaType baseType)
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
@@ -812,9 +812,8 @@ public class JacksonAnnotationIntrospector
 
     private final Boolean _findSortAlpha(Annotated ann) {
         JsonPropertyOrder order = _findAnnotation(ann, JsonPropertyOrder.class);
-        /* 23-Jun-2015, tatu: as per [databind#840], let's only consider
-         *  `true` to have any significance.
-         */
+        // 23-Jun-2015, tatu: as per [databind#840], let's only consider
+        //  `true` to have any significance.
         if ((order != null) && order.alphabetic()) {
             return Boolean.TRUE;
         }
@@ -1009,22 +1008,22 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    @Deprecated
+    @Deprecated // since 2.7
     public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
     {
         JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.contentAs());
     }
     
-    @Deprecated
     @Override
+    @Deprecated // since 2.7
     public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
         JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.as());
     }
 
     @Override
-    @Deprecated
+    @Deprecated // since 2.7
     public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
         JsonDeserialize ann = _findAnnotation(am, JsonDeserialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.keyAs());
@@ -1103,6 +1102,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated // since 2.9
     public boolean hasCreatorAnnotation(Annotated a)
     {
         /* No dedicated disabling; regular @JsonIgnore used if needs to be
@@ -1128,9 +1128,34 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated // since 2.9
     public JsonCreator.Mode findCreatorBinding(Annotated a) {
         JsonCreator ann = _findAnnotation(a, JsonCreator.class);
         return (ann == null) ? null : ann.mode();
+    }
+
+    @Override
+    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+        JsonCreator ann = _findAnnotation(a, JsonCreator.class);
+        if (ann != null) {
+            return ann.mode();
+        }
+
+        if (_cfgConstructorPropertiesImpliesCreator
+//                && config.isEnabled(MapperFeature.))
+            ) {
+            if (a instanceof AnnotatedConstructor) {
+                if (_java7Helper != null) {
+                    Boolean b = _java7Helper.hasCreatorAnnotation(a);
+                    if ((b != null) && b.booleanValue()) {
+                        // 13-Sep-2016, tatu: Judgment call, but I don't JDK ever intended use
+                        //    of delegate, but assumed as-properties implicitly
+                        return JsonCreator.Mode.PROPERTIES;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /*

@@ -22,17 +22,17 @@ public final class ManagedReferenceProperty
     private static final long serialVersionUID = 1L;
 
     protected final String _referenceName;
-    
+
     /**
      * Flag that indicates whether property to handle is a container type
      * (array, Collection, Map) or not.
      */
     protected final boolean _isContainer;
-    
+
     protected final SettableBeanProperty _managedProperty;
 
     protected final SettableBeanProperty _backProperty;
-    
+
     public ManagedReferenceProperty(SettableBeanProperty forward, String refName,
             SettableBeanProperty backward, Annotations contextAnnotations, boolean isContainer)
     {
@@ -66,7 +66,7 @@ public final class ManagedReferenceProperty
     public ManagedReferenceProperty withName(PropertyName newName) {
         return new ManagedReferenceProperty(this, newName);
     }
-    
+
     @Override
     public ManagedReferenceProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new ManagedReferenceProperty(this, deser);
@@ -83,7 +83,7 @@ public final class ManagedReferenceProperty
     /* BeanProperty impl
     /**********************************************************
      */
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _managedProperty.getAnnotation(acls);

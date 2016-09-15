@@ -515,7 +515,7 @@ public abstract class BeanDeserializerBase
             // Need to link managed references with matching back references
             prop = _resolveManagedReferenceProperty(ctxt, prop);
 
-            // [databind#351[: need to wrap properties that require object id resolution.
+            // [databind#351]: need to wrap properties that require object id resolution.
             if (!(prop instanceof ManagedReferenceProperty)) {
                 prop = _resolvedObjectIdProperty(ctxt, prop);
             }

@@ -132,7 +132,7 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            // 15-Sep-2015, tatu: How coud we get a ref to JsonParser?
+            // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsIOE(e, value);
         }
     }
@@ -143,7 +143,7 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            // 15-Sep-2015, tatu: How coud we get a ref to JsonParser?
+            // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsIOE(e, value);
         }
         return instance;

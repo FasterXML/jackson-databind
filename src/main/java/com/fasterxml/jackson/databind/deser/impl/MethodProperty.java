@@ -119,7 +119,7 @@ public final class MethodProperty
             return null;
         }
     }
-    
+
     @Override
     public final void set(Object instance, Object value) throws IOException
     {

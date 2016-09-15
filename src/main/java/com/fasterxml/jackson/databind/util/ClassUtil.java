@@ -356,115 +356,6 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Caching access to class metadata, added in 2.7
-    /**********************************************************
-     */
-
-    /* 17-Sep-2015, tatu: Although access methods should not be significant
-     *   problems for most proper usage, they may become problematic if
-     *   ObjectMapper has to be re-created; and especially so on Android.
-     *   So let's do somewhat aggressive caching.
-     */
-
-    private final static LRUMap<Class<?>,ClassMetadata> sCached = new LRUMap<Class<?>,ClassMetadata>(48, 48);    
-
-    /**
-     * @since 2.7
-     */
-    public static String getPackageName(Class<?> cls) {
-        return _getMetadata(cls).getPackageName();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static boolean hasEnclosingMethod(Class<?> cls) {
-        return _getMetadata(cls).hasEnclosingMethod();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Field[] getDeclaredFields(Class<?> cls) {
-        return _getMetadata(cls).getDeclaredFields();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Method[] getDeclaredMethods(Class<?> cls) {
-        return _getMetadata(cls).getDeclaredMethods();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Annotation[] findClassAnnotations(Class<?> cls) {
-        return _getMetadata(cls).getDeclaredAnnotations();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Ctor[] getConstructors(Class<?> cls) {
-        return _getMetadata(cls).getConstructors();
-    }
-
-    // // // Then methods that do NOT cache access but were considered
-    // // // (and could be added to do caching if it was proven effective)
-
-    /**
-     * @since 2.7
-     */
-    public static Class<?> getDeclaringClass(Class<?> cls) {
-        // Caching does not seem worthwhile, as per profiling
-        return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Type getGenericSuperclass(Class<?> cls) {
-        return cls.getGenericSuperclass();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Type[] getGenericInterfaces(Class<?> cls) {
-        return _getMetadata(cls).getGenericInterfaces();
-    }
-    
-    /**
-     * @since 2.7
-     */
-    public static Class<?> getEnclosingClass(Class<?> cls) {
-        // Caching does not seem worthwhile, as per profiling
-        return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();
-    }
-
-    
-    private static Class<?>[] _interfaces(Class<?> cls) {
-        return _getMetadata(cls).getInterfaces();
-    }
-
-    private static ClassMetadata _getMetadata(Class<?> cls)
-    {
-        ClassMetadata md = sCached.get(cls);
-        if (md == null) {
-            md = new ClassMetadata(cls);
-            // tiny optimization, but in case someone concurrently constructed it,
-            // let's use that instance, to reduce extra concurrent work.
-            ClassMetadata old = sCached.putIfAbsent(cls, md);
-            if (old != null) {
-                md = old;
-            }
-        }
-        return md;
-    }
-    
-    /*
-    /**********************************************************
     /* Method type detection methods
     /**********************************************************
      */
@@ -1010,6 +901,113 @@ public final class ClassUtil
      */
     public static boolean isObjectOrPrimitive(Class<?> cls) {
         return (cls == CLS_OBJECT) || cls.isPrimitive();
+    }
+
+    /*
+    /**********************************************************
+    /* Caching access to class metadata, added in 2.7
+    /**********************************************************
+     */
+
+    /* 17-Sep-2015, tatu: Although access methods should not be significant
+     *   problems for most proper usage, they may become problematic if
+     *   ObjectMapper has to be re-created; and especially so on Android.
+     *   So let's do somewhat aggressive caching.
+     */
+    private final static LRUMap<Class<?>,ClassMetadata> sCached = new LRUMap<Class<?>,ClassMetadata>(48, 48);
+
+    /**
+     * @since 2.7
+     */
+    public static String getPackageName(Class<?> cls) {
+        return _getMetadata(cls).getPackageName();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static boolean hasEnclosingMethod(Class<?> cls) {
+        return _getMetadata(cls).hasEnclosingMethod();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Field[] getDeclaredFields(Class<?> cls) {
+        return _getMetadata(cls).getDeclaredFields();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Method[] getDeclaredMethods(Class<?> cls) {
+        return _getMetadata(cls).getDeclaredMethods();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Annotation[] findClassAnnotations(Class<?> cls) {
+        return _getMetadata(cls).getDeclaredAnnotations();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Ctor[] getConstructors(Class<?> cls) {
+        return _getMetadata(cls).getConstructors();
+    }
+
+    // // // Then methods that do NOT cache access but were considered
+    // // // (and could be added to do caching if it was proven effective)
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getDeclaringClass(Class<?> cls) {
+        // Caching does not seem worthwhile, as per profiling
+        return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Type getGenericSuperclass(Class<?> cls) {
+        return cls.getGenericSuperclass();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Type[] getGenericInterfaces(Class<?> cls) {
+        return _getMetadata(cls).getGenericInterfaces();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getEnclosingClass(Class<?> cls) {
+        // Caching does not seem worthwhile, as per profiling
+        return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();
+    }
+
+    private static Class<?>[] _interfaces(Class<?> cls) {
+        return _getMetadata(cls).getInterfaces();
+    }
+
+    private static ClassMetadata _getMetadata(Class<?> cls)
+    {
+        ClassMetadata md = sCached.get(cls);
+        if (md == null) {
+            md = new ClassMetadata(cls);
+            // tiny optimization, but in case someone concurrently constructed it,
+            // let's use that instance, to reduce extra concurrent work.
+            ClassMetadata old = sCached.putIfAbsent(cls, md);
+            if (old != null) {
+                md = old;
+            }
+        }
+        return md;
     }
 
     /*

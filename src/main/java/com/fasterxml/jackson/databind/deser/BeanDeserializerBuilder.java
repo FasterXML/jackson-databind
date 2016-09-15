@@ -183,6 +183,10 @@ public class BeanDeserializerBuilder
         if (_backRefProperties == null) {
             _backRefProperties = new HashMap<String, SettableBeanProperty>(4);
         }
+        // 15-Sep-2016, tatu: For some reason fixing access at point of `build()` does
+        //    NOT work (2 failing unit tests). Not 100% clear why, but for now force
+        //    access set early; unfortunate, but since it works....
+        prop.fixAccess(_config);
         _backRefProperties.put(referenceName, prop);
         // also: if we had property with same name, actually remove it
         if (_properties != null) {
@@ -207,7 +211,7 @@ public class BeanDeserializerBuilder
         _injectables.add(new ValueInjector(propName, propType,
                 contextAnnotations, member, valueId));
     }
-    
+
     /**
      * Method that will add property name as one of properties that can
      * be ignored if not recognized.
@@ -462,11 +466,15 @@ public class BeanDeserializerBuilder
             */
             prop.fixAccess(_config);
         }
+        // 15-Sep-2016, tatu: Access via back-ref properties has been done earlier
+        //   as it has to, for some reason, so not repeated here.
+/*        
         if (_backRefProperties != null) {
             for (SettableBeanProperty prop : _backRefProperties.values()) {
                 prop.fixAccess(_config);
             }
         }
+        */
         if (_anySetter != null) {
             _anySetter.fixAccess(_config);
         }

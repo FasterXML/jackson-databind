@@ -979,7 +979,6 @@ public final class ClassUtil
      * @since 2.7
      */
     public static Class<?> getDeclaringClass(Class<?> cls) {
-        // Caching does not seem worthwhile, as per profiling
         return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
     }
 

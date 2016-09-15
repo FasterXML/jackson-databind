@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Tests Scala-style JVM naming patterns for properties.
@@ -49,13 +51,21 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
             return null;
         }
 
+        /* Deprecated since 2.9
         @Override
         public boolean hasCreatorAnnotation(Annotated a) {
-            // A placeholder for legitmate creator detection.
+            return (a instanceof AnnotatedConstructor);
+        }
+        */
+
+        @Override
+        public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+            // A placeholder for legitimate creator detection.
             // In Scala, all primary constructors should be creators,
             // but I can't obtain a reference to the AnnotatedClass from the
             // AnnotatedConstructor, so it's simulated here.
-            return (a instanceof AnnotatedConstructor);
+            return (a instanceof AnnotatedConstructor)
+                    ? JsonCreator.Mode.DEFAULT : null;
         }
     }
 

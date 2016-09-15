@@ -93,6 +93,8 @@ Project: jackson-databind
 #1359: Improve `JsonNode` deserializer to create `FloatNode` if parser supports
 #1362: ObjectReader.readValues()` ignores offset and length when reading an array
  (reported by wastevenson@github)
+#1363: The static field ClassUtil.sCached can cause a class loader leak
+ (reported by Stuart D)
 #1368: Problem serializing `JsonMappingException` due to addition of non-ignored
   `processor` property (added in 2.7)
  (reported, suggesed fix by Josh C)

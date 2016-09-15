@@ -12,33 +12,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 // Unit test for [JACKSON-890]
 public class TestBackRefsWithPolymorphic extends BaseMapTest
 {
-    private final String CLASS_NAME = getClass().getName();
-
-    // NOTE: order is arbitrary, test is fragile... has to work for now
-    private final String JSON =
-        "{\"@class\":\""+CLASS_NAME+"$PropertySheetImpl\",\"id\":0,\"properties\":{\"p1name\":{\"@class\":"
-            +"\"" +CLASS_NAME+ "$StringPropertyImpl\",\"id\":0,\"name\":\"p1name\",\"value\":\"p1value\"},"
-            +"\"p2name\":{\"@class\":\""+CLASS_NAME+"$StringPropertyImpl\",\"id\":0,"
-            +"\"name\":\"p2name\",\"value\":\"p2value\"}}}";
-
-    private final ObjectMapper MAPPER = new ObjectMapper();
-
-    public void testDeserialize() throws IOException
-    {
-        PropertySheet input = MAPPER.readValue(JSON, PropertySheet.class);
-        assertEquals(JSON, MAPPER.writeValueAsString(input));
-    }
-
-    public void testSerialize() throws IOException
-    {
-        PropertySheet sheet = new PropertySheetImpl();
-
-        sheet.addProperty(new StringPropertyImpl("p1name", "p1value"));
-        sheet.addProperty(new StringPropertyImpl("p2name", "p2value"));
-        String actual = MAPPER.writeValueAsString(sheet);
-        assertEquals(JSON, actual);
-    }
-
     @JsonPropertyOrder(alphabetic=true)
     interface Entity
     {
@@ -217,4 +190,36 @@ public class TestBackRefsWithPolymorphic extends BaseMapTest
     }
 
     static class YetAnotherClass extends StringPropertyImpl { }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
+    private final String CLASS_NAME = getClass().getName();
+    // NOTE: order is arbitrary, test is fragile... has to work for now
+    private final String JSON =
+        "{\"@class\":\""+CLASS_NAME+"$PropertySheetImpl\",\"id\":0,\"properties\":{\"p1name\":{\"@class\":"
+            +"\"" +CLASS_NAME+ "$StringPropertyImpl\",\"id\":0,\"name\":\"p1name\",\"value\":\"p1value\"},"
+            +"\"p2name\":{\"@class\":\""+CLASS_NAME+"$StringPropertyImpl\",\"id\":0,"
+            +"\"name\":\"p2name\",\"value\":\"p2value\"}}}";
+    
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    public void testDeserialize() throws IOException
+    {
+        PropertySheet input = MAPPER.readValue(JSON, PropertySheet.class);
+        assertEquals(JSON, MAPPER.writeValueAsString(input));
+    }
+
+    public void testSerialize() throws IOException
+    {
+        PropertySheet sheet = new PropertySheetImpl();
+
+        sheet.addProperty(new StringPropertyImpl("p1name", "p1value"));
+        sheet.addProperty(new StringPropertyImpl("p2name", "p2value"));
+        String actual = MAPPER.writeValueAsString(sheet);
+        assertEquals(JSON, actual);
+    }
 }

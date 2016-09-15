@@ -24,7 +24,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
 
     @Override
     public AsWrapperTypeSerializer forProperty(BeanProperty prop) {
-        return (_property == prop) ? this : new AsWrapperTypeSerializer(this._idResolver, prop);
+        return (_property == prop) ? this : new AsWrapperTypeSerializer(_idResolver, prop);
     }
     
     @Override

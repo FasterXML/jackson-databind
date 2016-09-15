@@ -476,10 +476,14 @@ Max Drobotov (fizmax@github)
   * Reported, contributed fix for #1332: `ArrayIndexOutOfBoundException` for enum by index deser
    (2.7.7)
 
+Stuart Douglas (stuartwdouglas@github)
+  * Reported #1363: The static field ClassUtil.sCached can cause a class loader leak
+   (2.7.8)
+
 Josh Caplan (jecaplan@github)
   * Reported, suggested fix for #1368: Problem serializing `JsonMappingException` due to addition
-   of non-ignored `processor` property (added in 2.7)
-  (2.7.8)
+    of non-ignored `processor` property (added in 2.7)
+   (2.7.8)
 
 Artur Jonkisz (ajonkisz@github)
   * Reported #960: `@JsonCreator` not working on a factory with no arguments for ae enum type

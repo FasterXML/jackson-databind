@@ -14,6 +14,9 @@ public final class ClassUtil
 {
     private final static Class<?> CLS_OBJECT = Object.class;
 
+    private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
+    private final static Ctor[] NO_CTORS = new Ctor[0];
+    
     /*
     /**********************************************************
     /* Helper classes
@@ -354,115 +357,6 @@ public final class ClassUtil
         throw new ClassNotFoundException(prob.getMessage(), prob);
     }
 
-    /*
-    /**********************************************************
-    /* Caching access to class metadata, added in 2.7
-    /**********************************************************
-     */
-
-    /* 17-Sep-2015, tatu: Although access methods should not be significant
-     *   problems for most proper usage, they may become problematic if
-     *   ObjectMapper has to be re-created; and especially so on Android.
-     *   So let's do somewhat aggressive caching.
-     */
-
-    private final static LRUMap<Class<?>,ClassMetadata> sCached = new LRUMap<Class<?>,ClassMetadata>(48, 48);    
-
-    /**
-     * @since 2.7
-     */
-    public static String getPackageName(Class<?> cls) {
-        return _getMetadata(cls).getPackageName();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static boolean hasEnclosingMethod(Class<?> cls) {
-        return _getMetadata(cls).hasEnclosingMethod();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Field[] getDeclaredFields(Class<?> cls) {
-        return _getMetadata(cls).getDeclaredFields();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Method[] getDeclaredMethods(Class<?> cls) {
-        return _getMetadata(cls).getDeclaredMethods();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Annotation[] findClassAnnotations(Class<?> cls) {
-        return _getMetadata(cls).getDeclaredAnnotations();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Ctor[] getConstructors(Class<?> cls) {
-        return _getMetadata(cls).getConstructors();
-    }
-
-    // // // Then methods that do NOT cache access but were considered
-    // // // (and could be added to do caching if it was proven effective)
-
-    /**
-     * @since 2.7
-     */
-    public static Class<?> getDeclaringClass(Class<?> cls) {
-        // Caching does not seem worthwhile, as per profiling
-        return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Type getGenericSuperclass(Class<?> cls) {
-        return cls.getGenericSuperclass();
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static Type[] getGenericInterfaces(Class<?> cls) {
-        return _getMetadata(cls).getGenericInterfaces();
-    }
-    
-    /**
-     * @since 2.7
-     */
-    public static Class<?> getEnclosingClass(Class<?> cls) {
-        // Caching does not seem worthwhile, as per profiling
-        return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();
-    }
-
-    
-    private static Class<?>[] _interfaces(Class<?> cls) {
-        return _getMetadata(cls).getInterfaces();
-    }
-
-    private static ClassMetadata _getMetadata(Class<?> cls)
-    {
-        ClassMetadata md = sCached.get(cls);
-        if (md == null) {
-            md = new ClassMetadata(cls);
-            // tiny optimization, but in case someone concurrently constructed it,
-            // let's use that instance, to reduce extra concurrent work.
-            ClassMetadata old = sCached.putIfAbsent(cls, md);
-            if (old != null) {
-                md = old;
-            }
-        }
-        return md;
-    }
-    
     /*
     /**********************************************************
     /* Method type detection methods
@@ -1014,6 +908,109 @@ public final class ClassUtil
 
     /*
     /**********************************************************
+    /* Access to various Class definition aspects; possibly
+    /* cacheable; and attempts was made in 2.7.0 - 2.7.7; however
+    /* unintented retention (~= memory leak) wrt [databind#1363]
+    /* resulted in removal of caching
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.7
+     */
+    public static String getPackageName(Class<?> cls) {
+        Package pkg = cls.getPackage();
+        return (pkg == null) ? null : pkg.getName();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static boolean hasEnclosingMethod(Class<?> cls) {
+        return !isObjectOrPrimitive(cls) && (cls.getEnclosingMethod() != null);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Field[] getDeclaredFields(Class<?> cls) {
+        return cls.getDeclaredFields();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Method[] getDeclaredMethods(Class<?> cls) {
+        return cls.getDeclaredMethods();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Annotation[] findClassAnnotations(Class<?> cls) {
+        if (isObjectOrPrimitive(cls)) {
+            return NO_ANNOTATIONS;
+        }
+        return cls.getDeclaredAnnotations();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Ctor[] getConstructors(Class<?> cls) {
+        // Note: can NOT skip abstract classes as they may be used with mix-ins
+        // and for regular use shouldn't really matter.
+        if (cls.isInterface() || isObjectOrPrimitive(cls)) {
+            return NO_CTORS;
+        }
+        Constructor<?>[] rawCtors = cls.getDeclaredConstructors();
+        final int len = rawCtors.length;
+        Ctor[] result = new Ctor[len];
+        for (int i = 0; i < len; ++i) {
+            result[i] = new Ctor(rawCtors[i]);
+        }
+        return result;
+    }
+
+    // // // Then methods that do NOT cache access but were considered
+    // // // (and could be added to do caching if it was proven effective)
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getDeclaringClass(Class<?> cls) {
+        // Caching does not seem worthwhile, as per profiling
+        return isObjectOrPrimitive(cls) ? null : cls.getDeclaringClass();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Type getGenericSuperclass(Class<?> cls) {
+        return cls.getGenericSuperclass();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Type[] getGenericInterfaces(Class<?> cls) {
+        return cls.getGenericInterfaces();
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static Class<?> getEnclosingClass(Class<?> cls) {
+        // Caching does not seem worthwhile, as per profiling
+        return isObjectOrPrimitive(cls) ? null : cls.getEnclosingClass();
+    }
+
+    private static Class<?>[] _interfaces(Class<?> cls) {
+        return cls.getInterfaces();
+    }
+
+    /*
+    /**********************************************************
     /* Helper classes
     /**********************************************************
      */
@@ -1098,144 +1095,6 @@ public final class ClassUtil
     /* Helper classed used for caching
     /**********************************************************
      */
-
-    /**
-     * @since 2.7
-     */
-    private final static class ClassMetadata
-    {
-        private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
-        private final static Ctor[] NO_CTORS = new Ctor[0];
-
-        private final Class<?> _forClass;
-
-        private String _packageName;
-        private Boolean _hasEnclosingMethod;
-
-        private Class<?>[] _interfaces;
-        private Type[] _genericInterfaces;
-
-        private Annotation[] _annotations;
-        private Ctor[] _constructors;
-        private Field[] _fields;
-        private Method[] _methods;
-
-        public ClassMetadata(Class<?> forClass) {
-            _forClass = forClass;
-        }
-
-        public String getPackageName() {
-            String name = _packageName;
-            if (name == null) {
-                Package pkg = _forClass.getPackage();
-                name = (pkg == null) ? null : pkg.getName();
-                if (name == null) {
-                    name = "";
-                }
-                _packageName = name;
-            }
-            return (name == "") ? null : name;
-        }
-
-        // 19-Sep-2015, tatu: Bit of performance improvement, after finding this
-        //   in profile; maybe 5% in "wasteful" deserialization case
-        public Class<?>[] getInterfaces() {
-            Class<?>[] result = _interfaces;
-            if (result == null) {
-                result = _forClass.getInterfaces();
-                _interfaces = result;
-            }
-            return result;
-        }
-
-        // 30-Oct-2015, tatu: Minor performance boost too (5% or less)
-        public Type[] getGenericInterfaces() {
-            Type[] result = _genericInterfaces;
-            if (result == null) {
-                result = _forClass.getGenericInterfaces();
-                _genericInterfaces = result;
-            }
-            return result;
-        }
-
-        // 19-Sep-2015, tatu: Modest performance improvement, after finding this
-        //   in profile; maybe 2-3% in "wasteful" deserialization case
-        public Annotation[] getDeclaredAnnotations() {
-            Annotation[] result = _annotations;
-            if (result == null) {
-                result = isObjectOrPrimitive() ? NO_ANNOTATIONS : _forClass.getDeclaredAnnotations();
-                _annotations = result;
-            }
-            return result;
-        }
-
-        // 19-Sep-2015, tatu: Some performance improvement, after finding this
-        //   in profile; maybe 8-10% in "wasteful" deserialization case
-        public Ctor[] getConstructors() {
-            Ctor[] result = _constructors;
-            if (result == null) {
-                // Note: can NOT skip abstract classes as they may be used with mix-ins
-                // and for regular use shouldn't really matter.
-                if (_forClass.isInterface() || isObjectOrPrimitive()) {
-                    result = NO_CTORS;
-                } else {
-                    Constructor<?>[] rawCtors = _forClass.getDeclaredConstructors();
-                    final int len = rawCtors.length;
-                    result = new Ctor[len];
-                    for (int i = 0; i < len; ++i) {
-                        result[i] = new Ctor(rawCtors[i]);
-                    }
-                }
-                _constructors = result;
-            }
-            return result;
-        }
-
-        // 21-Spe-2015, tatu: Surprisingly significant improvement (+10%)...
-        public Field[] getDeclaredFields() {
-            Field[] fields = _fields;
-            if (fields == null) {
-                fields = _forClass.getDeclaredFields();
-                _fields = fields;
-            }
-            return fields;
-        }
-
-        // 21-Spe-2015, tatu: Surprisingly significant improvement (+30%)...
-        public Method[] getDeclaredMethods() {
-            Method[] methods = _methods;
-            if (methods == null) {
-                methods = _forClass.getDeclaredMethods();
-                _methods = methods;
-            }
-            return methods;
-        }
-
-        // Prominently listed on profiling when not cached, improvement
-        // modest, 1-2% range; but at least is measurable so keep it
-        public boolean hasEnclosingMethod() {
-            Boolean b = _hasEnclosingMethod;
-            if (b == null) {
-                b = isObjectOrPrimitive() ? Boolean.FALSE : Boolean.valueOf(_forClass.getEnclosingMethod() != null);
-                _hasEnclosingMethod = b;
-            }
-            return b.booleanValue();
-        }
-
-        private boolean isObjectOrPrimitive() {
-            return (_forClass == CLS_OBJECT) || _forClass.isPrimitive();
-        }
-
-        /* And then we have a bunch of accessors that did show up in profiling
-         * of "wasteful" cases, but for which caching did not yield non-trivial
-         * improvements (for tests less than 1% improvement)
-         */
-
-        // Caching does not seem worthwhile, as per profiling
-//        public Type getGenericSuperclass();
-//        public Class<?> getDeclaringClass();
-//        public Class<?> getEnclosingClass();
-    }
 
     /**
      * Value class used for caching Constructor declarations; used because

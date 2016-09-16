@@ -705,11 +705,13 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
+    @Deprecated // since 2.9
     public boolean hasCreatorAnnotation(Annotated a) {
         return _primary.hasCreatorAnnotation(a) || _secondary.hasCreatorAnnotation(a);
     }
 
     @Override
+    @Deprecated // since 2.9
     public JsonCreator.Mode findCreatorBinding(Annotated a) {
         JsonCreator.Mode mode = _primary.findCreatorBinding(a);
         if (mode != null) {
@@ -717,7 +719,13 @@ public class AnnotationIntrospectorPair
         }
         return _secondary.findCreatorBinding(a);
     }
-    
+
+    @Override
+    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+        JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
+        return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
+    }
+
     protected boolean _isExplicitClassOrOb(Object maybeCls, Class<?> implicit) {
         if (maybeCls == null) {
             return false;

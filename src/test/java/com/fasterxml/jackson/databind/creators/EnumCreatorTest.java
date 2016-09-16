@@ -172,6 +172,19 @@ public class EnumCreatorTest extends BaseMapTest
         }
     }
 
+
+    static enum Enum929
+    {
+        A, B, C;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        static Enum929 forValues(@JsonProperty("id") int intProp,
+                                 @JsonProperty("name") String name)
+        {
+            return Enum929.valueOf(name);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -271,5 +284,12 @@ public class EnumCreatorTest extends BaseMapTest
         String json = mapper.writeValueAsString(Enum1291.V2);
         Enum1291 result = mapper.readValue(json, Enum1291.class);
         assertSame(Enum1291.V2, result);
+    }
+
+    // for [databind#929]
+    public void testMultiArgEnumCreator() throws Exception
+    {
+        Enum929 v = MAPPER.readValue("{\"id\":3,\"name\":\"B\"}", Enum929.class);
+        assertEquals(Enum929.B, v);
     }
 }

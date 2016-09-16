@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -537,10 +538,8 @@ public class BasicBeanDescription extends BeanDescription
 
     protected boolean isFactoryMethod(AnnotatedMethod am)
     {
-        /* First: return type must be compatible with the introspected class
-         * (i.e. allowed to be sub-class, although usually is the same
-         * class)
-         */
+        // First: return type must be compatible with the introspected class
+        // (i.e. allowed to be sub-class, although usually is the same class)
         Class<?> rt = am.getRawReturnType();
         if (!getBeanClass().isAssignableFrom(rt)) {
             return false;
@@ -550,7 +549,8 @@ public class BasicBeanDescription extends BeanDescription
          * (a) marked with @JsonCreator annotation, or
          * (b) "valueOf" (at this point, need not be public)
          */
-        if (_annotationIntrospector.hasCreatorAnnotation(am)) {
+        JsonCreator.Mode mode = _annotationIntrospector.findCreatorAnnotation(this._config, am);
+        if ((mode != null) && (mode != JsonCreator.Mode.DISABLED)) {
             return true;
         }
         final String name = am.getName();

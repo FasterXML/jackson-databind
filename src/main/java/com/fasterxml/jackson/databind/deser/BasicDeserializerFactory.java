@@ -1222,21 +1222,17 @@ public abstract class BasicDeserializerFactory
                     : valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-                if (_hasCreatorAnnotation(ctxt, factory)) {
-                    int argCount = factory.getParameterCount();
-                    if (argCount == 1) {
-                        Class<?> returnType = factory.getRawReturnType();
-                        // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
-                        if (returnType.isAssignableFrom(enumClass)) {
-                            deser = EnumDeserializer.deserializerForCreator(config, enumClass, factory, valueInstantiator, creatorProps);
-                            break;
-                        }
-                    } else if (argCount == 0) { // [databind#960]
+                if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
+                    if (factory.getParameterCount() == 0) { // [databind#960]
                         deser = EnumDeserializer.deserializerForNoArgsCreator(config, enumClass, factory);
                         break;
                     }
-                    throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
-                            +enumClass.getName()+")");
+                    Class<?> returnType = factory.getRawReturnType();
+                    // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
+                    if (returnType.isAssignableFrom(enumClass)) {
+                        deser = EnumDeserializer.deserializerForCreator(config, enumClass, factory, valueInstantiator, creatorProps);
+                        break;
+                    }
                 }
             }
            

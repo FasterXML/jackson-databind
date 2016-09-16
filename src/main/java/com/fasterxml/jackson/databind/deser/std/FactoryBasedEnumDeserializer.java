@@ -92,7 +92,7 @@ class FactoryBasedEnumDeserializer
             BeanProperty property)
         throws JsonMappingException
     {
-        if ((_deser == null) && (_inputType != null)) {
+        if ((_deser == null) && (_inputType != null) && (_creatorProps == null)) {
             return new FactoryBasedEnumDeserializer(this,
                     ctxt.findContextualValueDeserializer(_inputType, property));
         }

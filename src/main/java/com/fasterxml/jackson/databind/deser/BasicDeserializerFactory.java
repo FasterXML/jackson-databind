@@ -403,7 +403,7 @@ public abstract class BasicDeserializerFactory
         // in list of constructors, so needs to be handled separately.
         AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
         if (defaultCtor != null) {
-            if (!creators.hasDefaultCreator() || intr.hasCreatorAnnotation(defaultCtor)) {
+            if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(ctxt, defaultCtor)) {
                 creators.setDefaultCreator(defaultCtor);
             }
         }
@@ -411,14 +411,15 @@ public abstract class BasicDeserializerFactory
         // may need to keep track for [#725]
         List<AnnotatedConstructor> implicitCtors = null;
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
-            final boolean isCreator = intr.hasCreatorAnnotation(ctor);
+            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
+            final boolean isCreator = (creatorMode != null) && (creatorMode != JsonCreator.Mode.DISABLED);
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
             final int argCount = ctor.getParameterCount();
 
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
-                boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
+                boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef, creatorMode);
 
                 if (useProps) {
                     SettableBeanProperty[] properties = new SettableBeanProperty[1];
@@ -583,36 +584,6 @@ public abstract class BasicDeserializerFactory
         }
     }
 
-    protected boolean _checkIfCreatorPropertyBased(AnnotationIntrospector intr,
-            AnnotatedWithParams creator, BeanPropertyDefinition propDef)
-    {
-        JsonCreator.Mode mode = intr.findCreatorBinding(creator);
-
-        if (mode == JsonCreator.Mode.PROPERTIES) {
-            return true;
-        }
-        if (mode == JsonCreator.Mode.DELEGATING) {
-            return false;
-        }
-        // If explicit name, or inject id, property-based
-        if (((propDef != null) && propDef.isExplicitlyNamed())
-                || (intr.findInjectableValueId(creator.getParameter(0)) != null)) {
-            return true;
-        }
-        if (propDef != null) {
-            // One more thing: if implicit name matches property with a getter
-            // or field, we'll consider it property-based as well
-            String implName = propDef.getName();
-            if (implName != null && !implName.isEmpty()) {
-                if (propDef.couldSerialize()) {
-                    return true;
-                }
-            }
-        }
-        // in absence of everything else, default to delegating
-        return false;
-    }
-    
     protected boolean _handleSingleArgumentConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
@@ -667,7 +638,8 @@ public abstract class BasicDeserializerFactory
     {
         final DeserializationConfig config = ctxt.getConfig();
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-            final boolean isCreator = intr.hasCreatorAnnotation(factory);
+            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), factory);
+            final boolean isCreator = (creatorMode != null) && (creatorMode != JsonCreator.Mode.DISABLED);
             final int argCount = factory.getParameterCount();
             // zero-arg methods must be annotated; if so, are "default creators" [JACKSON-850]
             if (argCount == 0) {
@@ -681,7 +653,7 @@ public abstract class BasicDeserializerFactory
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
-                boolean useProps = _checkIfCreatorPropertyBased(intr, factory, argDef);
+                boolean useProps = _checkIfCreatorPropertyBased(intr, factory, argDef, creatorMode);
                 if (!useProps) { // not property based but delegating
                     /*boolean added=*/ _handleSingleArgumentFactory(config, beanDesc, vchecker, intr, creators,
                             factory, isCreator);
@@ -891,22 +863,32 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
-    @Deprecated // in 2.6, remove from 2.7
-    protected PropertyName _findExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    protected boolean _checkIfCreatorPropertyBased(AnnotationIntrospector intr,
+            AnnotatedWithParams creator, BeanPropertyDefinition propDef,
+            JsonCreator.Mode creatorMode)
     {
-        if (param != null && intr != null) {
-            return intr.findNameForDeserialization(param);
+        if (creatorMode == JsonCreator.Mode.PROPERTIES) {
+            return true;
         }
-        return null;
-    }
-
-    @Deprecated // in 2.6, remove from 2.7
-    protected boolean _hasExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
-    {
-        if (param != null && intr != null) {
-            PropertyName n = intr.findNameForDeserialization(param);
-            return (n != null) && n.hasSimpleName();
+        if (creatorMode == JsonCreator.Mode.DELEGATING) {
+            return false;
         }
+        // If explicit name, or inject id, property-based
+        if (((propDef != null) && propDef.isExplicitlyNamed())
+                || (intr.findInjectableValueId(creator.getParameter(0)) != null)) {
+            return true;
+        }
+        if (propDef != null) {
+            // One more thing: if implicit name matches property with a getter
+            // or field, we'll consider it property-based as well
+            String implName = propDef.getName();
+            if (implName != null && !implName.isEmpty()) {
+                if (propDef.couldSerialize()) {
+                    return true;
+                }
+            }
+        }
+        // in absence of everything else, default to delegating
         return false;
     }
 
@@ -1240,7 +1222,7 @@ public abstract class BasicDeserializerFactory
                     : valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             // May have @JsonCreator for static factory method:
             for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-                if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
+                if (_hasCreatorAnnotation(ctxt, factory)) {
                     int argCount = factory.getParameterCount();
                     if (argCount == 1) {
                         Class<?> returnType = factory.getRawReturnType();
@@ -1441,9 +1423,8 @@ public abstract class BasicDeserializerFactory
         }
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
         // May have @JsonCreator for static factory method:
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-            if (ai.hasCreatorAnnotation(factory)) {
+            if (_hasCreatorAnnotation(ctxt, factory)) {
                 int argCount = factory.getParameterCount();
                 if (argCount == 1) {
                     Class<?> returnType = factory.getRawReturnType();
@@ -1874,6 +1855,19 @@ public abstract class BasicDeserializerFactory
         return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
     }
 
+    /**
+     * @since 2.9
+     */
+    protected boolean _hasCreatorAnnotation(DeserializationContext ctxt,
+            Annotated ann) {
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            JsonCreator.Mode mode = intr.findCreatorAnnotation(ctxt.getConfig(), ann);
+            return (mode != null) && (mode != JsonCreator.Mode.DISABLED); 
+        }
+        return false;
+    }
+    
     /*
     /**********************************************************
     /* Deprecated helper methods

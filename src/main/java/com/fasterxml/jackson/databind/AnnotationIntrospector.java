@@ -3,7 +3,11 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -361,7 +365,7 @@ public abstract class AnnotationIntrospector
      * instantiating resolver builder, but also configuring it based on
      * relevant annotations (not including ones checked with a call to
      * {@link #findSubtypes}
-     *
+     * 
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ac Annotated class to check for annotations
      * @param baseType Base java type of value for which resolver is to be found
@@ -1389,10 +1393,7 @@ public abstract class AnnotationIntrospector
      *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
-     *
-     * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
      */
-    @Deprecated
     public boolean hasCreatorAnnotation(Annotated a) {
         return false;
     }
@@ -1404,40 +1405,11 @@ public abstract class AnnotationIntrospector
      * creator with implicit but no explicit name for the argument).
      * 
      * @since 2.5
-     * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
      */
-    @Deprecated
     public JsonCreator.Mode findCreatorBinding(Annotated a) {
         return null;
     }
-
-    /**
-     * Method called to check whether potential Creator (constructor or static factory
-     * method) has explicit annotation to indicate it as actual Creator; and if so,
-     * which {@link com.fasterxml.jackson.annotation.JsonCreator.Mode} to use.
-     *<p>
-     * NOTE: caller needs to consider possibility of both `null` (no annotation found)
-     * and {@link com.fasterxml.jackson.annotation.JsonCreator.Mode#DISABLED} (annotation found,
-     * but disabled); latter is necessary as marker in case multiple introspectors are chained,
-     * as well as possibly as when using mix-in annotations.
-     *
-     * @param config Configuration settings in effect (for serialization or deserialization)
-     * @param a Annotated accessor (usually constructor or static method) to check
-     *
-     * @since 2.9
-     */
-    public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
-        // 13-Sep-2016, tatu: for backwards compatibility, implement using delegation
-        if (hasCreatorAnnotation(a)) {
-            JsonCreator.Mode mode = findCreatorBinding(a);
-            if (mode == null) {
-                mode = JsonCreator.Mode.DEFAULT;
-            }
-            return mode;
-        }
-        return null;
-    }
-
+    
     /*
     /**********************************************************
     /* Overridable methods: may be used as low-level extension

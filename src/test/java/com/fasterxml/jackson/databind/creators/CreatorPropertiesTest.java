@@ -25,6 +25,7 @@ public class CreatorPropertiesTest extends BaseMapTest
 
     // for [databind#1122]
     static class Ambiguity {
+
         @JsonProperty("bar")
         private int foo;
 
@@ -42,19 +43,6 @@ public class CreatorPropertiesTest extends BaseMapTest
         @Override
         public String toString() {
             return "Ambiguity [foo=" + foo + "]";
-        }
-    }
-
-    // for [databind#1371]
-    static class Lombok1371Bean {
-        public int x, y;
-
-        protected Lombok1371Bean() { }
-
-        @ConstructorProperties({ "x", "y" })
-        public Lombok1371Bean(int _x, int _y) {
-            x = _x + 1;
-            y = _y + 1;
         }
     }
 
@@ -82,25 +70,5 @@ public class CreatorPropertiesTest extends BaseMapTest
         Ambiguity amb = MAPPER.readValue(json, Ambiguity.class);
         assertNotNull(amb);
         assertEquals(3, amb.getFoo());
-    }
-
-    // [databind#1371]: MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES
-    public void testConstructorPropertiesInference() throws Exception
-    {
-        final String JSON = aposToQuotes("{'x':3,'y':5}");
-
-        // by default, should detect and use arguments-taking constructor as creator
-        assertTrue(MAPPER.isEnabled(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES));
-        Lombok1371Bean result = MAPPER.readValue(JSON, Lombok1371Bean.class);
-        assertEquals(4, result.x);
-        assertEquals(6, result.y);
-
-        // but change if configuration changed
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES);
-        // in which case fields are set directly:
-        result = mapper.readValue(JSON, Lombok1371Bean.class);
-        assertEquals(3, result.x);
-        assertEquals(5, result.y);
     }
 }

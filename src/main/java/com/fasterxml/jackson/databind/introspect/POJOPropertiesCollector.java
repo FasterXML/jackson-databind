@@ -4,7 +4,6 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -482,9 +481,7 @@ public class POJOPropertiesCollector
                 return;
             }
             // Also: if this occurs, there MUST be explicit annotation on creator itself
-            JsonCreator.Mode creatorMode = _annotationIntrospector.findCreatorAnnotation(_config,
-                    param.getOwner());
-            if ((creatorMode == null) || (creatorMode == JsonCreator.Mode.DISABLED)) {
+            if (!_annotationIntrospector.hasCreatorAnnotation(param.getOwner())) {
                 return;
             }
             pn = PropertyName.construct(impl);

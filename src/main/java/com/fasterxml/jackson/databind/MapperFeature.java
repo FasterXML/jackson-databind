@@ -18,7 +18,7 @@ public enum MapperFeature implements ConfigFeature
 {
     /*
     /******************************************************
-    /* General introspection features
+    /* Introspection features
     /******************************************************
      */
 
@@ -31,43 +31,6 @@ public enum MapperFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     USE_ANNOTATIONS(true),
-
-    /**
-     * Feature that determines whether otherwise regular "getter"
-     * methods (but only ones that handle Collections and Maps,
-     * not getters of other type)
-     * can be used for purpose of getting a reference to a Collection
-     * and Map to modify the property, without requiring a setter
-     * method.
-     * This is similar to how JAXB framework sets Collections and
-     * Maps: no setter is involved, just setter.
-     *<p>
-     * Note that such getters-as-setters methods have lower
-     * precedence than setters, so they are only used if no
-     * setter is found for the Map/Collection property.
-     *<p>
-     * Feature is enabled by default.
-     */
-    USE_GETTERS_AS_SETTERS(true),
-
-    /**
-     * Feature that determines how <code>transient</code> modifier for fields
-     * is handled: if disabled, it is only taken to mean exclusion of the field
-     * as accessor; if true, it is taken to imply removal of the whole property.
-     *<p>
-     * Feature is disabled by default, meaning that existence of `transient`
-     * for a field does not necessarily lead to ignoral of getters or setters
-     * but just ignoring the use of field for access.
-     *
-     * @since 2.6
-     */
-    PROPAGATE_TRANSIENT_MARKER(false),
-
-    /*
-    /******************************************************
-    /* Introspection-based property auto-detection
-    /******************************************************
-     */
 
     /**
      * Feature that determines whether "creator" methods are
@@ -98,7 +61,7 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_DETECT_FIELDS(true),
+     AUTO_DETECT_FIELDS(true),
     
     /**
      * Feature that determines whether regular "getter" methods are
@@ -135,22 +98,22 @@ public enum MapperFeature implements ConfigFeature
      */
     AUTO_DETECT_IS_GETTERS(true),
 
-    /**
-     * Feature that determines whether "setter" methods are
-     * automatically detected based on standard Bean naming convention
-     * or not. If yes, then all public one-argument methods that
-     * start with prefix "set"
-     * are considered setters. If disabled, only methods explicitly
-     * annotated are considered setters.
-     *<p>
-     * Note that this feature has lower precedence than per-class
-     * annotations, and is only used if there isn't more granular
-     * configuration available.
-     *<P>
-     * Feature is enabled by default.
-     */
-    AUTO_DETECT_SETTERS(true),
-
+     /**
+      * Feature that determines whether "setter" methods are
+      * automatically detected based on standard Bean naming convention
+      * or not. If yes, then all public one-argument methods that
+      * start with prefix "set"
+      * are considered setters. If disabled, only methods explicitly
+      * annotated are considered setters.
+      *<p>
+      * Note that this feature has lower precedence than per-class
+      * annotations, and is only used if there isn't more granular
+      * configuration available.
+      *<P>
+      * Feature is enabled by default.
+      */
+     AUTO_DETECT_SETTERS(true),
+     
     /**
      * Feature that determines whether getters (getter methods)
      * can be auto-detected if there is no matching mutator (setter,
@@ -163,61 +126,22 @@ public enum MapperFeature implements ConfigFeature
     REQUIRE_SETTERS_FOR_GETTERS(false),
 
     /**
-     * Feature that determines whether member fields declared as 'final' may
-     * be auto-detected to be used mutators (used to change value of the logical
-     * property) or not. If enabled, 'final' access modifier has no effect, and
-     * such fields may be detected according to usual visibility and inference
-     * rules; if disabled, such fields are NOT used as mutators except if
-     * explicitly annotated for such use.
+     * Feature that determines whether otherwise regular "getter"
+     * methods (but only ones that handle Collections and Maps,
+     * not getters of other type)
+     * can be used for purpose of getting a reference to a Collection
+     * and Map to modify the property, without requiring a setter
+     * method.
+     * This is similar to how JAXB framework sets Collections and
+     * Maps: no setter is involved, just setter.
      *<p>
-     * Feature is enabled by default, for backwards compatibility reasons.
-     *
-     * @since 2.2
-     */
-    ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
-
-    /**
-     * Feature that determines whether member mutators (fields and
-     * setters) may be "pulled in" even if they are not visible,
-     * as long as there is a visible accessor (getter or field) with same name.
-     * For example: field "value" may be inferred as mutator,
-     * if there is visible or explicitly marked getter "getValue()".
-     * If enabled, inferring is enabled; otherwise (disabled) only visible and
-     * explicitly annotated accessors are ever used.
-     *<p>
-     * Note that 'getters' are never inferred and need to be either visible (including
-     * bean-style naming) or explicitly annotated.
+     * Note that such getters-as-setters methods have lower
+     * precedence than setters, so they are only used if no
+     * setter is found for the Map/Collection property.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.2
      */
-    INFER_PROPERTY_MUTATORS(true),
-
-    /**
-     * Feature that determines handling of <code>java.beans.ConstructorProperties<code>
-     * annotation: when enabled, it is considered as alias of
-     * {@link com.fasterxml.jackson.annotation.JsonCreator}, to mean that constructor
-     * should be considered a property-based Creator; when disabled, only constructor
-     * parameter name information is used, but constructor is NOT considered an explicit
-     * Creator (although may be discovered as one using other annotations or heuristics).
-     *<p>
-     * Feature is mostly used to help interoperability with frameworks like Lombok
-     * that may automatically generate <code>ConstructorProperties</code> annotation
-     * but without necessarily meaning that constructor should be used as Creator
-     * for deserialization.
-     *<p>
-     * Feature is enabled by default.
-     *
-     * @since 2.7
-     */
-    INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
-
-    /*
-    /******************************************************
-    /* Access modifier handling
-    /******************************************************
-     */
+    USE_GETTERS_AS_SETTERS(true),
 
     /**
      * Feature that determines whether method and field access
@@ -262,6 +186,51 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.7
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
+
+    /**
+     * Feature that determines whether member mutators (fields and
+     * setters) may be "pulled in" even if they are not visible,
+     * as long as there is a visible accessor (getter or field) with same name.
+     * For example: field "value" may be inferred as mutator,
+     * if there is visible or explicitly marked getter "getValue()".
+     * If enabled, inferring is enabled; otherwise (disabled) only visible and
+     * explicitly annotated accessors are ever used.
+     *<p>
+     * Note that 'getters' are never inferred and need to be either visible (including
+     * bean-style naming) or explicitly annotated.
+     *<p>
+     * Feature is enabled by default.
+     * 
+     * @since 2.2
+     */
+    INFER_PROPERTY_MUTATORS(true),
+
+    /**
+     * Feature that determines whether member fields declared as 'final' may
+     * be auto-detected to be used mutators (used to change value of the logical
+     * property) or not. If enabled, 'final' access modifier has no effect, and
+     * such fields may be detected according to usual visibility and inference
+     * rules; if disabled, such fields are NOT used as mutators except if
+     * explicitly annotated for such use.
+     *<p>
+     * Feature is enabled by default, for backwards compatibility reasons.
+     * 
+     * @since 2.2
+     */
+    ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
+
+    /**
+     * Feature that determines how <code>transient</code> modifier for fields
+     * is handled: if disabled, it is only taken to mean exclusion of the field
+     * as accessor; if true, removal of the whole property.
+     *<p>
+     * Feature is disabled by default, meaning that existence of `transient`
+     * for a field does not necessarily lead to ignoral of getters or setters
+     * but just ignoring the use of field for access.
+     *
+     * @since 2.6
+     */
+    PROPAGATE_TRANSIENT_MARKER(false),
 
     /*
     /******************************************************

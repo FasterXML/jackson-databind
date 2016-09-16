@@ -128,6 +128,19 @@ public class EnumCreatorTest extends BaseMapTest
         }
     }
 
+    // [databind#929]: support multi-arg enum creator
+    static enum Enum929
+    {
+        A, B, C;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        static Enum929 forValues(@JsonProperty("id") int intProp,
+                                 @JsonProperty("name") String name)
+        {
+            return Enum929.valueOf(name);
+        }
+    }
+
     static enum MyEnum960
     {
         VALUE, BOGUS;
@@ -257,6 +270,13 @@ public class EnumCreatorTest extends BaseMapTest
         assertEquals("value", value.get(EnumWithCreator.A));
     }
 
+    // for [databind#929]
+    public void testMultiArgEnumCreator() throws Exception
+    {
+        Enum929 v = MAPPER.readValue("{\"id\":3,\"name\":\"B\"}", Enum929.class);
+        assertEquals(Enum929.B, v);
+    }
+    
     // for [databind#960]
     public void testNoArgEnumCreator() throws Exception
     {

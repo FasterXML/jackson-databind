@@ -4,17 +4,9 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.0 (not yet released)
-
-#1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
- (contributed by Connor K)
-#1369: Improve `@JsonCreator` detection via `AnnotationIntrospector`
- by passing `MappingConfig`
-#1371: Add `MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES` to allow
- disabling use of `@CreatorProperties` as explicit `@JsonCreator` equivalent
-
 2.8.3 (not yet released)
 
+#929: `@JsonCreator` not working on a factory with multiple arguments for a enum type
 #1351: `@JsonInclude(NON_DEFAULT)` doesn't omit null fields
  (reported by Gili T)
 #1353: Improve error-handling for `java.net.URL` deserialization

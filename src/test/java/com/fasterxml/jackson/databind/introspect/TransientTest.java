@@ -23,6 +23,11 @@ public class TransientTest extends BaseMapTest
         public int getX() { return 42; }
     }
 
+    static class SimplePrunableTransient {
+        public int a = 1;
+        public transient int b = 2;
+    }
+    
     // for [databind#857]
     static class BeanTransient {
         @Transient
@@ -35,9 +40,9 @@ public class TransientTest extends BaseMapTest
     static class OverridableTransient {
         @JsonProperty
 //        @JsonProperty("value") // should override transient here, to force inclusion
-        public transient int value;
+        public transient int tValue;
 
-        public OverridableTransient(int v) { value = v; }
+        public OverridableTransient(int v) { tValue = v; }
     }
 
     /*
@@ -54,6 +59,8 @@ public class TransientTest extends BaseMapTest
         // default handling: remove transient field but do not propagate
         assertEquals(aposToQuotes("{'x':42,'value':3}"),
                 MAPPER.writeValueAsString(new ClassyTransient()));
+        assertEquals(aposToQuotes("{'a':1}"),
+                MAPPER.writeValueAsString(new SimplePrunableTransient()));
 
         // but may change that
         ObjectMapper m = new ObjectMapper()
@@ -72,7 +79,7 @@ public class TransientTest extends BaseMapTest
     // for [databind#1184]
     public void testOverridingTransient() throws Exception
     {
-        assertEquals(aposToQuotes("{'value':38}"),
+        assertEquals(aposToQuotes("{'tValue':38}"),
                 MAPPER.writeValueAsString(new OverridableTransient(38)));
     }
 }

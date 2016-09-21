@@ -135,7 +135,7 @@ public abstract class SettableBeanProperty
         this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations,
                 PropertyMetadata.construct(isRequired, null, null, null));
     }
-    
+
     protected SettableBeanProperty(PropertyName propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations,
             PropertyMetadata metadata)
@@ -372,7 +372,7 @@ public abstract class SettableBeanProperty
     /**********************************************************
      */
 
-    protected final Class<?> getDeclaringClass() {
+    protected Class<?> getDeclaringClass() {
         return getMember().getDeclaringClass();
     }
 
@@ -498,7 +498,7 @@ public abstract class SettableBeanProperty
         }
         return _valueDeserializer.deserialize(p, ctxt);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
@@ -558,4 +558,146 @@ public abstract class SettableBeanProperty
     }
 
     @Override public String toString() { return "[property '"+getName()+"']"; }
+
+    /*
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
+     */
+
+    /**
+     * Helper class that is designed to both make it easier to sub-class
+     * delegating subtypes and to reduce likelihood of breakage when
+     * new methods are added.
+     *<p>
+     * Class was specifically added to help with {@code Afterburner}
+     * module, but its use is not limited to only support it.
+     *
+     * @since 2.9
+     *
+     */
+    public static abstract class Delegating
+        extends SettableBeanProperty
+    {
+        protected final SettableBeanProperty delegate;
+
+        protected Delegating(SettableBeanProperty d) {
+            super(d);
+            delegate = d;
+        }
+
+        /**
+         * Method sub-classes must implement, to construct a new instance
+         * with given delegate.
+         */
+        protected abstract SettableBeanProperty withDelegate(SettableBeanProperty d);
+
+        protected SettableBeanProperty _with(SettableBeanProperty newDelegate) {
+            if (newDelegate == delegate) {
+                return this;
+            }
+            return withDelegate(newDelegate);
+        }
+        
+        @Override
+        public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+            return _with(delegate.withValueDeserializer(deser));
+        }
+
+        @Override
+        public SettableBeanProperty withName(PropertyName newName) {
+            return _with(delegate.withName(newName));
+        }
+
+        @Override
+        public void assignIndex(int index) {
+            delegate.assignIndex(index);
+        }
+
+        @Override
+        public void fixAccess(DeserializationConfig config) {
+            delegate.fixAccess(config);
+        }
+
+        /*
+        /**********************************************************
+        /* Accessors
+        /**********************************************************
+         */
+
+        @Override
+        protected Class<?> getDeclaringClass() { return delegate.getDeclaringClass(); }
+
+        @Override
+        public String getManagedReferenceName() { return delegate.getManagedReferenceName(); }
+
+        @Override
+        public ObjectIdInfo getObjectIdInfo() { return delegate.getObjectIdInfo(); }
+
+        @Override
+        public boolean hasValueDeserializer() { return delegate.hasValueDeserializer(); }
+
+        @Override
+        public boolean hasValueTypeDeserializer() { return delegate.hasValueTypeDeserializer(); }
+        
+        @Override
+        public JsonDeserializer<Object> getValueDeserializer() { return delegate.getValueDeserializer(); }
+
+        @Override
+        public TypeDeserializer getValueTypeDeserializer() { return delegate.getValueTypeDeserializer(); }
+
+        @Override
+        public boolean visibleInView(Class<?> activeView) { return delegate.visibleInView(activeView); }
+
+        @Override
+        public boolean hasViews() { return delegate.hasViews(); }
+
+        @Override
+        public int getPropertyIndex() { return delegate.getPropertyIndex(); }
+
+        @Override
+        public int getCreatorIndex() { return delegate.getCreatorIndex(); }
+        
+        @Override
+        public Object getInjectableValueId() { return delegate.getInjectableValueId(); }
+
+        @Override
+        public AnnotatedMember getMember() {
+            return delegate.getMember();
+        }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            return delegate.getAnnotation(acls);
+        }
+
+        /*
+        /**********************************************************
+        /* Actual mutators
+        /**********************************************************
+         */
+        
+        @Override
+        public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
+                Object instance) throws IOException {
+            delegate.deserializeAndSet(p, ctxt, instance);
+        }
+
+        @Override
+        public Object deserializeSetAndReturn(JsonParser p,
+                DeserializationContext ctxt, Object instance) throws IOException
+        {
+            return delegate.deserializeSetAndReturn(p, ctxt, instance);
+        }
+
+        @Override
+        public void set(Object instance, Object value) throws IOException {
+            delegate.set(instance, value);
+        }
+
+        @Override
+        public Object setAndReturn(Object instance, Object value) throws IOException {
+            return delegate.setAndReturn(instance, value);
+        }
+    }
 }

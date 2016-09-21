@@ -747,7 +747,6 @@ public abstract class BeanDeserializerBase
             // 16-May-2016, tatu: How about per-property case-insensitivity?
             Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
             if (B != null) {
-                // !!! TODO
                 BeanPropertyMap propsOrig = _beanProperties;
                 BeanPropertyMap props = propsOrig.withCaseInsensitivity(B.booleanValue());
                 if (props != propsOrig) {
@@ -1589,12 +1588,6 @@ public abstract class BeanDeserializerBase
     {
         // [JACKSON-55] Need to add reference information
         throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
-    }
-
-    @Deprecated // since 2.4, not used by core Jackson; only relevant for arrays/Collections
-    public void wrapAndThrow(Throwable t, Object bean, int index, DeserializationContext ctxt) throws IOException {
-        // [JACKSON-55] Need to add reference information
-        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, index);
     }
 
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) 

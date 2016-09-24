@@ -218,7 +218,7 @@ public class BeanDeserializerFactory
         try {
             valueInstantiator = findValueInstantiator(ctxt, beanDesc);
         } catch (NoClassDefFoundError error) {
-            return new NoClassDefFoundDeserializer<Object>(error);
+            return new ErrorThrowingDeserializer(error);
         }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(valueInstantiator);

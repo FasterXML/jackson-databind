@@ -35,10 +35,10 @@ public class BeanDeserializer
      * Lazily constructed exception used as root cause if reporting problem
      * with creator method that returns <code>null</code> (which is not allowed)
      *
-     * @since 3.8
+     * @since 2.8
      */
     protected transient Exception _nullFromCreator;
-    
+
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization

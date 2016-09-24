@@ -502,7 +502,7 @@ public abstract class BeanDeserializerBase
                 prop = prop.withValueDeserializer(deser);
             } else { // may need contextual version
                 JsonDeserializer<Object> deser = prop.getValueDeserializer();
-                /* Important! This is the only place where actually handle "primary"
+                /* Important! This is the only place where we actually handle "primary"
                  * property deserializers -- call is different from other places.
                  */
                 JsonDeserializer<?> cd = ctxt.handlePrimaryContextualization(deser, prop,

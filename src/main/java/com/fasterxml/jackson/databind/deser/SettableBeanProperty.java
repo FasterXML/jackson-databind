@@ -127,15 +127,6 @@ public abstract class SettableBeanProperty
                 contextAnnotations, propDef.getMetadata());
     }
 
-    @Deprecated // since 2.3
-    protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
-            TypeDeserializer typeDeser, Annotations contextAnnotations,
-            boolean isRequired)
-    {
-        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations,
-                PropertyMetadata.construct(isRequired, null, null, null));
-    }
-
     protected SettableBeanProperty(PropertyName propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations,
             PropertyMetadata metadata)

@@ -685,7 +685,11 @@ public abstract class BasicDeserializerFactory
                 if (!useProps) { // not property based but delegating
                     /*boolean added=*/ _handleSingleArgumentFactory(config, beanDesc, vchecker, intr, creators,
                             factory, isCreator);
-                    // otherwise just ignored
+                    // 23-Sep-2016, tatu: [databind#1383]: Need to also sever link to avoid possible
+                    //    later problems with "unresolved" constructor property
+                    if (argDef != null) {
+                        ((POJOPropertyBuilder) argDef).removeConstructors();
+                    }
                     continue;
                 }
                 // fall through if there's name

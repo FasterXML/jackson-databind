@@ -115,7 +115,30 @@ public class SingleArgCreatorTest extends BaseMapTest
 
         public String value() { return value; }
     }
+
+    static class XY {
+        public int x, y;
+    }
     
+    // [databind#1383]
+    static class SingleArgWithImplicit {
+        protected XY _value;
+
+        private SingleArgWithImplicit() {
+            throw new Error("Should not get called");
+        }
+        private SingleArgWithImplicit(XY v, boolean bogus) {
+            _value = v;
+        }
+
+        @JsonCreator
+        public static SingleArgWithImplicit from(XY v) {
+            return new SingleArgWithImplicit(v, true);
+        }
+
+        public XY getFoobar() { return _value; }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -147,7 +170,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         StringyBeanWithProps bean = mapper.readValue("{\"value\":\"x\"}", StringyBeanWithProps.class);
         assertEquals("x", bean.getValue());
     }    
-    
+
     // [databind#714]
     public void testSingleExplicitlyNamedButDelegating() throws Exception
     {
@@ -170,6 +193,19 @@ public class SingleArgCreatorTest extends BaseMapTest
         ExplicitFactoryBeanB bean2 = MAPPER.readValue(quote("def"), ExplicitFactoryBeanB.class);
         assertNotNull(bean2);
         assertEquals("def", bean2.value());
+    }
+
+    // [databind#1383]
+    public void testSingleImplicitDelegating() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        SingleArgWithImplicit bean = mapper.readValue(aposToQuotes("{'x':1,'y':2}"),
+                SingleArgWithImplicit.class);
+        XY v = bean.getFoobar();
+        assertNotNull(v);
+        assertEquals(1, v.x);
+        assertEquals(2, v.y);
     }
 }
 

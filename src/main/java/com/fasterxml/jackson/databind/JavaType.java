@@ -131,6 +131,26 @@ public abstract class JavaType
     public abstract JavaType withContentValueHandler(Object h);
 
     /**
+     * Mutant factory method that will try to copy handlers that the specified
+     * source type instance had, if any; this must be done recursively where
+     * necessary (as content types may be structured).
+     *
+     * @since 2.8.4
+     */
+    public JavaType withHandlersFrom(JavaType src) {
+        JavaType type = this;
+        Object h = src.getTypeHandler();
+        if (h != _typeHandler) {
+            type = type.withTypeHandler(h);
+        }
+        h = src.getValueHandler();
+        if (h != _valueHandler) {
+            type = type.withValueHandler(h);
+        }
+        return type;
+    }
+
+    /**
      * Mutant factory method that may be called on structured types
      * that have a so-called content type (element of arrays, value type
      * of Maps, referenced type of referential types),

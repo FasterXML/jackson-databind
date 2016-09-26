@@ -146,6 +146,29 @@ public class MapLikeType extends TypeBase {
     }
 
     @Override
+    public JavaType withHandlersFrom(JavaType src) {
+        JavaType type = super.withHandlersFrom(src);
+        JavaType srcKeyType = src.getKeyType();
+        // "withKeyType()" not part of JavaType, hence must verify:
+        if (type instanceof MapLikeType) {
+            if (srcKeyType != null) {
+                JavaType ct = _keyType.withHandlersFrom(srcKeyType);
+                if (ct != _keyType) {
+                    type = ((MapLikeType) type).withKeyType(ct);
+                }
+            }
+        }
+        JavaType srcCt = src.getContentType();
+        if (srcCt != null) {
+            JavaType ct = _valueType.withHandlersFrom(srcCt);
+            if (ct != _valueType) {
+                type = type.withContentType(ct);
+            }
+        }
+        return type;
+    }
+
+    @Override
     public MapLikeType withStaticTyping() {
         if (_asStatic) {
             return this;

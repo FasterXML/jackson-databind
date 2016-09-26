@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.4 (not yet released)
+
+#1384: `@JsonDeserialize(keyUsing = ...)` does not work correctly together with
+  DefaultTyping.NON_FINAL
+ (reported by Oleg Z)
+
 2.8.3 (17-Sep-2016)
 
 #929: `@JsonCreator` not working on a factory with multiple arguments for a enum type

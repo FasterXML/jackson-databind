@@ -543,6 +543,11 @@ Gili Tzabari (cowwoc@github)
   * Reported #1351: `@JsonInclude(NON_DEFAULT)` doesn't omit null fields
    (2.8.3)
 
+Oleg Zhukov (OlegZhukov@github)
+  * Reported #1384: `@JsonDeserialize(keyUsing = ...)` does not work correctly
+   together with `DefaultTyping.NON_FINAL`
+   (2.8.4)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

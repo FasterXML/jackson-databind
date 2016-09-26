@@ -13,6 +13,12 @@ Project: jackson-databind
 #1371: Add `MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES` to allow
  disabling use of `@CreatorProperties` as explicit `@JsonCreator` equivalent
 
+2.8.4 (not yet released)
+
+#1384: `@JsonDeserialize(keyUsing = ...)` does not work correctly together with
+  DefaultTyping.NON_FINAL
+ (reported by Oleg Z)
+
 2.8.3 (17-Sep-2016)
 
 #1351: `@JsonInclude(NON_DEFAULT)` doesn't omit null fields

@@ -423,8 +423,9 @@ public final class TypeFactory
             }
         } while (false);
 
-        // except possibly handlers
-//      newType = newType.withHandlersFrom(baseType);
+        // 25-Sep-2016, tatu: As per [databind#1384] also need to ensure handlers get
+        //   copied as well
+        newType = newType.withHandlersFrom(baseType);
         return newType;
 
         // 20-Oct-2015, tatu: Old simplistic approach

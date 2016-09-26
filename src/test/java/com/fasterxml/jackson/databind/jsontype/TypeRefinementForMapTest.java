@@ -54,10 +54,11 @@ public class TypeRefinementForMapTest extends BaseMapTest
     public static final class TestClass {
         @JsonProperty("mapProperty")
         @JsonSerialize(keyUsing = CompoundKeySerializer.class)
+        @JsonDeserialize(keyUsing = CompoundKeyDeserializer.class)
         private final Map<CompoundKey, String> mapProperty;
 
         @JsonCreator
-        private TestClass(@JsonDeserialize(keyUsing = CompoundKeyDeserializer.class) @JsonProperty("mapProperty") Map<CompoundKey, String> mapProperty) {
+        private TestClass(@JsonProperty("mapProperty") Map<CompoundKey, String> mapProperty) {
             this.mapProperty = mapProperty;
         }
     }

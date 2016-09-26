@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.8 (not yet released)
+2.7.8 (26-Sep-2016)
 
 #877: @JsonIgnoreProperties`: ignoring the "cause" property of `Throwable` on GAE
 #1359: Improve `JsonNode` deserializer to create `FloatNode` if parser supports

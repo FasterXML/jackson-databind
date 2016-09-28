@@ -102,7 +102,7 @@ public abstract class TypeSerializer
      * @param g Generator to use for writing type information
      */
     public abstract void writeTypePrefixForArray(Object value, JsonGenerator g) throws IOException;
-    
+
     /**
      * Method called after value has been serialized, to close any scopes opened
      * by earlier matching call to {@link #writeTypePrefixForScalar}.
@@ -173,8 +173,8 @@ public abstract class TypeSerializer
      * @param g Generator to use for writing type information
      * @param typeId Exact type id to use
      */
-    public abstract void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException, JsonProcessingException;
-    
+    public abstract void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException;
+
     /**
      * Method called to write initial part of type information for given
      * value, when it will be output as JSON Object value (not as JSON

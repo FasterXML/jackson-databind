@@ -1,3 +1,7 @@
 # Do not merge `pom.xml` from older version, as it will typically conflict
+#
+# note: also need:
+# git config --global merge.ours.driver true
+# (and if ever need to disable change `true` to `false`
 
 pom.xml merge=ours

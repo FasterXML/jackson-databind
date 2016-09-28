@@ -18,6 +18,8 @@ Project: jackson-databind
 #1384: `@JsonDeserialize(keyUsing = ...)` does not work correctly together with
   DefaultTyping.NON_FINAL
  (reported by Oleg Z)
+#1385: Polymorphic type lost when using `@JsonValue`
+ (reported by TomMarkuske@github)
 #1389 Problem with handling of multi-argument creator with Enums
  (fix contributed by Pavel P)
 
@@ -99,7 +101,7 @@ Project: jackson-databind
 #1277: Add caching of resolved generic types for `TypeFactory`
  (requested by Andriy P)
 
-2.7.8 (not yet released)
+2.7.8 (26-Sep-2016)
 
 #877: @JsonIgnoreProperties`: ignoring the "cause" property of `Throwable` on GAE
 #1359: Improve `JsonNode` deserializer to create `FloatNode` if parser supports

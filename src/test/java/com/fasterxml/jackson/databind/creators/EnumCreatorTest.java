@@ -292,4 +292,19 @@ public class EnumCreatorTest extends BaseMapTest
         Enum1291 result = mapper.readValue(json, Enum1291.class);
         assertSame(Enum1291.V2, result);
     }
+
+    // for [databind#1389]
+    public void testMultiArgEnumInCollections() throws Exception
+    {
+        EnumSet<Enum929> valueEnumSet = MAPPER.readValue("[{\"id\":3,\"name\":\"B\"}, {\"id\":3,\"name\":\"A\"}]",
+                new TypeReference<EnumSet<Enum929>>() {});
+        assertEquals(2, valueEnumSet.size());
+        assertTrue(valueEnumSet.contains(Enum929.A));
+        assertTrue(valueEnumSet.contains(Enum929.B));
+        List<Enum929> valueList = MAPPER.readValue("[{\"id\":3,\"name\":\"B\"}, {\"id\":3,\"name\":\"A\"}, {\"id\":3,\"name\":\"B\"}]",
+                new TypeReference<List<Enum929>>() {});
+        assertEquals(3, valueList.size());
+        assertEquals(Enum929.B, valueList.get(2));
+    }
+
 }

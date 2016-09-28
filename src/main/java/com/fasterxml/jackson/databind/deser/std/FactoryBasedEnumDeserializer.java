@@ -158,9 +158,7 @@ class FactoryBasedEnumDeserializer
     
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
-                if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
-                    p.nextToken(); // to move to next field name
-                }
+                buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp));
                 continue;
             }
             if (buffer.readIdProperty(propName)) {

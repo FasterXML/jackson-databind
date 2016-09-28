@@ -18,6 +18,8 @@ Project: jackson-databind
 #1384: `@JsonDeserialize(keyUsing = ...)` does not work correctly together with
   DefaultTyping.NON_FINAL
  (reported by Oleg Z)
+#1389 Problem with handling of multi-argument creator with Enums
+ (fix contributed by Pavel P)
 
 2.8.3 (17-Sep-2016)
 

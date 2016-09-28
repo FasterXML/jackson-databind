@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
@@ -44,7 +46,7 @@ public class JsonValueSerializer
     protected final JsonSerializer<Object> _valueSerializer;
 
     protected final BeanProperty _property;
-    
+
     /**
      * This is a flag that is set in rare (?) cases where this serializer
      * is used for "natural" types (boolean, int, String, double); and where
@@ -156,12 +158,12 @@ public class JsonValueSerializer
      */
     
     @Override
-    public void serialize(Object bean, JsonGenerator jgen, SerializerProvider prov) throws IOException
+    public void serialize(Object bean, JsonGenerator gen, SerializerProvider prov) throws IOException
     {
         try {
             Object value = _accessorMethod.getValue(bean);
             if (value == null) {
-                prov.defaultSerializeNull(jgen);
+                prov.defaultSerializeNull(gen);
                 return;
             }
             JsonSerializer<Object> ser = _valueSerializer;
@@ -174,7 +176,7 @@ public class JsonValueSerializer
                 // let's cache it, may be needed soon again
                 ser = prov.findTypedValueSerializer(c, true, _property);
             }
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Exception e) {
@@ -193,7 +195,7 @@ public class JsonValueSerializer
     }
 
     @Override
-    public void serializeWithType(Object bean, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer0) throws IOException
     {
         // Regardless of other parts, first need to find value to serialize:
@@ -202,11 +204,11 @@ public class JsonValueSerializer
             value = _accessorMethod.getValue(bean);
             // and if we got null, can also just write it directly
             if (value == null) {
-                provider.defaultSerializeNull(jgen);
+                provider.defaultSerializeNull(gen);
                 return;
             }
             JsonSerializer<Object> ser = _valueSerializer;
-            if (ser == null) { // already got a serializer? fabulous, that be easy...
+            if (ser == null) { // no serializer yet? Need to fetch
 //                ser = provider.findTypedValueSerializer(value.getClass(), true, _property);
                 ser = provider.findValueSerializer(value.getClass(), _property);
             } else {
@@ -214,18 +216,17 @@ public class JsonValueSerializer
                  *    this (note: type is for the wrapper type, not enclosed value!)
                  */
                 if (_forceTypeInformation) {
-                    typeSer0.writeTypePrefixForScalar(bean, jgen);
-                    ser.serialize(value, jgen, provider);
-                    typeSer0.writeTypeSuffixForScalar(bean, jgen);
+                    typeSer0.writeTypePrefixForScalar(bean, gen);
+                    ser.serialize(value, gen, provider);
+                    typeSer0.writeTypeSuffixForScalar(bean, gen);
                     return;
                 }
             }
-            /* 13-Feb-2013, tatu: Turns out that work-around should NOT be required
-             *   at all; it would not lead to correct behavior (as per #167).
-             */
-            // and then redirect type id lookups
-//            TypeSerializer typeSer = new TypeSerializerWrapper(typeSer0, bean);
-            ser.serializeWithType(value, jgen, provider, typeSer0);
+            // 28-Sep-2016, tatu: As per [databind#1385], we do need to do some juggling
+            //    to use different Object for type id (logical type) and actual serialization
+            //    (delegat type).
+            TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
+            ser.serializeWithType(value, gen, provider, rr);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Exception e) {
@@ -339,7 +340,7 @@ public class JsonValueSerializer
         }
         return isDefaultSerializer(ser);
     }
-    
+
     /*
     /**********************************************************
     /* Other methods
@@ -349,5 +350,121 @@ public class JsonValueSerializer
     @Override
     public String toString() {
         return "(@JsonValue serializer for method " + _accessorMethod.getDeclaringClass() + "#" + _accessorMethod.getName() + ")";
+    }
+
+    /*
+    /**********************************************************
+    /* Helper class
+    /**********************************************************
+     */
+
+    /**
+     * Silly little wrapper class we need to re-route type serialization so that we can
+     * override Object to use for type id (logical type) even when asking serialization
+     * of something else (delegate type)
+     */
+    static class TypeSerializerRerouter
+        extends TypeSerializer
+    {
+        protected final TypeSerializer _typeSerializer;
+        protected final Object _forObject;
+
+        public TypeSerializerRerouter(TypeSerializer ts, Object ob) {
+            _typeSerializer = ts;
+            _forObject = ob;
+        }
+
+        @Override
+        public TypeSerializer forProperty(BeanProperty prop) { // should never get called
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public As getTypeInclusion() {
+            return _typeSerializer.getTypeInclusion();
+        }
+
+        @Override
+        public String getPropertyName() {
+            return _typeSerializer.getPropertyName();
+        }
+
+        @Override
+        public TypeIdResolver getTypeIdResolver() {
+            return _typeSerializer.getTypeIdResolver();
+        }
+
+        @Override
+        public void writeTypePrefixForScalar(Object value, JsonGenerator gen) throws IOException {
+            _typeSerializer.writeTypePrefixForScalar(_forObject, gen);
+        }
+
+        @Override
+        public void writeTypePrefixForObject(Object value, JsonGenerator gen) throws IOException {
+            _typeSerializer.writeTypePrefixForObject(_forObject, gen);
+        }
+
+        @Override
+        public void writeTypePrefixForArray(Object value, JsonGenerator gen) throws IOException {
+            _typeSerializer.writeTypePrefixForArray(_forObject, gen);
+        }
+
+        @Override
+        public void writeTypeSuffixForScalar(Object value, JsonGenerator gen) throws IOException {
+            _typeSerializer.writeTypeSuffixForScalar(_forObject, gen);
+        }
+
+        @Override
+        public void writeTypeSuffixForObject(Object value, JsonGenerator gen) throws IOException {
+            _typeSerializer.writeTypeSuffixForObject(_forObject, gen);
+        }
+
+        @Override
+        public void writeTypeSuffixForArray(Object value, JsonGenerator gen) throws IOException {
+            _typeSerializer.writeTypeSuffixForArray(_forObject, gen);
+        }
+
+        public void writeTypePrefixForScalar(Object value, JsonGenerator gen, Class<?> type) throws IOException {
+            _typeSerializer.writeTypePrefixForScalar(_forObject, gen, type);
+        }
+
+        public void writeTypePrefixForObject(Object value, JsonGenerator gen, Class<?> type) throws IOException {
+            _typeSerializer.writeTypePrefixForObject(_forObject, gen, type);
+        }
+
+        public void writeTypePrefixForArray(Object value, JsonGenerator gen, Class<?> type) throws IOException {
+            _typeSerializer.writeTypePrefixForArray(_forObject, gen, type);
+        }
+        
+        @Override
+        public void writeCustomTypePrefixForScalar(Object value, JsonGenerator gen, String typeId)
+                throws IOException {
+            _typeSerializer.writeCustomTypePrefixForScalar(_forObject, gen, typeId);
+        }
+
+        @Override
+        public void writeCustomTypePrefixForObject(Object value, JsonGenerator gen, String typeId) throws IOException {
+            _typeSerializer.writeCustomTypePrefixForObject(_forObject, gen, typeId);
+        }
+
+        @Override
+        public void writeCustomTypePrefixForArray(Object value, JsonGenerator gen, String typeId) throws IOException {
+            _typeSerializer.writeCustomTypePrefixForArray(_forObject, gen, typeId);
+        }
+
+        @Override
+        public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator gen, String typeId) throws IOException {
+            _typeSerializer.writeCustomTypeSuffixForScalar(_forObject, gen, typeId);
+        }
+
+        @Override
+        public void writeCustomTypeSuffixForObject(Object value, JsonGenerator gen, String typeId) throws IOException {
+            _typeSerializer.writeCustomTypeSuffixForObject(_forObject, gen, typeId);
+        }
+
+        @Override
+        public void writeCustomTypeSuffixForArray(Object value, JsonGenerator gen, String typeId) throws IOException {
+            _typeSerializer.writeCustomTypeSuffixForArray(_forObject, gen, typeId);
+        }
     }
 }

@@ -11,12 +11,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class TestDefaultForObject
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     static abstract class AbstractBean { }
     
     static class StringBean extends AbstractBean { // ha, punny!
@@ -42,7 +36,6 @@ public class TestDefaultForObject
         public String toString() { return String.valueOf(state); }
     }
 
-    // [JACKSON-311]
     static class PolymorphicType {
         public String foo;
         public Object bar;
@@ -70,7 +63,6 @@ public class TestDefaultForObject
         public ObjectHolder(Object v) { value = v; }
     }
 
-    // [JACKSON-352]
     static class DomainBean {
         public int weight;
     }

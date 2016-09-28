@@ -249,7 +249,7 @@ public class TestJsonValue
         assertEquals(json, "{\"values\":[{\"i\":1},{\"i\":2}]}");
     }
 
-    // [Issue#167]
+    // [databind#167]
     public void testPolymorphicSerdeWithDelegate() throws Exception
     {
 	    AdditionInterface adder = new AdditionInterfaceImpl(1);
@@ -262,7 +262,7 @@ public class TestJsonValue
 	    adder = new NegatingAdditionInterface(adder);
 	    assertEquals(0, adder.add(1));
 	    json = MAPPER.writeValueAsString(adder);
-	    
+
 	    assertEquals("{\"boingo\":\"boopsy\",\"toAdd\":1}", json);
 	    assertEquals(2, MAPPER.readValue(json, AdditionInterface.class).add(1));
     }

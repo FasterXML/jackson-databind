@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
@@ -34,6 +35,47 @@ public class TestDateDeserialization
     static class DateInCETBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH", timezone="CET")
         public Date date;
+    }
+
+    // Test for [JACKSON-1103]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    static class ComparableMixin {}
+
+    static class Person
+    {
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        public Date dateOfBirth;
+
+        public Integer age;
+    }
+
+    public void testDateWithTypeDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Comparable.class, ComparableMixin.class);
+
+        String json = "{\n"
+                    + "  \"dateOfBirth\": \"2007-12-28T00:00:00.000Z\",\n"
+                    + "  \"age\": 8\n"
+                    + "}";
+
+        Person person = mapper.readValue(json, Person.class);
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.setTime(person.dateOfBirth);
+        assertEquals(8, (int) person.age);
+        assertEquals(2007, c.get(Calendar.YEAR));
+        assertEquals(Calendar.DECEMBER, c.get(Calendar.MONTH));
+        assertEquals(28, c.get(Calendar.DAY_OF_MONTH));
+
+        // let's do a round-trip to make sure it still works
+        json   = mapper.writeValueAsString(person);
+        person = mapper.readValue(json, Person.class);
+        c      = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        c.setTime(person.dateOfBirth);
+        assertEquals(8, (int) person.age);
+        assertEquals(2007, c.get(Calendar.YEAR));
+        assertEquals(Calendar.DECEMBER, c.get(Calendar.MONTH));
+        assertEquals(28, c.get(Calendar.DAY_OF_MONTH));
     }
     
     /*

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.*;
@@ -230,6 +231,13 @@ public class DateDeserializers
                 return (Calendar) ctxt.handleInstantiationProblem(_calendarClass, d, e);
             }
         }
+
+        @Override
+        public Calendar deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (Calendar) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
+        }
     }
 
     /**
@@ -258,6 +266,13 @@ public class DateDeserializers
         public java.util.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return _parseDate(jp, ctxt);
         }
+
+        @Override
+        public java.util.Date deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (Date) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
+        }
     }
 
     /**
@@ -281,6 +296,13 @@ public class DateDeserializers
         public java.sql.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             Date d = _parseDate(jp, ctxt);
             return (d == null) ? null : new java.sql.Date(d.getTime());
+        }
+
+        @Override
+        public java.sql.Date deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (java.sql.Date) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
         }
     }
 
@@ -308,6 +330,13 @@ public class DateDeserializers
         {
             Date d = _parseDate(jp, ctxt);
             return (d == null) ? null : new Timestamp(d.getTime());
+        }
+
+        @Override
+        public java.sql.Timestamp deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            return jp.getCurrentToken() == JsonToken.START_ARRAY || jp.getCurrentToken() == JsonToken.START_OBJECT
+                   ? (Timestamp) super.deserializeWithType(jp, ctxt, typeDeserializer)
+                   : deserialize(jp, ctxt);
         }
     }
 }

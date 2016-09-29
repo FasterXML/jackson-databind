@@ -314,9 +314,10 @@ public class BeanAsArrayDeserializer
                          *   supported (since ordering of elements may not be guaranteed);
                          *   but make explicitly non-supported for now.
                          */
-                        ctxt.reportMappingException("Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: "
+                        ctxt.reportBadDefinition(_beanType, String.format(
+                                "Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: "
                                 +"nominal type %s, actual type %s",
-                                _beanType.getRawClass().getName(), bean.getClass().getName());
+                                _beanType.getRawClass().getName(), bean.getClass().getName()));
                     }
                 }
                 continue;

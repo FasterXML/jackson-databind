@@ -455,7 +455,7 @@ public class MapDeserializer
                     result.put(key, value);
                 }
             } catch (UnresolvedForwardReference reference) {
-                handleUnresolvedReference(p, referringAccumulator, key, reference);
+                handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
             } catch (Exception e) {
                 wrapAndThrow(e, result, keyStr);
             }
@@ -514,7 +514,7 @@ public class MapDeserializer
                     result.put(key, value);
                 }
             } catch (UnresolvedForwardReference reference) {
-                handleUnresolvedReference(p, referringAccumulator, key, reference);
+                handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
             } catch (Exception e) {
                 wrapAndThrow(e, result, key);
             }
@@ -598,12 +598,14 @@ public class MapDeserializer
         wrapAndThrow(t, ref, null);
     }
 
-    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumulator accumulator,
+    private void handleUnresolvedReference(DeserializationContext ctxt,
+            MapReferringAccumulator accumulator,
             Object key, UnresolvedForwardReference reference)
         throws JsonMappingException
     {
         if (accumulator == null) {
-            throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
+            ctxt.reportInputMismatch("Unresolved forward reference but no identity info: %s",
+                    reference);
         }
         Referring referring = accumulator.handleUnresolvedReference(reference, key);
         reference.getRoid().appendReferring(referring);

@@ -459,6 +459,8 @@ William Headrick (headw01@github)
 Nick Babcock (nickbabcock)
   * Reported #1225: `JsonMappingException` should override getProcessor()
    (2.7.5)
+  * Suggested #1356: Differentiate between input and code exceptions on deserialization
+   (2.9.0)
 
 Andrew Joseph (apjoseph@github)
   * Reported #1248: `Annotated` returns raw type in place of Generic Type in 2.7.x

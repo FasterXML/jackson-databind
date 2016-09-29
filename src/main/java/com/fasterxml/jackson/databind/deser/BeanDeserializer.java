@@ -733,7 +733,8 @@ public class BeanDeserializer
                         // !!! 08-Jul-2011, tatu: Could probably support; but for now
                         //   it's too complicated, so bail out
                         tokens.close();
-                        ctxt.reportMappingException("Can not create polymorphic instances with unwrapped values");
+                        ctxt.reportInputMismatch(creatorProp,
+                                "Can not create polymorphic instances with unwrapped values");
                         return null;
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
@@ -899,8 +900,9 @@ public class BeanDeserializer
                         if (bean.getClass() != _beanType.getRawClass()) {
                             // !!! 08-Jul-2011, tatu: Could theoretically support; but for now
                             //   it's too complicated, so bail out
-                            ctxt.reportMappingException("Can not create polymorphic instances with external type ids");
-                            return null;
+                            return ctxt.reportBadDefinition(_beanType, String.format(
+                                    "Can not create polymorphic instances with external type ids (%s -> %s)",
+                                    _beanType, bean.getClass()));
                         }
                         return ext.complete(p, ctxt, bean);
                     }
@@ -978,7 +980,7 @@ public class BeanDeserializer
         public void handleResolvedForwardReference(Object id, Object value) throws IOException
         {
             if (_bean == null) {
-                _context.reportMappingException(
+                _context.reportInputMismatch(
 "Can not resolve ObjectId forward reference using property '%s' (of type %s): Bean not yet resolved",
 _prop.getName(), _prop.getDeclaringClass().getName());
         }

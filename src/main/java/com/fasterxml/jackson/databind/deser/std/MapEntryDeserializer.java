@@ -183,8 +183,8 @@ public class MapEntryDeserializer
         }
         if (t != JsonToken.FIELD_NAME) {
             if (t == JsonToken.END_OBJECT) {
-                ctxt.reportMappingException("Can not deserialize a Map.Entry out of empty JSON Object");
-                return null;
+                return ctxt.reportInputMismatch(this,
+                        "Can not deserialize a Map.Entry out of empty JSON Object");
             }
             return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(handledType(), p);
         }
@@ -215,10 +215,11 @@ public class MapEntryDeserializer
         t = p.nextToken();
         if (t != JsonToken.END_OBJECT) {
             if (t == JsonToken.FIELD_NAME) { // most likely
-                ctxt.reportMappingException("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '"+p.getCurrentName()+"')");
+                ctxt.reportInputMismatch("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '%s')",
+                        p.getCurrentName());
             } else {
                 // how would this occur?
-                ctxt.reportMappingException("Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);
+                ctxt.reportInputMismatch("Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);
             }
             return null;
         }

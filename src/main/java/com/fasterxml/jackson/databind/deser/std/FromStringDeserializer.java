@@ -162,8 +162,9 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 
     protected T _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException {
         // default impl: error out
-        ctxt.reportMappingException("Don't know how to convert embedded Object of type %s into %s",
-                ob.getClass().getName(), _valueClass.getName());
+        ctxt.reportInputMismatch(this, String.format(
+                "Don't know how to convert embedded Object of type %s into %s",
+                ob.getClass().getName(), _valueClass.getName()));
         return null;
     }
 

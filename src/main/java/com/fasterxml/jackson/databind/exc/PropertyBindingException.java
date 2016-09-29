@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  */
 @SuppressWarnings("serial")
 public abstract class PropertyBindingException
-    extends JsonMappingException
+    extends InputMismatchException // since 2.9
 {
     /**
      * Class that does not contain mapping for the unrecognized property.

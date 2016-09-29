@@ -246,8 +246,7 @@ public abstract class TypeDeserializerBase
              */
             deser = _findDefaultImplDeserializer(ctxt);
             if (deser == null) {
-                ctxt.reportMappingException("No (native) type id found when one was expected for polymorphic type handling");
-                return null;
+                return ctxt.reportInputMismatch("No (native) type id found when one was expected for polymorphic type handling");
             }
         } else {
             String typeIdStr = (typeId instanceof String) ? (String) typeId : String.valueOf(typeId);

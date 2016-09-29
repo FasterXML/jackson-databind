@@ -3,7 +3,11 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,6 +19,8 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -31,14 +37,14 @@ import com.fasterxml.jackson.databind.util.*;
  * Used to allow passing in configuration settings and reusable temporary
  * objects (scrap arrays, containers).
  *<p>
- * Instance life-cycle is such that an partially configured "blueprint" object
+ * Instance life-cycle is such that a partially configured "blueprint" object
  * is registered with {@link ObjectMapper} (and {@link ObjectReader},
- * and when an actual instance is needed for deserialization,
- * a fully configured instance will
- * be created using a method in excented API of sub-class
+ * and when actual instance is needed for deserialization,
+ * a fully configured instance will be created using a method in extended internal
+ *  API of sub-class
  * ({@link com.fasterxml.jackson.databind.deser.DefaultDeserializationContext#createInstance}).
  * Each instance is guaranteed to only be used from single-threaded context;
- * instances may be reused iff no configuration has changed.
+ * instances may be reused if (and only if) no configuration has changed.
  *<p>
  * Defined as abstract class so that implementations must define methods
  * for reconfiguring blueprints and creating instances.
@@ -765,7 +771,8 @@ public abstract class DeserializationContext
     public <T> T readValue(JsonParser p, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findRootValueDeserializer(type);
         if (deser == null) {
-            reportMappingException("Could not find JsonDeserializer for type %s", type);
+            reportBadDefinition(type,
+                    "Could not find JsonDeserializer for type "+type);
         }
         return (T) deser.deserialize(p, this);
     }
@@ -790,9 +797,9 @@ public abstract class DeserializationContext
         JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
             String propName = (prop == null) ? "NULL" : ("'"+prop.getName()+"'");
-            reportMappingException(
+            return reportBadDefinition(type, String.format(
                     "Could not find JsonDeserializer for type %s (via property %s)",
-                    type, propName);
+                    type, propName));
         }
         return (T) deser.deserialize(p, this);
     }
@@ -1105,7 +1112,8 @@ public abstract class DeserializationContext
                 if ((instance == null) || instClass.isInstance(instance)) {
                     return instance;
                 }
-                reportMappingException("DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
+                reportInputMismatch(
+                        "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
                         instClass, instance.getClass());
             }
             h = h.next();
@@ -1119,7 +1127,7 @@ public abstract class DeserializationContext
                         _calcName(instClass), t);
             }
         }
-        reportMappingException(msg);
+        reportInputMismatch(msg);
         return null; // never gets here
     }
 
@@ -1173,7 +1181,7 @@ public abstract class DeserializationContext
     /*
     /**********************************************************
     /* Methods for problem reporting, in cases where recovery
-    /* is not considered possible
+    /* is not considered possible: input problem
     /**********************************************************
      */
 
@@ -1225,18 +1233,6 @@ public abstract class DeserializationContext
     /**
      * @since 2.8
      */
-    public void reportMappingException(String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
-        throw JsonMappingException.from(getParser(), msg);
-    }
-
-    /**
-     * @since 2.8
-     */
     public void reportMissingContent(String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -1245,20 +1241,65 @@ public abstract class DeserializationContext
         } else if (msgArgs.length > 0) {
             msg = String.format(msg, msgArgs);
         }
-        throw JsonMappingException.from(getParser(), msg);
+        throw InputMismatchException.from(getParser(), msg);
     }
 
     /**
      * @since 2.8
      */
-    public void reportUnresolvedObjectId(ObjectIdReader oidReader, Object bean)
+    public <T> T reportUnresolvedObjectId(ObjectIdReader oidReader, Object bean)
         throws JsonMappingException
     {
         String msg = String.format("No Object Id found for an instance of %s, to assign to property '%s'",
                 bean.getClass().getName(), oidReader.propertyName);
-        throw JsonMappingException.from(getParser(), msg);
+        return reportInputMismatch(oidReader.idProperty, msg);
     }
 
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.9
+     */
+    public <T> T reportInputMismatch(BeanProperty prop, String msg)
+        throws JsonMappingException
+    {
+        throw InputMismatchException.from(getParser(), msg);
+    }
+
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.9
+     */
+    public <T> T reportInputMismatch(JsonDeserializer<?> src, String msg)
+        throws JsonMappingException
+    {
+        throw InputMismatchException.from(getParser(), msg);
+    }
+
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.9
+     */
+    public <T> T reportInputMismatch(String msg, Object... msgArgs) throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw InputMismatchException.from(getParser(), msg);
+    }
+
+    /*
+    /**********************************************************
+    /* Methods for problem reporting, in cases where recovery
+    /* is not considered possible: POJO definition problems
+    /**********************************************************
+     */
+    
     /**
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
@@ -1272,8 +1313,8 @@ public abstract class DeserializationContext
             message = String.format(message, args);
         }
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
-        throw mappingException("Invalid type definition for type %s: %s",
-                beanDesc, message);
+            message = String.format("Invalid type definition for type %s: %s", beanDesc, message);
+        throw InvalidDefinitionException.from(_parser, message, bean, null);
     }
 
     /**
@@ -1290,64 +1331,15 @@ public abstract class DeserializationContext
         }
         String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
-        throw mappingException("Invalid definition for property %s (of type %s): %s",
+        message = String.format (
+                "Invalid definition for property %s (of type %s): %s",
                 propName, beanDesc, message);
+        throw InvalidDefinitionException.from(_parser, message, bean, prop);
     }
 
-    /*
-    /**********************************************************
-    /* Methods for constructing exceptions, "untyped"
-    /**********************************************************
-     */
-
-    /**
-     * Helper method for constructing generic mapping exception with specified
-     * message and current location information.
-     * Note that application code should almost always call
-     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
-     * instead.
-     * 
-     * @since 2.6
-     */
-    public JsonMappingException mappingException(String message) {
-        return JsonMappingException.from(getParser(), message);
-    }
-
-    /**
-     * Helper method for constructing generic mapping exception with specified
-     * message and current location information
-     * Note that application code should almost always call
-     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
-     * instead.
-     * 
-     * @since 2.6
-     */
-    public JsonMappingException mappingException(String msgTemplate, Object... args) {
-        if (args != null && args.length > 0) {
-            msgTemplate = String.format(msgTemplate, args);
-        }
-        return JsonMappingException.from(getParser(), msgTemplate);
-    }
-
-    /**
-     * Helper method for constructing generic mapping exception for specified type
-     * 
-     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
-     */
-    @Deprecated
-    public JsonMappingException mappingException(Class<?> targetClass) {
-        return mappingException(targetClass, _parser.getCurrentToken());
-    }
-
-    /**
-     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
-     */
-    @Deprecated
-    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
-        String tokenDesc = (token == null) ? "<end of input>" : String.format("%s token", token);
-        return JsonMappingException.from(_parser,
-                String.format("Can not deserialize instance of %s out of %s",
-                        _calcName(targetClass), tokenDesc));
+    @Override
+    public <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException {
+        throw InvalidDefinitionException.from(_parser, msg, type);
     }
 
     /*
@@ -1373,7 +1365,7 @@ public abstract class DeserializationContext
         if (msg0 != null) {
             msg = msg + ": "+msg0;
         }
-        return JsonMappingException.from(p, msg);
+        return InputMismatchException.from(p, msg);
     }
 
     /**
@@ -1437,10 +1429,14 @@ public abstract class DeserializationContext
      * {@link #handleInstantiationProblem} should be called which will call this method
      * if necessary.
      */
-    public JsonMappingException instantiationException(Class<?> instClass, Throwable t) {
-        return JsonMappingException.from(_parser,
-                String.format("Can not construct instance of %s, problem: %s",
-                        instClass.getName(), t.getMessage()), t);
+    public JsonMappingException instantiationException(Class<?> instClass, Throwable cause) {
+        // Most likely problem with Creator definition, right?
+        JavaType type = constructType(instClass);
+        String msg = String.format("Can not construct instance of %s, problem: %s",
+                instClass.getName(), cause.getMessage());
+        InvalidDefinitionException e = InvalidDefinitionException.from(_parser, msg, type);
+        e.initCause(cause);
+        return e;
     }
 
     /**
@@ -1452,10 +1448,11 @@ public abstract class DeserializationContext
      * {@link #handleMissingInstantiator} should be called which will call this method
      * if necessary.
      */
-    public JsonMappingException instantiationException(Class<?> instClass, String msg) {
-        return JsonMappingException.from(_parser,
-                String.format("Can not construct instance of %s: %s",
-                        instClass.getName(), msg));
+    public JsonMappingException instantiationException(Class<?> instClass, String msg0) {
+        // Most likely problem with Creator definition, right?
+        JavaType type = constructType(instClass);
+        String msg = String.format("Can not construct instance of %s: %s", instClass.getName(), msg0);
+        return InvalidDefinitionException.from(_parser, msg, type);
     }
 
     /**
@@ -1509,6 +1506,89 @@ public abstract class DeserializationContext
     public JsonMappingException endOfInputException(Class<?> instClass) {
         return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
                 +instClass.getName());
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated methods for constructing, throwing non-specific
+    /* JsonMappingExceptions: as of 2.9, should use more specific
+    /* ones.
+    /**********************************************************
+     */
+    
+    /**
+     * Fallback method that may be called if no other <code>reportXxx</code>
+     * is applicable -- but only in that case.
+     *
+     * @since 2.8
+     * 
+     * @deprecate Since 2.9: use a more specific method, or {@link #reportBadDefinition(JavaType, String)},
+     *    or {@link #reportInputMismatch(String, Object...)} instead
+     */
+    @Deprecated // since 2.9
+    public void reportMappingException(String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw JsonMappingException.from(getParser(), msg);
+    }
+
+    /**
+     * Helper method for constructing generic mapping exception with specified
+     * message and current location information.
+     * Note that application code should almost always call
+     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
+     * instead.
+     * 
+     * @since 2.6
+     * 
+     * @deprecated Since 2.9 use more specific error reporting methods instead
+     */
+    @Deprecated
+    public JsonMappingException mappingException(String message) {
+        return JsonMappingException.from(getParser(), message);
+    }
+
+    /**
+     * Helper method for constructing generic mapping exception with specified
+     * message and current location information
+     * Note that application code should almost always call
+     * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
+     * instead.
+     * 
+     * @since 2.6
+     *
+     * @deprecated Since 2.9 use more specific error reporting methods instead
+     */
+    @Deprecated
+    public JsonMappingException mappingException(String msgTemplate, Object... args) {
+        if (args != null && args.length > 0) {
+            msgTemplate = String.format(msgTemplate, args);
+        }
+        return JsonMappingException.from(getParser(), msgTemplate);
+    }
+
+    /**
+     * Helper method for constructing generic mapping exception for specified type
+     * 
+     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
+     */
+    @Deprecated
+    public JsonMappingException mappingException(Class<?> targetClass) {
+        return mappingException(targetClass, _parser.getCurrentToken());
+    }
+
+    /**
+     * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
+     */
+    @Deprecated
+    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
+        String tokenDesc = (token == null) ? "<end of input>" : String.format("%s token", token);
+        return JsonMappingException.from(_parser,
+                String.format("Can not deserialize instance of %s out of %s",
+                        _calcName(targetClass), tokenDesc));
     }
 
     /*

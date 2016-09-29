@@ -1687,7 +1687,7 @@ public class ObjectReader
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
-            ctxt.reportMappingException("Root name '%s' does not match expected ('%s') for type %s",
+            ctxt.reportInputMismatch("Root name '%s' does not match expected ('%s') for type %s",
                     actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
@@ -1844,9 +1844,8 @@ public class ObjectReader
         // Sanity check: must have actual type...
         JavaType t = _valueType;
         if (t == null) {
-            ctxt.reportMappingException("No value type configured for ObjectReader");
+            ctxt.reportBadDefinition(null, "No value type configured for ObjectReader");
         }
-        
         // First: have we already seen it?
         JsonDeserializer<Object> deser = _rootDeserializers.get(t);
         if (deser != null) {
@@ -1855,7 +1854,7 @@ public class ObjectReader
         // Nope: need to ask provider to resolve it
         deser = ctxt.findRootValueDeserializer(t);
         if (deser == null) { // can this happen?
-            ctxt.reportMappingException("Can not find a deserializer for type %s", t);
+            ctxt.reportBadDefinition(t, "Can not find a deserializer for type "+t);
         }
         _rootDeserializers.put(t, deser);
         return deser;
@@ -1872,8 +1871,8 @@ public class ObjectReader
             // Nope: need to ask provider to resolve it
             deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
             if (deser == null) { // can this happen?
-                ctxt.reportMappingException("Can not find a deserializer for type %s",
-                        JSON_NODE_TYPE);
+                ctxt.reportBadDefinition(JSON_NODE_TYPE,
+                        "Can not find a deserializer for type "+JSON_NODE_TYPE);
             }
             _rootDeserializers.put(JSON_NODE_TYPE, deser);
         }

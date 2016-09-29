@@ -224,4 +224,19 @@ public abstract class DatabindContext
         }
         return (Converter<Object,Object>) conv;
     }
+
+    /*
+    /**********************************************************
+    /* Error reporting
+    /**********************************************************
+     */
+
+    /**
+     * Helper method called to indicate a generic problem that stems from type
+     * definition(s), not input data, or input/output state; typically this
+     * means throwing a {@link com.fasterxml.jackson.databind.exc.InvalidDefinitionException}.
+     *
+     * @since 2.9
+     */
+    public abstract <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException;
 }

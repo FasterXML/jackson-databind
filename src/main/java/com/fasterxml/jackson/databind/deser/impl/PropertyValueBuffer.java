@@ -132,9 +132,9 @@ public class PropertyValueBuffer
             value = _creatorParameters[prop.getCreatorIndex()] = _findMissing(prop);
         }
         if (value == null && _context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
-            throw _context.mappingException(
+            return _context.reportInputMismatch(prop, String.format(
                 "Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
-                prop.getName(), prop.getCreatorIndex());
+                prop.getName(), prop.getCreatorIndex()));
         }
         return value;
     }
@@ -171,7 +171,7 @@ public class PropertyValueBuffer
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
               if (_creatorParameters[ix] == null) {
-                  _context.reportMappingException("Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
+                  _context.reportInputMismatch("Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
                           props[ix].getName(), props[ix].getCreatorIndex());
               }
             }
@@ -190,12 +190,14 @@ public class PropertyValueBuffer
         }
         // Second: required?
         if (prop.isRequired()) {
-            _context.reportMappingException("Missing required creator property '%s' (index %d)",
-                    prop.getName(), prop.getCreatorIndex());
+            _context.reportInputMismatch(prop, String.format(
+                    "Missing required creator property '%s' (index %d)",
+                    prop.getName(), prop.getCreatorIndex()));
         }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)) {
-            _context.reportMappingException("Missing creator property '%s' (index %d); DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES enabled",
-                    prop.getName(), prop.getCreatorIndex());
+            _context.reportInputMismatch(prop, String.format(
+                    "Missing creator property '%s' (index %d); DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES enabled",
+                    prop.getName(), prop.getCreatorIndex()));
         }
         // Third: default value
         JsonDeserializer<Object> deser = prop.getValueDeserializer();

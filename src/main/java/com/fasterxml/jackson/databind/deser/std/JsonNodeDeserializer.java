@@ -190,7 +190,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         // [databind#237]: Report an error if asked to do so:
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
-            ctxt.reportMappingException("Duplicate field '%s' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled",
+            ctxt.reportInputMismatch("Duplicate field '%s' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled",
                     fieldName);
         }
     }
@@ -222,7 +222,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonNode value;
             JsonToken t = p.nextToken();
             if (t == null) {
-                throw ctxt.mappingException("Unexpected end-of-input when binding data into ObjectNode");
+                ctxt.reportMissingContent("Unexpected end-of-input when binding data into ObjectNode");
+                return null;
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:

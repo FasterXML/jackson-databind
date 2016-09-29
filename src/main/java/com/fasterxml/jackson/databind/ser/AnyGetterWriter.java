@@ -53,8 +53,9 @@ public class AnyGetterWriter
             return;
         }
         if (!(value instanceof Map<?,?>)) {
-            provider.reportMappingProblem("Value returned by 'any-getter' %s() not java.util.Map but %s",
-                    _accessor.getName(), value.getClass().getName());
+            provider.reportBadDefinition(_property.getType(), String.format(
+                    "Value returned by 'any-getter' %s() not java.util.Map but %s",
+                    _accessor.getName(), value.getClass().getName()));
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         if (_mapSerializer != null) {
@@ -76,8 +77,9 @@ public class AnyGetterWriter
             return;
         }
         if (!(value instanceof Map<?,?>)) {
-            provider.reportMappingProblem("Value returned by 'any-getter' (%s()) not java.util.Map but %s",
-                    _accessor.getName(), value.getClass().getName());
+            provider.reportBadDefinition(_property.getType(),
+                    String.format("Value returned by 'any-getter' (%s()) not java.util.Map but %s",
+                    _accessor.getName(), value.getClass().getName()));
         }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
         if (_mapSerializer != null) {

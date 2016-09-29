@@ -39,7 +39,6 @@ public class IgnoredPropertyException
         super(msg, loc, referringClass, propName, propertyIds);
     }
 
-    
     /**
      * Factory method used for constructing instances of this exception type.
      * 

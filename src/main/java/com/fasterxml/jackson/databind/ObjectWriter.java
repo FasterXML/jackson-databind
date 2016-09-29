@@ -2,7 +2,9 @@ package com.fasterxml.jackson.databind;
 
 import java.io.*;
 import java.text.*;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
@@ -1018,14 +1021,14 @@ public class ObjectWriter
         SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
         try {
             _configAndWriteValue(_generatorFactory.createGenerator(sw), value);
-        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+        } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
+            throw InputMismatchException.fromUnexpectedIOE(e);
         }
         return sw.getAndClear();
     }
-    
+
     /**
      * Method that can be used to serialize any Java value as
      * a byte array. Functionally equivalent to calling
@@ -1045,7 +1048,7 @@ public class ObjectWriter
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
+            throw InputMismatchException.fromUnexpectedIOE(e);
         }
         byte[] result = bb.toByteArray();
         bb.release();

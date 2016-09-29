@@ -176,6 +176,9 @@ public class TestCreators2 extends BaseMapTest
             verifyException(e, ": foobar");
             // also: should have nested exception
             Throwable t = e.getCause();
+            if (t == null) {
+                fail("Should have assigned cause for: ("+e.getClass().getSimpleName()+") "+e);
+            }
             assertNotNull(t);
             assertEquals(IllegalArgumentException.class, t.getClass());
             assertEquals("foobar", t.getMessage());
@@ -210,23 +213,27 @@ public class TestCreators2 extends BaseMapTest
         assertNotNull(foo);
     }
 
-    // Catch and rethrow exceptions that Creator methods throw
+    // Catch and re-throw exceptions that Creator methods throw
     public void testJackson438() throws Exception
     {
+        Exception e = null;
         try {
             MAPPER.readValue("{ \"name\":\"foobar\" }", BeanFor438.class);
             fail("Should have failed");
-        } catch (Exception e) {
-            if (!(e instanceof JsonMappingException)) {
-                fail("Should have received JsonMappingException, caught "+e.getClass().getName());
-            }
-            verifyException(e, "don't like that name");
-            // Ok: also, let's ensure root cause is directly linked, without other extra wrapping:
-            Throwable t = e.getCause();
-            assertNotNull(t);
-            assertEquals(IllegalArgumentException.class, t.getClass());
-            verifyException(e, "don't like that name");
+        } catch (Exception e0) {
+            e = e0;
         }
+        if (!(e instanceof JsonMappingException)) {
+            fail("Should have received JsonMappingException, caught "+e.getClass().getName());
+        }
+        verifyException(e, "don't like that name");
+        // Ok: also, let's ensure root cause is directly linked, without other extra wrapping:
+        Throwable t = e.getCause();
+        if (t == null) {
+            fail("Should have assigned cause for: ("+e.getClass().getSimpleName()+") "+e);
+        }
+        assertEquals(IllegalArgumentException.class, t.getClass());
+        verifyException(e, "don't like that name");
     }
 
     @SuppressWarnings("unchecked")

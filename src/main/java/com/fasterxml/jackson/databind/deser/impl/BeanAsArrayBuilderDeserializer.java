@@ -132,7 +132,7 @@ public class BeanAsArrayBuilderDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            ctxt.reportMappingException("Unexpected JSON values; expected at most %d properties (in JSON Array)",
+            ctxt.reportInputMismatch("Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
             // fall through
         }
@@ -314,10 +314,9 @@ public class BeanAsArrayBuilderDeserializer
                          *   supported (since ordering of elements may not be guaranteed);
                          *   but make explicitly non-supported for now.
                          */
-                        ctxt.reportMappingException("Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: "
-                                +"nominal type %s, actual type %s",
-                                _beanType.getRawClass().getName(), builder.getClass().getName());
-                        return null;
+                        return ctxt.reportBadDefinition(_beanType, String.format(
+"Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
+                                _beanType.getRawClass().getName(), builder.getClass().getName()));
                     }
                 }
                 continue;

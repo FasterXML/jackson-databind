@@ -567,25 +567,20 @@ public final class DeserializerCache
     /**********************************************************
      */
 
-    // NOTE: changed 2.6 -> 2.7 to pass context; no way to make backwards compatible
     protected JsonDeserializer<Object> _handleUnknownValueDeserializer(DeserializationContext ctxt, JavaType type)
         throws JsonMappingException
     {
-        /* Let's try to figure out the reason, to give better error
-         * messages
-         */
+        // Let's try to figure out the reason, to give better error messages
         Class<?> rawClass = type.getRawClass();
         if (!ClassUtil.isConcrete(rawClass)) {
-            ctxt.reportMappingException("Can not find a Value deserializer for abstract type %s", type);
+            return ctxt.reportBadDefinition(type, "Can not find a Value deserializer for abstract type "+type);
         }
-        ctxt.reportMappingException("Can not find a Value deserializer for type %s", type);
-        return null;
+        return ctxt.reportBadDefinition(type, "Can not find a Value deserializer for type "+type);
     }
 
     protected KeyDeserializer _handleUnknownKeyDeserializer(DeserializationContext ctxt, JavaType type)
         throws JsonMappingException
     {
-        ctxt.reportMappingException("Can not find a (Map) Key deserializer for type %s", type);
-        return null;
+        return ctxt.reportBadDefinition(type, "Can not find a (Map) Key deserializer for type "+type);
     }
 }

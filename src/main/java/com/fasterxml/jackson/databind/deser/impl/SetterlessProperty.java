@@ -99,11 +99,11 @@ public final class SetterlessProperty
             return;
         }
 
-        // For [#501] fix we need to implement this but:
+        // For [databind#501] fix we need to implement this but:
         if (_valueTypeDeserializer != null) {
-            ctxt.reportMappingException(
+            ctxt.reportBadDefinition(getType(), String.format(
                     "Problem deserializing 'setterless' property (\"%s\"): no way to handle typed deser with setterless yet",
-                    getName());
+                    getName()));
 //            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         

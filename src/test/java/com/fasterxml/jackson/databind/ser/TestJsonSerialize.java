@@ -148,6 +148,7 @@ public class TestJsonSerialize
     {
         try {
             serializeAsString(MAPPER, new BrokenClass());
+            fail("Should not succeed");
         } catch (Exception e) {
             verifyException(e, "types not related");
         }

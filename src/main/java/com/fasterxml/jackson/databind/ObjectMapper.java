@@ -4,7 +4,15 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -22,6 +30,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
 import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.*;
@@ -3044,14 +3053,14 @@ public class ObjectMapper
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {
             _configAndWriteValue(_jsonFactory.createGenerator(sw), value);
-        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+        } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
+            throw InputMismatchException.fromUnexpectedIOE(e);
         }
         return sw.getAndClear();
     }
-    
+
     /**
      * Method that can be used to serialize any Java value as
      * a byte array. Functionally equivalent to calling
@@ -3071,7 +3080,7 @@ public class ObjectMapper
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw JsonMappingException.fromUnexpectedIOE(e);
+            throw InputMismatchException.fromUnexpectedIOE(e);
         }
         byte[] result = bb.toByteArray();
         bb.release();
@@ -3824,7 +3833,7 @@ public class ObjectMapper
             if (t == null) {
                 // Throw mapping exception, since it's failure to map,
                 //   not an actual parsing problem
-                throw JsonMappingException.from(p, "No content to map due to end-of-input");
+                throw InputMismatchException.from(p, "No content to map due to end-of-input");
             }
         }
         return t;
@@ -3851,7 +3860,7 @@ public class ObjectMapper
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
-            ctxt.reportMappingException("Root name '%s' does not match expected ('%s') for type %s",
+            ctxt.reportInputMismatch("Root name '%s' does not match expected ('%s') for type %s",
                     actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
@@ -3887,7 +3896,7 @@ public class ObjectMapper
         // Nope: need to ask provider to resolve it
         deser = ctxt.findRootValueDeserializer(valueType);
         if (deser == null) { // can this happen?
-            throw JsonMappingException.from(ctxt,
+            return ctxt.reportBadDefinition(valueType,
                     "Can not find a deserializer for type "+valueType);
         }
         _rootDeserializers.put(valueType, deser);

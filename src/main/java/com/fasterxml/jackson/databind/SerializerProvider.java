@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -445,6 +446,17 @@ public abstract class SerializerProvider
         return _config.getFilterProvider();
     }
 
+    /**
+     *<p>
+     * NOTE: current implementation simply returns `null` as generator is not yet
+     * assigned to this provider.
+     *
+     * @since 2.8
+     */
+    public JsonGenerator getGenerator() {
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Access to Object Id aspects
@@ -1097,56 +1109,6 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Factory method for constructing a {@link JsonMappingException};
-     * usually only indirectly used by calling
-     * {@link #reportMappingProblem(String, Object...)}.
-     *
-     * @since 2.6
-     */
-    public JsonMappingException mappingException(String message, Object... args) {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
-        return JsonMappingException.from(getGenerator(), message);
-    }
-
-    /**
-     * Factory method for constructing a {@link JsonMappingException};
-     * usually only indirectly used by calling
-     * {@link #reportMappingProblem(Throwable, String, Object...)}
-     * 
-     * @since 2.8
-     */
-    protected JsonMappingException mappingException(Throwable t, String message, Object... args) {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
-        return JsonMappingException.from(getGenerator(), message, t);
-    }
-
-    /**
-     * Helper method called to indicate problem; default behavior is to construct and
-     * throw a {@link JsonMappingException}, but in future may collect more than one
-     * and only throw after certain number, or at the end of serialization.
-     *
-     * @since 2.8
-     */
-    public void reportMappingProblem(String message, Object... args) throws JsonMappingException {
-        throw mappingException(message, args);
-    }
-
-    /**
-     * Helper method called to indicate problem; default behavior is to construct and
-     * throw a {@link JsonMappingException}, but in future may collect more than one
-     * and only throw after certain number, or at the end of serialization.
-     *
-     * @since 2.8
-     */
-    public void reportMappingProblem(Throwable t, String message, Object... args) throws JsonMappingException {
-        throw mappingException(t, message, args);
-    }
-
-    /**
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
@@ -1159,8 +1121,9 @@ public abstract class SerializerProvider
             message = String.format(message, args);
         }
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
-        throw mappingException("Invalid type definition for type %s: %s",
+        message = String.format("Invalid type definition for type %s: %s",
                 beanDesc, message);
+        throw InvalidDefinitionException.from(getGenerator(), message, bean, null);
     }
 
     /**
@@ -1177,15 +1140,92 @@ public abstract class SerializerProvider
         }
         String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
-        throw mappingException("Invalid definition for property %s (of type %s): %s",
+        message = String.format("Invalid definition for property %s (of type %s): %s",
                 propName, beanDesc, message);
+        throw InvalidDefinitionException.from(getGenerator(), message, bean, prop);
+    }
+
+    @Override
+    public <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException {
+        throw InvalidDefinitionException.from(getGenerator(), msg, type);
     }
 
     /**
+     * Helper method called to indicate a non-specific deserialization problem
+     * caused by a bad definition of a type.
+     *
+     * @since 2.9
+     */
+    public <T> T reportDefinitionProblem(Class<?> type, String msg) throws JsonMappingException {
+        throw InvalidDefinitionException.from(getGenerator(), msg, constructType(type));
+    }
+
+    /**
+     * Helper method called to indicate problem; default behavior is to construct and
+     * throw a {@link JsonMappingException}, but in future may collect more than one
+     * and only throw after certain number, or at the end of serialization.
+     *
      * @since 2.8
      */
-    public JsonGenerator getGenerator() {
-        return null;
+    public void reportMappingProblem(Throwable t, String message, Object... args) throws JsonMappingException {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        throw JsonMappingException.from(getGenerator(), message, t);
+    }
+
+    /*
+    /********************************************************
+    /* Error reporting, deprecated methods
+    /********************************************************
+     */
+
+    /**
+     * Factory method for constructing a {@link JsonMappingException};
+     * usually only indirectly used by calling
+     * {@link #reportMappingProblem(String, Object...)}.
+     *
+     * @since 2.6
+     *
+     * @deprecated Since 2.9
+     */
+    @Deprecated // since 2.9
+    public JsonMappingException mappingException(String message, Object... args) {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        return JsonMappingException.from(getGenerator(), message);
+    }
+
+    /**
+     * Factory method for constructing a {@link JsonMappingException};
+     * usually only indirectly used by calling
+     * {@link #reportMappingProblem(Throwable, String, Object...)}
+     * 
+     * @since 2.8
+     *
+     * @deprecated Since 2.9
+     */
+    @Deprecated // since 2.9
+    protected JsonMappingException mappingException(Throwable t, String message, Object... args) {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        return JsonMappingException.from(getGenerator(), message, t);
+    }
+
+    /**
+     * Helper method called to indicate problem; default behavior is to construct and
+     * throw a {@link JsonMappingException}, but in future may collect more than one
+     * and only throw after certain number, or at the end of serialization.
+     *
+     * @since 2.8
+     *
+     * @deprecated Since 2.9
+     */
+    @Deprecated // since 2.9
+    public void reportMappingProblem(String message, Object... args) throws JsonMappingException {
+        throw mappingException(message, args);
     }
 
     /*
@@ -1204,8 +1244,9 @@ public abstract class SerializerProvider
                 return;
             }
         }
-        reportMappingProblem("Incompatible types: declared root type (%s) vs %s",
-                rootType, value.getClass().getName());
+        reportBadDefinition(rootType, String.format(
+                "Incompatible types: declared root type (%s) vs %s",
+                rootType, value.getClass().getName()));
     }
 
     /**

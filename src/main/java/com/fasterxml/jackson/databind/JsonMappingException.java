@@ -319,7 +319,10 @@ public class JsonMappingException
      * a signature.
      * 
      * @since 2.1
+     * 
+     * @deprecated Since 2.9 call method on {@link InputMismatchException} instead
      */
+    @Deprecated
     public static JsonMappingException fromUnexpectedIOE(IOException src) {
         return new JsonMappingException(null,
                 String.format("Unexpected IOException (of type %s): %s",

@@ -157,7 +157,7 @@ public class ExternalTypeHandler
                     }
                     // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                     if (!_properties[i].hasDefaultType()) {
-                        ctxt.reportMappingException("Missing external type id property '%s'",
+                        ctxt.reportInputMismatch("Missing external type id property '%s'",
                                 _properties[i].getTypePropertyName());                                
                     } else  {
                         typeId = _properties[i].getDefaultTypeId();
@@ -168,7 +168,7 @@ public class ExternalTypeHandler
 
                 if(prop.isRequired() ||
                         ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
-                    ctxt.reportMappingException("Missing property '%s' for external type id '%s'",
+                    ctxt.reportInputMismatch("Missing property '%s' for external type id '%s'",
                             prop.getName(), _properties[i].getTypePropertyName());
                 }
                 return bean;
@@ -201,14 +201,14 @@ public class ExternalTypeHandler
                 // but not just one
                 // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                 if (!extProp.hasDefaultType()) {
-                    ctxt.reportMappingException("Missing external type id property '%s'",
+                    ctxt.reportInputMismatch("Missing external type id property '%s'",
                             extProp.getTypePropertyName());
                 } else {
                     typeId = extProp.getDefaultTypeId();
                 }
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = extProp.getProperty();
-                ctxt.reportMappingException("Missing property '%s' for external type id '%s'",
+                ctxt.reportInputMismatch("Missing property '%s' for external type id '%s'",
                         prop.getName(), _properties[i].getTypePropertyName());
             }
             values[i] = _deserialize(p, ctxt, i, typeId);

@@ -2,14 +2,14 @@ package com.fasterxml.jackson.databind.exc;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Exception thrown when resolution of a type id fails.
  *
  * @since 2.8
  */
-public class InvalidTypeIdException extends JsonMappingException
+public class InvalidTypeIdException
+    extends InputMismatchException // since 2.9
 {
     private static final long serialVersionUID = 1L; // silly Eclipse, warnings
 

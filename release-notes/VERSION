@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
  (contributed by Connor K)
+#1356: Differentiate between input and code exceptions on deserialization
+ (suggested by Nick B)
 #1369: Improve `@JsonCreator` detection via `AnnotationIntrospector`
  by passing `MappingConfig`
 #1371: Add `MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES` to allow

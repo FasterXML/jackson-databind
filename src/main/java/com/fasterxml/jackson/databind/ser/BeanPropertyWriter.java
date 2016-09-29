@@ -918,7 +918,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             // (something
             // OTHER than {@link BeanSerializerBase}
             if (ser instanceof BeanSerializerBase) {
-                prov.reportMappingProblem("Direct self-reference leading to cycle");
+                prov.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
             }
         }
         return false;

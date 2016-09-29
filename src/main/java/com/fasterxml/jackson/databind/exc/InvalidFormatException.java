@@ -11,7 +11,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * 
  * @since 2.1
  */
-public class InvalidFormatException extends JsonMappingException
+public class InvalidFormatException
+    extends InputMismatchException // since 2.9
 {
     private static final long serialVersionUID = 1L; // silly Eclipse, warnings
 

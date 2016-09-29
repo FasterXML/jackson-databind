@@ -98,6 +98,9 @@ public class PropertyBuilder
         try {
             serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
         } catch (JsonMappingException e) {
+            if (propDef == null) {
+                return prov.reportBadDefinition(declaredType, e.getMessage());
+            }
             return prov.reportBadPropertyDefinition(_beanDesc, propDef, e.getMessage());
         }
 

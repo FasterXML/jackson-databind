@@ -184,12 +184,28 @@ public class PropertyBuilder
             // but possibly also 'empty' values:
             valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             break;
+        case CUSTOM: // new with 2.9
+            valueToSuppress = prov.includeFilterInstance(propDef, inclV.getValueFilter());
+            if (valueToSuppress == null) { // is this legal?
+                suppressNulls = true;
+            } else {
+                // should let filter decide what to do with nulls:
+                // But just case, let's handle unexpected (from our perspective) problems explicitly
+                try {
+                    suppressNulls = valueToSuppress.equals(null);
+                } catch (Throwable t) {
+                    prov.reportBadDefinition(_beanDesc.getType(),
+                            "Problem determining whether `null` values are to be suppressed: "+t.getMessage(),
+                            t);
+                }
+            }
+            break;
         case NON_NULL:
             suppressNulls = true;
             // fall through
         case ALWAYS: // default
         default:
-            // we may still want to suppress empty collections, as per [JACKSON-254]:
+            // we may still want to suppress empty collections
             if (actualType.isContainerType()
                     && !_config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)) {
                 valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;

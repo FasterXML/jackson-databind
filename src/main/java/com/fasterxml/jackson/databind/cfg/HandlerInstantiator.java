@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
@@ -158,6 +159,24 @@ public abstract class HandlerInstantiator
      */
     public VirtualBeanPropertyWriter virtualPropertyWriterInstance(MapperConfig<?> config,
             Class<?> implClass) {
+        return null;
+    }
+
+    /**
+     * Method called to construct a Filter (any Object with implementation of
+     * <code>equals(Object)</code> that determines if given value is to be
+     * excluded (true) or included (false)) to be used based on
+     * {@link com.fasterxml.jackson.annotation.JsonInclude} annotation (or
+     * equivalent).
+     *<p> 
+     * Default implementation returns `null` to indicate that default instantiation
+     * (use zero-arg constructor of the <code>filterClass</code>) should be
+     * used.
+     *
+     * @since 2.9
+     */
+    public Object includeFilterInstance(SerializationConfig config,
+            BeanPropertyDefinition forProperty, Class<?> filterClass) {
         return null;
     }
 }

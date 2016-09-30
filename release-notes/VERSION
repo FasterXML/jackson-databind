@@ -6,7 +6,7 @@ Project: jackson-databind
 
 2.9.0 (not yet released)
 
-#1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
+#1341: `DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY`
  (contributed by Connor K)
 #1356: Differentiate between input and code exceptions on deserialization
  (suggested by Nick B)

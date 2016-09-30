@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -100,7 +101,8 @@ public abstract class DefaultSerializerProvider
      */
     
     @Override
-    public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException
+    public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef)
+            throws JsonMappingException
     {
         if (serDef == null) {
             return null;
@@ -110,11 +112,11 @@ public abstract class DefaultSerializerProvider
         if (serDef instanceof JsonSerializer) {
             ser = (JsonSerializer<?>) serDef;
         } else {
-            /* Alas, there's no way to force return type of "either class
-             * X or Y" -- need to throw an exception after the fact
-             */
+            // Alas, there's no way to force return type of "either class
+            // X or Y" -- need to throw an exception after the fact
             if (!(serDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector returned serializer definition of type "
+                reportBadDefinition(annotated.getType(),
+                        "AnnotationIntrospector returned serializer definition of type "
                         +serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
             }
             Class<?> serClass = (Class<?>)serDef;
@@ -123,7 +125,8 @@ public abstract class DefaultSerializerProvider
                 return null;
             }
             if (!JsonSerializer.class.isAssignableFrom(serClass)) {
-                throw new IllegalStateException("AnnotationIntrospector returned Class "
+                reportBadDefinition(annotated.getType(),
+                        "AnnotationIntrospector returned Class "
                         +serClass.getName()+"; expected Class<JsonSerializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
@@ -134,6 +137,22 @@ public abstract class DefaultSerializerProvider
             }
         }
         return (JsonSerializer<Object>) _handleResolvable(ser);
+    }
+
+    @Override
+    public Object includeFilterInstance(BeanPropertyDefinition forProperty,
+            Class<?> filterClass)
+    {
+        if (filterClass == null) {
+            return null;
+        }
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+        Object filter = (hi == null) ? null : hi.includeFilterInstance(_config, forProperty, filterClass);
+        if (filter == null) {
+            filter = (JsonSerializer<?>) ClassUtil.createInstance(filterClass,
+                    _config.canOverrideAccessModifiers());
+        }
+        return filter;
     }
 
     /*

@@ -66,7 +66,7 @@ public class UnknownSerializer
 
     protected void failForEmpty(SerializerProvider prov, Object value)
             throws JsonMappingException {
-        prov.reportDefinitionProblem(handledType(), String.format(
+        prov.reportBadDefinition(handledType(), String.format(
                 "No serializer found for class %s and no properties discovered to create BeanSerializer (to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS)",
                 value.getClass().getName()));
     }

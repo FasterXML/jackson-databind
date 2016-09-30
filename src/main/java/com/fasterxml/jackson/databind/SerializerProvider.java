@@ -925,6 +925,17 @@ public abstract class SerializerProvider
             Object serDef)
         throws JsonMappingException;
 
+    /**
+     * Method that can be called to construct and configure {@link JsonInclude}
+     * filter instance,
+     * given a {@link Class} to instantiate (with default constructor, by default).
+     *
+     * @since 2.9
+     */
+    public abstract Object includeFilterInstance(BeanPropertyDefinition forProperty,
+            Class<?> filterClass)
+        throws JsonMappingException;
+
     /*
     /**********************************************************
     /* Support for contextualization
@@ -1156,10 +1167,20 @@ public abstract class SerializerProvider
      *
      * @since 2.9
      */
-    public <T> T reportDefinitionProblem(Class<?> type, String msg) throws JsonMappingException {
+    public <T> T reportBadDefinition(Class<?> type, String msg) throws JsonMappingException {
         throw InvalidDefinitionException.from(getGenerator(), msg, constructType(type));
     }
 
+    /**
+     * @since 2.9
+     */
+    public <T> T reportBadDefinition(JavaType type, String msg, Throwable cause)
+            throws JsonMappingException {
+        InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, type);
+        e.initCause(cause);
+        throw e;
+    }
+    
     /**
      * Helper method called to indicate problem; default behavior is to construct and
      * throw a {@link JsonMappingException}, but in future may collect more than one

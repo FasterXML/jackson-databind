@@ -149,7 +149,7 @@ public abstract class DefaultSerializerProvider
         HandlerInstantiator hi = _config.getHandlerInstantiator();
         Object filter = (hi == null) ? null : hi.includeFilterInstance(_config, forProperty, filterClass);
         if (filter == null) {
-            filter = (JsonSerializer<?>) ClassUtil.createInstance(filterClass,
+            filter = ClassUtil.createInstance(filterClass,
                     _config.canOverrideAccessModifiers());
         }
         return filter;

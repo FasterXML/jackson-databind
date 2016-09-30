@@ -140,11 +140,10 @@ public class PropertyBuilder
         
         inclV = inclV.withOverrides(propDef.findInclusion());
         JsonInclude.Include inclusion = inclV.getValueInclusion();
-
         if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // should not occur but...
             inclusion = JsonInclude.Include.ALWAYS;
         }
-        
+
         switch (inclusion) {
         case NON_DEFAULT:
             // 11-Nov-2015, tatu: This is tricky because semantics differ between cases,
@@ -186,6 +185,7 @@ public class PropertyBuilder
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = prov.includeFilterInstance(propDef, inclV.getValueFilter());
+
             if (valueToSuppress == null) { // is this legal?
                 suppressNulls = true;
             } else {
@@ -194,9 +194,10 @@ public class PropertyBuilder
                 try {
                     suppressNulls = valueToSuppress.equals(null);
                 } catch (Throwable t) {
-                    prov.reportBadDefinition(_beanDesc.getType(),
-                            "Problem determining whether `null` values are to be suppressed: "+t.getMessage(),
-                            t);
+                    String msg = String.format(
+"Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s",
+valueToSuppress.getClass().getName(), t.getClass().getName(), t.getMessage());
+                    prov.reportBadDefinition(_beanDesc.getType(), msg, t);
                 }
             }
             break;

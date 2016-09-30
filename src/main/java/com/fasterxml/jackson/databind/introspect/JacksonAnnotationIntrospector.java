@@ -723,31 +723,31 @@ public class JacksonAnnotationIntrospector
     public JsonInclude.Value findPropertyInclusion(Annotated a)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
-        JsonInclude.Include valueIncl = (inc == null) ? JsonInclude.Include.USE_DEFAULTS : inc.value();
-        if (valueIncl == JsonInclude.Include.USE_DEFAULTS) {
+        JsonInclude.Value value = (inc == null) ? JsonInclude.Value.empty() : JsonInclude.Value.from(inc);
+
+        // only consider deprecated variant if we didn't have non-deprecated one:
+        if (value.getValueInclusion() == JsonInclude.Include.USE_DEFAULTS) {
             JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
             if (ann != null) {
-                JsonSerialize.Inclusion i2 = ann.include();
-                switch (i2) {
+                switch (ann.include()) {
                 case ALWAYS:
-                    valueIncl = JsonInclude.Include.ALWAYS;
+                    value = value.withValueInclusion(JsonInclude.Include.ALWAYS);
                     break;
                 case NON_NULL:
-                    valueIncl = JsonInclude.Include.NON_NULL;
+                    value = value.withValueInclusion(JsonInclude.Include.NON_NULL);
                     break;
                 case NON_DEFAULT:
-                    valueIncl = JsonInclude.Include.NON_DEFAULT;
+                    value = value.withValueInclusion(JsonInclude.Include.NON_DEFAULT);
                     break;
                 case NON_EMPTY:
-                    valueIncl = JsonInclude.Include.NON_EMPTY;
+                    value = value.withValueInclusion(JsonInclude.Include.NON_EMPTY);
                     break;
                 case DEFAULT_INCLUSION:
                 default:
                 }
             }
         }
-        JsonInclude.Include contentIncl = (inc == null) ? JsonInclude.Include.USE_DEFAULTS : inc.content();
-        return JsonInclude.Value.construct(valueIncl, contentIncl);
+        return value;
     }
 
     @Override

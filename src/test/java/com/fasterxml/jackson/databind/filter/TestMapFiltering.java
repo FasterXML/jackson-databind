@@ -243,4 +243,31 @@ public class TestMapFiltering extends BaseMapTest
             .add("b", null)));
         assertEquals(aposToQuotes("{}"), json);
     }
+
+    public void testMapViaGlobalNonEmpty() throws Exception
+    {
+        // basic Map<String,String> subclass:
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyInclusion(JsonInclude.Value.empty()
+                .withContentInclusion(JsonInclude.Include.NON_EMPTY));
+        assertEquals(aposToQuotes("{'a':'b'}"), mapper.writeValueAsString(
+                new StringMap497()
+                    .add("x", "")
+                    .add("a", "b")
+                    ));
+    }
+
+    public void testMapViaTypeOverride() throws Exception
+    {
+        // basic Map<String,String> subclass:
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(Map.class)
+            .setInclude(JsonInclude.Value.empty()
+                .withContentInclusion(JsonInclude.Include.NON_EMPTY));
+        assertEquals(aposToQuotes("{'a':'b'}"), mapper.writeValueAsString(
+                new StringMap497()
+                    .add("foo", "")
+                    .add("a", "b")
+                    ));
+    }
 }

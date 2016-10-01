@@ -869,14 +869,13 @@ public abstract class BasicSerializerFactory
         case NON_NULL:
             valueToSuppress = null;
             suppressNulls = true;
-            // fall through
+            break;
         case ALWAYS: // default
         default:
             valueToSuppress = null;
             suppressNulls = !prov.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
             break;
         }
-
         return mapSer.withContentInclusion(valueToSuppress, suppressNulls);
     }
 

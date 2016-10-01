@@ -281,12 +281,12 @@ public class MapSerializer
      * @since 2.9
      */
     public MapSerializer withContentInclusion(Object suppressableValue, boolean suppressNulls) {
-        if ((suppressableValue == _suppressableValue) && (_suppressNulls == suppressNulls)) {
+        if ((suppressableValue == _suppressableValue) && (suppressNulls == _suppressNulls)) {
             return this;
         }
         _ensureOverride();
         return new MapSerializer(this, _valueTypeSerializer, suppressableValue, suppressNulls);
-    }                
+    }
 
     /**
      * @since 2.8
@@ -496,12 +496,12 @@ public class MapSerializer
                     case NON_NULL:
                         valueToSuppress = null;
                         suppressNulls = true;
-                        // fall through
+                        break;
                     case ALWAYS: // default
                     default:
                         valueToSuppress = null;
-                        // 30-Sep-2016, tatu: Should not check global flags here, if inclusion forced
-                        //    to be ALWAYS
+                        // 30-Sep-2016, tatu: Should not need to check global flags here,
+                        //   if inclusion forced to be ALWAYS
                         suppressNulls = false;
                         break;
                     }

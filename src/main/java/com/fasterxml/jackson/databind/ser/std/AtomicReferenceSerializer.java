@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
@@ -29,23 +27,37 @@ public class AtomicReferenceSerializer
     protected AtomicReferenceSerializer(AtomicReferenceSerializer base, BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> valueSer,
             NameTransformer unwrapper,
-            JsonInclude.Include contentIncl)
+            Object suppressableValue, boolean suppressNull)
     {
-        super(base, property, vts, valueSer, unwrapper, contentIncl);
+        super(base, property, vts, valueSer, unwrapper,
+                suppressableValue, suppressNull);
     }
 
     @Override
-    protected AtomicReferenceSerializer withResolved(BeanProperty prop,
+    protected ReferenceTypeSerializer<AtomicReference<?>> withResolved(BeanProperty prop,
             TypeSerializer vts, JsonSerializer<?> valueSer,
-            NameTransformer unwrapper,
-            JsonInclude.Include contentIncl)
+            NameTransformer unwrapper)
     {
-        if ((_property == prop) && (contentIncl == _contentInclusion)
+        if ((_property == prop)
                 && (_valueTypeSerializer == vts) && (_valueSerializer == valueSer)
                 && (_unwrapper == unwrapper)) {
             return this;
         }
-        return new AtomicReferenceSerializer(this, prop, vts, valueSer, unwrapper, contentIncl);
+        return new AtomicReferenceSerializer(this, prop, vts, valueSer, unwrapper,
+                _suppressableValue, _suppressNulls);
+    }
+
+    @Override
+    public ReferenceTypeSerializer<AtomicReference<?>> withContentInclusion(Object suppressableValue,
+            boolean suppressNulls)
+    {
+        if ((_suppressableValue == suppressableValue)
+                && (_suppressNulls == suppressNulls)) {
+            return this;
+        }
+        return new AtomicReferenceSerializer(this, _property, _valueTypeSerializer,
+                _valueSerializer, _unwrapper,
+                _suppressableValue, _suppressNulls);
     }
 
     /*

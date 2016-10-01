@@ -318,9 +318,9 @@ public class MapEntrySerializer
             }
         }
         if (_suppressableValue == MARKER_FOR_EMPTY) {
-            return !valueSer.isEmpty(prov, value);
+            return valueSer.isEmpty(prov, value);
         }
-        return !_suppressableValue.equals(value);
+        return _suppressableValue.equals(value);
     }
 
     /*

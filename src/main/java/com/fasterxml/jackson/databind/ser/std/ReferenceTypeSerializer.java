@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.ReferenceType;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -27,6 +29,11 @@ public abstract class ReferenceTypeSerializer<T>
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * @since 2.9
+     */
+    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+    
     /**
      * Value type
      */
@@ -50,16 +57,36 @@ public abstract class ReferenceTypeSerializer<T>
     protected final NameTransformer _unwrapper;
 
     /**
-     * Further guidance on serialization-inclusion (or not), regarding
-     * contained value (if any).
-     */
-    protected final JsonInclude.Include _contentInclusion;
-    
-    /**
      * If element type can not be statically determined, mapping from
      * runtime type to serializer is handled using this object
      */
     protected transient PropertySerializerMap _dynamicSerializers;
+
+    /*
+    /**********************************************************
+    /* Config settings, filtering
+    /**********************************************************
+     */
+
+    /**
+     * Value that indicates suppression mechanism to use for <b>values contained</b>;
+     * either "filter" (of which <code>equals()</code> is called), or marker
+     * value of {@link #MARKER_FOR_EMPTY}, or null to indicate no filtering for
+     * non-null values.
+     * Note that inclusion value for Map instance itself is handled by caller (POJO
+     * property that refers to the Map value).
+     *
+     * @since 2.9
+     */
+    protected final Object _suppressableValue;
+
+    /**
+     * Flag that indicates what to do with `null` values, distinct from
+     * handling of {@link #_suppressableValue}
+     *
+     * @since 2.9
+     */
+    protected final boolean _suppressNulls;
 
     /*
     /**********************************************************
@@ -76,7 +103,8 @@ public abstract class ReferenceTypeSerializer<T>
         _valueTypeSerializer = vts;
         _valueSerializer = ser;
         _unwrapper = null;
-        _contentInclusion = null;
+        _suppressableValue = null;
+        _suppressNulls = false;
         _dynamicSerializers = PropertySerializerMap.emptyForProperties();
     }
 
@@ -84,7 +112,7 @@ public abstract class ReferenceTypeSerializer<T>
     protected ReferenceTypeSerializer(ReferenceTypeSerializer<?> base, BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> valueSer,
             NameTransformer unwrapper,
-            JsonInclude.Include contentIncl)
+            Object suppressableValue, boolean suppressNulls)
     {
         super(base);
         _referredType = base._referredType;
@@ -93,12 +121,8 @@ public abstract class ReferenceTypeSerializer<T>
         _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSer;
         _unwrapper = unwrapper;
-        if ((contentIncl == JsonInclude.Include.USE_DEFAULTS)
-                || (contentIncl == JsonInclude.Include.ALWAYS)) {
-            _contentInclusion = null;
-        } else {
-            _contentInclusion = contentIncl;
-        }
+        _suppressableValue = suppressableValue;
+        _suppressNulls = suppressNulls;
     }
 
     @Override
@@ -109,7 +133,7 @@ public abstract class ReferenceTypeSerializer<T>
         }
         NameTransformer unwrapper = (_unwrapper == null) ? transformer
                 : NameTransformer.chainedTransformer(transformer, _unwrapper);
-        return withResolved(_property, _valueTypeSerializer, ser, unwrapper, _contentInclusion);
+        return withResolved(_property, _valueTypeSerializer, ser, unwrapper);
     }
 
     /*
@@ -117,11 +141,19 @@ public abstract class ReferenceTypeSerializer<T>
     /* Abstract methods to implement
     /**********************************************************
      */
-    
+
+    /**
+     * @since 2.9
+     */
     protected abstract ReferenceTypeSerializer<T> withResolved(BeanProperty prop,
             TypeSerializer vts, JsonSerializer<?> valueSer,
-            NameTransformer unwrapper,
-            JsonInclude.Include contentIncl);
+            NameTransformer unwrapper);
+
+    /**
+     * @since 2.9
+     */
+    public abstract ReferenceTypeSerializer<T> withContentInclusion(Object suppressableValue,
+            boolean suppressNulls);
 
     protected abstract boolean _isValueEmpty(T value);
 
@@ -157,14 +189,61 @@ public abstract class ReferenceTypeSerializer<T>
                 ser = provider.handlePrimaryContextualization(ser, property);
             }
         }
-        // Also: may want to have more refined exclusion based on referenced value
-        JsonInclude.Include contentIncl = _contentInclusion;
-        JsonInclude.Value incl = findIncludeOverrides(provider, property, handledType());
-        JsonInclude.Include newIncl = incl.getContentInclusion();
-        if ((newIncl != contentIncl) && (newIncl != JsonInclude.Include.USE_DEFAULTS)) {
-            contentIncl = newIncl;
+        // First, resolve wrt property, resolved serializers
+        ReferenceTypeSerializer<?> refSer = withResolved(property, typeSer, ser, _unwrapper);
+        // and then see if we have property-inclusion overrides
+        if (property != null) {
+            JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), null);
+            if (inclV != null) {
+                JsonInclude.Include incl = inclV.getContentInclusion();
+
+                if (incl != JsonInclude.Include.USE_DEFAULTS) {
+                    Object valueToSuppress;
+                    boolean suppressNulls;
+                    switch (incl) {
+                    case NON_DEFAULT:
+                        valueToSuppress = BeanUtil.getDefaultValue(_referredType);
+                        suppressNulls = true;
+                        if (valueToSuppress != null) {
+                            if (valueToSuppress.getClass().isArray()) {
+                                valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                            }
+                        }
+                        break;
+                    case NON_ABSENT:
+                        suppressNulls = true;
+                        valueToSuppress = _referredType.isReferenceType() ? MARKER_FOR_EMPTY : null;
+                        break;
+                    case NON_EMPTY:
+                        suppressNulls = true;
+                        valueToSuppress = MARKER_FOR_EMPTY;
+                        break;
+                    case CUSTOM:
+                        valueToSuppress = provider.includeFilterInstance(null, inclV.getContentFilter());
+                        if (valueToSuppress == null) { // is this legal?
+                            suppressNulls = true;
+                        } else {
+                            suppressNulls = provider.includeFilterSuppressNulls(valueToSuppress);
+                        }
+                        break;
+                    case NON_NULL:
+                        valueToSuppress = null;
+                        suppressNulls = true;
+                        break;
+                    case ALWAYS: // default
+                    default:
+                        valueToSuppress = null;
+                        suppressNulls = false;
+                        break;
+                    }
+                    if ((_suppressableValue != valueToSuppress)
+                            || (_suppressNulls != suppressNulls)) {
+                        refSer = refSer.withContentInclusion(valueToSuppress, suppressNulls);
+                    }
+                }
+            }
         }
-        return withResolved(property, typeSer, ser, _unwrapper, contentIncl);
+        return refSer;
     }
 
     protected boolean _useStatic(SerializerProvider provider, BeanProperty property,
@@ -212,10 +291,13 @@ public abstract class ReferenceTypeSerializer<T>
         if ((value == null) || _isValueEmpty(value)) {
             return true;
         }
-        if (_contentInclusion == null) {
+        if ((_suppressableValue == null) && !_suppressNulls) {
             return false;
         }
-        Object contents = _getReferenced(value);
+        Object contents = _getReferencedIfPresent(value);
+        if (contents == null) {
+            return _suppressNulls;
+        }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             try {
@@ -224,12 +306,22 @@ public abstract class ReferenceTypeSerializer<T>
                 throw new RuntimeJsonMappingException(e);
             }
         }
-        return ser.isEmpty(provider, contents);
+        if (_suppressableValue == MARKER_FOR_EMPTY) {
+            return ser.isEmpty(provider, contents);
+        }
+        return _suppressableValue.equals(contents);
     }
 
     @Override
     public boolean isUnwrappingSerializer() {
         return (_unwrapper != null);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public JavaType getReferredType() {
+        return _referredType;
     }
 
     /*

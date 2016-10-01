@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -20,8 +21,11 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.std.AtomicReferenceSerializer;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+import com.fasterxml.jackson.databind.ser.std.ReferenceTypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -367,6 +371,58 @@ public class BeanSerializerFactory
             typeSer = b.buildTypeSerializer(config, contentType, subtypes);
         }
         return typeSer;
+    }
+
+    protected ReferenceTypeSerializer<?> _checkMapContentInclusion(SerializerProvider prov,
+            BeanDescription beanDesc, ReferenceTypeSerializer<?> refSer)
+        throws JsonMappingException
+    {
+        final JavaType contentType = refSer.getReferredType();
+        JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
+                contentType, Map.class);
+
+        // Need to support global legacy setting, for now:
+        JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
+        if (incl == JsonInclude.Include.USE_DEFAULTS
+                || incl == JsonInclude.Include.ALWAYS) {
+            return refSer;
+        }
+
+        // NOTE: mostly copied from `PropertyBuilder`; would be nice to refactor
+        // but code is not identical nor are these types related
+        Object valueToSuppress;
+        boolean suppressNulls = true; // almost always, but possibly not with CUSTOM
+
+        switch (incl) {
+        case NON_DEFAULT:
+            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            if (valueToSuppress != null) {
+                if (valueToSuppress.getClass().isArray()) {
+                    valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                }
+            }
+            break;
+        case NON_ABSENT:
+            valueToSuppress = contentType.isReferenceType()
+                    ? MapSerializer.MARKER_FOR_EMPTY : null;
+            break;
+        case NON_EMPTY:
+            valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
+            break;
+        case CUSTOM: // new with 2.9
+            valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
+            if (valueToSuppress == null) { // is this legal?
+                suppressNulls = true;
+            } else {
+                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+            }
+            break;
+        case NON_NULL:
+        default: // should not matter but...
+            valueToSuppress = null;
+            break;
+        }
+        return refSer.withContentInclusion(valueToSuppress, suppressNulls);
     }
 
     /*

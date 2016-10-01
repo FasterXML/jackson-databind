@@ -538,7 +538,6 @@ public class MapSerializer
         // 05-Nove-2015, tatu: Simple cases are cheap, but for recursive
         //   emptiness checking we actually need to see if values are empty as well.
         Object supp = _suppressableValue;
-
         if ((supp == null) && !_suppressNulls) {
             return false;
         }

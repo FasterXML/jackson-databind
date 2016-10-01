@@ -193,7 +193,7 @@ public abstract class ReferenceTypeSerializer<T>
         ReferenceTypeSerializer<?> refSer = withResolved(property, typeSer, ser, _unwrapper);
         // and then see if we have property-inclusion overrides
         if (property != null) {
-            JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), null);
+            JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), handledType());
             if (inclV != null) {
                 JsonInclude.Include incl = inclV.getContentInclusion();
 
@@ -291,8 +291,8 @@ public abstract class ReferenceTypeSerializer<T>
         if ((value == null) || _isValueEmpty(value)) {
             return true;
         }
-        if ((_suppressableValue == null) && !_suppressNulls) {
-            return false;
+        if (_suppressableValue == null) {
+            return _suppressNulls;
         }
         Object contents = _getReferencedIfPresent(value);
         if (contents == null) {

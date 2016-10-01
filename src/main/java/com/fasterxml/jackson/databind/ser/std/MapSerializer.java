@@ -116,8 +116,9 @@ public class MapSerializer
 
     /**
      * Value that indicates suppression mechanism to use for <b>values contained</b>;
-     * either one of values of {@link com.fasterxml.jackson.annotation.JsonInclude.Include},
-     * or actual object to compare against ("default value").
+     * either "filter" (of which <code>equals()</code> is called), or marker
+     * value of {@link #MARKER_FOR_EMPTY}, or null to indicate no filtering for
+     * non-null values.
      * Note that inclusion value for Map instance itself is handled by caller (POJO
      * property that refers to the Map value).
      * 
@@ -483,7 +484,7 @@ public class MapSerializer
                         break;
                     case NON_EMPTY:
                         suppressNulls = true;
-                        valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
+                        valueToSuppress = MARKER_FOR_EMPTY;
                         break;
                     case CUSTOM:
                         valueToSuppress = provider.includeFilterInstance(null, inclV.getContentFilter());

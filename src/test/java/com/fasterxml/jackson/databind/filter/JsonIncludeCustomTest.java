@@ -58,7 +58,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
 
         public BrokenBean(String v) { value = v; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, success

@@ -930,10 +930,22 @@ public abstract class SerializerProvider
      * filter instance,
      * given a {@link Class} to instantiate (with default constructor, by default).
      *
+     * @param forProperty (optional) If filter is created for a property, that property;
+     *    `null` if filter created via defaulting, global or per-type.
+     *
      * @since 2.9
      */
     public abstract Object includeFilterInstance(BeanPropertyDefinition forProperty,
             Class<?> filterClass)
+        throws JsonMappingException;
+
+    /**
+     * Follow-up method that may be called after calling {@link #includeFilterInstance},
+     * to check handling of `null` values by the filter.
+     *
+     * @since 2.9
+     */
+    public abstract boolean includeFilterSuppressNulls(Object filter)
         throws JsonMappingException;
 
     /*
@@ -1180,7 +1192,17 @@ public abstract class SerializerProvider
         e.initCause(cause);
         throw e;
     }
-    
+
+    /**
+     * @since 2.9
+     */
+    public <T> T reportBadDefinition(Class<?> raw, String msg, Throwable cause)
+            throws JsonMappingException {
+        InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, constructType(raw));
+        e.initCause(cause);
+        throw e;
+    }
+
     /**
      * Helper method called to indicate problem; default behavior is to construct and
      * throw a {@link JsonMappingException}, but in future may collect more than one

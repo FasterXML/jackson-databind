@@ -143,7 +143,6 @@ public class PropertyBuilder
         if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // should not occur but...
             inclusion = JsonInclude.Include.ALWAYS;
         }
-
         switch (inclusion) {
         case NON_DEFAULT:
             // 11-Nov-2015, tatu: This is tricky because semantics differ between cases,
@@ -158,7 +157,7 @@ public class PropertyBuilder
                 }
                 valueToSuppress = getPropertyDefaultValue(propDef.getName(), am, actualType);
             } else {
-                valueToSuppress = getDefaultValue(actualType);
+                valueToSuppress = BeanUtil.getDefaultValue(actualType);
                 suppressNulls = true;
             }
             if (valueToSuppress == null) {
@@ -185,20 +184,10 @@ public class PropertyBuilder
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = prov.includeFilterInstance(propDef, inclV.getValueFilter());
-
             if (valueToSuppress == null) { // is this legal?
                 suppressNulls = true;
             } else {
-                // should let filter decide what to do with nulls:
-                // But just case, let's handle unexpected (from our perspective) problems explicitly
-                try {
-                    suppressNulls = valueToSuppress.equals(null);
-                } catch (Throwable t) {
-                    String msg = String.format(
-"Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s",
-valueToSuppress.getClass().getName(), t.getClass().getName(), t.getMessage());
-                    prov.reportBadDefinition(_beanDesc.getType(), msg, t);
-                }
+                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
         case NON_NULL:
@@ -342,37 +331,13 @@ valueToSuppress.getClass().getName(), t.getClass().getName(), t.getMessage());
     }
 
     /**
-     * Accessor used to find out "default value" to use for comparing values to
-     * serialize, to determine whether to exclude value from serialization with
-     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
-     *<p>
-     * Default logic is such that for primitives and wrapper types for primitives, expected
-     * defaults (0 for `int` and `java.lang.Integer`) are returned; for Strings, empty String,
-     * and for structured (Maps, Collections, arrays) and reference types, criteria
-     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
-     * is used.
-     *
-     * @since 2.7
+     * @deprecated Since 2.9
      */
-    protected Object getDefaultValue(JavaType type)
-    {
-        // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
-        //   handling for primitives since they are never passed as nulls.
-        Class<?> cls = type.getRawClass();
-
-        Class<?> prim = ClassUtil.primitiveType(cls);
-        if (prim != null) {
-            return ClassUtil.defaultValue(prim);
-        }
-        if (type.isContainerType() || type.isReferenceType()) {
-            return JsonInclude.Include.NON_EMPTY;
-        }
-        if (cls == String.class) {
-            return "";
-        }
-        return null;
+    @Deprecated // since 2.9
+    protected Object getDefaultValue(JavaType type) {
+        return BeanUtil.getDefaultValue(type);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for exception handling

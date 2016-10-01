@@ -494,7 +494,6 @@ public abstract class BeanSerializerBase
                             objectIdInfo.getAlwaysAsId());
                 }
             }
-            
             // Or change Filter Id in use?
             Object filterId = intr.findFilterId(accessor);
             if (filterId != null) {
@@ -523,6 +522,7 @@ public abstract class BeanSerializerBase
         if (shape == null) {
             shape = _serializationShape;
         }
+        // last but not least; may need to transmute into as-array serialization
         if (shape == JsonFormat.Shape.ARRAY) {
             return contextual.asArraySerializer();
         }

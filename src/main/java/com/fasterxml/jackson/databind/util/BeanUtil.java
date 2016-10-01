@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 /**
@@ -97,6 +99,46 @@ public class BeanUtil
             return stdNaming
                     ? stdManglePropertyName(name, prefix.length())
                     : legacyManglePropertyName(name, prefix.length());
+        }
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Value defaulting helpers
+    /**********************************************************
+     */
+    
+    /**
+     * Accessor used to find out "default value" to use for comparing values to
+     * serialize, to determine whether to exclude value from serialization with
+     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
+     *<p>
+     * Default logic is such that for primitives and wrapper types for primitives, expected
+     * defaults (0 for `int` and `java.lang.Integer`) are returned; for Strings, empty String,
+     * and for structured (Maps, Collections, arrays) and reference types, criteria
+     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
+     * is used.
+     *
+     * @since 2.7
+     */
+    public static Object getDefaultValue(JavaType type)
+    {
+        // 06-Nov-2015, tatu: Returning null is fine for Object types; but need special
+        //   handling for primitives since they are never passed as nulls.
+        Class<?> cls = type.getRawClass();
+
+        // 30-Sep-2016, tatu: Also works for Wrappers, so both `Integer.TYPE` and `Integer.class`
+        //    would return `Integer.TYPE`
+        Class<?> prim = ClassUtil.primitiveType(cls);
+        if (prim != null) {
+            return ClassUtil.defaultValue(prim);
+        }
+        if (type.isContainerType() || type.isReferenceType()) {
+            return JsonInclude.Include.NON_EMPTY;
+        }
+        if (cls == String.class) {
+            return "";
         }
         return null;
     }

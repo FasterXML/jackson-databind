@@ -774,12 +774,7 @@ public abstract class BasicSerializerFactory
                 MapSerializer mapSer = MapSerializer.construct(ignored,
                         type, staticTyping, elementTypeSerializer,
                         keySerializer, elementValueSerializer, filterId);
-                Object suppressableValue = findSuppressableContentValue(config,
-                        type.getContentType(), beanDesc);
-                if (suppressableValue != null) {
-                    mapSer = mapSer.withContentInclusion(suppressableValue);
-                }
-                ser = mapSer;
+                ser = _checkMapContentInclusion(prov, beanDesc, mapSer);
             }
         }
         // [databind#120]: Allow post-processing
@@ -792,42 +787,95 @@ public abstract class BasicSerializerFactory
     }
 
     /**
-     *<p>
-     * NOTE: although return type is left opaque, it really needs to be
-     * <code>JsonInclude.Include</code> for things to work as expected.
+     * Helper method that does figures out content inclusion value to use, if any,
+     * and construct re-configured {@link MapSerializer} appropriately.
      *
-     * @since 2.5
+     * @since 2.9
      */
-    protected Object findSuppressableContentValue(SerializationConfig config,
-            JavaType contentType, BeanDescription beanDesc)
+    protected MapSerializer _checkMapContentInclusion(SerializerProvider prov,
+            BeanDescription beanDesc, MapSerializer mapSer)
         throws JsonMappingException
     {
-        /* 16-Apr-2016, tatu: Should this consider possible property-config overrides?
-         *    Quite possibly yes, but would need to carefully check that content type being
-         *    used is appropriate.
-         */
-        JsonInclude.Value inclV = beanDesc.findPropertyInclusion(config.getDefaultPropertyInclusion());
+        final SerializationConfig config = prov.getConfig();
 
-        if (inclV == null) {
-            return null;
+        // 30-Sep-2016, tatu: Defaulting gets complicated because we might have two distinct
+        //   axis to consider: Map itself, and then value type.
+        //  Start with Map-defaults, then use more-specific value override, if any
+
+        // Start by getting global setting, overridden by Map-type-override
+        JsonInclude.Value inclV = config.getDefaultPropertyInclusion(Map.class,
+                config.getDefaultPropertyInclusion());
+        // and then merge content-type overrides, if any. But note that there's
+        // content-to-value inclusion shift we have to do
+        final JavaType contentType = mapSer.getContentType();
+        JsonInclude.Value valueIncl = config.getDefaultPropertyInclusion(contentType.getRawClass(), null);
+
+        if (valueIncl != null) {
+            switch (valueIncl.getValueInclusion()) {
+            case USE_DEFAULTS:
+                break;
+            case CUSTOM:
+                inclV = inclV.withContentFilter(valueIncl.getContentFilter());
+                break;
+            default:
+                inclV = inclV.withContentInclusion(valueIncl.getValueInclusion());
+            }
         }
-        JsonInclude.Include incl = inclV.getContentInclusion();
-        switch (incl) {
-        case USE_DEFAULTS: // means "dunno"
-            return null;
+        JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
+        if (incl == JsonInclude.Include.USE_DEFAULTS) {
+            if (!config.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
+                return mapSer.withContentInclusion(null, true);
+            }
+            return mapSer;
+        }
+        // NOTE: mostly copied from `PropertyBuilder`; would be nice to refactor
+        // but code is not identical nor are these types related
+        Object valueToSuppress;
+        boolean suppressNulls;
+
+        switch (inclV.getContentInclusion()) {
         case NON_DEFAULT:
-            // 19-Oct-2014, tatu: Not sure what this'd mean; so take it to mean "NON_EMPTY"...
-            // 11-Nov-2015, tatu: With 2.6, we did indeed revert to "NON_EMPTY", but that did
-            //    not go well, so with 2.7, we'll do this instead...
-            //   But not 100% sure if we ought to call new `JsonSerializer.findDefaultValue()`;
-            //   to do that, would need to locate said serializer
-//            incl = JsonInclude.Include.NON_EMPTY;
+            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            suppressNulls = true;
+            if (valueToSuppress != null) {
+                if (valueToSuppress.getClass().isArray()) {
+                    valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                }
+            }
             break;
+        case NON_ABSENT: // new with 2.6, to support Guava/JDK8 Optionals
+            // always suppress nulls
+            suppressNulls = true;
+            // and for referential types, also "empty", which in their case means "absent"
+            valueToSuppress = contentType.isReferenceType()
+                    ? MapSerializer.MARKER_FOR_EMPTY : null;
+            break;
+        case NON_EMPTY:
+            // always suppress nulls
+            suppressNulls = true;
+            // but possibly also 'empty' values:
+            valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
+            break;
+        case CUSTOM: // new with 2.9
+            valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
+            if (valueToSuppress == null) { // is this legal?
+                suppressNulls = true;
+            } else {
+                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+            }
+            break;
+        case NON_NULL:
+            valueToSuppress = null;
+            suppressNulls = true;
+            // fall through
+        case ALWAYS: // default
         default:
-            // all other modes actually good as is, unless we'll find better ways
+            valueToSuppress = null;
+            suppressNulls = !prov.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
             break;
         }
-        return incl;
+
+        return mapSer.withContentInclusion(valueToSuppress, suppressNulls);
     }
 
     /*

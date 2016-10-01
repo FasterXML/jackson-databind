@@ -56,7 +56,7 @@ public class PropertyBuilder
         // 08-Sep-2016, tatu: This gets tricky, with 3 levels of definitions:
         //  (a) global default inclusion
         //  (b) per-type default inclusion (from annotation or config overrides;
-        //     latter having precedence
+        //     latter having precedence)
         //  Cc) per-property override
         //
         //  and not only requiring merging, but also considering special handling

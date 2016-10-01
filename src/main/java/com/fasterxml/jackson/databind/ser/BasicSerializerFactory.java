@@ -792,6 +792,7 @@ public abstract class BasicSerializerFactory
      *
      * @since 2.9
      */
+    @SuppressWarnings("deprecation")
     protected MapSerializer _checkMapContentInclusion(SerializerProvider prov,
             BeanDescription beanDesc, MapSerializer mapSer)
         throws JsonMappingException
@@ -799,12 +800,13 @@ public abstract class BasicSerializerFactory
         final SerializationConfig config = prov.getConfig();
 
         // 30-Sep-2016, tatu: Defaulting gets complicated because we might have two distinct
-        //   axis to consider: Map itself, and then value type.
-        //  Start with Map-defaults, then use more-specific value override, if any
+        //   axis to consider: Map type itself , and then value type.
+        //  Start with Map-defaults, then use more-specific value override, if any.
 
         // Start by getting global setting, overridden by Map-type-override
-        JsonInclude.Value inclV = config.getDefaultPropertyInclusion(Map.class,
-                config.getDefaultPropertyInclusion());
+        JsonInclude.Value inclV = beanDesc.findPropertyInclusion(config.getDefaultPropertyInclusion());
+        inclV = config.getDefaultPropertyInclusion(Map.class, inclV);
+
         // and then merge content-type overrides, if any. But note that there's
         // content-to-value inclusion shift we have to do
         final JavaType contentType = mapSer.getContentType();

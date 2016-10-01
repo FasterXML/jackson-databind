@@ -212,6 +212,7 @@ public class TestMapFiltering extends BaseMapTest
         assertEquals(aposToQuotes("{'a':'foo'}"), json);
     }
 
+    @SuppressWarnings("deprecation")
     public void testMapNullSerialization() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
@@ -220,7 +221,9 @@ public class TestMapFiltering extends BaseMapTest
         // by default, should output null-valued entries:
         assertEquals("{\"a\":null}", m.writeValueAsString(map));
         // but not if explicitly asked not to (note: config value is dynamic here)
-        m.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+
+        m = new ObjectMapper();        
+        m.disable(SerializationFeature.WRITE_NULL_MAP_VALUES);
         assertEquals("{}", m.writeValueAsString(map));
     }
 

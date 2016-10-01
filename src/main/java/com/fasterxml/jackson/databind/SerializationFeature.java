@@ -275,8 +275,17 @@ public enum SerializationFeature implements ConfigFeature
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).
      *<p>
+     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>can not</b> be
+     * dynamically changed on per-call basis, because its effect is considered during
+     * construction of serializers and property handlers.
+     *<p>
      * Feature is enabled by default.
+     *
+     * @deprecated Since 2.9 there are better mechanism for specifying filtering; specifically
+     *   using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides
+     *   (see {@link ObjectMapper#configOverride(Class)}}).
      */
+    @Deprecated // since 2.9
     WRITE_NULL_MAP_VALUES(true),
 
     /**

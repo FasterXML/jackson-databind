@@ -225,7 +225,7 @@ public class MapEntrySerializer
         if (keyElem == null) {
             provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
         } else {
-            // [JACKSON-314] skip entries with null values?
+            // [skip entries with null values?
             if (skipNulls && valueElem == null) return;
             keySerializer.serialize(keyElem, jgen, provider);
         }
@@ -276,7 +276,7 @@ public class MapEntrySerializer
         if (keyElem == null) {
             provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
         } else {
-            // [JACKSON-314] also may need to skip entries with null values
+            // also may need to skip entries with null values
             if (skipNulls && valueElem == null) return;
             keySerializer.serialize(keyElem, jgen, provider);
         }
@@ -290,7 +290,6 @@ public class MapEntrySerializer
                     ser.serializeWithType(valueElem, jgen, provider, vts);
                 }
             } catch (Exception e) {
-                // [JACKSON-55] Need to add reference information
                 String keyDesc = ""+keyElem;
                 wrapAndThrow(provider, e, value, keyDesc);
             }

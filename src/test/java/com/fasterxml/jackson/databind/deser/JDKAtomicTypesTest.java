@@ -40,7 +40,6 @@ public class JDKAtomicTypesTest
     static class SimpleWrapper {
         public AtomicReference<Object> value;
 
-        public SimpleWrapper() { }
         public SimpleWrapper(Object o) { value = new AtomicReference<Object>(o); }
     }
 

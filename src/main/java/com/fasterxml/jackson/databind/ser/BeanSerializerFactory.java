@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.std.AtomicReferenceSerializer;
@@ -308,10 +309,65 @@ public class BeanSerializerFactory
             }
         }
         if (refType.isTypeOrSubTypeOf(AtomicReference.class)) {
-            return new AtomicReferenceSerializer(refType, staticTyping,
+            return buildAtomicReferenceSerializer(prov, refType, beanDesc, staticTyping,
                     contentTypeSerializer, contentSerializer);
         }
         return null;
+    }
+
+    protected JsonSerializer<?> buildAtomicReferenceSerializer(SerializerProvider prov,
+            ReferenceType refType, BeanDescription beanDesc, boolean staticTyping,
+            TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentSerializer)
+        throws JsonMappingException
+    {
+        final JavaType contentType = refType.getReferencedType();
+        JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
+                contentType, AtomicReference.class);
+        
+        // Need to support global legacy setting, for now:
+        JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
+        Object valueToSuppress;
+        boolean suppressNulls;
+
+        if (incl == JsonInclude.Include.USE_DEFAULTS
+                || incl == JsonInclude.Include.ALWAYS) {
+            valueToSuppress = null;
+            suppressNulls = false;
+        } else {
+            suppressNulls = true;
+            switch (incl) {
+            case NON_DEFAULT:
+                valueToSuppress = BeanUtil.getDefaultValue(contentType);
+                if (valueToSuppress != null) {
+                    if (valueToSuppress.getClass().isArray()) {
+                        valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                    }
+                }
+                break;
+            case NON_ABSENT:
+                valueToSuppress = contentType.isReferenceType()
+                        ? MapSerializer.MARKER_FOR_EMPTY : null;
+                break;
+            case NON_EMPTY:
+                valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
+                break;
+            case CUSTOM:
+                valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
+                if (valueToSuppress == null) { // is this legal?
+                    suppressNulls = true;
+                } else {
+                    suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+                }
+                break;
+            case NON_NULL:
+            default: // should not matter but...
+                valueToSuppress = null;
+                break;
+            }
+        }
+        AtomicReferenceSerializer ser = new AtomicReferenceSerializer(refType, staticTyping,
+                contentTypeSerializer, contentSerializer);
+        return ser.withContentInclusion(valueToSuppress, suppressNulls);
     }
 
     /**

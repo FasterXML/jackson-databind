@@ -393,7 +393,7 @@ public abstract class BasicSerializerFactory
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
             JavaType kt = mapEntryType.containedTypeOrUnknown(0);
             JavaType vt = mapEntryType.containedTypeOrUnknown(1);
-            return buildMapEntrySerializer(prov.getConfig(), type, beanDesc, staticTyping, kt, vt);
+            return buildMapEntrySerializer(prov, type, beanDesc, staticTyping, kt, vt);
         }
         if (ByteBuffer.class.isAssignableFrom(raw)) {
             return new ByteBufferSerializer();
@@ -735,7 +735,7 @@ public abstract class BasicSerializerFactory
     /* Factory methods, for Maps
     /**********************************************************
      */
-    
+
     /**
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.Map} types.
@@ -785,6 +785,7 @@ public abstract class BasicSerializerFactory
         }
         return ser;
     }
+
     /**
      * Helper method that does figures out content inclusion value to use, if any,
      * and construct re-configured {@link MapSerializer} appropriately.
@@ -846,6 +847,65 @@ public abstract class BasicSerializerFactory
             break;
         }
         return mapSer.withContentInclusion(valueToSuppress, suppressNulls);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected JsonSerializer<?> buildMapEntrySerializer(SerializerProvider prov,
+            JavaType type, BeanDescription beanDesc, boolean staticTyping,
+            JavaType keyType, JavaType valueType)
+        throws JsonMappingException
+    {
+        MapEntrySerializer ser = new MapEntrySerializer(valueType, keyType, valueType,
+                staticTyping, createTypeSerializer(prov.getConfig(), valueType), null);
+
+        final JavaType contentType = ser.getContentType();
+        JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
+                contentType, Map.Entry.class);
+
+        // Need to support global legacy setting, for now:
+        JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
+        if (incl == JsonInclude.Include.USE_DEFAULTS
+                || incl == JsonInclude.Include.ALWAYS) {
+            return ser;
+        }
+
+        // NOTE: mostly copied from `PropertyBuilder`; would be nice to refactor
+        // but code is not identical nor are these types related
+        Object valueToSuppress;
+        boolean suppressNulls = true; // almost always, but possibly not with CUSTOM
+
+        switch (incl) {
+        case NON_DEFAULT:
+            valueToSuppress = BeanUtil.getDefaultValue(contentType);
+            if (valueToSuppress != null) {
+                if (valueToSuppress.getClass().isArray()) {
+                    valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                }
+            }
+            break;
+        case NON_ABSENT:
+            valueToSuppress = contentType.isReferenceType()
+                    ? MapSerializer.MARKER_FOR_EMPTY : null;
+            break;
+        case NON_EMPTY:
+            valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
+            break;
+        case CUSTOM:
+            valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
+            if (valueToSuppress == null) { // is this legal?
+                suppressNulls = true;
+            } else {
+                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+            }
+            break;
+        case NON_NULL:
+        default: // should not matter but...
+            valueToSuppress = null;
+            break;
+        }
+        return ser.withContentInclusion(valueToSuppress, suppressNulls);
     }
 
     /**
@@ -971,18 +1031,6 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         return new IterableSerializer(valueType, staticTyping, createTypeSerializer(config, valueType));
-    }
-
-    /**
-     * @since 2.5
-     */
-    protected JsonSerializer<?> buildMapEntrySerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, boolean staticTyping,
-            JavaType keyType, JavaType valueType)
-        throws JsonMappingException
-    {
-        return new MapEntrySerializer(valueType, keyType, valueType,
-                staticTyping, createTypeSerializer(config, valueType), null);
     }
 
     protected JsonSerializer<?> buildEnumSerializer(SerializationConfig config,

@@ -150,12 +150,21 @@ public abstract class ReferenceTypeSerializer<T>
             NameTransformer unwrapper);
 
     /**
+     * Mutant factory method called to create a differently constructed instance,
+     * specifically with different exclusion rules for contained value.
+     *
      * @since 2.9
      */
     public abstract ReferenceTypeSerializer<T> withContentInclusion(Object suppressableValue,
             boolean suppressNulls);
 
-    protected abstract boolean _isValueEmpty(T value);
+    /**
+     * Method called to see if there is a value present or not.
+     * Note that value itself may still be `null`, even if present,
+     * if referential type allows three states (absent, present-null,
+     * present-non-null); some only allow two (absent, present-non-null).
+     */
+    protected abstract boolean _isValuePresent(T value);
 
     protected abstract Object _getReferenced(T value);
 
@@ -288,15 +297,16 @@ public abstract class ReferenceTypeSerializer<T>
     @Override
     public boolean isEmpty(SerializerProvider provider, T value)
     {
-        if ((value == null) || _isValueEmpty(value)) {
+        // First, absent value (note: null check is just sanity check here)
+        if ((value == null) || !_isValuePresent(value)) {
             return true;
         }
-        if (_suppressableValue == null) {
+        Object contents = _getReferenced(value);
+        if (contents == null) { // possible for explicitly contained `null`
             return _suppressNulls;
         }
-        Object contents = _getReferencedIfPresent(value);
-        if (contents == null) {
-            return _suppressNulls;
+        if (_suppressableValue == null) {
+            return false;
         }
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {

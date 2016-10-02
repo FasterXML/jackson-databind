@@ -27,10 +27,10 @@ public class AtomicReferenceSerializer
     protected AtomicReferenceSerializer(AtomicReferenceSerializer base, BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> valueSer,
             NameTransformer unwrapper,
-            Object suppressableValue, boolean suppressNull)
+            Object suppressableValue, boolean suppressNulls)
     {
         super(base, property, vts, valueSer, unwrapper,
-                suppressableValue, suppressNull);
+                suppressableValue, suppressNulls);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class AtomicReferenceSerializer
         }
         return new AtomicReferenceSerializer(this, _property, _valueTypeSerializer,
                 _valueSerializer, _unwrapper,
-                _suppressableValue, _suppressNulls);
+                suppressableValue, suppressNulls);
     }
 
     /*
@@ -67,8 +67,8 @@ public class AtomicReferenceSerializer
      */
 
     @Override
-    protected boolean _isValueEmpty(AtomicReference<?> value) {
-        return value.get() == null;
+    protected boolean _isValuePresent(AtomicReference<?> value) {
+        return value.get() != null;
     }
 
     @Override

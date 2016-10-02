@@ -154,12 +154,6 @@ public class MapEntrySerializer
                 _suppressableValue, _suppressNulls);
     }
 
-    @Deprecated // since 2.9
-    public MapEntrySerializer withResolved(BeanProperty property,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer) {
-        return withResolved(property, keySerializer, valueSerializer);
-    }
-
     /**
      * @since 2.9
      */
@@ -168,6 +162,19 @@ public class MapEntrySerializer
             Object suppressableValue, boolean suppressNulls) {
         return new MapEntrySerializer(this, property, _valueTypeSerializer,
                 keySerializer, valueSerializer, suppressableValue, suppressNulls);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public MapEntrySerializer withContentInclusion(Object suppressableValue,
+            boolean suppressNulls) {
+        if ((_suppressableValue == suppressableValue)
+                && (_suppressNulls == suppressNulls)) {
+            return this;
+        }
+        return new MapEntrySerializer(this, _property, _valueTypeSerializer,
+                _keySerializer, _valueSerializer, suppressableValue, suppressNulls);
     }
 
     @Override

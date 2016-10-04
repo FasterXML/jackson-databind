@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
+// for [databind#1392] (regression in 2.7 due to separation of array-delegating creator)
 public class ArrayDelegatorCreatorForCollectionTest extends BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)

@@ -204,18 +204,28 @@ public class MapDeserializer
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
         // May need to resolve types for delegate- and/or property-based creators:
-        if (_valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
-            if (delegateType == null) {
-                throw new IllegalArgumentException("Invalid delegate-creator definition for "+_mapType
-                        +": value instantiator ("+_valueInstantiator.getClass().getName()
-                        +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
+        if (_valueInstantiator != null) {
+            if (_valueInstantiator.canCreateUsingDelegate()) {
+                JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
+                if (delegateType == null) {
+                    throw new IllegalArgumentException("Invalid delegate-creator definition for "+_mapType
+                            +": value instantiator ("+_valueInstantiator.getClass().getName()
+                            +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
+                }
+                /* Theoretically should be able to get CreatorProperty for delegate
+                 * parameter to pass; but things get tricky because DelegateCreator
+                 * may contain injectable values. So, for now, let's pass nothing.
+                 */
+                _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
+            } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
+                JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
+                if (delegateType == null) {
+                    throw new IllegalArgumentException("Invalid delegate-creator definition for "+_mapType
+                            +": value instantiator ("+_valueInstantiator.getClass().getName()
+                            +") returned true for 'canCreateUsingDelegate()', but null for 'getArrayDelegateType()'");
+                }
+                _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
             }
-            /* Theoretically should be able to get CreatorProperty for delegate
-             * parameter to pass; but things get tricky because DelegateCreator
-             * may contain injectable values. So, for now, let's pass nothing.
-             */
-            _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
         }
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());

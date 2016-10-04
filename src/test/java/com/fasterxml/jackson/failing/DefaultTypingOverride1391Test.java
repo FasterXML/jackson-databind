@@ -5,34 +5,25 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 
-// [databind#1391]
+// for [databind#1391]: should allow disabling of default typing
+// via explicit {@link JsonTypeInfo}
 public class DefaultTypingOverride1391Test extends BaseMapTest
 {
-    final static ObjectMapper WITH_OBJECT_AND_NON_CONCRETE = new ObjectMapper().enableDefaultTypingAsProperty(
-            ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, "$type");
-
-    final static ObjectMapper PLAIN_OBJECT_MAPPER = new ObjectMapper();
-
-    static class MyClass {
-
-        private final SortedSet<String> treeSetStrings = new TreeSet<>();
-
+    static class ListWrapper {
+        /* 03-Oct-2016, tatu: This doesn't work because it applies to contents
+         *   (elements), NOT the container. But there is no current mechanism
+         *   to change that; need to add a new feature or properties in 2.9
+         */
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-        public SortedSet<String> getTreeSetStrings() {
-            return this.treeSetStrings;
-        }
+        public Collection<String> stuff = Collections.emptyList();
     }
 
-    public void testCollectionTyping() throws Exception {
-
-        final MyClass toSerialize = new MyClass();
-
-        final String fromPlainObjectMapper = PLAIN_OBJECT_MAPPER.writeValueAsString(toSerialize);
-        System.out.println("\nfrom plain ObjectMapper:\n" + fromPlainObjectMapper);
-
-        final String fromObjectMapperWithDefaultTyping = WITH_OBJECT_AND_NON_CONCRETE.writeValueAsString(toSerialize);
-        System.out.println("\nfrom ObjectMapper with default typing:\n" + fromObjectMapperWithDefaultTyping);
-
-        assertEquals(fromPlainObjectMapper, fromObjectMapperWithDefaultTyping);
+    public void testCollectionWithOverride() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper()
+            .enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE,
+                    "$type");
+        String json = mapper.writeValueAsString(new ListWrapper());
+        assertEquals(aposToQuotes("{'stuff':[]}"), json);
     }
 }

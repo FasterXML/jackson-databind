@@ -26,6 +26,8 @@ Project: jackson-databind
  (reported by TomMarkuske@github)
 #1389 Problem with handling of multi-argument creator with Enums
  (fix contributed by Pavel P)
+#1392: Custom UnmodifiableSetMixin Fails in Jackson 2.7+ but works in Jackson 2.6
+ (reported by Rob W)
 #1395: Problems deserializing primitive `long` field while using `TypeResolverBuilder`
  (reported by UghZan3@github)
 

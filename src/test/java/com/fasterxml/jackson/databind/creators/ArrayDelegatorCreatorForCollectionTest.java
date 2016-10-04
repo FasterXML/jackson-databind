@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.creators;
 
 import java.util.Collections;
 import java.util.Set;
@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class UnmodifiableSetTyping1392Test extends BaseMapTest
+// for [databind#1392] (regression in 2.7 due to separation of array-delegating creator)
+public class ArrayDelegatorCreatorForCollectionTest extends BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
     abstract static class UnmodifiableSetMixin {

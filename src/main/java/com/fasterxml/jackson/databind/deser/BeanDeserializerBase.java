@@ -228,6 +228,7 @@ public abstract class BeanDeserializerBase
         _objectIdReader = builder.getObjectIdReader();
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
             || _valueInstantiator.canCreateUsingDelegate()
+            || _valueInstantiator.canCreateUsingArrayDelegate() // new in 2.7
             || _valueInstantiator.canCreateFromObjectWith()
             || !_valueInstantiator.canCreateUsingDefault()
             ;

@@ -262,19 +262,27 @@ public class StdValueInstantiator
     @Override
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
+        // 04-Oct-2016, tatu: Need delegation to work around [databind#1392]...
+        if (_delegateCreator == null) {
+            if (_arrayDelegateCreator != null) {
+                return _createUsingDelegate(_arrayDelegateCreator, _arrayDelegateArguments, ctxt, delegate);
+            }
+        }
         return _createUsingDelegate(_delegateCreator, _delegateArguments, ctxt, delegate);
     }
 
     @Override
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
-        if (_arrayDelegateCreator == null) { // sanity-check; caller should check
-            // fallback to the classic delegate creator
-            return createUsingDelegate(ctxt, delegate);
+        if (_arrayDelegateCreator == null) {
+            if (_delegateCreator != null) { // sanity-check; caller should check
+                // fallback to the classic delegate creator
+                return createUsingDelegate(ctxt, delegate);
+            }
         }
         return _createUsingDelegate(_arrayDelegateCreator, _arrayDelegateArguments, ctxt, delegate);
     }
-    
+
     /*
     /**********************************************************
     /* Public API implementation; instantiation from JSON scalars

@@ -172,14 +172,24 @@ public class CollectionDeserializer
     {
         // May need to resolve types for delegate-based creators:
         JsonDeserializer<Object> delegateDeser = null;
-        if ((_valueInstantiator != null) && _valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
-            if (delegateType == null) {
-                throw new IllegalArgumentException("Invalid delegate-creator definition for "+_collectionType
-                        +": value instantiator ("+_valueInstantiator.getClass().getName()
-                        +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
+        if (_valueInstantiator != null) {
+            if (_valueInstantiator.canCreateUsingDelegate()) {
+                JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
+                if (delegateType == null) {
+                    throw new IllegalArgumentException("Invalid delegate-creator definition for "+_collectionType
+                            +": value instantiator ("+_valueInstantiator.getClass().getName()
+                            +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
+                }
+                delegateDeser = findDeserializer(ctxt, delegateType, property);
+            } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
+                JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
+                if (delegateType == null) {
+                    throw new IllegalArgumentException("Invalid array-delegate-creator definition for "+_collectionType
+                            +": value instantiator ("+_valueInstantiator.getClass().getName()
+                            +") returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'");
+                }
+                delegateDeser = findDeserializer(ctxt, delegateType, property);
             }
-            delegateDeser = findDeserializer(ctxt, delegateType, property);
         }
         // [databind#1043]: allow per-property allow-wrapping of single overrides:
         // 11-Dec-2015, tatu: Should we pass basic `Collection.class`, or more refined? Mostly
@@ -204,7 +214,7 @@ public class CollectionDeserializer
         }
         return withResolved(delegateDeser, valueDeser, valueTypeDeser, unwrapSingle);
     }
-    
+
     /*
     /**********************************************************
     /* ContainerDeserializerBase API
@@ -236,9 +246,9 @@ public class CollectionDeserializer
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserialize(p, ctxt));
         }
-        /* [JACKSON-620]: empty String may be ok; bit tricky to check, however, since
-         *  there is also possibility of "auto-wrapping" of single-element arrays.
-         *  Hence we only accept empty String here.
+        /* Empty String may be ok; bit tricky to check, however, since
+         * there is also possibility of "auto-wrapping" of single-element arrays.
+         * Hence we only accept empty String here.
          */
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             String str = p.getText();

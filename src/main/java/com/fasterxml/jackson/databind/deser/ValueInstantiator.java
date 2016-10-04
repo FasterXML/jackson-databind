@@ -53,7 +53,7 @@ public abstract class ValueInstantiator
              || canCreateFromInt() || canCreateFromLong()
              || canCreateFromDouble() || canCreateFromBoolean();
     }    
-    
+
     /**
      * Method that can be called to check whether a String-based creator
      * is available for this instantiator
@@ -83,7 +83,7 @@ public abstract class ValueInstantiator
      * creator is available to use (to call {@link #createFromDouble}).
      */
     public boolean canCreateFromBoolean() { return false; }
-    
+
     /**
      * Method that can be called to check whether a default creator (constructor,
      * or no-arg static factory method)
@@ -102,6 +102,8 @@ public abstract class ValueInstantiator
      * Method that can be called to check whether a array-delegate-based creator
      * (single-arg constructor or factory method)
      * is available for this instantiator
+     *
+     * @since 2.7
      */
     public boolean canCreateUsingArrayDelegate() { return false; }
 
@@ -141,9 +143,11 @@ public abstract class ValueInstantiator
      * non-null type is returned, deserializer will bind JSON into specified
      * type (using standard deserializer for that type), and pass that to
      * instantiator.
+     *
+     * @since 2.7
      */
     public JavaType getArrayDelegateType(DeserializationConfig config) { return null; }
-    
+
     /*
     /**********************************************************
     /* Instantiation methods for JSON Object

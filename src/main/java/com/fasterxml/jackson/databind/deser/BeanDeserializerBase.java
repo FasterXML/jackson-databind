@@ -582,9 +582,9 @@ public abstract class BeanDeserializerBase
         if (_valueInstantiator.canCreateUsingDelegate()) {
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
-                throw new IllegalArgumentException("Invalid delegate-creator definition for "+_beanType
-                        +": value instantiator ("+_valueInstantiator.getClass().getName()
-                        +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
+                ctxt.reportBadDefinition(_beanType, String.format(
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                    _beanType, _valueInstantiator.getClass().getName()));
             }
             _delegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
                     _valueInstantiator.getDelegateCreator());
@@ -594,9 +594,9 @@ public abstract class BeanDeserializerBase
         if (_valueInstantiator.canCreateUsingArrayDelegate()) {
             JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
             if (delegateType == null) {
-                throw new IllegalArgumentException("Invalid array-delegate-creator definition for "+_beanType
-                        +": value instantiator ("+_valueInstantiator.getClass().getName()
-                        +") returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'");
+                ctxt.reportBadDefinition(_beanType, String.format(
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                        _beanType, _valueInstantiator.getClass().getName()));
             }
             _arrayDelegateDeserializer = _findDelegateDeserializer(ctxt, delegateType,
                     _valueInstantiator.getArrayDelegateCreator());
@@ -701,8 +701,9 @@ public abstract class BeanDeserializerBase
                     PropertyName propName = objectIdInfo.getPropertyName();
                     idProp = findProperty(propName);
                     if (idProp == null) {
-                        throw new IllegalArgumentException("Invalid Object Id definition for "
-                                +handledType().getName()+": can not find property with name '"+propName+"'");
+                        ctxt.reportBadDefinition(_beanType, String.format(
+                                "Invalid Object Id definition for %s: can not find property with name '%s'",
+                                handledType().getName(), propName));
                     }
                     idType = idProp.getType();
                     idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
@@ -771,6 +772,7 @@ public abstract class BeanDeserializerBase
      */
     protected SettableBeanProperty _resolveManagedReferenceProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
+        throws JsonMappingException
     {
         String refName = prop.getManagedReferenceName();
         if (refName == null) {
@@ -779,17 +781,19 @@ public abstract class BeanDeserializerBase
         JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
-            throw new IllegalArgumentException("Can not handle managed/back reference '"+refName+"': no back reference property found from type "
-                    +prop.getType());
+            ctxt.reportBadDefinition(_beanType, String.format(
+"Can not handle managed/back reference '%s': no back reference property found from type %s",
+                    refName, prop.getType()));
         }
         // also: verify that type is compatible
         JavaType referredType = _beanType;
         JavaType backRefType = backProp.getType();
         boolean isContainer = prop.getType().isContainerType();
         if (!backRefType.getRawClass().isAssignableFrom(referredType.getRawClass())) {
-            throw new IllegalArgumentException("Can not handle managed/back reference '"+refName+"': back reference type ("
-                    +backRefType.getRawClass().getName()+") not compatible with managed type ("
-                    +referredType.getRawClass().getName()+")");
+            ctxt.reportBadDefinition(_beanType, String.format(
+"Can not handle managed/back reference '%s': back reference type (%s) not compatible with managed type (%s)",
+                    refName, backRefType.getRawClass().getName(),
+                    referredType.getRawClass().getName()));
         }
         return new ManagedReferenceProperty(prop, refName, backProp,
                 _classAnnotations, isContainer);

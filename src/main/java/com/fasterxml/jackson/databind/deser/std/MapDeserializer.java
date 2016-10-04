@@ -208,9 +208,10 @@ public class MapDeserializer
             if (_valueInstantiator.canCreateUsingDelegate()) {
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    throw new IllegalArgumentException("Invalid delegate-creator definition for "+_mapType
-                            +": value instantiator ("+_valueInstantiator.getClass().getName()
-                            +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
+                    ctxt.reportBadDefinition(_mapType, String.format(
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                            _mapType,
+                            _valueInstantiator.getClass().getName()));
                 }
                 /* Theoretically should be able to get CreatorProperty for delegate
                  * parameter to pass; but things get tricky because DelegateCreator
@@ -220,9 +221,10 @@ public class MapDeserializer
             } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    throw new IllegalArgumentException("Invalid delegate-creator definition for "+_mapType
-                            +": value instantiator ("+_valueInstantiator.getClass().getName()
-                            +") returned true for 'canCreateUsingDelegate()', but null for 'getArrayDelegateType()'");
+                    ctxt.reportBadDefinition(_mapType, String.format(
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                            _mapType,
+                            _valueInstantiator.getClass().getName()));
                 }
                 _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
             }

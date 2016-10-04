@@ -176,17 +176,19 @@ public class CollectionDeserializer
             if (_valueInstantiator.canCreateUsingDelegate()) {
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    throw new IllegalArgumentException("Invalid delegate-creator definition for "+_collectionType
-                            +": value instantiator ("+_valueInstantiator.getClass().getName()
-                            +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
+                    ctxt.reportBadDefinition(_collectionType, String.format(
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
+                            _collectionType,
+                            _valueInstantiator.getClass().getName()));
                 }
                 delegateDeser = findDeserializer(ctxt, delegateType, property);
             } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    throw new IllegalArgumentException("Invalid array-delegate-creator definition for "+_collectionType
-                            +": value instantiator ("+_valueInstantiator.getClass().getName()
-                            +") returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'");
+                    ctxt.reportBadDefinition(_collectionType, String.format(
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                            _collectionType,
+                            _valueInstantiator.getClass().getName()));
                 }
                 delegateDeser = findDeserializer(ctxt, delegateType, property);
             }

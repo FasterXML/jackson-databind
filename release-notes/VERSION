@@ -13,6 +13,8 @@ Project: jackson-databind
  (reported by TomMarkuske@github)
 #1389 Problem with handling of multi-argument creator with Enums
  (fix contributed by Pavel P)
+#1395: Problems deserializing primitive `long` field while using `TypeResolverBuilder`
+ (reported by UghZan3@github)
 
 2.8.3 (17-Sep-2016)
 

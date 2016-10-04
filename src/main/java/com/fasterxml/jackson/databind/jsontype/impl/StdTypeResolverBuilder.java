@@ -69,6 +69,11 @@ public class StdTypeResolverBuilder
             JavaType baseType, Collection<NamedType> subtypes)
     {
         if (_idType == JsonTypeInfo.Id.NONE) { return null; }
+        // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
+        //    regardless of setting
+        if (baseType.isPrimitive()) {
+            return null;
+        }
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, true, false);
         switch (_includeAs) {
         case WRAPPER_ARRAY:
@@ -97,6 +102,11 @@ public class StdTypeResolverBuilder
             JavaType baseType, Collection<NamedType> subtypes)
     {
         if (_idType == JsonTypeInfo.Id.NONE) { return null; }
+        // 03-Oct-2016, tatu: As per [databind#1395] better prevent use for primitives,
+        //    regardless of setting
+        if (baseType.isPrimitive()) {
+            return null;
+        }
 
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
 

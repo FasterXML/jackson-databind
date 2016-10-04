@@ -7,7 +7,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
@@ -72,8 +71,9 @@ public class CreatorCollector {
     protected AnnotatedParameter _incompleteParameter;
 
     /*
-     * /********************************************************** /* Life-cycle
-     * /**********************************************************
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
      */
 
     public CreatorCollector(BeanDescription beanDesc, MapperConfig<?> config) {
@@ -113,8 +113,9 @@ public class CreatorCollector {
     }
 
     /*
-     * /********************************************************** /* Setters
-     * /**********************************************************
+    /**********************************************************
+    /* Setters
+    /**********************************************************
      */
 
     /**
@@ -196,48 +197,10 @@ public class CreatorCollector {
         }
     }
 
-    // Bunch of methods deprecated in 2.5, to be removed from 2.6 or later
-
-    @Deprecated // since 2.5
-    public void addStringCreator(AnnotatedWithParams creator) {
-        addStringCreator(creator, false);
-    }
-
-    @Deprecated // since 2.5
-    public void addIntCreator(AnnotatedWithParams creator) {
-        addBooleanCreator(creator, false);
-    }
-
-    @Deprecated // since 2.5
-    public void addLongCreator(AnnotatedWithParams creator) {
-        addBooleanCreator(creator, false);
-    }
-
-    @Deprecated // since 2.5
-    public void addDoubleCreator(AnnotatedWithParams creator) {
-        addBooleanCreator(creator, false);
-    }
-
-    @Deprecated // since 2.5
-    public void addBooleanCreator(AnnotatedWithParams creator) {
-        addBooleanCreator(creator, false);
-    }
-
-    @Deprecated // since 2.5
-    public void addDelegatingCreator(AnnotatedWithParams creator,
-            CreatorProperty[] injectables) {
-        addDelegatingCreator(creator, false, injectables);
-    }
-
-    @Deprecated // since 2.5
-    public void addPropertyCreator(AnnotatedWithParams creator,
-            CreatorProperty[] properties) {
-        addPropertyCreator(creator, false, properties);
-    }
-
     /*
-     * /********************************************************** /* Accessors
-     * /**********************************************************
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
      */
 
     /**
@@ -262,8 +225,9 @@ public class CreatorCollector {
     }
 
     /*
-     * /********************************************************** /* Helper
-     * methods /**********************************************************
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
      */
 
     private JavaType _computeDelegateType(AnnotatedWithParams creator,
@@ -365,8 +329,9 @@ public class CreatorCollector {
     }
 
     /*
-     * /********************************************************** /* Helper
-     * class(es) /**********************************************************
+    /**********************************************************
+    /* Helper class(es)
+    /**********************************************************
      */
 
     /**

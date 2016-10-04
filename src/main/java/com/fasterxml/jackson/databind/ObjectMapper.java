@@ -142,7 +142,10 @@ public class ObjectMapper
      * Since 2.4 there are special exceptions for JSON Tree model
      * types (sub-types of {@link TreeNode}: default typing is never
      * applied to them
-     * (see <a href="https://github.com/FasterXML/jackson-databind/issues/88">Issue#88</a> for details)
+     * (see <a href="https://github.com/FasterXML/jackson-databind/issues/88">databind#88</a> for details)
+     *<p>
+     * Since 2.8(.4) additional checks are made to avoid attempts at default
+     * typing primitive-valued properties.
      */
     public enum DefaultTyping {
         /**
@@ -233,6 +236,12 @@ public class ObjectMapper
          */
         public boolean useForType(JavaType t)
         {
+            // 03-Oct-2016, tatu: As per [databind#1395], need to skip
+            //  primitive types too, regardless
+            if (t.isPrimitive()) {
+                return false;
+            }
+
             switch (_appliesFor) {
             case NON_CONCRETE_AND_ARRAYS:
                 while (t.isArrayType()) {

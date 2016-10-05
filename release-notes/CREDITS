@@ -557,3 +557,7 @@ Pavel Popov (tolkonepiu@github)
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)
+
+Jan Lolling (jlolling@github)
+  * Contributed #1319: Add `ObjectNode.put(String, BigInteger)`
+   (2.9.0)

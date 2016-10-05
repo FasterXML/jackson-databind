@@ -96,14 +96,13 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
         return _nodeFactory.numberNode(v);
     }
 
-    // was missing from 2.2 and before
-    @Override
-    public final NumericNode numberNode(BigInteger v) { return _nodeFactory.numberNode(v); }
-
     @Override
     public final NumericNode numberNode(float v) { return _nodeFactory.numberNode(v); }
     @Override
     public final NumericNode numberNode(double v) { return _nodeFactory.numberNode(v); }
+    // was missing from 2.2 and before
+    @Override
+    public final NumericNode numberNode(BigInteger v) { return _nodeFactory.numberNode(v); }
     @Override
     public final NumericNode numberNode(BigDecimal v) { return (_nodeFactory.numberNode(v)); }
 

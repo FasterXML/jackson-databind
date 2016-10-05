@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 
@@ -102,17 +104,20 @@ public class TestArrayNode
         n.add(1L);
         n.add(0.5);
         n.add(0.5f);
-        assertEquals(7, n.size());
+        n.add(new BigDecimal("0.2"));
+        n.add(BigInteger.TEN);
+        assertEquals(9, n.size());
 
         assertNotNull(n.insertArray(0));
         assertNotNull(n.insertObject(0));
         n.insertPOJO(2, "xxx");
-        assertEquals(10, n.size());
+        assertEquals(12, n.size());
+
+        n.insert(0, BigInteger.ONE);
+        n.insert(0, new BigDecimal("0.1"));
+        assertEquals(14, n.size());
     }
 
-    /**
-     * Test to verify [JACKSON-227]
-     */
     public void testNullChecking()
     {
         ArrayNode a1 = JsonNodeFactory.instance.arrayNode();
@@ -127,9 +132,6 @@ public class TestArrayNode
         assertEquals(0, a2.size());
     }
 
-    /**
-     * Another test to verify [JACKSON-227]...
-     */
     public void testNullChecking2()
     {
         ObjectMapper mapper = new ObjectMapper();

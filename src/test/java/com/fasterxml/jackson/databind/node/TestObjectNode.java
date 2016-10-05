@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -80,7 +81,6 @@ public class TestObjectNode
         assertTrue(root.isObject());
         assertEquals(2, root.size());
 
-        // Related to [JACKSON-50]:
         Iterator<JsonNode> it = root.iterator();
         assertNotNull(it);
         assertTrue(it.hasNext());
@@ -115,7 +115,7 @@ public class TestObjectNode
         assertEquals(IntNode.valueOf(1), root.get("key"));
         assertNull(root.get("b"));
     }    
-    // for [Issue#346]
+    // for [databind#346]
     public void testEmptyNodeAsValue() throws Exception
     {
         Data w = MAPPER.readValue("{}", Data.class);
@@ -178,6 +178,24 @@ public class TestObjectNode
         assertEquals(0, n.size());
     }
 
+    public void testBigNumbers()
+    {
+        ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
+        assertStandardEquals(n);
+        BigInteger I = BigInteger.valueOf(3);
+        BigDecimal DEC = new BigDecimal("0.1");
+
+        n.put("a", DEC);
+        n.put("b", I);
+
+        assertEquals(2, n.size());
+
+        assertTrue(n.path("a").isBigDecimal());
+        assertEquals(DEC, n.get("a").decimalValue());
+        assertTrue(n.path("b").isBigInteger());
+        assertEquals(I, n.get("b").bigIntegerValue());
+    }
+
     /**
      * Verify null handling
      */
@@ -205,6 +223,13 @@ public class TestObjectNode
         n = o1.get("d");
         assertNotNull(n);
         assertSame(n, NullNode.instance);
+
+        o1.put("3", (BigInteger) null);
+        n = o1.get("3");
+        assertNotNull(3);
+        assertSame(n, NullNode.instance);
+
+        assertEquals(4, o1.size());
     }
 
     /**
@@ -340,7 +365,7 @@ public class TestObjectNode
         assertEquals(1, root3.path("a").intValue());
     }
 
-    // [Issue#237] (databind): support DeserializationFeature#FAIL_ON_READING_DUP_TREE_KEY
+    // [databind#237] (databind): support DeserializationFeature#FAIL_ON_READING_DUP_TREE_KEY
     public void testFailOnDupKeys() throws Exception
     {
         final String DUP_JSON = "{ \"a\":1, \"a\":2 }";

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.util.RawValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -521,6 +522,20 @@ public class ArrayNode
     }
 
     /**
+     * Method for adding specified number at the end of this array.
+     *
+     * @return This array node, to allow chaining
+     *
+     * @since 2.9
+     */
+    public ArrayNode add(BigInteger v) {
+        if (v == null) {
+            return addNull();
+        }
+        return _add(numberNode(v));
+    }
+    
+    /**
      * Method for adding specified String value at the end of this array.
      *
      * @return This array node, to allow chaining
@@ -728,6 +743,21 @@ public class ArrayNode
         return _insert(index, numberNode(v));
     }
 
+    /**
+     * Method that will insert specified numeric value
+     * at specified position in this array.
+     *
+     * @return This array node, to allow chaining
+     *
+     * @since 2.9
+     */
+    public ArrayNode insert(int index, BigInteger v) {
+        if (v == null) {
+            return insertNull(index);
+        }
+        return _insert(index, numberNode(v));
+    }
+    
     /**
      * Method that will insert specified String
      * at specified position in this array.

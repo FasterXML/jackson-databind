@@ -765,6 +765,8 @@ public class ObjectNode
      * Method for setting value of a field to specified numeric value.
      * 
      * @return This node (to allow chaining)
+     *
+     * @since 2.9
      */
     public ObjectNode put(String fieldName, BigInteger v) {
         return _put(fieldName, (v == null) ? nullNode()

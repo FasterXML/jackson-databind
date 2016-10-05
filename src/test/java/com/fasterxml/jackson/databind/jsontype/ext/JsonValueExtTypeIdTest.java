@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.jsontype.ext;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 @SuppressWarnings("serial")
-public class TestTypeWithJsonValue466 extends BaseMapTest
+public class JsonValueExtTypeIdTest extends BaseMapTest
 {
     // The following is required for the testDecimalMetadata test case. That case fails.
     @JsonTypeName(value = "decimalValue")

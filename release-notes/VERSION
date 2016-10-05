@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.8.4 (not yet released)
 
+#466: Jackson ignores Type information when raw return type is BigDecimal or BigInteger 
 #1384: `@JsonDeserialize(keyUsing = ...)` does not work correctly together with
   DefaultTyping.NON_FINAL
  (reported by Oleg Z)

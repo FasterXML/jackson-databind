@@ -263,9 +263,8 @@ public final class DeserializerCache
         try {
             deser = _createDeserializer(ctxt, factory, type);
         } catch (IllegalArgumentException iae) {
-            /* We better only expose checked exceptions, since those
-             * are what caller is expected to handle
-             */
+            // We better only expose checked exceptions, since those
+            // are what caller is expected to handle
             throw JsonMappingException.from(ctxt, iae.getMessage(), iae);
         }
         if (deser == null) {
@@ -274,8 +273,6 @@ public final class DeserializerCache
         /* cache resulting deserializer? always true for "plain" BeanDeserializer
          * (but can be re-defined for sub-classes by using @JsonCachable!)
          */
-        // 08-Jun-2010, tatu: Related to [JACKSON-296], need to avoid caching MapSerializers... so:
-        boolean isResolvable = (deser instanceof ResolvableDeserializer);
         // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
         boolean addToCache = !_hasCustomValueHandler(type) && deser.isCachable();
 
@@ -291,7 +288,7 @@ public final class DeserializerCache
         /* Need to resolve? Mostly done for bean deserializers; required for
          * resolving cyclic references.
          */
-        if (isResolvable) {
+        if (deser instanceof ResolvableDeserializer) {
             _incompleteDeserializers.put(type, deser);
             ((ResolvableDeserializer)deser).resolve(ctxt);
             _incompleteDeserializers.remove(type);

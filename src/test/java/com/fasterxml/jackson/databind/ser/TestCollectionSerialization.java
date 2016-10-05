@@ -38,7 +38,7 @@ public class TestCollectionSerialization
      * Class needed for testing [JACKSON-220]
      */
     @SuppressWarnings("serial")
-    @JsonSerialize(using=ListSerializer.class)    
+    @JsonSerialize(using=ListSerializer.class)
     static class PseudoList extends ArrayList<String>
     {
         public PseudoList(String... values) {
@@ -59,7 +59,7 @@ public class TestCollectionSerialization
 
     // for [JACKSON-254], suppression of empty collections
     static class EmptyListBean {
-        public List<String> empty = new ArrayList<String>();
+        public List<String> empty = new ArrayList<>();
     }
 
     static class EmptyArrayBean {
@@ -93,13 +93,13 @@ public class TestCollectionSerialization
 
                 switch (type) {
                 case 1:
-                    c = new LinkedList<Integer>();
+                    c = new LinkedList<>();
                     break;
                 case 2:
-                    c = new TreeSet<Integer>(); // has to be ordered
+                    c = new TreeSet<>(); // has to be ordered
                     break;
                 default:
-                    c = new ArrayList<Integer>();
+                    c = new ArrayList<>();
                     break;
                 }
                 for (int i = 0; i < entryLen; ++i) {
@@ -108,7 +108,7 @@ public class TestCollectionSerialization
                 value = c;
             }
             String json = MAPPER.writeValueAsString(value);
-            
+
             // and then need to verify:
             JsonParser jp = new JsonFactory().createParser(json);
             assertToken(JsonToken.START_ARRAY, jp.nextToken());
@@ -125,7 +125,7 @@ public class TestCollectionSerialization
     public void testBigCollection() throws IOException
     {
         final int COUNT = 9999;
-        ArrayList<Integer> value = new ArrayList<Integer>();
+        ArrayList<Integer> value = new ArrayList<>();
         for (int i = 0; i <= COUNT; ++i) {
             value.add(i);
         }
@@ -167,7 +167,7 @@ public class TestCollectionSerialization
 
     public void testEnumMap() throws IOException
     {
-        EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
+        EnumMap<Key,String> map = new EnumMap<>(Key.class);
         map.put(Key.B, "xyz");
         map.put(Key.C, "abc");
         // assuming EnumMap uses enum entry order, which I think is true...
@@ -180,7 +180,7 @@ public class TestCollectionSerialization
     @SuppressWarnings("unchecked")
     public void testEmptyBeanCollection() throws IOException
     {
-        Collection<Object> x = new ArrayList<Object>();
+        Collection<Object> x = new ArrayList<>();
         x.add("foobar");
         CollectionBean cb = new CollectionBean(x);
         Map<String,Object> result = writeAndMap(MAPPER, cb);
@@ -204,7 +204,7 @@ public class TestCollectionSerialization
     @SuppressWarnings("unchecked")
     public void testEmptyBeanEnumMap() throws IOException
     {
-        EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
+        EnumMap<Key,String> map = new EnumMap<>(Key.class);
         EnumMapBean b = new EnumMapBean(map);
         Map<String,Object> result = writeAndMap(MAPPER, b);
 

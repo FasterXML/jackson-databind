@@ -43,7 +43,7 @@ public abstract class DefaultDeserializationContext
     protected DefaultDeserializationContext(DeserializerFactory df, DeserializerCache cache) {
         super(df, cache);
     }
-    
+
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
             DeserializationConfig config, JsonParser jp, InjectableValues values) {
         super(src, config, jp, values);
@@ -60,13 +60,13 @@ public abstract class DefaultDeserializationContext
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
         super(src);
     }
-    
+
     /**
      * Method needed to ensure that {@link ObjectMapper#copy} will work
      * properly; specifically, that caches are cleared, but settings
      * will otherwise remain identical; and that no sharing of state
      * occurs.
-     * 
+     *
      * @since 2.4.4
      */
     public DefaultDeserializationContext copy() {
@@ -92,7 +92,7 @@ public abstract class DefaultDeserializationContext
         final ObjectIdGenerator.IdKey key = gen.key(id);
 
         if (_objectIds == null) {
-            _objectIds = new LinkedHashMap<ObjectIdGenerator.IdKey,ReadableObjectId>();
+            _objectIds = new LinkedHashMap<>();
         } else {
             ReadableObjectId entry = _objectIds.get(key);
             if (entry != null) {
@@ -104,7 +104,7 @@ public abstract class DefaultDeserializationContext
         ObjectIdResolver resolver = null;
 
         if (_objectIdResolvers == null) {
-            _objectIdResolvers = new ArrayList<ObjectIdResolver>(8);
+            _objectIdResolvers = new ArrayList<>(8);
         } else {
             for (ObjectIdResolver res : _objectIdResolvers) {
                 if (res.canUseFor(resolverType)) {
@@ -131,7 +131,7 @@ public abstract class DefaultDeserializationContext
      * needed for {@link #tryToResolveUnresolvedObjectId}.
      * Default implementation simply constructs default {@link ReadableObjectId} with
      * given <code>key</code>.
-     * 
+     *
      * @param key The key to associate with the new ReadableObjectId
      * @return New ReadableObjectId instance
      *
@@ -189,13 +189,13 @@ public abstract class DefaultDeserializationContext
     {
         return roid.tryToResolveUnresolved(this);
     }
-    
+
     /*
     /**********************************************************
     /* Abstract methods impls, other factory methods
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public JsonDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
@@ -205,7 +205,7 @@ public abstract class DefaultDeserializationContext
             return null;
         }
         JsonDeserializer<?> deser;
-        
+
         if (deserDef instanceof JsonDeserializer) {
             deser = (JsonDeserializer<?>) deserDef;
         } else {
@@ -246,7 +246,7 @@ public abstract class DefaultDeserializationContext
         }
 
         KeyDeserializer deser;
-        
+
         if (deserDef instanceof KeyDeserializer) {
             deser = (KeyDeserializer) deserDef;
         } else {
@@ -289,14 +289,14 @@ public abstract class DefaultDeserializationContext
      * with different factory
      */
     public abstract DefaultDeserializationContext with(DeserializerFactory factory);
-    
+
     /**
      * Method called to create actual usable per-deserialization
      * context instance.
      */
     public abstract DefaultDeserializationContext createInstance(
             DeserializationConfig config, JsonParser jp, InjectableValues values);
-    
+
     /*
     /**********************************************************
     /* And then the concrete implementation class
@@ -324,7 +324,7 @@ public abstract class DefaultDeserializationContext
         }
 
         protected Impl(Impl src) { super(src); }
-        
+
         protected Impl(Impl src, DeserializerFactory factory) {
             super(src, factory);
         }
@@ -336,7 +336,7 @@ public abstract class DefaultDeserializationContext
             }
            return new Impl(this);
         }
-        
+
         @Override
         public DefaultDeserializationContext createInstance(DeserializationConfig config,
                 JsonParser jp, InjectableValues values) {
@@ -346,6 +346,6 @@ public abstract class DefaultDeserializationContext
         @Override
         public DefaultDeserializationContext with(DeserializerFactory factory) {
             return new Impl(this, factory);
-        }        
+        }
     }
 }

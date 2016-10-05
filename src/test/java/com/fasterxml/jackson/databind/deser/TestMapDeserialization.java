@@ -46,7 +46,7 @@ public class TestMapDeserialization
 
     static class KeyType {
         protected String value;
-        
+
         private KeyType(String v, boolean bogus) {
             value = v;
         }
@@ -78,7 +78,7 @@ public class TestMapDeserialization
     }
 
     static class ClassStringMap extends HashMap<Class<?>,String> { }
-    
+
     /*
     /**********************************************************
     /* Test methods, untyped (Object valued) maps
@@ -111,12 +111,12 @@ public class TestMapDeserialization
 
     public void testBigUntypedMap() throws Exception
     {
-        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        Map<String,Object> map = new LinkedHashMap<>();
         for (int i = 0; i < 1100; ++i) {
             if ((i & 1) == 0) {
                 map.put(String.valueOf(i), Integer.valueOf(i));
             } else {
-                Map<String,Object> map2 = new LinkedHashMap<String,Object>();
+                Map<String,Object> map2 = new LinkedHashMap<>();
                 map2.put("x", Integer.valueOf(i));
                 map.put(String.valueOf(i), map2);
             }
@@ -125,7 +125,7 @@ public class TestMapDeserialization
         Object bound = MAPPER.readValue(json, Object.class);
         assertEquals(map, bound);
     }
-    
+
     /**
      * Let's also try another way to express "gimme a Map" deserialization;
      * this time by specifying a Map class, to reduce need to cast
@@ -174,9 +174,9 @@ public class TestMapDeserialization
             "{ \"double\":42.0, \"string\":\"string\","
             +"\"boolean\":true, \"list\":[\"list0\"],"
             +"\"null\":null }";
-    
+
     static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
-    
+
     public void testSpecialMap() throws IOException
     {
        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
@@ -191,7 +191,7 @@ public class TestMapDeserialization
              new TypeReference<Map<String, ObjectWrapper>>() { });
        _doTestUntyped(map);
     }
-    
+
     private void _doTestUntyped(final Map<String, ObjectWrapper> map)
     {
         ObjectWrapper w = map.get("double");
@@ -204,7 +204,7 @@ public class TestMapDeserialization
         assertNull(map.get("null"));
         assertEquals(5, map.size());
     }
-    
+
     // [JACKSON-620]: allow "" to mean 'null' for Maps
     public void testFromEmptyString() throws Exception
     {
@@ -368,10 +368,10 @@ public class TestMapDeserialization
         assertNull(result.get(Key.KEY1));
     }
 
-    public void testEnumPolymorphicSerializationTest() throws Exception 
+    public void testEnumPolymorphicSerializationTest() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        List<ITestType> testTypesList = new ArrayList<ITestType>();
+        List<ITestType> testTypesList = new ArrayList<>();
         testTypesList.add(ConcreteType.ONE);
         testTypesList.add(ConcreteType.TWO);
         ListContainer listContainer = new ListContainer();
@@ -379,11 +379,11 @@ public class TestMapDeserialization
         String json = mapper.writeValueAsString(listContainer);
         listContainer = mapper.readValue(json, ListContainer.class);
         EnumMapContainer enumMapContainer = new EnumMapContainer();
-        EnumMap<KeyEnum,ITestType> testTypesMap = new EnumMap<KeyEnum,ITestType>(KeyEnum.class);
+        EnumMap<KeyEnum,ITestType> testTypesMap = new EnumMap<>(KeyEnum.class);
         testTypesMap.put(KeyEnum.A, ConcreteType.ONE);
         testTypesMap.put(KeyEnum.B, ConcreteType.TWO);
         enumMapContainer.testTypes = testTypesMap;
-        
+
         json = mapper.writeValueAsString(enumMapContainer);
         enumMapContainer = mapper.readValue(json, EnumMapContainer.class);
     }
@@ -397,15 +397,15 @@ public class TestMapDeserialization
     {
     	 Date date1=new Date(123456000L);
     	 DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-         
+
     	 String JSON = "{ \""+  fmt.format(date1)+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
     	 HashMap<Date,String> result=  MAPPER.readValue
     	            (JSON, new TypeReference<HashMap<Date,String>>() { });
-    	 
+
     	 assertNotNull(result);
     	 assertEquals(HashMap.class, result.getClass());
     	 assertEquals(2, result.size());
-    	 
+
     	 assertTrue(result.containsKey(date1));
     	 assertEquals("", result.get(new Date(123456000L)));
 
@@ -422,7 +422,7 @@ public class TestMapDeserialization
     public void testCalendarMap() throws Exception
     {
         // 18-Jun-2015, tatu: Should be safest to use default timezone that mapper would use
-        TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();        
+        TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();
         Calendar c = Calendar.getInstance(tz);
 
         c.setTimeInMillis(123456000L);
@@ -501,7 +501,7 @@ public class TestMapDeserialization
         assertEquals(1, map.size());
         assertEquals("foo", map.get(String.class));
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, annotated Maps
@@ -544,7 +544,7 @@ public class TestMapDeserialization
         assertEquals(2, stuff.size());
         assertNotNull(stuff.get(1));
         assertEquals(Integer.valueOf(13), stuff.get(1).getKey());
-        
+
         StringWrapper sw = stuff.get(1).getValue();
         assertEquals("Bar", sw.str);
     }
@@ -565,7 +565,7 @@ public class TestMapDeserialization
     /* Test methods, other exotic Map types
     /**********************************************************
      */
-    
+
     // [databind#810]
     public void testReadProperties() throws Exception
     {
@@ -600,7 +600,7 @@ public class TestMapDeserialization
     public void testMapError() throws Exception
     {
         try {
-            Object result = MAPPER.readValue("[ 1, 2 ]", 
+            Object result = MAPPER.readValue("[ 1, 2 ]",
                                              new TypeReference<Map<String,String>>() { });
             fail("Expected an exception, but got result value: "+result);
         } catch (JsonMappingException jex) {

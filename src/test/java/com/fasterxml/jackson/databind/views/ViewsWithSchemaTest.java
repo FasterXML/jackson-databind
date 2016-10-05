@@ -18,14 +18,14 @@ public class ViewsWithSchemaTest extends BaseMapTest
 
         @JsonView({ ViewAB.class, ViewBC.class })
         public int b;
-        
+
         @JsonView({ ViewBC.class })
         public int c;
     }
 
     static class ListingVisitor extends JsonFormatVisitorWrapper.Base
     {
-        public final List<String> names = new ArrayList<String>();
+        public final List<String> names = new ArrayList<>();
 
         @Override
         public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
@@ -49,7 +49,7 @@ public class ViewsWithSchemaTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSchemaWithViews() throws Exception

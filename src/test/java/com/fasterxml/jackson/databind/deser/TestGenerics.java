@@ -76,12 +76,12 @@ public class TestGenerics
         SimpleBean bean = (SimpleBean) contents;
         assertEquals(13, bean.x);
     }
-    
+
     public void testGenericWrapperWithSingleElementArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+
         Wrapper<SimpleBean> result = mapper.readValue
             ("[{\"value\": [{ \"x\" : 13 }] }]",
              new TypeReference<Wrapper<SimpleBean>>() { });
@@ -106,19 +106,19 @@ public class TestGenerics
         // First, numeric wrapper
         Wrapper<Boolean> result = mapper.readValue
             ("{\"value\": true}", new TypeReference<Wrapper<Boolean>>() { });
-        assertEquals(new Wrapper<Boolean>(Boolean.TRUE), result);
+        assertEquals(new Wrapper<>(Boolean.TRUE), result);
 
         // Then string one
         Wrapper<String> result2 = mapper.readValue
             ("{\"value\": \"abc\"}", new TypeReference<Wrapper<String>>() { });
-        assertEquals(new Wrapper<String>("abc"), result2);
+        assertEquals(new Wrapper<>("abc"), result2);
 
         // And then number
         Wrapper<Long> result3 = mapper.readValue
             ("{\"value\": 7}", new TypeReference<Wrapper<Long>>() { });
-        assertEquals(new Wrapper<Long>(7L), result3);
+        assertEquals(new Wrapper<>(7L), result3);
     }
-    
+
     //[Issue#381]
     public void testMultipleWrappersSingleValueArray() throws Exception
     {
@@ -128,17 +128,17 @@ public class TestGenerics
         // First, numeric wrapper
         Wrapper<Boolean> result = mapper.readValue
             ("[{\"value\": [true]}]", new TypeReference<Wrapper<Boolean>>() { });
-        assertEquals(new Wrapper<Boolean>(Boolean.TRUE), result);
+        assertEquals(new Wrapper<>(Boolean.TRUE), result);
 
         // Then string one
         Wrapper<String> result2 = mapper.readValue
             ("[{\"value\": [\"abc\"]}]", new TypeReference<Wrapper<String>>() { });
-        assertEquals(new Wrapper<String>("abc"), result2);
+        assertEquals(new Wrapper<>("abc"), result2);
 
         // And then number
         Wrapper<Long> result3 = mapper.readValue
             ("[{\"value\": [7]}]", new TypeReference<Wrapper<Long>>() { });
-        assertEquals(new Wrapper<Long>(7L), result3);
+        assertEquals(new Wrapper<>(7L), result3);
     }
 
     /**
@@ -160,13 +160,13 @@ public class TestGenerics
         SimpleBean bean = (SimpleBean) contents;
         assertEquals(9, bean.x);
     }
-    
+
     // [Issue#381]
     public void testArrayOfGenericWrappersSingleValueArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+
         Wrapper<SimpleBean>[] result = mapper.readValue
             ("[ {\"value\": [ { \"x\" : [ 9 ] } ] } ]",
              new TypeReference<Wrapper<SimpleBean>[]>() { });

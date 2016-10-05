@@ -14,11 +14,11 @@ public class AnyGetterTest extends BaseMapTest
 {
     static class Bean
     {
-        final static Map<String,Boolean> extra = new HashMap<String,Boolean>();
+        final static Map<String,Boolean> extra = new HashMap<>();
         static {
             extra.put("a", Boolean.TRUE);
         }
-        
+
         public int getX() { return 3; }
 
         @JsonAnyGetter
@@ -29,7 +29,7 @@ public class AnyGetterTest extends BaseMapTest
     {
         @JsonAnyGetter
         public Map<String,Integer> any() {
-            HashMap<String,Integer> map = new HashMap<String,Integer>();
+            HashMap<String,Integer> map = new HashMap<>();
             map.put("a", 3);
             return map;
         }
@@ -37,8 +37,8 @@ public class AnyGetterTest extends BaseMapTest
 
     static class MapAsAny
     {
-        protected Map<String,Object> stuff = new LinkedHashMap<String,Object>();
-        
+        protected Map<String,Object> stuff = new LinkedHashMap<>();
+
         @JsonAnyGetter
         public Map<String,Object> any() {
             return stuff;
@@ -54,10 +54,10 @@ public class AnyGetterTest extends BaseMapTest
         protected Map<String,String> stuff;
 
         public Issue705Bean(String key, String value) {
-            stuff = new LinkedHashMap<String,String>();
+            stuff = new LinkedHashMap<>();
             stuff.put(key, value);
         }
-        
+
         @JsonSerialize(using = Issue705Serializer.class)
 //    @JsonSerialize(converter = MyConverter.class)
         @JsonAnyGetter
@@ -92,11 +92,11 @@ public class AnyGetterTest extends BaseMapTest
 
         public void addAdditionalProperty(String key, String value) {
             if (additionalProperties == null) {
-                additionalProperties = new HashMap<String,String>();
+                additionalProperties = new HashMap<>();
             }
             additionalProperties.put(key,value);
         }
-        
+
         public void setAdditionalProperties(Map<String, String> additionalProperties) {
             this.additionalProperties = additionalProperties;
         }
@@ -126,7 +126,7 @@ public class AnyGetterTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleJsonValue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean());
@@ -164,7 +164,7 @@ public class AnyGetterTest extends BaseMapTest
 
     public void testIssue705() throws Exception
     {
-        Issue705Bean input = new Issue705Bean("key", "value");        
+        Issue705Bean input = new Issue705Bean("key", "value");
         String json = MAPPER.writeValueAsString(input);
         assertEquals("{\"stuff\":\"[key/value]\"}", json);
     }

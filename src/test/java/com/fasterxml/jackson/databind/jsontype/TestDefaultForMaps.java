@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class TestDefaultForMaps 
+public class TestDefaultForMaps
     extends BaseMapTest
 {
     static class MapKey {
@@ -36,10 +36,10 @@ public class TestDefaultForMaps
     }
 
     // // For #234
-    
+
     static class ItemList {
         public String value;
-        public List<ItemList> childItems = new LinkedList<ItemList>();
+        public List<ItemList> childItems = new LinkedList<>();
 
         public void addChildItem(ItemList l) { childItems.add(l); }
     }
@@ -48,26 +48,26 @@ public class TestDefaultForMaps
     {
         public String value;
 
-        public Map<String, List<ItemMap>> childItems = new HashMap<String, List<ItemMap>>();
+        public Map<String, List<ItemMap>> childItems = new HashMap<>();
 
         public void addChildItem(String key, ItemMap childItem) {
           List<ItemMap> items;
           if (childItems.containsKey(key)) {
               items = childItems.get(key);
           } else {
-              items = new ArrayList<ItemMap>();
+              items = new ArrayList<>();
           }
           items.add(childItem);
           childItems.put(key, items);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testJackson428() throws Exception
     {
         ObjectMapper serMapper = new ObjectMapper();
@@ -79,8 +79,8 @@ public class TestDefaultForMaps
 
         // Let's start by constructing something to serialize first
         MapHolder holder = new MapHolder();
-        holder.map = new HashMap<MapKey,List<Object>>();
-        List<Object> ints = new ArrayList<Object>();
+        holder.map = new HashMap<>();
+        List<Object> ints = new ArrayList<>();
         ints.add(Integer.valueOf(3));
         holder.map.put(new MapKey("key"), ints);
         String json = serMapper.writeValueAsString(holder);
@@ -109,7 +109,7 @@ public class TestDefaultForMaps
 
     protected TypeNameIdResolver createTypeNameIdResolver(boolean forSerialization)
     {
-        Collection<NamedType> subtypes = new ArrayList<NamedType>();
+        Collection<NamedType> subtypes = new ArrayList<>();
         subtypes.add(new NamedType(MapHolder.class, "mapHolder"));
         subtypes.add(new NamedType(ArrayList.class, "AList"));
         subtypes.add(new NamedType(HashMap.class, "HMap"));
@@ -119,7 +119,7 @@ public class TestDefaultForMaps
     }
 
     // // For #234:
-    
+
     public void testList() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();

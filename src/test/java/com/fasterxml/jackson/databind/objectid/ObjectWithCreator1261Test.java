@@ -13,7 +13,7 @@ public class ObjectWithCreator1261Test
        public SortedMap<String, Parent> parents;
 
        public Answer() {
-           parents = new TreeMap<String, Parent>();
+           parents = new TreeMap<>();
        }
     }
 
@@ -28,9 +28,9 @@ public class ObjectWithCreator1261Test
        public String name;
 
        protected Parent() { }
-       
+
        public Parent(String name, boolean ignored) {
-           children = new TreeMap<String, Child>();
+           children = new TreeMap<>();
            this.name = name;
        }
     }
@@ -50,7 +50,7 @@ public class ObjectWithCreator1261Test
         public String someNullProperty;
 
         protected Child() { }
-        
+
         @JsonCreator
         public Child(@JsonProperty("name") String name,
               @JsonProperty("someNullProperty") String someNullProperty) {

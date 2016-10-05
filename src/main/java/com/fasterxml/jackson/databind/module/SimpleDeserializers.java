@@ -26,17 +26,17 @@ public class SimpleDeserializers
 
     /**
      * Flag to help find "generic" enum deserializer, if one has been registered.
-     * 
+     *
      * @since 2.3
      */
     protected boolean _hasEnumDeserializer = false;
-    
+
     /*
     /**********************************************************
     /* Life-cycle, construction and configuring
     /**********************************************************
      */
-    
+
     public SimpleDeserializers() { }
 
     /**
@@ -45,12 +45,12 @@ public class SimpleDeserializers
     public SimpleDeserializers(Map<Class<?>,JsonDeserializer<?>> desers) {
         addDeserializers(desers);
     }
-    
+
     public <T> void addDeserializer(Class<T> forClass, JsonDeserializer<? extends T> deser)
     {
         ClassKey key = new ClassKey(forClass);
         if (_classMappings == null) {
-            _classMappings = new HashMap<ClassKey,JsonDeserializer<?>>();
+            _classMappings = new HashMap<>();
         }
         _classMappings.put(key, deser);
         // [Issue#227]: generic Enum deserializer?
@@ -72,13 +72,13 @@ public class SimpleDeserializers
             addDeserializer((Class<Object>) cls, deser);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Serializers implementation
     /**********************************************************
      */
-    
+
     @Override
     public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
             DeserializationConfig config, BeanDescription beanDesc,
@@ -115,7 +115,7 @@ public class SimpleDeserializers
     {
         return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
     }
-    
+
     @Override
     public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
             DeserializationConfig config, BeanDescription beanDesc)
@@ -140,7 +140,7 @@ public class SimpleDeserializers
     {
         return (_classMappings == null) ? null : _classMappings.get(new ClassKey(nodeType));
     }
-    
+
     @Override
     public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,
@@ -150,7 +150,7 @@ public class SimpleDeserializers
         //    work, simple registration probably not sufficient). But whatever.
         return (_classMappings == null) ? null : _classMappings.get(new ClassKey(refType.getRawClass()));
     }
-    
+
     @Override
     public JsonDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,

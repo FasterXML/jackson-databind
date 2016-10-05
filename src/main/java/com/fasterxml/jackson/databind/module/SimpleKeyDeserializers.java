@@ -31,13 +31,13 @@ public class SimpleKeyDeserializers
     /* Life-cycle, construction and configuring
     /**********************************************************
      */
-    
+
     public SimpleKeyDeserializers() { }
 
     public SimpleKeyDeserializers addDeserializer(Class<?> forClass, KeyDeserializer deser)
     {
         if (_classMappings == null) {
-            _classMappings = new HashMap<ClassKey,KeyDeserializer>();
+            _classMappings = new HashMap<>();
         }
         _classMappings.put(new ClassKey(forClass), deser);
         return this;

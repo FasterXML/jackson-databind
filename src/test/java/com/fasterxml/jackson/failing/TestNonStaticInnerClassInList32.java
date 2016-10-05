@@ -17,19 +17,19 @@ public class TestNonStaticInnerClassInList32 extends BaseMapTest
             public int length;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Tests
     /**********************************************************
      */
-    
+
     // core/[Issue#32]
     public void testInnerList() throws Exception
     {
         Dog2 dog = new Dog2();
         dog.name = "Spike";
-        dog.legs = new ArrayList<Dog2.Leg>();
+        dog.legs = new ArrayList<>();
         dog.legs.add(dog.new Leg());
         dog.legs.add(dog.new Leg());
         dog.legs.get(0).length = 5;

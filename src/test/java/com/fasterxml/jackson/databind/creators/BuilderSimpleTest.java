@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class BuilderSimpleTest extends BaseMapTest
 {
     // // Simple 2-property value class, builder with standard naming
-	
+
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
     {
@@ -30,7 +30,7 @@ public class BuilderSimpleTest extends BaseMapTest
     static class SimpleBuilderXY
     {
         public int x, y;
-    	
+
         public SimpleBuilderXY withX(int x0) {
     		    this.x = x0;
     		    return this;
@@ -47,7 +47,7 @@ public class BuilderSimpleTest extends BaseMapTest
     }
 
     // // 3-property value, with more varied builder
-	
+
     @JsonDeserialize(builder=BuildABC.class)
     static class ValueClassABC
     {
@@ -64,7 +64,7 @@ public class BuilderSimpleTest extends BaseMapTest
     {
         public int a; // to be used as is
         private int b, c;
-    	
+
         @JsonProperty("b")
         public BuildABC assignB(int b0) {
             this.b = b0;
@@ -83,17 +83,17 @@ public class BuilderSimpleTest extends BaseMapTest
     }
 
     // // Then Builder that is itself immutable
-    
+
     @JsonDeserialize(builder=BuildImmutable.class)
     static class ValueImmutable
     {
         final int value;
         protected ValueImmutable(int v) { value = v; }
     }
-    
+
     static class BuildImmutable {
         private final int value;
-        
+
         private BuildImmutable() { this(0); }
         private BuildImmutable(int v) {
             value = v;
@@ -105,7 +105,7 @@ public class BuilderSimpleTest extends BaseMapTest
             return new ValueImmutable(value);
         }
     }
-    
+
     // And then with custom naming:
 
     @JsonDeserialize(builder=BuildFoo.class)
@@ -118,7 +118,7 @@ public class BuilderSimpleTest extends BaseMapTest
     @JsonPOJOBuilder(withPrefix="foo", buildMethodName="construct")
     static class BuildFoo {
         private int value;
-        
+
         public BuildFoo fooValue(int v) {
             value = v;
             return this;
@@ -129,7 +129,7 @@ public class BuilderSimpleTest extends BaseMapTest
     }
 
     // And with creator(s)
-	
+
     @JsonDeserialize(builder=CreatorBuilder.class)
     static class CreatorValue
     {
@@ -153,7 +153,7 @@ public class BuilderSimpleTest extends BaseMapTest
             this.a = a;
             this.b = b;
         }
-        
+
         public CreatorBuilder withC(int v) {
             c = v;
             return this;
@@ -174,7 +174,7 @@ public class BuilderSimpleTest extends BaseMapTest
     interface ValueInterface2 {
         int getX();
     }
-    
+
     static class ValueInterfaceImpl implements ValueInterface
     {
         final int _x;
@@ -202,7 +202,7 @@ public class BuilderSimpleTest extends BaseMapTest
             return _x;
         }
     }
-    
+
     static class ValueInterfaceBuilder
     {
         public int x;
@@ -231,7 +231,7 @@ public class BuilderSimpleTest extends BaseMapTest
             return new ValueInterface2Impl(x);
         }
     }
-    
+
     // for [databind#761]
     @JsonDeserialize(builder = ValueBuilderWrongBuildType.class)
     static class ValueClassWrongBuildType {
@@ -268,8 +268,8 @@ public class BuilderSimpleTest extends BaseMapTest
     static class ValueBuilder822
     {
         public int x;
-        private Map<String,Object> stuff = new HashMap<String,Object>();
-        
+        private Map<String,Object> stuff = new HashMap<>();
+
         public ValueBuilder822 withX(int x0) {
             this.x = x0;
             return this;
@@ -342,7 +342,7 @@ public class BuilderSimpleTest extends BaseMapTest
         assertEquals(value._x, 2);
         assertEquals(value._y, 3);
     }
-    
+
     public void testMultiAccess() throws Exception
     {
         String json = "{\"c\":3,\"a\":2,\"b\":-9}";
@@ -358,7 +358,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testImmutable() throws Exception
     {
         final String json = "{\"value\":13}";
-        ValueImmutable value = MAPPER.readValue(json, ValueImmutable.class);        
+        ValueImmutable value = MAPPER.readValue(json, ValueImmutable.class);
         assertEquals(13, value.value);
     }
 
@@ -366,7 +366,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testCustomWith() throws Exception
     {
         final String json = "{\"value\":1}";
-        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);        
+        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
         assertEquals(1, value.value);
     }
 
@@ -374,14 +374,14 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testWithCreator() throws Exception
     {
         final String json = "{\"a\":1,\"c\":3,\"b\":2}";
-        CreatorValue value = MAPPER.readValue(json, CreatorValue.class);        
+        CreatorValue value = MAPPER.readValue(json, CreatorValue.class);
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(3, value.c);
     }
 
     // for [databind#761]
-    
+
     public void testBuilderMethodReturnMoreGeneral() throws Exception
     {
         final String json = "{\"x\":1}";
@@ -395,7 +395,7 @@ public class BuilderSimpleTest extends BaseMapTest
         ValueInterface2 value = MAPPER.readValue(json, ValueInterface2.class);
         assertEquals(2, value.getX());
     }
-    
+
     public void testBuilderMethodReturnInvalidType() throws Exception
     {
         final String json = "{\"x\":1}";
@@ -432,5 +432,5 @@ public class BuilderSimpleTest extends BaseMapTest
         assertTrue(((List<?>) ob).isEmpty());
     }
 
-    
+
 }

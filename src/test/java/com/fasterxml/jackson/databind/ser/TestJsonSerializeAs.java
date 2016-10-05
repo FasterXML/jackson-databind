@@ -26,7 +26,7 @@ public class TestJsonSerializeAs extends BaseMapTest
         public int getFoo() { return 42; }
         public int getBar() { return 15; }
     }
-    
+
     public class Fooables {
         public FooImpl[] getFoos() {
             return new FooImpl[] { new FooImpl() };
@@ -67,7 +67,7 @@ public class TestJsonSerializeAs extends BaseMapTest
         @JsonSerialize(contentAs=Bean1178Abstract.class)
         public List<Bean1178Base> values;
         public Bean1178Wrapper(int count) {
-            values = new ArrayList<Bean1178Base>();
+            values = new ArrayList<>();
             for (int i = 0; i < count; ++i) {
                 values.add(new Bean1178Impl());
             }

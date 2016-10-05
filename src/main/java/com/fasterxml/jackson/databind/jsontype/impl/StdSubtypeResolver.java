@@ -21,17 +21,17 @@ public class StdSubtypeResolver
     protected LinkedHashSet<NamedType> _registeredSubtypes;
 
     public StdSubtypeResolver() { }
-    
+
     /*
     /**********************************************************
     /* Subtype registration
     /**********************************************************
      */
 
-    @Override    
+    @Override
     public void registerSubtypes(NamedType... types) {
         if (_registeredSubtypes == null) {
-            _registeredSubtypes = new LinkedHashSet<NamedType>();
+            _registeredSubtypes = new LinkedHashSet<>();
         }
         for (NamedType type : types) {
             _registeredSubtypes.add(type);
@@ -54,14 +54,14 @@ public class StdSubtypeResolver
      */
 
     @Override
-    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         // for backwards compatibility, must allow null here:
         Class<?> rawBase = (baseType == null) ? property.getRawType() : baseType.getRawClass();
-        
-        HashMap<NamedType, NamedType> collected = new HashMap<NamedType, NamedType>();
+
+        HashMap<NamedType, NamedType> collected = new HashMap<>();
         // start with registered subtypes (which have precedence)
         if (_registeredSubtypes != null) {
             for (NamedType subtype : _registeredSubtypes) {
@@ -72,23 +72,23 @@ public class StdSubtypeResolver
                 }
             }
         }
-        
+
         // then annotated types for property itself
         Collection<NamedType> st = ai.findSubtypes(property);
         if (st != null) {
             for (NamedType nt : st) {
                 AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(nt.getType(), config);
                 _collectAndResolve(ac, nt, config, ai, collected);
-            }            
+            }
         }
-        
+
         NamedType rootType = new NamedType(rawBase, null);
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, config);
-            
+
         // and finally subtypes via annotations from base type (recursively)
         _collectAndResolve(ac, rootType, config, ai, collected);
 
-        return new ArrayList<NamedType>(collected.values());
+        return new ArrayList<>(collected.values());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class StdSubtypeResolver
             AnnotatedClass type)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        HashMap<NamedType, NamedType> subtypes = new HashMap<NamedType, NamedType>();
+        HashMap<NamedType, NamedType> subtypes = new HashMap<>();
         // [JACKSON-257] then consider registered subtypes (which have precedence over annotations)
         if (_registeredSubtypes != null) {
             Class<?> rawBase = type.getRawType();
@@ -111,7 +111,7 @@ public class StdSubtypeResolver
         // and then check subtypes via annotations from base type (recursively)
         NamedType rootType = new NamedType(type.getRawType(), null);
         _collectAndResolve(type, rootType, config, ai, subtypes);
-        return new ArrayList<NamedType>(subtypes.values());
+        return new ArrayList<>(subtypes.values());
     }
 
     /*
@@ -121,30 +121,30 @@ public class StdSubtypeResolver
      */
 
     @Override
-    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         Class<?> rawBase = (baseType == null) ? property.getRawType() : baseType.getRawClass();
 
-        // Need to keep track of classes that have been handled already 
-        Set<Class<?>> typesHandled = new HashSet<Class<?>>();
-        Map<String,NamedType> byName = new LinkedHashMap<String,NamedType>();
+        // Need to keep track of classes that have been handled already
+        Set<Class<?>> typesHandled = new HashSet<>();
+        Map<String,NamedType> byName = new LinkedHashMap<>();
 
         // start with lowest-precedence, which is from type hierarchy
         NamedType rootType = new NamedType(rawBase, null);
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, config);
         _collectAndResolveByTypeId(ac, rootType, config, typesHandled, byName);
-        
+
         // then with definitions from property
         Collection<NamedType> st = ai.findSubtypes(property);
         if (st != null) {
             for (NamedType nt : st) {
                 ac = AnnotatedClass.constructWithoutSuperTypes(nt.getType(), config);
                 _collectAndResolveByTypeId(ac, nt, config, typesHandled, byName);
-            }            
+            }
         }
-        
+
         // and finally explicit type registrations (highest precedence)
         if (_registeredSubtypes != null) {
             for (NamedType subtype : _registeredSubtypes) {
@@ -162,12 +162,12 @@ public class StdSubtypeResolver
     public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
             AnnotatedClass type)
     {
-        Set<Class<?>> typesHandled = new HashSet<Class<?>>();
-        Map<String,NamedType> byName = new LinkedHashMap<String,NamedType>();
+        Set<Class<?>> typesHandled = new HashSet<>();
+        Map<String,NamedType> byName = new LinkedHashMap<>();
 
         NamedType rootType = new NamedType(type.getRawType(), null);
         _collectAndResolveByTypeId(type, rootType, config, typesHandled, byName);
-        
+
         if (_registeredSubtypes != null) {
             Class<?> rawBase = type.getRawType();
             for (NamedType subtype : _registeredSubtypes) {
@@ -284,7 +284,7 @@ public class StdSubtypeResolver
     protected Collection<NamedType> _combineNamedAndUnnamed(Set<Class<?>> typesHandled,
             Map<String,NamedType> byName)
     {
-        ArrayList<NamedType> result = new ArrayList<NamedType>(byName.values());
+        ArrayList<NamedType> result = new ArrayList<>(byName.values());
 
         // Ok, so... we will figure out which classes have no explicitly assigned name,
         // by removing Classes from Set. And for remaining classes, add an anonymous

@@ -23,11 +23,11 @@ import com.fasterxml.jackson.databind.util.Converter;
  *<p>
  * Since 2.5 There is {@link StdNodeBasedDeserializer} that is a simplified version
  * for cases where intermediate type is {@link JsonNode}
- * 
+ *
  * @param <T> Target type to convert to, from delegate type
- * 
+ *
  * @since 2.1
- * 
+ *
  * @see StdNodeBasedDeserializer
  * @see Converter
  */
@@ -95,7 +95,7 @@ public class StdDelegatingDeserializer<T>
         if (getClass() != StdDelegatingDeserializer.class) {
             throw new IllegalStateException("Sub-class "+getClass().getName()+" must override 'withDelegate'");
         }
-        return new StdDelegatingDeserializer<T>(converter, delegateType, delegateDeserializer);
+        return new StdDelegatingDeserializer<>(converter, delegateType, delegateDeserializer);
     }
 
     /*
@@ -153,7 +153,7 @@ public class StdDelegatingDeserializer<T>
     /* Serialization
     /**********************************************************
      */
-    
+
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -214,7 +214,7 @@ public class StdDelegatingDeserializer<T>
                 ("Can not update object of type %s (using deserializer for type %s)"
                         +intoValue.getClass().getName(), _delegateType));
     }
-    
+
     /*
     /**********************************************************
     /* Overridable methods
@@ -228,9 +228,9 @@ public class StdDelegatingDeserializer<T>
      *<P>
      * The default implementation uses configured {@link Converter} to do
      * conversion.
-     * 
+     *
      * @param delegateValue
-     * 
+     *
      * @return Result of conversion
      */
     protected T convertValue(Object delegateValue) {

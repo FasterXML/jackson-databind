@@ -21,7 +21,7 @@ public class TestAnyGetterFiltering extends BaseMapTest
     @JsonFilter("anyFilter")
     public static class AnyBean
     {
-        private Map<String, String> properties = new HashMap<String, String>();
+        private Map<String, String> properties = new HashMap<>();
         {
             properties.put("a", "1");
             properties.put("b", "2");
@@ -39,7 +39,7 @@ public class TestAnyGetterFiltering extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     // should also work for @JsonAnyGetter, as per [JACKSON-516]
     public void testAnyGetterFiltering() throws Exception
     {

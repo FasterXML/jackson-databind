@@ -37,13 +37,13 @@ public class SimpleFilterProvider
      * configured.
      */
     protected boolean _cfgFailOnUnknownId = true;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructing, configuring
     /**********************************************************
      */
-    
+
     public SimpleFilterProvider() {
         this(new HashMap<String,Object>());
     }
@@ -70,7 +70,7 @@ public class SimpleFilterProvider
     @SuppressWarnings("deprecation")
     private final static Map<String,PropertyFilter> _convert(Map<String,?> filters)
     {
-        HashMap<String,PropertyFilter> result = new HashMap<String,PropertyFilter>();
+        HashMap<String,PropertyFilter> result = new HashMap<>();
         for (Map.Entry<String, ?> entry : filters.entrySet()) {
             Object f = entry.getValue();
             if (f instanceof PropertyFilter) {
@@ -84,17 +84,17 @@ public class SimpleFilterProvider
         return result;
     }
 
-    @SuppressWarnings("deprecation") 
+    @SuppressWarnings("deprecation")
     private final static PropertyFilter _convert(BeanPropertyFilter f) {
-        return SimpleBeanPropertyFilter.from((BeanPropertyFilter) f);   
+        return SimpleBeanPropertyFilter.from((BeanPropertyFilter) f);
     }
-    
+
     /**
      * Method for defining filter to return for "unknown" filters; cases
      * where there is no mapping from given id to an explicit filter.
-     * 
+     *
      * @param f Filter to return when no filter is found for given id
-     * 
+     *
      * @deprecated Since 2.3 should use {@link PropertyFilter} instead of {@link BeanPropertyFilter}
      */
     @Deprecated
@@ -118,11 +118,11 @@ public class SimpleFilterProvider
         _defaultFilter = f;
         return this;
     }
-    
+
     public PropertyFilter getDefaultFilter() {
         return _defaultFilter;
     }
-    
+
     public SimpleFilterProvider setFailOnUnknownId(boolean state) {
         _cfgFailOnUnknownId = state;
         return this;
@@ -153,7 +153,7 @@ public class SimpleFilterProvider
         _filtersById.put(id, filter);
         return this;
     }
-    
+
     public PropertyFilter removeFilter(String id) {
         return _filtersById.remove(id);
     }
@@ -170,7 +170,7 @@ public class SimpleFilterProvider
     {
         throw new UnsupportedOperationException("Access to deprecated filters not supported");
     }
-    
+
     @Override
     public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter)
     {

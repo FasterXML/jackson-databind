@@ -26,7 +26,7 @@ public class TestDefaultForLists
 
         public ListOfLongs() { }
         public ListOfLongs(Long ... ls) {
-            longs = new ArrayList<Long>();
+            longs = new ArrayList<>();
             for (Long l: ls) {
                 longs.add(l);
             }
@@ -38,7 +38,7 @@ public class TestDefaultForLists
 
         public ListOfNumbers() { }
         public ListOfNumbers(Number ... numbers) {
-            nums = new ArrayList<Number>();
+            nums = new ArrayList<>();
             for (Number n : numbers) {
                 nums.add(n);
             }
@@ -53,20 +53,20 @@ public class TestDefaultForLists
 
     static class SetBean {
         public Set<String> names;
-        
+
         public SetBean() { }
         public SetBean(String str) {
-            names = new HashSet<String>();
+            names = new HashSet<>();
             names.add(str);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testListOfLongs() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -110,24 +110,24 @@ public class TestDefaultForLists
         ObjectMapper m = new ObjectMapper();
         m.enableDefaultTyping();
         ObjectListBean input = new ObjectListBean();
-        List<Object> inputList = new ArrayList<Object>();
+        List<Object> inputList = new ArrayList<>();
         inputList.add(TimeZone.getTimeZone("EST"));
         inputList.add(Locale.CHINESE);
         input.values = inputList;
         String json = m.writeValueAsString(input);
-        
+
         ObjectListBean output = m.readValue(json, ObjectListBean.class);
         List<Object> outputList = output.values;
         assertEquals(2, outputList.size());
         assertTrue(outputList.get(0) instanceof TimeZone);
         assertTrue(outputList.get(1) instanceof Locale);
     }
-    
+
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
-        ArrayList<Foo> data = new ArrayList<Foo>();
+        ArrayList<Foo> data = new ArrayList<>();
         String json = mapper.writeValueAsString(data);
         List<?> output = mapper.readValue(json, List.class);
         assertTrue(output.isEmpty());

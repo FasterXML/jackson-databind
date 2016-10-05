@@ -17,15 +17,15 @@ public class TestSetterlessProperties501
     }
 
     static class Issue501Bean {
-        protected Map<String,Poly> m = new HashMap<String,Poly>();
-        protected List<Poly> l = new ArrayList<Poly>();
+        protected Map<String,Poly> m = new HashMap<>();
+        protected List<Poly> l = new ArrayList<>();
 
         protected Issue501Bean() { }
         public Issue501Bean(String key, Poly value) {
             m.put(key, value);
             l.add(value);
         }
-        
+
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Poly> getList(){
             return l;
@@ -39,7 +39,7 @@ public class TestSetterlessProperties501
 //        public void setMap(Map<String,Poly> m) { this.m = m; }
 //        public void setList(List<Poly> l) { this.l = l; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

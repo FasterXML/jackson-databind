@@ -88,7 +88,7 @@ public class TestArrayDeserialization
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException, JsonProcessingException {
         }
-    }	
+    }
 
     static class ObjectWrapper {
         public Object wrapped;
@@ -103,7 +103,7 @@ public class TestArrayDeserialization
         @Override
         public NonDeserializable[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
-            List<NonDeserializable> list = new ArrayList<NonDeserializable>();
+            List<NonDeserializable> list = new ArrayList<>();
             while (jp.nextToken() != JsonToken.END_ARRAY) {
                 list.add(new NonDeserializable(jp.getText(), false));
             }
@@ -113,15 +113,15 @@ public class TestArrayDeserialization
 
     static class NonDeserializable {
         protected String value;
-        
+
         public NonDeserializable(String v, boolean bogus) {
             value = v;
         }
     }
 
-    static class Product { 
-        public String name; 
-        public List<Things> thelist; 
+    static class Product {
+        public String name;
+        public List<Things> thelist;
     }
 
     static class Things {
@@ -141,7 +141,7 @@ public class TestArrayDeserialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testUntypedArray() throws Exception
     {
 
@@ -205,7 +205,7 @@ public class TestArrayDeserialization
         assertNotNull(p);
         assertNull(p.thelist);
     }
-    
+
     /*
     /**********************************************************
     /* Arrays of arrays...
@@ -236,8 +236,8 @@ public class TestArrayDeserialization
         ObjectArrayWrapper aw = MAPPER.readValue("{\"wrapped\":"+JSON+"}", ObjectArrayWrapper.class);
         assertNotNull(aw);
         assertNotNull(aw.wrapped);
-    }    
-    
+    }
+
     /*
     /**********************************************************
     /* Tests for String arrays, char[]
@@ -397,7 +397,7 @@ public class TestArrayDeserialization
         assertEquals("b", new String(data[1], "US-ASCII"));
         assertEquals("c", new String(data[2], "US-ASCII"));
     }
-    
+
     public void testShortArray() throws Exception
     {
         final int LEN = 31001; // fits in signed 16-bit
@@ -529,14 +529,14 @@ public class TestArrayDeserialization
     public void testBeanArray()
         throws Exception
     {
-        List<Bean1> src = new ArrayList<Bean1>();
+        List<Bean1> src = new ArrayList<>();
 
-        List<Bean2> b2 = new ArrayList<Bean2>();
+        List<Bean2> b2 = new ArrayList<>();
         b2.add(new Bean2("a"));
         b2.add(new Bean2("foobar"));
         src.add(new Bean1(1, 2, b2));
 
-        b2 = new ArrayList<Bean2>();
+        b2 = new ArrayList<>();
         b2.add(null);
         src.add(new Bean1(4, 5, b2));
 
@@ -556,7 +556,7 @@ public class TestArrayDeserialization
     /* And special cases for byte array (base64 encoded)
     /**********************************************************
      */
-    
+
     // for [databind#890]
     public void testByteArrayTypeOverride890() throws Exception
     {
@@ -566,7 +566,7 @@ public class TestArrayDeserialization
         assertNotNull(result.someBytes);
         assertEquals(byte[].class, result.someBytes.getClass());
     }
-    
+
     /*
     /**********************************************************
     /* And custom deserializers too
@@ -579,7 +579,7 @@ public class TestArrayDeserialization
         SimpleModule testModule = new SimpleModule("test", Version.unknownVersion());
         testModule.addDeserializer(NonDeserializable[].class, new CustomNonDeserArrayDeserializer());
         mapper.registerModule(testModule);
-        
+
         NonDeserializable[] result = mapper.readValue("[\"a\"]", NonDeserializable[].class);
         assertNotNull(result);
         assertEquals(1, result.length);

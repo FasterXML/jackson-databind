@@ -43,7 +43,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
     public static class Base811 {
         public int id;
         public Base811 owner;
-            
+
         protected Base811() {}
         public Base811(Process owner) {
             this.owner = owner;
@@ -58,11 +58,11 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
 
     public static class Process extends Base811 {
         protected int childIdCounter = 0;
-        protected List<Base811> children = new ArrayList<Base811>();
-        
+        protected List<Base811> children = new ArrayList<>();
+
         public Process() { super(null); }
     }
-    
+
     public static abstract class Activity extends Base811 {
         protected Activity parent;
         public Activity(Process owner, Activity parent) {
@@ -73,9 +73,9 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
             super();
         }
     }
-    
+
     public static class Scope extends Activity {
-        public final List<FaultHandler> faultHandlers = new ArrayList<FaultHandler>();
+        public final List<FaultHandler> faultHandlers = new ArrayList<>();
         public Scope(Process owner, Activity parent) {
             super(owner, parent);
         }
@@ -83,17 +83,17 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
             super();
         }
     }
-    
+
     public static class FaultHandler extends Base811 {
-        public final List<Catch> catchBlocks = new ArrayList<Catch>();
-        
+        public final List<Catch> catchBlocks = new ArrayList<>();
+
         public FaultHandler(Process owner) {
             super(owner);
         }
 
         protected FaultHandler() {}
     }
-    
+
     public static class Catch extends Scope {
         public Catch(Process owner, Activity parent) {
             super(owner, parent);
@@ -115,9 +115,9 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         Impl in1 = new Impl(123, 456);
         in1.next = new Impl(111, 222);
         in1.next.next = in1;
-        
+
         String json = mapper.writeValueAsString(in1);
-        
+
         // then bring back...
         Base result0 = mapper.readValue(json, Base.class);
         assertNotNull(result0);
@@ -138,18 +138,18 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         om.disable(MapperFeature.AUTO_DETECT_GETTERS);
         om.disable(MapperFeature.AUTO_DETECT_IS_GETTERS);
         om.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        
+
         om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
         om.enable(SerializationFeature.INDENT_OUTPUT);
         om.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");
-    
+
         Process p = new Process();
         Scope s = new Scope(p, null);
         FaultHandler fh = new FaultHandler(p);
         Catch c = new Catch(p, s);
         fh.catchBlocks.add(c);
         s.faultHandlers.add(fh);
-        
+
         String json = om.writeValueAsString(p);
         Process restored = om.readValue(json, Process.class);
         assertNotNull(restored);

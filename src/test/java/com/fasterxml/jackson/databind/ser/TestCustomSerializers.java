@@ -37,7 +37,7 @@ public class TestCustomSerializers extends BaseMapTest
             jgen.writeString("element");
         }
     }
-    
+
     @JsonSerialize(using = ElementSerializer.class)
     public static class ElementMixin {}
 
@@ -59,7 +59,7 @@ public class TestCustomSerializers extends BaseMapTest
             _asciiEscapes['a'] = 'A'; // to basically give us "\A" instead of 'a'
             _asciiEscapes['b'] = CharacterEscapes.ESCAPE_STANDARD; // too force "\u0062"
         }
-        
+
         @Override
         public int[] getEscapeCodesForAscii() {
             return _asciiEscapes;
@@ -78,7 +78,7 @@ public class TestCustomSerializers extends BaseMapTest
         public int x;
 
         public LikeNumber(int value) { x = value; }
-        
+
         @Override
         public double doubleValue() {
             return x;
@@ -110,7 +110,7 @@ public class TestCustomSerializers extends BaseMapTest
             prop = o;
         }
     }
-    
+
     @SuppressWarnings("serial")
     static class ParentClassSerializer
         extends StdScalarSerializer<Object>
@@ -127,7 +127,7 @@ public class TestCustomSerializers extends BaseMapTest
             gen.writeString(desc+"/"+value);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -166,7 +166,7 @@ public class TestCustomSerializers extends BaseMapTest
             }
         });
         mapper.registerModule(module);
-        assertEquals("null", mapper.writeValueAsString(new ArrayList<Object>()));
+        assertEquals("null", mapper.writeValueAsString(new ArrayList<>()));
     }
 
     // [Issue#87]: delegating serializer
@@ -179,7 +179,7 @@ public class TestCustomSerializers extends BaseMapTest
                     @Override
                     public Map<String, Integer> convert(Immutable value)
                     {
-                        HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+                        HashMap<String,Integer> map = new LinkedHashMap<>();
                         map.put("x", value.x());
                         map.put("y", value.y());
                         return map;
@@ -195,7 +195,7 @@ public class TestCustomSerializers extends BaseMapTest
         assertEquals(quote("foo\\u0062\\Ar"),
                 MAPPER.writer(new CustomEscapes()).writeValueAsString("foobar"));
     }
-    
+
     public void testNumberSubclass() throws Exception
     {
         assertEquals(aposToQuotes("{'x':42}"),

@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  * (as defined by "having at least one get method recognizable as bean
  * accessor" -- where {@link Object#getClass} does not count);
  * as well as for "standard" JDK types. Latter is achieved
- * by delegating calls to {@link BasicSerializerFactory} 
+ * by delegating calls to {@link BasicSerializerFactory}
  * to find serializers both for "standard" JDK types (and in some cases,
  * sub-classes as is the case for collection classes like
  * {@link java.util.List}s and {@link java.util.Map}s) and bean (value)
@@ -83,7 +83,7 @@ public class BeanSerializerFactory
     {
         super(config);
     }
-    
+
     /**
      * Method used by module registration functionality, to attach additional
      * serializer providers into this serializer factory. This is typically
@@ -114,7 +114,7 @@ public class BeanSerializerFactory
     protected Iterable<Serializers> customSerializers() {
         return _factoryConfig.serializers();
     }
-    
+
     /*
     /**********************************************************
     /* SerializerFactory impl
@@ -172,7 +172,7 @@ public class BeanSerializerFactory
             return (JsonSerializer<Object>) _createSerializer2(prov, type, beanDesc, staticTyping);
         }
         JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
-        
+
         // One more twist, as per [databind#288]; probably need to get new BeanDesc
         if (!delegateType.hasRawClass(type.getRawClass())) {
             beanDesc = config.introspect(delegateType);
@@ -192,7 +192,7 @@ public class BeanSerializerFactory
     {
         JsonSerializer<?> ser = null;
         final SerializationConfig config = prov.getConfig();
-        
+
         // Container types differ from non-container types
         // (note: called method checks for module-provided serializers)
         if (type.isContainerType()) {
@@ -223,7 +223,7 @@ public class BeanSerializerFactory
                 ser = findSerializerByAnnotations(prov, type, beanDesc);
             }
         }
-        
+
         if (ser == null) {
             // Otherwise, we will check "primary types"; both marker types that
             // indicate specific handling (JsonSerializable), or main types that have
@@ -259,7 +259,7 @@ public class BeanSerializerFactory
         }
         return ser;
     }
-    
+
     /*
     /**********************************************************
     /* Other public methods that are not part of
@@ -293,7 +293,7 @@ public class BeanSerializerFactory
             BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
     {
-        JavaType contentType = refType.getContentType(); 
+        JavaType contentType = refType.getContentType();
         TypeSerializer contentTypeSerializer = contentType.getTypeHandler();
         final SerializationConfig config = prov.getConfig();
         if (contentTypeSerializer == null) {
@@ -322,7 +322,7 @@ public class BeanSerializerFactory
         final JavaType contentType = refType.getReferencedType();
         JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
                 contentType, AtomicReference.class);
-        
+
         // Need to support global legacy setting, for now:
         JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
         Object valueToSuppress;
@@ -376,7 +376,7 @@ public class BeanSerializerFactory
      * return null.
      *
      * @param baseType Declared type to use as the base type for type information serializer
-     * 
+     *
      * @return Type serializer to use for property values, if one is needed; null if not.
      */
     public TypeSerializer findPropertyTypeSerializer(JavaType baseType,
@@ -384,7 +384,7 @@ public class BeanSerializerFactory
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, accessor, baseType);        
+        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, accessor, baseType);
         TypeSerializer typeSer;
 
         // Defaulting: if no annotations on member, check value class
@@ -405,16 +405,16 @@ public class BeanSerializerFactory
      * return null.
      *
      * @param containerType Declared type of the container to use as the base type for type information serializer
-     * 
+     *
      * @return Type serializer to use for property value contents, if one is needed; null if not.
-     */    
+     */
     public TypeSerializer findPropertyContentTypeSerializer(JavaType containerType,
             SerializationConfig config, AnnotatedMember accessor)
         throws JsonMappingException
     {
         JavaType contentType = containerType.getContentType();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, accessor, containerType);        
+        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, accessor, containerType);
         TypeSerializer typeSer;
 
         // Defaulting: if no annotations on member, check value class
@@ -488,7 +488,7 @@ public class BeanSerializerFactory
 
     /**
      * Method called to construct serializer for serializing specified bean type.
-     * 
+     *
      * @since 2.1
      */
     @SuppressWarnings("unchecked")
@@ -509,11 +509,11 @@ public class BeanSerializerFactory
         // First: any detectable (auto-detect, annotations) properties to serialize?
         List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
         if (props == null) {
-            props = new ArrayList<BeanPropertyWriter>();
+            props = new ArrayList<>();
         } else {
             props = removeOverlappingTypeIds(prov, beanDesc, builder, props);
         }
-        
+
         // [databind#638]: Allow injection of "virtual" properties:
         prov.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
 
@@ -539,7 +539,7 @@ public class BeanSerializerFactory
          * access to a property
          */
         builder.setObjectIdWriter(constructObjectIdHandler(prov, beanDesc, props));
-        
+
         builder.setProperties(props);
         builder.setFilterId(findFilterId(config, beanDesc));
 
@@ -624,8 +624,8 @@ public class BeanSerializerFactory
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
             // one more thing: must ensure that ObjectIdWriter does not actually write the value:
             return ObjectIdWriter.construct(idType, (PropertyName) null, gen, objectIdInfo.getAlwaysAsId());
-            
-        } 
+
+        }
         // other types are simpler
         JavaType type = prov.constructType(implClass);
         // Could require type to be passed explicitly, but we should be able to find it too:
@@ -645,7 +645,7 @@ public class BeanSerializerFactory
     {
         return FilteredBeanPropertyWriter.constructViewBased(writer, inViews);
     }
-    
+
     protected PropertyBuilder constructPropertyBuilder(SerializationConfig config,
             BeanDescription beanDesc)
     {
@@ -655,16 +655,16 @@ public class BeanSerializerFactory
     protected BeanSerializerBuilder constructBeanSerializerBuilder(BeanDescription beanDesc) {
         return new BeanSerializerBuilder(beanDesc);
     }
-    
+
     /*
     /**********************************************************
     /* Overridable non-public introspection methods
     /**********************************************************
      */
-    
+
     /**
      * Helper method used to skip processing for types that we know
-     * can not be (i.e. are never consider to be) beans: 
+     * can not be (i.e. are never consider to be) beans:
      * things like primitives, Arrays, Enums, and proxy types.
      *<p>
      * Note that usually we shouldn't really be getting these sort of
@@ -688,12 +688,12 @@ public class BeanSerializerFactory
 
         // ignore specified types
         removeIgnorableTypes(config, beanDesc, properties);
-        
+
         // and possibly remove ones without matching mutator...
         if (config.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)) {
             removeSetterlessGetters(config, beanDesc, properties);
         }
-        
+
         // nothing? can't proceed (caller may or may not throw an exception)
         if (properties.isEmpty()) {
             return null;
@@ -701,8 +701,8 @@ public class BeanSerializerFactory
         // null is for value type serializer, which we don't have access to from here (ditto for bean prop)
         boolean staticTyping = usesStaticTyping(config, beanDesc, null);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
-        
-        ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
+
+        ArrayList<BeanPropertyWriter> result = new ArrayList<>(properties.size());
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:
@@ -731,7 +731,7 @@ public class BeanSerializerFactory
     /* Overridable non-public methods for manipulating bean properties
     /**********************************************************
      */
-    
+
     /**
      * Overridable method that can filter out properties. Default implementation
      * checks annotations class may have.
@@ -805,7 +805,7 @@ public class BeanSerializerFactory
             List<BeanPropertyDefinition> properties)
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        HashMap<Class<?>,Boolean> ignores = new HashMap<Class<?>,Boolean>();
+        HashMap<Class<?>,Boolean> ignores = new HashMap<>();
         Iterator<BeanPropertyDefinition> it = properties.iterator();
         while (it.hasNext()) {
             BeanPropertyDefinition property = it.next();
@@ -885,7 +885,7 @@ public class BeanSerializerFactory
         }
         return props;
     }
-    
+
     /*
     /**********************************************************
     /* Internal helper methods

@@ -54,7 +54,7 @@ public class TestArrayConversions
         byte[] exp = "sure.".getBytes("Ascii");
         verifyIntegralArrays(exp, data, exp.length);
     }
-    
+
     public void testShortArrayToX() throws Exception
     {
         short[] data = shorts();
@@ -82,10 +82,10 @@ public class TestArrayConversions
         verifyLongArrayConversion(data, byte[].class);
         verifyLongArrayConversion(data, short[].class);
         verifyLongArrayConversion(data, int[].class);
- 
+
         List<Number> expNums = _numberList(data, data.length);
         List<Long> actNums = mapper.convertValue(data, new TypeReference<List<Long>>() {});
-        assertEquals(expNums, actNums);        
+        assertEquals(expNums, actNums);
     }
 
     public void testOverflows()
@@ -111,16 +111,16 @@ public class TestArrayConversions
         // Longs need help of BigInteger...
         BigInteger biggie = BigInteger.valueOf(Long.MAX_VALUE);
         biggie.add(BigInteger.ONE);
-        List<BigInteger> l = new ArrayList<BigInteger>();
+        List<BigInteger> l = new ArrayList<>();
         l.add(biggie);
         try {
             mapper.convertValue(l, int[].class);
         } catch (IllegalArgumentException e) {
             verifyException(e, OVERFLOW_MSG);
         }
-        
+
     }
-    
+
     /*
     /********************************************************
     /* Helper methods
@@ -128,7 +128,7 @@ public class TestArrayConversions
      */
 
     // note: all value need to be within byte range
-    
+
     private byte[] bytes() { return new byte[] { 1, -1, 0, 98, 127 }; }
     private short[] shorts() { return new short[] { 1, -1, 0, 98, 127 }; }
     private int[] ints() { return new int[] { 1, -1, 0, 98, 127 }; }
@@ -165,7 +165,7 @@ public class TestArrayConversions
         T result = _convert(data, arrayType);
         verifyDoubleArrays(data, result, data.length);
     }
-    
+
     private <T> T _convert(Object input, Class<T> outputType)
     {
         // must be a primitive array, like "int[].class"
@@ -180,13 +180,13 @@ public class TestArrayConversions
 
     private List<Number> _numberList(Object numberArray, int size)
     {
-        ArrayList<Number> result = new ArrayList<Number>(size);
+        ArrayList<Number> result = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             result.add((Number) Array.get(numberArray, i));
         }
         return result;
     }
-    
+
     /**
      * Helper method for checking that given collections contain integral Numbers
      * that essentially contain same values in same order
@@ -199,7 +199,7 @@ public class TestArrayConversions
             double value1 = n1.longValue();
             double value2 = n2.longValue();
             assertEquals("Entry #"+i+"/"+size+" not equal", value1, value2);
-        }        
+        }
     }
 
     private void verifyDoubleArrays(Object inputArray, Object outputArray, int size)

@@ -67,7 +67,7 @@ public abstract class DeserializationContext
     /* Configuration, immutable
     /**********************************************************
      */
-    
+
     /**
      * Object that handle details of {@link JsonDeserializer} caching.
      */
@@ -114,13 +114,13 @@ public abstract class DeserializationContext
      * when content is buffered.
      */
     protected transient JsonParser _parser;
-    
+
     /**
      * Object used for resolving references to injectable
      * values.
      */
     protected final InjectableValues _injectableValues;
-    
+
     /*
     /**********************************************************
     /* Per-operation reusable helper objects (not for blueprints)
@@ -135,7 +135,7 @@ public abstract class DeserializationContext
 
     /**
      * Lazily-constructed holder for per-call attributes.
-     * 
+     *
      * @since 2.3
      */
     protected transient ContextAttributes _attributes;
@@ -148,7 +148,7 @@ public abstract class DeserializationContext
      * @since 2.5
      */
     protected LinkedNode<JavaType> _currentType;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -158,7 +158,7 @@ public abstract class DeserializationContext
     protected DeserializationContext(DeserializerFactory df) {
         this(df, null);
     }
-    
+
     protected DeserializationContext(DeserializerFactory df,
             DeserializerCache cache)
     {
@@ -167,7 +167,7 @@ public abstract class DeserializationContext
         }
         _factory = df;
         _cache = (cache == null) ? new DeserializerCache() : cache;
-        
+
         _featureFlags = 0;
         _config = null;
         _injectableValues = null;
@@ -180,7 +180,7 @@ public abstract class DeserializationContext
     {
         _cache = src._cache;
         _factory = factory;
-        
+
         _config = src._config;
         _featureFlags = src._featureFlags;
         _view = src._view;
@@ -198,7 +198,7 @@ public abstract class DeserializationContext
     {
         _cache = src._cache;
         _factory = src._factory;
-        
+
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
         _view = config.getActiveView();
@@ -219,7 +219,7 @@ public abstract class DeserializationContext
         _view = src._view;
         _injectableValues = null;
     }
-    
+
     /*
     /**********************************************************
     /* DatabindContext implementation
@@ -304,7 +304,7 @@ public abstract class DeserializationContext
      * do not get passed (or do not retain) type information when being
      * constructed: happens for example for deserializers constructed
      * from annotations.
-     * 
+     *
      * @since 2.5
      *
      * @return Type of {@link ContextualDeserializer} being contextualized,
@@ -326,7 +326,7 @@ public abstract class DeserializationContext
     public DeserializerFactory getFactory() {
         return _factory;
     }
-    
+
     /**
      * Convenience method for checking whether specified on/off
      * feature is enabled
@@ -347,11 +347,11 @@ public abstract class DeserializationContext
     public final int getDeserializationFeatures() {
         return _featureFlags;
     }
-    
+
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.
-     * 
+     *
      * @since 2.3
      */
     public final boolean hasDeserializationFeatures(int featureMask) {
@@ -361,13 +361,13 @@ public abstract class DeserializationContext
     /**
      * Bulk access method for checking that at least one of features specified by
      * mask is enabled.
-     * 
+     *
      * @since 2.6
      */
     public final boolean hasSomeOfFeatures(int featureMask) {
         return (_featureFlags & featureMask) != 0;
     }
-    
+
     /**
      * Method for accessing the currently active parser.
      * May be different from the outermost parser
@@ -437,7 +437,7 @@ public abstract class DeserializationContext
         }
         return false;
     }
-    
+
     /**
      * Method for finding a value deserializer, and creating a contextual
      * version if necessary, for value reached via specified property.
@@ -471,7 +471,7 @@ public abstract class DeserializationContext
     {
         return _cache.findValueDeserializer(this, _factory, type);
     }
-    
+
     /**
      * Method for finding a deserializer for root-level value.
      */
@@ -510,7 +510,7 @@ public abstract class DeserializationContext
         }
         return kd;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, ObjectId handling
@@ -526,7 +526,7 @@ public abstract class DeserializationContext
     /**
      * Method called to ensure that every object id encounter during processing
      * are resolved.
-     * 
+     *
      * @throws UnresolvedForwardReference
      */
     public abstract void checkUnresolvedObjectId()
@@ -537,7 +537,7 @@ public abstract class DeserializationContext
     /* Public API, type handling
     /**********************************************************
      */
-    
+
     /**
      * Convenience method, functionally equivalent to:
      *<pre>
@@ -588,7 +588,7 @@ public abstract class DeserializationContext
     /**
      * Method to call to return object buffer previously leased with
      * {@link #leaseObjectBuffer}.
-     * 
+     *
      * @param buf Returned object buffer
      */
     public final void returnObjectBuffer(ObjectBuffer buf)
@@ -641,9 +641,9 @@ public abstract class DeserializationContext
      * directly created to deserialize values of a POJO property),
      * to handle details of resolving
      * {@link ContextualDeserializer} with given property context.
-     * 
+     *
      * @param prop Property for which the given primary deserializer is used; never null.
-     * 
+     *
      * @since 2.5
      */
     public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
@@ -651,7 +651,7 @@ public abstract class DeserializationContext
         throws JsonMappingException
     {
         if (deser instanceof ContextualDeserializer) {
-            _currentType = new LinkedNode<JavaType>(type, _currentType);
+            _currentType = new LinkedNode<>(type, _currentType);
             try {
                 deser = ((ContextualDeserializer) deser).createContextual(this, prop);
             } finally {
@@ -671,10 +671,10 @@ public abstract class DeserializationContext
      * Given that these deserializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
-     * 
+     *
      * @param prop Property for which deserializer is used, if any; null
      *    when deserializing root values
-     * 
+     *
      * @since 2.5
      */
     public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
@@ -682,7 +682,7 @@ public abstract class DeserializationContext
         throws JsonMappingException
     {
         if (deser instanceof ContextualDeserializer) {
-            _currentType = new LinkedNode<JavaType>(type, _currentType);
+            _currentType = new LinkedNode<>(type, _currentType);
             try {
                 deser = ((ContextualDeserializer) deser).createContextual(this, prop);
             } finally {
@@ -757,7 +757,7 @@ public abstract class DeserializationContext
      * NOTE: when deserializing values of properties contained in composite types,
      * rather use {@link #readPropertyValue(JsonParser, BeanProperty, Class)};
      * this method does not allow use of contextual annotations.
-     * 
+     *
      * @since 2.4
      */
     public <T> T readValue(JsonParser p, Class<T> type) throws IOException {
@@ -782,7 +782,7 @@ public abstract class DeserializationContext
      * for reading one-off values for the composite type, taking into account
      * annotations that the property (passed to this method -- usually property that
      * has custom serializer that called this method) has.
-     * 
+     *
      * @since 2.4
      */
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, Class<T> type) throws IOException {
@@ -815,7 +815,7 @@ public abstract class DeserializationContext
      * property (and once that is not explicitly designed as ignorable), to
      * inform possibly configured {@link DeserializationProblemHandler}s and
      * let it handle the problem.
-     * 
+     *
      * @return True if there was a configured problem handler that was able to handle the
      *   problem
      */
@@ -858,7 +858,7 @@ public abstract class DeserializationContext
      * @return Key value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
+     *
      * @since 2.8
      */
     public Object handleWeirdKey(Class<?> keyClass, String keyValue,
@@ -904,7 +904,7 @@ public abstract class DeserializationContext
      * @return Property value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
+     *
      * @since 2.8
      */
     public Object handleWeirdStringValue(Class<?> targetClass, String value,
@@ -950,7 +950,7 @@ public abstract class DeserializationContext
      * @return Property value to use
      *
      * @throws IOException To indicate unrecoverable problem, usually based on <code>msg</code>
-     * 
+     *
      * @since 2.8
      */
     public Object handleWeirdNumberValue(Class<?> targetClass, Number value,
@@ -1068,7 +1068,7 @@ public abstract class DeserializationContext
      * can not handle). This could occur, for example, if a Number deserializer
      * encounter {@link JsonToken#START_ARRAY} instead of
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
-     * 
+     *
      * @param instClass Type that was to be instantiated
      * @param p Parser that points to the JSON value to decode
      *
@@ -1081,14 +1081,14 @@ public abstract class DeserializationContext
     {
         return handleUnexpectedToken(instClass, p.getCurrentToken(), p, null);
     }
-    
+
     /**
      * Method that deserializers should call if the first token of the value to
      * deserialize is of unexpected type (that is, type of token that deserializer
      * can not handle). This could occur, for example, if a Number deserializer
      * encounter {@link JsonToken#START_ARRAY} instead of
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
-     * 
+     *
      * @param instClass Type that was to be instantiated
      * @param p Parser that points to the JSON value to decode
      *
@@ -1186,13 +1186,13 @@ public abstract class DeserializationContext
      */
 
     /**
-     * Method for deserializers to call 
+     * Method for deserializers to call
      * when the token encountered was of type different than what <b>should</b>
      * be seen at that position, usually within a sequence of expected tokens.
      * Note that this method will throw a {@link JsonMappingException} and no
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
-     * 
+     *
      * @since 2.8
      */
     public void reportWrongTokenException(JsonParser p,
@@ -1204,10 +1204,10 @@ public abstract class DeserializationContext
         }
         throw wrongTokenException(p, expToken, msg);
     }
-    
+
     /**
      * Helper method for reporting a problem with unhandled unknown property.
-     * 
+     *
      * @param instanceOrClass Either value being populated (if one has been
      *   instantiated), or Class that indicates type that would be (or
      *   have been) instantiated
@@ -1299,7 +1299,7 @@ public abstract class DeserializationContext
     /* is not considered possible: POJO definition problems
     /**********************************************************
      */
-    
+
     /**
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
@@ -1390,11 +1390,11 @@ public abstract class DeserializationContext
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleWeirdStringValue} should be called which will call this method
      * if necessary.
-     * 
+     *
      * @param value String value from input being deserialized
      * @param instClass Type that String should be deserialized into
      * @param msg Message that describes specific problem
-     * 
+     *
      * @since 2.1
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass,
@@ -1515,13 +1515,13 @@ public abstract class DeserializationContext
     /* ones.
     /**********************************************************
      */
-    
+
     /**
      * Fallback method that may be called if no other <code>reportXxx</code>
      * is applicable -- but only in that case.
      *
      * @since 2.8
-     * 
+     *
      * @deprecate Since 2.9: use a more specific method, or {@link #reportBadDefinition(JavaType, String)},
      *    or {@link #reportInputMismatch(String, Object...)} instead
      */
@@ -1541,9 +1541,9 @@ public abstract class DeserializationContext
      * Note that application code should almost always call
      * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
      * instead.
-     * 
+     *
      * @since 2.6
-     * 
+     *
      * @deprecated Since 2.9 use more specific error reporting methods instead
      */
     @Deprecated
@@ -1557,7 +1557,7 @@ public abstract class DeserializationContext
      * Note that application code should almost always call
      * one of <code>handleXxx</code> methods, or {@link #reportMappingException(String, Object...)}
      * instead.
-     * 
+     *
      * @since 2.6
      *
      * @deprecated Since 2.9 use more specific error reporting methods instead
@@ -1572,7 +1572,7 @@ public abstract class DeserializationContext
 
     /**
      * Helper method for constructing generic mapping exception for specified type
-     * 
+     *
      * @deprecated Since 2.8 use {@link #handleUnexpectedToken(Class, JsonParser)} instead
      */
     @Deprecated

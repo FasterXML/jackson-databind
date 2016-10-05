@@ -27,14 +27,14 @@ public class TestMapFiltering extends BaseMapTest
 
     @JsonFilter("filterForMaps")
     static class FilteredBean extends LinkedHashMap<String,Integer> { }
-    
+
     static class MapBean {
         @JsonFilter("filterX")
         @CustomOffset(1)
         public Map<String,Integer> values;
-        
+
         public MapBean() {
-            values = new LinkedHashMap<String,Integer>();
+            values = new LinkedHashMap<>();
             values.put("a", 1);
             values.put("b", 5);
             values.put("c", 9);
@@ -71,7 +71,7 @@ public class TestMapFiltering extends BaseMapTest
         public void depositSchemaProperty(PropertyWriter writer,
                 ObjectNode propertiesNode, SerializerProvider provider)
                 throws JsonMappingException {
-            
+
         }
 
         @Override
@@ -84,8 +84,8 @@ public class TestMapFiltering extends BaseMapTest
     // [databind#527]
     static class NoNullValuesMapContainer {
         @JsonInclude(content=JsonInclude.Include.NON_NULL)
-        public Map<String,String> stuff = new LinkedHashMap<String,String>();
-        
+        public Map<String,String> stuff = new LinkedHashMap<>();
+
         public NoNullValuesMapContainer add(String key, String value) {
             stuff.put(key, value);
             return this;
@@ -105,7 +105,7 @@ public class TestMapFiltering extends BaseMapTest
     @JsonInclude(content=JsonInclude.Include.NON_ABSENT)
     static class NoAbsentStringMap extends LinkedHashMap<String, AtomicReference<?>> {
         public NoAbsentStringMap add(String key, Object value) {
-            put(key, new AtomicReference<Object>(value));
+            put(key, new AtomicReference<>(value));
             return this;
         }
     }
@@ -142,7 +142,7 @@ public class TestMapFiltering extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testMapFilteringViaProps() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
@@ -171,7 +171,7 @@ public class TestMapFiltering extends BaseMapTest
             .add("c", "bar"));
         assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
     }
-    
+
     // [databind#522]
     public void testMapFilteringWithAnnotations() throws Exception
     {
@@ -216,13 +216,13 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapNullSerialization() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String,String> map = new HashMap<>();
         map.put("a", null);
         // by default, should output null-valued entries:
         assertEquals("{\"a\":null}", m.writeValueAsString(map));
         // but not if explicitly asked not to (note: config value is dynamic here)
 
-        m = new ObjectMapper();        
+        m = new ObjectMapper();
         m.disable(SerializationFeature.WRITE_NULL_MAP_VALUES);
         assertEquals("{}", m.writeValueAsString(map));
     }

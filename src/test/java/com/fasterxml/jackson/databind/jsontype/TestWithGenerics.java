@@ -18,7 +18,7 @@ public class TestWithGenerics extends BaseMapTest
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy") })
     static abstract class Animal {
         public String name;
-    }    
+    }
 
     static class Dog extends Animal {
         public int boneCount;
@@ -43,16 +43,16 @@ public class TestWithGenerics extends BaseMapTest
 
         public ContainerWithField(T a) { animal = a; }
     }
-    
+
     static class WrappedContainerWithField {
         public ContainerWithField<?> animalContainer;
     }
 
 	// Beans for [JACKSON-387], [JACKSON-430]
-    
+
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@classAttr1")
     static class MyClass {
-        public List<MyParam<?>> params = new ArrayList<MyParam<?>>();
+        public List<MyParam<?>> params = new ArrayList<>();
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@classAttr2")
@@ -66,26 +66,26 @@ public class TestWithGenerics extends BaseMapTest
     static class SomeObject {
         public String someValue = UUID.randomUUID().toString();
     }
-    
+
     // Beans for [JACKSON-430]
-    
+
     static class CustomJsonSerializer extends JsonSerializer<Object>
         implements ResolvableSerializer
     {
         private final JsonSerializer<Object> beanSerializer;
-    
+
         public CustomJsonSerializer( JsonSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
-    
+
         @Override
         public void serialize( Object value, JsonGenerator jgen, SerializerProvider provider )
             throws IOException, JsonProcessingException
         {
             beanSerializer.serialize( value, jgen, provider );
         }
-    
+
         @Override
         public Class<Object> handledType() { return beanSerializer.handledType(); }
-    
+
         @Override
         public void serializeWithType( Object value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer )
             throws IOException, JsonProcessingException
@@ -101,7 +101,7 @@ public class TestWithGenerics extends BaseMapTest
             }
         }
     }
-    
+
     @SuppressWarnings("serial")
     protected static class CustomJsonSerializerFactory extends BeanSerializerFactory
     {
@@ -111,7 +111,7 @@ public class TestWithGenerics extends BaseMapTest
         protected JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
                 BeanDescription beanDesc)
             throws JsonMappingException
-        {                
+        {
             return new CustomJsonSerializer(super.constructBeanSerializer(prov, beanDesc) );
         }
     }
@@ -119,13 +119,13 @@ public class TestWithGenerics extends BaseMapTest
     // [Issue#543]
     static class ContainerWithTwoAnimals<U extends Animal,V extends Animal> extends ContainerWithField<U> {
          public V otherAnimal;
-        
+
          public ContainerWithTwoAnimals(U a1, V a2) {
               super(a1);
               otherAnimal = a2;
          }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -151,7 +151,7 @@ public class TestWithGenerics extends BaseMapTest
             fail("polymorphic type not kept, result == "+json+"; should contain 'object-type':'...'");
         }
     }
-    
+
     public void testWrapperWithExplicitType() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -161,7 +161,7 @@ public class TestWithGenerics extends BaseMapTest
             fail("polymorphic type not kept, result == "+json+"; should contain 'object-type':'...'");
         }
     }
-    
+
     public void testJackson387() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
@@ -171,18 +171,18 @@ public class TestWithGenerics extends BaseMapTest
 
         MyClass mc = new MyClass();
 
-        MyParam<Integer> moc1 = new MyParam<Integer>(1);
-        MyParam<String> moc2 = new MyParam<String>("valueX");
+        MyParam<Integer> moc1 = new MyParam<>(1);
+        MyParam<String> moc2 = new MyParam<>("valueX");
 
         SomeObject so = new SomeObject();
-        so.someValue = "xxxxxx"; 
-        MyParam<SomeObject> moc3 = new MyParam<SomeObject>(so);
+        so.someValue = "xxxxxx";
+        MyParam<SomeObject> moc3 = new MyParam<>(so);
 
-        List<SomeObject> colist = new ArrayList<SomeObject>();
+        List<SomeObject> colist = new ArrayList<>();
         colist.add( new SomeObject() );
         colist.add( new SomeObject() );
         colist.add( new SomeObject() );
-        MyParam<List<SomeObject>> moc4 = new MyParam<List<SomeObject>>(colist);
+        MyParam<List<SomeObject>> moc4 = new MyParam<>(colist);
 
         mc.params.add( moc1 );
         mc.params.add( moc2 );
@@ -190,7 +190,7 @@ public class TestWithGenerics extends BaseMapTest
         mc.params.add( moc4 );
 
         String json = om.writeValueAsString( mc );
-        
+
         MyClass mc2 = om.readValue(json, MyClass.class );
         assertNotNull(mc2);
         assertNotNull(mc2.params);
@@ -203,11 +203,11 @@ public class TestWithGenerics extends BaseMapTest
 //        om.getSerializationConfig().setSerializationInclusion( Inclusion.NON_NULL );
         om.setSerializerFactory( new CustomJsonSerializerFactory() );
         MyClass mc = new MyClass();
-        mc.params.add(new MyParam<Integer>(1));
+        mc.params.add(new MyParam<>(1));
 
         String str = om.writeValueAsString( mc );
 //        System.out.println( str );
-        
+
         MyClass mc2 = om.readValue( str, MyClass.class );
         assertNotNull(mc2);
         assertNotNull(mc2.params);
@@ -218,7 +218,7 @@ public class TestWithGenerics extends BaseMapTest
     public void testValueWithMoreGenericParameters() throws Exception
     {
         WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();
-        wrappedContainerWithField.animalContainer = new ContainerWithTwoAnimals<Dog,Dog>(new Dog("d1",1), new Dog("d2",2));
+        wrappedContainerWithField.animalContainer = new ContainerWithTwoAnimals<>(new Dog("d1", 1), new Dog("d2", 2));
         String json = MAPPER.writeValueAsString(wrappedContainerWithField);
         assertNotNull(json);
     }

@@ -26,13 +26,13 @@ public class RawValueTest
     final static class ClassGetter<T>
     {
         protected final T _value;
-    	
+
         protected ClassGetter(T value) { _value = value;}
- 
+
         public T getNonRaw() { return _value; }
 
         @JsonProperty("raw") @JsonRawValue public T foobar() { return _value; }
-        
+
         @JsonProperty @JsonRawValue protected T value() { return _value; }
     }
 
@@ -54,11 +54,11 @@ public class RawValueTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testSimpleStringGetter() throws Exception
     {
         String value = "abc";
-        String result = MAPPER.writeValueAsString(new ClassGetter<String>(value));
+        String result = MAPPER.writeValueAsString(new ClassGetter<>(value));
         String expected = String.format("{\"nonRaw\":\"%s\",\"raw\":%s,\"value\":%s}", value, value, value);
         assertEquals(expected, result);
     }
@@ -66,7 +66,7 @@ public class RawValueTest
     public void testSimpleNonStringGetter() throws Exception
     {
         int value = 123;
-        String result = MAPPER.writeValueAsString(new ClassGetter<Integer>(value));
+        String result = MAPPER.writeValueAsString(new ClassGetter<>(value));
         String expected = String.format("{\"nonRaw\":%d,\"raw\":%d,\"value\":%d}", value, value, value);
         assertEquals(expected, result);
     }
@@ -90,7 +90,7 @@ public class RawValueTest
     {
         RawValue myType = new RawValue("Jackson");
 
-        Map<String, Object> object = new HashMap<String, Object>();
+        Map<String, Object> object = new HashMap<>();
         object.put("key", myType);
         JsonNode jsonNode = MAPPER.valueToTree(object);
         String json = MAPPER.writeValueAsString(jsonNode);

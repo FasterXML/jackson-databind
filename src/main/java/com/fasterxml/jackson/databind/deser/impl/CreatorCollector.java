@@ -45,7 +45,7 @@ public class CreatorCollector {
 
     /**
      * Set of creators we have collected so far
-     * 
+     *
      * @since 2.5
      */
     protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[9];
@@ -54,7 +54,7 @@ public class CreatorCollector {
      * Bitmask of creators that were explicitly marked as creators; false for
      * auto-detected (ones included base on naming and/or visibility, not
      * annotation)
-     * 
+     *
      * @since 2.5
      */
     protected int _explicitCreators = 0;
@@ -123,7 +123,7 @@ public class CreatorCollector {
      * or factory method that is called to instantiate a value before populating
      * it with data. Default creator is only used if no other creators are
      * indicated.
-     * 
+     *
      * @param creator
      *            Creator method; no-arguments constructor or static factory
      *            method.
@@ -171,7 +171,7 @@ public class CreatorCollector {
         verifyNonDup(creator, C_PROPS, explicit);
         // Better ensure we have no duplicate names either...
         if (properties.length > 1) {
-            HashMap<String, Integer> names = new HashMap<String, Integer>();
+            HashMap<String, Integer> names = new HashMap<>();
             for (int i = 0, len = properties.length; i < len; ++i) {
                 String name = properties[i].getName();
                 // Need to consider Injectables, which may not have
@@ -381,7 +381,7 @@ public class CreatorCollector {
         protected final Object _construct() {
             switch (_type) {
             case TYPE_ARRAY_LIST:
-                return new ArrayList<Object>();
+                return new ArrayList<>();
             case TYPE_LINKED_HASH_MAP:
                 return new LinkedHashMap<String, Object>();
             case TYPE_HASH_MAP:

@@ -33,7 +33,7 @@ public class SimpleModule
 
     protected final String _name;
     protected final Version _version;
-    
+
     protected SimpleSerializers _serializers = null;
     protected SimpleDeserializers _deserializers = null;
 
@@ -69,7 +69,7 @@ public class SimpleModule
      * by target class, value being mix-in to apply.
      */
     protected HashMap<Class<?>, Class<?>> _mixins = null;
-    
+
     /**
      * Set of subtypes to register, if any.
      */
@@ -79,7 +79,7 @@ public class SimpleModule
      * @since 2.3
      */
     protected PropertyNamingStrategy _namingStrategy = null;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: creation
@@ -99,7 +99,7 @@ public class SimpleModule
                 : getClass().getName();
         _version = Version.unknownVersion();
     }
-    
+
     /**
      * Convenience constructor that will default version to
      * {@link Version#unknownVersion()}.
@@ -116,13 +116,13 @@ public class SimpleModule
         _name = version.getArtifactId();
         _version = version;
     }
-    
+
     /**
      * Constructor to use for actual reusable modules.
      * ObjectMapper may use name as identifier to notice attempts
      * for multiple registrations of the same module (although it
      * does not have to).
-     * 
+     *
      * @param name Unique name of the module
      * @param version Version of the module
      */
@@ -146,7 +146,7 @@ public class SimpleModule
             List<JsonSerializer<?>> serializers) {
         this(name, version, null, serializers);
     }
-    
+
     /**
      * @since 2.1
      */
@@ -176,7 +176,7 @@ public class SimpleModule
         }
         return super.getTypeId();
     }
-    
+
     /*
     /**********************************************************
     /* Simple setters to allow overriding
@@ -215,7 +215,7 @@ public class SimpleModule
      * Resets currently configured abstract type mappings
      */
     public void setAbstractTypes(SimpleAbstractTypeResolver atr) {
-        _abstractTypes = atr;        
+        _abstractTypes = atr;
     }
 
     /**
@@ -248,13 +248,13 @@ public class SimpleModule
         _namingStrategy = naming;
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration methods
     /**********************************************************
      */
-    
+
     public SimpleModule addSerializer(JsonSerializer<?> ser)
     {
         if (_serializers == null) {
@@ -263,7 +263,7 @@ public class SimpleModule
         _serializers.addSerializer(ser);
         return this;
     }
-    
+
     public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
         if (_serializers == null) {
@@ -281,7 +281,7 @@ public class SimpleModule
         _keySerializers.addSerializer(type, ser);
         return this;
     }
-    
+
     public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
     {
         if (_deserializers == null) {
@@ -340,7 +340,7 @@ public class SimpleModule
     public SimpleModule registerSubtypes(Class<?> ... subtypes)
     {
         if (_subtypes == null) {
-            _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
+            _subtypes = new LinkedHashSet<>(Math.max(16, subtypes.length));
         }
         for (Class<?> subtype : subtypes) {
             _subtypes.add(new NamedType(subtype));
@@ -356,14 +356,14 @@ public class SimpleModule
     public SimpleModule registerSubtypes(NamedType ... subtypes)
     {
         if (_subtypes == null) {
-            _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
+            _subtypes = new LinkedHashSet<>(Math.max(16, subtypes.length));
         }
         for (NamedType subtype : subtypes) {
             _subtypes.add(subtype);
         }
         return this;
     }
-    
+
     /**
      * Method for specifying that annotations define by <code>mixinClass</code>
      * should be "mixed in" with annotations that <code>targetType</code>
@@ -375,18 +375,18 @@ public class SimpleModule
     public SimpleModule setMixInAnnotation(Class<?> targetType, Class<?> mixinClass)
     {
         if (_mixins == null) {
-            _mixins = new HashMap<Class<?>, Class<?>>();
+            _mixins = new HashMap<>();
         }
         _mixins.put(targetType, mixinClass);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Module impl
     /**********************************************************
      */
-    
+
     @Override
     public String getModuleName() {
         return _name;
@@ -394,7 +394,7 @@ public class SimpleModule
 
     /**
      * Standard implementation handles registration of all configured
-     * customizations: it is important that sub-classes call this 
+     * customizations: it is important that sub-classes call this
      * implementation (usually before additional custom logic)
      * if they choose to override it; otherwise customizations
      * will not be registered.

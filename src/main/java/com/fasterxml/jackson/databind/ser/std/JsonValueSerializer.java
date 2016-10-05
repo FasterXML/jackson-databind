@@ -54,7 +54,7 @@ public class JsonValueSerializer
      * one would not normally be added.
      */
     protected final boolean _forceTypeInformation;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -66,7 +66,7 @@ public class JsonValueSerializer
      *    occurs if and only if the "value method" was annotated with
      *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
-     *    
+     *
      * @since 2.8 Earlier method took "raw" Method, but that does not work with access
      *    to information we need
      */
@@ -95,7 +95,7 @@ public class JsonValueSerializer
     private final static Class<Object> _notNullClass(Class<?> cls) {
         return (cls == null) ? Object.class : (Class<Object>) cls;
     }
-    
+
     public JsonValueSerializer withResolved(BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
@@ -105,7 +105,7 @@ public class JsonValueSerializer
         }
         return new JsonValueSerializer(this, property, ser, forceTypeInfo);
     }
-    
+
     /*
     /**********************************************************
     /* Post-processing
@@ -132,7 +132,7 @@ public class JsonValueSerializer
                 // false -> no need to cache
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
-                 *   to serializer factory at this point... 
+                 *   to serializer factory at this point...
                  */
                 // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
                 ser = provider.findPrimaryPropertySerializer(t, property);
@@ -150,13 +150,13 @@ public class JsonValueSerializer
         }
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Actual serialization
     /**********************************************************
      */
-    
+
     @Override
     public void serialize(Object bean, JsonGenerator gen, SerializerProvider prov) throws IOException
     {
@@ -171,7 +171,7 @@ public class JsonValueSerializer
                 Class<?> c = value.getClass();
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
-                 *   to serializer factory at this point... 
+                 *   to serializer factory at this point...
                  */
                 // let's cache it, may be needed soon again
                 ser = prov.findTypedValueSerializer(c, true, _property);
@@ -243,7 +243,7 @@ public class JsonValueSerializer
             throw JsonMappingException.wrapWithPath(t, bean, _accessorMethod.getName() + "()");
         }
     }
-    
+
     @SuppressWarnings("deprecation")
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
@@ -265,7 +265,7 @@ public class JsonValueSerializer
          *    So we will need to add special
          *    handling here (see https://github.com/FasterXML/jackson-module-jsonSchema/issues/57
          *    for details).
-         *    
+         *
          *    Note that meaning of JsonValue, then, is very different for Enums. Sigh.
          */
         final JavaType type = _accessorMethod.getType();
@@ -283,13 +283,13 @@ public class JsonValueSerializer
                 return;
             }
         }
-        ser.acceptJsonFormatVisitor(visitor, null); 
+        ser.acceptJsonFormatVisitor(visitor, null);
     }
 
     /**
      * Overridable helper method used for special case handling of schema information for
      * Enums.
-     * 
+     *
      * @return True if method handled callbacks; false if not; in latter case caller will
      *   send default callbacks
      *
@@ -302,7 +302,7 @@ public class JsonValueSerializer
         // Copied from EnumSerializer#acceptJsonFormatVisitor
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
         if (stringVisitor != null) {
-            Set<String> enums = new LinkedHashSet<String>();
+            Set<String> enums = new LinkedHashSet<>();
             for (Object en : enumType.getEnumConstants()) {
                 try {
                     // 21-Apr-2016, tatu: This is convoluted to the max, but essentially we

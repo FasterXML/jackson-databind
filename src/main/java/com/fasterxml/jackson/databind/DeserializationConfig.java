@@ -37,14 +37,14 @@ public final class DeserializationConfig
     /* Configured helper objects
     /**********************************************************
      */
-    
+
     /**
      * Linked list that contains all registered problem handlers.
      * Implementation as front-added linked list allows for sharing
      * of the list (tail) without copying the list.
      */
     protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
-    
+
     /**
      * Factory used for constructing {@link com.fasterxml.jackson.databind.JsonNode} instances.
      */
@@ -52,7 +52,7 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************
-    /* Deserialization features 
+    /* Deserialization features
     /**********************************************************
      */
 
@@ -60,13 +60,13 @@ public final class DeserializationConfig
      * Set of {@link DeserializationFeature}s enabled.
      */
     protected final int _deserFeatures;
-    
+
     /*
     /**********************************************************
     /* Parser features: generic, format-specific
     /**********************************************************
      */
-    
+
     /**
      * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
      */
@@ -122,7 +122,7 @@ public final class DeserializationConfig
             SimpleMixInResolver mixins, RootNameLookup rootNames) {
         this(base, str, mixins, rootNames, null);
     }
-    
+
     private DeserializationConfig(DeserializationConfig src,
             int mapperFeatures, int deserFeatures,
             int parserFeatures, int parserFeatureMask,
@@ -137,7 +137,7 @@ public final class DeserializationConfig
         _formatReadFeatures = formatFeatures;
         _formatReadFeaturesToChange = formatFeatureMask;
     }
-    
+
     /**
      * Copy constructor used to create a non-shared instance with given mix-in
      * annotation definitions and subtype resolver.
@@ -165,7 +165,7 @@ public final class DeserializationConfig
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
     }
-    
+
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
     {
         super(src);
@@ -265,7 +265,7 @@ public final class DeserializationConfig
     /* Life-cycle, factory methods from MapperConfig
     /**********************************************************
      */
-    
+
     @Override
     public DeserializationConfig with(MapperFeature... features)
     {
@@ -277,7 +277,7 @@ public final class DeserializationConfig
             new DeserializationConfig(this, newMapperFlags, _deserFeatures,
                     _parserFeatures, _parserFeaturesToChange,
                     _formatReadFeatures, _formatReadFeaturesToChange);
-                    
+
     }
 
     @Override
@@ -327,7 +327,7 @@ public final class DeserializationConfig
     public DeserializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
         return _withBase( _base.withVisibility(forMethod, visibility));
     }
-    
+
     @Override
     public DeserializationConfig with(TypeResolverBuilder<?> trb) {
         return _withBase(_base.withTypeResolverBuilder(trb));
@@ -337,7 +337,7 @@ public final class DeserializationConfig
     public DeserializationConfig with(SubtypeResolver str) {
         return (_subtypeResolver == str) ? this : new DeserializationConfig(this, str);
     }
-    
+
     @Override
     public DeserializationConfig with(PropertyNamingStrategy pns) {
         return _withBase(_base.withPropertyNamingStrategy(pns));
@@ -364,7 +364,7 @@ public final class DeserializationConfig
     public DeserializationConfig with(DateFormat df) {
         return _withBase(_base.withDateFormat(df));
     }
-    
+
     @Override
     public DeserializationConfig with(HandlerInstantiator hi) {
         return _withBase(_base.withHandlerInstantiator(hi));
@@ -404,7 +404,7 @@ public final class DeserializationConfig
     public DeserializationConfig with(ContextAttributes attrs) {
         return (attrs == _attributes) ? this : new DeserializationConfig(this, attrs);
     }
-    
+
     private final DeserializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
     }
@@ -460,7 +460,7 @@ public final class DeserializationConfig
                     _parserFeatures, _parserFeaturesToChange,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -549,7 +549,7 @@ public final class DeserializationConfig
                     newSet, newMask,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -629,7 +629,7 @@ public final class DeserializationConfig
                     _parserFeatures, _parserFeaturesToChange,
                     newSet, newMask);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -665,7 +665,7 @@ public final class DeserializationConfig
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     _parserFeatures, _parserFeaturesToChange,
                     newSet, newMask);
-    }    
+    }
 
     /*
     /**********************************************************
@@ -695,7 +695,7 @@ public final class DeserializationConfig
             return this;
         }
         return new DeserializationConfig(this,
-                new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers));
+                new LinkedNode<>(h, _problemHandlers));
     }
 
     /**
@@ -720,7 +720,7 @@ public final class DeserializationConfig
      * Method called by {@link ObjectMapper} and {@link ObjectReader}
      * to modify those {@link com.fasterxml.jackson.core.JsonParser.Feature} settings
      * that have been configured via this config instance.
-     * 
+     *
      * @since 2.5
      */
     public void initialize(JsonParser p) {
@@ -840,7 +840,7 @@ public final class DeserializationConfig
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.
-     * 
+     *
      * @since 2.3
      */
     public final boolean hasDeserializationFeatures(int featureMask) {
@@ -850,7 +850,7 @@ public final class DeserializationConfig
     /**
      * Bulk access method for checking that at least one of features specified by
      * mask is enabled.
-     * 
+     *
      * @since 2.6
      */
     public final boolean hasSomeOfFeatures(int featureMask) {
@@ -922,12 +922,12 @@ public final class DeserializationConfig
     /* Support for polymorphic type handling
     /**********************************************************
      */
-    
+
     /**
      * Helper method that is needed to properly handle polymorphic referenced
      * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
      * or various "optional" types.
-     * 
+     *
      * @since 2.4
      */
     public TypeDeserializer findTypeDeserializer(JavaType baseType)

@@ -19,7 +19,7 @@ public class NewSchemaTest extends BaseMapTest
 {
     enum TestEnum {
         A, B, C;
-        
+
         @Override
         public String toString() {
             return "ToString:"+name();
@@ -28,7 +28,7 @@ public class NewSchemaTest extends BaseMapTest
 
     enum TestEnumWithJsonValue {
         A, B, C;
-        
+
         @JsonValue
         public String forSerialize() {
             return "value-"+name();
@@ -56,7 +56,7 @@ public class NewSchemaTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     /* Silly little test for simply triggering traversal, without attempting to
@@ -67,10 +67,10 @@ public class NewSchemaTest extends BaseMapTest
     {
         MAPPER.acceptJsonFormatVisitor(POJO.class, new JsonFormatVisitorWrapper.Base());
     }
-    
+
     public void testSimpleEnum() throws Exception
     {
-        final Set<String> values = new TreeSet<String>();
+        final Set<String> values = new TreeSet<>();
         ObjectWriter w = MAPPER.writer(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
 
         w.acceptJsonFormatVisitor(TestEnum.class, new JsonFormatVisitorWrapper.Base() {
@@ -89,17 +89,17 @@ public class NewSchemaTest extends BaseMapTest
         });
 
         assertEquals(3, values.size());
-        TreeSet<String> exp = new TreeSet<String>(Arrays.asList(
-                        "ToString:A",
-                        "ToString:B",
-                        "ToString:C"
-                        ));
+        TreeSet<String> exp = new TreeSet<>(Arrays.asList(
+                "ToString:A",
+                "ToString:B",
+                "ToString:C"
+        ));
         assertEquals(exp, values);
     }
 
     public void testEnumWithJsonValue() throws Exception
     {
-        final Set<String> values = new TreeSet<String>();
+        final Set<String> values = new TreeSet<>();
         MAPPER.acceptJsonFormatVisitor(TestEnumWithJsonValue.class,
                 new JsonFormatVisitorWrapper.Base() {
             @Override
@@ -117,11 +117,11 @@ public class NewSchemaTest extends BaseMapTest
         });
 
         assertEquals(3, values.size());
-        TreeSet<String> exp = new TreeSet<String>(Arrays.asList(
-                        "value-A",
-                        "value-B",
-                        "value-C"
-                        ));
+        TreeSet<String> exp = new TreeSet<>(Arrays.asList(
+                "value-A",
+                "value-B",
+                "value-C"
+        ));
         assertEquals(exp, values);
     }
 
@@ -140,7 +140,7 @@ public class NewSchemaTest extends BaseMapTest
     public void testSimpleNumbers() throws Exception
     {
         final StringBuilder sb = new StringBuilder();
-        
+
         MAPPER.acceptJsonFormatVisitor(Numbers.class,
                 new JsonFormatVisitorWrapper.Base() {
             @Override

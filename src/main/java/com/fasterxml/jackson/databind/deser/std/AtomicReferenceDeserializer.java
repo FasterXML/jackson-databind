@@ -40,12 +40,12 @@ public class AtomicReferenceDeserializer
 
     @Override
     public AtomicReference<Object> getNullValue(DeserializationContext ctxt) {
-        return new AtomicReference<Object>();
+        return new AtomicReference<>();
     }
 
     @Override
     public AtomicReference<Object> referenceValue(Object contents) {
-        return new AtomicReference<Object>(contents);
+        return new AtomicReference<>(contents);
     }
 
     /*

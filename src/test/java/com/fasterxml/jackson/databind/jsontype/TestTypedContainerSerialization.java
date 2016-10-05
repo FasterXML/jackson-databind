@@ -104,7 +104,7 @@ public class TestTypedContainerSerialization
     /* Test methods
     /**********************************************************
      */
-	
+
     public void testPolymorphicWithContainer() throws Exception
     {
 		Dog dog = new Dog("medor");
@@ -114,7 +114,7 @@ public class TestTypedContainerSerialization
 		String s1 = mapper.writeValueAsString(c1);
 		Assert.assertTrue("polymorphic type info is kept (1)", s1
 				.indexOf("\"object-type\":\"doggy\"") >= 0);
-		Container2<Animal> c2 = new Container2<Animal>();
+		Container2<Animal> c2 = new Container2<>();
 		c2.setAnimal(dog);
 		String s2 = mapper.writeValueAsString(c2);
 		Assert.assertTrue("polymorphic type info is kept (2)", s2
@@ -123,7 +123,7 @@ public class TestTypedContainerSerialization
 
     public void testIssue329() throws Exception
     {
-            ArrayList<Animal> animals = new ArrayList<Animal>();
+            ArrayList<Animal> animals = new ArrayList<>();
             animals.add(new Dog("Spot"));
             JavaType rootType = TypeFactory.defaultInstance().constructParametrizedType(Iterator.class, Iterator.class, Animal.class);
             String json = mapper.writerFor(rootType).writeValueAsString(animals.iterator());
@@ -134,8 +134,8 @@ public class TestTypedContainerSerialization
 
     public void testIssue508() throws Exception
     {
-            List<List<Issue508A>> l = new ArrayList<List<Issue508A>>();
-            List<Issue508A> l2 = new ArrayList<Issue508A>();
+            List<List<Issue508A>> l = new ArrayList<>();
+            List<Issue508A> l2 = new ArrayList<>();
             l2.add(new Issue508A());
             l.add(l2);
             TypeReference<?> typeRef = new TypeReference<List<List<Issue508A>>>() {};

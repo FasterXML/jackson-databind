@@ -19,7 +19,7 @@ public class BeanDeserializer
     implements java.io.Serializable
 {
     /* TODOs for future versions:
-     * 
+     *
      * For 2.9?
      *
      * - New method in JsonDeserializer (deserializeNext()) to allow use of more
@@ -437,7 +437,7 @@ public class BeanDeserializer
                     BeanReferring referring = handleUnresolvedReference(ctxt,
                             prop, buffer, reference);
                     if (referrings == null) {
-                        referrings = new ArrayList<BeanReferring>();
+                        referrings = new ArrayList<>();
                     }
                     referrings.add(referring);
                 }
@@ -578,7 +578,7 @@ public class BeanDeserializer
         }
         return bean;
     }
-    
+
     /*
     /**********************************************************
     /* Handling for cases where we have "unwrapped" values

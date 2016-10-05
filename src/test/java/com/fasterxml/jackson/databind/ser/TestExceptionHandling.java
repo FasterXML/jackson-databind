@@ -58,7 +58,7 @@ public class TestExceptionHandling
              * a nested data struct...
              */
             Bean[] b = { new Bean() };
-            List<Bean[]> l = new ArrayList<Bean[]>();
+            List<Bean[]> l = new ArrayList<>();
             l.add(b);
             mapper.writeValue(sw, l);
             fail("Should have gotten an exception");
@@ -142,11 +142,11 @@ public class TestExceptionHandling
 
     Object createLongObject()
     {
-        List<Object> leaf = new ArrayList<Object>();
+        List<Object> leaf = new ArrayList<>();
         for (int i = 0; i < 256; ++i) {
             leaf.add(Integer.valueOf(i));
         }
-        List<Object> root = new ArrayList<Object>(256);
+        List<Object> root = new ArrayList<>(256);
         for (int i = 0; i < 256; ++i) {
             root.add(leaf);
         }

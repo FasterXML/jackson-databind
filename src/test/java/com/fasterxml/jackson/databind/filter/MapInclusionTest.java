@@ -12,7 +12,7 @@ public class MapInclusionTest extends BaseMapTest
     static class NoEmptiesMapContainer {
         @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
                 content=JsonInclude.Include.NON_EMPTY)
-        public Map<String,String> stuff = new LinkedHashMap<String,String>();
+        public Map<String,String> stuff = new LinkedHashMap<>();
 
         public NoEmptiesMapContainer add(String key, String value) {
             stuff.put(key, value);

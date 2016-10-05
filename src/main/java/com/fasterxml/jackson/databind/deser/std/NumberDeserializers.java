@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class NumberDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private final static HashSet<String> _classNames = new HashSet<>();
     static {
         // note: can skip primitive types; other ways to check them:
         Class<?>[] numberTypes = new Class<?>[] {
@@ -106,7 +106,7 @@ public class NumberDeserializers
         // should never occur
         throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
     }
-    
+
     /*
     /**********************************************************
     /* Then one intermediate base class for things that have
@@ -171,7 +171,7 @@ public class NumberDeserializers
         {
             super(cls, nvl);
         }
-        
+
         @Override
         public Boolean deserialize(JsonParser j, DeserializationContext ctxt) throws IOException
         {
@@ -197,7 +197,7 @@ public class NumberDeserializers
 
         final static ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
         final static ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
-        
+
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
             super(cls, nvl);
@@ -218,7 +218,7 @@ public class NumberDeserializers
 
         final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.TYPE, Short.valueOf((short)0));
         final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.class, null);
-        
+
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
             super(cls, nvl);
@@ -240,7 +240,7 @@ public class NumberDeserializers
 
         final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.TYPE, '\0');
         final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.class, null);
-        
+
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
             super(cls, nvl);
@@ -266,7 +266,7 @@ public class NumberDeserializers
                 // actually, empty should become null?
                 if (text.length() == 0) {
                     return (Character) getEmptyValue(ctxt);
-                }               
+                }
                 break;
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -291,7 +291,7 @@ public class NumberDeserializers
 
         final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, Integer.valueOf(0));
         final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
-        
+
         public IntegerDeserializer(Class<Integer> cls, Integer nvl) {
             super(cls, nvl);
         }
@@ -329,7 +329,7 @@ public class NumberDeserializers
 
         final static LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, Long.valueOf(0L));
         final static LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
-        
+
         public LongDeserializer(Class<Long> cls, Long nvl) {
             super(cls, nvl);
         }
@@ -337,7 +337,7 @@ public class NumberDeserializers
         // since 2.6, slightly faster lookups for this very common type
         @Override
         public boolean isCachable() { return true; }
-        
+
         @Override
         public Long deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
@@ -355,7 +355,7 @@ public class NumberDeserializers
 
         final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.TYPE, 0.f);
         final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
-        
+
         public FloatDeserializer(Class<Float> cls, Float nvl) {
             super(cls, nvl);
         }
@@ -375,7 +375,7 @@ public class NumberDeserializers
 
         final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.TYPE, 0.d);
         final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
-        
+
         public DoubleDeserializer(Class<Double> cls, Double nvl) {
             super(cls, nvl);
         }
@@ -411,7 +411,7 @@ public class NumberDeserializers
         extends StdScalarDeserializer<Object>
     {
         public final static NumberDeserializer instance = new NumberDeserializer();
-        
+
         public NumberDeserializer() {
             super(Number.class);
         }
@@ -434,7 +434,7 @@ public class NumberDeserializers
 
             case JsonTokenId.ID_STRING:
                 /* Textual values are more difficult... not parsing itself, but figuring
-                 * out 'minimal' type to use 
+                 * out 'minimal' type to use
                  */
                 String text = p.getText().trim();
                 if (text.length() == 0) {
@@ -574,14 +574,14 @@ public class NumberDeserializers
             return (BigInteger) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
-    
+
     @SuppressWarnings("serial")
     @JacksonStdImpl
     public static class BigDecimalDeserializer
         extends StdScalarDeserializer<BigDecimal>
     {
         public final static BigDecimalDeserializer instance = new BigDecimalDeserializer();
- 
+
         public BigDecimalDeserializer() { super(BigDecimal.class); }
 
         @Override

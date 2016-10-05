@@ -21,7 +21,7 @@ public class JsonIncludeTest
         public String getA() { return "a"; }
         public String getB() { return null; }
     }
-    
+
     @JsonInclude(JsonInclude.Include.ALWAYS) // just to ensure default
     static class NoNullsBean
     {
@@ -58,7 +58,7 @@ public class JsonIncludeTest
             this.z = z;
         }
     }
-    
+
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class MixedBean
     {
@@ -75,7 +75,7 @@ public class JsonIncludeTest
     // to ensure that default values work for collections as well
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     static class ListBean {
-        public List<String> strings = new ArrayList<String>();
+        public List<String> strings = new ArrayList<>();
     }
 
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -174,7 +174,7 @@ public class JsonIncludeTest
         String json = MAPPER.writeValueAsString(bean);
         assertEquals(aposToQuotes("{'x':1,'y':2}"), json);
     }
-    
+
     public void testMixedMethod() throws IOException
     {
         MixedBean bean = new MixedBean();
@@ -234,7 +234,7 @@ public class JsonIncludeTest
         assertEquals("{\"value\":1.25}", defMapper.writeValueAsString(new NonEmptyDouble(1.25)));
         assertEquals("{\"value\":0.0}", defMapper.writeValueAsString(new NonEmptyDouble(0.0)));
 
-        
+
         IntWrapper zero = new IntWrapper(0);
         assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
         assertEquals("{\"i\":0}", inclMapper.writeValueAsString(zero));
@@ -272,7 +272,7 @@ public class JsonIncludeTest
             this.second = second;
         }
     }
-    
+
     public void testIssue1351() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

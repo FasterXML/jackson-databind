@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 @SuppressWarnings("serial")
 public class DateDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private final static HashSet<String> _classNames = new HashSet<>();
     static {
         Class<?>[] numberTypes = new Class<?>[] {
             Calendar.class,
@@ -59,7 +59,7 @@ public class DateDeserializers
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Intermediate class for Date-based ones
@@ -80,7 +80,7 @@ public class DateDeserializers
          * Let's also keep format String for reference, to use for error messages
          */
         protected final String _formatString;
-        
+
         protected DateBasedDeserializer(Class<?> clz) {
             super(clz);
             _customFormat = null;
@@ -137,7 +137,7 @@ public class DateDeserializers
             }
             return this;
         }
-        
+
         @Override
         protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
             throws IOException
@@ -165,8 +165,8 @@ public class DateDeserializers
                     t = p.nextToken();
                     if (t != JsonToken.END_ARRAY) {
                         handleMissingEndArrayForSingle(p, ctxt);
-                    }            
-                    return parsed;            
+                    }
+                    return parsed;
                 }
             }
             return super._parseDate(p, ctxt);
@@ -187,7 +187,7 @@ public class DateDeserializers
          * used for instantiation.
          */
         protected final Class<? extends Calendar> _calendarClass;
-        
+
         public CalendarDeserializer() {
             super(Calendar.class);
             _calendarClass = null;
@@ -207,7 +207,7 @@ public class DateDeserializers
         protected CalendarDeserializer withDateFormat(DateFormat df, String formatString) {
             return new CalendarDeserializer(this, df, formatString);
         }
-        
+
         @Override
         public Calendar deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
@@ -219,7 +219,7 @@ public class DateDeserializers
                 return ctxt.constructCalendar(d);
             }
             try {
-                Calendar c = _calendarClass.newInstance();            
+                Calendar c = _calendarClass.newInstance();
                 c.setTimeInMillis(d.getTime());
                 TimeZone tz = ctxt.getTimeZone();
                 if (tz != null) {
@@ -253,7 +253,7 @@ public class DateDeserializers
         protected DateDeserializer withDateFormat(DateFormat df, String formatString) {
             return new DateDeserializer(this, df, formatString);
         }
-        
+
         @Override
         public java.util.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return _parseDate(jp, ctxt);
@@ -276,7 +276,7 @@ public class DateDeserializers
         protected SqlDateDeserializer withDateFormat(DateFormat df, String formatString) {
             return new SqlDateDeserializer(this, df, formatString);
         }
-        
+
         @Override
         public java.sql.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             Date d = _parseDate(jp, ctxt);
@@ -302,7 +302,7 @@ public class DateDeserializers
         protected TimestampDeserializer withDateFormat(DateFormat df, String formatString) {
             return new TimestampDeserializer(this, df, formatString);
         }
-        
+
         @Override
         public java.sql.Timestamp deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {

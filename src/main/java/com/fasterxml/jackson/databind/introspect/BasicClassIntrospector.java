@@ -24,10 +24,10 @@ public class BasicClassIntrospector
      * This is strictly performance optimization to reduce what is
      * usually one-time cost, but seems useful for some cases considering
      * simplicity.
-     * 
+     *
      * @since 2.4
      */
-    
+
     protected final static BasicBeanDescription STRING_DESC;
     static {
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(String.class, null);
@@ -61,16 +61,16 @@ public class BasicClassIntrospector
     /**
      * Looks like 'forClassAnnotations()' gets called so frequently that we
      * should consider caching to avoid some of the lookups.
-     * 
+     *
      * @since 2.5
      */
     protected final LRUMap<JavaType,BasicBeanDescription> _cachedFCA;
 
     public BasicClassIntrospector() {
         // a small cache should go a long way here
-        _cachedFCA = new LRUMap<JavaType,BasicBeanDescription>(16, 64);
+        _cachedFCA = new LRUMap<>(16, 64);
     }
-    
+
     /*
     /**********************************************************
     /* Factory method impls
@@ -129,7 +129,7 @@ public class BasicClassIntrospector
         _cachedFCA.putIfAbsent(type, desc);
         return desc;
     }
-    
+
     @Override
     public BasicBeanDescription forCreation(DeserializationConfig cfg,
             JavaType type, MixInResolver r)
@@ -176,7 +176,7 @@ public class BasicClassIntrospector
         }
         return desc;
     }
-    
+
     /*
     /**********************************************************
     /* Overridable helper methods
@@ -190,7 +190,7 @@ public class BasicClassIntrospector
         AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }
-    
+
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
@@ -211,7 +211,7 @@ public class BasicClassIntrospector
     {
         return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
     }
-    
+
     /**
      * Method called to see if type is one of core JDK types
      * that we have cached for efficiency.

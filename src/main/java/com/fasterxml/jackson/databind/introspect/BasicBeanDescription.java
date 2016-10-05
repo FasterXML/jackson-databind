@@ -39,11 +39,11 @@ public class BasicBeanDescription extends BeanDescription
      * are only accessed when they are actually needed.
      */
     final protected POJOPropertiesCollector _propCollector;
-    
+
     final protected MapperConfig<?> _config;
 
     final protected AnnotationIntrospector _annotationIntrospector;
-    
+
     /**
      * Information collected about the class introspected.
      */
@@ -105,7 +105,7 @@ public class BasicBeanDescription extends BeanDescription
         _classInfo = classDef;
         _properties = props;
     }
-    
+
     protected BasicBeanDescription(POJOPropertiesCollector coll)
     {
         this(coll, coll.getType(), coll.getClassDef());
@@ -157,7 +157,7 @@ public class BasicBeanDescription extends BeanDescription
      * Method that can be used to prune unwanted properties, during
      * construction of serializers and deserializers.
      * Use with utmost care, if at all...
-     * 
+     *
      * @since 2.1
      */
     public boolean removeProperty(String propName)
@@ -182,14 +182,14 @@ public class BasicBeanDescription extends BeanDescription
         _properties().add(def);
         return true;
     }
-    
+
     /**
      * @since 2.6
      */
     public boolean hasProperty(PropertyName name) {
         return findProperty(name) != null;
     }
-    
+
     /**
      * @since 2.6
      */
@@ -202,7 +202,7 @@ public class BasicBeanDescription extends BeanDescription
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Simple accessors from BeanDescription
@@ -365,7 +365,7 @@ public class BasicBeanDescription extends BeanDescription
         }
         return defValue;
     }
-    
+
     /*
     /**********************************************************
     /* Introspection for serialization
@@ -463,7 +463,7 @@ public class BasicBeanDescription extends BeanDescription
             AnnotationIntrospector.ReferenceProperty refDef = _annotationIntrospector.findReferenceType(am);
             if (refDef != null && refDef.isBackReference()) {
                 if (result == null) {
-                    result = new HashMap<String,AnnotatedMember>();
+                    result = new HashMap<>();
                 }
                 String refName = refDef.getName();
                 if (result.put(refName, am) != null) {
@@ -488,7 +488,7 @@ public class BasicBeanDescription extends BeanDescription
         if (candidates.isEmpty()) {
             return candidates;
         }
-        ArrayList<AnnotatedMethod> result = new ArrayList<AnnotatedMethod>();
+        ArrayList<AnnotatedMethod> result = new ArrayList<>();
         for (AnnotatedMethod am : candidates) {
             if (isFactoryMethod(am)) {
                 result.add(am);
@@ -641,7 +641,7 @@ public class BasicBeanDescription extends BeanDescription
     public LinkedHashMap<String,AnnotatedField> _findPropertyFields(
             Collection<String> ignoredProperties, boolean forSerialization)
     {
-        LinkedHashMap<String,AnnotatedField> results = new LinkedHashMap<String,AnnotatedField>();
+        LinkedHashMap<String,AnnotatedField> results = new LinkedHashMap<>();
         for (BeanPropertyDefinition property : _properties()) {
             AnnotatedField f = property.getField();
             if (f != null) {
@@ -662,7 +662,7 @@ public class BasicBeanDescription extends BeanDescription
     /* Helper methods, other
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     public Converter<Object,Object> _createConverter(Object converterDef)
     {

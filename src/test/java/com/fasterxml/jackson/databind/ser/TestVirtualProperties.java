@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
  * Tests for verifying that one can append virtual properties after regular ones.
- * 
+ *
  * @since 2.5
  */
 public class TestVirtualProperties extends BaseMapTest
@@ -82,7 +82,7 @@ public class TestVirtualProperties extends BaseMapTest
     {
         public int value = 72;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -93,7 +93,7 @@ public class TestVirtualProperties extends BaseMapTest
 
     public void testAttributeProperties() throws Exception
     {
-        Map<String,Object> stuff = new LinkedHashMap<String,Object>();
+        Map<String,Object> stuff = new LinkedHashMap<>();
         stuff.put("x", 3);
         stuff.put("y", ABC.B);
 

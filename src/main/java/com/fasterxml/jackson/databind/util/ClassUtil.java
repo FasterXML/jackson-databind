@@ -16,7 +16,7 @@ public final class ClassUtil
 
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     private final static Ctor[] NO_CTORS = new Ctor[0];
-    
+
     /*
     /**********************************************************
     /* Helper classes
@@ -32,7 +32,7 @@ public final class ClassUtil
         @Override public T next() { throw new NoSuchElementException(); }
         @Override public void remove() { throw new UnsupportedOperationException(); }
     }
-    
+
     private final static EmptyIterator<?> EMPTY_ITERATOR = new EmptyIterator<Object>();
 
     /*
@@ -76,7 +76,7 @@ public final class ClassUtil
         if ((type == null) || type.hasRawClass(endBefore) || type.hasRawClass(Object.class)) {
             return Collections.emptyList();
         }
-        List<JavaType> result = new ArrayList<JavaType>(8);
+        List<JavaType> result = new ArrayList<>(8);
         _addSuperTypes(type, endBefore, result, addClassItself);
         return result;
     }
@@ -88,7 +88,7 @@ public final class ClassUtil
         if ((cls == null) || (cls == endBefore) || (cls == Object.class)) {
             return Collections.emptyList();
         }
-        List<Class<?>> result = new ArrayList<Class<?>>(8);
+        List<Class<?>> result = new ArrayList<>(8);
         _addRawSuperTypes(cls, endBefore, result, addClassItself);
         return result;
     }
@@ -102,7 +102,7 @@ public final class ClassUtil
      */
     public static List<Class<?>> findSuperClasses(Class<?> cls, Class<?> endBefore,
             boolean addClassItself) {
-        List<Class<?>> result = new LinkedList<Class<?>>();
+        List<Class<?>> result = new LinkedList<>();
         if ((cls != null) && (cls != endBefore))  {
             if (addClassItself) {
                 result.add(cls);
@@ -191,7 +191,7 @@ public final class ClassUtil
         // Anything else? Seems valid, then
         return null;
     }
-    
+
     public static String isLocalType(Class<?> type, boolean allowNonStatic)
     {
         /* As per [JACKSON-187], GAE seems to throw SecurityExceptions
@@ -203,7 +203,7 @@ public final class ClassUtil
             if (hasEnclosingMethod(type)) {
                 return "local/anonymous";
             }
-            
+
             /* But how about non-static inner classes? Can't construct
              * easily (theoretically, we could try to check if parent
              * happens to be enclosing... but that gets convoluted)
@@ -238,8 +238,8 @@ public final class ClassUtil
         } catch (SecurityException e) { }
         return null;
     }
-    
-    
+
+
     /**
      * Helper method used to weed out dynamic Proxy types; types that do
      * not expose concrete method API that we could use to figure out
@@ -279,7 +279,7 @@ public final class ClassUtil
         int mod = member.getModifiers();
         return (mod & (Modifier.INTERFACE | Modifier.ABSTRACT)) == 0;
     }
-    
+
     public static boolean isCollectionMapOrArray(Class<?> type)
     {
         if (type.isArray()) return true;
@@ -293,7 +293,7 @@ public final class ClassUtil
     /* Type name handling methods
     /**********************************************************
      */
-    
+
     /**
      * Helper method used to construct appropriate description
      * when passed either type (Class) or an instance; in latter
@@ -336,7 +336,7 @@ public final class ClassUtil
         // Two-phase lookup: first using context ClassLoader; then default
         Throwable prob = null;
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        
+
         if (loader != null) {
             try {
                 return Class.forName(className, true, loader);
@@ -607,7 +607,7 @@ public final class ClassUtil
     /* Primitive type support
     /**********************************************************
      */
-    
+
     /**
      * Helper method used to get default value for wrappers used for primitive types
      * (0 for Integer etc)
@@ -685,7 +685,7 @@ public final class ClassUtil
         if (type.isPrimitive()) {
             return type;
         }
-        
+
         if (type == Integer.class) {
             return Integer.TYPE;
         }
@@ -736,7 +736,7 @@ public final class ClassUtil
      * Method that is called if a {@link Member} may need forced access,
      * to force a field, method or constructor to be accessible: this
      * is done by calling {@link AccessibleObject#setAccessible(boolean)}.
-     * 
+     *
      * @param member Accessor to call <code>setAccessible()</code> on.
      * @param force Whether to always try to make accessor accessible (true),
      *   or only if needed as per access rights (false)
@@ -753,7 +753,7 @@ public final class ClassUtil
          *   skipping checks we have no use for...), so let's always call it.
          */
         try {
-            if (force || 
+            if (force ||
                     (!Modifier.isPublic(member.getModifiers())
                             || !Modifier.isPublic(member.getDeclaringClass().getModifiers()))) {
                 ao.setAccessible(true);
@@ -873,7 +873,7 @@ public final class ClassUtil
     /* Jackson-specific stuff
     /**********************************************************
      */
-    
+
     /**
      * Method that can be called to determine if given Object is the default
      * implementation Jackson uses; as opposed to a custom serializer installed by
@@ -1024,7 +1024,7 @@ public final class ClassUtil
 
         private final Field enumSetTypeField;
         private final Field enumMapTypeField;
-    	
+
         private EnumTypeLocator() {
             //JDK uses following fields to store information about actual Enumeration
             // type for EnumSets, EnumMaps...
@@ -1049,7 +1049,7 @@ public final class ClassUtil
             }
             throw new IllegalStateException("Can not figure out type for EnumMap (odd JDK platform?)");
         }
-    	
+
         private Object get(Object bean, Field field)
         {
             try {
@@ -1058,7 +1058,7 @@ public final class ClassUtil
                 throw new IllegalArgumentException(e);
             }
         }
-    	
+
         private static Field locateField(Class<?> fromClass, String expectedName, Class<?> type)
         {
             Field found = null;
@@ -1108,9 +1108,9 @@ public final class ClassUtil
         private Annotation[] _annotations;
 
         private  Annotation[][] _paramAnnotations;
-        
+
         private int _paramCount = -1;
-        
+
         public Ctor(Constructor<?> ctor) {
             _ctor = ctor;
         }

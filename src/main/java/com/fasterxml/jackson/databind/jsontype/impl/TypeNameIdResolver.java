@@ -31,7 +31,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         _typeToId = typeToId;
         _idToType = idToType;
     }
- 
+
     public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
             Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
@@ -41,13 +41,13 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         Map<String, JavaType> idToType = null;
 
         if (forSer) {
-            typeToId = new HashMap<String, String>();
+            typeToId = new HashMap<>();
         }
         if (forDeser) {
-            idToType = new HashMap<String, JavaType>();
+            idToType = new HashMap<>();
             // 14-Apr-2016, tatu: Apparently needed for special case of `defaultImpl`;
             //    see [databind#1198] for details.
-            typeToId = new TreeMap<String, String>();
+            typeToId = new TreeMap<>();
         }
         if (subtypes != null) {
             for (NamedType t : subtypes) {
@@ -126,7 +126,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     public JavaType typeFromId(DatabindContext context, String id) {
         return _typeFromId(id);
     }
-    
+
     protected JavaType _typeFromId(String id) {
         /* Now: if no type is found, should we try to locate it by
          * some other means? (specifically, if in same package as base type,
@@ -134,11 +134,11 @@ public class TypeNameIdResolver extends TypeIdResolverBase
          * For now let's not add any such workarounds; can add if need be
          */
         return _idToType.get(id);
-    }    
+    }
 
     @Override
     public String getDescForKnownTypeIds() {
-        return new TreeSet<String>(_idToType.keySet()).toString();
+        return new TreeSet<>(_idToType.keySet()).toString();
     }
 
     @Override
@@ -151,7 +151,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     /* Helper methods
     /*********************************************************
      */
-    
+
     /**
      * If no name was explicitly given for a class, we will just
      * use non-qualified class name

@@ -40,7 +40,7 @@ public final class ClassStack
     public void addSelfReference(ResolvedRecursiveType ref)
     {
         if (_selfRefs == null) {
-            _selfRefs = new ArrayList<ResolvedRecursiveType>();
+            _selfRefs = new ArrayList<>();
         }
         _selfRefs.add(ref);
     }

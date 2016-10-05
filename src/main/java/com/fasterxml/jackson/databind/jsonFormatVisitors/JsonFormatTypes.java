@@ -16,18 +16,18 @@ public enum JsonFormatTypes
 	NULL,
 	ANY;
 
-	private static final Map<String,JsonFormatTypes> _byLCName = new HashMap<String,JsonFormatTypes>();
+	private static final Map<String,JsonFormatTypes> _byLCName = new HashMap<>();
 	static {
 	    for (JsonFormatTypes t : values()) {
 	        _byLCName.put(t.name().toLowerCase(), t);
 	    }
 	}
-	
+
 	@JsonValue
 	public String value() {
 		return name().toLowerCase();
 	}
-	
+
 	@JsonCreator
 	public static JsonFormatTypes forValue(String s) {
 		return _byLCName.get(s);

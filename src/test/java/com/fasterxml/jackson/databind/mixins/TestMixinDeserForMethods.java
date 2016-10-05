@@ -18,7 +18,7 @@ public class TestMixinDeserForMethods
 
     static class BaseClass
     {
-        protected HashMap<String,Object> values = new HashMap<String,Object>();
+        protected HashMap<String,Object> values = new HashMap<>();
 
         public BaseClass() { }
 

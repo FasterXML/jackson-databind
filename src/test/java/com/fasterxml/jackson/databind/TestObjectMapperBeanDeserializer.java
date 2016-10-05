@@ -201,7 +201,7 @@ public class TestObjectMapperBeanDeserializer
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testFromStringCtor() throws Exception
     {
         CtorValueBean result = MAPPER.readValue("\"abc\"", CtorValueBean.class);
@@ -283,7 +283,7 @@ public class TestObjectMapperBeanDeserializer
 
     public void testSimpleBean() throws Exception
     {
-        ArrayList<Object> misc = new ArrayList<Object>();
+        ArrayList<Object> misc = new ArrayList<>();
         misc.add("xyz");
         misc.add(42);
         misc.add(null);
@@ -300,7 +300,7 @@ public class TestObjectMapperBeanDeserializer
     public void testListBean() throws Exception
     {
         final int COUNT = 13;
-        ArrayList<CtorValueBean> beans = new ArrayList<CtorValueBean>();
+        ArrayList<CtorValueBean> beans = new ArrayList<>();
         for (int i = 0; i < COUNT; ++i) {
             beans.add(new CtorValueBean(i));
         }

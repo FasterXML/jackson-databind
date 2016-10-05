@@ -19,7 +19,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
     static class CustomBeanImpl extends CustomBean {
         public int x;
-        
+
         public CustomBeanImpl() { }
         public CustomBeanImpl(int x) { this.x = x; }
     }
@@ -45,16 +45,16 @@ public class TestCustomTypeIdResolver extends BaseMapTest
             }
         }
     }
-    
+
     static abstract class ExtBean { }
 
     static class ExtBeanImpl extends ExtBean {
         public int y;
-        
+
         public ExtBeanImpl() { }
         public ExtBeanImpl(int y) { this.y = y; }
     }
-    
+
     static class ExtResolver extends TestCustomResolverBase {
         public ExtResolver() {
             super(ExtBean.class, ExtBeanImpl.class);
@@ -128,7 +128,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
         @Override
         public void init(JavaType baseType) { }
-     
+
         @Override
         public String idFromValue(Object value) {
             if (value.getClass() == Base1270.class) {
@@ -177,14 +177,14 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
     public void testCustomTypeIdResolver() throws Exception
     {
-        List<JavaType> types = new ArrayList<JavaType>();
+        List<JavaType> types = new ArrayList<>();
         CustomResolver.initTypes = types;
         String json = MAPPER.writeValueAsString(new CustomBean[] { new CustomBeanImpl(28) });
         assertEquals("[{\"*\":{\"x\":28}}]", json);
         assertEquals(1, types.size());
         assertEquals(CustomBean.class, types.get(0).getRawClass());
 
-        types = new ArrayList<JavaType>();
+        types = new ArrayList<>();
         CustomResolver.initTypes = types;
         CustomBean[] result = MAPPER.readValue(json, CustomBean[].class);
         assertNotNull(result);
@@ -203,13 +203,13 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
         ExtBeanWrapper out = MAPPER.readValue(json, ExtBeanWrapper.class);
         assertNotNull(out);
-        
+
         assertEquals(12, ((ExtBeanImpl) out.value).y);
     }
 
     // for [databind#1270]
     public void testPolymorphicTypeViaCustom() throws Exception {
-        Base1270<Poly1> req = new Base1270<Poly1>();
+        Base1270<Poly1> req = new Base1270<>();
         Poly1 o = new Poly1();
         o.val = "optionValue";
         req.options = o;

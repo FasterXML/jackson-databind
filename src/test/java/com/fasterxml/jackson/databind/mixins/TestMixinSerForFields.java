@@ -49,7 +49,7 @@ public class TestMixinSerForFields
         // also: add a dummy field that is NOT to match anything
         @JsonProperty public String xyz;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -80,7 +80,7 @@ public class TestMixinSerForFields
     {
         ObjectMapper mapper = new ObjectMapper();
         // ordering here shouldn't matter really...
-        HashMap<Class<?>,Class<?>> mixins = new HashMap<Class<?>,Class<?>>();
+        HashMap<Class<?>,Class<?>> mixins = new HashMap<>();
         mixins.put(SubClass.class, MixIn.class);
         mixins.put(BaseClass.class, MixIn2.class);
         mapper.setMixIns(mixins);

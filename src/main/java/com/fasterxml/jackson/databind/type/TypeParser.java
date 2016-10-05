@@ -14,7 +14,7 @@ public class TypeParser
     private static final long serialVersionUID = 1L;
 
     protected final TypeFactory _factory;
-        
+
     public TypeParser(TypeFactory f) {
         _factory = f;
     }
@@ -63,7 +63,7 @@ public class TypeParser
     protected List<JavaType> parseTypes(MyTokenizer tokens)
         throws IllegalArgumentException
     {
-        ArrayList<JavaType> types = new ArrayList<JavaType>();
+        ArrayList<JavaType> types = new ArrayList<>();
         while (tokens.hasMoreTokens()) {
             types.add(parseType(tokens));
             if (!tokens.hasMoreTokens()) break;
@@ -102,8 +102,8 @@ public class TypeParser
         protected int _index;
 
         protected String _pushbackToken;
-        
-        public MyTokenizer(String str) {            
+
+        public MyTokenizer(String str) {
             super(str, "<,>", true);
             _input = str;
         }
@@ -112,7 +112,7 @@ public class TypeParser
         public boolean hasMoreTokens() {
             return (_pushbackToken != null) || super.hasMoreTokens();
         }
-        
+
         @Override
         public String nextToken() {
             String token;
@@ -130,7 +130,7 @@ public class TypeParser
             _pushbackToken = token;
             _index -= token.length();
         }
-        
+
         public String getAllInput() { return _input; }
         public String getUsedInput() { return _input.substring(0, _index); }
         public String getRemainingInput() { return _input.substring(_index); }

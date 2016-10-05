@@ -22,7 +22,7 @@ public class TestObjectId687 extends BaseMapTest
     static class ReferringToObjWithCreator {
         public String label = "test1";
 
-        public List<ReferredWithCreator> refs = new ArrayList<ReferredWithCreator>();
+        public List<ReferredWithCreator> refs = new ArrayList<>();
         public void addRef(ReferredWithCreator r) {
             refs.add(r);
         }
@@ -43,7 +43,7 @@ public class TestObjectId687 extends BaseMapTest
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class ReferringToObjWithNoCreator {
         public String label = "test2";
-        public List<ReferredWithNoCreator> refs = new ArrayList<ReferredWithNoCreator>();
+        public List<ReferredWithNoCreator> refs = new ArrayList<>();
         public void addRef(ReferredWithNoCreator r) {
             refs.add(r);
         }
@@ -63,7 +63,7 @@ public class TestObjectId687 extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testSerializeDeserializeWithCreator() throws IOException {
         ReferredWithCreator base = new ReferredWithCreator("label1");
         ReferringToObjWithCreator r = new ReferringToObjWithCreator();
@@ -90,5 +90,5 @@ public class TestObjectId687 extends BaseMapTest
 
         EnclosingForRefWithNoCreator deserialized = MAPPER.readValue(jsonStr, EnclosingForRefWithNoCreator.class);
         assertNotNull(deserialized);
-    }    
+    }
 }

@@ -23,7 +23,7 @@ public class TestKeySerializers extends BaseMapTest
 
     public static class NotKarlBean
     {
-        public Map<String,Integer> map = new HashMap<String,Integer>();
+        public Map<String,Integer> map = new HashMap<>();
         {
             map.put("Not Karl", 1);
         }
@@ -32,7 +32,7 @@ public class TestKeySerializers extends BaseMapTest
     public static class KarlBean
     {
         @JsonSerialize(keyUsing = KarlSerializer.class)
-        public Map<String,Integer> map = new HashMap<String,Integer>();
+        public Map<String,Integer> map = new HashMap<>();
         {
             map.put("Not Karl", 1);
         }
@@ -50,7 +50,7 @@ public class TestKeySerializers extends BaseMapTest
             return name().toLowerCase();
         }
     }
-    
+
     static class ABCKeySerializer extends JsonSerializer<ABC> {
         @Override
         public void serialize(ABC value, JsonGenerator gen,
@@ -67,7 +67,7 @@ public class TestKeySerializers extends BaseMapTest
     }
 
     static class ABCMapWrapper {
-        public Map<ABC,String> stuff = new HashMap<ABC,String>();
+        public Map<ABC,String> stuff = new HashMap<>();
         public ABCMapWrapper() {
             stuff.put(ABC.B, "bar");
         }
@@ -113,7 +113,7 @@ public class TestKeySerializers extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testNotKarl() throws IOException {
         final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
@@ -149,9 +149,9 @@ public class TestKeySerializers extends BaseMapTest
     }
 
     public void testCustomEnumInnerMapKey() throws Exception {
-        Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
-        Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
-        Map<String, String> innerMap = new HashMap<String, String>();
+        Map<Outer, Object> outerMap = new HashMap<>();
+        Map<ABC, Map<String, String>> map = new EnumMap<>(ABC.class);
+        Map<String, String> innerMap = new HashMap<>();
         innerMap.put("one", "1");
         map.put(ABC.A, innerMap);
         outerMap.put(Outer.inner, map);
@@ -182,7 +182,7 @@ public class TestKeySerializers extends BaseMapTest
         typer = typer.typeIdVisibility(true);
         mapper.setDefaultTyping(typer);
 
-        Map<ABC,String> stuff = new HashMap<ABC,String>();
+        Map<ABC,String> stuff = new HashMap<>();
         stuff.put(ABC.B, "bar");
         String json = mapper.writerFor(new TypeReference<Map<ABC, String>>() {})
                 .writeValueAsString(stuff);
@@ -201,8 +201,8 @@ public class TestKeySerializers extends BaseMapTest
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             ;
 
-        Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();
-        stuff.put(ABC.B, new BAR<String>("bar"));
+        Map<ABC,BAR<?>> stuff = new HashMap<>();
+        stuff.put(ABC.B, new BAR<>("bar"));
         String json = mapper.writerFor(new TypeReference<Map<ABC,BAR<?>>>() {})
                 .writeValueAsString(stuff);
         assertEquals("{\"xxxB\":\"bar\"}", json);
@@ -211,7 +211,7 @@ public class TestKeySerializers extends BaseMapTest
     // [databind#943]
     public void testDynamicMapKeys() throws Exception
     {
-        Map<Object,Integer> stuff = new LinkedHashMap<Object,Integer>();
+        Map<Object,Integer> stuff = new LinkedHashMap<>();
         stuff.put(AbcLC.B, Integer.valueOf(3));
         stuff.put(new UCString("foo"), Integer.valueOf(4));
         String json = MAPPER.writeValueAsString(stuff);

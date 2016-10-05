@@ -19,7 +19,7 @@ public abstract class BaseMapTest
     extends BaseTest
 {
     private final static Object SINGLETON_OBJECT = new Object();
-    
+
     /*
     /**********************************************************
     /* Shared helper classes
@@ -59,7 +59,7 @@ public abstract class BaseMapTest
         public DoubleWrapper() { }
         public DoubleWrapper(double value) { d = value; }
     }
-    
+
     /**
      * Simple wrapper around String type, usually to test value
      * conversions or wrapping
@@ -90,7 +90,7 @@ public abstract class BaseMapTest
         public List<T> list;
 
         public ListWrapper(@SuppressWarnings("unchecked") T... values) {
-            list = new ArrayList<T>();
+            list = new ArrayList<>();
             for (T value : values) {
                 list.add(value);
             }
@@ -105,7 +105,7 @@ public abstract class BaseMapTest
             map = m;
         }
     }
-    
+
     protected static class ArrayWrapper<T>
     {
         public T[] array;
@@ -114,7 +114,7 @@ public abstract class BaseMapTest
             array = v;
         }
     }
-    
+
     /**
      * Enumeration type with sub-classes per value.
      */
@@ -137,7 +137,7 @@ public abstract class BaseMapTest
             x = x0;
             y = y0;
         }
-    
+
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof Point)) {
@@ -188,7 +188,7 @@ public abstract class BaseMapTest
     /* Construction
     /**********************************************************
      */
-    
+
     protected BaseMapTest() { super(); }
 
     /*
@@ -205,7 +205,7 @@ public abstract class BaseMapTest
         }
         return SHARED_MAPPER;
     }
-    
+
     protected ObjectWriter objectWriter() {
         return objectMapper().writer();
     }
@@ -213,7 +213,7 @@ public abstract class BaseMapTest
     protected ObjectReader objectReader() {
         return objectMapper().reader();
     }
-    
+
     protected ObjectReader objectReader(Class<?> cls) {
         return objectMapper().readerFor(cls);
     }
@@ -223,7 +223,7 @@ public abstract class BaseMapTest
         // this is a work-around; no null modifier added
         return TypeFactory.defaultInstance().withModifier(null);
     }
-    
+
     /*
     /**********************************************************
     /* Additional assert methods
@@ -262,7 +262,7 @@ public abstract class BaseMapTest
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, Map.class);
     }
-    
+
     protected String serializeAsString(ObjectMapper m, Object value)
         throws IOException
     {
@@ -284,7 +284,7 @@ public abstract class BaseMapTest
     protected String asJSONObjectValueString(ObjectMapper m, Object... args)
         throws IOException
     {
-        LinkedHashMap<Object,Object> map = new LinkedHashMap<Object,Object>();
+        LinkedHashMap<Object,Object> map = new LinkedHashMap<>();
         for (int i = 0, len = args.length; i < len; i += 2) {
             map.put(args[i], args[i+1]);
         }
@@ -296,7 +296,7 @@ public abstract class BaseMapTest
     /* Helper methods, deserialization
     /**********************************************************
      */
-    
+
     protected <T> T readAndMapFromString(String input, Class<T> cls)
         throws IOException
     {

@@ -26,7 +26,7 @@ public class TestIgnoredTypes extends BaseMapTest
     }
 
     // // And test for mix-in annotations
-    
+
     @JsonIgnoreType
     static class Person {
         public String name;
@@ -40,7 +40,7 @@ public class TestIgnoredTypes extends BaseMapTest
         public int value = 1;
         public Person person = new Person("Foo");
     }
-    
+
     @JsonIgnoreType
     static abstract class PersonMixin {
     }
@@ -63,7 +63,7 @@ public class TestIgnoredTypes extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testIgnoredType() throws Exception
     {
         final ObjectMapper mapper = objectMapper();
@@ -88,13 +88,13 @@ public class TestIgnoredTypes extends BaseMapTest
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"value\":1}", json);
     }
-    
+
     public void testListWithMixins() throws Exception {
         SimpleModule module = new SimpleModule();
         module.setMixInAnnotation(Person.class, PersonMixin.class);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(module);
-        List<Person> persons = new ArrayList<Person>();
+        List<Person> persons = new ArrayList<>();
         persons.add(new Person("Bob"));
         String json = mapper.writeValueAsString(persons);
         assertEquals("[{\"name\":\"Bob\"}]", json);

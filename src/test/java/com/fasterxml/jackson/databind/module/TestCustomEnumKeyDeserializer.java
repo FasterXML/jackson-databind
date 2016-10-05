@@ -154,7 +154,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     // Test passing with the fix
     @Test
     public void testWithEnumKeys() throws Exception {
@@ -176,9 +176,9 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper().registerModule(new TestEnumModule());
 
-        Map<KeyEnum, Object> inputMap = new LinkedHashMap<KeyEnum, Object>();
-        Map<TestEnum, Map<String, String>> replacements = new LinkedHashMap<TestEnum, Map<String, String>>();
-        Map<String, String> reps = new LinkedHashMap<String, String>();
+        Map<KeyEnum, Object> inputMap = new LinkedHashMap<>();
+        Map<TestEnum, Map<String, String>> replacements = new LinkedHashMap<>();
+        Map<String, String> reps = new LinkedHashMap<>();
         reps.put("1", "one");
         replacements.put(TestEnum.GREEN, reps);
         inputMap.put(KeyEnum.replacements, replacements);

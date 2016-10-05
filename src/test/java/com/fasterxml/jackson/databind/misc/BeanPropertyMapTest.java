@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class BeanPropertyMapTest extends BaseMapTest
 {
     protected final static JavaType BOGUS_TYPE = TypeFactory.unknownType();
-    
+
     @SuppressWarnings("serial")
     static class MyObjectIdReader extends ObjectIdReader
     {
@@ -27,7 +27,7 @@ public class BeanPropertyMapTest extends BaseMapTest
     // small (16) hash map
     public void testArrayOutOfBounds884() throws Exception
     {
-        List<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>();
+        List<SettableBeanProperty> props = new ArrayList<>();
         PropertyMetadata md = PropertyMetadata.STD_REQUIRED;
         props.add(new ObjectIdValueProperty(new MyObjectIdReader("pk"), md));
         props.add(new ObjectIdValueProperty(new MyObjectIdReader("firstName"), md));

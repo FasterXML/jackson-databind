@@ -33,7 +33,7 @@ public class CollectionDeserializer
     // // Configuration
 
     protected final JavaType _collectionType;
-    
+
     /**
      * Value deserializer.
      */
@@ -200,7 +200,7 @@ public class CollectionDeserializer
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         JsonDeserializer<?> valueDeser = _valueDeserializer;
-        
+
         // May have a content converter
         valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         final JavaType vt = _collectionType.getContentType();
@@ -232,13 +232,13 @@ public class CollectionDeserializer
     public JsonDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializer API
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt)
@@ -368,7 +368,7 @@ public class CollectionDeserializer
         /**
          * A list of {@link CollectionReferring} to maintain ordering.
          */
-        private List<CollectionReferring> _accumulator = new ArrayList<CollectionReferring>();
+        private List<CollectionReferring> _accumulator = new ArrayList<>();
 
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;
@@ -422,15 +422,15 @@ public class CollectionDeserializer
      */
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
-        public final List<Object> next = new ArrayList<Object>();
-        
+        public final List<Object> next = new ArrayList<>();
+
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
         {
             super(reference, contentType);
             _parent = parent;
         }
-        
+
         @Override
         public void handleResolvedForwardReference(Object id, Object value) throws IOException {
             _parent.resolveForwardReference(id, value);

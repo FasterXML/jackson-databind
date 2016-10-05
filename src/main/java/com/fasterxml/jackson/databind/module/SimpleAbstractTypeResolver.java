@@ -35,7 +35,7 @@ public class SimpleAbstractTypeResolver
     /**
      * Mappings from super types to subtypes
      */
-    protected final HashMap<ClassKey,Class<?>> _mappings = new HashMap<ClassKey,Class<?>>();
+    protected final HashMap<ClassKey,Class<?>> _mappings = new HashMap<>();
 
     /**
      * Method for adding a mapping from super type to specific subtype.
@@ -43,10 +43,10 @@ public class SimpleAbstractTypeResolver
      * is abstract (since resolver is never called for concrete classes);
      * as well as to ensure that there is supertype/subtype relationship
      * (to ensure there won't be cycles during resolution).
-     * 
+     *
      * @param superType Abstract type to resolve
      * @param subType Sub-class of superType, to map superTo to
-     * 
+     *
      * @return This resolver, to allow chaining of initializations
      */
     public <T> SimpleAbstractTypeResolver addMapping(Class<T> superType, Class<? extends T> subType)
@@ -70,7 +70,7 @@ public class SimpleAbstractTypeResolver
     @Override
     public JavaType findTypeMapping(DeserializationConfig config, JavaType type)
     {
-        // this is the main mapping base, so let's 
+        // this is the main mapping base, so let's
         Class<?> src = type.getRawClass();
         Class<?> dst = _mappings.get(new ClassKey(src));
         if (dst == null) {

@@ -21,7 +21,7 @@ public final class AnnotatedMethodMap
     public void add(AnnotatedMethod am)
     {
         if (_methods == null) {
-            _methods = new LinkedHashMap<MemberKey,AnnotatedMethod>();
+            _methods = new LinkedHashMap<>();
         }
         _methods.put(new MemberKey(am.getAnnotated()), am);
     }

@@ -79,7 +79,7 @@ public class ManualWritePerfWithAllTypes
 
         public AllTypes allType;
 
-        public List<AllTypes> allTypes = new ArrayList<AllTypes>();
+        public List<AllTypes> allTypes = new ArrayList<>();
 
         static AllTypes _small() {
             AllTypes small = new AllTypes();
@@ -108,7 +108,7 @@ public class ManualWritePerfWithAllTypes
 
         public static AllTypes bigObject() {
             AllTypes big = new AllTypes();
-            final List<AllTypes> list = new ArrayList<AllTypes>();
+            final List<AllTypes> list = new ArrayList<>();
             for (int index = 0; index < 10000; index++) {
                 AllTypes item = new AllTypes();
 

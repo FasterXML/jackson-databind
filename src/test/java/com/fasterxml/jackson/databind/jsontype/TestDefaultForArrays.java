@@ -23,7 +23,7 @@ public class TestDefaultForArrays extends BaseMapTest
         public ArrayBean() { this(null); }
         public ArrayBean(Object[] v) { values = v; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -71,18 +71,18 @@ public class TestDefaultForArrays extends BaseMapTest
         Object ob = result[0];
         assertTrue(ob instanceof JsonNode);
     }
-    
+
     public void testNodeInEmptyArray() throws Exception {
-        Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
+        Map<String, List<String>> outerMap = new HashMap<>();
         outerMap.put("inner", new ArrayList<String>());
         ObjectMapper m = new ObjectMapper().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
         JsonNode tree = m.convertValue(outerMap, JsonNode.class);
-        
+
         String json = m.writeValueAsString(tree);
         assertEquals("{}", json);
-        
+
         JsonNode node = new ObjectMapper().readTree("{\"a\":[]}");
-        
+
         m.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT);
         Object[] obs = new Object[] { node };
         json = m.writeValueAsString(obs);
@@ -110,7 +110,7 @@ public class TestDefaultForArrays extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected void _testArraysAs(ObjectMapper mapper, String json, Class<?> type)
         throws Exception
     {

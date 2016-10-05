@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @SuppressWarnings("serial")
 public class TestMapSerialization extends BaseMapTest
 {
-    @JsonSerialize(using=MapSerializer.class)    
+    @JsonSerialize(using=MapSerializer.class)
     static class PseudoMap extends LinkedHashMap<String,String>
     {
         public PseudoMap(String... values) {
@@ -44,14 +44,14 @@ public class TestMapSerialization extends BaseMapTest
             jgen.writeFieldName("DEFAULT:"+value);
         }
     }
-    
+
     // [databind#335]
     static class MapOrderingBean {
         @JsonPropertyOrder(alphabetic=true)
         public LinkedHashMap<String,Integer> map;
-        
+
         public MapOrderingBean(String... keys) {
-            map = new LinkedHashMap<String,Integer>();
+            map = new LinkedHashMap<>();
             int ix = 1;
             for (String key : keys) {
                 map.put(key, ix++);
@@ -134,7 +134,7 @@ public class TestMapSerialization extends BaseMapTest
     public void testUsingObjectWriter() throws IOException
     {
         ObjectWriter w = MAPPER.writerFor(Object.class);
-        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        Map<String,Object> map = new LinkedHashMap<>();
         map.put("a", 1);
         String json = w.writeValueAsString(map);
         assertEquals(aposToQuotes("{'a':1}"), json);
@@ -148,19 +148,19 @@ public class TestMapSerialization extends BaseMapTest
     // problems with map entries, values
     public void testMapKeyValueSerialization() throws IOException
     {
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String,String> map = new HashMap<>();
         map.put("a", "b");
         assertEquals("[\"a\"]", MAPPER.writeValueAsString(map.keySet()));
         assertEquals("[\"b\"]", MAPPER.writeValueAsString(map.values()));
 
         // TreeMap has similar inner class(es):
-        map = new TreeMap<String,String>();
+        map = new TreeMap<>();
         map.put("c", "d");
         assertEquals("[\"c\"]", MAPPER.writeValueAsString(map.keySet()));
         assertEquals("[\"d\"]", MAPPER.writeValueAsString(map.values()));
 
         // and for [JACKSON-533], same for concurrent maps
-        map = new ConcurrentHashMap<String,String>();
+        map = new ConcurrentHashMap<>();
         map.put("e", "f");
         assertEquals("[\"e\"]", MAPPER.writeValueAsString(map.keySet()));
         assertEquals("[\"f\"]", MAPPER.writeValueAsString(map.values()));
@@ -171,7 +171,7 @@ public class TestMapSerialization extends BaseMapTest
     {
         ObjectMapper m = new ObjectMapper();
         m.getSerializerProvider().setDefaultKeySerializer(new DefaultKeySerializer());
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String,String> map = new HashMap<>();
         map.put("a", "b");
         assertEquals("{\"DEFAULT:a\":\"b\"}", m.writeValueAsString(map));
     }
@@ -181,7 +181,7 @@ public class TestMapSerialization extends BaseMapTest
     {
         ObjectMapper m = new ObjectMapper();
         assertFalse(m.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
-        LinkedHashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+        LinkedHashMap<String,Integer> map = new LinkedHashMap<>();
         map.put("b", 3);
         map.put("a", 6);
         // by default, no (re)ordering:
@@ -196,7 +196,7 @@ public class TestMapSerialization extends BaseMapTest
         MapOrderingBean input = new MapOrderingBean("c", "b", "a");
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'map':{'a':3,'b':2,'c':1}}"), json);
-    }        
+    }
 
     // [Databind#565]
     public void testMapEntry() throws IOException
@@ -214,7 +214,7 @@ public class TestMapSerialization extends BaseMapTest
         json = mapper.writeValueAsString(input);
         assertEquals(aposToQuotes("['"+StringIntMapEntry.class.getName()+"',{'answer':42}]"),
                 json);
-    }        
+    }
 
     public void testMapEntryWrapper() throws IOException
     {
@@ -232,12 +232,12 @@ public class TestMapSerialization extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(input);
         assertEquals(aposToQuotes("{'3':true}"), json);
-    }    
+    }
 
     // [databind#682]
     public void testClassKey() throws IOException
     {
-        Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
+        Map<Class<?>,Integer> map = new LinkedHashMap<>();
         map.put(String.class, 2);
         String json = MAPPER.writeValueAsString(map);
         assertEquals(aposToQuotes("{'java.lang.String':2}"), json);
@@ -254,13 +254,13 @@ public class TestMapSerialization extends BaseMapTest
 
         assertEquals(aposToQuotes("{'@type':'mymap','id':'Test','NULL':null}"),
                 json);
-    }    
+    }
 
     // [databind#691]
     public void testNullJsonInTypedMap691() throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("NULL", null);
-    
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixIn(Object.class, Mixin691.class);
         String json = mapper.writeValueAsString(map);

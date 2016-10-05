@@ -45,7 +45,7 @@ public class TestGenericMapDeser
 
     static class StringMap implements MapWrapper<String,Long>
     {
-        private Map<String,Long> entries = new LinkedHashMap<String,Long>();
+        private Map<String,Long> entries = new LinkedHashMap<>();
 
         public StringMap() { }
 
@@ -71,7 +71,7 @@ public class TestGenericMapDeser
             return new KeyTypeFactory(str, true);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods for sub-classing
@@ -112,7 +112,7 @@ public class TestGenericMapDeser
         assertEquals(value.getClass(), StringWrapper.class);
         assertEquals("b", ((StringWrapper) value).str);
     }
-    
+
     /*
     /**********************************************************
     /* Test methods for sub-classing for annotation handling

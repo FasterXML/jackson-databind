@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.filter;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -34,18 +32,42 @@ public class TestAnyGetterFiltering extends BaseMapTest
         }
     }
 
+    public static class AnyBeanWithIgnores
+    {
+        private Map<String, String> properties = new LinkedHashMap<String, String>();
+        {
+            properties.put("a", "1");
+            properties.put("bogus", "2");
+            properties.put("b", "3");
+        }
+
+        @JsonAnyGetter
+        @JsonIgnoreProperties({ "bogus" })
+        public Map<String, String> anyProperties()
+        {
+            return properties;
+        }
+    }
+
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
-    
-    // should also work for @JsonAnyGetter, as per [JACKSON-516]
+
     public void testAnyGetterFiltering() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals("{\"b\":\"2\"}", mapper.writer(prov).writeValueAsString(new AnyBean()));
+    }
+
+    // for [databind#1142]
+    public void testAnyGetterIgnore() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        assertEquals(aposToQuotes("{'a':'1','b':'3'}"),
+                mapper.writeValueAsString(new AnyBeanWithIgnores()));
     }
 }

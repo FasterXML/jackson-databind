@@ -27,7 +27,7 @@ public class NullHandlingTest extends BaseMapTest
 
     static class AnySetter{
 
-        private Map<String,String> any = new HashMap<String,String>();
+        private Map<String,String> any = new HashMap<>();
 
         @JsonAnySetter
         public void setAny(String name, String value){
@@ -40,7 +40,7 @@ public class NullHandlingTest extends BaseMapTest
     }
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -52,8 +52,8 @@ public class NullHandlingTest extends BaseMapTest
         // null doesn't really have a type, fake by assuming Object
         Object result = MAPPER.readValue("   null", Object.class);
         assertNull(result);
-    }  
-    
+    }
+
     public void testAnySetterNulls() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -90,7 +90,7 @@ public class NullHandlingTest extends BaseMapTest
         String str = mapper.readValue("null", String.class);
         assertNotNull(str);
         assertEquals("funny", str);
-        
+
         // as well as via ObjectReader
         ObjectReader reader = mapper.readerFor(String.class);
         str = reader.readValue("null");
@@ -115,7 +115,7 @@ public class NullHandlingTest extends BaseMapTest
         assertEquals((byte) 0, bean.byteValue);
         assertEquals(0L, bean.longValue);
         assertEquals(0.0f, bean.floatValue);
-        
+
         // but not when enabled
         final ObjectReader reader = MAPPER
                 .readerFor(PrimitivesBean.class)
@@ -173,7 +173,7 @@ public class NullHandlingTest extends BaseMapTest
             verifyException(e, "Can not map JSON null into type double");
         }
     }
-    
+
     // [databind#407]
     public void testListOfNulls() throws Exception
     {

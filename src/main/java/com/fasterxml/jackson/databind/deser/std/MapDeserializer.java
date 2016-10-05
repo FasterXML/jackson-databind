@@ -61,7 +61,7 @@ public class MapDeserializer
      * is the type deserializer that can handle it
      */
     protected final TypeDeserializer _valueTypeDeserializer;
-    
+
     // // Instance construction settings:
 
     protected final ValueInstantiator _valueInstantiator;
@@ -80,10 +80,10 @@ public class MapDeserializer
      * that takes one or more named properties as argument(s),
      * this creator is used for instantiation.
      */
-    protected PropertyBasedCreator _propertyBasedCreator;    
+    protected PropertyBasedCreator _propertyBasedCreator;
 
     // // Any properties to ignore if seen?
-    
+
     protected Set<String> _ignorableProperties;
 
     /*
@@ -157,7 +157,7 @@ public class MapDeserializer
             TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
             Set<String> ignorable)
     {
-        
+
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
                 && (_valueTypeDeserializer == valueTypeDeser) && (_ignorableProperties == ignorable)) {
             return this;
@@ -252,7 +252,7 @@ public class MapDeserializer
                 kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
             }
         }
-        
+
         JsonDeserializer<?> vd = _valueDeserializer;
         // [databind#125]: May have a content converter
         if (property != null) {
@@ -277,7 +277,7 @@ public class MapDeserializer
                 if (ignorals != null) {
                     Set<String> ignoresToAdd = ignorals.findIgnoredForDeserialization();
                     if (!ignoresToAdd.isEmpty()) {
-                        ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
+                        ignored = (ignored == null) ? new HashSet<String>() : new HashSet<>(ignored);
                         for (String str : ignoresToAdd) {
                             ignored.add(str);
                         }
@@ -303,7 +303,7 @@ public class MapDeserializer
     public JsonDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializer API
@@ -320,7 +320,7 @@ public class MapDeserializer
      * It is also possible that some other settings could make deserializers
      * un-cacheable; but on the other hand, caching can make a big positive
      * difference with performance... so it's a hard choice.
-     * 
+     *
      * @since 2.4.4
      */
     @Override
@@ -376,7 +376,7 @@ public class MapDeserializer
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(result);
-        
+
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
@@ -398,7 +398,7 @@ public class MapDeserializer
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
     }
-    
+
     /*
     /**********************************************************
     /* Other public accessors
@@ -422,7 +422,7 @@ public class MapDeserializer
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        
+
         MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
@@ -442,7 +442,7 @@ public class MapDeserializer
             }
             keyStr = p.getCurrentName();
         }
-        
+
         for (; keyStr != null; keyStr = p.nextFieldName()) {
             Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
@@ -489,7 +489,7 @@ public class MapDeserializer
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_mapType.getContentType().getRawClass(), result);
         }
-        
+
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
@@ -534,7 +534,7 @@ public class MapDeserializer
         // 23-Mar-2015, tatu: TODO: verify we got END_OBJECT?
     }
 
-    @SuppressWarnings("unchecked") 
+    @SuppressWarnings("unchecked")
     public Map<Object,Object> _deserializeUsingCreator(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
@@ -552,7 +552,7 @@ public class MapDeserializer
         } else {
             key = null;
         }
-        
+
         for (; key != null; key = p.nextFieldName()) {
             JsonToken t = p.nextToken(); // to get to value
             if (_ignorableProperties != null && _ignorableProperties.contains(key)) {
@@ -579,7 +579,7 @@ public class MapDeserializer
             }
             // other property? needs buffering
             Object actualKey = _keyDeserializer.deserializeKey(key, ctxt);
-            Object value; 
+            Object value;
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
@@ -629,7 +629,7 @@ public class MapDeserializer
         /**
          * A list of {@link MapReferring} to maintain ordering.
          */
-        private List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private List<MapReferring> _accumulator = new ArrayList<>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;
@@ -684,9 +684,9 @@ public class MapDeserializer
     static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
-        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
+        public final Map<Object, Object> next = new LinkedHashMap<>();
         public final Object key;
-        
+
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
         {

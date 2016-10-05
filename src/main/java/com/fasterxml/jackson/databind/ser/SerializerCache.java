@@ -31,13 +31,13 @@ public final class SerializerCache
      * basic {@link JavaType} used for "untyped" serializers.
      */
     private final HashMap<TypeKey, JsonSerializer<Object>> _sharedMap
-        = new HashMap<TypeKey, JsonSerializer<Object>>(64);
+        = new HashMap<>(64);
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
      */
     private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap
-        = new AtomicReference<ReadOnlyClassToSerializerMap>();
+        = new AtomicReference<>();
 
     public SerializerCache() { }
 
@@ -112,7 +112,7 @@ public final class SerializerCache
     /* Methods for adding shared serializer instances
     /**********************************************************
      */
-    
+
     /**
      * Method called if none of lookups succeeded, and caller had to construct
      * a serializer. If so, we will update the shared lookup map so that it
@@ -137,7 +137,7 @@ public final class SerializerCache
             }
         }
     }
-    
+
     public void addAndResolveNonTypedSerializer(Class<?> type, JsonSerializer<Object> ser,
             SerializerProvider provider)
         throws JsonMappingException

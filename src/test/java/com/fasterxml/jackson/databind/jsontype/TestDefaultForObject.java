@@ -12,7 +12,7 @@ public class TestDefaultForObject
     extends BaseMapTest
 {
     static abstract class AbstractBean { }
-    
+
     static class StringBean extends AbstractBean { // ha, punny!
         public String name;
 
@@ -29,9 +29,9 @@ public class TestDefaultForObject
         MAYBE(true), PROBABLY_NOT(false);
 
         private boolean state;
-    	
+
         private ComplexChoice(boolean b) { state = b; }
-    	
+
         @Override
         public String toString() { return String.valueOf(state); }
     }
@@ -39,7 +39,7 @@ public class TestDefaultForObject
     static class PolymorphicType {
         public String foo;
         public Object bar;
-        
+
         public PolymorphicType() { }
         public PolymorphicType(String foo, int bar) {
             this.foo = foo;
@@ -50,7 +50,7 @@ public class TestDefaultForObject
     final static class BeanHolder
     {
         public AbstractBean bean;
-        
+
         public BeanHolder() { }
         public BeanHolder(AbstractBean b) { bean = b; }
     }
@@ -95,7 +95,7 @@ public class TestDefaultForObject
         String str = m.writeValueAsString(new Object[] { new StringBean("abc") });
 
         _verifySerializationAsMap(str);
-        
+
         // Ok: serialization seems to work as expected. Now deserialize:
         Object ob = m.readValue(str, Object[].class);
         assertNotNull(ob);
@@ -113,14 +113,14 @@ public class TestDefaultForObject
                 ".hype");
         // note: need to wrap, to get declared as Object
         String json = m.writeValueAsString(new StringBean("abc"));
-        
+
         // Ok: serialization seems to work as expected. Now deserialize:
         Object result = m.readValue(json, Object.class);
         assertNotNull(result);
         assertEquals(StringBean.class, result.getClass());
         assertEquals("abc", ((StringBean) result).name);
     }
-    
+
     /**
      * Unit test that verifies that an abstract bean is stored with type information
      * if default type information is enabled for non-concrete types.
@@ -138,7 +138,7 @@ public class TestDefaultForObject
             // let's use whatever is currently thrown exception... may change tho
             verifyException(e, "can not construct");
         }
-        
+
         // and then that we will succeed with default type info
         m = new ObjectMapper();
         m.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
@@ -156,7 +156,7 @@ public class TestDefaultForObject
     public void testNonFinalBean() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        // first: use "object or abstract" typing: should produce no type info:        
+        // first: use "object or abstract" typing: should produce no type info:
         m.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
         StringBean bean = new StringBean("x");
         assertEquals("{\"name\":\"x\"}", m.writeValueAsString(bean));
@@ -178,7 +178,7 @@ public class TestDefaultForObject
         assertNotNull(result);
         assertNull(result.bean);
     }
-    
+
     public void testEnumAsObject() throws Exception
     {
         // wrapping to be declared as object
@@ -229,7 +229,7 @@ public class TestDefaultForObject
     @SuppressWarnings("unchecked")
     public void testEnumMap() throws Exception
     {
-        EnumMap<Choice,String> map = new EnumMap<Choice,String>(Choice.class);
+        EnumMap<Choice,String> map = new EnumMap<>(Choice.class);
         map.put(Choice.NO, "maybe");
         Object[] input = new Object[] { map };
         ObjectMapper m = new ObjectMapper();
@@ -329,7 +329,7 @@ public class TestDefaultForObject
         assertNotNull(result);
         assertNotNull(wrapper.myBean);
         assertSame(DiscussBean.class, wrapper.myBean.getClass());
-    }    
+    }
 
     // Test to ensure we can also use "As.PROPERTY" inclusion and custom property name
     public void testFeature432() throws Exception
@@ -351,13 +351,13 @@ public class TestDefaultForObject
             verifyException(e, "Can not use includeAs of EXTERNAL_PROPERTY");
         }
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     private void _verifySerializationAsMap(String str) throws Exception
     {

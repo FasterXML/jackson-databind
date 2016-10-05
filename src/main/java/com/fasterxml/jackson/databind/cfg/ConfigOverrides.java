@@ -4,7 +4,7 @@ import java.util.*;
 
 /**
  * Container for individual {@link ConfigOverride} values.
- * 
+ *
  * @since 2.8
  */
 public class ConfigOverrides
@@ -54,6 +54,6 @@ public class ConfigOverrides
     }
 
     protected Map<Class<?>, MutableConfigOverride> _newMap() {
-        return new HashMap<Class<?>, MutableConfigOverride>();
+        return new HashMap<>();
     }
 }

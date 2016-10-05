@@ -20,7 +20,7 @@ public class TestMapConversions
     }
 
     // [Issue#287]
-    
+
     @JsonSerialize(converter=RequestConverter.class)
     static class Request {
         public int x() {
@@ -31,14 +31,14 @@ public class TestMapConversions
     static class RequestConverter extends StdConverter<Request, Map<String,Object>> {
         @Override
         public Map<String,Object> convert(final Request value) {
-            final Map<String, Object> test = new LinkedHashMap<String, Object>();
-            final Map<String, Object> innerTest = new LinkedHashMap<String, Object>();
+            final Map<String, Object> test = new LinkedHashMap<>();
+            final Map<String, Object> innerTest = new LinkedHashMap<>();
             innerTest.put("value", value.x());
             test.put("hello", innerTest);
             return test;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -50,7 +50,7 @@ public class TestMapConversions
      */
     public void testMapToMap()
     {
-        Map<String,Integer> input = new LinkedHashMap<String,Integer>();
+        Map<String,Integer> input = new LinkedHashMap<>();
         input.put("A", Integer.valueOf(3));
         input.put("B", Integer.valueOf(-4));
         Map<AB,String> output = MAPPER.convertValue(input,
@@ -69,7 +69,7 @@ public class TestMapConversions
 
     public void testMapToBean()
     {
-        EnumMap<AB,String> map = new EnumMap<AB,String>(AB.class);
+        EnumMap<AB,String> map = new EnumMap<>(AB.class);
         map.put(AB.A, "   17");
         map.put(AB.B, " -1");
         Bean bean = MAPPER.convertValue(map, Bean.class);

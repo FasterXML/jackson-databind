@@ -35,7 +35,7 @@ public class TestUntypedDeserialization
         extends StdScalarDeserializer<Number>
     {
         protected final Integer value;
-        
+
         public CustomNumberDeserializer(int nr) {
             super(Number.class);
             value = nr;
@@ -57,7 +57,7 @@ public class TestUntypedDeserialization
         public List<Object> deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException
         {
-            ArrayList<Object> list = new ArrayList<Object>();
+            ArrayList<Object> list = new ArrayList<>();
             while (jp.nextValue() != JsonToken.END_ARRAY) {
                 list.add("X"+jp.getText());
             }
@@ -69,7 +69,7 @@ public class TestUntypedDeserialization
                 BeanProperty property) throws JsonMappingException
         {
             // For now, we just need to access "untyped" deserializer; not use it.
-            
+
             /*JsonDeserializer<Object> ob = */
             ctxt.findContextualValueDeserializer(ctxt.constructType(Object.class), property);
             return this;
@@ -84,7 +84,7 @@ public class TestUntypedDeserialization
         public Map<String,Object> deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException
         {
-            Map<String,Object> map = new LinkedHashMap<String,Object>();
+            Map<String,Object> map = new LinkedHashMap<>();
             while (jp.nextValue() != JsonToken.END_OBJECT) {
                 map.put(jp.getCurrentName(), "Y"+jp.getText());
             }
@@ -94,13 +94,13 @@ public class TestUntypedDeserialization
 
     static class Untyped989 {
         protected Object value;
-        
+
         @JsonCreator // delegating
         public Untyped989(Object v) {
             value = v;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -108,7 +108,7 @@ public class TestUntypedDeserialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     @SuppressWarnings("unchecked")
     public void testSampleDoc() throws Exception
     {
@@ -162,7 +162,7 @@ public class TestUntypedDeserialization
 
         // and that's all folks!
     }
-    
+
     public void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
@@ -178,7 +178,7 @@ public class TestUntypedDeserialization
         assertEquals(2, l.size());
         assertEquals(Integer.valueOf(2), l.get(1));
     }
-    
+
     // Allow 'upgrade' of big integers into Long, BigInteger
     public void testObjectSerializeWithLong() throws IOException
     {
@@ -260,7 +260,7 @@ public class TestUntypedDeserialization
         assertTrue(pojo.value instanceof List);
         pojo = r.readValue("[{}]");
         assertTrue(pojo.value instanceof List);
-        
+
         pojo = r.readValue("{}");
         assertTrue(pojo.value instanceof Map);
         pojo = r.readValue("{\"a\":[]}");

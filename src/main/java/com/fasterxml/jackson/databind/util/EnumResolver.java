@@ -40,7 +40,7 @@ public class EnumResolver implements java.io.Serializable
             throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
         }
         String[] names = ai.findEnumValues(enumCls, enumValues, new String[enumValues.length]);
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         for (int i = 0, len = enumValues.length; i < len; ++i) {
             String name = names[i];
             if (name == null) {
@@ -72,7 +72,7 @@ public class EnumResolver implements java.io.Serializable
             AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumValues.length; --i >= 0; ) {
             Enum<?> e = enumValues[i];
@@ -97,7 +97,7 @@ public class EnumResolver implements java.io.Serializable
             AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        HashMap<String, Enum<?>> map = new HashMap<>();
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumValues.length; --i >= 0; ) {
             Enum<?> en = enumValues[i];
@@ -112,7 +112,7 @@ public class EnumResolver implements java.io.Serializable
         }
         Enum<?> defaultEnum = (ai != null) ? ai.findDefaultEnumValue(enumCls) : null;
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
-    }    
+    }
 
     /**
      * This method is needed because of the dynamic nature of constructing Enum
@@ -120,7 +120,7 @@ public class EnumResolver implements java.io.Serializable
      */
     @SuppressWarnings({ "unchecked" })
     public static EnumResolver constructUnsafe(Class<?> rawEnumCls, AnnotationIntrospector ai)
-    {            
+    {
         /* This is oh so wrong... but at least ugliness is mostly hidden in just
          * this one place.
          */
@@ -169,7 +169,7 @@ public class EnumResolver implements java.io.Serializable
     @SuppressWarnings({ "unchecked" })
     public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor,
             AnnotationIntrospector ai)
-    {            
+    {
         // wrong as ever but:
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
         return constructUsingMethod(enumCls, accessor, ai);
@@ -195,9 +195,9 @@ public class EnumResolver implements java.io.Serializable
     public Enum<?>[] getRawEnums() {
         return _enums;
     }
-    
+
     public List<Enum<?>> getEnums() {
-        ArrayList<Enum<?>> enums = new ArrayList<Enum<?>>(_enums.length);
+        ArrayList<Enum<?>> enums = new ArrayList<>(_enums.length);
         for (Enum<?> e : _enums) {
             enums.add(e);
         }
@@ -210,7 +210,7 @@ public class EnumResolver implements java.io.Serializable
     public Collection<String> getEnumIds() {
         return _enumsById.keySet();
     }
-    
+
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
 
     public int lastValidIndex() { return _enums.length-1; }

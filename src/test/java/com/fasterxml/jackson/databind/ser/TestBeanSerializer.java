@@ -28,13 +28,13 @@ public class TestBeanSerializer extends BaseMapTest
     static class SerializerModifierModule extends SimpleModule
     {
         protected BeanSerializerModifier modifier;
-        
+
         public SerializerModifierModule(BeanSerializerModifier modifier)
         {
             super("test", Version.unknownVersion());
             this.modifier = modifier;
         }
-        
+
         @Override
         public void setupModule(SetupContext context)
         {
@@ -54,9 +54,9 @@ public class TestBeanSerializer extends BaseMapTest
     static class RemovingModifier extends BeanSerializerModifier
     {
         private final String _removedProperty;
-        
+
         public RemovingModifier(String remove) { _removedProperty = remove; }
-        
+
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc,
                 List<BeanPropertyWriter> beanProperties)
@@ -71,26 +71,26 @@ public class TestBeanSerializer extends BaseMapTest
             return beanProperties;
         }
     }
-    
+
     static class ReorderingModifier extends BeanSerializerModifier
     {
         @Override
         public List<BeanPropertyWriter> orderProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
         {
-            TreeMap<String,BeanPropertyWriter> props = new TreeMap<String,BeanPropertyWriter>();
+            TreeMap<String,BeanPropertyWriter> props = new TreeMap<>();
             for (BeanPropertyWriter bpw : beanProperties) {
                 props.put(bpw.getName(), bpw);
             }
-            return new ArrayList<BeanPropertyWriter>(props.values());
+            return new ArrayList<>(props.values());
         }
     }
 
     static class ReplacingModifier extends BeanSerializerModifier
     {
         private final JsonSerializer<?> _serializer;
-        
+
         public ReplacingModifier(JsonSerializer<?> s) { _serializer = s; }
-        
+
         @Override
         public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
                 JsonSerializer<?> serializer) {
@@ -101,11 +101,11 @@ public class TestBeanSerializer extends BaseMapTest
     static class BuilderModifier extends BeanSerializerModifier
     {
         private final JsonSerializer<?> _serializer;
-        
+
         public BuilderModifier(JsonSerializer<?> ser) {
             _serializer = ser;
         }
-        
+
         @Override
         public BeanSerializerBuilder updateBuilder(SerializationConfig config,
                 BeanDescription beanDesc, BeanSerializerBuilder builder) {
@@ -116,7 +116,7 @@ public class TestBeanSerializer extends BaseMapTest
     static class BogusSerializerBuilder extends BeanSerializerBuilder
     {
         private final JsonSerializer<?> _serializer;
-        
+
         public BogusSerializerBuilder(BeanSerializerBuilder src,
                 JsonSerializer<?> ser) {
             super(src);
@@ -128,13 +128,13 @@ public class TestBeanSerializer extends BaseMapTest
             return _serializer;
         }
     }
-    
+
     static class BogusBeanSerializer extends JsonSerializer<Object>
     {
         private final int _value;
-        
+
         public BogusBeanSerializer(int v) { _value = v; }
-        
+
         @Override
         public void serialize(Object value, JsonGenerator jgen,
                 SerializerProvider provider) throws IOException {
@@ -143,7 +143,7 @@ public class TestBeanSerializer extends BaseMapTest
     }
 
     // for [JACKSON-670]
-    
+
     static class EmptyBean {
         @JsonIgnore
         public String name = "foo";
@@ -180,7 +180,7 @@ public class TestBeanSerializer extends BaseMapTest
         {
             return beanProperties;
         }
-        
+
         @Override
         public JsonSerializer<?> modifySerializer(SerializationConfig config,
                 BeanDescription beanDesc, JsonSerializer<?> serializer) {
@@ -188,7 +188,7 @@ public class TestBeanSerializer extends BaseMapTest
         }
     }
     // [Issue#120], arrays, collections, maps
-    
+
     static class ArraySerializerModifier extends BeanSerializerModifier {
         @Override
         public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
@@ -248,9 +248,9 @@ public class TestBeanSerializer extends BaseMapTest
             };
         }
     }
-    
+
     enum EnumABC { A, B, C };
-    
+
     /*
     /********************************************************
     /* Unit tests: success
@@ -279,7 +279,7 @@ public class TestBeanSerializer extends BaseMapTest
         mapper.registerModule(new SerializerModifierModule(new BuilderModifier(new BogusBeanSerializer(17))));
         Bean bean = new Bean();
         assertEquals("17", mapper.writeValueAsString(bean));
-    }    
+    }
     public void testSerializerReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -319,7 +319,7 @@ public class TestBeanSerializer extends BaseMapTest
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("42", json);
     }
-    
+
     // [Issue#121]
 
     public void testModifyArraySerializer() throws Exception
@@ -359,7 +359,7 @@ public class TestBeanSerializer extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
             .setSerializerModifier(new KeySerializerModifier()));
-        Map<String,Integer> map = new HashMap<String,Integer>();
+        Map<String,Integer> map = new HashMap<>();
         map.put("x", 3);
         assertEquals("{\"foo\":3}", mapper.writeValueAsString(map));
     }

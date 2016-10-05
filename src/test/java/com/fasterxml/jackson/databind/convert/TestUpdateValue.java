@@ -82,7 +82,7 @@ public class TestUpdateValue extends BaseMapTest
             return da;
         }
     }
-    
+
     /*
     /********************************************************
     /* Unit tests
@@ -115,7 +115,7 @@ public class TestUpdateValue extends BaseMapTest
 
     public void testListUpdate() throws Exception
     {
-        List<String> strs = new ArrayList<String>();
+        List<String> strs = new ArrayList<>();
         strs.add("a");
         // for lists, we will be appending entries
         Object ob = MAPPER.readerForUpdating(strs).readValue("[ \"b\", \"c\", \"d\" ]");
@@ -129,7 +129,7 @@ public class TestUpdateValue extends BaseMapTest
 
     public void testMapUpdate() throws Exception
     {
-        Map<String,String> strs = new HashMap<String,String>();
+        Map<String,String> strs = new HashMap<>();
         strs.put("a", "a");
         strs.put("b", "b");
         // for maps, we will be adding and/or overwriting entries
@@ -166,7 +166,7 @@ public class TestUpdateValue extends BaseMapTest
         assertSame(toUpdate, value);
         assertEquals(16, value.x); // unchanged
         assertEquals(37, value.y);
-        
+
         assertFalse(it.hasNext());
     }
 
@@ -178,7 +178,7 @@ public class TestUpdateValue extends BaseMapTest
         bean.str = "test";
         Updateable result = MAPPER.readerForUpdating(bean)
                 .withView(TextView.class)
-                .readValue("{\"num\": 10, \"str\":\"foobar\"}");    
+                .readValue("{\"num\": 10, \"str\":\"foobar\"}");
         assertSame(bean, result);
 
         assertEquals(100, bean.num);
@@ -220,7 +220,7 @@ public class TestUpdateValue extends BaseMapTest
 
         assertEquals(1, dbUpdViaNode.da.i);
         assertEquals(3, dbUpdViaNode.k);
-        
+
         mapper.readerForUpdating(dbUpdViaNode).readValue(jsonBNode);
         assertEquals(5, dbUpdViaNode.da.i);
         assertEquals(13, dbUpdViaNode.k);

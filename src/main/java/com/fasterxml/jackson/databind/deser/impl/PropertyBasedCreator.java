@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 public final class PropertyBasedCreator
 {
     protected final ValueInstantiator _valueInstantiator;
-    
+
     /**
      * Map that contains property objects for either constructor or factory
      * method (whichever one is null: one property for each
@@ -41,18 +41,18 @@ public final class PropertyBasedCreator
      * null if no injectable values are expected.
      */
     protected final SettableBeanProperty[] _allProperties;
-    
+
     /*
     /**********************************************************
     /* Construction, initialization
     /**********************************************************
      */
-    
+
     protected PropertyBasedCreator(ValueInstantiator valueInstantiator,
             SettableBeanProperty[] creatorProps)
     {
         _valueInstantiator = valueInstantiator;
-        _propertyLookup = new HashMap<String, SettableBeanProperty>();
+        _propertyLookup = new HashMap<>();
         final int len = creatorProps.length;
         _propertyCount = len;
         _allProperties = new SettableBeanProperty[len];
@@ -79,7 +79,7 @@ public final class PropertyBasedCreator
                 prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
             }
             creatorProps[i] = prop;
-        }        
+        }
         return new PropertyBasedCreator(valueInstantiator, creatorProps);
     }
 
@@ -90,13 +90,13 @@ public final class PropertyBasedCreator
         _properties.put(prop.getName(), prop);
     }
     */
-    
+
     /*
     /**********************************************************
     /* Accessors
     /**********************************************************
      */
-    
+
     public Collection<SettableBeanProperty> properties() {
         return _propertyLookup.values();
     }
@@ -113,7 +113,7 @@ public final class PropertyBasedCreator
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Building process
@@ -122,7 +122,7 @@ public final class PropertyBasedCreator
 
     /**
      * Method called when starting to build a bean instance.
-     * 
+     *
      * @since 2.1 (added ObjectIdReader parameter -- existed in previous versions without)
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
@@ -138,7 +138,7 @@ public final class PropertyBasedCreator
         if (bean != null) {
             // Object Id to handle?
             bean = buffer.handleIdValue(ctxt, bean);
-            
+
             // Anything buffered?
             for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
                 pv.assign(bean);

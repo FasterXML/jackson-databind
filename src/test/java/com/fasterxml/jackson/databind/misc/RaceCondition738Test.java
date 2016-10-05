@@ -48,20 +48,20 @@ public class RaceCondition738Test extends BaseMapTest
             return hasSubTypes;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
+
     public void testRepeatedly() throws Exception {
         final int COUNT = 2000;
         for (int i = 0; i < COUNT; i++) {
             runOnce(i, COUNT);
         }
     }
-    
+
     void runOnce(int round, int max) throws Exception {
         final ObjectMapper mapper = getObjectMapper();
         Callable<String> writeJson = new Callable<String>() {
@@ -74,7 +74,7 @@ public class RaceCondition738Test extends BaseMapTest
 
         int numThreads = 4;
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-        List<Future<String>> jsonFutures = new ArrayList<Future<String>>();
+        List<Future<String>> jsonFutures = new ArrayList<>();
         for (int i = 0; i < numThreads; i++) {
             jsonFutures.add(executor.submit(writeJson));
         }

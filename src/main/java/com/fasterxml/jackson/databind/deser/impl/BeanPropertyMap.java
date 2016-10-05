@@ -41,7 +41,7 @@ public class BeanPropertyMap
      * Number of entries stored in the hash area.
      */
     private int _size;
-    
+
     private int _spillCount;
 
     /**
@@ -92,7 +92,7 @@ public class BeanPropertyMap
     protected void init(Collection<SettableBeanProperty> props)
     {
         _size = props.size();
-        
+
         // First: calculate size of primary hash area
         final int hashSize = findSize(_size);
         _hashMask = hashSize-1;
@@ -107,7 +107,7 @@ public class BeanPropertyMap
             if (prop == null) {
                 continue;
             }
-            
+
             String key = getPropertyName(prop);
             int slot = _hashCode(key);
             int ix = (slot<<1);
@@ -125,7 +125,7 @@ public class BeanPropertyMap
                     }
                 }
             }
-//System.err.println(" add '"+key+" at #"+(ix>>1)+"/"+size+" (hashed at "+slot+")");             
+//System.err.println(" add '"+key+" at #"+(ix>>1)+"/"+size+" (hashed at "+slot+")");
             hashed[ix] = key;
             hashed[ix+1] = prop;
         }
@@ -137,7 +137,7 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
         _hashArea = hashed;
         _spillCount = spillCount;
     }
-    
+
     private final static int findSize(int size)
     {
         if (size <= 5) {
@@ -153,14 +153,14 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
         }
         return result;
     }
-    
+
     /**
      * @since 2.6
      */
     public static BeanPropertyMap construct(Collection<SettableBeanProperty> props, boolean caseInsensitive) {
         return new BeanPropertyMap(caseInsensitive, props);
     }
-    
+
     /**
      * Fluent copy method that creates a new instance that is a copy
      * of this instance except for one additional property that is
@@ -185,7 +185,7 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
         final int slot = _hashCode(key);
         final int hashSize = _hashMask+1;
         int ix = (slot<<1);
-        
+
         // primary slot not free?
         if (_hashArea[ix] != null) {
             // secondary?
@@ -205,7 +205,7 @@ for (int i = 0; i < _hashArea.length; i += 2) {
 }
 System.err.println("And new propr #"+slot+" '"+key+"'");
 */
-                
+
                 }
             }
         }
@@ -217,7 +217,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         _propsInOrder[last] = newProp;
 
         // should we just create a new one? Or is resetting ok?
-        
+
         return this;
     }
 
@@ -245,11 +245,11 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         }
         // Try to retain insertion ordering as well
         final int len = _propsInOrder.length;
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(len);
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _propsInOrder[i];
-            
+
             // What to do with holes? For now, retain
             if (prop == null) {
                 newProps.add(prop);
@@ -274,7 +274,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
             return this;
         }
         final int len = _propsInOrder.length;
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(len);
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(len);
 
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _propsInOrder[i];
@@ -290,7 +290,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         // should we try to re-index? Apparently no need
         return new BeanPropertyMap(_caseInsensitive, newProps);
     }
-    
+
     /**
      * Specialized method that can be used to replace an existing entry
      * (note: entry MUST exist; otherwise exception is thrown) with
@@ -300,7 +300,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
     {
         String key = getPropertyName(newProp);
         int ix = _findIndexInHash(key);
-        
+
         if (ix >= 0) {
             SettableBeanProperty prop = (SettableBeanProperty) _hashArea[ix];
             _hashArea[ix] = newProp;
@@ -308,12 +308,12 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
             _propsInOrder[_findFromOrdered(prop)] = newProp;
             return;
         }
-        
+
         throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
     }
 
     private List<SettableBeanProperty> properties() {
-        ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_size);
+        ArrayList<SettableBeanProperty> p = new ArrayList<>(_size);
         for (int i = 1, end = _hashArea.length; i < end; i += 2) {
             SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
             if (prop != null) {
@@ -336,7 +336,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
      * properties contained in this map. Note that if properties
      * have been removed, array may contain nulls; otherwise
      * it should be consecutive.
-     * 
+     *
      * @since 2.1
      */
     public SettableBeanProperty[] getPropertiesInInsertionOrder() {
@@ -373,7 +373,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         if (_caseInsensitive) {
             key = key.toLowerCase();
         }
-            
+
         // inlined `_hashCode(key)`
         int slot = key.hashCode() & _hashMask;
 //        int h = key.hashCode();
@@ -410,7 +410,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Public API
@@ -424,7 +424,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
      * NOTE: entry MUST exist, otherwise an exception is thrown.
      */
     public void remove(SettableBeanProperty propToRm) {
-        ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
+        ArrayList<SettableBeanProperty> props = new ArrayList<>(_size);
         String key = getPropertyName(propToRm);
         boolean found = false;
 
@@ -455,7 +455,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
      * on it, and return true; or, if not found, return false.
      * Note, too, that if deserialization is attempted, possible exceptions
      * are wrapped if and as necessary, so caller need not handle those.
-     * 
+     *
      * @since 2.5
      */
     public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
@@ -494,7 +494,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         sb.append(']');
         return sb.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
@@ -558,7 +558,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
     {
         final int slot = _hashCode(key);
         int ix = (slot<<1);
-        
+
         // primary match?
         if (key.equals(_hashArea[ix])) {
             return ix+1;
@@ -578,7 +578,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         }
         return -1;
     }
-    
+
     private final int _findFromOrdered(SettableBeanProperty prop) {
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i] == prop) {

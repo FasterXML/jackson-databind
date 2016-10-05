@@ -41,7 +41,7 @@ public class TestConfig
     public static class SimpleBean {
         public int x = 1;
     }
-    
+
     /*
     /**********************************************************
     /* Main tests
@@ -57,7 +57,7 @@ public class TestConfig
     public void testEnumIndexes()
     {
         int max = 0;
-        
+
         for (SerializationFeature f : SerializationFeature.values()) {
             max = Math.max(max, f.ordinal());
         }
@@ -65,7 +65,7 @@ public class TestConfig
             fail("Max number of SerializationFeature enums reached: "+max);
         }
     }
-    
+
     public void testDefaults()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
@@ -83,7 +83,7 @@ public class TestConfig
         // since 1.3:
         assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS));
         // since 1.4
-        
+
         assertTrue(cfg.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
         // since 1.5
         assertTrue(cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
@@ -108,7 +108,7 @@ public class TestConfig
 
     public void testIndentation() throws Exception
     {
-        Map<String,Integer> map = new HashMap<String,Integer>();
+        Map<String,Integer> map = new HashMap<>();
         map.put("a", Integer.valueOf(2));
         String result = MAPPER.writer().with(SerializationFeature.INDENT_OUTPUT)
                 .writeValueAsString(map);
@@ -133,7 +133,7 @@ public class TestConfig
     /**
      * Test for verifying working of [JACKSON-191]
      */
-    public void testProviderConfig() throws Exception   
+    public void testProviderConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         DefaultSerializerProvider prov = (DefaultSerializerProvider) mapper.getSerializerProvider();
@@ -212,7 +212,7 @@ public class TestConfig
         // also better stick via reader/writer as well
         assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
         assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
-        
+
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         f.setTimeZone(tz2);
         mapper.setDateFormat(f);
@@ -223,7 +223,7 @@ public class TestConfig
         assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
         assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
     }
-    
+
     private final static String getLF() {
         return System.getProperty("line.separator");
     }

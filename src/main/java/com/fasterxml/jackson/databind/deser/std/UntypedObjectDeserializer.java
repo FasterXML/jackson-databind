@@ -292,7 +292,7 @@ public class UntypedObjectDeserializer
 
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             return p.getEmbeddedObject();
-            
+
         /* Otherwise we probably got a "native" type (ones that map
          * naturally and thus do not need or use type ids)
          */
@@ -346,17 +346,17 @@ public class UntypedObjectDeserializer
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
         if (p.nextToken()  == JsonToken.END_ARRAY) {
-            return new ArrayList<Object>(2);
+            return new ArrayList<>(2);
         }
         Object value = deserialize(p, ctxt);
         if (p.nextToken()  == JsonToken.END_ARRAY) {
-            ArrayList<Object> l = new ArrayList<Object>(2);
+            ArrayList<Object> l = new ArrayList<>(2);
             l.add(value);
             return l;
         }
         Object value2 = deserialize(p, ctxt);
         if (p.nextToken()  == JsonToken.END_ARRAY) {
-            ArrayList<Object> l = new ArrayList<Object>(2);
+            ArrayList<Object> l = new ArrayList<>(2);
             l.add(value);
             l.add(value2);
             return l;
@@ -377,7 +377,7 @@ public class UntypedObjectDeserializer
             values[ptr++] = value;
         } while (p.nextToken() != JsonToken.END_ARRAY);
         // let's create full array then
-        ArrayList<Object> result = new ArrayList<Object>(totalSize);
+        ArrayList<Object> result = new ArrayList<>(totalSize);
         buffer.completeAndClearBuffer(values, ptr, result);
         return result;
     }
@@ -390,7 +390,7 @@ public class UntypedObjectDeserializer
         String key1;
 
         JsonToken t = p.getCurrentToken();
-        
+
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextFieldName();
         } else if (t == JsonToken.FIELD_NAME) {
@@ -414,7 +414,7 @@ public class UntypedObjectDeserializer
         String key2 = p.nextFieldName();
         if (key2 == null) { // has to be END_OBJECT, then
             // single entry; but we want modifiable
-            LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
+            LinkedHashMap<String, Object> result = new LinkedHashMap<>(2);
             result.put(key1, value1);
             return result;
         }
@@ -424,13 +424,13 @@ public class UntypedObjectDeserializer
         String key = p.nextFieldName();
 
         if (key == null) {
-            LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
+            LinkedHashMap<String, Object> result = new LinkedHashMap<>(4);
             result.put(key1, value1);
             result.put(key2, value2);
             return result;
         }
         // And then the general case; default map size is 16
-        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
         result.put(key1, value1);
         result.put(key2, value2);
 
@@ -501,7 +501,7 @@ public class UntypedObjectDeserializer
                         if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
                             return NO_OBJECTS;
                         }
-                        return new ArrayList<Object>(2);
+                        return new ArrayList<>(2);
                     }
                 }
                 if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
@@ -586,13 +586,13 @@ public class UntypedObjectDeserializer
         {
             Object value = deserialize(p, ctxt);
             if (p.nextToken()  == JsonToken.END_ARRAY) {
-                ArrayList<Object> l = new ArrayList<Object>(2);
+                ArrayList<Object> l = new ArrayList<>(2);
                 l.add(value);
                 return l;
             }
             Object value2 = deserialize(p, ctxt);
             if (p.nextToken()  == JsonToken.END_ARRAY) {
-                ArrayList<Object> l = new ArrayList<Object>(2);
+                ArrayList<Object> l = new ArrayList<>(2);
                 l.add(value);
                 l.add(value2);
                 return l;
@@ -613,7 +613,7 @@ public class UntypedObjectDeserializer
                 values[ptr++] = value;
             } while (p.nextToken() != JsonToken.END_ARRAY);
             // let's create full array then
-            ArrayList<Object> result = new ArrayList<Object>(totalSize);
+            ArrayList<Object> result = new ArrayList<>(totalSize);
             buffer.completeAndClearBuffer(values, ptr, result);
             return result;
         }
@@ -630,7 +630,7 @@ public class UntypedObjectDeserializer
 
             String key2 = p.nextFieldName();
             if (key2 == null) { // single entry; but we want modifiable
-                LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
+                LinkedHashMap<String, Object> result = new LinkedHashMap<>(2);
                 result.put(key1, value1);
                 return result;
             }
@@ -639,13 +639,13 @@ public class UntypedObjectDeserializer
 
             String key = p.nextFieldName();
             if (key == null) {
-                LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
+                LinkedHashMap<String, Object> result = new LinkedHashMap<>(4);
                 result.put(key1, value1);
                 result.put(key2, value2);
                 return result;
             }
             // And then the general case; default map size is 16
-            LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
+            LinkedHashMap<String, Object> result = new LinkedHashMap<>();
             result.put(key1, value1);
             result.put(key2, value2);
             do {

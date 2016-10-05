@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.type.ClassKey;
  *<p>
  * Implementation is only thread-safe after initialization (that is,
  * when underlying Map is not modified but only read).
- * 
+ *
  * @since 2.6
  */
 public class SimpleMixInResolver
@@ -62,7 +62,7 @@ public class SimpleMixInResolver
         if (sourceMixins == null || sourceMixins.isEmpty()) {
             _localMixIns = null;
         } else {
-            Map<ClassKey,Class<?>> mixIns = new HashMap<ClassKey,Class<?>>(sourceMixins.size());
+            Map<ClassKey,Class<?>> mixIns = new HashMap<>(sourceMixins.size());
             for (Map.Entry<Class<?>,Class<?>> en : sourceMixins.entrySet()) {
                 mixIns.put(new ClassKey(en.getKey()), en.getValue());
             }
@@ -72,7 +72,7 @@ public class SimpleMixInResolver
 
     public void addLocalDefinition(Class<?> target, Class<?> mixinSource) {
         if (_localMixIns == null) {
-            _localMixIns = new HashMap<ClassKey,Class<?>>();
+            _localMixIns = new HashMap<>();
         }
         _localMixIns.put(new ClassKey(target), mixinSource);
     }
@@ -82,7 +82,7 @@ public class SimpleMixInResolver
         ClassIntrospector.MixInResolver overrides = (_overrides == null)
                 ? null : _overrides.copy();
         Map<ClassKey,Class<?>> mixIns = (_localMixIns == null)
-                ? null : new HashMap<ClassKey,Class<?>>(_localMixIns);
+                ? null : new HashMap<>(_localMixIns);
         return new SimpleMixInResolver(overrides, mixIns);
     }
 

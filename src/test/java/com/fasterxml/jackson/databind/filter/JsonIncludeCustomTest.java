@@ -31,7 +31,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
             return false;
         }
     }
-    
+
     static class FooBean {
         @JsonInclude(value=JsonInclude.Include.CUSTOM,
                 valueFilter=FooFilter.class)
@@ -43,7 +43,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
     static class FooMapBean {
         @JsonInclude(content=JsonInclude.Include.CUSTOM,
                 contentFilter=FooFilter.class)
-        public Map<String,String> stuff = new LinkedHashMap<String,String>();
+        public Map<String,String> stuff = new LinkedHashMap<>();
 
         public FooMapBean add(String key, String value) {
             stuff.put(key, value);
@@ -79,7 +79,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
                 .add("a", "1")
                 .add("b", "foo")
                 .add("c", "2");
-        
+
         assertEquals(aposToQuotes("{'stuff':{'a':'1','c':'2'}}"), MAPPER.writeValueAsString(input));
     }
 
@@ -88,7 +88,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
     /* Test methods, fail handling
     /**********************************************************
      */
-    
+
     public void testBrokenFilter() throws Exception
     {
         try {

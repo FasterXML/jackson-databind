@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Helper class to use for constructing Object arrays by appending entries
- * to create arrays of various lengths (length that is not known a priori). 
+ * to create arrays of various lengths (length that is not known a priori).
  */
 public final class ObjectBuffer
 {
@@ -88,7 +88,7 @@ public final class ObjectBuffer
      */
     public Object[] appendCompletedChunk(Object[] fullChunk)
     {
-        LinkedNode<Object[]> next = new LinkedNode<Object[]>(fullChunk, null);
+        LinkedNode<Object[]> next = new LinkedNode<>(fullChunk, null);
         if (_head == null) { // first chunk
             _head = _tail = next;
         } else { // have something already
@@ -155,7 +155,7 @@ public final class ObjectBuffer
             resultList.add(lastChunk[i]);
         }
     }
-    
+
     /**
      * Helper method that can be used to check how much free capacity
      * will this instance start with. Can be used to choose the best

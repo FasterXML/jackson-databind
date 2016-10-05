@@ -28,11 +28,11 @@ public class LRUMap<K,V>
     protected final transient int _maxEntries;
 
     protected final transient ConcurrentHashMap<K,V> _map;
-    
+
     public LRUMap(int initialEntries, int maxEntries)
     {
         // We'll use concurrency level of 4, seems reasonable
-        _map = new ConcurrentHashMap<K,V>(initialEntries, 0.8f, 4);
+        _map = new ConcurrentHashMap<>(initialEntries, 0.8f, 4);
         _maxEntries = maxEntries;
     }
 
@@ -63,7 +63,7 @@ public class LRUMap<K,V>
         }
         return _map.putIfAbsent(key, value);
     }
-    
+
     // NOTE: key is of type Object only to retain binary backwards-compatibility
     public V get(Object key) {  return _map.get(key); }
 
@@ -79,7 +79,7 @@ public class LRUMap<K,V>
     /**
      * Ugly hack, to work through the requirement that _value is indeed final,
      * and that JDK serialization won't call ctor(s) if Serializable is implemented.
-     * 
+     *
      * @since 2.1
      */
     protected transient int _jdkSerializeMaxEntries;
@@ -93,6 +93,6 @@ public class LRUMap<K,V>
     }
 
     protected Object readResolve() {
-        return new LRUMap<Object,Object>(_jdkSerializeMaxEntries, _jdkSerializeMaxEntries);
+        return new LRUMap<>(_jdkSerializeMaxEntries, _jdkSerializeMaxEntries);
     }
 }

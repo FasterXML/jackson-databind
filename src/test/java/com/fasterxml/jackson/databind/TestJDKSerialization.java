@@ -17,13 +17,13 @@ public class TestJDKSerialization extends BaseMapTest
     static class MyPojo {
         public int x;
         protected int y;
-        
+
         public MyPojo() { }
         public MyPojo(int x0, int y0) {
             x = x0;
             y = y0;
         }
-        
+
         public int getY() { return y; }
         public void setY(int y) { this.y = y; }
     }
@@ -32,7 +32,7 @@ public class TestJDKSerialization extends BaseMapTest
     static class EnumPOJO {
         public ABC abc = ABC.B;
 
-        public Map<String,ABC> stuff = new LinkedHashMap<String,ABC>();
+        public Map<String,ABC> stuff = new LinkedHashMap<>();
     }
 
     /*
@@ -46,14 +46,14 @@ public class TestJDKSerialization extends BaseMapTest
      *   let's create a private copy for this class only.
      */
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testConfigs() throws IOException
     {
         byte[] base = jdkSerialize(MAPPER.getDeserializationConfig().getBaseSettings());
         assertNotNull(jdkDeserialize(base));
 
         // first things first: underlying BaseSettings
-        
+
         DeserializationConfig origDC = MAPPER.getDeserializationConfig();
         SerializationConfig origSC = MAPPER.getSerializationConfig();
         byte[] dcBytes = jdkSerialize(origDC);
@@ -111,7 +111,7 @@ public class TestJDKSerialization extends BaseMapTest
         ObjectWriter writer2 = jdkDeserialize(bytes);
         assertEquals(EXP_JSON, writer2.writeValueAsString(p));
     }
-    
+
     public void testObjectReader() throws IOException
     {
         ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
@@ -153,7 +153,7 @@ public class TestJDKSerialization extends BaseMapTest
 
     public void testLRUMap() throws Exception
     {
-        LRUMap<String,Integer> map = new LRUMap<String,Integer>(32, 32);
+        LRUMap<String,Integer> map = new LRUMap<>(32, 32);
         map.put("a", 1);
 
         byte[] bytes = jdkSerialize(map);
@@ -171,7 +171,7 @@ public class TestJDKSerialization extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected byte[] jdkSerialize(Object o) throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);

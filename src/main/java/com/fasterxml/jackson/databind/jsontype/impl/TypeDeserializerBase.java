@@ -24,9 +24,9 @@ public abstract class TypeDeserializerBase
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1;
-    
+
     protected final TypeIdResolver _idResolver;
-    
+
     protected final JavaType _baseType;
 
     /**
@@ -49,9 +49,9 @@ public abstract class TypeDeserializerBase
      * in cases where type id is to be exposed as part of JSON.
      */
     protected final String _typePropertyName;
-    
+
     protected final boolean _typeIdVisible;
-    
+
     /**
      * For efficient operation we will lazily build mappings from type ids
      * to actual deserializers, once needed.
@@ -78,7 +78,7 @@ public abstract class TypeDeserializerBase
         _typePropertyName = (typePropertyName == null) ? "" : typePropertyName;
         _typeIdVisible = typeIdVisible;
         // defaults are fine, although shouldn't need much concurrency
-        _deserializers = new ConcurrentHashMap<String, JsonDeserializer<Object>>(16, 0.75f, 2);
+        _deserializers = new ConcurrentHashMap<>(16, 0.75f, 2);
         _defaultImpl = defaultImpl;
         _property = null;
     }
@@ -103,7 +103,7 @@ public abstract class TypeDeserializerBase
     /* Accessors
     /**********************************************************
      */
-    
+
     @Override
     public abstract JsonTypeInfo.As getTypeInclusion();
 
@@ -111,15 +111,15 @@ public abstract class TypeDeserializerBase
 
     @Override
     public final String getPropertyName() { return _typePropertyName; }
-    
-    @Override    
+
+    @Override
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
 
-    @Override    
+    @Override
     public Class<?> getDefaultImpl() {
         return (_defaultImpl == null) ? null : _defaultImpl.getRawClass();
     }
-    
+
     @Override
     public String toString()
     {
@@ -130,7 +130,7 @@ public abstract class TypeDeserializerBase
     	    sb.append(']');
     	    return sb.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for sub-classes
@@ -208,7 +208,7 @@ public abstract class TypeDeserializerBase
         if (ClassUtil.isBogusClass(raw)) {
             return NullifyingDeserializer.instance;
         }
-        
+
         synchronized (_defaultImpl) {
             if (_defaultImplDeserializer == null) {
                 _defaultImplDeserializer = ctxt.findContextualValueDeserializer(
@@ -222,7 +222,7 @@ public abstract class TypeDeserializerBase
      * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids. Assumption from there is that only native
      * type ids are to be used.
-     * 
+     *
      * @since 2.3
      */
     @Deprecated
@@ -233,7 +233,7 @@ public abstract class TypeDeserializerBase
     /**
      * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids, and such type id has been found.
-     * 
+     *
      * @since 2.4
      */
     protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt, Object typeId)
@@ -256,7 +256,7 @@ public abstract class TypeDeserializerBase
     }
 
     /**
-     * Helper method called when given type id can not be resolved into 
+     * Helper method called when given type id can not be resolved into
      * concrete deserializer either directly (using given {@link  TypeIdResolver}),
      * or using default type.
      * Default implementation simply throws a {@link com.fasterxml.jackson.databind.JsonMappingException} to

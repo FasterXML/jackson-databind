@@ -18,7 +18,7 @@ public class TestAnyProperties
         HashMap<String,Object> _map;
 
         public MapImitator() {
-            _map = new HashMap<String,Object>();
+            _map = new HashMap<>();
         }
 
         @JsonAnySetter
@@ -37,7 +37,7 @@ public class TestAnyProperties
         HashMap<String,int[]> _map;
 
         public MapImitatorWithValue() {
-            _map = new HashMap<String,int[]>();
+            _map = new HashMap<>();
         }
 
         @JsonAnySetter
@@ -59,28 +59,28 @@ public class TestAnyProperties
     @JsonIgnoreProperties("dummy")
     static class Ignored
     {
-        HashMap<String,Object> map = new HashMap<String,Object>();
- 
+        HashMap<String,Object> map = new HashMap<>();
+
         @JsonIgnore
         public String bogus;
-        
+
         @JsonAnySetter
         void addEntry(String key, Object value)
         {
             map.put(key, value);
-        }        
+        }
     }
 
     static class Bean744
     {
         protected Map<String,Object> additionalProperties;
-        
+
         @JsonAnySetter
         public void addAdditionalProperty(String key, Object value) {
-            if (additionalProperties == null) additionalProperties = new HashMap<String, Object>();
+            if (additionalProperties == null) additionalProperties = new HashMap<>();
             additionalProperties.put(key,value);
         }
-        
+
         public void setAdditionalProperties(Map<String, Object> additionalProperties) {
             this.additionalProperties = additionalProperties;
         }
@@ -106,7 +106,7 @@ public class TestAnyProperties
     {
         @Override
         public Map<String, JsonNode> getUndefinedProperties() {
-            return new HashMap<String, JsonNode>();
+            return new HashMap<>();
         }
     }
 
@@ -115,15 +115,15 @@ public class TestAnyProperties
 
     static class Impl extends Base {
         public String value;
-        
+
         public Impl() { }
         public Impl(String v) { value = v; }
     }
 
     static class PolyAnyBean
     {
-        protected Map<String,Base> props = new HashMap<String,Base>();
-        
+        protected Map<String,Base> props = new HashMap<>();
+
         @JsonAnyGetter
         public Map<String,Base> props() {
             return props;
@@ -134,12 +134,12 @@ public class TestAnyProperties
             props.put(name, value);
         }
     }
-    
+
 	static class JsonAnySetterOnMap {
 		public int id;
 
 		@JsonAnySetter
-		protected HashMap<String, String> other = new HashMap<String, String>();
+		protected HashMap<String, String> other = new HashMap<>();
 
 		@JsonAnyGetter
 		public Map<String, String> any() {
@@ -161,7 +161,7 @@ public class TestAnyProperties
 
 	}
 
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -169,7 +169,7 @@ public class TestAnyProperties
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleMapImitation() throws Exception
     {
         MapImitator mapHolder = MAPPER.readValue
@@ -240,7 +240,7 @@ public class TestAnyProperties
         PolyAnyBean input = new PolyAnyBean();
         input.props.put("a", new Impl("xyz"));
         String json = MAPPER.writeValueAsString(input);
-        
+
 //        System.err.println("JSON: "+json);
 
         PolyAnyBean result = MAPPER.readValue(json, PolyAnyBean.class);
@@ -250,7 +250,7 @@ public class TestAnyProperties
         assertTrue(ob instanceof Impl);
         assertEquals("xyz", ((Impl) ob).value);
     }
-    
+
 	public void testJsonAnySetterOnMap() throws Exception {
 		JsonAnySetterOnMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
 		        JsonAnySetterOnMap.class);
@@ -265,7 +265,7 @@ public class TestAnyProperties
 		assertEquals(2, result.id);
 		assertNull(result.other);
 	}
-    
+
     /*
     /**********************************************************
     /* Private helper methods

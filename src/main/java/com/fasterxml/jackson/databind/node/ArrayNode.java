@@ -27,7 +27,7 @@ public class ArrayNode
 
     public ArrayNode(JsonNodeFactory nf) {
         super(nf);
-        _children = new ArrayList<JsonNode>();
+        _children = new ArrayList<>();
     }
 
     /**
@@ -35,7 +35,7 @@ public class ArrayNode
      */
     public ArrayNode(JsonNodeFactory nf, int capacity) {
         super(nf);
-        _children = new ArrayList<JsonNode>(capacity);
+        _children = new ArrayList<>(capacity);
     }
 
     /**

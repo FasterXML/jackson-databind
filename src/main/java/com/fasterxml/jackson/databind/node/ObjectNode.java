@@ -22,7 +22,7 @@ public class ObjectNode
 
     public ObjectNode(JsonNodeFactory nc) {
         super(nc);
-        _children = new LinkedHashMap<String, JsonNode>();
+        _children = new LinkedHashMap<>();
     }
 
     /**
@@ -187,7 +187,7 @@ public class ObjectNode
     /* Public API, finding value nodes
     /**********************************************************
      */
-    
+
     @Override
     public JsonNode findValue(String fieldName)
     {
@@ -202,14 +202,14 @@ public class ObjectNode
         }
         return null;
     }
-    
+
     @Override
     public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar)
     {
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
             if (fieldName.equals(entry.getKey())) {
                 if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<JsonNode>();
+                    foundSoFar = new ArrayList<>();
                 }
                 foundSoFar.add(entry.getValue());
             } else { // only add children if parent not added
@@ -225,7 +225,7 @@ public class ObjectNode
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
             if (fieldName.equals(entry.getKey())) {
                 if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<String>();
+                    foundSoFar = new ArrayList<>();
                 }
                 foundSoFar.add(entry.getValue().asText());
             } else { // only add children if parent not added
@@ -235,7 +235,7 @@ public class ObjectNode
         }
         return foundSoFar;
     }
-    
+
     @Override
     public ObjectNode findParent(String fieldName)
     {
@@ -257,7 +257,7 @@ public class ObjectNode
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
             if (fieldName.equals(entry.getKey())) {
                 if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<JsonNode>();
+                    foundSoFar = new ArrayList<>();
                 }
                 foundSoFar.add(this);
             } else { // only add children if parent not added
@@ -267,7 +267,7 @@ public class ObjectNode
         }
         return foundSoFar;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, serialization
@@ -324,7 +324,7 @@ public class ObjectNode
             if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
                 continue;
             }
-            
+
             g.writeFieldName(en.getKey());
             value.serialize(g, provider);
         }
@@ -365,9 +365,9 @@ public class ObjectNode
     /**
      * Method for adding given properties to this object node, overriding
      * any existing values for those properties.
-     * 
+     *
      * @param properties Properties to add
-     * 
+     *
      * @return This node after adding/replacing property values (to allow chaining)
      *
      * @since 2.1
@@ -387,7 +387,7 @@ public class ObjectNode
     /**
      * Method for adding all properties of the given Object, overriding
      * any existing values for those properties.
-     * 
+     *
      * @param other Object of which properties to add to this object
      *
      * @return This node after addition (to allow chaining)
@@ -399,17 +399,17 @@ public class ObjectNode
         _children.putAll(other._children);
         return this;
     }
-    
+
     /**
      * Method for replacing value of specific property with passed
      * value, and returning value (or null if none).
      *
      * @param fieldName Property of which value to replace
      * @param value Value to set property to, replacing old value if any
-     * 
+     *
      * @return Old value of the property; null if there was no such property
      *   with value
-     * 
+     *
      * @since 2.1
      */
     public JsonNode replace(String fieldName, JsonNode value)
@@ -423,9 +423,9 @@ public class ObjectNode
     /**
      * Method for removing field entry from this ObjectNode, and
      * returning instance after removal.
-     * 
+     *
      * @return This node after removing entry (if any)
-     * 
+     *
      * @since 2.1
      */
     public JsonNode without(String fieldName)
@@ -437,11 +437,11 @@ public class ObjectNode
     /**
      * Method for removing specified field properties out of
      * this ObjectNode.
-     * 
+     *
      * @param fieldNames Names of fields to remove
-     * 
+     *
      * @return This node after removing entries
-     * 
+     *
      * @since 2.1
      */
     public ObjectNode without(Collection<String> fieldNames)
@@ -449,23 +449,23 @@ public class ObjectNode
         _children.keySet().removeAll(fieldNames);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Extended ObjectNode API, mutators, generic
     /**********************************************************
      */
-    
+
     /**
      * Method that will set specified field, replacing old value, if any.
      *
      * @param value to set field to; if null, will be converted
      *   to a {@link NullNode} first  (to remove field entry, call
      *   {@link #remove} instead)
-     *   
+     *
      * @return Old value of the field, if any; null if there was no
      *   old value.
-     *   
+     *
      * @deprecated Since 2.4 use either {@link #set(String,JsonNode)} or {@link #replace(String,JsonNode)},
      */
     @Deprecated
@@ -476,12 +476,12 @@ public class ObjectNode
         }
         return _children.put(fieldName, value);
     }
-    
+
     /**
      * Method for removing field entry from this ObjectNode.
      * Will return value of the field, if such field existed;
      * null if not.
-     * 
+     *
      * @return Value of specified field, if it existed; null if not
      */
     public JsonNode remove(String fieldName) {
@@ -491,9 +491,9 @@ public class ObjectNode
     /**
      * Method for removing specified field properties out of
      * this ObjectNode.
-     * 
+     *
      * @param fieldNames Names of fields to remove
-     * 
+     *
      * @return This node after removing entries
      */
     public ObjectNode remove(Collection<String> fieldNames)
@@ -501,11 +501,11 @@ public class ObjectNode
         _children.keySet().removeAll(fieldNames);
         return this;
     }
-    
+
     /**
      * Method for removing all field properties, such that this
      * ObjectNode will contain no properties after call.
-     * 
+     *
      * @return This node after removing all entries
      */
     @Override
@@ -518,11 +518,11 @@ public class ObjectNode
     /**
      * Method for adding given properties to this object node, overriding
      * any existing values for those properties.
-     * 
+     *
      * @param properties Properties to add
-     * 
+     *
      * @return This node after adding/replacing property values (to allow chaining)
-     * 
+     *
      * @deprecated Since 2.4 use {@link #setAll(Map)},
      */
     @Deprecated
@@ -533,11 +533,11 @@ public class ObjectNode
     /**
      * Method for adding all properties of the given Object, overriding
      * any existing values for those properties.
-     * 
+     *
      * @param other Object of which properties to add to this object
-     * 
+     *
      * @return This node (to allow chaining)
-     * 
+     *
      * @deprecated Since 2.4 use {@link #setAll(ObjectNode)},
      */
     @Deprecated
@@ -548,9 +548,9 @@ public class ObjectNode
     /**
      * Method for removing all field properties out of this ObjectNode
      * <b>except</b> for ones specified in argument.
-     * 
+     *
      * @param fieldNames Fields to <b>retain</b> in this ObjectNode
-     * 
+     *
      * @return This node (to allow call chaining)
      */
     public ObjectNode retain(Collection<String> fieldNames)
@@ -562,15 +562,15 @@ public class ObjectNode
     /**
      * Method for removing all field properties out of this ObjectNode
      * <b>except</b> for ones specified in argument.
-     * 
+     *
      * @param fieldNames Fields to <b>retain</b> in this ObjectNode
-     * 
+     *
      * @return This node (to allow call chaining)
      */
     public ObjectNode retain(String... fieldNames) {
         return retain(Arrays.asList(fieldNames));
     }
-    
+
     /*
     /**********************************************************
     /* Extended ObjectNode API, mutators, typed
@@ -626,7 +626,7 @@ public class ObjectNode
     public ObjectNode putRawValue(String fieldName, RawValue raw) {
         return _put(fieldName, rawValueNode(raw));
     }
-    
+
     /**
      * @return This node (to allow chaining)
      */
@@ -638,7 +638,7 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified numeric value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, short v) {
@@ -648,7 +648,7 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Short v) {
@@ -662,7 +662,7 @@ public class ObjectNode
      * using {@link JsonNodeFactory#numberNode(int)}, and may be
      *  "smaller" (like {@link ShortNode}) in cases where value fits within
      *  range of a smaller integral numeric value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, int v) {
@@ -672,21 +672,21 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Integer v) {
         return _put(fieldName, (v == null) ? nullNode()
                 : numberNode(v.intValue()));
     }
-    
+
     /**
      * Method for setting value of a field to specified numeric value.
      * The underlying {@link JsonNode} that will be added is constructed
      * using {@link JsonNodeFactory#numberNode(long)}, and may be
      *  "smaller" (like {@link IntNode}) in cases where value fits within
      *  range of a smaller integral numeric value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, long v) {
@@ -702,17 +702,17 @@ public class ObjectNode
      * <p>
      * Note that this is alternative to {@link #put(String, long)} needed to avoid
      * bumping into NPE issues with auto-unboxing.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Long v) {
         return _put(fieldName, (v == null) ? nullNode()
                 : numberNode(v.longValue()));
     }
-    
+
     /**
      * Method for setting value of a field to specified numeric value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, float v) {
@@ -722,17 +722,17 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Float v) {
         return _put(fieldName, (v == null) ? nullNode()
                 : numberNode(v.floatValue()));
     }
-    
+
     /**
      * Method for setting value of a field to specified numeric value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, double v) {
@@ -742,17 +742,17 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Double v) {
         return _put(fieldName, (v == null) ? nullNode()
                 : numberNode(v.doubleValue()));
     }
-    
+
     /**
      * Method for setting value of a field to specified numeric value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, BigDecimal v) {
@@ -762,7 +762,7 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified String value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, String v) {
@@ -772,7 +772,7 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified String value.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, boolean v) {
@@ -782,24 +782,24 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Boolean v) {
         return _put(fieldName, (v == null) ? nullNode()
                 : booleanNode(v.booleanValue()));
     }
-    
+
     /**
      * Method for setting value of a field to specified binary value
-     * 
+     *
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, byte[] v) {
         return _put(fieldName, (v == null) ? nullNode()
                 : binaryNode(v));
     }
-    
+
     /*
     /**********************************************************
     /* Standard methods
@@ -824,7 +824,7 @@ public class ObjectNode
     {
         return _children.equals(other._children);
     }
-    
+
     @Override
     public int hashCode()
     {

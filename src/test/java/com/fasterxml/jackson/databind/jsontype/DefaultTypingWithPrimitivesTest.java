@@ -18,7 +18,7 @@ public class DefaultTypingWithPrimitivesTest extends BaseMapTest
     {
         Data data = new Data();
         data.key = 1L;
-        Map<String, Object> mapData = new HashMap<String, Object>();
+        Map<String, Object> mapData = new HashMap<>();
         mapData.put("longInMap", 2L);
         mapData.put("longAsField", data);
 

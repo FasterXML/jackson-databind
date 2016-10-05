@@ -23,19 +23,19 @@ public class TestJdkTypes
 
     public void testBigDecimal() throws Exception
     {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         String PI_STR = "3.14159265";
         map.put("pi", new BigDecimal(PI_STR));
         String str = MAPPER.writeValueAsString(map);
         assertEquals("{\"pi\":3.14159265}", str);
     }
-    
+
     public void testBigDecimalAsPlainString() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
 
         mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));
         String str = mapper.writeValueAsString(map);
@@ -48,7 +48,7 @@ public class TestJdkTypes
         File f = new File(new File("/tmp"), "foo.text");
         String str = MAPPER.writeValueAsString(f);
         // escape backslashes (for portability with windows)
-        String escapedAbsPath = f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\"); 
+        String escapedAbsPath = f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\");
         assertEquals(quote(escapedAbsPath), str);
     }
 
@@ -56,7 +56,7 @@ public class TestJdkTypes
     {
         final String PATTERN_STR = "\\s+([a-b]+)\\w?";
         Pattern p = Pattern.compile(PATTERN_STR);
-        Map<String,Object> input = new HashMap<String,Object>();
+        Map<String,Object> input = new HashMap<>();
         input.put("p", p);
         Map<String,Object> result = writeAndMap(MAPPER, input);
         assertEquals(p.pattern(), result.get("p"));
@@ -148,7 +148,7 @@ public class TestJdkTypes
             String str = MAPPER.convertValue(uuid, String.class);
             assertEquals(value, str);
         }
-        
+
         // then use templating; note that these are not exactly valid UUIDs
         // wrt spec (type bits etc), but JDK UUID should deal ok
         final String TEMPL = "00000000-0000-0000-0000-000000000000";

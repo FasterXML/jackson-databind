@@ -15,12 +15,12 @@ public class WrapperObjectWithObjectIdTest extends BaseMapTest
         public List<Computer> computers;
 
         public Company() {
-            computers = new ArrayList<Computer>();
+            computers = new ArrayList<>();
         }
 
         public Company addComputer(Computer computer) {
             if (computers == null) {
-                computers = new ArrayList<Computer>();
+                computers = new ArrayList<>();
             }
             computers.add(computer);
             return this;

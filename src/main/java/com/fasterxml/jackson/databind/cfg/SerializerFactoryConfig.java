@@ -19,7 +19,7 @@ public final class SerializerFactoryConfig
     protected final static Serializers[] NO_SERIALIZERS = new Serializers[0];
 
     protected final static BeanSerializerModifier[] NO_MODIFIERS = new BeanSerializerModifier[0];
-    
+
     /**
      * List of providers for additional serializers, checked before considering default
      * basic or bean serialializers.
@@ -31,13 +31,13 @@ public final class SerializerFactoryConfig
      * key serialializers.
      */
     protected final Serializers[] _additionalKeySerializers;
-    
+
     /**
      * List of modifiers that can change the way {@link BeanSerializer} instances
      * are configured and constructed.
      */
     protected final BeanSerializerModifier[] _modifiers;
-    
+
     public SerializerFactoryConfig() {
         this(null, null, null);
     }
@@ -70,7 +70,7 @@ public final class SerializerFactoryConfig
         Serializers[] all = ArrayBuilders.insertInListNoDup(_additionalKeySerializers, additional);
         return new SerializerFactoryConfig(_additionalSerializers, all, _modifiers);
     }
-    
+
     public SerializerFactoryConfig withSerializerModifier(BeanSerializerModifier modifier)
     {
         if (modifier == null) {
@@ -83,7 +83,7 @@ public final class SerializerFactoryConfig
     public boolean hasSerializers() { return _additionalSerializers.length > 0; }
     public boolean hasKeySerializers() { return _additionalKeySerializers.length > 0; }
     public boolean hasSerializerModifiers() { return _modifiers.length > 0; }
-    public Iterable<Serializers> serializers() { return new ArrayIterator<Serializers>(_additionalSerializers); }
-    public Iterable<Serializers> keySerializers() { return new ArrayIterator<Serializers>(_additionalKeySerializers); }
-    public Iterable<BeanSerializerModifier> serializerModifiers() { return new ArrayIterator<BeanSerializerModifier>(_modifiers); }
+    public Iterable<Serializers> serializers() { return new ArrayIterator<>(_additionalSerializers); }
+    public Iterable<Serializers> keySerializers() { return new ArrayIterator<>(_additionalKeySerializers); }
+    public Iterable<BeanSerializerModifier> serializerModifiers() { return new ArrayIterator<>(_modifiers); }
 }

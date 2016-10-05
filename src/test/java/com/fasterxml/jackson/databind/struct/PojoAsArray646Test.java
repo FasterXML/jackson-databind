@@ -14,7 +14,7 @@ public class PojoAsArray646Test extends BaseMapTest
         protected Map<String, TheItem> attributes;
 
         public Outer() {
-            attributes = new HashMap<String, TheItem>();
+            attributes = new HashMap<>();
         }
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
@@ -84,7 +84,7 @@ public class PojoAsArray646Test extends BaseMapTest
 
     public void testWithCustomTypeId() throws Exception {
 
-        List<TheItem.NestedItem> nestedList = new ArrayList<TheItem.NestedItem>();
+        List<TheItem.NestedItem> nestedList = new ArrayList<>();
         nestedList.add(new TheItem.NestedItem("foo1"));
         nestedList.add(new TheItem.NestedItem("foo2"));
         TheItem item = new TheItem("first", false, nestedList);

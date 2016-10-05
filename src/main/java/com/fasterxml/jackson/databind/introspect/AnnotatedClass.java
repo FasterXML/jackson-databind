@@ -64,7 +64,7 @@ public final class AnnotatedClass
      * @since 2.7
      */
     final protected TypeFactory _typeFactory;
-    
+
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
@@ -95,7 +95,7 @@ public final class AnnotatedClass
      * or not.
      */
     protected boolean _creatorsResolved = false;
-    
+
     /**
      * Default constructor of the annotated class, if it has one.
      */
@@ -161,7 +161,7 @@ public final class AnnotatedClass
      * Factory method that instantiates an instance. Returned instance
      * will only be initialized with class annotations, but not with
      * any method information.
-     * 
+     *
      * @since 2.7
      */
     public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
@@ -186,7 +186,7 @@ public final class AnnotatedClass
                 ClassUtil.findSuperTypes(type, null, false),
                 intr, mir, config.getTypeFactory(), null);
     }
-    
+
     /**
      * Method similar to {@link #construct}, but that will NOT include
      * information from supertypes; only class itself and any direct
@@ -230,7 +230,7 @@ public final class AnnotatedClass
 
     /*
     /**********************************************************
-    /* Annotated impl 
+    /* Annotated impl
     /**********************************************************
      */
 
@@ -267,7 +267,7 @@ public final class AnnotatedClass
     public Iterable<Annotation> annotations() {
         return _classAnnotations().annotations();
     }
-    
+
     @Override
     protected AnnotationMap getAllAnnotations() {
         return _classAnnotations();
@@ -398,7 +398,7 @@ public final class AnnotatedClass
             // first, annotations from the class itself:
             _addAnnotationsIfNotPresent(ca,
                     ClassUtil.findClassAnnotations(_class));
-    
+
             // and then from super types
             for (JavaType type : _superTypes) {
                 // and mix mix-in annotations in-between
@@ -425,7 +425,7 @@ public final class AnnotatedClass
     private void resolveCreators()
     {
         // Constructor also always members of this class
-        TypeResolutionContext typeContext = this; 
+        TypeResolutionContext typeContext = this;
 
     // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
     //   NOT apply to context since sub-class may have type bindings
@@ -447,7 +447,7 @@ public final class AnnotatedClass
                         _defaultConstructor = _constructDefaultConstructor(ctor, typeContext);
                     } else {
                         if (constructors == null) {
-                            constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
+                            constructors = new ArrayList<>(Math.max(10, declaredCtors.length));
                         }
                         constructors.add(_constructNonDefaultConstructor(ctor, typeContext));
                     }
@@ -486,7 +486,7 @@ public final class AnnotatedClass
             }
         }
         List<AnnotatedMethod> creatorMethods = null;
-        
+
         // Then static methods which are potential factory methods
         for (Method m : _findClassMethods(_class)) {
             if (!Modifier.isStatic(m.getModifiers())) {
@@ -495,7 +495,7 @@ public final class AnnotatedClass
             // all factory methods are fine:
             //int argCount = m.getParameterTypes().length;
             if (creatorMethods == null) {
-                creatorMethods = new ArrayList<AnnotatedMethod>(8);
+                creatorMethods = new ArrayList<>(8);
             }
             creatorMethods.add(_constructCreatorMethod(m, typeContext));
         }
@@ -523,7 +523,7 @@ public final class AnnotatedClass
     /**
      * Method for resolving member method information: aggregating all non-static methods
      * and combining annotations (to implement method-annotation inheritance)
-     * 
+     *
      * @param methodFilter Filter used to determine which methods to include
      */
     private void resolveMemberMethods()
@@ -572,7 +572,7 @@ public final class AnnotatedClass
             }
         }
     }
-    
+
     /**
      * Method that will collect all member (non-static) fields
      * that are either public, or have at least a single annotation
@@ -584,11 +584,11 @@ public final class AnnotatedClass
         if (foundFields == null || foundFields.size() == 0) {
             _fields = Collections.emptyList();
         } else {
-            _fields = new ArrayList<AnnotatedField>(foundFields.size());
+            _fields = new ArrayList<>(foundFields.size());
             _fields.addAll(foundFields.values());
         }
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for resolving class annotations
@@ -596,7 +596,7 @@ public final class AnnotatedClass
     /* and injection of mix-ins as necessary)
     /**********************************************************
      */
-    
+
     /**
      * Helper method for adding any mix-in annotations specified
      * class might have.
@@ -825,7 +825,7 @@ public final class AnnotatedClass
                  * determining get/settability of the field.
                  */
                 if (fields == null) {
-                    fields = new LinkedHashMap<String,AnnotatedField>();
+                    fields = new LinkedHashMap<>();
                 }
                 fields.put(f.getName(), _constructField(f, typeContext));
             }
@@ -967,7 +967,7 @@ public final class AnnotatedClass
         }
         return new AnnotatedField(typeContext, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
- 
+
     private AnnotationMap _emptyAnnotationMap() {
         return new AnnotationMap();
     }
@@ -982,7 +982,7 @@ public final class AnnotatedClass
         }
         return maps;
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods, inclusion filtering
@@ -1047,7 +1047,7 @@ public final class AnnotatedClass
     {
         return _addAnnotationsIfNotPresent(new AnnotationMap(), anns);
     }
-    
+
     /* Helper method used to add all applicable annotations from given set.
      * Takes into account possible "annotation bundles" (meta-annotations to
      * include instead of main-level annotation)
@@ -1078,13 +1078,13 @@ public final class AnnotatedClass
                 continue;
             }
             if (result == null) {
-                result = new ArrayList<Annotation>();
+                result = new ArrayList<>();
             }
             result.add(a);
         }
         return result;
     }
-    
+
     private void _addAnnotationsIfNotPresent(AnnotatedMember target, Annotation[] anns)
     {
         if (anns != null) {
@@ -1100,7 +1100,7 @@ public final class AnnotatedClass
             }
         }
     }
-    
+
     private void _addOrOverrideAnnotations(AnnotatedMember target, Annotation[] anns)
     {
         if (anns != null) {
@@ -1116,7 +1116,7 @@ public final class AnnotatedClass
             }
         }
     }
-    
+
     /**
      * @param addParamAnnotations Whether parameter annotations are to be
      *   added as well
@@ -1211,7 +1211,7 @@ public final class AnnotatedClass
     public int hashCode() {
         return _class.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;

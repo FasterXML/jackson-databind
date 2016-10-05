@@ -21,8 +21,8 @@ public class TestSerAnyGetter
     static class DynaBean {
         public int id;
 
-        protected HashMap<String,String> other = new HashMap<String,String>();
-        
+        protected HashMap<String,String> other = new HashMap<>();
+
         @JsonAnyGetter
         public Map<String,String> any() {
             return other;
@@ -39,7 +39,7 @@ public class TestSerAnyGetter
         @JsonAnyGetter
         public Map<?,?> getProperties()
         {
-            HashMap<String,String> map = new HashMap<String,String>();
+            HashMap<String,String> map = new HashMap<>();
             map.put("a", "A");
             return map;
         }
@@ -52,7 +52,7 @@ public class TestSerAnyGetter
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testDynaBean() throws Exception
     {
         DynaBean b = new DynaBean();

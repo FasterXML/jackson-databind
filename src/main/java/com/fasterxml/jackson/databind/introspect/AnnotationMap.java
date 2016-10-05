@@ -16,7 +16,7 @@ public final class AnnotationMap implements Annotations
     protected HashMap<Class<?>,Annotation> _annotations;
 
     public AnnotationMap() { }
-    
+
     private AnnotationMap(HashMap<Class<?>,Annotation> a) {
         _annotations = a;
     }
@@ -65,7 +65,7 @@ public final class AnnotationMap implements Annotations
         }
         return _annotations.values();
     }
-    
+
     public static AnnotationMap merge(AnnotationMap primary, AnnotationMap secondary)
     {
         if (primary == null || primary._annotations == null || primary._annotations.isEmpty()) {
@@ -74,7 +74,7 @@ public final class AnnotationMap implements Annotations
         if (secondary == null || secondary._annotations == null || secondary._annotations.isEmpty()) {
             return primary;
         }
-        HashMap<Class<?>,Annotation> annotations = new HashMap<Class<?>,Annotation>();
+        HashMap<Class<?>,Annotation> annotations = new HashMap<>();
         // add secondary ones first
         for (Annotation ann : secondary._annotations.values()) {
             annotations.put(ann.annotationType(), ann);
@@ -85,7 +85,7 @@ public final class AnnotationMap implements Annotations
         }
         return new AnnotationMap(annotations);
     }
-    
+
     @Override
     public int size() {
         return (_annotations == null) ? 0 : _annotations.size();
@@ -106,7 +106,7 @@ public final class AnnotationMap implements Annotations
 
     /**
      * Method called to add specified annotation in the Map.
-     * 
+     *
      * @return True if the addition changed the contents, that is, this map did not
      *   already have specified annotation
      */
@@ -130,7 +130,7 @@ public final class AnnotationMap implements Annotations
 
     protected final boolean _add(Annotation ann) {
         if (_annotations == null) {
-            _annotations = new HashMap<Class<?>,Annotation>();
+            _annotations = new HashMap<>();
         }
         Annotation previous = _annotations.put(ann.annotationType(), ann);
         return (previous == null) || !previous.equals(ann);

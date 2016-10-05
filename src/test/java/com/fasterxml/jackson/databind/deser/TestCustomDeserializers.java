@@ -95,7 +95,7 @@ public class TestCustomDeserializers
 
     public static class Immutable {
         protected int x, y;
-        
+
         public Immutable(int x0, int y0) {
             x = x0;
             y = y0;
@@ -110,7 +110,7 @@ public class TestCustomDeserializers
 
         public int getId() { return id; }
     }
-    
+
     public static class Model
     {
         protected final Map<CustomKey, String> map;
@@ -118,7 +118,7 @@ public class TestCustomDeserializers
         @JsonCreator
         public Model(@JsonProperty("map") @JsonDeserialize(keyUsing = CustomKeyDeserializer.class) Map<CustomKey, String> map)
         {
-            this.map = new HashMap<CustomKey, String>(map);
+            this.map = new HashMap<>(map);
         }
 
         @JsonProperty
@@ -127,7 +127,7 @@ public class TestCustomDeserializers
             return map;
         }
     }
-     
+
     static class CustomKeySerializer extends JsonSerializer<CustomKey> {
         @Override
         public void serialize(CustomKey value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -152,7 +152,7 @@ public class TestCustomDeserializers
         @Negative
         public Bean375Outer value;
     }
-    
+
     static class Bean375Outer {
         protected Bean375Inner inner;
 
@@ -169,7 +169,7 @@ public class TestCustomDeserializers
         implements ContextualDeserializer
     {
         protected BeanProperty prop;
-        
+
         protected Bean375OuterDeserializer() { this(null); }
         protected Bean375OuterDeserializer(BeanProperty p) {
             super(Bean375Outer.class);
@@ -193,7 +193,7 @@ public class TestCustomDeserializers
         implements ContextualDeserializer
     {
         protected boolean negative;
-        
+
         protected Bean375InnerDeserializer() { this(false); }
         protected Bean375InnerDeserializer(boolean n) {
             super(Bean375Inner.class);
@@ -257,7 +257,7 @@ public class TestCustomDeserializers
             return p.getText().toUpperCase();
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -265,7 +265,7 @@ public class TestCustomDeserializers
      */
 
     final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testCustomBeanDeserializer() throws Exception
     {
         String json = "{\"beans\":[{\"c\":{\"a\":10,\"b\":20},\"d\":\"hello, tatu\"}]}";
@@ -312,16 +312,15 @@ public class TestCustomDeserializers
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Immutable.class,
-            new StdDelegatingDeserializer<Immutable>(
-                new StdConverter<JsonNode, Immutable>() {
-                    @Override
-                    public Immutable convert(JsonNode value)
-                    {
-                        int x = value.path("x").asInt();
-                        int y = value.path("y").asInt();
-                        return new Immutable(x, y);
-                    }
-                }
+                new StdDelegatingDeserializer<>(
+                        new StdConverter<JsonNode, Immutable>() {
+                            @Override
+                            public Immutable convert(JsonNode value) {
+                                int x = value.path("x").asInt();
+                                int y = value.path("y").asInt();
+                                return new Immutable(x, y);
+                            }
+                        }
                 ));
 
         mapper.registerModule(module);
@@ -349,7 +348,7 @@ public class TestCustomDeserializers
         assertEquals(-10, imm.x);
         assertEquals(3, imm.y);
     }
-    
+
     public void testIssue882() throws Exception
     {
         Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));

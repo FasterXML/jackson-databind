@@ -33,11 +33,11 @@ public class TestConvertingSerializer
             y = v2;
         }
     }
-    
+
     static class ConvertingBeanContainer
     {
         public List<ConvertingBean> values;
-        
+
         public ConvertingBeanContainer(ConvertingBean... beans) {
             values = Arrays.asList(beans);
         }
@@ -57,7 +57,7 @@ public class TestConvertingSerializer
             return new int[] { value.x, value.y };
         }
     }
-    
+
     static class PointWrapper {
         @JsonSerialize(converter=PointConverter.class)
         public Point value;
@@ -84,13 +84,13 @@ public class TestConvertingSerializer
             values = Arrays.asList(new Point[] { new Point(x, y), new Point(y, x) });
         }
     }
-    
+
     static class PointListWrapperMap {
         @JsonSerialize(contentConverter=PointConverter.class)
         public Map<String,Point> values;
 
         public PointListWrapperMap(String key, int x, int y) {
-            values = new HashMap<String,Point>();
+            values = new HashMap<>();
             values.put(key, new Point(x, y));
         }
     }

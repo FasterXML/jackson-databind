@@ -17,12 +17,12 @@ public class TestUntypedSerialization
     public void testFromArray()
         throws Exception
     {
-        ArrayList<Object> doc = new ArrayList<Object>();
+        ArrayList<Object> doc = new ArrayList<>();
         doc.add("Elem1");
         doc.add(Integer.valueOf(3));
-        Map<String,Object> struct = new LinkedHashMap<String, Object>();
+        Map<String,Object> struct = new LinkedHashMap<>();
         struct.put("first", Boolean.TRUE);
-        struct.put("Second", new ArrayList<Object>());
+        struct.put("Second", new ArrayList<>());
         doc.add(struct);
         doc.add(Boolean.FALSE);
 
@@ -32,32 +32,32 @@ public class TestUntypedSerialization
         // loop more than once, just to ensure caching works ok (during second round)
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
-            
+
             JsonParser jp = f.createParser(str);
             assertEquals(JsonToken.START_ARRAY, jp.nextToken());
-            
+
             assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
             assertEquals("Elem1", getAndVerifyText(jp));
-            
+
             assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
             assertEquals(3, jp.getIntValue());
-            
+
             assertEquals(JsonToken.START_OBJECT, jp.nextToken());
             assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
             assertEquals("first", getAndVerifyText(jp));
-            
+
             assertEquals(JsonToken.VALUE_TRUE, jp.nextToken());
             assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
             assertEquals("Second", getAndVerifyText(jp));
-            
+
             if (jp.nextToken() != JsonToken.START_ARRAY) {
                 fail("Expected START_ARRAY: JSON == '"+str+"'");
             }
             assertEquals(JsonToken.END_ARRAY, jp.nextToken());
             assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-            
+
             assertEquals(JsonToken.VALUE_FALSE, jp.nextToken());
-            
+
             assertEquals(JsonToken.END_ARRAY, jp.nextToken());
             assertNull(jp.nextToken());
             jp.close();
@@ -67,7 +67,7 @@ public class TestUntypedSerialization
     public void testFromMap()
         throws Exception
     {
-        LinkedHashMap<String,Object> doc = new LinkedHashMap<String,Object>();
+        LinkedHashMap<String,Object> doc = new LinkedHashMap<>();
         JsonFactory f =  new JsonFactory();
 
         doc.put("a1", "\"text\"");
@@ -78,24 +78,24 @@ public class TestUntypedSerialization
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
             JsonParser jp = f.createParser(str);
-            
+
             assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-            
+
             assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
             assertEquals("a1", getAndVerifyText(jp));
             assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
             assertEquals("\"text\"", getAndVerifyText(jp));
-            
+
             assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
             assertEquals("int", getAndVerifyText(jp));
             assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
             assertEquals(137, jp.getIntValue());
-            
+
             assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
             assertEquals("foo bar", getAndVerifyText(jp));
             assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
             assertEquals(1234567890L, jp.getLongValue());
-            
+
             assertEquals(JsonToken.END_OBJECT, jp.nextToken());
 
             assertNull(jp.nextToken());

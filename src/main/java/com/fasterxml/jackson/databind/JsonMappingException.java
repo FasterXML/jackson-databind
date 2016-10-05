@@ -190,7 +190,7 @@ public class JsonMappingException
      * @since 2.7
      */
     protected transient Closeable _processor;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -312,14 +312,14 @@ public class JsonMappingException
          */
         return new JsonMappingException(ctxt.getGenerator(), msg, problem);
     }
-    
+
     /**
      * Factory method used when "upgrading" an {@link IOException} into
      * {@link JsonMappingException}: usually only needed to comply with
      * a signature.
-     * 
+     *
      * @since 2.1
-     * 
+     *
      * @deprecated Since 2.9 call method on {@link InputMismatchException} instead
      */
     @Deprecated
@@ -417,7 +417,7 @@ public class JsonMappingException
         _appendPathDesc(sb);
         return sb;
     }
-    
+
     /**
      * Method called to prepend a reference information in front of
      * current path
@@ -440,7 +440,7 @@ public class JsonMappingException
     public void prependPath(Reference r)
     {
         if (_path == null) {
-            _path = new LinkedList<Reference>();
+            _path = new LinkedList<>();
         }
         /* Also: let's not increase without bounds. Could choose either
          * head or tail; tail is easier (no need to ever remove), as
@@ -450,7 +450,7 @@ public class JsonMappingException
             _path.addFirst(r);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Overridden methods
@@ -465,7 +465,7 @@ public class JsonMappingException
     public String getLocalizedMessage() {
         return _buildMessage();
     }
-    
+
     /**
      * Method is overridden so that we can properly inject description
      * of problem path, if such is defined.

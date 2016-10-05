@@ -17,12 +17,12 @@ public class JsonInclude1327Test
 {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     static class Issue1327BeanEmpty {
-        public List<String> myList = new ArrayList<String>();
+        public List<String> myList = new ArrayList<>();
     }
 
     static class Issue1327BeanAlways {
         @JsonInclude(JsonInclude.Include.ALWAYS)
-        public List<String> myList = new ArrayList<String>();
+        public List<String> myList = new ArrayList<>();
     }
 
     /*

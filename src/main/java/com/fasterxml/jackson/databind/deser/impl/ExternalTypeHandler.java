@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * Helper class that is used to flatten JSON structure when using
  * "external type id" (see {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#EXTERNAL_PROPERTY}).
  * This is needed to store temporary state and buffer tokens, as the structure is
- * rearranged a bit so that actual type deserializer can resolve type and 
+ * rearranged a bit so that actual type deserializer can resolve type and
  * finalize deserialization.
  */
 public class ExternalTypeHandler
@@ -89,7 +89,7 @@ public class ExternalTypeHandler
      * at point where parser points to the first token of the value.
      * Handling can mean either resolving type id it contains (if it matches type
      * property name), or by buffering the value for further use.
-     * 
+     *
      * @return True, if the given property was properly handled
      */
     public boolean handlePropertyValue(JsonParser p, DeserializationContext ctxt,
@@ -158,7 +158,7 @@ public class ExternalTypeHandler
                     // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                     if (!_properties[i].hasDefaultType()) {
                         ctxt.reportInputMismatch("Missing external type id property '%s'",
-                                _properties[i].getTypePropertyName());                                
+                                _properties[i].getTypePropertyName());
                     } else  {
                         typeId = _properties[i].getDefaultTypeId();
                     }
@@ -291,11 +291,11 @@ public class ExternalTypeHandler
     /* Helper classes
     /**********************************************************
      */
-    
+
     public static class Builder
     {
-        private final ArrayList<ExtTypedProperty> _properties = new ArrayList<ExtTypedProperty>();
-        private final HashMap<String, Integer> _nameToPropertyIndex = new HashMap<String, Integer>();
+        private final ArrayList<ExtTypedProperty> _properties = new ArrayList<>();
+        private final HashMap<String, Integer> _nameToPropertyIndex = new HashMap<>();
 
         public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser)
         {

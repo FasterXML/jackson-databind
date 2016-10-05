@@ -20,7 +20,7 @@ public class UnwrappedPropertyHandler
     protected final List<SettableBeanProperty> _properties;
 
     public UnwrappedPropertyHandler()  {
-        _properties = new ArrayList<SettableBeanProperty>();
+        _properties = new ArrayList<>();
    }
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> props)  {
         _properties = props;
@@ -32,7 +32,7 @@ public class UnwrappedPropertyHandler
 
     public UnwrappedPropertyHandler renameAll(NameTransformer transformer)
     {
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_properties.size());
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<>(_properties.size());
         for (SettableBeanProperty prop : _properties) {
             String newName = transformer.transform(prop.getName());
             prop = prop.withSimpleName(newName);
@@ -49,7 +49,7 @@ public class UnwrappedPropertyHandler
         }
         return new UnwrappedPropertyHandler(newProps);
     }
-    
+
     @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt, Object bean,
             TokenBuffer buffered)

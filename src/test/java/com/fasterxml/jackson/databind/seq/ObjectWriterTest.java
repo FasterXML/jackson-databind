@@ -26,29 +26,29 @@ public class ObjectWriterTest
     @JsonTypeName("A")
     static class ImplA extends PolyBase {
         public int value;
-        
+
         public ImplA(int v) { value = v; }
     }
 
     @JsonTypeName("B")
     static class ImplB extends PolyBase {
         public int b;
-        
+
         public ImplB(int v) { b = v; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
+
     public void testPrettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
-        HashMap<String, Integer> data = new HashMap<String,Integer>();
+        HashMap<String, Integer> data = new HashMap<>();
         data.put("a", 1);
-        
+
         // default: no indentation
         assertEquals("{\"a\":1}", writer.writeValueAsString(data));
 
@@ -75,8 +75,8 @@ public class ObjectWriterTest
     public void testObjectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
-                .without(JsonGenerator.Feature.QUOTE_FIELD_NAMES);                
-        Map<String,Integer> map = new HashMap<String,Integer>();
+                .without(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        Map<String,Integer> map = new HashMap<>();
         map.put("a", 1);
         assertEquals("{a:1}", writer.writeValueAsString(map));
         // but can also reconfigure

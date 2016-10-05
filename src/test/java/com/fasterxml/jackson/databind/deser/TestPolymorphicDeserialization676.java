@@ -66,7 +66,7 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
     private final MapContainer originMap;
 
     public TestPolymorphicDeserialization676() {
-        Map<String, Object> localMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> localMap = new LinkedHashMap<>();
         localMap.put("DateValue", new Date(TIMESTAMP));
         originMap = new MapContainer(localMap);
     }
@@ -87,7 +87,7 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
     public void testDeSerCorrect() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("1", 1);
         // commenting out the following statement will fail the test
         assertEquals(new MapContainer(map),

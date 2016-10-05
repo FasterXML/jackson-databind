@@ -20,7 +20,7 @@ public class ReferentialWithObjectIdTest extends BaseMapTest
         public AtomicReference<Employee> next;
 
         public Employee next(Employee n) {
-            next = new AtomicReference<Employee>(n);
+            next = new AtomicReference<>(n);
             return this;
         }
     }
@@ -32,7 +32,7 @@ public class ReferentialWithObjectIdTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testAtomicWithObjectId() throws Exception
     {
         Employee first = new Employee();
@@ -47,12 +47,12 @@ public class ReferentialWithObjectIdTest extends BaseMapTest
         second.next(first);
 
         EmployeeList input = new EmployeeList();
-        input.first = new AtomicReference<Employee>(first);
+        input.first = new AtomicReference<>(first);
 
         String json = MAPPER.writeValueAsString(input);
 
         // and back
- 
+
         EmployeeList result = MAPPER.readValue(json, EmployeeList.class);
         Employee firstB = result.first.get();
         assertNotNull(firstB);

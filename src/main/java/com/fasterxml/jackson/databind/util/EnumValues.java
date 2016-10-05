@@ -85,7 +85,7 @@ public final class EnumValues
 
     /**
      * Convenience accessor for getting raw Enum instances.
-     * 
+     *
      * @since 2.6
      */
     public List<Enum<?>> enums() {
@@ -100,7 +100,7 @@ public final class EnumValues
         EnumMap<?,SerializableString> result = _asMap;
         if (result == null) {
             // Alas, need to create it in a round-about way, due to typing constraints...
-            Map<Enum<?>,SerializableString> map = new LinkedHashMap<Enum<?>,SerializableString>();
+            Map<Enum<?>,SerializableString> map = new LinkedHashMap<>();
             for (Enum<?> en : _values) {
                 map.put(en, _textual[en.ordinal()]);
             }

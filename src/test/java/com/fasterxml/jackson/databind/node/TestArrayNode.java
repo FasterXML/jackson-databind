@@ -41,7 +41,7 @@ public class TestArrayNode
         assertTrue(n.hasNonNull(0));
         assertFalse(n.has(1));
         assertFalse(n.hasNonNull(1));
-        
+
         // add null node too
         n.add((JsonNode) null);
         assertEquals(2, n.size());
@@ -66,7 +66,7 @@ public class TestArrayNode
         assertEquals(2, n.size());
         assertTrue(n.get(0).isTextual());
 
-        ArrayList<JsonNode> nodes = new ArrayList<JsonNode>();
+        ArrayList<JsonNode> nodes = new ArrayList<>();
         nodes.add(text);
         n.addAll(nodes);
         assertEquals(3, n.size());
@@ -138,7 +138,7 @@ public class TestArrayNode
         src.add("element");
         dest.addAll(src);
     }
-    
+
     public void testParser() throws Exception
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);

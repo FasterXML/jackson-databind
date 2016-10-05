@@ -17,14 +17,14 @@ public class TestSetterlessProperties
 {
     static class CollectionBean
     {
-        List<String> _values = new ArrayList<String>();
+        List<String> _values = new ArrayList<>();
 
         public List<String> getValues() { return _values; }
     }
 
     static class MapBean
     {
-        Map<String,Integer> _values = new HashMap<String,Integer>();
+        Map<String,Integer> _values = new HashMap<>();
 
         public Map<String,Integer> getValues() { return _values; }
     }
@@ -32,10 +32,10 @@ public class TestSetterlessProperties
     // testing to verify that field has precedence over getter, for lists
     static class Dual
     {
-        @JsonProperty("list") protected List<Integer> values = new ArrayList<Integer>();
+        @JsonProperty("list") protected List<Integer> values = new ArrayList<>();
 
         public Dual() { }
-        
+
         public List<Integer> getList() {
             throw new IllegalStateException("Should not get called");
         }

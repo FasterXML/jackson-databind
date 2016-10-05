@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.*;
  */
 public class JdkDeserializers
 {
-    private final static HashSet<String> _classNames = new HashSet<String>();
+    private final static HashSet<String> _classNames = new HashSet<>();
     static {
         // note: can skip primitive types; other ways to check them:
         Class<?>[] types = new Class<?>[] {

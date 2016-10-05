@@ -95,15 +95,15 @@ public class TestEnumSerialization
     }
 
     static class MapBean {
-        public Map<TestEnum,Integer> map = new HashMap<TestEnum,Integer>();
-        
+        public Map<TestEnum,Integer> map = new HashMap<>();
+
         public void add(TestEnum key, int value) {
             map.put(key, Integer.valueOf(value));
         }
     }
 
     static enum NOT_OK {
-        V1("v1"); 
+        V1("v1");
         protected String key;
         // any runtime-persistent annotation is fine
         NOT_OK(@JsonProperty String key) { this.key = key; }
@@ -114,7 +114,7 @@ public class TestEnumSerialization
         protected String key;
         OK(String key) { this.key = key; }
     }
-    
+
     // Types for [https://github.com/FasterXML/jackson-databind/issues/24]
     // (Enums as JSON Objects)
 
@@ -124,7 +124,7 @@ public class TestEnumSerialization
 
         @JsonProperty
         protected final String value;
-        
+
         private PoNUM(String v) { value = v; }
 
         public String getValue() { return value; }
@@ -134,7 +134,7 @@ public class TestEnumSerialization
         @JsonFormat(shape=Shape.NUMBER)
         public OK text = OK.V1;
     }
-    
+
     @JsonFormat(shape=JsonFormat.Shape.ARRAY) // alias for 'number', as of 2.5
     static enum PoAsArray
     {
@@ -176,15 +176,15 @@ public class TestEnumSerialization
     }
 
     static class MyStuff594 {
-        public Map<MyEnum594,String> stuff = new EnumMap<MyEnum594,String>(MyEnum594.class);
-        
+        public Map<MyEnum594,String> stuff = new EnumMap<>(MyEnum594.class);
+
         public MyStuff594(String value) {
             stuff.put(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE, value);
         }
     }
 
     public class MyBean661 {
-        private Map<Foo661, String> foo = new EnumMap<Foo661, String>(Foo661.class);
+        private Map<Foo661, String> foo = new EnumMap<>(Foo661.class);
 
         public MyBean661(String value) {
             foo.put(Foo661.FOO, value);
@@ -201,7 +201,7 @@ public class TestEnumSerialization
         FOO;
         public static class Serializer extends JsonSerializer<Foo661> {
             @Override
-            public void serialize(Foo661 value, JsonGenerator jgen, SerializerProvider provider) 
+            public void serialize(Foo661 value, JsonGenerator jgen, SerializerProvider provider)
                     throws IOException {
                 jgen.writeFieldName("X-"+value.name());
             }
@@ -228,7 +228,7 @@ public class TestEnumSerialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimple() throws Exception
     {
         assertEquals("\"B\"", MAPPER.writeValueAsString(TestEnum.B));
@@ -275,7 +275,7 @@ public class TestEnumSerialization
     // [databind#601]
     public void testEnumsWithJsonValueInMap() throws Exception
     {
-        EnumMap<EnumWithJsonValue,String> input = new EnumMap<EnumWithJsonValue,String>(EnumWithJsonValue.class);
+        EnumMap<EnumWithJsonValue,String> input = new EnumMap<>(EnumWithJsonValue.class);
         input.put(EnumWithJsonValue.B, "x");
         // 24-Sep-2015, tatu: SHOULD actually use annotated method, as per:
         assertEquals("{\"value:bar\":\"x\"}", MAPPER.writeValueAsString(input));
@@ -307,7 +307,7 @@ public class TestEnumSerialization
     {
         ObjectMapper m = new ObjectMapper();
         m.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        EnumMap<LowerCaseEnum,String> enums = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
+        EnumMap<LowerCaseEnum,String> enums = new EnumMap<>(LowerCaseEnum.class);
         enums.put(LowerCaseEnum.C, "value");
         assertEquals("{\"c\":\"value\"}", m.writeValueAsString(enums));
     }
@@ -363,7 +363,7 @@ public class TestEnumSerialization
     {
         assertEquals("0", MAPPER.writeValueAsString(PoAsArray.A));
     }
-    
+
     // [Issue#227]
     public void testGenericEnumSerializer() throws Exception
     {
@@ -400,23 +400,23 @@ public class TestEnumSerialization
 
     public void testEnumMapSerDefault() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
-        EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
+        EnumMap<LC749Enum, String> m = new EnumMap<>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));
     }
-    
+
     public void testEnumMapSerDisableToString() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         ObjectWriter w = mapper.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
+        EnumMap<LC749Enum, String> m = new EnumMap<>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", w.writeValueAsString(m));
     }
-    
+
     public void testEnumMapSerEnableToString() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         ObjectWriter w = mapper.writer().with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
+        EnumMap<LC749Enum, String> m = new EnumMap<>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"a\":\"value\"}", w.writeValueAsString(m));
     }
@@ -436,7 +436,7 @@ public class TestEnumSerialization
     // [databind#1322]
     public void testEnumsWithJsonPropertyAsKey() throws Exception
     {
-        EnumMap<EnumWithJsonProperty,String> input = new EnumMap<EnumWithJsonProperty,String>(EnumWithJsonProperty.class);
+        EnumMap<EnumWithJsonProperty,String> input = new EnumMap<>(EnumWithJsonProperty.class);
         input.put(EnumWithJsonProperty.A, "b");
         assertEquals("{\"aleph\":\"b\"}", MAPPER.writeValueAsString(input));
     }
@@ -444,7 +444,7 @@ public class TestEnumSerialization
 
 // [JACKSON-757], non-inner enum
 enum NOT_OK2 {
-    V2("v2"); 
+    V2("v2");
     protected String key;
     // any runtime-persistent annotation is fine
     NOT_OK2(@JsonProperty String key) { this.key = key; }

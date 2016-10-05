@@ -15,7 +15,7 @@ public class TestAbstractWithObjectId extends BaseMapTest
     static class BaseInterfaceImpl implements BaseInterface {
 
         @JsonProperty
-        private List<BaseInterfaceImpl> myInstances = new ArrayList<BaseInterfaceImpl>();
+        private List<BaseInterfaceImpl> myInstances = new ArrayList<>();
 
         void addInstance(BaseInterfaceImpl instance) {
             myInstances.add(instance);
@@ -25,7 +25,7 @@ public class TestAbstractWithObjectId extends BaseMapTest
     static class ListWrapper<T extends BaseInterface> {
 
         @JsonProperty
-        private List<T> myList = new ArrayList<T>();
+        private List<T> myList = new ArrayList<>();
 
         void add(T t) {
             myList.add(t);
@@ -47,7 +47,7 @@ public class TestAbstractWithObjectId extends BaseMapTest
         two.addInstance(one);
 
         // make a typed version of the list and add the 2 instances to it
-        ListWrapper<BaseInterfaceImpl> myList = new ListWrapper<BaseInterfaceImpl>();
+        ListWrapper<BaseInterfaceImpl> myList = new ListWrapper<>();
         myList.add(one);
         myList.add(two);
 
@@ -58,7 +58,7 @@ public class TestAbstractWithObjectId extends BaseMapTest
         // write and print the JSON
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(myList);
         ListWrapper<BaseInterfaceImpl> result;
-        
+
         result = om.readValue(json, new TypeReference<ListWrapper<BaseInterfaceImpl>>() { });
 
         assertNotNull(result);

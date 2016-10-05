@@ -51,7 +51,7 @@ public abstract class PrimitiveArrayBuilder<T>
      */
 
     public int bufferedSize() { return _bufferedEntryCount; }
-    
+
     public T resetAndStart()
     {
         _reset();
@@ -64,7 +64,7 @@ public abstract class PrimitiveArrayBuilder<T>
      */
     public final T appendCompletedChunk(T fullChunk, int fullChunkLength)
     {
-        Node<T> next = new Node<T>(fullChunk, fullChunkLength);
+        Node<T> next = new Node<>(fullChunk, fullChunkLength);
         if (_bufferHead == null) { // first chunk
             _bufferHead = _bufferTail = next;
         } else { // have something already

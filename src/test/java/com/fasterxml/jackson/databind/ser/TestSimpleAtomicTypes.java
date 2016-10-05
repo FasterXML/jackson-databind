@@ -17,7 +17,7 @@ public class TestSimpleAtomicTypes
         @JsonSerialize(contentUsing=UpperCasingSerializer.class)
         public AtomicReference<String> value;
 
-        public UCStringWrapper(String s) { value = new AtomicReference<String>(s); }
+        public UCStringWrapper(String s) { value = new AtomicReference<>(s); }
     }
 
     /*
@@ -27,7 +27,7 @@ public class TestSimpleAtomicTypes
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testAtomicBoolean() throws Exception
     {
         assertEquals("true", MAPPER.writeValueAsString(new AtomicBoolean(true)));
@@ -48,7 +48,7 @@ public class TestSimpleAtomicTypes
     public void testAtomicReference() throws Exception
     {
         String[] strs = new String[] { "abc" };
-        assertEquals("[\"abc\"]", MAPPER.writeValueAsString(new AtomicReference<String[]>(strs)));
+        assertEquals("[\"abc\"]", MAPPER.writeValueAsString(new AtomicReference<>(strs)));
     }
 
     public void testCustomSerializer() throws Exception

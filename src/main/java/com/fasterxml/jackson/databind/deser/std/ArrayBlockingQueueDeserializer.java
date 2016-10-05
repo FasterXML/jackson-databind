@@ -68,7 +68,7 @@ public class ArrayBlockingQueueDeserializer
         return new ArrayBlockingQueueDeserializer(_collectionType,
                 (JsonDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
-                
+
     }
 
     /*
@@ -76,7 +76,7 @@ public class ArrayBlockingQueueDeserializer
     /* JsonDeserializer API
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
@@ -99,10 +99,10 @@ public class ArrayBlockingQueueDeserializer
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!jp.isExpectedStartArrayToken()) {
-            return handleNonArray(jp, ctxt, new ArrayBlockingQueue<Object>(1));
+            return handleNonArray(jp, ctxt, new ArrayBlockingQueue<>(1));
         }
-        ArrayList<Object> tmp = new ArrayList<Object>();
-        
+        ArrayList<Object> tmp = new ArrayList<>();
+
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -110,7 +110,7 @@ public class ArrayBlockingQueueDeserializer
         try {
             while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
                 Object value;
-                
+
                 if (t == JsonToken.VALUE_NULL) {
                     value = valueDes.getNullValue(ctxt);
                 } else if (typeDeser == null) {
@@ -127,7 +127,7 @@ public class ArrayBlockingQueueDeserializer
             result0.addAll(tmp);
             return result0;
         }
-        return new ArrayBlockingQueue<Object>(tmp.size(), false, tmp);
+        return new ArrayBlockingQueue<>(tmp.size(), false, tmp);
     }
 
     @Override

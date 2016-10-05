@@ -69,7 +69,7 @@ public class TestJsonValue
     static class ValueType extends ValueBase {
         public String b = "b";
     }
-    
+
     // Finally, let's also test static vs dynamic type
     static class ValueWrapper {
         @JsonValue
@@ -81,7 +81,7 @@ public class TestJsonValue
         @JsonValue
         public Map<String,String> toMap()
         {
-            HashMap<String,String> map = new HashMap<String,String>();
+            HashMap<String,String> map = new HashMap<>();
             map.put("a", "1");
             return map;
         }
@@ -100,28 +100,28 @@ public class TestJsonValue
     }
 
     static class IntExtBean {
-        public List<Internal> values = new ArrayList<Internal>();
-        
+        public List<Internal> values = new ArrayList<>();
+
         public void add(int v) { values.add(new Internal(v)); }
     }
-    
+
     static class Internal {
         public int value;
-        
+
         public Internal(int v) { value = v; }
-        
+
         @JsonValue
         public External asExternal() { return new External(this); }
     }
-    
+
     static class External {
         public int i;
-        
+
         External(Internal e) { i = e.value; }
     }
 
     // [databind#167]
-    
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "boingo")
     @JsonSubTypes(value = {@JsonSubTypes.Type(name = "boopsy", value = AdditionInterfaceImpl.class)
     })
@@ -129,21 +129,21 @@ public class TestJsonValue
     {
         public int add(int in);
     }
-	
+
     public static class AdditionInterfaceImpl implements AdditionInterface
     {
 	    private final int toAdd;
-	
+
 	    @JsonCreator
 	    public AdditionInterfaceImpl(@JsonProperty("toAdd") int toAdd) {
 	      this.toAdd = toAdd;
 	    }
-	
+
 	    @JsonProperty
 	    public int getToAdd() {
 	      return toAdd;
 	    }
-	
+
 	    @Override
 	    public int add(int in) {
 	      return in + toAdd;
@@ -169,7 +169,7 @@ public class TestJsonValue
             gen.writeNumber(42);
         }
     }
-    
+
     /*
     /*********************************************************
     /* Test cases
@@ -177,16 +177,16 @@ public class TestJsonValue
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleJsonValue() throws Exception
     {
-        String result = MAPPER.writeValueAsString(new ValueClass<String>("abc"));
+        String result = MAPPER.writeValueAsString(new ValueClass<>("abc"));
         assertEquals("\"abc\"", result);
     }
 
     public void testJsonValueWithUseSerializer() throws Exception
     {
-        String result = serializeAsString(MAPPER, new ToStringValueClass<Integer>(Integer.valueOf(123)));
+        String result = serializeAsString(MAPPER, new ToStringValueClass<>(Integer.valueOf(123)));
         assertEquals("\"123\"", result);
     }
 
@@ -235,7 +235,7 @@ public class TestJsonValue
     public void testPolymorphicSerdeWithDelegate() throws Exception
     {
 	    AdditionInterface adder = new AdditionInterfaceImpl(1);
-	
+
 	    assertEquals(2, adder.add(1));
 	    String json = MAPPER.writeValueAsString(adder);
 	    assertEquals("{\"boingo\":\"boopsy\",\"toAdd\":1}", json);

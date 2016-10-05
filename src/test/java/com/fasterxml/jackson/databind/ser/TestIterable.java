@@ -14,14 +14,14 @@ public class TestIterable extends BaseMapTest
     final static class IterableWrapper
         implements Iterable<Integer>
     {
-        List<Integer> _ints = new ArrayList<Integer>();
-    
+        List<Integer> _ints = new ArrayList<>();
+
         public IterableWrapper(int[] values) {
             for (int i : values) {
                 _ints.add(Integer.valueOf(i));
             }
         }
-    
+
         @Override
         public Iterator<Integer> iterator() {
             return _ints.iterator();
@@ -29,7 +29,7 @@ public class TestIterable extends BaseMapTest
     }
     // [JACKSON-689]
     static class BeanWithIterable {
-        private final ArrayList<String> values = new ArrayList<String>();
+        private final ArrayList<String> values = new ArrayList<>();
         {
             values.add("value");
         }
@@ -69,7 +69,7 @@ public class TestIterable extends BaseMapTest
 
         public int getX() { return 13; }
     }
- 
+
     // [databind#358]
     static class A {
         public String unexpected = "Bye.";
@@ -97,11 +97,11 @@ public class TestIterable extends BaseMapTest
      */
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testIterator() throws IOException
     {
         StringWriter sw = new StringWriter();
-        ArrayList<Integer> l = new ArrayList<Integer>();
+        ArrayList<Integer> l = new ArrayList<>();
         l.add(1);
         l.add(-9);
         l.add(0);
@@ -126,7 +126,7 @@ public class TestIterable extends BaseMapTest
         assertEquals("[1,2,3]",
                 MAPPER.writeValueAsString(new IntIterable()));
     }
-    
+
     // [databind#358]
     public void testIterable358() throws Exception {
         String json = MAPPER.writeValueAsString(new B());

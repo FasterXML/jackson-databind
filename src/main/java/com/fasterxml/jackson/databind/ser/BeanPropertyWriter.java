@@ -65,7 +65,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Wrapper name to use for this element, if any
-     * 
+     *
      * @since 2.2
      */
     protected final PropertyName _wrapperName;
@@ -245,7 +245,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Constructor that may be of use to virtual properties, when there is need
      * for the zero-arg ("default") constructor, and actual initialization is
      * done after constructor call.
-     * 
+     *
      * @since 2.5
      */
     protected BeanPropertyWriter() {
@@ -303,7 +303,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         _nullSerializer = base._nullSerializer;
         // one more thing: copy internal settings, if any
         if (base._internalSettings != null) {
-            _internalSettings = new HashMap<Object, Object>(
+            _internalSettings = new HashMap<>(
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
@@ -328,7 +328,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         _serializer = base._serializer;
         _nullSerializer = base._nullSerializer;
         if (base._internalSettings != null) {
-            _internalSettings = new HashMap<Object, Object>(
+            _internalSettings = new HashMap<>(
                     base._internalSettings);
         }
         _cfgSerializationType = base._cfgSerializationType;
@@ -503,7 +503,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Method for accessing value of specified internal setting.
-     * 
+     *
      * @return Value of the setting, if any; null if none.
      */
     public Object getInternalSetting(Object key) {
@@ -512,19 +512,19 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Method for setting specific internal setting to given value
-     * 
+     *
      * @return Old value of the setting, if any (null if none)
      */
     public Object setInternalSetting(Object key, Object value) {
         if (_internalSettings == null) {
-            _internalSettings = new HashMap<Object, Object>();
+            _internalSettings = new HashMap<>();
         }
         return _internalSettings.put(key, value);
     }
 
     /**
      * Method for removing entry for specified internal setting.
-     * 
+     *
      * @return Existing value of the setting, if any (null if none)
      */
     public Object removeInternalSetting(Object key) {
@@ -571,7 +571,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * name).
      * <p>
      * Default implementation simply returns false.
-     * 
+     *
      * @since 2.3
      */
     public boolean isUnwrapping() {
@@ -711,7 +711,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Method called to indicate that serialization of a field was omitted due
      * to filtering, in cases where backend data format does not allow basic
      * omission.
-     * 
+     *
      * @since 2.3
      */
     @Override
@@ -726,7 +726,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Alternative to {@link #serializeAsField} that is used when a POJO is
      * serialized as JSON Array; the difference is that no field names are
      * written.
-     * 
+     *
      * @since 2.3
      */
     @Override
@@ -786,7 +786,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * value is not to be included (is filtered out), but when we need an entry
      * so that field indexes will not be off. Typically this should output null
      * or empty String, depending on datatype.
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -824,7 +824,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Attempt to add the output of the given {@link BeanPropertyWriter} in the
      * given {@link ObjectNode}. Otherwise, add the default schema
      * {@link JsonNode} in place of the writer's output
-     * 
+     *
      * @param propertiesNode
      *            Node which the given property would exist within
      * @param provider

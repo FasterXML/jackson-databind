@@ -31,11 +31,11 @@ public class TestTypedArraySerialization
     @SuppressWarnings("serial")
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
     static class TypedListAsProp<T> extends ArrayList<T> { }
-    
+
     @SuppressWarnings("serial")
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.WRAPPER_OBJECT)
     static class TypedListAsWrapper<T> extends LinkedList<T> { }
-    
+
     // Mix-in to force wrapper for things like primitive arrays
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_OBJECT)
     interface WrapperMixIn { }
@@ -58,7 +58,7 @@ public class TestTypedArraySerialization
 
     static class BeanListWrapper {
         @JsonView({Object.class})
-        public List<Bean> beans = new ArrayList<Bean>();
+        public List<Bean> beans = new ArrayList<>();
         {
             beans.add(new Bean());
         }
@@ -79,23 +79,23 @@ public class TestTypedArraySerialization
         ObjectWriter w = mapper.writerWithView(Object.class);
         assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", w.writeValueAsString(beans));
     }
-    
+
     public void testIntList() throws Exception
     {
-        TypedList<Integer> input = new TypedList<Integer>();
+        TypedList<Integer> input = new TypedList<>();
         input.add(5);
         input.add(13);
         // uses WRAPPER_ARRAY inclusion:
         assertEquals("[\""+TypedList.class.getName()+"\",[5,13]]", serializeAsString(input));
     }
-    
+
     // Similar to above, but this time let's request adding type info
     // as property. That would not work (since there's no JSON Object to
     // add property in), so it should revert to method used with
     // ARRAY_WRAPPER method.
     public void testStringListAsProp() throws Exception
     {
-        TypedListAsProp<String> input = new TypedListAsProp<String>();
+        TypedListAsProp<String> input = new TypedListAsProp<>();
         input.add("a");
         input.add("b");
         assertEquals("[\""+TypedListAsProp.class.getName()+"\",[\"a\",\"b\"]]",
@@ -104,7 +104,7 @@ public class TestTypedArraySerialization
 
     public void testStringListAsObjectWrapper() throws Exception
     {
-        TypedListAsWrapper<Boolean> input = new TypedListAsWrapper<Boolean>();
+        TypedListAsWrapper<Boolean> input = new TypedListAsWrapper<>();
         input.add(true);
         input.add(null);
         input.add(false);

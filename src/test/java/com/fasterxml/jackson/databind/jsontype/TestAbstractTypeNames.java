@@ -88,7 +88,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
             public String toString() { return "sub!"; }
         };
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -100,7 +100,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        List<User>friends = new ArrayList<User>();
+        List<User>friends = new ArrayList<>();
         friends.add(new DefaultUser("Joe Hildebrandt", null));
         friends.add(new DefaultEmployee("Richard Nasr",null,"MDA"));
 
@@ -113,7 +113,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
         mapper = new ObjectMapper();
         mapper.registerSubtypes(DefaultEmployee.class);
         mapper.registerSubtypes(DefaultUser.class);
-        
+
         User result = mapper.readValue(json, User.class);
         assertNotNull(result);
         assertEquals(DefaultEmployee.class, result.getClass());
@@ -123,7 +123,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
         assertEquals(DefaultUser.class, friends.get(0).getClass());
         assertEquals(DefaultEmployee.class, friends.get(1).getClass());
     }
-    
+
     // [JACKSON-584]: change anonymous non-static inner type into static type:
     public void testInnerClassWithType() throws Exception
     {

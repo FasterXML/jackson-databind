@@ -42,18 +42,18 @@ public class BeanDeserializerBuilder
     /* Accumulated information about properties
     /**********************************************************
      */
-    
+
     /**
      * Properties to deserialize collected so far.
      */
     final protected Map<String, SettableBeanProperty> _properties
-        = new LinkedHashMap<String, SettableBeanProperty>();
-    
+        = new LinkedHashMap<>();
+
     /**
      * Value injectors for deserialization
      */
     protected List<ValueInjector> _injectables;
-    
+
     /**
      * Back-reference properties this bean contains (if any)
      */
@@ -64,7 +64,7 @@ public class BeanDeserializerBuilder
      * purposes (meaning no exception is thrown, value is just skipped).
      */
     protected HashSet<String> _ignorableProps;
-    
+
     /**
      * Object that will handle value instantiation for the bean type.
      */
@@ -75,7 +75,7 @@ public class BeanDeserializerBuilder
      * bean type.
      */
     protected ObjectIdReader _objectIdReader;
-    
+
     /**
      * Fallback setter used for handling any properties that are not
      * mapped to regular setters. If setter is not null, it will be
@@ -105,10 +105,10 @@ public class BeanDeserializerBuilder
     /* Life-cycle: construction
     /**********************************************************
      */
-    
+
     public BeanDeserializerBuilder(BeanDescription beanDesc,
             DeserializationConfig config)
-    { 
+    {
         _beanDesc = beanDesc;
         _config = config;
     }
@@ -127,26 +127,26 @@ public class BeanDeserializerBuilder
         _injectables = _copy(src._injectables);
         _backRefProperties = _copy(src._backRefProperties);
         // Hmmh. Should we create defensive copies here? For now, not yet
-        _ignorableProps = src._ignorableProps;        
+        _ignorableProps = src._ignorableProps;
         _valueInstantiator = src._valueInstantiator;
         _objectIdReader = src._objectIdReader;
-        
+
         _anySetter = src._anySetter;
         _ignoreAllUnknown = src._ignoreAllUnknown;
-        
+
         _buildMethod = src._buildMethod;
         _builderConfig = src._builderConfig;
     }
 
     private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> src) {
         return (src == null) ? null
-                : new HashMap<String, SettableBeanProperty>(src);
+                : new HashMap<>(src);
     }
 
     private static <T> List<T> _copy(List<T> src) {
-        return (src == null) ? null : new ArrayList<T>(src);
+        return (src == null) ? null : new ArrayList<>(src);
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle: state modification (adders, setters)
@@ -181,7 +181,7 @@ public class BeanDeserializerBuilder
     public void  addBackReferenceProperty(String referenceName, SettableBeanProperty prop)
     {
         if (_backRefProperties == null) {
-            _backRefProperties = new HashMap<String, SettableBeanProperty>(4);
+            _backRefProperties = new HashMap<>(4);
         }
         // 15-Sep-2016, tatu: For some reason fixing access at point of `build()` does
         //    NOT work (2 failing unit tests). Not 100% clear why, but for now force
@@ -201,7 +201,7 @@ public class BeanDeserializerBuilder
             Object valueId)
     {
         if (_injectables == null) {
-            _injectables = new ArrayList<ValueInjector>();
+            _injectables = new ArrayList<>();
         }
         boolean fixAccess = _config.canOverrideAccessModifiers();
         boolean forceAccess = fixAccess && _config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS);
@@ -219,7 +219,7 @@ public class BeanDeserializerBuilder
     public void addIgnorable(String propName)
     {
         if (_ignorableProps == null) {
-            _ignorableProps = new HashSet<String>();
+            _ignorableProps = new HashSet<>();
         }
         _ignorableProps.add(propName);
     }
@@ -263,13 +263,13 @@ public class BeanDeserializerBuilder
         _buildMethod = buildMethod;
         _builderConfig = config;
     }
-    
+
     /*
     /**********************************************************
     /* Public accessors
     /**********************************************************
      */
-    
+
     /**
      * Method that allows accessing all properties that this
      * builder currently contains.
@@ -297,7 +297,7 @@ public class BeanDeserializerBuilder
     public SettableAnyProperty getAnySetter() {
         return _anySetter;
     }
-    
+
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
     }
@@ -369,7 +369,7 @@ public class BeanDeserializerBuilder
      * Alternate build method used when we must be using some form of
      * abstract resolution, usually by using addition Type Id
      * ("polymorphic deserialization")
-     * 
+     *
      * @since 2.0
      */
     public AbstractDeserializer buildAbstract() {
@@ -468,7 +468,7 @@ public class BeanDeserializerBuilder
         }
         // 15-Sep-2016, tatu: Access via back-ref properties has been done earlier
         //   as it has to, for some reason, so not repeated here.
-/*        
+/*
         if (_backRefProperties != null) {
             for (SettableBeanProperty prop : _backRefProperties.values()) {
                 prop.fixAccess(_config);

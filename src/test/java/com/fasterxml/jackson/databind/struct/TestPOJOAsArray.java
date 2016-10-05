@@ -33,7 +33,7 @@ public class TestPOJOAsArray extends BaseMapTest
             y = y0;
         }
     }
-    
+
     // note: must be serialized/deserialized alphabetically; fields NOT declared in that order
     @JsonPropertyOrder(alphabetic=true)
     static class PojoAsArray
@@ -108,7 +108,7 @@ public class TestPOJOAsArray extends BaseMapTest
 
         public AsArrayWithMap() { }
         public AsArrayWithMap(int x, int y) {
-            attrs = new HashMap<Integer,Integer>();
+            attrs = new HashMap<>();
             attrs.put(x, y);
         }
     }
@@ -132,7 +132,7 @@ public class TestPOJOAsArray extends BaseMapTest
      */
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
-    
+
     /**
      * Test that verifies that property annotation works
      */
@@ -159,7 +159,7 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals(1, p.x);
         assertEquals(2, p.y);
     }
-    
+
     /**
      * Test that verifies that property annotation works
      */
@@ -191,7 +191,7 @@ public class TestPOJOAsArray extends BaseMapTest
     /* Compatibility with "single-elem as array" feature
     /*****************************************************
      */
-    
+
     // for [JACKSON-805]
     public void testSerializeAsArrayWithSingleProperty() throws Exception {
         ObjectMapper mapper = new ObjectMapper();

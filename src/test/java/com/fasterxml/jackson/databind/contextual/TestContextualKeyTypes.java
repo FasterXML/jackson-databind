@@ -30,7 +30,7 @@ public class TestContextualKeyTypes extends BaseMapTest
         implements ContextualSerializer
     {
         protected final String _prefix;
-    
+
         public ContextualKeySerializer() { this(""); }
         public ContextualKeySerializer(String p) {
             _prefix = p;
@@ -58,10 +58,10 @@ public class TestContextualKeyTypes extends BaseMapTest
         implements ContextualKeyDeserializer
     {
         protected final String _prefix;
-        
+
         protected ContextualDeser(String p) {
             _prefix = p;
-        }        
+        }
 
         @Override
         public Object deserializeKey(String key, DeserializationContext ctxt)
@@ -81,7 +81,7 @@ public class TestContextualKeyTypes extends BaseMapTest
     static class MapBean {
         public Map<String, Integer> map;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests, serialization
@@ -94,13 +94,13 @@ public class TestContextualKeyTypes extends BaseMapTest
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addKeySerializer(String.class, new ContextualKeySerializer("prefix"));
         mapper.registerModule(module);
-        Map<String,Object> input = new HashMap<String,Object>();
+        Map<String,Object> input = new HashMap<>();
         input.put("a", Integer.valueOf(3));
         String json = mapper.writerFor(TypeFactory.defaultInstance().constructMapType(HashMap.class, String.class, Object.class))
             .writeValueAsString(input);
         assertEquals("{\"prefix:a\":3}", json);
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests, deserialization

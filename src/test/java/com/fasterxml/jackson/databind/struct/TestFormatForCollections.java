@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestFormatForCollections extends BaseMapTest
 {
-    // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object) 
+    // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object)
     @JsonPropertyOrder({ "size", "value" })
     @JsonFormat(shape=Shape.OBJECT)
     @JsonIgnoreProperties({ "empty" }) // from 'isEmpty()'
@@ -21,15 +21,15 @@ public class TestFormatForCollections extends BaseMapTest
 
         @JsonProperty("size")
         public int foo() { return size(); }
-        
+
         public List<String> getValues() {
-            return new ArrayList<String>(this);
+            return new ArrayList<>(this);
         }
 
         public void setValues(List<String> v) {
             addAll(v);
         }
-        
+
         // bogus setter to handle "size" property
         public void setSize(int i) { }
     }
@@ -40,7 +40,7 @@ public class TestFormatForCollections extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();    
+    private final static ObjectMapper MAPPER = new ObjectMapper();
 
 
     // [Issue#40]

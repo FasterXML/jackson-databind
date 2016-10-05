@@ -71,9 +71,9 @@ public class ObjectId825BTest extends BaseMapTest
 
         public java.util.ArrayList<CTV> getVar() {
             if (var == null) {
-                var = new ArrayList<CTV>();
+                var = new ArrayList<>();
             }
-            return new ArrayList<CTV>(var);
+            return new ArrayList<>(var);
         }
 
         public void setVar(java.util.ArrayList<CTV> var) {
@@ -133,7 +133,7 @@ public class ObjectId825BTest extends BaseMapTest
 
     static class V extends AbstractData {
         private static final long serialVersionUID = 1L;
-    }    
+    }
 
     public void testFull825() throws Exception
     {
@@ -187,7 +187,7 @@ public class ObjectId825BTest extends BaseMapTest
         // also replace package
         final String newPkg = getClass().getName() + "\\$";
         INPUT = INPUT.replaceAll("_PKG_", newPkg);
-        
+
         CTC result = mapper.readValue(INPUT, CTC.class);
         assertNotNull(result);
     }

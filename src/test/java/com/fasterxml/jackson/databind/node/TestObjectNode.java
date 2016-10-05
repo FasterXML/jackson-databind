@@ -27,13 +27,13 @@ public class TestObjectNode
         public DataImpl(JsonNode n) {
             root = n;
         }
-        
+
         @JsonValue
         public JsonNode value() { return root; }
-        
+
         /*
         public Wrapper(ObjectNode n) { root = n; }
-        
+
         @JsonValue
         public ObjectNode value() { return root; }
         */
@@ -114,14 +114,14 @@ public class TestObjectNode
         assertEquals(1, obNode.size());
         assertEquals(IntNode.valueOf(1), root.get("key"));
         assertNull(root.get("b"));
-    }    
+    }
     // for [Issue#346]
     public void testEmptyNodeAsValue() throws Exception
     {
         Data w = MAPPER.readValue("{}", Data.class);
         assertNotNull(w);
     }
-    
+
     public void testBasics()
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
@@ -135,7 +135,7 @@ public class TestObjectNode
 
         TextNode text = TextNode.valueOf("x");
         assertSame(n, n.set("a", text));
-        
+
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
         assertTrue(n.fields().hasNext());
@@ -156,7 +156,7 @@ public class TestObjectNode
         n2.put("b", 13);
         assertFalse(n.equals(n2));
         n.setAll(n2);
-        
+
         assertEquals(2, n.size());
         n.set("null", (JsonNode)null);
         assertEquals(3, n.size());
@@ -169,7 +169,7 @@ public class TestObjectNode
         assertNotNull(n.remove("null"));
         assertEquals(2, n.size());
 
-        Map<String,JsonNode> nodes = new HashMap<String,JsonNode>();
+        Map<String,JsonNode> nodes = new HashMap<>();
         nodes.put("d", text);
         n.setAll(nodes);
         assertEquals(3, n.size());
@@ -307,7 +307,7 @@ public class TestObjectNode
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals(0, root.size());
-        HashMap<String,JsonNode> map = new HashMap<String,JsonNode>();
+        HashMap<String,JsonNode> map = new HashMap<>();
         map.put("a", root.numberNode(1));
         root.setAll(map);
         assertEquals(1, root.size());
@@ -344,13 +344,13 @@ public class TestObjectNode
     public void testFailOnDupKeys() throws Exception
     {
         final String DUP_JSON = "{ \"a\":1, \"a\":2 }";
-        
+
         // first: verify defaults:
         ObjectMapper mapper = new ObjectMapper();
         assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
         ObjectNode root = (ObjectNode) mapper.readTree(DUP_JSON);
         assertEquals(2, root.path("a").asInt());
-        
+
         // and then enable checks:
         try {
             mapper.reader(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY).readTree(DUP_JSON);
@@ -366,7 +366,7 @@ public class TestObjectNode
         ObjectNode ob2 = MAPPER.createObjectNode();
 
         // same contents, different insertion order; should not matter
-        
+
         ob1.put("a", 1);
         ob1.put("b", 2);
         ob1.put("c", 3);

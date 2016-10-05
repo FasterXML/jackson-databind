@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
 public class PolymorphicViaRefTypeTest extends BaseMapTest
 {
-    
+
     @JsonSubTypes({
         @JsonSubTypes.Type(name = "impl5", value = ImplForAtomic.class)
     })
@@ -34,7 +34,7 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
 
         protected AtomicStringWrapper() { }
         public AtomicStringWrapper(String str) {
-            wrapper = new AtomicReference<StringWrapper>(new StringWrapper(str));
+            wrapper = new AtomicReference<>(new StringWrapper(str));
         }
     }
 

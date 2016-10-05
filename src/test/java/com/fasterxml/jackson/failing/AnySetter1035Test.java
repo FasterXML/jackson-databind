@@ -15,7 +15,7 @@ public class AnySetter1035Test extends BaseMapTest
     static class MyGeneric<T>
     {
         private String staticallyMappedProperty;
-        private Map<T, Integer> dynamicallyMappedProperties = new HashMap<T, Integer>();
+        private Map<T, Integer> dynamicallyMappedProperties = new HashMap<>();
 
         public String getStaticallyMappedProperty() {
             return staticallyMappedProperty;
@@ -62,9 +62,9 @@ public class AnySetter1035Test extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
 
-        Map<String, Integer> stringGenericMap = new HashMap<String, Integer>();
+        Map<String, Integer> stringGenericMap = new HashMap<>();
         stringGenericMap.put("testStringKey", 5);
-        Map<Integer, Integer> integerGenericMap = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> integerGenericMap = new HashMap<>();
         integerGenericMap.put(111, 6);
 
         MyWrapper deserialized = mapper.readValue(aposToQuotes(

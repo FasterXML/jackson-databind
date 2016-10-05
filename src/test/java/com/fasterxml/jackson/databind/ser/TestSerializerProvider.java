@@ -14,7 +14,7 @@ public class TestSerializerProvider
 
     static class NoPropsBean {
     }
-    
+
     public void testFindExplicit() throws JsonMappingException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -37,7 +37,7 @@ public class TestSerializerProvider
         assertTrue(prov.createInstance(config, f).hasSerializerFor(MyBean.class, null));
 
         // And then some negative testing
-        AtomicReference<Throwable> cause = new AtomicReference<Throwable>();
+        AtomicReference<Throwable> cause = new AtomicReference<>();
         assertFalse(prov.createInstance(config, f).hasSerializerFor(NoPropsBean.class, cause));
         Throwable t = cause.get();
         // no actual exception: just fails since there are no properties

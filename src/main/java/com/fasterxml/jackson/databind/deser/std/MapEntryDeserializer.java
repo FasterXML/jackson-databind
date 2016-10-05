@@ -99,7 +99,7 @@ public class MapEntryDeserializer
     protected MapEntryDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser)
     {
-        
+
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
                 && (_valueTypeDeserializer == valueTypeDeser)) {
             return this;
@@ -160,7 +160,7 @@ public class MapEntryDeserializer
     public JsonDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializer API
@@ -223,7 +223,7 @@ public class MapEntryDeserializer
             }
             return null;
         }
-        return new AbstractMap.SimpleEntry<Object,Object>(key, value);
+        return new AbstractMap.SimpleEntry<>(key, value);
     }
 
     @Override

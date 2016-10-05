@@ -32,8 +32,8 @@ public class SerializableSerializer
     public final static SerializableSerializer instance = new SerializableSerializer();
 
     // Ugh. Should NOT need this...
-    private final static AtomicReference<ObjectMapper> _mapperReference = new AtomicReference<ObjectMapper>();
-    
+    private final static AtomicReference<ObjectMapper> _mapperReference = new AtomicReference<>();
+
     protected SerializableSerializer() { super(JsonSerializable.class); }
 
     @Override
@@ -54,7 +54,7 @@ public class SerializableSerializer
             TypeSerializer typeSer) throws IOException {
         value.serializeWithType(gen, serializers, typeSer);
     }
-    
+
     @Override
     @SuppressWarnings("deprecation")
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
@@ -99,7 +99,7 @@ public class SerializableSerializer
         //objectNode.put("required", false);
         return objectNode;
     }
-    
+
     private final static synchronized ObjectMapper _getObjectMapper()
     {
         ObjectMapper mapper = _mapperReference.get();

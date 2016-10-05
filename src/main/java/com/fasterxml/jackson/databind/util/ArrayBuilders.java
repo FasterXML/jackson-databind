@@ -22,7 +22,7 @@ public final class ArrayBuilders
     private ShortBuilder _shortBuilder = null;
     private IntBuilder _intBuilder = null;
     private LongBuilder _longBuilder = null;
-    
+
     private FloatBuilder _floatBuilder = null;
     private DoubleBuilder _doubleBuilder = null;
 
@@ -137,7 +137,7 @@ public final class ArrayBuilders
         @Override
         public final double[] _constructArray(int len) { return new double[len]; }
     }
-    
+
     /*
     /**********************************************************
     /* Static helper methods
@@ -151,7 +151,7 @@ public final class ArrayBuilders
      * Note: current implementation is not optimized for speed; if performance
      * ever becomes an issue, it is possible to construct much more efficient
      * typed instances (one for Object[] and sub-types; one per primitive type).
-     * 
+     *
      * @since 2.2 Moved from earlier <code>Comparators</code> class
      */
     public static Object getArrayComparator(final Object defaultValue)
@@ -184,7 +184,7 @@ public final class ArrayBuilders
 
     public static <T> HashSet<T> arrayToSet(T[] elements)
     {
-        HashSet<T> result = new HashSet<T>();
+        HashSet<T> result = new HashSet<>();
         if (elements != null) {
             for (T elem : elements) {
                 result.add(elem);
@@ -195,7 +195,7 @@ public final class ArrayBuilders
 
     public static <T> ArrayList<T> arrayToList(T[] elements)
     {
-        ArrayList<T> result = new ArrayList<T>();
+        ArrayList<T> result = new ArrayList<>();
         if (elements != null) {
             for (T elem : elements) {
                 result.add(elem);
@@ -206,7 +206,7 @@ public final class ArrayBuilders
 
     public static <T> HashSet<T> setAndArray(Set<T> set, T[] elements)
     {
-        HashSet<T> result = new HashSet<T>();
+        HashSet<T> result = new HashSet<>();
         if (set != null) {
             result.addAll(set);
         }
@@ -217,23 +217,23 @@ public final class ArrayBuilders
         }
         return result;
     }
-    
+
     /**
      * Helper method for adding specified element to a List, but also
      * considering case where the List may not have been yet constructed
      * (that is, null is passed instead).
-     * 
+     *
      * @param list List to add to; may be null to indicate that a new
      *    List is to be constructed
      * @param element Element to add to list
-     * 
+     *
      * @return List in which element was added; either <code>list</code>
      *   (if it was not null), or a newly constructed List.
      */
     public static <T> List<T> addToList(List<T> list, T element)
     {
         if (list == null) {
-            list = new ArrayList<T>();
+            list = new ArrayList<>();
         }
         list.add(element);
         return list;
@@ -268,7 +268,7 @@ public final class ArrayBuilders
     public static <T> T[] insertInListNoDup(T[] array, T element)
     {
         final int len = array.length;
-        
+
         // First: see if the element already exists
         for (int ix = 0; ix < len; ++ix) {
             if (array[ix] == element) {

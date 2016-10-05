@@ -30,7 +30,7 @@ public class JDKAtomicTypesTest
 
         public RefWrapper() { }
         public RefWrapper(Base b) {
-            w = new AtomicReference<Base>(b);
+            w = new AtomicReference<>(b);
         }
         public RefWrapper(int i) {
             w = new AtomicReference<Base>(new Impl(i));
@@ -40,7 +40,7 @@ public class JDKAtomicTypesTest
     static class SimpleWrapper {
         public AtomicReference<Object> value;
 
-        public SimpleWrapper(Object o) { value = new AtomicReference<Object>(o); }
+        public SimpleWrapper(Object o) { value = new AtomicReference<>(o); }
     }
 
     static class RefiningWrapper {
@@ -52,7 +52,7 @@ public class JDKAtomicTypesTest
 
     static class UnwrappingRefParent {
         @JsonUnwrapped(prefix = "XX.")
-        public AtomicReference<Child> child = new AtomicReference<Child>(new Child());
+        public AtomicReference<Child> child = new AtomicReference<>(new Child());
     }
 
     static class Child {
@@ -89,8 +89,8 @@ public class JDKAtomicTypesTest
     @JsonPropertyOrder({ "a", "b" })
     static class Issue1256Bean {
         @JsonSerialize(as=AtomicReference.class)
-        public Object a = new AtomicReference<Object>();
-        public AtomicReference<Object> b = new AtomicReference<Object>();
+        public Object a = new AtomicReference<>();
+        public AtomicReference<Object> b = new AtomicReference<>();
     }
 
     /*
@@ -100,7 +100,7 @@ public class JDKAtomicTypesTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testAtomicBoolean() throws Exception
     {
         AtomicBoolean b = MAPPER.readValue("true", AtomicBoolean.class);
@@ -189,7 +189,7 @@ public class JDKAtomicTypesTest
     {
         RefWrapper input = new RefWrapper(13);
         String json = MAPPER.writeValueAsString(input);
-        
+
         RefWrapper result = MAPPER.readValue(json, RefWrapper.class);
         assertNotNull(result.w);
         Object ob = result.w.get();
@@ -242,7 +242,7 @@ public class JDKAtomicTypesTest
          assertEquals(WrappedString.class, v.getClass());
          assertEquals("abc", ((WrappedString)v).value);
     }
-    
+
     // [databind#932]: support unwrapping too
     public void testWithUnwrapping() throws Exception
     {
@@ -272,7 +272,7 @@ public class JDKAtomicTypesTest
     public void testNullValueHandling() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        AtomicReference<Double> inputData = new AtomicReference<Double>();
+        AtomicReference<Double> inputData = new AtomicReference<>();
         String json = mapper.writeValueAsString(inputData);
         AtomicReference<Double> readData = (AtomicReference<Double>) mapper.readValue(json, AtomicReference.class);
         assertNotNull(readData);

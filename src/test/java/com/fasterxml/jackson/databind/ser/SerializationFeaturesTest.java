@@ -79,7 +79,7 @@ public class SerializationFeaturesTest
     private static class StringListBean {
         @SuppressWarnings("unused")
         public Collection<String> values;
-        
+
         public StringListBean(Collection<String> v) { values = v; }
     }
 
@@ -188,7 +188,7 @@ public class SerializationFeaturesTest
         ObjectMapper m = new ObjectMapper();
         // default: serialize as Strings
         assertEquals(quote("abc"), m.writeValueAsString(chars));
-        
+
         // new feature: serialize as JSON array:
         m.configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true);
         assertEquals("[\"a\",\"b\",\"c\"]", m.writeValueAsString(chars));
@@ -247,25 +247,25 @@ public class SerializationFeaturesTest
         final ObjectWriter writer = objectWriter().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
 
         // Lists:
-        ArrayList<String> strs = new ArrayList<String>();
+        ArrayList<String> strs = new ArrayList<>();
         strs.add("xyz");
         assertEquals(quote("xyz"), writer.writeValueAsString(strs));
-        ArrayList<Integer> ints = new ArrayList<Integer>();
+        ArrayList<Integer> ints = new ArrayList<>();
         ints.add(13);
         assertEquals("13", writer.writeValueAsString(ints));
 
         // other Collections, like Sets:
-        HashSet<Long> longs = new HashSet<Long>();
+        HashSet<Long> longs = new HashSet<>();
         longs.add(42L);
         assertEquals("42", writer.writeValueAsString(longs));
         // [Issue#180]
         final String EXP_STRINGS = "{\"values\":\"foo\"}";
         assertEquals(EXP_STRINGS, writer.writeValueAsString(new StringListBean(Collections.singletonList("foo"))));
 
-        final Set<String> SET = new HashSet<String>();
+        final Set<String> SET = new HashSet<>();
         SET.add("foo");
         assertEquals(EXP_STRINGS, writer.writeValueAsString(new StringListBean(SET)));
-        
+
         // arrays:
         assertEquals("true", writer.writeValueAsString(new boolean[] { true }));
         assertEquals("true", writer.writeValueAsString(new Boolean[] { Boolean.TRUE }));
@@ -286,7 +286,7 @@ public class SerializationFeaturesTest
         om.configure(MapperFeature.INFER_PROPERTY_MUTATORS, false);
         om.configure(MapperFeature.USE_ANNOTATIONS, true);
 
-        JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
+        JavaType javaType = om.getTypeFactory().constructType(TCls.class);
         BeanDescription desc = (BeanDescription) om.getSerializationConfig().introspect(javaType);
         List<BeanPropertyDefinition> props = desc.findProperties();
         if (props.size() != 1) {

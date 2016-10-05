@@ -148,7 +148,7 @@ public class TestBackRefsWithPolymorphic extends BaseMapTest
         @Override public void addProperty(Property property)
         {
             if (m_properties == null) {
-                m_properties = new TreeMap<String, Property>();
+                m_properties = new TreeMap<>();
             }
             property.setParentSheet(this);
             m_properties.put(property.getName(), property);
@@ -204,7 +204,7 @@ public class TestBackRefsWithPolymorphic extends BaseMapTest
             +"\"" +CLASS_NAME+ "$StringPropertyImpl\",\"id\":0,\"name\":\"p1name\",\"value\":\"p1value\"},"
             +"\"p2name\":{\"@class\":\""+CLASS_NAME+"$StringPropertyImpl\",\"id\":0,"
             +"\"name\":\"p2name\",\"value\":\"p2value\"}}}";
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testDeserialize() throws IOException

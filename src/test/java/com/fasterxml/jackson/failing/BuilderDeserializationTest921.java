@@ -42,7 +42,7 @@ public class BuilderDeserializationTest921
         }
 
         public MyGenericPOJO<T> build() {
-          return new MyGenericPOJO<T>(data);
+          return new MyGenericPOJO<>(data);
         }
       }
     }
@@ -72,7 +72,7 @@ public class BuilderDeserializationTest921
           }
 
           public MyGenericPOJOWithCreator<T> build() {
-              return new MyGenericPOJOWithCreator<T>(data);
+              return new MyGenericPOJOWithCreator<>(data);
           }
       }
     }

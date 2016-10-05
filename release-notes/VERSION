@@ -20,6 +20,8 @@ Project: jackson-databind
 2.8.4 (not yet released)
 
 #466: Jackson ignores Type information when raw return type is BigDecimal or BigInteger 
+#1001: Parameter names module gets confused with delegate creator which is a static method
+#1383: Problem with `@JsonCreator` with 1-arg factory-method, implicit param names
 #1384: `@JsonDeserialize(keyUsing = ...)` does not work correctly together with
   DefaultTyping.NON_FINAL
  (reported by Oleg Z)

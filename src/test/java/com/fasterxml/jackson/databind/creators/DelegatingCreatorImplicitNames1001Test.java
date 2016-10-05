@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
@@ -21,7 +21,7 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
         }
 
         // not needed strictly speaking, but added for good measure
-        @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
+        @JsonCreator
         public static D make(String value) {
             String[] split = value.split(":");
             return new D(split[0], split[1]);

@@ -545,7 +545,7 @@ public abstract class DeserializationContext
      * </pre>
      */
     public final JavaType constructType(Class<?> cls) {
-        return _config.constructType(cls);
+        return (cls == null) ? null : _config.constructType(cls);
     }
 
     /**
@@ -1010,8 +1010,8 @@ public abstract class DeserializationContext
                 if ((instance == null) || instClass.isInstance(instance)) {
                     return instance;
                 }
-                throw instantiationException(instClass, String.format(
-                        "DeserializationProblemHandler.handleMissingInstantiator() for type %s returned value of type %s",
+                reportBadDefinition(constructType(instClass), String.format(
+"DeserializationProblemHandler.handleMissingInstantiator() for type %s returned value of type %s",
                         instClass, instance.getClass()));
             }
             h = h.next();
@@ -1049,8 +1049,8 @@ public abstract class DeserializationContext
                 if ((instance == null) || instClass.isInstance(instance)) {
                     return instance;
                 }
-                throw instantiationException(instClass, String.format(
-                        "DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
+                reportBadDefinition(constructType(instClass), String.format(
+"DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
                         instClass, instance.getClass()));
             }
             h = h.next();

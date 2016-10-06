@@ -1,14 +1,17 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.Base64Variants;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+
+import java.io.IOException;
 
 /**
  * Container for deserializers used for instantiating "primitive arrays",
@@ -27,18 +30,30 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
      */
     protected final Boolean _unwrapSingle;
 
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether null and missing values may be interpreted as empty collections.
+     * If null, left to global defaults.
+     *
+     * @since 2.8
+     */
+    protected final Boolean _readNullAsEmpty;
+
+
     protected PrimitiveArrayDeserializers(Class<T> cls) {
         super(cls);
         _unwrapSingle = null;
+        _readNullAsEmpty = null;
     }
 
     /**
      * @since 2.7
      */
     protected PrimitiveArrayDeserializers(PrimitiveArrayDeserializers<?> base,
-            Boolean unwrapSingle) {
+                                          Boolean unwrapSingle, Boolean readNullAsEmpty) {
         super(base._valueClass);
         _unwrapSingle = unwrapSingle;
+        _readNullAsEmpty = readNullAsEmpty;
     }
     
     public static JsonDeserializer<?> forType(Class<?> rawType)
@@ -75,7 +90,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     /**
      * @since 2.7
      */
-    protected abstract PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle);
+    protected abstract PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty);
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
@@ -86,7 +101,10 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         if (unwrapSingle == _unwrapSingle) {
             return this;
         }
-        return withResolved(unwrapSingle);
+        Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
+
+        return withResolved(unwrapSingle, readNullAsEmpty);
     }
 
     @Override
@@ -121,6 +139,30 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     protected abstract T handleSingleElementUnwrapped(JsonParser p,
             DeserializationContext ctxt) throws IOException;
 
+    @Override
+    public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyArray();
+        } else {
+            return super.getNullValue(ctxt);
+        }
+
+    }
+
+    @Override
+    public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyArray();
+        } else {
+            return super.getNullValue(ctxt);
+        }
+
+    }
+
+    protected abstract T createEmptyArray();
+
     /*
     /********************************************************
     /* Actual deserializers: efficient String[], char[] deserializers
@@ -134,12 +176,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public CharDeser() { super(char[].class); }
-        protected CharDeser(CharDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected CharDeser(CharDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
             // 11-Dec-2015, tatu: Not sure how re-wrapping would work; omit
             return this;
         }
@@ -206,6 +248,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             // not sure how this should work...
             return (char[]) ctxt.handleUnexpectedToken(_valueClass, p);
         }
+
+        @Override
+        protected char[] createEmptyArray() {
+            return new char[0];
+        }
     }
 
     /*
@@ -221,13 +268,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public BooleanDeser() { super(boolean[].class); }
-        protected BooleanDeser(BooleanDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected BooleanDeser(BooleanDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new BooleanDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            return new BooleanDeser(this, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
@@ -262,6 +309,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new boolean[] { _parseBooleanPrimitive(p, ctxt) };
         }
+
+        @Override
+        protected boolean[] createEmptyArray() {
+            return new boolean[0];
+        }
     }
 
     /**
@@ -275,13 +327,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public ByteDeser() { super(byte[].class); }
-        protected ByteDeser(ByteDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected ByteDeser(ByteDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new ByteDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            return new ByteDeser(this, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
@@ -355,6 +407,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             }
             return new byte[] { value };
         }
+
+        @Override
+        protected byte[] createEmptyArray() {
+            return new byte[0];
+        }
     }
 
     @JacksonStdImpl
@@ -364,13 +421,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public ShortDeser() { super(short[].class); }
-        protected ShortDeser(ShortDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected ShortDeser(ShortDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new ShortDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            return new ShortDeser(this, unwrapSingle, readNullAsEmpty);
         }
         
         @Override
@@ -403,6 +460,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new short[] { _parseShortPrimitive(p, ctxt) };
         }
+
+        @Override
+        protected short[] createEmptyArray() {
+            return new short[0];
+        }
     }
 
     @JacksonStdImpl
@@ -414,13 +476,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public final static IntDeser instance = new IntDeser();
         
         public IntDeser() { super(int[].class); }
-        protected IntDeser(IntDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected IntDeser(IntDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new IntDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            return new IntDeser(this, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
@@ -454,6 +516,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new int[] { _parseIntPrimitive(p, ctxt) };
         }
+
+        @Override
+        protected int[] createEmptyArray() {
+            return new int[0];
+        }
     }
 
     @JacksonStdImpl
@@ -465,13 +532,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public final static LongDeser instance = new LongDeser();
 
         public LongDeser() { super(long[].class); }
-        protected LongDeser(LongDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected LongDeser(LongDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new LongDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            return new LongDeser(this, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
@@ -504,6 +571,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new long[] { _parseLongPrimitive(p, ctxt) };
         }
+
+        @Override
+        protected long[] createEmptyArray() {
+            return new long[0];
+        }
     }
 
     @JacksonStdImpl
@@ -513,13 +585,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public FloatDeser() { super(float[].class); }
-        protected FloatDeser(FloatDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected FloatDeser(FloatDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new FloatDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            return new FloatDeser(this, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
@@ -554,6 +626,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new float[] { _parseFloatPrimitive(p, ctxt) };
         }
+
+        @Override
+        protected float[] createEmptyArray() {
+            return new float[0];
+        }
     }
 
     @JacksonStdImpl
@@ -563,13 +640,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
         
         public DoubleDeser() { super(double[].class); }
-        protected DoubleDeser(DoubleDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected DoubleDeser(DoubleDeser base, Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            super(base, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new DoubleDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle, Boolean readNullAsEmpty) {
+            return new DoubleDeser(this, unwrapSingle, readNullAsEmpty);
         }
 
         @Override
@@ -601,6 +678,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected double[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             return new double[] { _parseDoublePrimitive(p, ctxt) };
+        }
+
+        @Override
+        protected double[] createEmptyArray() {
+            return new double[0];
         }
     }
 }

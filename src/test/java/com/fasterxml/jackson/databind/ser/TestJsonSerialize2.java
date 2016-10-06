@@ -181,7 +181,7 @@ public class TestJsonSerialize2
         ObjectMapper defMapper = MAPPER;
         ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
-        ListWrapper<String> list = new ListWrapper<String>();
+        ListWrapper<String> list = new ListWrapper<String>(new String[0]);
         assertEquals("{\"list\":[]}", defMapper.writeValueAsString(list));
         assertEquals("{}", inclMapper.writeValueAsString(list));
         assertEquals("{}", inclMapper.writeValueAsString(new ListWrapper<String>()));

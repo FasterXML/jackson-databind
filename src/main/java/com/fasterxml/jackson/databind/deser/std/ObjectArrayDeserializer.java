@@ -63,6 +63,15 @@ public class ObjectArrayDeserializer
      */
     protected final Boolean _unwrapSingle;
 
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether null and missing values may be interpreted as empty collections.
+     * If null, left to global defaults.
+     *
+     * @since 2.8
+     */
+    protected final Boolean _readNullAsEmpty;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -79,11 +88,12 @@ public class ObjectArrayDeserializer
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
         _unwrapSingle = null;
+        _readNullAsEmpty = null;
     }
 
     protected ObjectArrayDeserializer(ObjectArrayDeserializer base,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser,
-            Boolean unwrapSingle)
+            Boolean unwrapSingle, Boolean readNullAsEmpty)
     {
         super(base._arrayType);
         _arrayType = base._arrayType;
@@ -93,6 +103,7 @@ public class ObjectArrayDeserializer
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
         _unwrapSingle = unwrapSingle;
+        _readNullAsEmpty = readNullAsEmpty;
     }
     
     /**
@@ -101,7 +112,7 @@ public class ObjectArrayDeserializer
     public ObjectArrayDeserializer withDeserializer(TypeDeserializer elemTypeDeser,
             JsonDeserializer<?> elemDeser)
     {
-        return withResolved(elemTypeDeser, elemDeser, _unwrapSingle);
+        return withResolved(elemTypeDeser, elemDeser, _unwrapSingle, _readNullAsEmpty);
     }
 
     /**
@@ -109,15 +120,16 @@ public class ObjectArrayDeserializer
      */
     @SuppressWarnings("unchecked")
     public ObjectArrayDeserializer withResolved(TypeDeserializer elemTypeDeser,
-            JsonDeserializer<?> elemDeser, Boolean unwrapSingle)
+            JsonDeserializer<?> elemDeser, Boolean unwrapSingle, Boolean readNullAsEmpty)
     {
         if ((unwrapSingle == _unwrapSingle)
                 && (elemDeser == _elementDeserializer)
-                && (elemTypeDeser == _elementTypeDeserializer)) {
+                && (elemTypeDeser == _elementTypeDeserializer)
+                && (readNullAsEmpty == _readNullAsEmpty)) {
             return this;
         }
         return new ObjectArrayDeserializer(this,
-                (JsonDeserializer<Object>) elemDeser, elemTypeDeser, unwrapSingle);
+                (JsonDeserializer<Object>) elemDeser, elemTypeDeser, unwrapSingle, readNullAsEmpty);
     }
 
     @Override
@@ -127,6 +139,8 @@ public class ObjectArrayDeserializer
         JsonDeserializer<?> deser = _elementDeserializer;
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _arrayType.getRawClass(),
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
         // May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
         final JavaType vt = _arrayType.getContentType();
@@ -139,7 +153,7 @@ public class ObjectArrayDeserializer
         if (elemTypeDeser != null) {
             elemTypeDeser = elemTypeDeser.forProperty(property);
         }
-        return withResolved(elemTypeDeser, deser, unwrapSingle);
+        return withResolved(elemTypeDeser, deser, unwrapSingle, readNullAsEmpty);
     }
 
     @Override // since 2.5
@@ -295,5 +309,36 @@ public class ObjectArrayDeserializer
         result[0] = value;
         return result;
     }
+
+    @Override
+    public Object[] getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyArray();
+        } else {
+            return super.getNullValue(ctxt);
+        }
+
+    }
+
+    @Override
+    public Object[] getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyArray();
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+    private Object[] createEmptyArray() {
+        if (_untyped) {
+            return new Object[0];
+        } else {
+            return (Object[]) Array.newInstance(_elementClass, 0);
+        }
+    }
+
+
 }
 

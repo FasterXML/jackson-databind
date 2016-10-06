@@ -3802,7 +3802,7 @@ public class ObjectMapper
                 if (cfg.useRootWrapping()) {
                     result = _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
                 } else {
-                    result = deser.deserialize(p, ctxt);
+                     result = deser.deserialize(p, ctxt);
                 }
                 ctxt.checkUnresolvedObjectId();
             }

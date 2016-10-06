@@ -59,7 +59,7 @@ public abstract class BaseMapTest
         public DoubleWrapper() { }
         public DoubleWrapper(double value) { d = value; }
     }
-    
+
     /**
      * Simple wrapper around String type, usually to test value
      * conversions or wrapping
@@ -89,6 +89,9 @@ public abstract class BaseMapTest
     {
         public List<T> list;
 
+        public ListWrapper() {
+        }
+
         public ListWrapper(@SuppressWarnings("unchecked") T... values) {
             list = new ArrayList<T>();
             for (T value : values) {
@@ -101,11 +104,14 @@ public abstract class BaseMapTest
     {
         public Map<K,V> map;
 
+        public MapWrapper() {
+        }
+
         public MapWrapper(Map<K,V> m) {
             map = m;
         }
     }
-    
+
     protected static class ArrayWrapper<T>
     {
         public T[] array;
@@ -114,7 +120,7 @@ public abstract class BaseMapTest
             array = v;
         }
     }
-    
+
     /**
      * Enumeration type with sub-classes per value.
      */
@@ -137,7 +143,7 @@ public abstract class BaseMapTest
             x = x0;
             y = y0;
         }
-    
+
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof Point)) {
@@ -188,7 +194,7 @@ public abstract class BaseMapTest
     /* Construction
     /**********************************************************
      */
-    
+
     protected BaseMapTest() { super(); }
 
     /*
@@ -205,7 +211,7 @@ public abstract class BaseMapTest
         }
         return SHARED_MAPPER;
     }
-    
+
     protected ObjectWriter objectWriter() {
         return objectMapper().writer();
     }
@@ -213,7 +219,7 @@ public abstract class BaseMapTest
     protected ObjectReader objectReader() {
         return objectMapper().reader();
     }
-    
+
     protected ObjectReader objectReader(Class<?> cls) {
         return objectMapper().readerFor(cls);
     }
@@ -262,7 +268,7 @@ public abstract class BaseMapTest
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, Map.class);
     }
-    
+
     protected String serializeAsString(ObjectMapper m, Object value)
         throws IOException
     {
@@ -296,7 +302,7 @@ public abstract class BaseMapTest
     /* Helper methods, deserialization
     /**********************************************************
      */
-    
+
     protected <T> T readAndMapFromString(String input, Class<T> cls)
         throws IOException
     {

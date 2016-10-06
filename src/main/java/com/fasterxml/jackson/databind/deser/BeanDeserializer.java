@@ -265,8 +265,10 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
+        Set<String> presentNames = new HashSet<String>();
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
             String propName = p.getCurrentName();
+            presentNames.add(propName);
             do {
                 p.nextToken();
                 SettableBeanProperty prop = _beanProperties.find(propName);
@@ -282,6 +284,17 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, propName);
             } while ((propName = p.nextFieldName()) != null);
         }
+
+        if (ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            Iterator<SettableBeanProperty> itr = _beanProperties.iterator();
+            while (itr.hasNext()) {
+                SettableBeanProperty property = itr.next();
+                if (!presentNames.contains(property._propName.getSimpleName())) {
+                    property.set(bean, property._valueDeserializer.getEmptyValue(ctxt));
+                }
+            }
+        }
+
         return bean;
     }
 

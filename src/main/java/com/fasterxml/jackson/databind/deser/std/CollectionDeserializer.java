@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -64,6 +63,16 @@ public class CollectionDeserializer
      */
     protected final Boolean _unwrapSingle;
 
+
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether null and missing values may be interpreted as empty collections.
+     * If null, left to global defaults.
+     *
+     * @since 2.8
+     */
+    protected final Boolean _readNullAsEmpty;
+
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -80,7 +89,7 @@ public class CollectionDeserializer
             JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null);
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null);
     }
 
     /**
@@ -90,7 +99,8 @@ public class CollectionDeserializer
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
             JsonDeserializer<Object> delegateDeser,
-            Boolean unwrapSingle)
+            Boolean unwrapSingle,
+            Boolean readNullAsEmpty)
     {
         super(collectionType);
         _collectionType = collectionType;
@@ -99,6 +109,7 @@ public class CollectionDeserializer
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = delegateDeser;
         _unwrapSingle = unwrapSingle;
+        _readNullAsEmpty = readNullAsEmpty;
     }
 
     /**
@@ -114,6 +125,7 @@ public class CollectionDeserializer
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _unwrapSingle = src._unwrapSingle;
+        _readNullAsEmpty = src._readNullAsEmpty;
     }
 
     /**
@@ -124,7 +136,7 @@ public class CollectionDeserializer
     @SuppressWarnings("unchecked")
     protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
             JsonDeserializer<?> vd, TypeDeserializer vtd,
-            Boolean unwrapSingle)
+            Boolean unwrapSingle, Boolean readNullAsEmpty)
     {
         if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)
                 && (_unwrapSingle == unwrapSingle)) {
@@ -132,7 +144,7 @@ public class CollectionDeserializer
         }
         return new CollectionDeserializer(_collectionType,
                 (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
+                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle, readNullAsEmpty);
     }
 
     /**
@@ -142,7 +154,7 @@ public class CollectionDeserializer
     protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
             JsonDeserializer<?> vd, TypeDeserializer vtd)
     {
-        return withResolved(dd, vd, vtd, _unwrapSingle);
+        return withResolved(dd, vd, vtd, _unwrapSingle, _readNullAsEmpty);
     }
 
     // Important: do NOT cache if polymorphic values
@@ -198,6 +210,10 @@ public class CollectionDeserializer
         //   comes down to "List vs Collection" I suppose... for now, pass Collection
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+
+        Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
+
         // also, often value deserializer is resolved here:
         JsonDeserializer<?> valueDeser = _valueDeserializer;
         
@@ -214,7 +230,7 @@ public class CollectionDeserializer
         if (valueTypeDeser != null) {
             valueTypeDeser = valueTypeDeser.forProperty(property);
         }
-        return withResolved(delegateDeser, valueDeser, valueTypeDeser, unwrapSingle);
+        return withResolved(delegateDeser, valueDeser, valueTypeDeser, unwrapSingle, readNullAsEmpty);
     }
 
     /*
@@ -434,6 +450,42 @@ public class CollectionDeserializer
         @Override
         public void handleResolvedForwardReference(Object id, Object value) throws IOException {
             _parent.resolveForwardReference(id, value);
+        }
+    }
+
+    @Override
+    public Collection<Object> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyCollection(ctxt.getParser(), ctxt);
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+    @Override
+    public Collection<Object> getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyCollection(ctxt.getParser(), ctxt);
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Collection<Object> createEmptyCollection(JsonParser parser, DeserializationContext ctxt) throws JsonMappingException {
+        try {
+            if (_valueInstantiator.canCreateUsingDefault()) {
+                return (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt);
+            } else if (_valueInstantiator.canCreateUsingDelegate()) {
+                Object emptyValue = _delegateDeserializer.getEmptyValue(ctxt);
+                return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt, emptyValue);
+            } else {
+                throw new JsonMappingException(parser, "Could not instantiate empty collection for type " + _collectionType.getRawClass().getSimpleName());
+            }
+        } catch (IOException ex) {
+            throw new JsonMappingException(parser, "Could not create collection of type " + _collectionType.getRawClass().getSimpleName(), ex);
         }
     }
 }

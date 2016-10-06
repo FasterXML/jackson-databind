@@ -55,7 +55,16 @@ public final class StringCollectionDeserializer
      * @since 2.7
      */
     protected final Boolean _unwrapSingle;
-    
+
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether null and missing values may be interpreted as empty collections.
+     * If null, left to global defaults.
+     *
+     * @since 2.8
+     */
+    protected final Boolean _readNullAsEmpty;
+
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -67,13 +76,13 @@ public final class StringCollectionDeserializer
     public StringCollectionDeserializer(JavaType collectionType,
             JsonDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueInstantiator, null, valueDeser, null);
+        this(collectionType, valueInstantiator, null, valueDeser, null, null);
     }
 
     @SuppressWarnings("unchecked")
     protected StringCollectionDeserializer(JavaType collectionType,
             ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
-            JsonDeserializer<?> valueDeser, Boolean unwrapSingle)
+            JsonDeserializer<?> valueDeser, Boolean unwrapSingle, Boolean readNullAsEmpty)
     {
         super(collectionType);
         _collectionType = collectionType;
@@ -81,17 +90,20 @@ public final class StringCollectionDeserializer
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeser;
         _unwrapSingle = unwrapSingle;
+        _readNullAsEmpty = readNullAsEmpty;
     }
 
     protected StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
-            JsonDeserializer<?> valueDeser, Boolean unwrapSingle)
+            JsonDeserializer<?> valueDeser, Boolean unwrapSingle, Boolean readNullAsEmpty)
     {
         if ((_unwrapSingle == unwrapSingle)
-                && (_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
+                && (_valueDeserializer == valueDeser)
+                && (_delegateDeserializer == delegateDeser)
+                && (_readNullAsEmpty == readNullAsEmpty)) {
             return this;
         }
         return new StringCollectionDeserializer(_collectionType,
-                _valueInstantiator, delegateDeser, valueDeser, unwrapSingle);
+                _valueInstantiator, delegateDeser, valueDeser, unwrapSingle, readNullAsEmpty);
     }
 
     @Override // since 2.5
@@ -137,7 +149,12 @@ public final class StringCollectionDeserializer
         if (isDefaultDeserializer(valueDeser)) {
             valueDeser = null;
         }
-        return withResolved(delegate, valueDeser, unwrapSingle);
+
+        Boolean readNullAsEmpty = ctxt.hasDeserializationFeatures(
+                DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask());
+
+
+        return withResolved(delegate, valueDeser, unwrapSingle, readNullAsEmpty);
     }
     
     /*
@@ -242,6 +259,36 @@ public final class StringCollectionDeserializer
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
+    }
+
+
+    @Override
+    public Collection<String> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyCollection(ctxt.getParser(), ctxt);
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+    @Override
+    public Collection<String> getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        if (_readNullAsEmpty == Boolean.TRUE ||
+                ctxt.hasDeserializationFeatures(DeserializationFeature.READ_NULL_OR_MISSING_CONTAINER_AS_EMPTY.getMask())) {
+            return createEmptyCollection(ctxt.getParser(), ctxt);
+        } else {
+            return super.getNullValue(ctxt);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Collection<String> createEmptyCollection(JsonParser parser, DeserializationContext ctxt) throws JsonMappingException {
+        try {
+            return (Collection<String>) _valueInstantiator.createUsingDefault(ctxt);
+        } catch (IOException ex) {
+            throw new JsonMappingException(parser, "Could not create collection of type " + _collectionType.getRawClass().getSimpleName(), ex);
+        }
     }
 
     /**

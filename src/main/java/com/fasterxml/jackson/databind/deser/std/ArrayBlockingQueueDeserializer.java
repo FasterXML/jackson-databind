@@ -39,10 +39,10 @@ public class ArrayBlockingQueueDeserializer
      protected ArrayBlockingQueueDeserializer(JavaType collectionType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
-            JsonDeserializer<Object> delegateDeser, Boolean unwrapSingle)
+            JsonDeserializer<Object> delegateDeser, Boolean unwrapSingle, Boolean readNullAsArray)
     {
         super(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
-                delegateDeser, unwrapSingle);
+                delegateDeser, unwrapSingle, readNullAsArray);
     }
 
     /**
@@ -59,7 +59,7 @@ public class ArrayBlockingQueueDeserializer
     @Override
     @SuppressWarnings("unchecked")
     protected ArrayBlockingQueueDeserializer withResolved(JsonDeserializer<?> dd,
-            JsonDeserializer<?> vd, TypeDeserializer vtd, Boolean unwrapSingle)
+            JsonDeserializer<?> vd, TypeDeserializer vtd, Boolean unwrapSingle, Boolean readNullAsArray)
     {
         if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)
                 && (_unwrapSingle == unwrapSingle)) {
@@ -67,7 +67,7 @@ public class ArrayBlockingQueueDeserializer
         }
         return new ArrayBlockingQueueDeserializer(_collectionType,
                 (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
+                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle, readNullAsArray);
                 
     }
 
@@ -135,4 +135,9 @@ public class ArrayBlockingQueueDeserializer
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
     }
+
+    protected Collection<Object> createEmptyCollection(JsonParser parser, DeserializationContext ctxt) throws JsonMappingException {
+        return new ArrayBlockingQueue<>(1);
+    }
+
 }

@@ -438,7 +438,7 @@ public class MapDeserializer
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME, null);
+                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
             keyStr = p.getCurrentName();
         }
@@ -499,7 +499,7 @@ public class MapDeserializer
                 return;
             }
             if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME, null);
+                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
             }
             key = p.getCurrentName();
         }
@@ -616,8 +616,8 @@ public class MapDeserializer
         throws JsonMappingException
     {
         if (accumulator == null) {
-            ctxt.reportInputMismatch("Unresolved forward reference but no identity info: %s",
-                    reference);
+            ctxt.reportInputMismatch(this,
+                    "Unresolved forward reference but no identity info: "+reference);
         }
         Referring referring = accumulator.handleUnresolvedReference(reference, key);
         reference.getRoid().appendReferring(referring);

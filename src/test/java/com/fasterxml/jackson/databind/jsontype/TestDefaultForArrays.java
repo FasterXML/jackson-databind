@@ -72,6 +72,7 @@ public class TestDefaultForArrays extends BaseMapTest
         assertTrue(ob instanceof JsonNode);
     }
     
+    @SuppressWarnings("deprecation")
     public void testNodeInEmptyArray() throws Exception {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());

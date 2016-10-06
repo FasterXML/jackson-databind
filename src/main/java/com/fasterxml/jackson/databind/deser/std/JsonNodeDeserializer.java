@@ -164,11 +164,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**********************************************************
      */
 
-    @Deprecated // since 2.8
-    protected void _reportProblem(JsonParser p, String msg) throws JsonMappingException {
-        throw JsonMappingException.from(p, msg);
-    }
-
     /**
      * Method called when there is a duplicate value for a field.
      * By default we don't care, and the last value is used.
@@ -190,7 +185,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         // [databind#237]: Report an error if asked to do so:
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
-            ctxt.reportInputMismatch("Duplicate field '%s' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled",
+            ctxt.reportInputMismatch(JsonNode.class,
+                    "Duplicate field '%s' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled",
                     fieldName);
         }
     }
@@ -221,9 +217,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         for (; key != null; key = p.nextFieldName()) {
             JsonNode value;
             JsonToken t = p.nextToken();
-            if (t == null) {
-                ctxt.reportMissingContent("Unexpected end-of-input when binding data into ObjectNode");
-                return null;
+            if (t == null) { // can this ever occur?
+                t = JsonToken.NOT_AVAILABLE; // can this ever occur?
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:

@@ -14,7 +14,6 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
@@ -1024,7 +1023,7 @@ public class ObjectWriter
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw InputMismatchException.fromUnexpectedIOE(e);
+            throw JsonMappingException.fromUnexpectedIOE(e);
         }
         return sw.getAndClear();
     }
@@ -1048,7 +1047,7 @@ public class ObjectWriter
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw InputMismatchException.fromUnexpectedIOE(e);
+            throw JsonMappingException.fromUnexpectedIOE(e);
         }
         byte[] result = bb.toByteArray();
         bb.release();

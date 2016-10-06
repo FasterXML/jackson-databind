@@ -127,7 +127,7 @@ public class BeanAsArrayDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY,
+            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
             // never gets here
@@ -176,7 +176,7 @@ public class BeanAsArrayDeserializer
         
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY,
+            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
             // never gets here
@@ -246,7 +246,7 @@ public class BeanAsArrayDeserializer
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
-            ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY,
+            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
             // will never reach here as exception has been thrown

@@ -453,7 +453,7 @@ public class TokenBuffer
             copyCurrentStructure(p);
         } while ((t = p.nextToken()) == JsonToken.FIELD_NAME);
         if (t != JsonToken.END_OBJECT) {
-            ctxt.reportWrongTokenException(p, JsonToken.END_OBJECT,
+            ctxt.reportWrongTokenException(TokenBuffer.class, JsonToken.END_OBJECT,
                     "Expected END_OBJECT after copying contents of a JsonParser into TokenBuffer, got "+t);
             // never gets here
         }

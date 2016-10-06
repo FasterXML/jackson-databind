@@ -564,7 +564,7 @@ public abstract class BeanDeserializerBase
                 TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
                 if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
                     if (extTypes == null) {
-                        extTypes = new ExternalTypeHandler.Builder();
+                        extTypes = ExternalTypeHandler.builder(_beanType);
                     }
                     extTypes.addExternal(prop, typeDeser);
                     // In fact, remove from list of known properties to simplify later handling

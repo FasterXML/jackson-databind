@@ -121,8 +121,9 @@ public final class SetterlessProperty
          * be compatible. If so, implementation could be changed.
          */
         if (toModify == null) {
-            throw JsonMappingException.from(p,
-                    "Problem deserializing 'setterless' property '"+getName()+"': get method returned null");
+            ctxt.reportBadDefinition(getType(), String.format(
+                    "Problem deserializing 'setterless' property '%s': get method returned null",
+                    getName()));
         }
         _valueDeserializer.deserialize(p, ctxt, toModify);
     }

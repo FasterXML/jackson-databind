@@ -23,8 +23,8 @@ public class FailingDeserializer extends StdDeserializer<Object>
     }
     
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws JsonMappingException{
-        ctxt.reportInputMismatch(_message);
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JsonMappingException{
+        ctxt.reportInputMismatch(this, _message);
         return null;
     }
 }

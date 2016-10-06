@@ -97,14 +97,14 @@ public class JSOGDeserialize622Test extends BaseMapTest
     static class JSOGRefDeserializer extends JsonDeserializer<JSOGRef>
     {
       @Override
-      public JSOGRef deserialize(JsonParser jp, DeserializationContext ctx) throws IOException {
-          JsonNode node = jp.readValueAsTree();
+      public JSOGRef deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+          JsonNode node = p.readValueAsTree();
           if (node.isTextual()) {
               return new JSOGRef(node.asInt());
           }
           JsonNode n = node.get(REF_KEY);
           if (n == null) {
-              throw JsonMappingException.from(jp, "Could not find key '"+REF_KEY
+              throw new JsonMappingException(p, "Could not find key '"+REF_KEY
                       +"' from ("+node.getClass().getName()+"): "+node);
           }
           return new JSOGRef(n.asInt());

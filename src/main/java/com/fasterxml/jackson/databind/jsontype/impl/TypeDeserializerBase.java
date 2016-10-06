@@ -119,7 +119,14 @@ public abstract class TypeDeserializerBase
     public Class<?> getDefaultImpl() {
         return (_defaultImpl == null) ? null : _defaultImpl.getRawClass();
     }
-    
+
+    /**
+     * @since 2.9
+     */
+    public JavaType baseType() {
+        return _baseType;
+    }
+
     @Override
     public String toString()
     {
@@ -246,7 +253,8 @@ public abstract class TypeDeserializerBase
              */
             deser = _findDefaultImplDeserializer(ctxt);
             if (deser == null) {
-                return ctxt.reportInputMismatch("No (native) type id found when one was expected for polymorphic type handling");
+                return ctxt.reportInputMismatch(baseType(),
+                        "No (native) type id found when one was expected for polymorphic type handling");
             }
         } else {
             String typeIdStr = (typeId instanceof String) ? (String) typeId : String.valueOf(typeId);

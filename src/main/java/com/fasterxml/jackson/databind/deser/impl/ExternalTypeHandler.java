@@ -18,16 +18,20 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class ExternalTypeHandler
 {
+    private final JavaType _beanType;
+
     private final ExtTypedProperty[] _properties;
     private final HashMap<String, Integer> _nameToPropertyIndex;
 
     private final String[] _typeIds;
     private final TokenBuffer[] _tokens;
 
-    protected ExternalTypeHandler(ExtTypedProperty[] properties,
+    protected ExternalTypeHandler(JavaType beanType,
+            ExtTypedProperty[] properties,
             HashMap<String, Integer> nameToPropertyIndex,
             String[] typeIds, TokenBuffer[] tokens)
     {
+        _beanType = beanType;
         _properties = properties;
         _nameToPropertyIndex = nameToPropertyIndex;
         _typeIds = typeIds;
@@ -36,11 +40,19 @@ public class ExternalTypeHandler
 
     protected ExternalTypeHandler(ExternalTypeHandler h)
     {
+        _beanType = h._beanType;
         _properties = h._properties;
         _nameToPropertyIndex = h._nameToPropertyIndex;
         int len = _properties.length;
         _typeIds = new String[len];
         _tokens = new TokenBuffer[len];
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static Builder builder(JavaType beanType) {
+        return new Builder(beanType);
     }
 
     /**
@@ -157,7 +169,8 @@ public class ExternalTypeHandler
                     }
                     // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                     if (!_properties[i].hasDefaultType()) {
-                        ctxt.reportInputMismatch("Missing external type id property '%s'",
+                        ctxt.reportInputMismatch(bean.getClass(),
+                                "Missing external type id property '%s'",
                                 _properties[i].getTypePropertyName());                                
                     } else  {
                         typeId = _properties[i].getDefaultTypeId();
@@ -168,7 +181,8 @@ public class ExternalTypeHandler
 
                 if(prop.isRequired() ||
                         ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
-                    ctxt.reportInputMismatch("Missing property '%s' for external type id '%s'",
+                    ctxt.reportInputMismatch(bean.getClass(),
+                            "Missing property '%s' for external type id '%s'",
                             prop.getName(), _properties[i].getTypePropertyName());
                 }
                 return bean;
@@ -201,14 +215,16 @@ public class ExternalTypeHandler
                 // but not just one
                 // 26-Oct-2012, tatu: As per [databind#94], must allow use of 'defaultImpl'
                 if (!extProp.hasDefaultType()) {
-                    ctxt.reportInputMismatch("Missing external type id property '%s'",
+                    ctxt.reportInputMismatch(_beanType,
+                            "Missing external type id property '%s'",
                             extProp.getTypePropertyName());
                 } else {
                     typeId = extProp.getDefaultTypeId();
                 }
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = extProp.getProperty();
-                ctxt.reportInputMismatch("Missing property '%s' for external type id '%s'",
+                ctxt.reportInputMismatch(_beanType,
+                        "Missing property '%s' for external type id '%s'",
                         prop.getName(), _properties[i].getTypePropertyName());
             }
             values[i] = _deserialize(p, ctxt, i, typeId);
@@ -294,8 +310,14 @@ public class ExternalTypeHandler
     
     public static class Builder
     {
+        private final JavaType _beanType;
+
         private final ArrayList<ExtTypedProperty> _properties = new ArrayList<ExtTypedProperty>();
         private final HashMap<String, Integer> _nameToPropertyIndex = new HashMap<String, Integer>();
+
+        protected Builder(JavaType t) {
+            _beanType = t;
+        }
 
         public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser)
         {
@@ -325,13 +347,8 @@ public class ExternalTypeHandler
                 }
                 extProps[i] = extProp;
             }
-            return new ExternalTypeHandler(extProps, _nameToPropertyIndex, null, null);
-        }
-
-        @Deprecated // since 2.8; may be removed as early as 2.9
-        public ExternalTypeHandler build() {
-            return new ExternalTypeHandler(_properties.toArray(new ExtTypedProperty[_properties.size()]),
-                    _nameToPropertyIndex, null, null);
+            return new ExternalTypeHandler(_beanType, extProps, _nameToPropertyIndex,
+                    null, null);
         }
     }
 

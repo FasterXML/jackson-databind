@@ -170,10 +170,12 @@ public class PropertyValueBuffer
 
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
-              if (_creatorParameters[ix] == null) {
-                  _context.reportInputMismatch("Null value for creator property '%s'; DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
-                          props[ix].getName(), props[ix].getCreatorIndex());
-              }
+                if (_creatorParameters[ix] == null) {
+                    SettableBeanProperty prop = props[ix];
+                    _context.reportInputMismatch(prop.getType(),
+                            "Null value for creator property '%s' (index %d); DeserializationFeature.FAIL_ON_NULL_FOR_CREATOR_PARAMETERS enabled",
+                            prop.getName(), props[ix].getCreatorIndex());
+                }
             }
         }
 

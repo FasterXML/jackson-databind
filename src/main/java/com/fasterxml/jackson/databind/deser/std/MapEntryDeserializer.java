@@ -215,11 +215,13 @@ public class MapEntryDeserializer
         t = p.nextToken();
         if (t != JsonToken.END_OBJECT) {
             if (t == JsonToken.FIELD_NAME) { // most likely
-                ctxt.reportInputMismatch("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '%s')",
+                ctxt.reportInputMismatch(this,
+                        "Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '%s')",
                         p.getCurrentName());
             } else {
                 // how would this occur?
-                ctxt.reportInputMismatch("Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);
+                ctxt.reportInputMismatch(this,
+                        "Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);
             }
             return null;
         }

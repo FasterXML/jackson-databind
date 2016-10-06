@@ -1,12 +1,15 @@
 package com.fasterxml.jackson.databind.creators;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonValueInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -588,6 +591,8 @@ public class TestValueInstantiator extends BaseMapTest
         } catch (JsonMappingException e) {
             verifyException(e, "Can not construct instance of");
             verifyException(e, "missing default constructor");
+            // as per [databind#1404], is input-side, not definition problem
+            assertEquals(InputMismatchException.class, e.getClass());
         }
     }
 
@@ -601,6 +606,8 @@ public class TestValueInstantiator extends BaseMapTest
         } catch (JsonMappingException e) {
             verifyException(e, "Can not construct instance of");
             verifyException(e, "no String-argument constructor/factory");
+            // as per [databind#1404], is input-side, not definition problem
+            assertEquals(InputMismatchException.class, e.getClass());
         }
     }
 }

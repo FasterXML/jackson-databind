@@ -317,12 +317,12 @@ public class JsonMappingException
      * Factory method used when "upgrading" an {@link IOException} into
      * {@link JsonMappingException}: usually only needed to comply with
      * a signature.
+     *<p>
+     * NOTE: since 2.9 should usually NOT be used on input-side (deserialization)
+     *    exceptions; instead use method(s) of <code>InputMismatchException</code>
      * 
      * @since 2.1
-     * 
-     * @deprecated Since 2.9 call method on {@link InputMismatchException} instead
      */
-    @Deprecated
     public static JsonMappingException fromUnexpectedIOE(IOException src) {
         return new JsonMappingException(null,
                 String.format("Unexpected IOException (of type %s): %s",

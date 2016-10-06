@@ -3065,7 +3065,7 @@ public class ObjectMapper
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw InputMismatchException.fromUnexpectedIOE(e);
+            throw JsonMappingException.fromUnexpectedIOE(e);
         }
         return sw.getAndClear();
     }
@@ -3089,7 +3089,7 @@ public class ObjectMapper
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
-            throw InputMismatchException.fromUnexpectedIOE(e);
+            throw JsonMappingException.fromUnexpectedIOE(e);
         }
         byte[] result = bb.toByteArray();
         bb.release();
@@ -3578,7 +3578,7 @@ public class ObjectMapper
             Object result;
             // ok to pass in existing feature flags; unwrapping handled by mapper
             final DeserializationConfig deserConfig = getDeserializationConfig();
-            JsonToken t = _initForReading(p);
+            JsonToken t = _initForReading(p, toValueType);
             if (t == JsonToken.VALUE_NULL) {
                 DeserializationContext ctxt = createDeserializationContext(p, deserConfig);
                 result = _findRootDeserializer(ctxt, toValueType).getNullValue(ctxt);
@@ -3752,7 +3752,8 @@ public class ObjectMapper
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _readValue(DeserializationConfig cfg, JsonParser p, JavaType valueType)
+    protected Object _readValue(DeserializationConfig cfg, JsonParser p,
+            JavaType valueType)
         throws IOException
     {
         /* First: may need to read the next token, to initialize
@@ -3760,7 +3761,7 @@ public class ObjectMapper
          * previous token has been cleared)
          */
         Object result;
-        JsonToken t = _initForReading(p);
+        JsonToken t = _initForReading(p, valueType);
         if (t == JsonToken.VALUE_NULL) {
             // Ask JsonDeserializer what 'null value' to use:
             DeserializationContext ctxt = createDeserializationContext(p, cfg);
@@ -3781,13 +3782,13 @@ public class ObjectMapper
         p.clearCurrentToken();
         return result;
     }
-    
+
     protected Object _readMapAndClose(JsonParser p0, JavaType valueType)
         throws IOException
     {
         try (JsonParser p = p0) {
             Object result;
-            JsonToken t = _initForReading(p);
+            JsonToken t = _initForReading(p, valueType);
             if (t == JsonToken.VALUE_NULL) {
                 // Ask JsonDeserializer what 'null value' to use:
                 DeserializationContext ctxt = createDeserializationContext(p,
@@ -3827,7 +3828,7 @@ public class ObjectMapper
      *   content to map (note: Json "null" value is considered content;
      *   enf-of-stream not)
      */
-    protected JsonToken _initForReading(JsonParser p) throws IOException
+    protected JsonToken _initForReading(JsonParser p, JavaType targetType) throws IOException
     {
         _deserializationConfig.initialize(p); // since 2.5
 
@@ -3842,10 +3843,16 @@ public class ObjectMapper
             if (t == null) {
                 // Throw mapping exception, since it's failure to map,
                 //   not an actual parsing problem
-                throw InputMismatchException.from(p, "No content to map due to end-of-input");
+                throw InputMismatchException.from(p, targetType,
+                        "No content to map due to end-of-input");
             }
         }
         return t;
+    }
+
+    @Deprecated // since 2.9, use method that takes JavaType too
+    protected JsonToken _initForReading(JsonParser p) throws IOException {
+        return _initForReading(p, null);
     }
 
     protected Object _unwrapAndDeserialize(JsonParser p, DeserializationContext ctxt, 
@@ -3857,33 +3864,34 @@ public class ObjectMapper
         // 12-Jun-2015, tatu: Should try to support namespaces etc but...
         String expSimpleName = expRootName.getSimpleName();
         if (p.getCurrentToken() != JsonToken.START_OBJECT) {
-            ctxt.reportWrongTokenException(p, JsonToken.START_OBJECT,
+            ctxt.reportWrongTokenException(rootType, JsonToken.START_OBJECT,
                     "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
                     expSimpleName, p.getCurrentToken());
             
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
-            ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,
+            ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
                     "Current token not FIELD_NAME (to contain expected root name '"
                     +expSimpleName+"'), but "+p.getCurrentToken());
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
-            ctxt.reportInputMismatch("Root name '%s' does not match expected ('%s') for type %s",
-                    actualName, expSimpleName, rootType);
+            ctxt.reportInputMismatch(rootType,
+                    "Root name '%s' does not match expected ('%s') for type %s",
+                    actualName, expSimpleName);
         }
         // ok, then move to value itself....
         p.nextToken();
         Object result = deser.deserialize(p, ctxt);
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {
-            ctxt.reportWrongTokenException(p, JsonToken.END_OBJECT,
+            ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
                     expSimpleName, p.getCurrentToken());
         }
         return result;
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, other

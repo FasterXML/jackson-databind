@@ -980,7 +980,7 @@ public class BeanDeserializer
         public void handleResolvedForwardReference(Object id, Object value) throws IOException
         {
             if (_bean == null) {
-                _context.reportInputMismatch(
+                _context.reportInputMismatch(_prop,
 "Can not resolve ObjectId forward reference using property '%s' (of type %s): Bean not yet resolved",
 _prop.getName(), _prop.getDeclaringClass().getName());
         }

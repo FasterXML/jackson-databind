@@ -131,10 +131,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     
     // off-lined to keep main method lean and mean...
     @SuppressWarnings("resource")
-    protected Object _deserializeTypedUsingDefaultImpl(JsonParser p, DeserializationContext ctxt,
-            TokenBuffer tb) throws IOException
+    protected Object _deserializeTypedUsingDefaultImpl(JsonParser p,
+            DeserializationContext ctxt, TokenBuffer tb) throws IOException
     {
-        // As per [JACKSON-614], may have default implementation to use
+        // May have default implementation to use
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser != null) {
             if (tb != null) {
@@ -154,7 +154,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         if (p.getCurrentToken() == JsonToken.START_ARRAY) {
             return super.deserializeTypedFromAny(p, ctxt);
         }
-        ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,
+        ctxt.reportWrongTokenException(baseType(), JsonToken.FIELD_NAME,
                 "missing property '"+_typePropertyName+"' that is to contain type id  (for class "+baseTypeName()+")");
         return null;
     }

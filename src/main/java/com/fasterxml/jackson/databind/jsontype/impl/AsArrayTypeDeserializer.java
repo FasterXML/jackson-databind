@@ -116,7 +116,7 @@ public class AsArrayTypeDeserializer
         Object value = deser.deserialize(p, ctxt);
         // And then need the closing END_ARRAY
         if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {
-            ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY,
+            ctxt.reportWrongTokenException(baseType(), JsonToken.END_ARRAY,
                     "expected closing END_ARRAY after type information and deserialized value");
             // 05-May-2016, tatu: Not 100% what to do if exception is stored for
             //     future, and not thrown immediately: should probably skip until END_ARRAY
@@ -134,7 +134,7 @@ public class AsArrayTypeDeserializer
             if (_defaultImpl != null) {
                 return _idResolver.idFromBaseType();
             }
-             ctxt.reportWrongTokenException(p, JsonToken.START_ARRAY,
+             ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
                      "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
              return null;
         }
@@ -148,7 +148,8 @@ public class AsArrayTypeDeserializer
         if (_defaultImpl != null) {
             return _idResolver.idFromBaseType();
         }
-        ctxt.reportWrongTokenException(p, JsonToken.VALUE_STRING, "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
+        ctxt.reportWrongTokenException(baseType(), JsonToken.VALUE_STRING,
+                "need JSON String that contains type id (for subtype of %s)", baseTypeName());
         return null;
     }
 

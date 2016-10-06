@@ -355,7 +355,8 @@ public class ObjectReader
             t = p.nextToken();
             if (t == null) {
                 // Throw mapping exception, since it's failure to map, not an actual parsing problem
-                ctxt.reportMissingContent(null); // default msg is fine
+                ctxt.reportInputMismatch(_valueType,
+                        "No content to map due to end-of-input");
             }
         }
         return t;
@@ -1676,18 +1677,19 @@ public class ObjectReader
         String expSimpleName = expRootName.getSimpleName();
 
         if (p.getCurrentToken() != JsonToken.START_OBJECT) {
-            ctxt.reportWrongTokenException(p, JsonToken.START_OBJECT,
+            ctxt.reportWrongTokenException(rootType, JsonToken.START_OBJECT,
                     "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
                     expSimpleName, p.getCurrentToken());
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
-            ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,
+            ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
                     "Current token not FIELD_NAME (to contain expected root name '%s'), but %s", 
                     expSimpleName, p.getCurrentToken());
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
-            ctxt.reportInputMismatch("Root name '%s' does not match expected ('%s') for type %s",
+            ctxt.reportInputMismatch(rootType,
+                    "Root name '%s' does not match expected ('%s') for type %s",
                     actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
@@ -1701,7 +1703,7 @@ public class ObjectReader
         }
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {
-            ctxt.reportWrongTokenException(p, JsonToken.END_OBJECT,
+            ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
                     expSimpleName, p.getCurrentToken());
         }

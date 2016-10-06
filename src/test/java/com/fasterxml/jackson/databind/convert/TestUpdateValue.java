@@ -70,9 +70,9 @@ public class TestUpdateValue extends BaseMapTest
         @Override
         public DataA deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             if (p.getCurrentToken() != JsonToken.START_OBJECT) {
-                ctxt.reportWrongTokenException(p, JsonToken.START_OBJECT,
-                        "Wrong current token, expected START_OBJECT, got: %s",
-                        p.getCurrentToken());
+                ctxt.reportInputMismatch(DataA.class,
+                        "Wrong current token, expected START_OBJECT, got: "
+                        +p.getCurrentToken());
                 // never gets here
             }
             /*JsonNode node =*/ p.readValueAsTree();

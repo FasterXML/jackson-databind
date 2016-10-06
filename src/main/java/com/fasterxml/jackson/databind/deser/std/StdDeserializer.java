@@ -1105,7 +1105,7 @@ public abstract class StdDeserializer<T>
     protected void handleMissingEndArrayForSingle(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        ctxt.reportWrongTokenException(p, JsonToken.END_ARRAY, 
+        ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY, 
 "Attempted to unwrap single value array for single '%s' value but there was more than a single value in the array",
 handledType().getName());
         // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);
@@ -1115,7 +1115,8 @@ handledType().getName());
     protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
             String type) throws IOException
     {
-        ctxt.reportInputMismatch("Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
-                        p.getValueAsString(), type);
+        ctxt.reportInputMismatch(handledType(),
+                "Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
+                p.getValueAsString(), type);
     }
 }

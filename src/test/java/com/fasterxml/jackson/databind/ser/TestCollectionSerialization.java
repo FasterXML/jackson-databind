@@ -227,14 +227,13 @@ public class TestCollectionSerialization
         assertNull(result.get("map"));
     }
 
-    // Test [JACKSON-220]
     public void testListSerializer() throws IOException
     {
         assertEquals("\"[ab, cd, ef]\"",
                 MAPPER.writeValueAsString(new PseudoList("ab", "cd", "ef")));
     }
 
-    // [JACKSON-254]
+    @SuppressWarnings("deprecation")
     public void testEmptyListOrArray() throws IOException
     {
         // by default, empty lists serialized normally

@@ -190,6 +190,7 @@ public class TestKeySerializers extends BaseMapTest
     }
 
     // [databind#838]
+    @SuppressWarnings("deprecation")
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());

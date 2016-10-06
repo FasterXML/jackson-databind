@@ -1012,7 +1012,11 @@ public abstract class DeserializationContext
             }
             h = h.next();
         }
-        throw instantiationException(instClass, msg);
+        // 06-Oct-2016, tatu: This is input mismatch problem, in that absence of
+        //    creator implies that incoming content type or structure is wrong
+        msg = String.format("Can not construct instance of %s, problem: %s",
+                instClass.getName(), msg);
+        return reportInputMismatch(instClass, msg);
     }
 
     /**
@@ -1108,9 +1112,9 @@ public abstract class DeserializationContext
                 if ((instance == null) || instClass.isInstance(instance)) {
                     return instance;
                 }
-                reportInputMismatch(
+                reportInputMismatch(instClass,
                         "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        instClass, instance.getClass());
+                        instance.getClass());
             }
             h = h.next();
         }
@@ -1123,7 +1127,7 @@ public abstract class DeserializationContext
                         _calcName(instClass), t);
             }
         }
-        reportInputMismatch(msg);
+        reportInputMismatch(instClass, msg);
         return null; // never gets here
     }
 
@@ -1189,8 +1193,59 @@ public abstract class DeserializationContext
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
      * 
-     * @since 2.8
+     * @since 2.9
      */
+    public void reportWrongTokenException(JsonDeserializer<?> deser,
+            JsonToken expToken, String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if ((msg != null) && (msgArgs.length > 0)) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw wrongTokenException(getParser(), deser.handledType(), expToken, msg);
+    }
+    
+    /**
+     * Method for deserializers to call 
+     * when the token encountered was of type different than what <b>should</b>
+     * be seen at that position, usually within a sequence of expected tokens.
+     * Note that this method will throw a {@link JsonMappingException} and no
+     * recovery is attempted (via {@link DeserializationProblemHandler}, as
+     * problem is considered to be difficult to recover from, in general.
+     * 
+     * @since 2.9
+     */
+    public void reportWrongTokenException(JavaType targetType,
+            JsonToken expToken, String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if ((msg != null) && (msgArgs.length > 0)) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw wrongTokenException(getParser(), targetType, expToken, msg);
+    }
+
+    /**
+     * Method for deserializers to call 
+     * when the token encountered was of type different than what <b>should</b>
+     * be seen at that position, usually within a sequence of expected tokens.
+     * Note that this method will throw a {@link JsonMappingException} and no
+     * recovery is attempted (via {@link DeserializationProblemHandler}, as
+     * problem is considered to be difficult to recover from, in general.
+     * 
+     * @since 2.9
+     */
+    public void reportWrongTokenException(Class<?> targetType,
+            JsonToken expToken, String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        if ((msg != null) && (msgArgs.length > 0)) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw wrongTokenException(getParser(), targetType, expToken, msg);
+    }
+    
+    @Deprecated // since 2.9
     public void reportWrongTokenException(JsonParser p,
             JsonToken expToken, String msg, Object... msgArgs)
         throws JsonMappingException
@@ -1228,7 +1283,10 @@ public abstract class DeserializationContext
 
     /**
      * @since 2.8
+     *
+     * @deprecated Since 2.9: not clear this ever occurs
      */
+    @Deprecated // since 2.9
     public void reportMissingContent(String msg, Object... msgArgs)
         throws JsonMappingException
     {
@@ -1237,7 +1295,7 @@ public abstract class DeserializationContext
         } else if (msgArgs.length > 0) {
             msg = String.format(msg, msgArgs);
         }
-        throw InputMismatchException.from(getParser(), msg);
+        throw InputMismatchException.from(getParser(), (JavaType) null, msg);
     }
 
     /**
@@ -1257,38 +1315,60 @@ public abstract class DeserializationContext
      *
      * @since 2.9
      */
-    public <T> T reportInputMismatch(BeanProperty prop, String msg)
-        throws JsonMappingException
-    {
-        throw InputMismatchException.from(getParser(), msg);
-    }
-
-    /**
-     * Helper method used to indicate a problem with input in cases where more
-     * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
-     */
-    public <T> T reportInputMismatch(JsonDeserializer<?> src, String msg)
-        throws JsonMappingException
-    {
-        throw InputMismatchException.from(getParser(), msg);
-    }
-
-    /**
-     * Helper method used to indicate a problem with input in cases where more
-     * specific <code>reportXxx()</code> method was not available.
-     *
-     * @since 2.9
-     */
-    public <T> T reportInputMismatch(String msg, Object... msgArgs) throws JsonMappingException
+    public <T> T reportInputMismatch(BeanProperty prop,
+            String msg, Object... msgArgs) throws JsonMappingException
     {
         if (msgArgs.length > 0) {
             msg = String.format(msg, msgArgs);
         }
-        throw InputMismatchException.from(getParser(), msg);
+        throw InputMismatchException.from(getParser(), prop.getType(), msg);
     }
 
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.9
+     */
+    public <T> T reportInputMismatch(JsonDeserializer<?> src,
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw InputMismatchException.from(getParser(), src.handledType(), msg);
+    }
+
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.9
+     */
+    public <T> T reportInputMismatch(Class<?> targetType,
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw InputMismatchException.from(getParser(), targetType, msg);
+    }
+
+    /**
+     * Helper method used to indicate a problem with input in cases where more
+     * specific <code>reportXxx()</code> method was not available.
+     *
+     * @since 2.9
+     */
+    public <T> T reportInputMismatch(JavaType targetType,
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
+        if (msgArgs.length > 0) {
+            msg = String.format(msg, msgArgs);
+        }
+        throw InputMismatchException.from(getParser(), targetType, msg);
+    }
+    
     /*
     /**********************************************************
     /* Methods for problem reporting, in cases where recovery
@@ -1352,16 +1432,36 @@ public abstract class DeserializationContext
      * Note that most of the time this method should NOT be directly called;
      * instead, {@link #reportWrongTokenException} should be called and will
      * call this method as necessary.
+     *
+     * @since 2.9
      */
-    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken,
-            String msg0)
+    public JsonMappingException wrongTokenException(JsonParser p, JavaType targetType,
+            JsonToken expToken, String msg0)
     {
         String msg = String.format("Unexpected token (%s), expected %s",
                 p.getCurrentToken(), expToken);
         if (msg0 != null) {
             msg = msg + ": "+msg0;
         }
-        return InputMismatchException.from(p, msg);
+        return InputMismatchException.from(p, targetType, msg);
+    }
+
+    public JsonMappingException wrongTokenException(JsonParser p, Class<?> targetType,
+            JsonToken expToken, String msg0)
+    {
+        String msg = String.format("Unexpected token (%s), expected %s",
+                p.getCurrentToken(), expToken);
+        if (msg0 != null) {
+            msg = msg + ": "+msg0;
+        }
+        return InputMismatchException.from(p, targetType, msg);
+    }
+    
+    @Deprecated // since 2.9
+    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken,
+            String msg)
+    {
+        return wrongTokenException(p, (JavaType) null, expToken, msg);
     }
 
     /**
@@ -1489,7 +1589,7 @@ public abstract class DeserializationContext
         if (extraDesc != null) {
             msg = msg + ": "+extraDesc;
         }
-        return JsonMappingException.from(_parser, msg);
+        return InputMismatchException.from(_parser, type, msg);
     }
 
     /**
@@ -1500,8 +1600,8 @@ public abstract class DeserializationContext
      */
     @Deprecated
     public JsonMappingException endOfInputException(Class<?> instClass) {
-        return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
-                +instClass.getName());
+        return InputMismatchException.from(_parser, instClass,
+                "Unexpected end-of-input when trying to deserialize a "+instClass.getName());
     }
 
     /*
@@ -1519,7 +1619,7 @@ public abstract class DeserializationContext
      * @since 2.8
      * 
      * @deprecate Since 2.9: use a more specific method, or {@link #reportBadDefinition(JavaType, String)},
-     *    or {@link #reportInputMismatch(String, Object...)} instead
+     *    or {@link #reportInputMismatch} instead
      */
     @Deprecated // since 2.9
     public void reportMappingException(String msg, Object... msgArgs)

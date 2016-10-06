@@ -3,11 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;

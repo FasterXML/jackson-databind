@@ -679,31 +679,59 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         //find the java type based on the annotated setter method or setter field 
-        JavaType type = null;
+        BeanProperty prop;
+        JavaType keyType;
+        JavaType valueType;
+
         if (mutator instanceof AnnotatedMethod) {
             // we know it's a 2-arg method, second arg is the value
-            type = ((AnnotatedMethod) mutator).getParameterType(1);
+            AnnotatedMethod am = (AnnotatedMethod) mutator;
+            keyType = am.getParameterType(0);
+            valueType = am.getParameterType(1);
+            valueType = resolveMemberAndTypeAnnotations(ctxt, mutator, valueType);
+            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                    valueType, null, beanDesc.getClassAnnotations(), mutator,
+                    PropertyMetadata.STD_OPTIONAL);
+
         } else if (mutator instanceof AnnotatedField) {
+            AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object
-            type = ((AnnotatedField) mutator).getType().getContentType();
+            JavaType mapType = af.getType();
+            mapType = resolveMemberAndTypeAnnotations(ctxt, mutator, mapType);
+            keyType = mapType.getKeyType();
+            valueType = mapType.getContentType();
+            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                    mapType, null, beanDesc.getClassAnnotations(), mutator,
+                    PropertyMetadata.STD_OPTIONAL);
+        } else {
+            return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                    "Unrecognized mutator type for any setter: %s", mutator.getClass()));
         }
-        // First: various annotations on type itself, as well as type-overrides
-        // on accessor need to be resolved
-        type = resolveMemberAndTypeAnnotations(ctxt, mutator, type);
-        BeanProperty.Std prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                type, null, beanDesc.getClassAnnotations(), mutator,
-                PropertyMetadata.STD_OPTIONAL);
+        // First: see if there are explicitly specified 
         // and then possible direct deserializer override on accessor
-        JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, mutator);
+        KeyDeserializer keyDeser = findKeyDeserializerFromAnnotation(ctxt, mutator);
+        if (keyDeser == null) {
+            keyDeser = keyType.getValueHandler();
+        }
+        if (keyDeser == null) {
+            keyDeser = ctxt.findKeyDeserializer(keyType, prop);
+        } else {
+            if (keyDeser instanceof ContextualKeyDeserializer) {
+                keyDeser = ((ContextualKeyDeserializer) keyDeser)
+                        .createContextual(ctxt, prop);
+            }
+        }
+        JsonDeserializer<Object> deser = findContentDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
-            deser = type.getValueHandler();
+            deser = valueType.getValueHandler();
         }
         if (deser != null) {
             // As per [databind#462] need to ensure we contextualize deserializer before passing it on
-            deser = (JsonDeserializer<Object>) ctxt.handlePrimaryContextualization(deser, prop, type);
+            deser = (JsonDeserializer<Object>) ctxt.handlePrimaryContextualization(deser, prop, valueType);
         }
-        TypeDeserializer typeDeser = type.getTypeHandler();
-        return new SettableAnyProperty(prop, mutator, type, deser, typeDeser);
+        TypeDeserializer typeDeser = valueType.getTypeHandler();
+        return new SettableAnyProperty(prop, mutator, valueType,
+                keyDeser, deser, typeDeser);
     }
 
     /**

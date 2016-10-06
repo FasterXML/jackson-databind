@@ -42,7 +42,12 @@ public class SettableAnyProperty
     protected JsonDeserializer<Object> _valueDeserializer;
 
     protected final TypeDeserializer _valueTypeDeserializer;
-    
+
+    /**
+     * @since 2.9
+     */
+    protected final KeyDeserializer _keyDeserializer;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -50,6 +55,7 @@ public class SettableAnyProperty
      */
 
     public SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
+            KeyDeserializer keyDeser,
             JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
     {
         _property = property;
@@ -57,7 +63,15 @@ public class SettableAnyProperty
         _type = type;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = typeDeser;
+        _keyDeserializer = keyDeser;
         _setterIsField = setter instanceof AnnotatedField;
+    }
+
+    @Deprecated // since 2.9
+    public SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+    {
+        this(property, setter, type, null, valueDeser, typeDeser);
     }
 
     /**
@@ -70,12 +84,13 @@ public class SettableAnyProperty
         _type = src._type;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
+        _keyDeserializer = src._keyDeserializer;
         _setterIsField = src._setterIsField;
     }
 
     public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
         return new SettableAnyProperty(_property, _setter, _type,
-                deser, _valueTypeDeserializer);
+                _keyDeserializer, deser, _valueTypeDeserializer);
     }
 
     public void fixAccess(DeserializationConfig config) {
@@ -127,7 +142,9 @@ public class SettableAnyProperty
         throws IOException
     {
         try {
-            set(instance, propName, deserialize(p, ctxt));
+            Object key = (_keyDeserializer == null) ? propName
+                    : _keyDeserializer.deserializeKey(propName, ctxt);
+            set(instance, key, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
             if (!(_valueDeserializer.getObjectIdReader() != null)) {
                 throw JsonMappingException.from(p, "Unresolved forward reference but no identity info.", reference);
@@ -151,7 +168,7 @@ public class SettableAnyProperty
     }
 
     @SuppressWarnings("unchecked")
-    public void set(Object instance, String propName, Object value) throws IOException
+    public void set(Object instance, Object propName, Object value) throws IOException
     {
         try {
             // if annotation in the field (only map is supported now)
@@ -187,7 +204,7 @@ public class SettableAnyProperty
      * @param propName Name of property (from Json input) to set
      * @param value Value of the property
      */
-    protected void _throwAsIOE(Exception e, String propName, Object value)
+    protected void _throwAsIOE(Exception e, Object propName, Object value)
         throws IOException
     {
         if (e instanceof IllegalArgumentException) {

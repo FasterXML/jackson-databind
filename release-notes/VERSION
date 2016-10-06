@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #888: Allow specifying custom exclusion comparator via `@JsonInclude`,
   using `JsonInclude.Include.CUSTOM`
+#1035: `@JsonAnySetter` assumes key of `String`, does not consider declared type.
+ (reported by Michael F)
 #1320: Add `ObjectNode.put(String, BigInteger)`
  (proposed by Jan L)
 #1341: `DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY`

@@ -1781,6 +1781,23 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
+     * @since 2.9
+     */
+    protected JsonDeserializer<Object> findContentDeserializerFromAnnotation(DeserializationContext ctxt,
+            Annotated ann)
+        throws JsonMappingException
+    {
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            Object deserDef = intr.findContentDeserializer(ann);
+            if (deserDef != null) {
+                return ctxt.deserializerInstance(ann, deserDef);
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Helper method used to resolve additional type-related annotation information
      * like type overrides, or handler (serializer, deserializer) overrides,
      * so that from declared field, property or constructor parameter type

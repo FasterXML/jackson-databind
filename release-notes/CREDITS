@@ -561,3 +561,7 @@ Connor Kuhn (ckuhn@github)
 Jan Lolling (jlolling@github)
   * Contributed #1319: Add `ObjectNode.put(String, BigInteger)`
    (2.9.0)
+
+Michael R Fairhurst (MichaelRFairhurst@github)
+  * Reported #1035: `@JsonAnySetter` assumes key of `String`, does not consider declared type.
+   (2.9.0)

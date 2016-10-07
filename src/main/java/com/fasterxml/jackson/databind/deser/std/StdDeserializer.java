@@ -229,9 +229,7 @@ public abstract class StdDeserializer<T>
         if (str.trim().length() == 0) {
             return (Boolean) getEmptyValue(ctxt);
         }
-
-        char c = str.charAt(0);
-        return c == '0' ? Boolean.FALSE : Boolean.TRUE;
+        return (str.charAt(0) == '0') ? Boolean.FALSE : Boolean.TRUE;
     }
 
     protected Byte _parseByte(JsonParser p, DeserializationContext ctxt) throws IOException {

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.exc;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -53,6 +53,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
         // given
         ObjectMapper mapper = new ObjectMapper();
         String input = "{\"bar\":{\"baz\":{qux:\"quxValue\"))}";
+        final String THIS = getClass().getName();
 
         // when
         try {
@@ -60,7 +61,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
             fail("Upsss! Exception has not been thrown.");
         } catch (JsonMappingException ex) {
             // then
-            assertEquals("com.fasterxml.jackson.databind.deser.Foo[\"bar\"]->com.fasterxml.jackson.databind.deser.Bar[\"baz\"]",
+            assertEquals(THIS+"$Foo[\"bar\"]->"+THIS+"$Bar[\"baz\"]",
                     ex.getPathReference());
         }
     }

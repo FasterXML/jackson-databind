@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.deser.exc;
 
 import java.io.*;
 import java.util.*;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * re-thrown or wrapped, depending)
  * with Object serialization.
  */
-public class TestExceptionHandling
+public class TestExceptionsDuringWriting
     extends BaseMapTest
 {
     /*

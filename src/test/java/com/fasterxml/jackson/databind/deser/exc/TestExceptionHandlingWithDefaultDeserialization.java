@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.exc;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -6,14 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest {
-
+public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
+{
     static class Foo {
-
         private Bar bar;
 
-        public Foo() {
-        }
+        public Foo() { }
 
         public Bar getBar() {
             return bar;
@@ -21,11 +19,9 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
     }
 
     static class Bar {
-
         private Baz baz;
 
-        public Bar() {
-        }
+        public Bar() { }
 
         public Baz getBaz() {
             return baz;
@@ -33,11 +29,9 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
     }
 
     static class Baz {
-
         private String qux;
 
-        public Baz() {
-        }
+        public Baz() { }
 
         public String getQux() {
             return qux;
@@ -48,6 +42,7 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
         // given
         ObjectMapper mapper = new ObjectMapper();
         String input = "{\"bar\":{\"baz\":{qux:\"quxValue\"))}";
+        final String THIS = getClass().getName();
 
         // when
         try {
@@ -55,7 +50,7 @@ public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
             fail("Upsss! Exception has not been thrown.");
         } catch (JsonMappingException ex) {
             // then
-            assertEquals("com.fasterxml.jackson.databind.deser.Foo[\"bar\"]->com.fasterxml.jackson.databind.deser.Bar[\"baz\"]",
+            assertEquals(THIS+"$Foo[\"bar\"]->"+THIS+"$Bar[\"baz\"]",
                     ex.getPathReference());
         }
     }

@@ -7,7 +7,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Checked exception used to signal fatal problems with mapping of
@@ -124,16 +123,26 @@ public class JsonMappingException
                     sb.append("UNKNOWN");
                 } else {
                     Class<?> cls = (_from instanceof Class<?>) ? (Class<?>)_from : _from.getClass();
-                    /* Hmmh. Although Class.getName() is mostly ok, it does look
-                     * butt-ugly for arrays. So let's use getSimpleName() instead;
-                     * but have to prepend package name too.
-                     */
+                    // Hmmh. Although Class.getName() is mostly ok, it does look
+                    // butt-ugly for arrays.
+                    // 06-Oct-2016, tatu: as per [databind#1403], `getSimpleName()` not so good
+                    //   as it drops enclosing class. So let's try bit different approach
+                    int arrays = 0;
+                    while (cls.isArray()) {
+                        cls = cls.getComponentType();
+                        ++arrays;
+                    }
+                    sb.append(cls.getName());
+                    while (--arrays >= 0) {
+                        sb.append("[]");
+                    }
+                    /* was:
                     String pkgName = ClassUtil.getPackageName(cls);
                     if (pkgName != null) {
                         sb.append(pkgName);
                         sb.append('.');
                     }
-                    sb.append(cls.getSimpleName());
+                    */
                 }
                 sb.append('[');
                 if (_fieldName != null) {

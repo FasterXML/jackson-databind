@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.exc;
 
 import java.io.*;
 
@@ -23,10 +23,7 @@ public class TestExceptionHandling
     /* Test methods
     /**********************************************************
      */
-    
-    /**
-     * Verification of [JACKSON-301]
-     */
+
     public void testHandlingOfUnrecognized() throws Exception
     {
         UnrecognizedPropertyException exc = null;

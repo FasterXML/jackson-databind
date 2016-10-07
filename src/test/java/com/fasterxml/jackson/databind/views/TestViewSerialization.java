@@ -14,12 +14,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestViewSerialization
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     // Classes that represent views
     static class ViewA { }
     static class ViewAA extends ViewA { }
@@ -68,20 +62,19 @@ public class TestViewSerialization
         public String value = "x";
     }   
 
-    // [JACKSON-868]
     public static class WebView { }
     public static class OtherView { }
     public static class Foo {
         @JsonView(WebView.class)
         public int getFoo() { return 3; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */    
-    
+
     @SuppressWarnings("unchecked")
     public void testSimple() throws IOException
     {

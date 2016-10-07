@@ -6,12 +6,6 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestViewDeserialization extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     // Classes that represent views
     static class ViewA { }
     static class ViewAA extends ViewA { }

@@ -490,8 +490,6 @@ public abstract class AnnotationIntrospector
      * Method that can be called to check whether this member has
      * an annotation that suggests whether value for matching property
      * is required or not.
-     * 
-     * @since 2.0
      */
     public Boolean hasRequiredMarker(AnnotatedMember m) { return null; }
     
@@ -503,6 +501,9 @@ public abstract class AnnotationIntrospector
      * otherwise it will only be included for views included in returned
      * array. View matches are checked using class inheritance rules (sub-classes
      * inherit inclusions of super-classes)
+     *<p>
+     * Since 2.9 this method may also be called to find "default view(s)" for
+     * {@link AnnotatedClass}
      * 
      * @param a Annotated property (represented by a method, field or ctor parameter)
      * @return Array of views (represented by classes) that the property is included in;

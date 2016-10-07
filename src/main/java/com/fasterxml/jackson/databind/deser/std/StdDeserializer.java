@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -32,10 +31,10 @@ public abstract class StdDeserializer<T>
      *
      * @since 2.6
      */
-    protected final static int F_MASK_INT_COERCIONS = 
+    protected final static int F_MASK_INT_COERCIONS =
             DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
             | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
-    
+
     /**
      * Type of values this deserializer handles: sometimes
      * exact types, other time most specific supertype of
@@ -67,10 +66,10 @@ public abstract class StdDeserializer<T>
     /* Accessors
     /**********************************************************
      */
-    
+
     @Override
     public Class<?> handledType() { return _valueClass; }
-    
+
     /*
     /**********************************************************
     /* Extended API
@@ -103,13 +102,13 @@ public abstract class StdDeserializer<T>
     protected boolean isDefaultKeyDeserializer(KeyDeserializer keyDeser) {
         return ClassUtil.isJacksonStdImpl(keyDeser);
     }
-    
+
     /*
     /**********************************************************
-    /* Partial JsonDeserializer implementation 
+    /* Partial JsonDeserializer implementation
     /**********************************************************
      */
-    
+
     /**
      * Base implementation that does not assume specific type
      * inclusion mechanism. Sub-classes are expected to override
@@ -120,7 +119,7 @@ public abstract class StdDeserializer<T>
             TypeDeserializer typeDeserializer) throws IOException {
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for sub-classes, parsing: while mostly
@@ -138,11 +137,7 @@ public abstract class StdDeserializer<T>
 
         // should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            // 11-Jan-2012, tatus: May be outside of int...
-            if (p.getNumberType() == NumberType.INT) {
-                return (p.getIntValue() != 0);
-            }
-            return _parseBooleanFromOther(p, ctxt);
+            return _parseBooleanFromNumber(p, ctxt);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
@@ -168,8 +163,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         // Otherwise, no can do:
         return ((Boolean) ctxt.handleUnexpectedToken(_valueClass, p)).booleanValue();
@@ -187,11 +182,7 @@ public abstract class StdDeserializer<T>
         }
         // should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            // 11-Jan-2012, tatus: May be outside of int...
-            if (p.getNumberType() == NumberType.INT) {
-                return (p.getIntValue() == 0) ? Boolean.FALSE : Boolean.TRUE;
-            }
-            return Boolean.valueOf(_parseBooleanFromOther(p, ctxt));
+            return _parseBooleanFromNumber(p, ctxt);
         }
         if (t == JsonToken.VALUE_NULL) {
             return (Boolean) getNullValue(ctxt);
@@ -222,30 +213,28 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         // Otherwise, no can do:
         return (Boolean) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
-    protected final boolean _parseBooleanFromOther(JsonParser p, DeserializationContext ctxt)
-            throws IOException
-    {
-        if (p.getNumberType() == NumberType.LONG) {
-            return (p.getLongValue() == 0L) ? Boolean.FALSE : Boolean.TRUE;
-        }
-        // no really good logic; let's actually resort to textual comparison
+    protected final boolean _parseBooleanFromNumber(JsonParser p, DeserializationContext ctxt) throws IOException {
+        // instead of determining the number type (which is not very efficient for BigInteger), use textual comparison
         String str = p.getText();
-        if ("0.0".equals(str) || "0".equals(str)) {
-            return Boolean.FALSE;
+        if (str == null) {
+            return (Boolean) getNullValue(ctxt);
         }
-        return Boolean.TRUE;
+        if (str.trim().length() == 0) {
+            return (Boolean) getEmptyValue(ctxt);
+        }
+
+        char c = str.charAt(0);
+        return c == '0' ? Boolean.FALSE : Boolean.TRUE;
     }
 
-    protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)
-        throws IOException
-    {
+    protected Byte _parseByte(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT) {
             return p.getByteValue();
@@ -291,12 +280,12 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         return (Byte) ctxt.handleUnexpectedToken(_valueClass, p);
     }
-    
+
     protected Short _parseShort(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
@@ -343,8 +332,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         return (Short) ctxt.handleUnexpectedToken(_valueClass, p);
     }
@@ -411,8 +400,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         // Otherwise, no can do:
         return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).intValue();
@@ -463,8 +452,8 @@ public abstract class StdDeserializer<T>
                 final Integer parsed = _parseInteger(p, ctxt);
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
-                }            
-                return parsed;            
+                }
+                return parsed;
             }
             break;
         }
@@ -508,8 +497,8 @@ public abstract class StdDeserializer<T>
                 JsonToken t = p.nextToken();
                 if (t != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
-                }            
-                return parsed;            
+                }
+                return parsed;
             }
             break;
         }
@@ -563,7 +552,7 @@ public abstract class StdDeserializer<T>
     {
         // We accept couple of different types; obvious ones first:
         JsonToken t = p.getCurrentToken();
-        
+
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
             return p.getFloatValue();
         }
@@ -608,8 +597,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         // Otherwise, no can do:
         return (Float) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -659,8 +648,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         // Otherwise, no can do:
         return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).floatValue();
@@ -670,7 +659,7 @@ public abstract class StdDeserializer<T>
         throws IOException
     {
         JsonToken t = p.getCurrentToken();
-        
+
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
             return p.getDoubleValue();
         }
@@ -714,8 +703,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         // Otherwise, no can do:
         return (Double) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -726,7 +715,7 @@ public abstract class StdDeserializer<T>
     {
         // We accept couple of different types; obvious ones first:
         JsonToken t = p.getCurrentToken();
-        
+
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
             return p.getDoubleValue();
         }
@@ -756,7 +745,7 @@ public abstract class StdDeserializer<T>
             try {
                 return parseDouble(text);
             } catch (IllegalArgumentException iae) { }
-            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text, 
+            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid double value");
             return (v == null) ? 0 : v.doubleValue();
         }
@@ -770,8 +759,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         // Otherwise, no can do:
         return ((Number) ctxt.handleUnexpectedToken(_valueClass, p)).doubleValue();
@@ -797,8 +786,8 @@ public abstract class StdDeserializer<T>
             t = p.nextToken();
             if (t != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         return (java.util.Date)  ctxt.handleUnexpectedToken(_valueClass, p);
     }
@@ -836,7 +825,7 @@ public abstract class StdDeserializer<T>
         }
         return Double.parseDouble(numStr);
     }
-    
+
     /**
      * Helper method used for accessing String value, if possible, doing
      * necessary conversion or throwing exception as necessary.
@@ -855,8 +844,8 @@ public abstract class StdDeserializer<T>
             final String parsed = _parseString(p, ctxt);
             if (p.nextToken() != JsonToken.END_ARRAY) {
                 handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+            }
+            return parsed;
         }
         String value = p.getValueAsString();
         if (value != null) {
@@ -944,7 +933,7 @@ public abstract class StdDeserializer<T>
         }
         return p.getBigIntegerValue(); // should be optimal, whatever it is
     }
-    
+
     /*
     /****************************************************
     /* Helper methods for sub-classes, resolving dependencies
@@ -994,7 +983,7 @@ public abstract class StdDeserializer<T>
     /* Helper methods for sub-classes, deserializer construction
     /**********************************************************
      */
-    
+
     /**
      * Helper method that can be used to see if specified property has annotation
      * indicating that a converter is to be used for contained values (contents
@@ -1105,7 +1094,7 @@ public abstract class StdDeserializer<T>
     protected void handleMissingEndArrayForSingle(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY, 
+        ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
 "Attempted to unwrap single value array for single '%s' value but there was more than a single value in the array",
 handledType().getName());
         // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);

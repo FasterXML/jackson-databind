@@ -152,7 +152,7 @@ public class TestViewSerialization
      */
     public void testImplicitAutoDetection() throws Exception
     {
-    	assertEquals("{\"a\":1}", serializeAsString(new ImplicitBean()));
+        assertEquals("{\"a\":1}", serializeAsString(new ImplicitBean()));
     }
 
     public void testVisibility() throws Exception

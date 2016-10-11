@@ -272,4 +272,13 @@ public abstract class BeanDescription
      *   suitable default constructor was found; null otherwise.
      */
     public abstract Object instantiateBean(boolean fixAccess);
+
+    /**
+     * Method for finding out if the POJO specifies default view(s) to
+     * use for properties, considering both per-type annotations and
+     * global default settings.
+     *
+     * @since 2.9
+     */
+    public abstract Class<?>[] findDefaultViews();
 }

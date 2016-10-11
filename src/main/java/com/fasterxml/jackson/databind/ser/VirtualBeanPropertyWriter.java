@@ -52,13 +52,23 @@ public abstract class VirtualBeanPropertyWriter
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
             Annotations contextAnnotations, JavaType declaredType,
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-            JsonInclude.Value inclusion)
+            JsonInclude.Value inclusion, Class<?>[] includeInViews)
     {
         super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
                 ser, typeSer, serType,
-                _suppressNulls(inclusion), _suppressableValue(inclusion));
+                _suppressNulls(inclusion), _suppressableValue(inclusion),
+                includeInViews);
     }
 
+    @Deprecated // since 2.8
+    protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
+            Annotations contextAnnotations, JavaType declaredType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            JsonInclude.Value inclusion)
+    {
+        this(propDef, contextAnnotations, declaredType, ser, typeSer, serType, inclusion, null);
+    }
+    
     protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base) {
         super(base);
     }

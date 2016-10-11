@@ -37,8 +37,6 @@ public class BeanDeserializerFactory
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
-    private final static Class<?>[] NO_VIEWS = new Class<?>[0];
-    
     /*
     /**********************************************************
     /* Life-cycle
@@ -444,7 +442,7 @@ public class BeanDeserializerFactory
         final SettableBeanProperty[] creatorProps =
                 builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
         final boolean isConcrete = !beanDesc.getType().isAbstract();
-        
+
         // 01-May-2016, tatu: Which base type to use here gets tricky, since
         //   it may often make most sense to use general type for overrides,
         //   but what we have here may be more specific impl type. But for now
@@ -471,12 +469,11 @@ public class BeanDeserializerFactory
         AnnotatedMember anySetterField = null;
         if (anySetterMethod != null) {
             builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetterMethod));
-        }
-        else {
-        	anySetterField = beanDesc.findAnySetterField();
-        	if(anySetterField != null) {
-        		builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetterField));
-        	}
+        } else {
+            anySetterField = beanDesc.findAnySetterField();
+            if (anySetterField != null) {
+                builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetterField));
+            }
         }
         // NOTE: we do NOT add @JsonIgnore'd properties into blocked ones if there's any-setter
         // Implicit ones via @JsonIgnore and equivalent?
@@ -562,20 +559,17 @@ public class BeanDeserializerFactory
             }
 
             if (prop != null) {
+                // one more thing before adding to builder: copy any metadata
                 Class<?>[] views = propDef.findViews();
                 if (views == null) {
-                    // one more twist: if default inclusion disabled, need to force empty set of views
-                    if (!ctxt.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
-                        views = NO_VIEWS;
-                    }
+                    views = beanDesc.findDefaultViews();
                 }
-                // one more thing before adding to builder: copy any metadata
                 prop.setViews(views);
                 builder.addProperty(prop);
             }
         }
     }
-    
+
     /**
      * Helper method called to filter out explicit ignored properties,
      * as well as properties that have "ignorable types".

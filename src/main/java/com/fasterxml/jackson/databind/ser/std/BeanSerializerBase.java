@@ -318,9 +318,6 @@ public abstract class BeanSerializerBase
                 // It not, we can use declared return type if and only if declared type is final:
                 // if not, we don't really know the actual type until we get the instance.
                 if (type == null) {
-                    // 30-Oct-2015, tatu: Not sure why this was used
-//                    type = provider.constructType(prop.getGenericPropertyType());
-                    // but this looks better
                     type = prop.getType();
                     if (!type.isFinal()) {
                         if (type.isContainerType() || type.containedTypeCount() > 0) {

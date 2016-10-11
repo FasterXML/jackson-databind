@@ -445,6 +445,8 @@ Mark Woon (markwoon@github)
    (2.7.4)
   * Reported #1231: `@JsonSerialize(as=superType)` behavior disallowed in 2.7.4
    (2.7.5)
+  * Suggested #507: Support for default `@JsonView` for a class
+   (2.9.0)
 
 Tom Mack (tommack@github)
   * Reported #1208: treeToValue doesn't handle POJONodes that contain exactly

@@ -201,19 +201,23 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     /***********************************************************
      */
 
+    /**
+     * @since 2.9 (added `includeInViews` since 2.8)
+     */
     @SuppressWarnings("unchecked")
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
-            JavaType declaredType, JsonSerializer<?> ser,
-            TypeSerializer typeSer, JavaType serType, boolean suppressNulls,
-            Object suppressableValue) {
+            JavaType declaredType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue,
+            Class<?>[] includeInViews)
+    {
         super(propDef);
         _member = member;
         _contextAnnotations = contextAnnotations;
 
         _name = new SerializedString(propDef.getName());
         _wrapperName = propDef.getWrapperName();
-        _includeInViews = propDef.findViews();
 
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
@@ -239,6 +243,19 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;
+        _includeInViews = includeInViews;
+    }
+
+    @Deprecated // Since 2.9
+    public BeanPropertyWriter(BeanPropertyDefinition propDef,
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            boolean suppressNulls, Object suppressableValue)
+    {
+        this(propDef, member, contextAnnotations, declaredType,
+                ser, typeSer, serType, suppressNulls, suppressableValue,
+                null);
     }
 
     /**
@@ -605,6 +622,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         return _cfgSerializationType;
     }
 
+    @Deprecated // since 2.9
     public Class<?> getRawSerializationType() {
         return (_cfgSerializationType == null) ? null : _cfgSerializationType
                 .getRawClass();

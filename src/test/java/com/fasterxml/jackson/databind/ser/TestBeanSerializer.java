@@ -163,7 +163,8 @@ public class TestBeanSerializer extends BaseMapTest
                 beanProperties.add(new BeanPropertyWriter(prop, f, null,
                         strType,
                         null, null, strType,
-                        false, null));
+                        false, null,
+                        null));
             } catch (NoSuchFieldException e) {
                 throw new IllegalStateException(e.getMessage());
             }

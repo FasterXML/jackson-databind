@@ -48,7 +48,7 @@ public class PropertyBuilder
      * @since 2.8
      */
     final protected boolean _useRealPropertyDefaults;
-    
+
     public PropertyBuilder(SerializationConfig config, BeanDescription beanDesc)
     {
         _config = config;
@@ -86,7 +86,6 @@ public class PropertyBuilder
      *    to use for contained values (only used for properties that are
      *    of container type)
      */
-    @SuppressWarnings("deprecation")
     protected BeanPropertyWriter buildWriter(SerializerProvider prov,
             BeanPropertyDefinition propDef, JavaType declaredType, JsonSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
@@ -202,9 +201,13 @@ public class PropertyBuilder
             }
             break;
         }
+        Class<?>[] views = propDef.findViews();
+        if (views == null) {
+            views = _beanDesc.findDefaultViews();
+        }
         BeanPropertyWriter bpw = new BeanPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
-                ser, typeSer, serializationType, suppressNulls, valueToSuppress);
+                ser, typeSer, serializationType, suppressNulls, valueToSuppress, views);
 
         // How about custom null serializer?
         Object serDef = _annotationIntrospector.findNullSerializer(am);

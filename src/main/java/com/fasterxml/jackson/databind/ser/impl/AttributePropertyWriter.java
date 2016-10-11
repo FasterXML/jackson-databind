@@ -41,7 +41,9 @@ public class AttributePropertyWriter
     {
         super(propDef, contextAnnotations, declaredType,
                 /* value serializer */ null, /* type serializer */ null, /* ser type */ null,
-                inclusion);
+                inclusion,
+                // 10-Oct-2016, tatu: Could enable per-view settings too in future
+                null);
         _attrName = attrName;
     }
 

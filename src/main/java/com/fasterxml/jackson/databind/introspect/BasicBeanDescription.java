@@ -27,6 +27,9 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public class BasicBeanDescription extends BeanDescription
 {
+    // since 2.9
+    private final static Class<?>[] NO_VIEWS = new Class<?>[0];
+
     /*
     /**********************************************************
     /* General configuration
@@ -43,11 +46,27 @@ public class BasicBeanDescription extends BeanDescription
     final protected MapperConfig<?> _config;
 
     final protected AnnotationIntrospector _annotationIntrospector;
+
+    /*
+    /**********************************************************
+    /* Information about type itself
+    /**********************************************************
+     */
     
     /**
      * Information collected about the class introspected.
      */
     final protected AnnotatedClass _classInfo;
+
+    /**
+     * @since 2.9
+     */
+    protected Class<?>[] _defaultViews;
+
+    /**
+     * @since 2.9
+     */
+    protected boolean _defaultViewsResolved;
 
     /*
     /**********************************************************
@@ -365,7 +384,25 @@ public class BasicBeanDescription extends BeanDescription
         }
         return defValue;
     }
-    
+
+    @Override // since 2.9
+    public Class<?>[] findDefaultViews()
+    {
+        if (!_defaultViewsResolved) {
+            _defaultViewsResolved = true;
+            Class<?>[] def = (_annotationIntrospector == null) ? null
+                    : _annotationIntrospector.findViews(_classInfo);
+            // one more twist: if default inclusion disabled, need to force empty set of views
+            if (def == null) {
+                if (!_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
+                    def = NO_VIEWS;
+                }
+            }
+            _defaultViews = def;
+        }
+        return _defaultViews;
+    }
+
     /*
     /**********************************************************
     /* Introspection for serialization
@@ -664,7 +701,7 @@ public class BasicBeanDescription extends BeanDescription
      */
     
     @SuppressWarnings("unchecked")
-    public Converter<Object,Object> _createConverter(Object converterDef)
+    protected Converter<Object,Object> _createConverter(Object converterDef)
     {
         if (converterDef == null) {
             return null;

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.9.0 (not yet released)
 
+#219: SqlDateSerializer does not obey SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS
+ (reported by BrentDouglas@github)
 #507: Support for default `@JsonView` for a class
  (suggested by Mark W)
 #888: Allow specifying custom exclusion comparator via `@JsonInclude`,

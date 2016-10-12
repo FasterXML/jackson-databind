@@ -80,7 +80,7 @@ public class DateDeserializers
          * Let's also keep format String for reference, to use for error messages
          */
         protected final String _formatString;
-        
+
         protected DateBasedDeserializer(Class<?> clz) {
             super(clz);
             _customFormat = null;
@@ -187,7 +187,7 @@ public class DateDeserializers
          * used for instantiation.
          */
         protected final Class<? extends Calendar> _calendarClass;
-        
+
         public CalendarDeserializer() {
             super(Calendar.class);
             _calendarClass = null;
@@ -207,7 +207,7 @@ public class DateDeserializers
         protected CalendarDeserializer withDateFormat(DateFormat df, String formatString) {
             return new CalendarDeserializer(this, df, formatString);
         }
-        
+
         @Override
         public Calendar deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {

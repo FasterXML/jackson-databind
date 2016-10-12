@@ -133,15 +133,29 @@ public class DateSerializationTest
     public void testSqlDate() throws IOException
     {
         // use date 1999-04-01 (note: months are 0-based, use constant)
-        java.sql.Date date = new java.sql.Date(99, Calendar.APRIL, 1);
-        assertEquals(quote("1999-04-01"), MAPPER.writeValueAsString(date));
+        final java.sql.Date date99 = new java.sql.Date(99, Calendar.APRIL, 1);
+        final java.sql.Date date0 = new java.sql.Date(0);
 
-        java.sql.Date date0 = new java.sql.Date(0L);
-        assertEquals(aposToQuotes("{'date':'"+date0.toString()+"'}"),
+        // 11-Oct-2016, tatu: As per [databind#219] we really should use global
+        //   defaults in 2.9, even if this changes behavior.
+
+        assertEquals(String.valueOf(date99.getTime()),
+                MAPPER.writeValueAsString(date99));
+
+        assertEquals(aposToQuotes("{'date':0}"),
                 MAPPER.writeValueAsString(new SqlDateAsDefaultBean(0L)));
 
         // but may explicitly force timestamp too
-        assertEquals(aposToQuotes("{'date':0}"), MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
+        assertEquals(aposToQuotes("{'date':0}"),
+                MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
+
+        // And also should be able to use String output as need be:
+        ObjectWriter w = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+               
+        assertEquals(quote("1999-04-01"), w.writeValueAsString(date99));
+        assertEquals(quote(date0.toString()), w.writeValueAsString(date0));
+        assertEquals(aposToQuotes("{'date':'"+date0.toString()+"'}"),
+                w.writeValueAsString(new SqlDateAsDefaultBean(0L)));
     }
 
     public void testSqlTime() throws IOException

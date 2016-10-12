@@ -37,6 +37,12 @@ public class DateSerializationTest
         public SqlDateAsNumberBean(long l) { date = new java.sql.Date(l); }
     }
 
+    static class SqlDateAsStringBean {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy.MM.dd")
+        public java.sql.Date date;
+        public SqlDateAsStringBean(long l) { date = new java.sql.Date(l); }
+    }
+
     static class DateAsStringBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
         public Date date;
@@ -245,6 +251,10 @@ public class DateSerializationTest
         // and with default (ISO8601) format (databind#1109)
         json = mapper.writeValueAsString(new DateAsDefaultStringBean(0L));
         assertEquals("{\"date\":\"1970-01-01T00:00:00.000+0000\"}", json);
+
+        // and with sqlDate format with pattern [Issue#1407]
+        json = mapper.writeValueAsString(new SqlDateAsStringBean(0L));
+        assertEquals("{\"date\":\"1970.01.01\"}", json);
     }
 
     /**

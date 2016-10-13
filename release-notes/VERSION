@@ -43,6 +43,8 @@ Project: jackson-databind
  (reported by UghZan3@github)
 #1403: Reference-chain hints use incorrect class-name for inner classes
  (reported by Josh G)
+#1411: MapSerializer._orderEntries should check for null keys
+ (reported by Jörn H)
 
 2.8.3 (17-Sep-2016)
 

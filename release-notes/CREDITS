@@ -18,6 +18,8 @@ Joern Huxhorn: (huxi@github)
    (2.0.0)
   * Reported #479: NPE on trying to deserialize a `String[]` that contains null
    (2.4.1)
+  * Reported #1411: MapSerializer._orderEntries should check for null keys
+   (2.7.9)
 
 James Roper:
  * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'

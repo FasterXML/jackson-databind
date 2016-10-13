@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #1392: Custom UnmodifiableSetMixin Fails in Jackson 2.7+ but works in Jackson 2.6
  (reported by Rob W)
+#1411: MapSerializer._orderEntries should check for null keys
+ (reported by Jörn H)
 
 2.7.8 (26-Sep-2016)
 

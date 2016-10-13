@@ -958,6 +958,7 @@ public class MapSerializer
                     result.put(key, entry.getValue());
                 }
             }
+            return result;
         }
         return new TreeMap<Object,Object>(input);
     }

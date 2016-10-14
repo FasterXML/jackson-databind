@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.4 (not yet released)
+2.8.4 (14-Oct-2016)
 
 #466: Jackson ignores Type information when raw return type is BigDecimal or BigInteger 
 #1001: Parameter names module gets confused with delegate creator which is a static method

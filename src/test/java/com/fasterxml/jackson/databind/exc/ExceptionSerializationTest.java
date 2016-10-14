@@ -1,15 +1,16 @@
-package com.fasterxml.jackson.databind.deser.exc;
+package com.fasterxml.jackson.databind.exc;
 
 import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 
 /**
  * Unit tests for verifying that simple exceptions can be serialized.
  */
-public class TestExceptionSerialization
+public class ExceptionSerializationTest
     extends BaseMapTest
 {
     @SuppressWarnings("serial")
@@ -42,7 +43,7 @@ public class TestExceptionSerialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimple() throws Exception
     {
         String TEST = "test exception";
@@ -66,6 +67,16 @@ public class TestExceptionSerialization
         }
     }
 
+    // to double-check [databind#1413]
+    public void testSimpleOther() throws Exception
+    {
+        JsonParser p = MAPPER.getFactory().createParser("{ }");
+        InvalidFormatException exc = InvalidFormatException.from(p, "Test", getClass(), String.class);
+        String json = MAPPER.writeValueAsString(exc);
+        p.close();
+        assertNotNull(json);
+    }
+    
     // for [databind#877]
     @SuppressWarnings("unchecked")
     public void testIgnorals() throws Exception

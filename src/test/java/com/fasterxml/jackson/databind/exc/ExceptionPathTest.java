@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.exc;
+package com.fasterxml.jackson.databind.exc;
 
 import com.fasterxml.jackson.annotation.*;
 

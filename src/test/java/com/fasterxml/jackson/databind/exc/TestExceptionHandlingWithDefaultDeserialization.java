@@ -1,22 +1,17 @@
-package com.fasterxml.jackson.databind.deser.exc;
+package com.fasterxml.jackson.databind.exc;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMapTest
+public class TestExceptionHandlingWithDefaultDeserialization extends BaseMapTest
 {
     static class Foo {
         private Bar bar;
 
-        @JsonCreator
-        public Foo(@JsonProperty("bar") Bar bar) {
-            this.bar = bar;
-        }
+        public Foo() { }
 
         public Bar getBar() {
             return bar;
@@ -26,10 +21,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
     static class Bar {
         private Baz baz;
 
-        @JsonCreator
-        public Bar(@JsonProperty("baz") Baz baz) {
-            this.baz = baz;
-        }
+        public Bar() { }
 
         public Baz getBaz() {
             return baz;
@@ -39,10 +31,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization extends BaseMap
     static class Baz {
         private String qux;
 
-        @JsonCreator
-        public Baz(@JsonProperty("qux") String qux) {
-            this.qux = qux;
-        }
+        public Baz() { }
 
         public String getQux() {
             return qux;

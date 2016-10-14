@@ -138,16 +138,12 @@ public abstract class StdDeserializer<T>
 
         // should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            // 11-Jan-2012, tatus: May be outside of int...
-            if (p.getNumberType() == NumberType.INT) {
-                return (p.getIntValue() != 0);
-            }
-            return _parseBooleanFromOther(p, ctxt);
+            return _parseBooleanFromInt(p, ctxt);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
             String text = p.getText().trim();
-            // [#422]: Allow aliases
+            // [databind#422]: Allow aliases
             if ("true".equals(text) || "True".equals(text)) {
                 return true;
             }
@@ -187,11 +183,7 @@ public abstract class StdDeserializer<T>
         }
         // should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            // 11-Jan-2012, tatus: May be outside of int...
-            if (p.getNumberType() == NumberType.INT) {
-                return (p.getIntValue() == 0) ? Boolean.FALSE : Boolean.TRUE;
-            }
-            return Boolean.valueOf(_parseBooleanFromOther(p, ctxt));
+            return Boolean.valueOf(_parseBooleanFromInt(p, ctxt));
         }
         if (t == JsonToken.VALUE_NULL) {
             return (Boolean) getNullValue(ctxt);
@@ -229,18 +221,24 @@ public abstract class StdDeserializer<T>
         return (Boolean) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
-    protected final boolean _parseBooleanFromOther(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+    protected boolean _parseBooleanFromInt(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
-        if (p.getNumberType() == NumberType.LONG) {
-            return (p.getLongValue() == 0L) ? Boolean.FALSE : Boolean.TRUE;
-        }
-        // no really good logic; let's actually resort to textual comparison
-        String str = p.getText();
-        if ("0.0".equals(str) || "0".equals(str)) {
-            return Boolean.FALSE;
-        }
-        return Boolean.TRUE;
+        // 13-Oct-2016, tatu: As per [databind#1324], need to be careful wrt
+        //    degenerate case of huge integers, legal in JSON.
+        //  ... this is, on the other hand, probably wrong/sub-optimal for non-JSON
+        //  input. For now, no rea
+
+        // Anyway, note that since we know it's valid (JSON) integer, it can't have
+        // extra whitespace to trim.
+        return !"0".equals(p.getText());
+    }
+
+    @Deprecated // since 2.8.4
+    protected boolean _parseBooleanFromOther(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        return _parseBooleanFromInt(p, ctxt);
     }
 
     protected Byte _parseByte(JsonParser p, DeserializationContext ctxt)

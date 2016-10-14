@@ -176,6 +176,13 @@ public class JDKScalarsTest
         assertEquals(Boolean.TRUE, b.wrapper);
         assertTrue(b.primitive);
         assertEquals(Boolean.TRUE, b.ctor);
+
+        // but ensure we can also get `false`
+        b = MAPPER.readValue("{\"primitive\" : 0 , \"wrapper\":0, \"ctor\":0}",
+                BooleanWrapper.class);
+        assertEquals(Boolean.FALSE, b.wrapper);
+        assertFalse(b.primitive);
+        assertEquals(Boolean.FALSE, b.ctor);
     }
 
     /*

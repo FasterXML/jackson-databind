@@ -272,6 +272,40 @@ public class JsonIncludeTest
             this.second = second;
         }
     }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static abstract class Issue1351NonBeanParent
+    {
+        protected static final String NUM_VAR = "num";
+        protected final int num;
+
+        @com.fasterxml.jackson.annotation.JsonCreator
+        public Issue1351NonBeanParent(@com.fasterxml.jackson.annotation.JsonProperty(NUM_VAR) int num) {
+            this.num = num;
+        }
+
+        @com.fasterxml.jackson.annotation.JsonProperty(NUM_VAR)
+        public int getNum() {
+            return num;
+        }
+    }
+
+    static class Issue1351NonBean extends Issue1351NonBeanParent {
+        private String str;
+
+        @com.fasterxml.jackson.annotation.JsonCreator
+        public Issue1351NonBean(@com.fasterxml.jackson.annotation.JsonProperty(NUM_VAR) int num) {
+            super(num);
+        }
+
+        public String getStr() {
+            return str;
+        }
+
+        public void setStr(String str) {
+            this.str = str;
+        }
+    }
     
     public void testIssue1351() throws Exception
     {
@@ -279,5 +313,7 @@ public class JsonIncludeTest
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         assertEquals(aposToQuotes("{}"),
                 mapper.writeValueAsString(new Issue1351Bean(null, (double) 0)));
+        assertEquals(aposToQuotes("{}"),
+              mapper.writeValueAsString(new Issue1351NonBean(0)));
     }
 }

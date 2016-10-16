@@ -25,7 +25,11 @@ Project: jackson-databind
 #1371: Add `MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES` to allow
  disabling use of `@CreatorProperties` as explicit `@JsonCreator` equivalent
 
-2.8.4 (not yet released)
+2.8.5 (not yet released)
+
+#1417: Further issues with `@JsonInclude` with `NON_DEFAULT`
+
+2.8.4 (14-Oct-2016)
 
 #466: Jackson ignores Type information when raw return type is BigDecimal or BigInteger 
 #1001: Parameter names module gets confused with delegate creator which is a static method

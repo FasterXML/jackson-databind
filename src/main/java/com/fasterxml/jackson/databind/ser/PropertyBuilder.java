@@ -149,12 +149,22 @@ public class PropertyBuilder
             //    whereas for global defaults OR per-property overrides, we have more
             //    static definition. Sigh.
             // First: case of class/type specifying it; try to find POJO property defaults
-            if (_useRealPropertyDefaults) {
+            Object defaultBean;
+
+            // 16-Oct-2016, tatu: Note: if we can not for some reason create "default instance",
+            //    revert logic to the case of general/per-property handling, so both
+            //    type-default AND null are to be excluded.
+            //    (as per [databind#1417]
+            if (_useRealPropertyDefaults && (defaultBean = getDefaultBean()) != null) {
                 // 07-Sep-2016, tatu: may also need to front-load access forcing now
                 if (prov.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                     am.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                 }
-                valueToSuppress = getPropertyDefaultValue(propDef.getName(), am, actualType);
+                try {
+                    valueToSuppress = am.getValue(defaultBean);
+                } catch (Exception e) {
+                    _throwWrapped(e, propDef.getName(), defaultBean);
+                }
             } else {
                 valueToSuppress = BeanUtil.getDefaultValue(actualType);
                 suppressNulls = true;
@@ -310,15 +320,19 @@ public class PropertyBuilder
     /**
      * Accessor used to find out "default value" for given property, to use for
      * comparing values to serialize, to determine whether to exclude value from serialization with
-     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_EMPTY}.
+     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
      * This method is called when we specifically want to know default value within context
      * of a POJO, when annotation is within containing class, and not for property or
      * defined as global baseline.
      *<p>
-     * Note that returning of pseudo-type 
+     * Note that returning of pseudo-type
+     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_EMPTY} requires special handling.
      *
      * @since 2.7
+     * @deprecated Since 2.9 since this will not allow determining difference between "no default instance"
+     *    case and default being `null`.
      */
+    @Deprecated // since 2.9
     protected Object getPropertyDefaultValue(String name, AnnotatedMember member,
             JavaType type)
     {

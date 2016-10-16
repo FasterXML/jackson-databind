@@ -3,7 +3,9 @@ package com.fasterxml.jackson.databind.filter;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -125,6 +127,51 @@ public class JsonIncludeTest
         public List<String> list = Collections.emptyList();
 
         public Map<String,String> map = Collections.emptyMap();
+    }
+
+    // [databind#1351]
+
+    static class Issue1351Bean
+    {
+        public final String first;
+        public final double second;
+
+        public Issue1351Bean(String first, double second) {
+            this.first = first;
+            this.second = second;
+        }
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    static abstract class Issue1351NonBeanParent
+    {
+        protected final int num;
+
+        protected Issue1351NonBeanParent(int num) {
+            this.num = num;
+        }
+
+        @JsonProperty("num")
+        public int getNum() {
+            return num;
+        }
+    }
+
+    static class Issue1351NonBean extends Issue1351NonBeanParent {
+        private String str;
+
+        @JsonCreator
+        public Issue1351NonBean(@JsonProperty("num") int num) {
+            super(num);
+        }
+
+        public String getStr() {
+            return str;
+        }
+
+        public void setStr(String str) {
+            this.str = str;
+        }
     }
 
     /*
@@ -262,58 +309,15 @@ public class JsonIncludeTest
                 mapper.writeValueAsString(empty));
     }
 
-    static class Issue1351Bean
-    {
-        public final String first;
-        public final double second;
-
-        public Issue1351Bean(String first, double second) {
-            this.first = first;
-            this.second = second;
-        }
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    static abstract class Issue1351NonBeanParent
-    {
-        protected static final String NUM_VAR = "num";
-        protected final int num;
-
-        @com.fasterxml.jackson.annotation.JsonCreator
-        public Issue1351NonBeanParent(@com.fasterxml.jackson.annotation.JsonProperty(NUM_VAR) int num) {
-            this.num = num;
-        }
-
-        @com.fasterxml.jackson.annotation.JsonProperty(NUM_VAR)
-        public int getNum() {
-            return num;
-        }
-    }
-
-    static class Issue1351NonBean extends Issue1351NonBeanParent {
-        private String str;
-
-        @com.fasterxml.jackson.annotation.JsonCreator
-        public Issue1351NonBean(@com.fasterxml.jackson.annotation.JsonProperty(NUM_VAR) int num) {
-            super(num);
-        }
-
-        public String getStr() {
-            return str;
-        }
-
-        public void setStr(String str) {
-            this.str = str;
-        }
-    }
-    
+    // [databind#1351], [databind#1417]
     public void testIssue1351() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
         assertEquals(aposToQuotes("{}"),
                 mapper.writeValueAsString(new Issue1351Bean(null, (double) 0)));
+        // [databind#1417]
         assertEquals(aposToQuotes("{}"),
-              mapper.writeValueAsString(new Issue1351NonBean(0)));
+                mapper.writeValueAsString(new Issue1351NonBean(0)));
     }
 }

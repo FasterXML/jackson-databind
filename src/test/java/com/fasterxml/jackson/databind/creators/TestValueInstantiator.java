@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonValueInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -22,7 +22,7 @@ public class TestValueInstantiator extends BaseMapTest
     static class MyBean
     {
         String _secret;
-        
+
         public MyBean(String s, boolean bogus) {
             _secret = s;
         }
@@ -31,16 +31,16 @@ public class TestValueInstantiator extends BaseMapTest
     static class MysteryBean
     {
         Object value;
-        
+
         public MysteryBean(Object v) { value = v; }
     }
-    
+
     static class CreatorBean
     {
         String _secret;
 
         public String value;
-        
+
         protected CreatorBean(String s) {
             _secret = s;
         }
@@ -590,9 +590,9 @@ public class TestValueInstantiator extends BaseMapTest
             fail("Should not succeed");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not construct instance of");
-            verifyException(e, "missing default constructor");
-            // as per [databind#1404], is input-side, not definition problem
-            assertEquals(InputMismatchException.class, e.getClass());
+            verifyException(e, "no Creators");
+            // as per [databind#1414], is definition problem
+            assertEquals(InvalidDefinitionException.class, e.getClass());
         }
     }
 
@@ -606,8 +606,8 @@ public class TestValueInstantiator extends BaseMapTest
         } catch (JsonMappingException e) {
             verifyException(e, "Can not construct instance of");
             verifyException(e, "no String-argument constructor/factory");
-            // as per [databind#1404], is input-side, not definition problem
-            assertEquals(InputMismatchException.class, e.getClass());
+            // as per [databind#1414], is definition problem
+            assertEquals(InvalidDefinitionException.class, e.getClass());
         }
     }
 }

@@ -69,14 +69,14 @@ public class ThrowableDeserializer
                     _delegateDeserializer.deserialize(p, ctxt));
         }
         if (_beanType.isAbstract()) { // for good measure, check this too
-            return ctxt.handleMissingInstantiator(handledType(), p,
+            return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                     "abstract type (need to add/enable type information?)");
         }
         boolean hasStringCreator = _valueInstantiator.canCreateFromString();
         boolean hasDefaultCtor = _valueInstantiator.canCreateUsingDefault();
         // and finally, verify we do have single-String arg constructor (if no @JsonCreator)
         if (!hasStringCreator && !hasDefaultCtor) {
-            return ctxt.handleMissingInstantiator(handledType(), p,
+            return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                     "Throwable needs a default contructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
         

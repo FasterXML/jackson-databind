@@ -983,16 +983,22 @@ public abstract class DeserializationContext
      * just skipping it) to keep input state valid
      *
      * @param instClass Type that was to be instantiated
+     * @param valueInst (optional) Value instantiator to be used, if any; null if type does not
+     *    use one for instantiation (custom deserialiers don't; standard POJO deserializer does)
      * @param p Parser that points to the JSON value to decode
      *
      * @return Object that should be constructed, if any; has to be of type <code>instClass</code>
      *
-     * @since 2.8
+     * @since 2.9 (2.8 had alternate that did not take <code>ValueInstantiator</code>)
      */
-    public Object handleMissingInstantiator(Class<?> instClass, JsonParser p,
-            String msg, Object... msgArgs)
+    @SuppressWarnings("resource")
+    public Object handleMissingInstantiator(Class<?> instClass, ValueInstantiator valueInst,
+            JsonParser p, String msg, Object... msgArgs)
         throws IOException
     {
+        if (p == null) {
+            p = getParser();
+        }
         if (msgArgs.length > 0) {
             msg = String.format(msg, msgArgs);
         }
@@ -1000,7 +1006,7 @@ public abstract class DeserializationContext
         while (h != null) {
             // Can bail out if it's handled
             Object instance = h.value().handleMissingInstantiator(this,
-                    instClass, p, msg);
+                    instClass, valueInst, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
                 if ((instance == null) || instClass.isInstance(instance)) {
@@ -1012,9 +1018,16 @@ public abstract class DeserializationContext
             }
             h = h.next();
         }
-        // 06-Oct-2016, tatu: This is input mismatch problem, in that absence of
-        //    creator implies that incoming content type or structure is wrong
-        msg = String.format("Can not construct instance of %s, problem: %s",
+
+        // 16-Oct-2016, tatu: This is either a definition problem (if no applicable creator
+        //   exists), or input mismatch problem (otherwise) since none of existing cretors
+        //   match with token.
+        if ((valueInst != null) && !valueInst.canInstantiate()) {
+            msg = String.format("Can not construct instance of %s (no Creators, like default construct, exist): %s",
+                    instClass.getName(), msg);
+            return reportBadDefinition(constructType(instClass), msg);
+        }
+        msg = String.format("Can not construct instance of %s (although at least one Creator exists): %s",
                 instClass.getName(), msg);
         return reportInputMismatch(instClass, msg);
     }

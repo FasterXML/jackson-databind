@@ -146,7 +146,11 @@ public class AbstractDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        return ctxt.handleMissingInstantiator(_baseType.getRawClass(), p,
+        // 16-Oct-2016, tatu: Let's pass non-null value instantiator so that we will
+        //    get proper exception type; needed to establish there are no creators
+        //    (since without ValueInstantiator this would not be known for certain)
+        ValueInstantiator bogus = new ValueInstantiator.Base(_baseType);
+        return ctxt.handleMissingInstantiator(_baseType.getRawClass(), bogus, p,
                 "abstract types either need to be mapped to concrete types, have custom deserializer, or contain additional type information");
     }
 

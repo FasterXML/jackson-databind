@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -97,8 +98,8 @@ public class MultiArgConstructorTest extends BaseMapTest
             /*MultiArgCtorBean bean =*/ mapper.readValue(aposToQuotes("{'b':13,  'a':-99}"),
                 MultiArgCtorBean.class);
             fail("Should not have passed");
-        } catch (JsonMappingException e) {
-            verifyException(e, "No suitable constructor");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "no Creators");
         }
     }
 }

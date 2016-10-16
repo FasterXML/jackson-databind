@@ -120,15 +120,15 @@ public class ExceptionSerializationTest
             MAPPER.readValue( "{ \"val\": \"foo\" }", NoSerdeConstructor.class );
             fail("Should not pass");
         } catch (JsonMappingException e0) {
-            verifyException(e0, "no suitable constructor");
+            verifyException(e0, "can not deserialize from Object");
             e = e0;
         }
         // but should be able to serialize new exception we got
         String json = MAPPER.writeValueAsString(e);
         JsonNode root = MAPPER.readTree(json);
         String msg = root.path("message").asText();
-        String MATCH = "no suitable constructor";
-        if (!msg.contains(MATCH)) {
+        String MATCH = "can not construct instance";
+        if (!msg.toLowerCase().contains(MATCH)) {
             fail("Exception should contain '"+MATCH+"', does not: '"+msg+"'");
         }
     }

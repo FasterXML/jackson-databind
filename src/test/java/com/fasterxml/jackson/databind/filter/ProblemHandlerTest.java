@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
@@ -107,10 +108,10 @@ public class ProblemHandlerTest extends BaseMapTest
         public MissingInstantiationHandler(Object v0) {
             value = v0;
         }
-    
+
         @Override
         public Object handleMissingInstantiator(DeserializationContext ctxt,
-                Class<?> instClass, JsonParser p, String msg)
+                Class<?> instClass, ValueInstantiator inst, JsonParser p, String msg)
             throws IOException
         {
             p.skipChildren();
@@ -122,11 +123,11 @@ public class ProblemHandlerTest extends BaseMapTest
         extends DeserializationProblemHandler
     {
         protected final Object value;
-    
+
         public WeirdTokenHandler(Object v) {
             value = v;
         }
-    
+
         @Override
         public Object handleUnexpectedToken(DeserializationContext ctxt,
                 Class<?> targetType, JsonToken t, JsonParser p,

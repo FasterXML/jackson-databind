@@ -232,7 +232,12 @@ public class CollectionDeserializer
     public JsonDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
-    
+
+    @Override
+    public ValueInstantiator getValueInstantiator() {
+        return _valueInstantiator;
+    }
+
     /*
     /**********************************************************
     /* JsonDeserializer API

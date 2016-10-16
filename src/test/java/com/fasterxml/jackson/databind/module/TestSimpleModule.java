@@ -17,12 +17,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 @SuppressWarnings("serial")
 public class TestSimpleModule extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes; simple beans and their handlers
-    /**********************************************************
-     */
-    
     /**
      * Trivial bean that requires custom serializer and deserializer
      */
@@ -210,7 +204,8 @@ public class TestSimpleModule extends BaseMapTest
             mapper.readValue("{\"str\":\"ab\",\"num\":2}", CustomBean.class);
             fail("Should have caused an exception");
         } catch (IOException e) {
-            verifyException(e, "No suitable constructor found");
+            verifyException(e, "Can not construct");
+            verifyException(e, "no creators");
         }
     }
 
@@ -275,8 +270,7 @@ public class TestSimpleModule extends BaseMapTest
         SimpleEnum result = mapper.readValue(quote("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
     }
- 
-    // Simple verification of [JACKSON-455]
+
     public void testMultipleModules() throws Exception
     {
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
@@ -307,8 +301,7 @@ public class TestSimpleModule extends BaseMapTest
     /* Unit tests; other
     /**********************************************************
      */
-    
-    // [JACKSON-644]: ability to register mix-ins
+
     public void testMixIns() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -322,7 +315,6 @@ public class TestSimpleModule extends BaseMapTest
         assertEquals(Integer.valueOf(2), props.get("b"));
     }
 
-    // [JACKSON-686]
     public void testAccessToMapper() throws Exception
     {
         ContextVerifierModule module = new ContextVerifierModule();        

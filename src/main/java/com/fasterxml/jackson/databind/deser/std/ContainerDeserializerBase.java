@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 
 /**
  * Intermediate base deserializer class that adds more shared accessor
@@ -52,6 +53,13 @@ public abstract class ContainerDeserializerBase<T>
      * Accesor for deserializer use for deserializing content values.
      */
     public abstract JsonDeserializer<Object> getContentDeserializer();
+
+    /**
+     * @since 2.9
+     */
+    public ValueInstantiator getValueInstantiator() {
+        return null;
+    }
 
     /*
     /**********************************************************

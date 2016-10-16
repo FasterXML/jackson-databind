@@ -303,7 +303,12 @@ public class MapDeserializer
     public JsonDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
-    
+
+    @Override
+    public ValueInstantiator getValueInstantiator() {
+        return _valueInstantiator;
+    }
+
     /*
     /**********************************************************
     /* JsonDeserializer API
@@ -346,7 +351,8 @@ public class MapDeserializer
                     _delegateDeserializer.deserialize(p, ctxt));
         }
         if (!_hasDefaultCreator) {
-            return (Map<Object,Object> ) ctxt.handleMissingInstantiator(getMapClass(), p,
+            return (Map<Object,Object> ) ctxt.handleMissingInstantiator(getMapClass(),
+                    getValueInstantiator(), p,
                     "no default constructor found");
         }
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT

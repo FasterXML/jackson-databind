@@ -267,15 +267,18 @@ public abstract class DeserializationProblemHandler
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
      *
-     * @since 2.8
+     * @since 2.9
      */
     public Object handleMissingInstantiator(DeserializationContext ctxt,
-            Class<?> instClass, JsonParser p, String msg)
+            Class<?> instClass, ValueInstantiator valueInsta, JsonParser p,
+            String msg)
         throws IOException
     {
-        return NOT_HANDLED;
+        // 16-Oct-2016, tatu: Need to delegate to deprecated method from 2.8;
+        //   remove redirect from later versions (post-2.9)
+        return handleMissingInstantiator(ctxt, instClass, p, msg);
     }
-    
+
     /**
      * Handler method called if resolution of type id from given String failed
      * to produce a subtype; usually because logical id is not mapped to actual
@@ -312,5 +315,23 @@ public abstract class DeserializationProblemHandler
         throws IOException
     {
         return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.8
+     * @deprecated Since 2.9: use variant that takes {@link ValueInstantiator}
+     */
+    @Deprecated
+    public Object handleMissingInstantiator(DeserializationContext ctxt,
+            Class<?> instClass, JsonParser p, String msg)
+        throws IOException
+    {
+        return NOT_HANDLED;
     }
 }

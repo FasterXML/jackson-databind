@@ -9,27 +9,39 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 /**
  * Unit test for verifying that exceptions are properly handled (caught,
- * re-thrown or wrapped, depending)
- * with Object deserialization.
+ * re-thrown or wrapped, depending) with Object deserialization,
+ * including using concrete subtypes of {@link JsonMappingException}
+ * (or, for low-level parsing, {@link JsonParseException}).
  */
-public class TestExceptionHandling
+public class DeserExceptionTypeTest
     extends BaseMapTest
 {
     static class Bean {
         public String propX;
     }
 
+    // Class that has no applicable creators and thus can not be instantiated;
+    // definition problem
+    static class NoCreatorsBean {
+        public int x;
+
+        // Constructor that is not detectable as Creator
+        public NoCreatorsBean(boolean foo, int foo2) { }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testHandlingOfUnrecognized() throws Exception
     {
         UnrecognizedPropertyException exc = null;
         try {
-            new ObjectMapper().readValue("{\"bar\":3}", Bean.class);
+            MAPPER.readValue("{\"bar\":3}", Bean.class);
         } catch (UnrecognizedPropertyException e) {
             exc = e;
         }
@@ -49,9 +61,8 @@ public class TestExceptionHandling
      */
     public void testExceptionWithEmpty() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            Object result = mapper.readValue("    ", Object.class);
+            Object result = MAPPER.readValue("    ", Object.class);
             fail("Expected an exception, but got result value: "+result);
         } catch (Exception e) {
             verifyException(e, InputMismatchException.class, "No content");
@@ -63,12 +74,10 @@ public class TestExceptionHandling
         throws Exception
     {
         BrokenStringReader r = new BrokenStringReader("[ 1, ", "TEST");
-        JsonFactory f = new JsonFactory();
-        JsonParser jp = f.createParser(r);
-        ObjectMapper mapper = new ObjectMapper();
+        JsonParser p = MAPPER.getFactory().createParser(r);
         try {
             @SuppressWarnings("unused")
-            Object ob = mapper.readValue(jp, Object.class);
+            Object ob = MAPPER.readValue(p, Object.class);
             fail("Should have gotten an exception");
         } catch (IOException e) {
             /* For "bona fide" IO problems (due to low-level problem,
@@ -80,27 +89,35 @@ public class TestExceptionHandling
 
     public void testExceptionWithEOF() throws Exception
     {
-        StringReader r = new StringReader("  3");
-        JsonFactory f = new JsonFactory();
-        JsonParser jp = f.createParser(r);
-        ObjectMapper mapper = new ObjectMapper();
+        JsonParser p = MAPPER.getFactory().createParser("  3");
 
-        Integer I = mapper.readValue(jp, Integer.class);
+        Integer I = MAPPER.readValue(p, Integer.class);
         assertEquals(3, I.intValue());
 
         // and then end-of-input...
         try {
-            I = mapper.readValue(jp, Integer.class);
+            I = MAPPER.readValue(p, Integer.class);
             fail("Should have gotten an exception");
         } catch (IOException e) {
             verifyException(e, InputMismatchException.class, "No content");
         }
         // also: should have no current token after end-of-input
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t != null) {
             fail("Expected current token to be null after end-of-stream, was: "+t);
         }
-        jp.close();
+        p.close();
+    }
+
+    // [databind#1414]
+    public void testExceptionForNoCreators() throws Exception
+    {
+        try {
+            NoCreatorsBean b = MAPPER.readValue("{}", NoCreatorsBean.class);
+            fail("Should not succeed, got: "+b);
+        } catch (JsonMappingException e) {
+            verifyException(e, InvalidDefinitionException.class, "no Creators");
+        }
     }
 
     /*

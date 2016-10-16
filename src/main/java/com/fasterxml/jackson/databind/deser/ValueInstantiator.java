@@ -185,7 +185,7 @@ public abstract class ValueInstantiator
      * null or empty List.
      */
     public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no default no-arguments constructor found");
     }
 
@@ -199,7 +199,7 @@ public abstract class ValueInstantiator
      */
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
         // sanity check; shouldn't really get called if no Creator specified
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no creator with arguments specified");
     }
 
@@ -233,7 +233,7 @@ public abstract class ValueInstantiator
      * an intermediate "delegate" value to pass to createor method
      */
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no delegate creator specified");
     }
 
@@ -242,7 +242,7 @@ public abstract class ValueInstantiator
      * an intermediate "delegate" value to pass to createor method
      */
     public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no array delegate creator specified");
     }
 
@@ -258,25 +258,25 @@ public abstract class ValueInstantiator
     }
 
     public Object createFromInt(DeserializationContext ctxt, int value) throws IOException {
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no int/Int-argument constructor/factory method to deserialize from Number value (%s)",
                 value);
     }
 
     public Object createFromLong(DeserializationContext ctxt, long value) throws IOException {
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no long/Long-argument constructor/factory method to deserialize from Number value (%s)",
                 value);
     }
 
     public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException {
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no double/Double-argument constructor/factory method to deserialize from Number value (%s)",
                 value);
     }
 
     public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException {
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
                 "no boolean/Boolean-argument constructor/factory method to deserialize from boolean value (%s)",
                 value);
     }
@@ -367,7 +367,7 @@ public abstract class ValueInstantiator
                 return null;
             }
         }
-        return ctxt.handleMissingInstantiator(getValueClass(), ctxt.getParser(),
+        return ctxt.handleMissingInstantiator(getValueClass(), this, ctxt.getParser(),
                 "no String-argument constructor/factory method to deserialize from String value ('%s')",
                 value);
     }

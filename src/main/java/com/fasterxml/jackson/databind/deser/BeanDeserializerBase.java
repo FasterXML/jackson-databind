@@ -1199,18 +1199,12 @@ public abstract class BeanDeserializerBase
         if (_propertyBasedCreator != null) {
             return _deserializeUsingPropertyBased(p, ctxt);
         }
-        // should only occur for abstract types...
-        if (_beanType.isAbstract()) {
-            return ctxt.handleMissingInstantiator(handledType(), p,
-                    "abstract type (need to add/enable type information?)");
-        }
-        return ctxt.handleMissingInstantiator(_beanType.getRawClass(), p,
-                "no suitable constructor found, can not deserialize from Object value (missing default constructor or creator, or perhaps need to add/enable type information?)");
+        return ctxt.handleMissingInstantiator(_beanType.getRawClass(), getValueInstantiator(), p,
+                "can not deserialize from Object value (no delegate- or property-based Creator)");
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,
-            final DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+            final DeserializationContext ctxt) throws IOException;
 
     @SuppressWarnings("incomplete-switch")
     public Object deserializeFromNumber(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -1255,7 +1249,7 @@ public abstract class BeanDeserializerBase
             }
             return bean;
         }
-        return ctxt.handleMissingInstantiator(handledType(), p,
+        return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                 "no suitable creator method found to deserialize from Number value (%s)",
                 p.getNumberValue());
     }
@@ -1306,7 +1300,7 @@ public abstract class BeanDeserializerBase
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
         }
-        return ctxt.handleMissingInstantiator(handledType(), p,
+        return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                 "no suitable creator method found to deserialize from Number value (%s)",
                 p.getNumberValue());
     }

@@ -1132,6 +1132,17 @@ public abstract class SerializerProvider
      */
 
     /**
+     * Helper method called to indicate problem; default behavior is to construct and
+     * throw a {@link JsonMappingException}, but in future may collect more than one
+     * and only throw after certain number, or at the end of serialization.
+     *
+     * @since 2.8
+     */
+    public void reportMappingProblem(String message, Object... args) throws JsonMappingException {
+        throw mappingException(message, args);
+    }
+
+    /**
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
@@ -1255,20 +1266,6 @@ public abstract class SerializerProvider
             message = String.format(message, args);
         }
         return JsonMappingException.from(getGenerator(), message, t);
-    }
-
-    /**
-     * Helper method called to indicate problem; default behavior is to construct and
-     * throw a {@link JsonMappingException}, but in future may collect more than one
-     * and only throw after certain number, or at the end of serialization.
-     *
-     * @since 2.8
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public void reportMappingProblem(String message, Object... args) throws JsonMappingException {
-        throw mappingException(message, args);
     }
 
     /*

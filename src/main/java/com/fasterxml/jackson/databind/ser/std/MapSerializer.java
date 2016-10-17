@@ -634,7 +634,7 @@ public class MapSerializer
         gen.writeStartObject(value);
         if (!value.isEmpty()) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntries(value);
+                value = _orderEntries(value, gen, provider);
             }
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider,
@@ -660,7 +660,7 @@ public class MapSerializer
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntries(value);
+                value = _orderEntries(value, gen, provider);
             }
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider,
@@ -1050,7 +1050,8 @@ public class MapSerializer
         return result.serializer;
     }
 
-    protected Map<?,?> _orderEntries(Map<?,?> input)
+    protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
+            SerializerProvider provider) throws IOException
     {
         // minor optimization: may already be sorted?
         if (input instanceof SortedMap<?,?>) {
@@ -1061,12 +1062,58 @@ public class MapSerializer
             TreeMap<Object,Object> result = new TreeMap<Object,Object>();
             for (Map.Entry<?,?> entry : input.entrySet()) {
                 Object key = entry.getKey();
-                if (key != null) {
-                    result.put(key, entry.getValue());
-                }
+                if (key == null) {
+                    _writeNullKeyedEntry(gen, provider, entry.getValue());
+                    continue;
+                } 
+                result.put(key, entry.getValue());
             }
             return result;
         }
         return new TreeMap<Object,Object>(input);
+    }
+
+    protected void _writeNullKeyedEntry(JsonGenerator gen, SerializerProvider provider,
+            Object value) throws IOException
+    {
+        JsonSerializer<Object> keySerializer = provider.findNullKeySerializer(_keyType, _property);
+        JsonSerializer<Object> valueSer;
+        if (value == null) {
+            if (_suppressNulls) {
+                return;
+            }
+            valueSer = provider.getDefaultNullValueSerializer();
+        } else {
+            valueSer = _valueSerializer;
+            if (valueSer == null) {
+                Class<?> cc = value.getClass();
+                valueSer = _dynamicValueSerializers.serializerFor(cc);
+                if (valueSer == null) {
+                    if (_valueType.hasGenericTypes()) {
+                        valueSer = _findAndAddDynamic(_dynamicValueSerializers,
+                                provider.constructSpecializedType(_valueType, cc), provider);
+                    } else {
+                        valueSer = _findAndAddDynamic(_dynamicValueSerializers, cc, provider);
+                    }
+                }
+            }
+            if (_suppressableValue == MARKER_FOR_EMPTY) {
+                if (valueSer.isEmpty(provider, value)) {
+                    return;
+                }
+            } else if (_suppressableValue != null) {
+                if (_suppressableValue.equals(value)) {
+                    return;
+                }
+            }
+        }
+
+        try {
+            keySerializer.serialize(null, gen, provider);
+            valueSer.serialize(value, gen, provider);
+        } catch (Exception e) {
+            String keyDesc = "";
+            wrapAndThrow(provider, e, value, keyDesc);
+        }
     }
 }

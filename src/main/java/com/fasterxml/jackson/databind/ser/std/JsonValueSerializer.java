@@ -424,14 +424,17 @@ public class JsonValueSerializer
             _typeSerializer.writeTypeSuffixForArray(_forObject, gen);
         }
 
+        @Override
         public void writeTypePrefixForScalar(Object value, JsonGenerator gen, Class<?> type) throws IOException {
             _typeSerializer.writeTypePrefixForScalar(_forObject, gen, type);
         }
 
+        @Override
         public void writeTypePrefixForObject(Object value, JsonGenerator gen, Class<?> type) throws IOException {
             _typeSerializer.writeTypePrefixForObject(_forObject, gen, type);
         }
 
+        @Override
         public void writeTypePrefixForArray(Object value, JsonGenerator gen, Class<?> type) throws IOException {
             _typeSerializer.writeTypePrefixForArray(_forObject, gen, type);
         }

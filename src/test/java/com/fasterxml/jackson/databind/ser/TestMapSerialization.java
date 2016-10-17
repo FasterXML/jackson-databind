@@ -176,7 +176,7 @@ public class TestMapSerialization extends BaseMapTest
         assertEquals("{\"DEFAULT:a\":\"b\"}", m.writeValueAsString(map));
     }
 
-    // [JACKSON-636]: sort Map entries by key
+    // sort Map entries by key
     public void testOrderByKey() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
@@ -187,7 +187,25 @@ public class TestMapSerialization extends BaseMapTest
         // by default, no (re)ordering:
         assertEquals("{\"b\":3,\"a\":6}", m.writeValueAsString(map));
         // but can be changed
-        assertEquals("{\"a\":6,\"b\":3}", m.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS).writeValueAsString(map));
+        ObjectWriter sortingW =  m.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        assertEquals("{\"a\":6,\"b\":3}", sortingW.writeValueAsString(map));
+    }
+
+    // related to [databind#1411]
+    public void testOrderByWithNulls() throws IOException
+    {
+        ObjectWriter sortingW = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        // 16-Oct-2016, tatu: but mind the null key, if any
+        Map<String,Integer> mapWithNullKey = new LinkedHashMap<String,Integer>();
+        mapWithNullKey.put(null, 1);
+        mapWithNullKey.put("b", 2);
+        // 16-Oct-2016, tatu: By default, null keys are not accepted...
+        try {
+            /*String json =*/ sortingW.writeValueAsString(mapWithNullKey);
+            //assertEquals(aposToQuotes("{'':1,'b':2}"), json);
+        } catch (JsonMappingException e) {
+            verifyException(e, "Null key for a Map not allowed");
+        }
     }
 
     // [Databind#335]

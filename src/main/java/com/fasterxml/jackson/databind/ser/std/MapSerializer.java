@@ -437,7 +437,7 @@ public class MapSerializer
         }
         // 05-Nove-2015, tatu: Simple cases are cheap, but for recursive
         //   emptiness checking we actually need to see if values are empty as well.
-        Object supp = this._suppressableValue;
+        Object supp = _suppressableValue;
 
         if ((supp == null) || (supp == JsonInclude.Include.ALWAYS)) {
             return false;
@@ -523,7 +523,7 @@ public class MapSerializer
                 }
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntries(value);
+                value = _orderEntries(value, gen, provider, suppressableValue);
             }
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider,
@@ -557,7 +557,7 @@ public class MapSerializer
                 }
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntries(value);
+                value = _orderEntries(value, gen, provider, suppressableValue);
             }
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider,
@@ -943,7 +943,8 @@ public class MapSerializer
         return result.serializer;
     }
 
-    protected Map<?,?> _orderEntries(Map<?,?> input)
+    protected Map<?,?> _orderEntries(Map<?,?> input, JsonGenerator gen,
+            SerializerProvider provider, Object suppressableValue) throws IOException
     {
         // minor optimization: may already be sorted?
         if (input instanceof SortedMap<?,?>) {
@@ -954,12 +955,54 @@ public class MapSerializer
             TreeMap<Object,Object> result = new TreeMap<Object,Object>();
             for (Map.Entry<?,?> entry : input.entrySet()) {
                 Object key = entry.getKey();
-                if (key != null) {
-                    result.put(key, entry.getValue());
-                }
+                if (key == null) {
+                    _writeNullKeyedEntry(gen, provider, suppressableValue, entry.getValue());
+                    continue;
+                } 
+                result.put(key, entry.getValue());
             }
             return result;
         }
         return new TreeMap<Object,Object>(input);
+    }
+
+    protected void _writeNullKeyedEntry(JsonGenerator gen, SerializerProvider provider,
+            Object suppressableValue, Object value) throws IOException
+    {
+        JsonSerializer<Object> keySerializer = provider.findNullKeySerializer(_keyType, _property);
+        JsonSerializer<Object> valueSer;
+        if (value == null) {
+            if (suppressableValue != null) { // all suppressions include null-suppression
+                return;
+            }
+            valueSer = provider.getDefaultNullValueSerializer();
+        } else {
+            valueSer = _valueSerializer;
+            if (valueSer == null) {
+                Class<?> cc = value.getClass();
+                valueSer = _dynamicValueSerializers.serializerFor(cc);
+                if (valueSer == null) {
+                    if (_valueType.hasGenericTypes()) {
+                        valueSer = _findAndAddDynamic(_dynamicValueSerializers,
+                                provider.constructSpecializedType(_valueType, cc), provider);
+                    } else {
+                        valueSer = _findAndAddDynamic(_dynamicValueSerializers, cc, provider);
+                    }
+                }
+            }
+            // also may need to skip non-empty values:
+            if ((suppressableValue == JsonInclude.Include.NON_EMPTY)
+                    && valueSer.isEmpty(provider, value)) {
+                return;
+            }
+        }
+        // and then serialize, if all went well
+        try {
+            keySerializer.serialize(null, gen, provider);
+            valueSer.serialize(value, gen, provider);
+        } catch (Exception e) {
+            String keyDesc = "";
+            wrapAndThrow(provider, e, value, keyDesc);
+        }
     }
 }

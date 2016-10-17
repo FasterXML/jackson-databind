@@ -5,8 +5,8 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 
-// for remaining part of [databind#865]
-public class MapEntryFormat865Test extends BaseMapTest
+// for [databind#1419]
+public class MapEntryFormat1419Test extends BaseMapTest
 {
     static class BeanWithMapEntryAsObject {
         @JsonFormat(shape=JsonFormat.Shape.OBJECT)

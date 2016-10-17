@@ -857,6 +857,12 @@ public abstract class BasicSerializerFactory
             JavaType keyType, JavaType valueType)
         throws JsonMappingException
     {
+        // [databind#865]: Allow serialization "as POJO" -- note: to undo, declare
+        //   serialization as `Shape.NATURAL` instead; that's JSON Object too.
+        JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+        if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+            return null;
+        }
         MapEntrySerializer ser = new MapEntrySerializer(valueType, keyType, valueType,
                 staticTyping, createTypeSerializer(prov.getConfig(), valueType), null);
 

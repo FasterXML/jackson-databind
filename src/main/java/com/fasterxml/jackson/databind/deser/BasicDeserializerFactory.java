@@ -1552,14 +1552,8 @@ public abstract class BasicDeserializerFactory
         }
         if (rawType == CLASS_MAP_ENTRY) {
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
-            JavaType kt = type.containedType(0);
-            if (kt == null) {
-                kt = TypeFactory.unknownType();
-            }
-            JavaType vt = type.containedType(1);
-            if (vt == null) {
-                vt = TypeFactory.unknownType();
-            }
+            JavaType kt = type.containedTypeOrUnknown(0);
+            JavaType vt = type.containedTypeOrUnknown(1);
             TypeDeserializer vts = (TypeDeserializer) vt.getTypeHandler();
             if (vts == null) {
                 vts = findTypeDeserializer(ctxt.getConfig(), vt);

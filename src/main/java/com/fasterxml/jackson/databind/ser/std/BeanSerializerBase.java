@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
@@ -45,6 +46,11 @@ public abstract class BeanSerializerBase
     /* Configuration
     /**********************************************************
      */
+
+    /**
+     * @since 2.9
+     */
+    final JavaType _beanType;
 
     /**
      * Writers used for outputting actual property values
@@ -103,6 +109,7 @@ public abstract class BeanSerializerBase
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
     {
         super(type);
+        _beanType = type;
         _props = properties;
         _filteredProps = filteredProperties;
         if (builder == null) { // mostly for testing
@@ -125,6 +132,7 @@ public abstract class BeanSerializerBase
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
     {
         super(src._handledType);
+        _beanType = src._beanType;
         _props = properties;
         _filteredProps = filteredProperties;
 
@@ -148,6 +156,7 @@ public abstract class BeanSerializerBase
             ObjectIdWriter objectIdWriter, Object filterId)
     {
         super(src._handledType);
+        _beanType = src._beanType;
         _props = src._props;
         _filteredProps = src._filteredProps;
         
@@ -168,6 +177,7 @@ public abstract class BeanSerializerBase
     {
         super(src._handledType);
 
+        _beanType = src._beanType;
         final BeanPropertyWriter[] propsIn = src._props;
         final BeanPropertyWriter[] fpropsIn = src._filteredProps;
         final int len = propsIn.length;
@@ -415,9 +425,23 @@ public abstract class BeanSerializerBase
                     case NUMBER_INT:
                         // 12-Oct-2014, tatu: May need to introspect full annotations... but
                         //   for now, just do class ones
-                        BeanDescription desc = config.introspectClassAnnotations(_handledType);
-                        JsonSerializer<?> ser = EnumSerializer.construct(_handledType,
+                        BeanDescription desc = config.introspectClassAnnotations(_beanType);
+                        JsonSerializer<?> ser = EnumSerializer.construct(_beanType.getRawClass(),
                                 provider.getConfig(), desc, format);
+                        return provider.handlePrimaryContextualization(ser, property);
+                    }
+                // 16-Oct-2016, tatu: Ditto for `Map.Entry` subtypes
+                } else if (Map.Entry.class.isAssignableFrom(_handledType)) {
+                    if (shape == JsonFormat.Shape.NATURAL) {
+                        JavaType mapEntryType = _beanType.findSuperType(Map.Entry.class);
+
+                        JavaType kt = mapEntryType.containedTypeOrUnknown(0);
+                        JavaType vt = mapEntryType.containedTypeOrUnknown(1);
+
+                        // 16-Oct-2016, tatu: could have problems with type handling, as we do not
+                        //   see if "static" typing is needed, nor look for `TypeSerializer` yet...
+                        JsonSerializer<?> ser = new MapEntrySerializer(_beanType, kt, vt,
+                                false, null, property);
                         return provider.handlePrimaryContextualization(ser, property);
                     }
                 }

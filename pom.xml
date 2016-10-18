@@ -139,6 +139,14 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- 18-Oct-2016, tatu: Try to make coveralls work -->
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>4.3.0</version>
+      </plugin>
+
     </plugins>
   </build>
 

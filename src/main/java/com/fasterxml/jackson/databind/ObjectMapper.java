@@ -2759,8 +2759,8 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(File src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(File src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -2816,8 +2816,8 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(URL src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(URL src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -2861,8 +2861,8 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(String content, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(String content, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueTypeRef));
@@ -2894,8 +2894,8 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(Reader src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(Reader src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -2915,8 +2915,8 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(InputStream src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -2944,16 +2944,15 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
     } 
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(byte[] src, TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(byte[] src, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
     
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(byte[] src, int offset, int len,
-                           TypeReference valueTypeRef)
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(byte[] src, int offset, int len, TypeReference<T> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueTypeRef));

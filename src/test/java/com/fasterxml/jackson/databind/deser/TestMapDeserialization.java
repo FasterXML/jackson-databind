@@ -245,15 +245,15 @@ public class TestMapDeserialization
     {
         // to get typing, must use type reference
         String JSON = "{ \"1\" : true, \"-1\" : false }";
-        Map<String,Integer> result = MAPPER.readValue
+        Map<Integer, Boolean> result = MAPPER.readValue
             (JSON, new TypeReference<HashMap<Integer,Boolean>>() { });
 
         assertNotNull(result);
         assertEquals(HashMap.class, result.getClass());
         assertEquals(2, result.size());
 
-        assertEquals(Boolean.TRUE, result.get(Integer.valueOf(1)));
-        assertEquals(Boolean.FALSE, result.get(Integer.valueOf(-1)));
+        assertEquals(Boolean.TRUE, result.get(1));
+        assertEquals(Boolean.FALSE, result.get(-1));
         assertNull(result.get("foobar"));
         assertNull(result.get(0));
     }
@@ -262,7 +262,7 @@ public class TestMapDeserialization
     {
         // to get typing, must use type reference
         String JSON = "{ \"a\" : \"b\" }";
-        Map<String,Integer> result = MAPPER.readValue
+        Map<String, String> result = MAPPER.readValue
             (JSON, new TypeReference<TreeMap<String,String>>() { });
 
         assertNotNull(result);
@@ -286,8 +286,8 @@ public class TestMapDeserialization
         String JSON = "{ \"a\" : 1, \"b\" : 2, \"c\" : -99 }";
         Map<String,Integer> result = MAPPER.readValue
             (JSON, new TypeReference<Map<String,Integer>>() { });
+
         assertNotNull(result);
-        assertTrue(result instanceof Map<?,?>);
         assertEquals(3, result.size());
 
         assertEquals(Integer.valueOf(-99), result.get("c"));
@@ -355,11 +355,11 @@ public class TestMapDeserialization
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<Enum<?>,Enum<?>> result = MAPPER.readValue
+        Map<Key, Key> result = MAPPER.readValue
             (JSON, new TypeReference<Map<Key,Key>>() { });
 
         assertNotNull(result);
-        assertTrue(result instanceof Map<?,?>);
+        assertTrue(true);
         assertEquals(1, result.size());
 
         assertEquals(Key.WHATEVER, result.get(Key.KEY2));

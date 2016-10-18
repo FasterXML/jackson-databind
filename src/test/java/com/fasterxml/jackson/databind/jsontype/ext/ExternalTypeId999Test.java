@@ -39,7 +39,7 @@ public class ExternalTypeId999Test extends BaseMapTest
 
     public void testExternalTypeId() throws Exception
     {
-        TypeReference<?> type = new TypeReference<Message<FooPayload>>() { };
+        TypeReference<Message<FooPayload>> type = new TypeReference<Message<FooPayload>>() { };
 
         Message<?> msg = MAPPER.readValue(aposToQuotes("{ 'type':'foo', 'payload': {} }"), type);
         assertNotNull(msg);

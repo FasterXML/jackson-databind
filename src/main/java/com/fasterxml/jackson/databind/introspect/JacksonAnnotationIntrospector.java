@@ -275,34 +275,6 @@ public class JacksonAnnotationIntrospector
         }
         return JsonIgnoreProperties.Value.from(v);
     }
-    
-    @Override // since 2.6
-    @Deprecated // since 2.8
-    public String[] findPropertiesToIgnore(Annotated a, boolean forSerialization) {
-        JsonIgnoreProperties.Value v = findPropertyIgnorals(a);
-        if (v == null) {
-            return null;
-        }
-        // 13-May-2015, tatu: As per [databind#95], allow read-only/write-only props
-        if (forSerialization) {
-            if (v.getAllowGetters()) {
-                return null;
-            }
-        } else {
-            if (v.getAllowSetters()) {
-                return null;
-            }
-        }
-        Set<String> ignored = v.getIgnored();
-        return ignored.toArray(new String[ignored.size()]);
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public Boolean findIgnoreUnknownProperties(AnnotatedClass a) {
-        JsonIgnoreProperties.Value v = findPropertyIgnorals(a);
-        return (v == null) ? null : v.getIgnoreUnknown();
-    }
 
     @Override
     public Boolean isIgnorableType(AnnotatedClass ac) {
@@ -675,51 +647,6 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    @Deprecated // since 2.7
-    public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue)
-    {
-        JsonInclude inc = _findAnnotation(a, JsonInclude.class);
-        if (inc != null) {
-            JsonInclude.Include v = inc.value();
-            if (v != JsonInclude.Include.USE_DEFAULTS) {
-                return v;
-            }
-        }
-        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
-        if (ann != null) {
-            JsonSerialize.Inclusion i2 = ann.include();
-            switch (i2) {
-            case ALWAYS:
-                return JsonInclude.Include.ALWAYS;
-            case NON_NULL:
-                return JsonInclude.Include.NON_NULL;
-            case NON_DEFAULT:
-                return JsonInclude.Include.NON_DEFAULT;
-            case NON_EMPTY:
-                return JsonInclude.Include.NON_EMPTY;
-            case DEFAULT_INCLUSION: // since 2.3 -- fall through, use default
-                break;
-            }
-        }
-        return defValue;
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
-    {
-        JsonInclude inc = _findAnnotation(a, JsonInclude.class);
-        if (inc != null) {
-            JsonInclude.Include incl = inc.content();
-            if (incl != JsonInclude.Include.USE_DEFAULTS) {
-                return incl;
-            }
-        }
-        return defValue;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
     public JsonInclude.Value findPropertyInclusion(Annotated a)
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
@@ -727,27 +654,48 @@ public class JacksonAnnotationIntrospector
 
         // only consider deprecated variant if we didn't have non-deprecated one:
         if (value.getValueInclusion() == JsonInclude.Include.USE_DEFAULTS) {
-            JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
-            if (ann != null) {
-                switch (ann.include()) {
-                case ALWAYS:
-                    value = value.withValueInclusion(JsonInclude.Include.ALWAYS);
-                    break;
-                case NON_NULL:
-                    value = value.withValueInclusion(JsonInclude.Include.NON_NULL);
-                    break;
-                case NON_DEFAULT:
-                    value = value.withValueInclusion(JsonInclude.Include.NON_DEFAULT);
-                    break;
-                case NON_EMPTY:
-                    value = value.withValueInclusion(JsonInclude.Include.NON_EMPTY);
-                    break;
-                case DEFAULT_INCLUSION:
-                default:
-                }
+            value = _refinePropertyInclusion(a, value);
+        }
+        return value;
+    }
+
+    @SuppressWarnings("deprecation")
+    private JsonInclude.Value _refinePropertyInclusion(Annotated a, JsonInclude.Value value) {
+        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
+        if (ann != null) {
+            switch (ann.include()) {
+            case ALWAYS:
+                return value.withValueInclusion(JsonInclude.Include.ALWAYS);
+            case NON_NULL:
+                return value.withValueInclusion(JsonInclude.Include.NON_NULL);
+            case NON_DEFAULT:
+                return value.withValueInclusion(JsonInclude.Include.NON_DEFAULT);
+            case NON_EMPTY:
+                return value.withValueInclusion(JsonInclude.Include.NON_EMPTY);
+            case DEFAULT_INCLUSION:
+            default:
             }
         }
         return value;
+    }
+
+    @Override
+    public JsonSerialize.Typing findSerializationTyping(Annotated a)
+    {
+        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
+        return (ann == null) ? null : ann.typing();
+    }
+
+    @Override
+    public Object findSerializationConverter(Annotated a) {
+        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
+        return (ann == null) ? null : _classIfExplicit(ann.converter(), Converter.None.class);
+    }
+
+    @Override
+    public Object findSerializationContentConverter(AnnotatedMember a) {
+        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
+        return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);
     }
 
     @Override
@@ -772,25 +720,6 @@ public class JacksonAnnotationIntrospector
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
         return (ann == null) ? null : _classIfExplicit(ann.contentAs());
-    }
-    
-    @Override
-    public JsonSerialize.Typing findSerializationTyping(Annotated a)
-    {
-        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
-        return (ann == null) ? null : ann.typing();
-    }
-
-    @Override
-    public Object findSerializationConverter(Annotated a) {
-        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
-        return (ann == null) ? null : _classIfExplicit(ann.converter(), Converter.None.class);
-    }
-
-    @Override
-    public Object findSerializationContentConverter(AnnotatedMember a) {
-        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
-        return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);
     }
 
     /*

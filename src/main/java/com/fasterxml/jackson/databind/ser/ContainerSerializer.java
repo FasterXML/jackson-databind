@@ -90,16 +90,7 @@ public abstract class ContainerSerializer<T>
     /**********************************************************
      */
 
-    /* Overridden as abstract, to force re-implementation; necessary for all
-     * collection types.
-     */
-    @Override
-    @Deprecated
-    public boolean isEmpty(T value) {
-        return isEmpty(null, value);
-    }
-
-    // since 2.5: should be declared abstract in future (2.6)
+// since 2.5: should be declared abstract in future (2.9?)
 //    @Override
 //    public abstract boolean isEmpty(SerializerProvider prov, T value);
 

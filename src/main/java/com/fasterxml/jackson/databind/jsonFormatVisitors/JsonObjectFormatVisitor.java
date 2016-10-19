@@ -56,8 +56,7 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
                 JavaType propertyTypeHint) throws JsonMappingException { }
 
         @Override
-        public void optionalProperty(BeanProperty prop)
-                throws JsonMappingException { }
+        public void optionalProperty(BeanProperty prop) throws JsonMappingException { }
 
         @Override
         public void optionalProperty(String name, JsonFormatVisitable handler,

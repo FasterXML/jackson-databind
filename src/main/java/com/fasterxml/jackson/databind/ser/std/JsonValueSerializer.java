@@ -177,20 +177,8 @@ public class JsonValueSerializer
                 ser = prov.findTypedValueSerializer(c, true, _property);
             }
             ser.serialize(value, gen, prov);
-        } catch (IOException ioe) {
-            throw ioe;
         } catch (Exception e) {
-            Throwable t = e;
-            // Need to unwrap this specific type, to see infinite recursion...
-            while (t instanceof InvocationTargetException && t.getCause() != null) {
-                t = t.getCause();
-            }
-            // Errors shouldn't be wrapped (and often can't, as well)
-            if (t instanceof Error) {
-                throw (Error) t;
-            }
-            // let's try to indicate the path best we can...
-            throw JsonMappingException.wrapWithPath(t, bean, _accessorMethod.getName() + "()");
+            wrapAndThrow(prov, e, bean, _accessorMethod.getName() + "()");
         }
     }
 
@@ -227,20 +215,8 @@ public class JsonValueSerializer
             //    (delegat type).
             TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
             ser.serializeWithType(value, gen, provider, rr);
-        } catch (IOException ioe) {
-            throw ioe;
         } catch (Exception e) {
-            Throwable t = e;
-            // Need to unwrap this specific type, to see infinite recursion...
-            while (t instanceof InvocationTargetException && t.getCause() != null) {
-                t = t.getCause();
-            }
-            // Errors shouldn't be wrapped (and often can't, as well)
-            if (t instanceof Error) {
-                throw (Error) t;
-            }
-            // let's try to indicate the path best we can...
-            throw JsonMappingException.wrapWithPath(t, bean, _accessorMethod.getName() + "()");
+            wrapAndThrow(provider, e, bean, _accessorMethod.getName() + "()");
         }
     }
     

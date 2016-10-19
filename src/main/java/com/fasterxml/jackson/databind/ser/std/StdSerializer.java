@@ -334,7 +334,7 @@ public abstract class StdSerializer<T>
             if (!wrap || !(t instanceof JsonMappingException)) {
                 throw (IOException) t;
             }
-        } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+        } else if (!wrap) {
             if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             }
@@ -360,7 +360,7 @@ public abstract class StdSerializer<T>
             if (!wrap || !(t instanceof JsonMappingException)) {
                 throw (IOException) t;
             }
-        } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+        } else if (!wrap) {
             if (t instanceof RuntimeException) {
                 throw (RuntimeException) t;
             }

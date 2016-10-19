@@ -27,15 +27,13 @@ public class StdJdkSerializers
         HashMap<Class<?>,Object> sers = new HashMap<Class<?>,Object>();
 
         // First things that 'toString()' can handle
-        final ToStringSerializer sls = ToStringSerializer.instance;
+        sers.put(java.net.URL.class, new ToStringSerializer(java.net.URL.class));
+        sers.put(java.net.URI.class, new ToStringSerializer(java.net.URI.class));
 
-        sers.put(java.net.URL.class, sls);
-        sers.put(java.net.URI.class, sls);
-
-        sers.put(Currency.class, sls);
+        sers.put(Currency.class, new ToStringSerializer(Currency.class));
         sers.put(UUID.class, new UUIDSerializer());
-        sers.put(java.util.regex.Pattern.class, sls);
-        sers.put(Locale.class, sls);
+        sers.put(java.util.regex.Pattern.class, new ToStringSerializer(java.util.regex.Pattern.class));
+        sers.put(Locale.class, new ToStringSerializer(Locale.class));
 
         // then atomic types (note: AtomicReference defined elsewhere)
         sers.put(AtomicBoolean.class, AtomicBooleanSerializer.class);

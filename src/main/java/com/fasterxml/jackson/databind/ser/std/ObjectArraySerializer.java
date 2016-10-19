@@ -1,23 +1,20 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
-import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -245,7 +242,6 @@ public class ObjectArraySerializer
                 Class<?> cc = elem.getClass();
                 JsonSerializer<Object> serializer = serializers.serializerFor(cc);
                 if (serializer == null) {
-                    // To fix [JACKSON-508]
                     if (_elementType.hasGenericTypes()) {
                         serializer = _findAndAddDynamic(serializers,
                                 provider.constructSpecializedType(_elementType, cc), provider);
@@ -255,22 +251,8 @@ public class ObjectArraySerializer
                 }
                 serializer.serialize(elem, gen, provider);
             }
-        } catch (IOException ioe) {
-            throw ioe;
         } catch (Exception e) {
-            // [JACKSON-55] Need to add reference information
-            /* 05-Mar-2009, tatu: But one nasty edge is when we get
-             *   StackOverflow: usually due to infinite loop. But that gets
-             *   hidden within an InvocationTargetException...
-             */
-            Throwable t = e;
-            while (t instanceof InvocationTargetException && t.getCause() != null) {
-                t = t.getCause();
-            }
-            if (t instanceof Error) {
-                throw (Error) t;
-            }
-            throw JsonMappingException.wrapWithPath(t, elem, i);
+            wrapAndThrow(provider, e, elem, i);
         }
     }
 
@@ -295,17 +277,8 @@ public class ObjectArraySerializer
                     ser.serializeWithType(elem, jgen, provider, typeSer);
                 }
             }
-        } catch (IOException ioe) {
-            throw ioe;
         } catch (Exception e) {
-            Throwable t = e;
-            while (t instanceof InvocationTargetException && t.getCause() != null) {
-                t = t.getCause();
-            }
-            if (t instanceof Error) {
-                throw (Error) t;
-            }
-            throw JsonMappingException.wrapWithPath(t, elem, i);
+            wrapAndThrow(provider, e, elem, i);
         }
     }
 
@@ -330,43 +303,9 @@ public class ObjectArraySerializer
                 }
                 serializer.serializeWithType(elem, jgen, provider, typeSer);
             }
-        } catch (IOException ioe) {
-            throw ioe;
         } catch (Exception e) {
-            Throwable t = e;
-            while (t instanceof InvocationTargetException && t.getCause() != null) {
-                t = t.getCause();
-            }
-            if (t instanceof Error) {
-                throw (Error) t;
-            }
-            throw JsonMappingException.wrapWithPath(t, elem, i);
+            wrapAndThrow(provider, e, elem, i);
         }
-    }
-    
-    @SuppressWarnings("deprecation")
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
-        ObjectNode o = createSchemaNode("array", true);
-        if (typeHint != null) {
-            JavaType javaType = provider.constructType(typeHint);
-            if (javaType.isArrayType()) {
-                Class<?> componentType = ((ArrayType) javaType).getContentType().getRawClass();
-                // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
-                if (componentType == Object.class) {
-                    o.set("items", com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode());
-                } else {
-                    JsonSerializer<Object> ser = provider.findValueSerializer(componentType, _property);
-                    JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                            ((SchemaAware) ser).getSchema(provider, null) :
-                            	com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
-                    o.set("items", schemaNode);
-                }
-            }
-        }
-        return o;
     }
 
     @Override

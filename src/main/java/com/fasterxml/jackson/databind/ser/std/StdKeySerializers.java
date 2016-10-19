@@ -11,14 +11,12 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
 @SuppressWarnings("serial")
-public class StdKeySerializers
+public abstract class StdKeySerializers
 {
     @SuppressWarnings("deprecation")
     protected final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
 
     protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
-
-    private StdKeySerializers() { }
 
     /**
      * @param config Serialization configuration in use, may be needed in choosing
@@ -61,7 +59,8 @@ public class StdKeySerializers
             return new Default(Default.TYPE_TO_STRING, rawKeyType);
         }
         if (useDefault) {
-            return DEFAULT_KEY_SERIALIZER;
+            // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
+            return new Default(Default.TYPE_TO_STRING, rawKeyType);
         }
         return null;
     }
@@ -91,7 +90,8 @@ public class StdKeySerializers
                         EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType));
             }
         }
-        return DEFAULT_KEY_SERIALIZER;
+        // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
+        return new Default(Default.TYPE_TO_STRING, rawKeyType);
     }
 
     /**

@@ -281,7 +281,6 @@ public class JsonIncludeTest
         assertEquals("{\"value\":1.25}", defMapper.writeValueAsString(new NonEmptyDouble(1.25)));
         assertEquals("{\"value\":0.0}", defMapper.writeValueAsString(new NonEmptyDouble(0.0)));
 
-        
         IntWrapper zero = new IntWrapper(0);
         assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
         assertEquals("{\"i\":0}", inclMapper.writeValueAsString(zero));

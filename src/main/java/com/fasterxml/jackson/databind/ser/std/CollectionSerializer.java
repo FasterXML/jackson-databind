@@ -82,12 +82,7 @@ public class CollectionSerializer
 
     @Override
     public boolean hasSingleElement(Collection<?> value) {
-        Iterator<?> it = value.iterator();
-        if (!it.hasNext()) {
-            return false;
-        }
-        it.next();
-        return !it.hasNext();
+        return value.size() == 1;
     }
 
     /*
@@ -97,27 +92,27 @@ public class CollectionSerializer
      */
 
     @Override
-    public final void serialize(Collection<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public final void serialize(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, jgen, provider);
+                serializeContents(value, g, provider);
                 return;
             }
         }
-        jgen.writeStartArray(len);
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        g.writeStartArray(len);
+        serializeContents(value, g, provider);
+        g.writeEndArray();
     }
     
     @Override
-    public void serializeContents(Collection<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, jgen, provider, _elementSerializer);
+            serializeContentsUsing(value, g, provider, _elementSerializer);
             return;
         }
         Iterator<?> it = value.iterator();
@@ -132,7 +127,7 @@ public class CollectionSerializer
             do {
                 Object elem = it.next();
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNull(g);
                 } else {
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);
@@ -146,9 +141,9 @@ public class CollectionSerializer
                         serializers = _dynamicSerializers;
                     }
                     if (typeSer == null) {
-                        serializer.serialize(elem, jgen, provider);
+                        serializer.serialize(elem, g, provider);
                     } else {
-                        serializer.serializeWithType(elem, jgen, provider, typeSer);
+                        serializer.serializeWithType(elem, g, provider, typeSer);
                     }
                 }
                 ++i;
@@ -158,9 +153,8 @@ public class CollectionSerializer
         }
     }
 
-    public void serializeContentsUsing(Collection<?> value, JsonGenerator jgen, SerializerProvider provider,
-            JsonSerializer<Object> ser)
-        throws IOException, JsonGenerationException
+    public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
+            JsonSerializer<Object> ser) throws IOException
     {
         Iterator<?> it = value.iterator();
         if (it.hasNext()) {
@@ -170,12 +164,12 @@ public class CollectionSerializer
                 Object elem = it.next();
                 try {
                     if (elem == null) {
-                        provider.defaultSerializeNull(jgen);
+                        provider.defaultSerializeNull(g);
                     } else {
                         if (typeSer == null) {
-                            ser.serialize(elem, jgen, provider);
+                            ser.serialize(elem, g, provider);
                         } else {
-                            ser.serializeWithType(elem, jgen, provider, typeSer);
+                            ser.serializeWithType(elem, g, provider, typeSer);
                         }
                     }
                     ++i;

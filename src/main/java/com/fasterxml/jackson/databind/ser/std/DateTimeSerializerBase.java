@@ -84,13 +84,6 @@ public abstract class DateTimeSerializerBase<T>
     /**********************************************************
      */
 
-    @Deprecated
-    @Override
-    public boolean isEmpty(T value) {
-        // let's assume "null date" (timestamp 0) qualifies for empty
-        return (value == null) || (_timestamp(value) == 0L);
-    }
-
     @Override
     public boolean isEmpty(SerializerProvider serializers, T value) {
         // let's assume "null date" (timestamp 0) qualifies for empty

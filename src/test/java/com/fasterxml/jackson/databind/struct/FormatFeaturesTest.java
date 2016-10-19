@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.databind.struct;
 
+import java.net.URI;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Tests for {@link JsonFormat} and specifically <code>JsonFormat.Feature</code>s.
@@ -20,13 +22,74 @@ public class FormatFeaturesTest extends BaseMapTest
         };
 
         @JsonFormat(without={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
-        public int[] ints = new int[] {
-            1
-        };
+        public int[] ints = new int[] { 1 };
 
         public boolean[] bools = new boolean[] { true };
     }
 
+    static class UnwrapShortArray {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public short[] v = { (short) 7 };
+    }
+
+    static class UnwrapIntArray {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public int[] v = { 3 };
+    }
+
+    static class UnwrapLongArray {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public long[] v = { 1L };
+    }
+
+    static class UnwrapBooleanArray {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public boolean[] v = { true };
+    }
+
+    static class UnwrapFloatArray {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public float[] v = { 0.5f };
+    }
+
+    static class UnwrapDoubleArray {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public double[] v = { 0.25 };
+    }
+
+    static class UnwrapIterable {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        @JsonSerialize(as=Iterable.class)
+        public Iterable<String> v;
+
+        public UnwrapIterable() {
+            v = Collections.singletonList("foo");
+        }
+
+        public UnwrapIterable(String... values) {
+            v = Arrays.asList(values);
+        }
+    }
+
+    static class UnwrapCollection {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        @JsonSerialize(as=Collection.class)
+        public Collection<String> v;
+
+        public UnwrapCollection() {
+            v = Collections.singletonList("foo");
+        }
+
+        public UnwrapCollection(String... values) {
+            v = new LinkedHashSet<String>(Arrays.asList(values));
+        }
+    }
+    
+    static class UnwrapStringLike {
+        @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
+        public URI[] v = { URI.create("http://foo") };
+    }
+    
     @JsonPropertyOrder( { "strings", "ints", "bools", "enums" })
     static class WrapWriteWithCollections
     {
@@ -62,6 +125,21 @@ public class FormatFeaturesTest extends BaseMapTest
     static class LongArrayWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public long[] values;
+    }
+
+    static class BooleanArrayWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public boolean[] values;
+    }
+
+    static class FloatArrayWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public float[] values;
+    }
+    
+    static class DoubleArrayWrapper {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public double[] values;
     }
 
     static class StringListWrapper {
@@ -156,6 +234,29 @@ public class FormatFeaturesTest extends BaseMapTest
                 .writeValueAsString(new WrapWriteWithCollections()));
     }
 
+    public void testUnwrapWithPrimitiveArraysEtc() throws Exception {
+        assertEquals("{\"v\":7}", MAPPER.writeValueAsString(new UnwrapShortArray()));
+        assertEquals("{\"v\":3}", MAPPER.writeValueAsString(new UnwrapIntArray()));
+        assertEquals("{\"v\":1}", MAPPER.writeValueAsString(new UnwrapLongArray()));
+        assertEquals("{\"v\":true}", MAPPER.writeValueAsString(new UnwrapBooleanArray()));
+
+        assertEquals("{\"v\":0.5}", MAPPER.writeValueAsString(new UnwrapFloatArray()));
+        assertEquals("{\"v\":0.25}", MAPPER.writeValueAsString(new UnwrapDoubleArray()));
+        assertEquals("0.5",
+                MAPPER.writer().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .writeValueAsString(new double[] { 0.5 }));
+
+        assertEquals("{\"v\":\"foo\"}", MAPPER.writeValueAsString(new UnwrapIterable()));
+        assertEquals("{\"v\":\"x\"}", MAPPER.writeValueAsString(new UnwrapIterable("x")));
+        assertEquals("{\"v\":[\"x\",null]}", MAPPER.writeValueAsString(new UnwrapIterable("x", null)));
+
+        assertEquals("{\"v\":\"foo\"}", MAPPER.writeValueAsString(new UnwrapCollection()));
+        assertEquals("{\"v\":\"x\"}", MAPPER.writeValueAsString(new UnwrapCollection("x")));
+        assertEquals("{\"v\":[\"x\",null]}", MAPPER.writeValueAsString(new UnwrapCollection("x", null)));
+
+        assertEquals("{\"v\":\"http://foo\"}", MAPPER.writeValueAsString(new UnwrapStringLike()));
+    }
+
     /*
     /**********************************************************
     /* Test methods, reading with single-element unwrapping
@@ -198,6 +299,33 @@ public class FormatFeaturesTest extends BaseMapTest
         assertEquals(-205L, result.values[0]);
     }
 
+    public void testSingleBooleanArrayRead() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': true }");
+        BooleanArrayWrapper result = MAPPER.readValue(json, BooleanArrayWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.length);
+        assertEquals(true, result.values[0]);
+    }
+
+    public void testSingleDoubleArrayRead() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': -0.5 }");
+        DoubleArrayWrapper result = MAPPER.readValue(json, DoubleArrayWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.length);
+        assertEquals(-0.5, result.values[0]);
+    }
+
+    public void testSingleFloatArrayRead() throws Exception {
+        String json = aposToQuotes(
+                "{ 'values': 0.25 }");
+        FloatArrayWrapper result = MAPPER.readValue(json, FloatArrayWrapper.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.length);
+        assertEquals(0.25f, result.values[0]);
+    }
+    
     public void testSingleElementArrayRead() throws Exception {
         String json = aposToQuotes(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");

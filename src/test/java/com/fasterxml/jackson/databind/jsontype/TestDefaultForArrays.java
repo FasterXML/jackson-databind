@@ -23,7 +23,15 @@ public class TestDefaultForArrays extends BaseMapTest
         public ArrayBean() { this(null); }
         public ArrayBean(Object[] v) { values = v; }
     }
-    
+
+    static class PrimitiveArrayBean {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Object stuff;
+
+        protected PrimitiveArrayBean() { }
+        public PrimitiveArrayBean(Object value) { stuff = value; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -57,7 +65,6 @@ public class TestDefaultForArrays extends BaseMapTest
         assertEquals(String[][].class, result.values.getClass());
     }
 
-    // @since 1.8
     public void testNodeInArray() throws Exception
     {
         JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
@@ -91,7 +98,6 @@ public class TestDefaultForArrays extends BaseMapTest
         assertEquals("{}", result[0].toString());
     }
 
-    // test for [JACKSON-845]
     public void testArraysOfArrays() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -104,6 +110,28 @@ public class TestDefaultForArrays extends BaseMapTest
         _testArraysAs(mapper, json, Object[][].class);
         _testArraysAs(mapper, json, Object[].class);
         _testArraysAs(mapper, json, Object.class);
+    }
+
+    public void testArrayTypingForPrimitiveArrays() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.enableDefaultTyping(DefaultTyping.NON_CONCRETE_AND_ARRAYS);
+        _testArrayTypingForPrimitiveArrays(m, new int[] { 1, 2, 3 });
+        _testArrayTypingForPrimitiveArrays(m, new long[] { 1, 2, 3 });
+        _testArrayTypingForPrimitiveArrays(m, new short[] { 1, 2, 3 });
+        _testArrayTypingForPrimitiveArrays(m, new double[] { 0.5, 5.5, -1.0 });
+        _testArrayTypingForPrimitiveArrays(m, new float[] { 0.5f, 5.5f, -1.0f });
+        _testArrayTypingForPrimitiveArrays(m, new boolean[] { true, false });
+
+        _testArrayTypingForPrimitiveArrays(m, new char[] { 'a', 'b' });
+    }
+
+    private void _testArrayTypingForPrimitiveArrays(ObjectMapper mapper, Object v) throws Exception {
+        PrimitiveArrayBean input = new PrimitiveArrayBean(v);
+        String json = mapper.writeValueAsString(input);
+        PrimitiveArrayBean result = mapper.readValue(json, PrimitiveArrayBean.class);
+        assertNotNull(result.stuff);
+        assertSame(v.getClass(), result.stuff.getClass());
     }
 
     /*

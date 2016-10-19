@@ -76,11 +76,9 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
         //
         // TODO: for 2.8, make work either as String/base64, or array of numbers,
         //   with a qualifier that can be used to determine it's byte[]
-        if (visitor != null) {
-            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-            if (v2 != null) {
-                v2.itemsFormat(JsonFormatTypes.INTEGER);
-            }
+        JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+        if (v2 != null) {
+            v2.itemsFormat(JsonFormatTypes.INTEGER);
         }
     }
 }

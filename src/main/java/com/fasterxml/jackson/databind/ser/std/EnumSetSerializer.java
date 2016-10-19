@@ -18,14 +18,6 @@ public class EnumSetSerializer
         super(EnumSet.class, elemType, true, null, null);
     }
 
-    /**
-     * @deprecated since 2.6
-     */
-    @Deprecated // since 2.6
-    public EnumSetSerializer(JavaType elemType, BeanProperty property) {
-        this(elemType);
-    }
-
     public EnumSetSerializer(EnumSetSerializer src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer,
             Boolean unwrapSingle) {
@@ -59,7 +51,7 @@ public class EnumSetSerializer
     public final void serialize(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
-    	final int len = value.size();
+        final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null)
                     && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))

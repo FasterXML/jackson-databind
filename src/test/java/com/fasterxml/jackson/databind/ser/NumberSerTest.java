@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured
@@ -37,6 +39,14 @@ public class NumberSerTest extends BaseMapTest
         public double value = -0.5;
     }
 
+    static class NumberWrapper {
+        // ensure it will use `Number` as statically force type, when looking for serializer
+        @JsonSerialize(as=Number.class)
+        public Number value;
+
+        public NumberWrapper(Number v) { value = v; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -86,5 +96,17 @@ public class NumberSerTest extends BaseMapTest
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
         assertEquals(aposToQuotes("{'i':'3'}"),
                 mapper.writeValueAsString(new IntWrapper(3)));
+    }
+
+    public void testNumberType() throws Exception
+    {
+        assertEquals(aposToQuotes("{'value':1}"), MAPPER.writeValueAsString(new NumberWrapper(Byte.valueOf((byte) 1))));
+        assertEquals(aposToQuotes("{'value':2}"), MAPPER.writeValueAsString(new NumberWrapper(Short.valueOf((short) 2))));
+        assertEquals(aposToQuotes("{'value':3}"), MAPPER.writeValueAsString(new NumberWrapper(Integer.valueOf(3))));
+        assertEquals(aposToQuotes("{'value':4}"), MAPPER.writeValueAsString(new NumberWrapper(Long.valueOf(4L))));
+        assertEquals(aposToQuotes("{'value':0.5}"), MAPPER.writeValueAsString(new NumberWrapper(Float.valueOf(0.5f))));
+        assertEquals(aposToQuotes("{'value':0.05}"), MAPPER.writeValueAsString(new NumberWrapper(Double.valueOf(0.05))));
+        assertEquals(aposToQuotes("{'value':123}"), MAPPER.writeValueAsString(new NumberWrapper(BigInteger.valueOf(123))));
+        assertEquals(aposToQuotes("{'value':0.025}"), MAPPER.writeValueAsString(new NumberWrapper(BigDecimal.valueOf(0.025))));
     }
 }

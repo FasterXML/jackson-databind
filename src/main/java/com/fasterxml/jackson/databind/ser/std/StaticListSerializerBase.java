@@ -101,12 +101,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         }
         return _withResolved(property, ser, unwrapSingle);
     }
-    
-    @Deprecated // since 2.5
-    @Override
-    public boolean isEmpty(T value) {
-        return isEmpty(null, value);
-    }
 
     @Override
     public boolean isEmpty(SerializerProvider provider, T value) {
@@ -117,7 +111,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("array", true).set("items", contentSchema());
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         acceptContentVisitor(visitor.expectArrayFormat(typeHint));
@@ -130,7 +124,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      */
 
     protected abstract JsonNode contentSchema();
-    
+
     protected abstract void acceptContentVisitor(JsonArrayFormatVisitor visitor)
         throws JsonMappingException;
 }

@@ -11,17 +11,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Serializer used for primitive boolean, as well as java.util.Boolean
  * wrapper type.
  *<p>
- * Since this is one of "native" types, no type information is ever
- * included on serialization (unlike for most scalar types as of 1.5)
+ * Since this is one of "natural" (aka "native") types, no type information is ever
+ * included on serialization (unlike for most other scalar types)
  */
 @JacksonStdImpl
 public final class BooleanSerializer
-    extends NonTypedScalarSerializerBase<Boolean>
+//In 2.9, removed use of intermediate type `NonTypedScalarSerializerBase`
+    extends StdScalarSerializer<Object>
 {
     private static final long serialVersionUID = 1L;
 
@@ -32,15 +34,22 @@ public final class BooleanSerializer
     protected final boolean _forPrimitive;
 
     public BooleanSerializer(boolean forPrimitive) {
-        super(Boolean.class);
+        super(forPrimitive ? Boolean.TYPE : Boolean.class, false);
         _forPrimitive = forPrimitive;
     }
 
     @Override
-    public void serialize(Boolean value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeBoolean(value.booleanValue());
+    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        g.writeBoolean(((Boolean) value).booleanValue());
     }
 
+    @Override
+    public final void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
+            TypeSerializer typeSer) throws IOException
+    {
+        g.writeBoolean(((Boolean) value).booleanValue());
+    }
+    
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("boolean", !_forPrimitive);
@@ -49,8 +58,6 @@ public final class BooleanSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-        if (visitor != null) {
-            visitor.expectBooleanFormat(typeHint);
-        }
+        visitor.expectBooleanFormat(typeHint);
     }
 }

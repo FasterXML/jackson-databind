@@ -51,6 +51,9 @@ public class NewSchemaTest extends BaseMapTest
         public BigInteger bigInt;
     }
 
+    static class BogusJsonFormatVisitorWrapper
+        extends JsonFormatVisitorWrapper.Base { }
+
     /*
     /**********************************************************
     /* Test methods
@@ -65,9 +68,12 @@ public class NewSchemaTest extends BaseMapTest
      */
     public void testBasicTraversal() throws Exception
     {
-        MAPPER.acceptJsonFormatVisitor(POJO.class, new JsonFormatVisitorWrapper.Base());
+        MAPPER.acceptJsonFormatVisitor(POJO.class, new BogusJsonFormatVisitorWrapper());
+        MAPPER.acceptJsonFormatVisitor(LinkedHashMap.class, new BogusJsonFormatVisitorWrapper());
+        MAPPER.acceptJsonFormatVisitor(ArrayList.class, new BogusJsonFormatVisitorWrapper());
+        MAPPER.acceptJsonFormatVisitor(EnumSet.class, new BogusJsonFormatVisitorWrapper());
     }
-    
+
     public void testSimpleEnum() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
@@ -125,7 +131,7 @@ public class NewSchemaTest extends BaseMapTest
         assertEquals(exp, values);
     }
 
-    // [2.7]: Ensure JsonValueFormat serializes/deserializes as expected
+    //  Ensure JsonValueFormat serializes/deserializes as expected
     public void testJsonValueFormatHandling() throws Exception
     {
         // first: serialize using 'toString()', not name

@@ -186,12 +186,6 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    @Deprecated // since 2.5
-    public boolean isEmpty(Object value) {
-        return isEmpty(null, value);
-    }
-
-    @Override
     public boolean isEmpty(SerializerProvider prov, Object value)
     {
         Object delegateValue = convertValue(value);

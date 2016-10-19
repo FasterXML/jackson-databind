@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * {@link java.lang.Double} and {@link java.lang.Boolean}.
  */
 @SuppressWarnings("serial")
+@Deprecated // since 2.9
 public abstract class NonTypedScalarSerializerBase<T>
     extends StdScalarSerializer<T>
 {
@@ -24,7 +25,7 @@ public abstract class NonTypedScalarSerializerBase<T>
     protected NonTypedScalarSerializerBase(Class<?> t, boolean bogus) {
         super(t, bogus);
     }
-    
+
     @Override
     public final void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException

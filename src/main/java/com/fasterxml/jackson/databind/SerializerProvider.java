@@ -540,6 +540,9 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> findValueSerializer(JavaType valueType, BeanProperty property)
         throws JsonMappingException
     {
+        if (valueType == null) {
+            reportMappingProblem("Null passed for `valueType` of `findValueSerializer()`");
+        }
         // (see comments from above method)
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {

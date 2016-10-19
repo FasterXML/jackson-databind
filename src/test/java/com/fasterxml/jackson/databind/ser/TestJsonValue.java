@@ -180,8 +180,8 @@ public class TestJsonValue
     
     public void testSimpleJsonValue() throws Exception
     {
-        String result = MAPPER.writeValueAsString(new ValueClass<String>("abc"));
-        assertEquals("\"abc\"", result);
+        assertEquals("\"abc\"", MAPPER.writeValueAsString(new ValueClass<String>("abc")));
+        assertEquals("null", MAPPER.writeValueAsString(new ValueClass<String>(null)));
     }
 
     public void testJsonValueWithUseSerializer() throws Exception

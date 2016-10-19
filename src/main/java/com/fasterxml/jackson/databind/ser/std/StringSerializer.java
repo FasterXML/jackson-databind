@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * This is the special serializer for regular {@link java.lang.String}s.
@@ -22,21 +23,12 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 public final class StringSerializer
 // NOTE: generic parameter changed from String to Object in 2.6, to avoid
 //   use of bridge methods
-    extends NonTypedScalarSerializerBase<Object>
+// In 2.9, removed use of intermediate type `NonTypedScalarSerializerBase`
+    extends StdScalarSerializer<Object>
 {
     private static final long serialVersionUID = 1L;
 
     public StringSerializer() { super(String.class, false); }
-
-    /**
-     * For Strings, both null and Empty String qualify for emptiness.
-     */
-    @Override
-    @Deprecated
-    public boolean isEmpty(Object value) {
-        String str = (String) value;
-        return (str == null) || (str.length() == 0);
-    }
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Object value) {
@@ -46,6 +38,14 @@ public final class StringSerializer
 
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        gen.writeString((String) value);
+    }
+
+    @Override
+    public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
+            TypeSerializer typeSer) throws IOException
+    {
+        // no type info, just regular serialization
         gen.writeString((String) value);
     }
 

@@ -871,7 +871,7 @@ public class ObjectWriter
     }
 
     /**
-     * @since 2.8.5
+     * @since 2.9
      */
     @Deprecated
     public boolean isEnabled(JsonParser.Feature f) {
@@ -879,7 +879,7 @@ public class ObjectWriter
     }
 
     /**
-     * @since 2.8.5
+     * @since 2.9
      */
     public boolean isEnabled(JsonGenerator.Feature f) {
         return _generatorFactory.isEnabled(f);

@@ -1,12 +1,15 @@
 package com.fasterxml.jackson.databind.seq;
 
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -17,6 +20,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class ObjectWriterTest
     extends BaseMapTest
 {
+    static class CloseableValue implements Closeable
+    {
+        public int x;
+
+        public boolean closed;
+        
+        @Override
+        public void close() throws IOException {
+            closed = true;
+        }
+    }
+
     final ObjectMapper MAPPER = new ObjectMapper();
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -36,13 +51,13 @@ public class ObjectWriterTest
         
         public ImplB(int v) { b = v; }
     }
-    
+
     /*
     /**********************************************************
-    /* Test methods
+    /* Test methods, normal operation
     /**********************************************************
      */
-    
+
     public void testPrettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
@@ -102,5 +117,85 @@ public class ObjectWriterTest
         assertEquals(aposToQuotes("{'type':'A','value':3}"), json);
         json = writer.writeValueAsString(new ImplB(-5));
         assertEquals(aposToQuotes("{'type':'B','b':-5}"), json);
+    }
+
+    public void testCanSerialize() throws Exception
+    {
+        assertTrue(MAPPER.writer().canSerialize(String.class));
+        assertTrue(MAPPER.writer().canSerialize(String.class, null));
+    }
+
+    public void testNoPrefetch() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer()
+                .without(SerializationFeature.EAGER_SERIALIZER_FETCH);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        w.writeValue(out, Integer.valueOf(3));
+        out.close();
+        assertEquals("3", out.toString("UTF-8"));
+    }
+
+    public void testWithCloseCloseable() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer()
+                .with(SerializationFeature.CLOSE_CLOSEABLE);
+        assertTrue(w.isEnabled(SerializationFeature.CLOSE_CLOSEABLE));
+        CloseableValue input = new CloseableValue();
+        assertFalse(input.closed);
+        byte[] json = w.writeValueAsBytes(input);
+        assertNotNull(json);
+        assertTrue(input.closed);
+        input.close();
+    }
+
+    public void testSettings() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer();
+        assertFalse(w.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        assertFalse(w.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
+        assertSame(MAPPER.getFactory(), w.getFactory());
+        assertFalse(w.hasPrefetchedSerializer());
+        assertNotNull(w.getTypeFactory());
+
+        JsonFactory f = new JsonFactory();
+        w = w.with(f);
+        assertSame(f, w.getFactory());
+
+        w = w.withView(String.class);
+        w = w.withAttributes(Collections.emptyMap());
+        w = w.withAttribute("a", "b");
+        assertEquals("b", w.getAttributes().getAttribute("a"));
+        w = w.withoutAttribute("a");
+        assertNull(w.getAttributes().getAttribute("a"));
+        w = w.withRootValueSeparator(new SerializedString(","));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, failures
+    /**********************************************************
+     */
+
+    public void testArgumentChecking() throws Exception
+    {
+        final ObjectWriter w = MAPPER.writer();
+        try {
+            w.acceptJsonFormatVisitor((JavaType) null, null);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "type must be provided");
+        }
+    }
+
+    public void testSchema() throws Exception
+    {
+        try {
+            MAPPER.writerFor(String.class)
+                .with(new BogusSchema())
+                .writeValueAsBytes("foo");
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Can not use FormatSchema");
+        }
     }
 }

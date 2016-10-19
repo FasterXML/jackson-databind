@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.FormatSchema;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +26,13 @@ public abstract class BaseMapTest
     /* Shared helper classes
     /**********************************************************
      */
+
+    public static class BogusSchema implements FormatSchema {
+        @Override
+        public String getSchemaType() {
+            return "TestFormat";
+        }
+    }
 
     /**
      * Simple wrapper around boolean types, usually to test value

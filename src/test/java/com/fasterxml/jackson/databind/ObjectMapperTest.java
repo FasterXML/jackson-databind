@@ -62,7 +62,7 @@ public class ObjectMapperTest extends BaseMapTest
         ObjectMapper m = new ObjectMapper();
         // should have default factory
         assertNotNull(m.getNodeFactory());
-        JsonNodeFactory nf = JsonNodeFactory.instance;
+        JsonNodeFactory nf = new JsonNodeFactory(true);
         m.setNodeFactory(nf);
         assertNull(m.getInjectableValues());
         assertSame(nf, m.getNodeFactory());
@@ -328,8 +328,14 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(Integer.valueOf(1), map.get("a"));
 
         input = new DataInputStream(new ByteArrayInputStream(src));
+        // and via ObjectReader
         map = MAPPER.readerFor(Map.class)
                 .readValue(input);
         assertEquals(Integer.valueOf(1), map.get("a"));
+
+        input = new DataInputStream(new ByteArrayInputStream(src));
+        JsonNode n = MAPPER.readerFor(Map.class)
+                .readTree(input);
+        assertNotNull(n);
     }
 }

@@ -36,12 +36,22 @@ public class TestValueUpdate extends BaseMapTest
         }
     }
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     // [databind#318] (and Scala module issue #83]
     public void testValueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");
-        new ObjectMapper().readerFor(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
+        MAPPER.readerFor(Bean.class).withValueToUpdate(bean).readValue("{\"a\":\"ghi\",\"b\":\"jkl\"}");
         assertEquals("ghi", bean.getA());
         assertEquals("jkl", bean.getB());
+    }
+
+    public void testValueUpdateOther() throws Exception
+    {
+        Bean bean = new Bean("abc", "def");
+        ObjectReader r = MAPPER.reader().withValueToUpdate(bean);
+        // but, changed our minds, no update
+        r = r.withValueToUpdate(null);
     }
 }

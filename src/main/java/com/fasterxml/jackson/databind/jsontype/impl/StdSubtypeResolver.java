@@ -97,7 +97,7 @@ public class StdSubtypeResolver
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         HashMap<NamedType, NamedType> subtypes = new HashMap<NamedType, NamedType>();
-        // [JACKSON-257] then consider registered subtypes (which have precedence over annotations)
+        // then consider registered subtypes (which have precedence over annotations)
         if (_registeredSubtypes != null) {
             Class<?> rawBase = type.getRawType();
             for (NamedType subtype : _registeredSubtypes) {
@@ -179,28 +179,6 @@ public class StdSubtypeResolver
             }
         }
         return _combineNamedAndUnnamed(typesHandled, byName);
-    }
-
-    /*
-    /**********************************************************
-    /* Deprecated method overrides
-    /**********************************************************
-     */
-
-    @Override
-    @Deprecated
-    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
-        MapperConfig<?> config, AnnotationIntrospector ai, JavaType baseType)
-    {
-        return collectAndResolveSubtypesByClass(config, property, baseType);
-    }
-
-    @Override
-    @Deprecated
-    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedClass type,
-            MapperConfig<?> config, AnnotationIntrospector ai)
-    {
-        return collectAndResolveSubtypesByClass(config, type);
     }
 
     /*

@@ -754,7 +754,10 @@ public class ObjectReader
     {
         if (value == _valueToUpdate) return this;
         if (value == null) {
-            throw new IllegalArgumentException("cat not update null value");
+            // 18-Oct-2016, tatu: Actually, should be allowed, to remove value
+            //   to update, if any
+            return _new(this, _config, _valueType, _rootDeserializer, null,
+                    _schema, _injectableValues, _dataFormatReaders);
         }
         JavaType t;
         

@@ -70,13 +70,21 @@ public @interface JsonPOJOBuilder
 	 */
 	public class Value
 	{
-        public final String buildMethodName;
+	    private final static Value EMPTY = new Value(null, null);
+
+	    public final String buildMethodName;
 	    public final String withPrefix;
 
-	    public Value(JsonPOJOBuilder ann)
-	    {
-	        buildMethodName = ann.buildMethodName();
-	        withPrefix = ann.withPrefix();
+	    public Value(JsonPOJOBuilder ann) {
+	        this(ann.buildMethodName(), ann.withPrefix());
 	    }
+
+	    public Value(String buildMethodName, String withPrefix)
+	    {
+	        this.buildMethodName = buildMethodName;
+	        this.withPrefix = withPrefix;
+	    }
+
+	    public static Value empty() { return EMPTY; }
 	}
 }

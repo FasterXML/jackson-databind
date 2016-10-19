@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -119,11 +120,8 @@ public class AnnotationIntrospectorPair
     {
         JsonIgnoreProperties.Value v2 = _secondary.findPropertyIgnorals(a);
         JsonIgnoreProperties.Value v1 = _primary.findPropertyIgnorals(a);
-
-        if (v2 == null) { // shouldn't occur but
-            return v1;
-        }
-        return v2.withOverrides(v1);
+        return (v2 == null) // shouldn't occur but
+            ? v1 : v2.withOverrides(v1);
     }
     
     @Override
@@ -569,6 +567,11 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
+        return _primary.hasAnyGetterAnnotation(am) || _secondary.hasAnyGetterAnnotation(am);
+    }
+    
+    @Override
     @Deprecated
     public String findEnumValue(Enum<?> value) {
         String r = _primary.findEnumValue(value);
@@ -597,7 +600,7 @@ public class AnnotationIntrospectorPair
         return _isExplicitClassOrOb(r, JsonDeserializer.None.class)
                 ? r : _secondary.findDeserializer(am);
     }
-    
+
     @Override
     public Object findKeyDeserializer(Annotated am) {
         Object r = _primary.findKeyDeserializer(am);
@@ -693,17 +696,20 @@ public class AnnotationIntrospectorPair
         }
         return n;
     }
-    
+
+    @Override
+    public JsonSetter.Value findSetterInfo(Annotated a) {
+        JsonSetter.Value v2 = _secondary.findSetterInfo(a);
+        JsonSetter.Value v1 = _primary.findSetterInfo(a);
+        return (v2 == null) // shouldn't occur but
+            ? v1 : v2.withOverrides(v1);
+    }
+
     @Override
     public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
         return _primary.hasAnySetterAnnotation(am) || _secondary.hasAnySetterAnnotation(am);
     }
 
-    @Override
-    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
-        return _primary.hasAnyGetterAnnotation(am) || _secondary.hasAnyGetterAnnotation(am);
-    }
-    
     @Override
     @Deprecated // since 2.9
     public boolean hasCreatorAnnotation(Annotated a) {

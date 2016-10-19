@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 
@@ -236,7 +235,7 @@ public abstract class AnnotationIntrospector
     {
         // 18-Oct-2016, tatu: Used to call deprecated methods for backwards
         //   compatibility in 2.8, but not any more in 2.9
-        return null;
+        return JsonIgnoreProperties.Value.empty();
     }
 
     /**
@@ -504,7 +503,9 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.1
      */
-    public JsonFormat.Value findFormat(Annotated memberOrClass) { return null; }
+    public JsonFormat.Value findFormat(Annotated memberOrClass) {
+        return JsonFormat.Value.empty();
+    }
 
     /**
      * Method used to check if specified property has annotation that indicates
@@ -1118,9 +1119,9 @@ public abstract class AnnotationIntrospector
      * @since 2.0
      */
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
-        return null;
+        return JsonPOJOBuilder.Value.empty();
     }
-    
+
     /*
     /**********************************************************
     /* Deserialization: property annotations
@@ -1156,6 +1157,16 @@ public abstract class AnnotationIntrospector
      */
     public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
         return false;
+    }
+
+    /**
+     * Method for finding possible settings for property, given annotations
+     * on an accessor.
+     *
+     * @since 2.9
+     */
+    public JsonSetter.Value findSetterInfo(Annotated a) {
+        return JsonSetter.Value.empty();
     }
 
     /**

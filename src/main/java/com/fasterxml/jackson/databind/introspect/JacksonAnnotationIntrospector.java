@@ -272,8 +272,7 @@ public class JacksonAnnotationIntrospector
     {
         JsonIgnoreProperties v = _findAnnotation(a, JsonIgnoreProperties.class);
         if (v == null) {
-            // could alternatively return `Value.empty()`?
-            return null;
+            return JsonIgnoreProperties.Value.empty();
         }
         return JsonIgnoreProperties.Value.from(v);
     }
@@ -980,6 +979,13 @@ public class JacksonAnnotationIntrospector
         return (ann != null && ann.value());
     }
 
+    @Override
+    public boolean hasAnyGetterAnnotation(AnnotatedMethod am)
+    {
+        // No dedicated disabling; regular @JsonIgnore used if needs to be ignored (handled separately)
+        return _hasAnnotation(am, JsonAnyGetter.class);
+    }
+
     /*
     /**********************************************************
     /* Deserialization: general annotations
@@ -1187,12 +1193,8 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public boolean hasAnyGetterAnnotation(AnnotatedMethod am)
-    {
-        /* No dedicated disabling; regular @JsonIgnore used
-         * if needs to be ignored (handled separately
-         */
-        return _hasAnnotation(am, JsonAnyGetter.class);
+    public JsonSetter.Value findSetterInfo(Annotated a) {
+        return JsonSetter.Value.from(_findAnnotation(a, JsonSetter.class));
     }
 
     @Override

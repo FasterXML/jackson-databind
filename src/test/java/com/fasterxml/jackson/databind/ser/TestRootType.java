@@ -140,9 +140,16 @@ public class TestRootType
         } catch (JsonProcessingException e) {
             verifyException(e, "Incompatible types");
         }
+
+        // and also with alternate output method
+        try {
+            w.writeValueAsBytes(bean);
+            fail("Should have failed due to incompatible type");
+        } catch (JsonProcessingException e) {
+            verifyException(e, "Incompatible types");
+        }
     }
-    
-    // [JACKSON-398]
+
     public void testJackson398() throws Exception
     {
         ObjectMapper mapper = objectMapper();

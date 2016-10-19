@@ -184,7 +184,7 @@ public class ObjectWriter
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
-        _generatorFactory = base._generatorFactory;
+        _generatorFactory = f;
 
         _generatorSettings = base._generatorSettings;
         _prefetch = base._prefetch;
@@ -868,10 +868,21 @@ public class ObjectWriter
         return _config.isEnabled(f);
     }
 
+    /**
+     * @since 2.8.5
+     */
+    @Deprecated
     public boolean isEnabled(JsonParser.Feature f) {
         return _generatorFactory.isEnabled(f);
     }
 
+    /**
+     * @since 2.8.5
+     */
+    public boolean isEnabled(JsonGenerator.Feature f) {
+        return _generatorFactory.isEnabled(f);
+    }
+    
     /**
      * @since 2.2
      */

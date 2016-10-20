@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.seq;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -146,13 +147,30 @@ public class ObjectWriterTest
         assertNotNull(json);
         assertTrue(input.closed);
         input.close();
+
+        // and via SequenceWriter too
+        StringWriter out = new StringWriter();
+        SequenceWriter seq = w.writeValues(out);
+        input = new CloseableValue();
+        assertFalse(input.closed);
+        seq.write(input);
+        assertTrue(input.closed);
+        seq.close();
+        input.close();
+
+        // and via explicitly passed generator
+        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
+        input = new CloseableValue();
+        assertFalse(input.closed);
+        w.writeValue(g, input);
+        assertTrue(input.closed);
+        g.close();
+        input.close();
     }
 
-    public void testSettings() throws Exception
+    public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertFalse(w.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertFalse(w.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
         assertSame(MAPPER.getFactory(), w.getFactory());
         assertFalse(w.hasPrefetchedSerializer());
         assertNotNull(w.getTypeFactory());
@@ -161,15 +179,72 @@ public class ObjectWriterTest
         w = w.with(f);
         assertSame(f, w.getFactory());
 
-        w = w.withView(String.class);
+        ObjectWriter newW = w.withView(String.class);
+        assertNotSame(w, newW);
+        assertSame(newW, newW.withView(String.class));
+
+        newW = w.with(Locale.CANADA);
+        assertNotSame(w, newW);
+        assertSame(newW, newW.with(Locale.CANADA));
+
+        newW = w.with(Base64Variants.MODIFIED_FOR_URL);
+        assertNotSame(w, newW);
+        assertSame(newW, newW.with(Base64Variants.MODIFIED_FOR_URL));
+        
         w = w.withAttributes(Collections.emptyMap());
         w = w.withAttribute("a", "b");
         assertEquals("b", w.getAttributes().getAttribute("a"));
         w = w.withoutAttribute("a");
         assertNull(w.getAttributes().getAttribute("a"));
         w = w.withRootValueSeparator(new SerializedString(","));
+        assertSame(w, w.withRootValueSeparator(new SerializedString(",")));
+
+        newW = w.withRootName("foo");
+        assertNotSame(w, newW);
+        assertSame(newW, newW.withRootName(PropertyName.construct("foo")));
     }
 
+    public void testFeatureSettings() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer();
+        assertFalse(w.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        assertFalse(w.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
+        ObjectWriter newW = w.with(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS,
+                SerializationFeature.INDENT_OUTPUT);
+        assertNotSame(w, newW);
+        assertTrue(newW.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS));
+        assertTrue(newW.isEnabled(SerializationFeature.INDENT_OUTPUT));
+        assertSame(newW, newW.with(SerializationFeature.INDENT_OUTPUT));
+        assertSame(newW, newW.withFeatures(SerializationFeature.INDENT_OUTPUT));
+
+        newW = w.withFeatures(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS,
+                SerializationFeature.INDENT_OUTPUT);
+        assertNotSame(w, newW);
+
+        newW = w.without(SerializationFeature.FAIL_ON_EMPTY_BEANS,
+                SerializationFeature.EAGER_SERIALIZER_FETCH);
+        assertNotSame(w, newW);
+        assertFalse(newW.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+        assertFalse(newW.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH));
+        assertSame(newW, newW.without(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+        assertSame(newW, newW.withoutFeatures(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+
+        assertNotSame(w, w.withoutFeatures(SerializationFeature.FAIL_ON_EMPTY_BEANS,
+                SerializationFeature.EAGER_SERIALIZER_FETCH));
+    }
+
+    public void testGeneratorFeatures() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer();
+        assertFalse(w.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertNotSame(w, w.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+
+        assertTrue(w.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.without(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.withoutFeatures(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+    }
+    
     /*
     /**********************************************************
     /* Test methods, failures

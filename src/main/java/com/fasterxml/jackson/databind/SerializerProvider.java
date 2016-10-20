@@ -1153,14 +1153,12 @@ public abstract class SerializerProvider
      * @since 2.9
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
-            String message, Object... args) throws JsonMappingException {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
+            String msg, Object... msgArgs) throws JsonMappingException {
+        msg = _format(msg, msgArgs);
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
-        message = String.format("Invalid type definition for type %s: %s",
-                beanDesc, message);
-        throw InvalidDefinitionException.from(getGenerator(), message, bean, null);
+        msg = String.format("Invalid type definition for type %s: %s",
+                beanDesc, msg);
+        throw InvalidDefinitionException.from(getGenerator(), msg, bean, null);
     }
 
     /**
@@ -1171,10 +1169,8 @@ public abstract class SerializerProvider
      * @since 2.9
      */
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
-            String message, Object... args) throws JsonMappingException {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
+            String message, Object... msgArgs) throws JsonMappingException {
+        message = _format(message, msgArgs);
         String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
         message = String.format("Invalid definition for property %s (of type %s): %s",
@@ -1224,10 +1220,8 @@ public abstract class SerializerProvider
      *
      * @since 2.8
      */
-    public void reportMappingProblem(Throwable t, String message, Object... args) throws JsonMappingException {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
+    public void reportMappingProblem(Throwable t, String message, Object... msgArgs) throws JsonMappingException {
+        message = _format(message, msgArgs);
         throw JsonMappingException.from(getGenerator(), message, t);
     }
 
@@ -1247,10 +1241,8 @@ public abstract class SerializerProvider
      * @deprecated Since 2.9
      */
     @Deprecated // since 2.9
-    public JsonMappingException mappingException(String message, Object... args) {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
+    public JsonMappingException mappingException(String message, Object... msgArgs) {
+        message = _format(message, msgArgs);
         return JsonMappingException.from(getGenerator(), message);
     }
 
@@ -1264,10 +1256,8 @@ public abstract class SerializerProvider
      * @deprecated Since 2.9
      */
     @Deprecated // since 2.9
-    protected JsonMappingException mappingException(Throwable t, String message, Object... args) {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
+    protected JsonMappingException mappingException(Throwable t, String message, Object... msgArgs) {
+        message = _format(message, msgArgs);
         return JsonMappingException.from(getGenerator(), message, t);
     }
 
@@ -1458,5 +1448,13 @@ public abstract class SerializerProvider
         }
         */
         return df;
+    }
+
+    // @since 2.9
+    protected String _format(String msg, Object... msgArgs) {
+        if (msgArgs.length > 0) {
+            return String.format(msg, msgArgs);
+        }
+        return msg;
     }
 }

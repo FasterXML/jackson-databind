@@ -127,26 +127,12 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(r.createObjectNode().isObject());
     }
 
-    public void testSettings() throws Exception
+    public void testFeatureSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();
-        assertSame(MAPPER.getFactory(), r.getFactory());
-
-        JsonFactory f = new JsonFactory();
-        r = r.with(f);
-        assertSame(f, r.getFactory());
-
-        assertNotNull(r.getTypeFactory());
-        assertNull(r.getInjectableValues());
-
-        r = r.withAttributes(Collections.emptyMap());
-        ContextAttributes attrs = r.getAttributes();
-        assertNotNull(attrs);
-        assertNull(attrs.getAttribute("abc"));
-
-        r = r.forType(MAPPER.constructType(String.class));
-        r = r.withRootName(PropertyName.construct("foo"));
-
+        assertFalse(r.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        assertFalse(r.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        
         r = r.withoutFeatures(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
         assertFalse(r.isEnabled(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES));
@@ -155,6 +141,39 @@ public class ObjectReaderTest extends BaseMapTest
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
         assertTrue(r.isEnabled(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES));
         assertTrue(r.isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE));
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testMiscSettings() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+        assertSame(MAPPER.getFactory(), r.getFactory());
+
+        JsonFactory f = new JsonFactory();
+        r = r.with(f);
+        assertSame(f, r.getFactory());
+        assertSame(r, r.with(f));
+
+        assertNotNull(r.getTypeFactory());
+        assertNull(r.getInjectableValues());
+
+        r = r.withAttributes(Collections.emptyMap());
+        ContextAttributes attrs = r.getAttributes();
+        assertNotNull(attrs);
+        assertNull(attrs.getAttribute("abc"));
+        assertSame(r, r.withoutAttribute("foo"));
+
+        ObjectReader newR = r.forType(MAPPER.constructType(String.class));
+        assertNotSame(r, newR);
+        assertSame(newR, newR.forType(String.class));
+
+        // and deprecated variants
+        assertSame(newR, newR.withType(String.class));
+        assertSame(newR, newR.withType(MAPPER.constructType(String.class)));
+
+        newR = r.withRootName(PropertyName.construct("foo"));
+        assertNotSame(r, newR);
+        assertSame(newR, newR.withRootName(PropertyName.construct("foo")));
     }
 
     public void testNoPrefetch() throws Exception

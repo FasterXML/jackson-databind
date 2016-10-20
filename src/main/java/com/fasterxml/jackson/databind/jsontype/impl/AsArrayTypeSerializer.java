@@ -37,9 +37,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
         final String typeId = idFromValue(value);
         // NOTE: can not always avoid writing type id, even if null
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartArray();
             g.writeString(typeId);
@@ -52,9 +50,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
         final String typeId = idFromValueAndType(value, type);
         // NOTE: can not always avoid writing type id, even if null
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartArray();
             g.writeString(typeId);
@@ -66,9 +62,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     public void writeTypePrefixForArray(Object value, JsonGenerator g) throws IOException {
         final String typeId = idFromValue(value);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartArray();
             g.writeString(typeId);
@@ -80,9 +74,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     public void writeTypePrefixForArray(Object value, JsonGenerator g, Class<?> type) throws IOException {
         final String typeId = idFromValueAndType(value, type);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartArray();
             g.writeString(typeId);
@@ -94,9 +86,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     public void writeTypePrefixForScalar(Object value, JsonGenerator g) throws IOException {
         final String typeId = idFromValue(value);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             // only need the wrapper array
             g.writeStartArray();
@@ -108,9 +98,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     public void writeTypePrefixForScalar(Object value, JsonGenerator g, Class<?> type) throws IOException {
         final String typeId = idFromValueAndType(value, type);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             // only need the wrapper array
             g.writeStartArray();
@@ -158,9 +146,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     @Override
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException {
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartArray();
             g.writeString(typeId);
@@ -171,9 +157,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     @Override
     public void writeCustomTypePrefixForArray(Object value, JsonGenerator g, String typeId) throws IOException {
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartArray();
             g.writeString(typeId);
@@ -184,9 +168,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     @Override
     public void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartArray();
             g.writeString(typeId);
@@ -211,6 +193,20 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
         if (!g.canWriteTypeId()) {
             writeTypeSuffixForScalar(value, g); // standard impl works fine
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+
+    // @since 2.9
+    protected final void _writeTypeId(JsonGenerator g, String typeId) throws IOException
+    {
+        if (typeId != null) {
+            g.writeTypeId(typeId);
         }
     }
 }

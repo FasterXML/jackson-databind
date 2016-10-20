@@ -688,19 +688,6 @@ public abstract class DeserializationContext
         return deser;
     }
 
-    @Deprecated // since 2.5; remove from 2.9
-    public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
-        return handlePrimaryContextualization(deser, prop, TypeFactory.unknownType());
-    }
-
-    @Deprecated // since 2.5; remove from 2.9
-    public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
-        if (deser instanceof ContextualDeserializer) {
-            deser = ((ContextualDeserializer) deser).createContextual(this, prop);
-        }
-        return deser;
-    }
-
     /*
     /**********************************************************
     /* Parsing methods that may use reusable/-cyclable objects
@@ -862,9 +849,7 @@ public abstract class DeserializationContext
         throws IOException
     {
         // but if not handled, just throw exception
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
@@ -908,9 +893,7 @@ public abstract class DeserializationContext
         throws IOException
     {
         // but if not handled, just throw exception
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
@@ -953,9 +936,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs)
         throws IOException
     {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
@@ -999,9 +980,7 @@ public abstract class DeserializationContext
         if (p == null) {
             p = getParser();
         }
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             // Can bail out if it's handled
@@ -1115,9 +1094,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs)
         throws IOException
     {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         while (h != null) {
             Object instance = h.value().handleUnexpectedToken(this,
@@ -1213,9 +1190,7 @@ public abstract class DeserializationContext
             JsonToken expToken, String msg, Object... msgArgs)
         throws JsonMappingException
     {
-        if ((msg != null) && (msgArgs.length > 0)) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw wrongTokenException(getParser(), deser.handledType(), expToken, msg);
     }
     
@@ -1233,9 +1208,7 @@ public abstract class DeserializationContext
             JsonToken expToken, String msg, Object... msgArgs)
         throws JsonMappingException
     {
-        if ((msg != null) && (msgArgs.length > 0)) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw wrongTokenException(getParser(), targetType, expToken, msg);
     }
 
@@ -1253,9 +1226,7 @@ public abstract class DeserializationContext
             JsonToken expToken, String msg, Object... msgArgs)
         throws JsonMappingException
     {
-        if ((msg != null) && (msgArgs.length > 0)) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw wrongTokenException(getParser(), targetType, expToken, msg);
     }
     
@@ -1264,9 +1235,7 @@ public abstract class DeserializationContext
             JsonToken expToken, String msg, Object... msgArgs)
         throws JsonMappingException
     {
-        if ((msg != null) && (msgArgs.length > 0)) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw wrongTokenException(p, expToken, msg);
     }
     
@@ -1306,8 +1275,8 @@ public abstract class DeserializationContext
     {
         if (msg == null) {
             msg = "No content to map due to end-of-input";
-        } else if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
+        } else {
+            msg = _format(msg, msgArgs);
         }
         throw InputMismatchException.from(getParser(), (JavaType) null, msg);
     }
@@ -1332,9 +1301,7 @@ public abstract class DeserializationContext
     public <T> T reportInputMismatch(BeanProperty prop,
             String msg, Object... msgArgs) throws JsonMappingException
     {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw InputMismatchException.from(getParser(), prop.getType(), msg);
     }
 
@@ -1347,9 +1314,7 @@ public abstract class DeserializationContext
     public <T> T reportInputMismatch(JsonDeserializer<?> src,
             String msg, Object... msgArgs) throws JsonMappingException
     {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw InputMismatchException.from(getParser(), src.handledType(), msg);
     }
 
@@ -1362,9 +1327,7 @@ public abstract class DeserializationContext
     public <T> T reportInputMismatch(Class<?> targetType,
             String msg, Object... msgArgs) throws JsonMappingException
     {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw InputMismatchException.from(getParser(), targetType, msg);
     }
 
@@ -1377,9 +1340,7 @@ public abstract class DeserializationContext
     public <T> T reportInputMismatch(JavaType targetType,
             String msg, Object... msgArgs) throws JsonMappingException
     {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw InputMismatchException.from(getParser(), targetType, msg);
     }
     
@@ -1450,24 +1411,20 @@ public abstract class DeserializationContext
      * @since 2.9
      */
     public JsonMappingException wrongTokenException(JsonParser p, JavaType targetType,
-            JsonToken expToken, String msg0)
+            JsonToken expToken, String extra)
     {
         String msg = String.format("Unexpected token (%s), expected %s",
                 p.getCurrentToken(), expToken);
-        if (msg0 != null) {
-            msg = msg + ": "+msg0;
-        }
+        msg = _colonConcat(msg, extra);
         return InputMismatchException.from(p, targetType, msg);
     }
 
     public JsonMappingException wrongTokenException(JsonParser p, Class<?> targetType,
-            JsonToken expToken, String msg0)
+            JsonToken expToken, String extra)
     {
         String msg = String.format("Unexpected token (%s), expected %s",
                 p.getCurrentToken(), expToken);
-        if (msg0 != null) {
-            msg = msg + ": "+msg0;
-        }
+        msg = _colonConcat(msg, extra);
         return InputMismatchException.from(p, targetType, msg);
     }
     
@@ -1578,9 +1535,7 @@ public abstract class DeserializationContext
             String extraDesc) {
         String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
                 typeId, baseType);
-        if (extraDesc != null) {
-            msg = msg + ": "+extraDesc;
-        }
+        msg = _colonConcat(msg, extraDesc);
         return InvalidTypeIdException.from(_parser, msg, baseType, typeId);
     }
 
@@ -1600,9 +1555,7 @@ public abstract class DeserializationContext
             String extraDesc) {
         String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
                 id, type);
-        if (extraDesc != null) {
-            msg = msg + ": "+extraDesc;
-        }
+        msg = _colonConcat(msg, extraDesc);
         return InputMismatchException.from(_parser, type, msg);
     }
 
@@ -1639,9 +1592,7 @@ public abstract class DeserializationContext
     public void reportMappingException(String msg, Object... msgArgs)
         throws JsonMappingException
     {
-        if (msgArgs.length > 0) {
-            msg = String.format(msg, msgArgs);
-        }
+        msg = _format(msg, msgArgs);
         throw JsonMappingException.from(getParser(), msg);
     }
 
@@ -1764,5 +1715,21 @@ public abstract class DeserializationContext
                     desc.substring(desc.length() - MAX_ERROR_STR_LEN));
         }
         return "\"" + desc + "\"";
+    }
+
+    // @since 2.9
+    protected String _colonConcat(String msgBase, String extra) {
+        if (extra == null) {
+            return msgBase;
+        }
+        return msgBase + ": " + extra;
+    }
+
+    // @since 2.9
+    protected String _format(String msg, Object... msgArgs) {
+        if (msgArgs.length > 0) {
+            return String.format(msg, msgArgs);
+        }
+        return msg;
     }
 }

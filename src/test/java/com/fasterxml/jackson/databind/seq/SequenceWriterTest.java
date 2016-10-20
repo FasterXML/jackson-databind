@@ -59,6 +59,7 @@ public class SequenceWriterTest extends BaseMapTest
     {
         StringWriter strw = new StringWriter();
         SequenceWriter w = WRITER
+                .forType(Bean.class)
                 .writeValues(strw);
         w.write(new Bean(13))
             .write(new Bean(-6))

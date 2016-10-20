@@ -114,15 +114,6 @@ public final class DeserializationConfig
         _formatReadFeaturesToChange = 0;
     }
 
-    /**
-     * @deprecated Since 2.8, remove from 2.9 or later
-     */
-    @Deprecated
-    public DeserializationConfig(BaseSettings base, SubtypeResolver str,
-            SimpleMixInResolver mixins, RootNameLookup rootNames) {
-        this(base, str, mixins, rootNames, null);
-    }
-    
     private DeserializationConfig(DeserializationConfig src,
             int mapperFeatures, int deserFeatures,
             int parserFeatures, int parserFeatureMask,

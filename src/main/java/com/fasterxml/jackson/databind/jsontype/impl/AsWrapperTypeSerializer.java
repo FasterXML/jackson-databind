@@ -29,15 +29,13 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     
     @Override
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
-    
+
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator g) throws IOException
     {
         String typeId = idFromValue(value);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
             g.writeStartObject();
         } else {
             // wrapper
@@ -55,9 +53,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     {
         String typeId = idFromValueAndType(value, type);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
             g.writeStartObject();
         } else {
             // wrapper
@@ -75,9 +71,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     {
         String typeId = idFromValue(value);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
             g.writeStartArray();
         } else {
             // can still wrap ok
@@ -91,9 +85,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     {
         final String typeId = idFromValueAndType(value, type);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
             g.writeStartArray();
         } else {
             // can still wrap ok
@@ -107,9 +99,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     public void writeTypePrefixForScalar(Object value, JsonGenerator g) throws IOException {
         final String typeId = idFromValue(value);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             // can still wrap ok
             g.writeStartObject();
@@ -122,9 +112,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     {
         final String typeId = idFromValueAndType(value, type);
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             // can still wrap ok
             g.writeStartObject();
@@ -171,9 +159,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     @Override
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException {
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
             g.writeStartObject();
         } else {
             g.writeStartObject();
@@ -184,9 +170,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     @Override
     public void writeCustomTypePrefixForArray(Object value, JsonGenerator g, String typeId) throws IOException {
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
             g.writeStartArray();
         } else {
             g.writeStartObject();
@@ -197,9 +181,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     @Override
     public void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
         if (g.canWriteTypeId()) {
-            if (typeId != null) {
-                g.writeTypeId(typeId);
-            }
+            _writeTypeId(g, typeId);
         } else {
             g.writeStartObject();
             g.writeFieldName(_validTypeId(typeId));
@@ -241,5 +223,13 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
      */
     protected String _validTypeId(String typeId) {
         return (typeId == null) ? "" : typeId;
+    }
+
+    // @since 2.9
+    protected final void _writeTypeId(JsonGenerator g, String typeId) throws IOException
+    {
+        if (typeId != null) {
+            g.writeTypeId(typeId);
+        }
     }
 }

@@ -49,9 +49,6 @@ public class PropertyMetadata
     /* Construction, configuration
     /**********************************************************
      */
-    
-    @Deprecated // since 2.4
-    protected PropertyMetadata(Boolean req, String desc) { this(req, desc, null, null); }
 
     /**
      * @since 2.5
@@ -62,14 +59,6 @@ public class PropertyMetadata
         _description = desc;
         _index = index;
         _defaultValue = (def == null || def.isEmpty()) ? null : def;
-    }
-
-    /**
-     * @since 2.4 Use variant that takes more arguments.
-     */
-    @Deprecated
-    public static PropertyMetadata construct(boolean req, String desc) {
-        return construct(req, desc, null, null);
     }
 
     public static PropertyMetadata construct(boolean req, String desc, Integer index,
@@ -140,12 +129,6 @@ public class PropertyMetadata
      * @since 2.5
      */
     public String getDefaultValue() { return _defaultValue; }
-
-    /**
-     * @deprecated Since 2.6: typo in name, use {@link #hasDefaultValue()} instead.
-     */
-    @Deprecated
-    public boolean hasDefuaultValue() { return hasDefaultValue(); }
 
     /**
      * Accessor for determining whether property has declared "default value",

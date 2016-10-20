@@ -256,7 +256,7 @@ public final class DeserializationConfig
     /* Life-cycle, factory methods from MapperConfig
     /**********************************************************
      */
-    
+
     @Override
     public DeserializationConfig with(MapperFeature... features)
     {

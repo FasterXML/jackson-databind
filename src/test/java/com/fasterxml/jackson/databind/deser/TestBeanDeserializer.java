@@ -18,11 +18,9 @@ import com.fasterxml.jackson.databind.type.MapType;
 @SuppressWarnings("serial")
 public class TestBeanDeserializer extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
+    static abstract class Abstract {
+        public int x;
+    }
 
     static class Bean {
         public String b = "b";
@@ -242,6 +240,20 @@ public class TestBeanDeserializer extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    /**
+     * Test to verify details of how trying to deserialize into
+     * abstract type should fail (if there is no way to determine
+     * actual type information for the concrete type to use)
+     */
+    public void testAbstractFailure() throws Exception
+    {
+        try {
+            MAPPER.readValue("{ \"x\" : 3 }", Abstract.class);
+            fail("Should fail on trying to deserialize abstract type");
+        } catch (JsonProcessingException e) {
+            verifyException(e, "can not construct");
+        }
+    }    
     public void testPropertyRemoval() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

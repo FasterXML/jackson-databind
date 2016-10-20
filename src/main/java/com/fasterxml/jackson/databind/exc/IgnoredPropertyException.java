@@ -53,17 +53,14 @@ public class IgnoredPropertyException
             Object fromObjectOrClass, String propertyName,
             Collection<Object> propertyIds)
     {
-        if (fromObjectOrClass == null) {
-            throw new IllegalArgumentException();
-        }
         Class<?> ref;
         if (fromObjectOrClass instanceof Class<?>) {
             ref = (Class<?>) fromObjectOrClass;
-        } else {
+        } else { // also acts as null check:
             ref = fromObjectOrClass.getClass();
         }
-        String msg = "Ignored field \""+propertyName+"\" (class "+ref.getName()
-                +") encountered; mapper configured not to allow this";
+        String msg = String.format("Ignored field \"%s\" (class %s) encountered; mapper configured not to allow this",
+                propertyName, ref.getName());
         IgnoredPropertyException e = new IgnoredPropertyException(p, msg,
                 p.getCurrentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment

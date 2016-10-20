@@ -49,16 +49,14 @@ public class UnrecognizedPropertyException
             Object fromObjectOrClass, String propertyName,
             Collection<Object> propertyIds)
     {
-        if (fromObjectOrClass == null) {
-            throw new IllegalArgumentException();
-        }
         Class<?> ref;
         if (fromObjectOrClass instanceof Class<?>) {
             ref = (Class<?>) fromObjectOrClass;
         } else {
             ref = fromObjectOrClass.getClass();
         }
-        String msg = "Unrecognized field \""+propertyName+"\" (class "+ref.getName()+"), not marked as ignorable";
+        String msg = String.format("Unrecognized field \"%s\" (class %s), not marked as ignorable",
+                propertyName, ref.getName());
         UnrecognizedPropertyException e = new UnrecognizedPropertyException(p, msg,
                 p.getCurrentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment

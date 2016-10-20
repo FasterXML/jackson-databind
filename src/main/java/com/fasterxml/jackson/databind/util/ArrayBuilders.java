@@ -184,7 +184,7 @@ public final class ArrayBuilders
 
     public static <T> HashSet<T> arrayToSet(T[] elements)
     {
-        HashSet<T> result = new HashSet<T>();
+        HashSet<T> result = new HashSet<T>(elements.length);
         if (elements != null) {
             for (T elem : elements) {
                 result.add(elem);

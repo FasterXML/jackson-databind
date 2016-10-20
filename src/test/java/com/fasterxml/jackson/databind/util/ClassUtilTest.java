@@ -5,8 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
-public class TestClassUtil
-    extends BaseMapTest
+public class ClassUtilTest extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -137,7 +136,7 @@ public class TestClassUtil
         }
     }
 
-    public void testPrimiteDefaultValue()
+    public void testPrimitiveDefaultValue()
     {
         assertEquals(Integer.valueOf(0), ClassUtil.defaultValue(Integer.TYPE));
         assertEquals(Long.valueOf(0L), ClassUtil.defaultValue(Long.TYPE));
@@ -148,6 +147,8 @@ public class TestClassUtil
         assertEquals(Double.valueOf(0.0), ClassUtil.defaultValue(Double.TYPE));
         assertEquals(Float.valueOf(0.0f), ClassUtil.defaultValue(Float.TYPE));
 
+        assertEquals(Boolean.FALSE, ClassUtil.defaultValue(Boolean.TYPE));
+        
         try {
             ClassUtil.defaultValue(String.class);
         } catch (IllegalArgumentException e) {
@@ -155,22 +156,39 @@ public class TestClassUtil
         }
     }
 
-    public void testPrimiteWrapperType()
+    public void testPrimitiveWrapperType()
     {
+        assertEquals(Byte.class, ClassUtil.wrapperType(Byte.TYPE));
+        assertEquals(Short.class, ClassUtil.wrapperType(Short.TYPE));
+        assertEquals(Character.class, ClassUtil.wrapperType(Character.TYPE));
         assertEquals(Integer.class, ClassUtil.wrapperType(Integer.TYPE));
         assertEquals(Long.class, ClassUtil.wrapperType(Long.TYPE));
-        assertEquals(Character.class, ClassUtil.wrapperType(Character.TYPE));
-        assertEquals(Short.class, ClassUtil.wrapperType(Short.TYPE));
-        assertEquals(Byte.class, ClassUtil.wrapperType(Byte.TYPE));
 
         assertEquals(Double.class, ClassUtil.wrapperType(Double.TYPE));
         assertEquals(Float.class, ClassUtil.wrapperType(Float.TYPE));
 
+        assertEquals(Boolean.class, ClassUtil.wrapperType(Boolean.TYPE));
+        
         try {
             ClassUtil.wrapperType(String.class);
+            fail("Should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "String is not a primitive type");
         }
+    }
+
+    public void testWrapperToPrimitiveType()
+    {
+        assertEquals(Integer.TYPE, ClassUtil.primitiveType(Integer.class));
+        assertEquals(Long.TYPE, ClassUtil.primitiveType(Long.class));
+        assertEquals(Character.TYPE, ClassUtil.primitiveType(Character.class));
+        assertEquals(Short.TYPE, ClassUtil.primitiveType(Short.class));
+        assertEquals(Byte.TYPE, ClassUtil.primitiveType(Byte.class));
+        assertEquals(Float.TYPE, ClassUtil.primitiveType(Float.class));
+        assertEquals(Double.TYPE, ClassUtil.primitiveType(Double.class));
+        assertEquals(Boolean.TYPE, ClassUtil.primitiveType(Boolean.class));
+        
+        assertNull(ClassUtil.primitiveType(String.class));
     }
 
     public void testFindEnumType()
@@ -185,5 +203,19 @@ public class TestClassUtil
         final String exp = String.class.getName();
         assertEquals(exp, ClassUtil.getClassDescription("foo"));
         assertEquals(exp, ClassUtil.getClassDescription(String.class));
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testFindClass() throws Exception
+    {
+        assertEquals(Integer.TYPE, ClassUtil.findClass("int"));
+        assertEquals(Long.TYPE, ClassUtil.findClass("long"));
+        assertEquals(Byte.TYPE, ClassUtil.findClass("byte"));
+        assertEquals(Short.TYPE, ClassUtil.findClass("short"));
+        assertEquals(Character.TYPE, ClassUtil.findClass("char"));
+        assertEquals(Float.TYPE, ClassUtil.findClass("float"));
+        assertEquals(Double.TYPE, ClassUtil.findClass("double"));
+        assertEquals(Boolean.TYPE, ClassUtil.findClass("boolean"));
+        assertEquals(Void.TYPE, ClassUtil.findClass("void"));
     }
 }

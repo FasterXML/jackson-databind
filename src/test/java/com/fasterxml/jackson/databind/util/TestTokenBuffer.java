@@ -11,13 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestTokenBuffer extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     /*
     /**********************************************************
     /* Basic TokenBuffer tests
     /**********************************************************
      */
-    
+
     /**
      * Test writing of individual simple values
      */
@@ -200,6 +200,11 @@ public class TestTokenBuffer extends BaseMapTest
         verifyJsonSpecSampleDoc(tb.asParser(), true);
         tb.close();
         p.close();
+
+    
+        // 19-Oct-2016, tatu: Just for fun, trigger `toString()` for code coverage
+        String desc = tb.toString();
+        assertNotNull(desc);
     }
 
     public void testAppend() throws IOException

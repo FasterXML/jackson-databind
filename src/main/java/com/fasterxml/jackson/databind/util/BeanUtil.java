@@ -145,37 +145,6 @@ public class BeanUtil
 
     /*
     /**********************************************************
-    /* Handling property names, deprecated methods
-    /**********************************************************
-     */
-
-    @Deprecated // since 2.5
-    public static String okNameForGetter(AnnotatedMethod am) {
-        return okNameForGetter(am, false);
-    }
-
-    @Deprecated // since 2.5
-    public static String okNameForRegularGetter(AnnotatedMethod am, String name) {
-        return okNameForRegularGetter(am, name, false);
-    }
-
-    @Deprecated // since 2.5
-    public static String okNameForIsGetter(AnnotatedMethod am, String name) {
-        return okNameForIsGetter(am, name, false);
-    }
-
-    @Deprecated // since 2.5
-    public static String okNameForSetter(AnnotatedMethod am) {
-        return okNameForSetter(am, false);
-    }
-
-    @Deprecated // since 2.5
-    public static String okNameForMutator(AnnotatedMethod am, String prefix) {
-        return okNameForMutator(am, prefix, false);
-    }
-
-    /*
-    /**********************************************************
     /* Special case handling
     /**********************************************************
      */

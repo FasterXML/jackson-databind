@@ -45,12 +45,6 @@ public class SimpleBeanPropertyDefinition
      */
     protected final JsonInclude.Value _inclusion;
 
-    /**
-     * @deprecated Since 2.5 use <code>_fullName</code> instead.
-     */
-    @Deprecated
-    protected final String _name;
-
     /*
     /**********************************************************
     /* Construction
@@ -73,18 +67,8 @@ public class SimpleBeanPropertyDefinition
         _introspector = intr;
         _member = member;
         _fullName = fullName;
-        _name = fullName.getSimpleName();
         _metadata = (metadata == null) ? PropertyMetadata.STD_OPTIONAL: metadata;
         _inclusion = inclusion;
-    }
-
-    /**
-     * @deprecated Since 2.5 Use variant that takes PropertyName
-     */
-    @Deprecated
-    protected SimpleBeanPropertyDefinition(AnnotatedMember member, String name,
-    		AnnotationIntrospector intr) {
-        this(member, new PropertyName(name), intr, null, EMPTY_INCLUDE);
     }
 
     /**
@@ -93,17 +77,6 @@ public class SimpleBeanPropertyDefinition
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
     		AnnotatedMember member) {
         return new SimpleBeanPropertyDefinition(member, PropertyName.construct(member.getName()),
-                (config == null) ? null : config.getAnnotationIntrospector(),
-                        null, EMPTY_INCLUDE);
-    }
-
-    /**
-     * @deprecated Since 2.5
-     */
-    @Deprecated
-    public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
-    		AnnotatedMember member, String name) {
-        return new SimpleBeanPropertyDefinition(member, PropertyName.construct(name),
                 (config == null) ? null : config.getAnnotationIntrospector(),
                         null, EMPTY_INCLUDE);
     }
@@ -143,12 +116,6 @@ public class SimpleBeanPropertyDefinition
     /* Fluent factories
     /**********************************************************
      */
-
-    // Note: removed from base class in 2.6; left here until 2.7
-    @Deprecated // since 2.3 (remove in 2.7)
-    public BeanPropertyDefinition withName(String newName) {
-        return withSimpleName(newName);
-    }
 
     @Override
     public BeanPropertyDefinition withSimpleName(String newName) {

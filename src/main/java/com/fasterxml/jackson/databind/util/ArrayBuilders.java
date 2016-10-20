@@ -193,69 +193,6 @@ public final class ArrayBuilders
         return result;
     }
 
-    public static <T> ArrayList<T> arrayToList(T[] elements)
-    {
-        ArrayList<T> result = new ArrayList<T>();
-        if (elements != null) {
-            for (T elem : elements) {
-                result.add(elem);
-            }
-        }
-        return result;
-    }
-
-    public static <T> HashSet<T> setAndArray(Set<T> set, T[] elements)
-    {
-        HashSet<T> result = new HashSet<T>();
-        if (set != null) {
-            result.addAll(set);
-        }
-        if (elements != null) {
-            for (T value : elements) {
-                result.add(value);
-            }
-        }
-        return result;
-    }
-    
-    /**
-     * Helper method for adding specified element to a List, but also
-     * considering case where the List may not have been yet constructed
-     * (that is, null is passed instead).
-     * 
-     * @param list List to add to; may be null to indicate that a new
-     *    List is to be constructed
-     * @param element Element to add to list
-     * 
-     * @return List in which element was added; either <code>list</code>
-     *   (if it was not null), or a newly constructed List.
-     */
-    public static <T> List<T> addToList(List<T> list, T element)
-    {
-        if (list == null) {
-            list = new ArrayList<T>();
-        }
-        list.add(element);
-        return list;
-    }
-
-    /**
-     * Helper method for constructing a new array that contains specified
-     * element followed by contents of the given array. No checking is done
-     * to see if element being inserted is duplicate.
-     */
-    public static <T> T[] insertInList(T[] array, T element)
-    {
-        int len = array.length;
-        @SuppressWarnings("unchecked")
-        T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), len+1);
-        if (len > 0) {
-            System.arraycopy(array, 0, result, 1, len);
-        }
-        result[0] = element;
-        return result;
-    }
-
     /**
      * Helper method for constructing a new array that contains specified
      * element followed by contents of the given array but never contains

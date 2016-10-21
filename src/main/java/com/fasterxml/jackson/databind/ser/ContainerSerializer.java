@@ -102,6 +102,10 @@ public abstract class ContainerSerializer<T>
      * like "getElementCount()" method, this would not work well for
      * containers that do not keep track of size (like linked lists may
      * not).
+     *<p>
+     * Note, too, that as of now (2.9) this method is only called by serializer
+     * itself; and specifically is not used for non-array/collection types
+     * like <code>Map</code> or <code>Map.Entry</code> instances.
      */
     public abstract boolean hasSingleElement(T value);
 

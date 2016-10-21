@@ -29,7 +29,7 @@ public abstract class ArraySerializerBase<T>
      * @since 2.6
      */
     protected final Boolean _unwrapSingle;
-    
+
     protected ArraySerializerBase(Class<T> cls)
     {
         super(cls);

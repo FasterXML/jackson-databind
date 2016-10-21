@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.format;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 
 public class MapEntryFormatTest extends BaseMapTest
@@ -47,6 +48,30 @@ public class MapEntryFormatTest extends BaseMapTest
         }
     }
 
+    static class EntryWithNullWrapper {
+        @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
+                content=JsonInclude.Include.NON_NULL)
+        public Map.Entry<String,String> entry;
+
+        public EntryWithNullWrapper(String key, String value) {
+            HashMap<String,String> map = new HashMap<>();
+            map.put(key, value);
+            entry = map.entrySet().iterator().next();
+        }
+    }
+
+    static class EmptyEntryWrapper {
+        @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
+                content=JsonInclude.Include.NON_EMPTY)
+        public Map.Entry<String,String> entry;
+
+        public EmptyEntryWrapper(String key, String value) {
+            HashMap<String,String> map = new HashMap<>();
+            map.put(key, value);
+            entry = map.entrySet().iterator().next();
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -77,5 +102,20 @@ public class MapEntryFormatTest extends BaseMapTest
         MapEntryAsObject result = MAPPER.readValue(json, MapEntryAsObject.class);
         assertEquals("foo", result.getKey());
         assertEquals("bar", result.getValue());
+    }
+
+    public void testInclusion() throws Exception
+    {
+        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+                MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "b")));
+        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+                MAPPER.writeValueAsString(new EntryWithNullWrapper("a", "b")));
+
+        assertEquals(aposToQuotes("{}"),
+                MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "")));
+        assertEquals(aposToQuotes("{'entry':{'a':''}}"),
+                MAPPER.writeValueAsString(new EntryWithNullWrapper("a", "")));
+        assertEquals(aposToQuotes("{}"),
+                MAPPER.writeValueAsString(new EntryWithNullWrapper("a", null)));
     }
 }

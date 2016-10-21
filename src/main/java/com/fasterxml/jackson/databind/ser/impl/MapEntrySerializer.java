@@ -49,12 +49,12 @@ public class MapEntrySerializer
     /* Serializers used
     /**********************************************************
      */
-    
+
     /**
      * Key serializer to use, if it can be statically determined
      */
     protected JsonSerializer<Object> _keySerializer;
-    
+
     /**
      * Value serializer to use, if it can be statically determined
      */
@@ -76,7 +76,7 @@ public class MapEntrySerializer
     /* Config settings, filtering
     /**********************************************************
      */
-    
+
     /**
      * Value that indicates suppression mechanism to use for <b>values contained</b>;
      * either "filter" (of which <code>equals()</code> is called), or marker
@@ -96,7 +96,7 @@ public class MapEntrySerializer
      * @since 2.9
      */
     protected final boolean _suppressNulls;
-    
+
     /*
     /**********************************************************
     /* Construction, initialization

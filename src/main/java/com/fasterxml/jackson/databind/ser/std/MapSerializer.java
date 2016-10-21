@@ -535,6 +535,7 @@ public class MapSerializer
         if (value == null || value.isEmpty()) {
             return true;
         }
+        
         // 05-Nove-2015, tatu: Simple cases are cheap, but for recursive
         //   emptiness checking we actually need to see if values are empty as well.
         Object supp = _suppressableValue;
@@ -546,17 +547,17 @@ public class MapSerializer
         if (valueSer != null) {
             for (Object elemValue : value.values()) {
                 if (elemValue == null) {
-                    if (!_suppressNulls) {
-                        return false;
+                    if (_suppressNulls) {
+                        continue;
                     }
-                } else if (checkEmpty) {
+                    return false;
+                }
+                if (checkEmpty) {
                     if (!valueSer.isEmpty(prov, elemValue)) {
                         return false;
                     }
-                } else if (supp != null) {
-                    if (!supp.equals(value)) {
-                        return false;
-                    }
+                } else if ((supp == null) || !supp.equals(value)) {
+                    return false;
                 }
             }
             return true;
@@ -565,11 +566,12 @@ public class MapSerializer
         PropertySerializerMap serializers = _dynamicValueSerializers;
         for (Object elemValue : value.values()) {
             if (elemValue == null) {
-                if (!_suppressNulls) {
-                    return false;
+                if (_suppressNulls) {
+                    continue;
                 }
-                continue;
+                return false;
             }
+
             Class<?> cc = elemValue.getClass();
             // 05-Nov-2015, tatu: Let's not worry about generic types here, actually;
             //   unlikely to make any difference, but does add significant overhead
@@ -587,10 +589,8 @@ public class MapSerializer
                 if (!valueSer.isEmpty(prov, elemValue)) {
                     return false;
                 }
-            } else if (supp != null) {
-                if (!supp.equals(value)) {
-                    return false;
-                }
+            } else if ((supp == null) || !supp.equals(value)) {
+                return false;
             }
         }
         return true;

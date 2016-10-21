@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -232,7 +234,10 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Non-final since it is actually overridden by sub-classes (for now?)
      */
     public AnnotationIntrospector getAnnotationIntrospector() {
-        return _base.getAnnotationIntrospector();
+        if (isEnabled(MapperFeature.USE_ANNOTATIONS)) {
+            return _base.getAnnotationIntrospector();
+        }
+        return NopAnnotationIntrospector.instance;
     }
 
     /**
@@ -245,7 +250,25 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * {@link JsonAutoDetect} annotation)
      */
     public VisibilityChecker<?> getDefaultVisibilityChecker() {
-        return _base.getVisibilityChecker();
+        VisibilityChecker<?> vchecker = _base.getVisibilityChecker();
+        // then global overrides (disabling)
+        if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
+            vchecker = vchecker.withSetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
+            vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
+            vchecker = vchecker.withGetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
+            vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
+            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
+        }
+        return vchecker;
+
     }
     
     public final PropertyNamingStrategy getPropertyNamingStrategy() {
@@ -324,7 +347,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    public final BeanDescription introspectClassAnnotations(JavaType type) {
+    public BeanDescription introspectClassAnnotations(JavaType type) {
         return getClassIntrospector().forClassAnnotations(this, type, this);
     }
 
@@ -336,12 +359,15 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public BeanDescription introspectDirectClassAnnotations(Class<?> cls) {
         return introspectDirectClassAnnotations(constructType(cls));
     }
+
     /**
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
      */
-    public abstract BeanDescription introspectDirectClassAnnotations(JavaType type);
+    public final BeanDescription introspectDirectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forDirectClassAnnotations(this, type, this);
+    }
 
     /*
     /**********************************************************

@@ -725,38 +725,6 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************
-    /* MapperConfig implementation/overrides: introspection
-    /**********************************************************
-     */
-
-    /**
-     * Method for getting {@link AnnotationIntrospector} configured
-     * to introspect annotation values used for configuration.
-     */
-    @Override
-    public AnnotationIntrospector getAnnotationIntrospector()
-    {
-        /* 29-Jul-2009, tatu: it's now possible to disable use of
-         *   annotations; can be done using "no-op" introspector
-         */
-        if (isEnabled(MapperFeature.USE_ANNOTATIONS)) {
-            return super.getAnnotationIntrospector();
-        }
-        return NopAnnotationIntrospector.instance;
-    }
-
-    /**
-     * Accessor for getting bean description that only contains immediate class
-     * annotations: ones from the class, and its direct mix-in, if any, but
-     * not from super types.
-     */
-    @Override
-    public BeanDescription introspectDirectClassAnnotations(JavaType type) {
-        return getClassIntrospector().forDirectClassAnnotations(this, type, this);
-    }
-
-    /*
-    /**********************************************************
     /* Configuration: default settings with per-type overrides
     /**********************************************************
      */

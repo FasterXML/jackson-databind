@@ -146,17 +146,6 @@ public final class SerializationConfig
         _serializationInclusion = DEFAULT_INCLUSION;
     }
 
-    /**
-     * @deprecated Since 2.8, remove from 2.9 or later
-     */
-    @Deprecated
-    public SerializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
-    {
-        this(base, str, mixins, rootNames, null);
-    }
-    
     private SerializationConfig(SerializationConfig src, SubtypeResolver str)
     {
         super(src, str);
@@ -751,14 +740,6 @@ public final class SerializationConfig
     }
 
     /**
-     * @deprecated Since 2.7 use {@link #withPropertyInclusion} instead
-     */
-    @Deprecated
-    public SerializationConfig withSerializationInclusion(JsonInclude.Include incl) {
-        return withPropertyInclusion(DEFAULT_INCLUSION.withValueInclusion(incl));
-    }
-
-    /**
      * @since 2.7
      */
     public SerializationConfig withPropertyInclusion(JsonInclude.Value incl) {
@@ -834,35 +815,10 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
-    /* MapperConfig implementation/overrides: introspection
-    /**********************************************************
-     */
-
-    @Override
-    public AnnotationIntrospector getAnnotationIntrospector()
-    {
-        if (isEnabled(MapperFeature.USE_ANNOTATIONS)) {
-            return super.getAnnotationIntrospector();
-        }
-        return AnnotationIntrospector.nopInstance();
-    }
-
-    /**
-     * Accessor for getting bean description that only contains immediate class
-     * annotations: ones from the class, and its direct mix-in, if any, but
-     * not from super types.
-     */
-    @Override
-    public BeanDescription introspectDirectClassAnnotations(JavaType type) {
-        return getClassIntrospector().forDirectClassAnnotations(this, type, this);
-    }
-
-    /*
-    /**********************************************************
     /* Configuration: default settings with per-type overrides
     /**********************************************************
      */
-    
+
     /**
      * @deprecated Since 2.7 use {@link #getDefaultPropertyInclusion} instead
      */
@@ -963,16 +919,5 @@ public final class SerializationConfig
     @SuppressWarnings("unchecked")
     public <T extends BeanDescription> T introspect(JavaType type) {
         return (T) getClassIntrospector().forSerialization(this, type, this);
-    }
-    
-    /*
-    /**********************************************************
-    /* Debug support
-    /**********************************************************
-     */
-
-    @Override
-    public String toString() {
-        return "[SerializationConfig: flags=0x"+Integer.toHexString(_serFeatures)+"]";
     }
 }

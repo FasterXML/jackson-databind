@@ -1090,8 +1090,7 @@ public abstract class DeserializationContext
      * @since 2.8
      */
     public Object handleUnexpectedToken(Class<?> instClass, JsonToken t,
-            JsonParser p,
-            String msg, Object... msgArgs)
+            JsonParser p, String msg, Object... msgArgs)
         throws IOException
     {
         msg = _format(msg, msgArgs);
@@ -1359,13 +1358,11 @@ public abstract class DeserializationContext
      * @since 2.9
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
-            String message, Object... args) throws JsonMappingException {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
+            String msg, Object... msgArgs) throws JsonMappingException {
+        msg = _format(msg, msgArgs);
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
-            message = String.format("Invalid type definition for type %s: %s", beanDesc, message);
-        throw InvalidDefinitionException.from(_parser, message, bean, null);
+        msg = String.format("Invalid type definition for type %s: %s", beanDesc, msg);
+        throw InvalidDefinitionException.from(_parser, msg, bean, null);
     }
 
     /**
@@ -1376,16 +1373,13 @@ public abstract class DeserializationContext
      * @since 2.9
      */
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
-            String message, Object... args) throws JsonMappingException {
-        if (args != null && args.length > 0) {
-            message = String.format(message, args);
-        }
+            String msg, Object... msgArgs) throws JsonMappingException {
+        msg = _format(msg, msgArgs);
         String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
-        message = String.format (
-                "Invalid definition for property %s (of type %s): %s",
-                propName, beanDesc, message);
-        throw InvalidDefinitionException.from(_parser, message, bean, prop);
+        msg = String.format("Invalid definition for property %s (of type %s): %s",
+                propName, beanDesc, msg);
+        throw InvalidDefinitionException.from(_parser, msg, bean, prop);
     }
 
     @Override
@@ -1624,11 +1618,8 @@ public abstract class DeserializationContext
      * @deprecated Since 2.9 use more specific error reporting methods instead
      */
     @Deprecated
-    public JsonMappingException mappingException(String msgTemplate, Object... args) {
-        if (args != null && args.length > 0) {
-            msgTemplate = String.format(msgTemplate, args);
-        }
-        return JsonMappingException.from(getParser(), msgTemplate);
+    public JsonMappingException mappingException(String msg, Object... msgArgs) {
+        return JsonMappingException.from(getParser(), _format(msg, msgArgs));
     }
 
     /**
@@ -1673,10 +1664,6 @@ public abstract class DeserializationContext
         return df;
     }
 
-    protected String determineClassName(Object instance) {
-        return ClassUtil.getClassDescription(instance);
-    }
-
     protected String _calcName(Class<?> cls) {
         if (cls.isArray()) {
             return _calcName(cls.getComponentType())+"[]";
@@ -1714,7 +1701,7 @@ public abstract class DeserializationContext
                     desc.substring(0, MAX_ERROR_STR_LEN),
                     desc.substring(desc.length() - MAX_ERROR_STR_LEN));
         }
-        return "\"" + desc + "\"";
+        return String.format("\"%s\"", desc);
     }
 
     // @since 2.9

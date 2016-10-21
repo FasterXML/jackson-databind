@@ -4,8 +4,9 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
 import com.fasterxml.jackson.core.Base64Variant;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
@@ -114,17 +115,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         // default to "no attributes"
         _attributes = ContextAttributes.getEmpty();
         _configOverrides = configOverrides;
-    }
-
-    /**
-     * @deprecated Since 2.8, remove from 2.9 or later
-     */
-    @Deprecated
-    protected MapperConfigBase(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames)
-    {
-        this(base, str, mixins, rootNames, null);
     }
 
     /**
@@ -245,36 +235,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = configOverrides;
-    }
-
-    /*
-    /**********************************************************
-    /* Overrides
-    /**********************************************************
-     */
-
-    // note: demoted in 2.8 from sub-classes, as there's no difference
-    @Override
-    public VisibilityChecker<?> getDefaultVisibilityChecker()
-    {
-        VisibilityChecker<?> vchecker = super.getDefaultVisibilityChecker();
-        // then global overrides (disabling)
-        if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
-            vchecker = vchecker.withSetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-            vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
-            vchecker = vchecker.withGetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
-            vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-        }
-        return vchecker;
     }
 
     /*
@@ -466,13 +426,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public T withoutAttribute(Object key) {
         return with(getAttributes().withoutSharedAttribute(key));
     }
-    
+
     /*
     /**********************************************************
     /* Simple accessors
     /**********************************************************
      */
-    
+
     /**
      * Accessor for object used for finding out all reachable subtypes
      * for supertypes; needed when a logical type name is used instead
@@ -508,12 +468,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _attributes;
     }
 
-    /*
-    /**********************************************************
-    /* Property config override access
-    /**********************************************************
-     */
-    
     @Override
     public final ConfigOverride findConfigOverride(Class<?> type) {
         return _configOverrides.findOverride(type);

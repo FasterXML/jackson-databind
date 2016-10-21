@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 @SuppressWarnings("serial")
-public class TestSimpleModule extends BaseMapTest
+public class SimpleModuleTest extends BaseMapTest
 {
     /**
      * Trivial bean that requires custom serializer and deserializer
@@ -229,17 +229,19 @@ public class TestSimpleModule extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new SimpleEnumSerializer());
-        mapper.registerModule(mod);
+        // for fun, call "multi-module" registration
+        mapper.registerModules(mod);
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
     }
 
-    // for [JACKSON-550]
     public void testSimpleInterfaceSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new BaseSerializer());
-        mapper.registerModule(mod);
+        // and another variant here too
+        List<Module> mods = Arrays.asList((Module) mod);
+        mapper.registerModules(mods);
         assertEquals(quote("Base:1"), mapper.writeValueAsString(new Impl1()));
         assertEquals(quote("Base:2"), mapper.writeValueAsString(new Impl2()));
     }
@@ -330,5 +332,11 @@ public class TestSimpleModule extends BaseMapTest
         mapper.registerModule(new TestModule626(Object.class, String.class));
         Class<?> found = mapper.findMixInClassFor(Object.class);
         assertEquals(String.class, found);
+    }
+
+    public void testAutoDiscovery() throws Exception
+    {
+        List<Module> mods = ObjectMapper.findModules();
+        assertEquals(0, mods.size());
     }
 }

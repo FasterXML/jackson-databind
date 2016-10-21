@@ -28,7 +28,7 @@ public class TokenBufferSerializer
 
     @Override
     public void serialize(TokenBuffer value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException
+        throws IOException
     {
         value.serialize(jgen);
     }

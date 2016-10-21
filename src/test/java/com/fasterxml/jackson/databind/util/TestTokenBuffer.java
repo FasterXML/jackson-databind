@@ -1,12 +1,15 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.*;
 
 public class TestTokenBuffer extends BaseMapTest
 {
@@ -18,13 +21,36 @@ public class TestTokenBuffer extends BaseMapTest
     /**********************************************************
      */
 
+    public void testBasicConfig() throws IOException
+    {
+        TokenBuffer buf;
+
+        buf = new TokenBuffer(MAPPER, false);
+        assertEquals(MAPPER.version(), buf.version());
+        assertSame(MAPPER, buf.getCodec());
+        assertNotNull(buf.getOutputContext());
+        assertFalse(buf.isClosed());
+
+        buf.setCodec(null);
+        assertNull(buf.getCodec());
+
+        assertFalse(buf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        buf.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+        assertTrue(buf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        buf.disable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+        assertFalse(buf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+
+        buf.close();
+        assertTrue(buf.isClosed());
+    }
+
     /**
      * Test writing of individual simple values
      */
     public void testSimpleWrites() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
-
+        
         // First, with empty buffer
         JsonParser p = buf.asParser();
         assertNull(p.getCurrentToken());
@@ -384,6 +410,39 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeString("cval");
         buf.writeEndObject();
         buf.writeEndObject();
+        buf.close();
+    }
+
+    public void testBasicSerialize() throws IOException
+    {
+        TokenBuffer buf;
+
+        // let's see how empty works...
+        buf = new TokenBuffer(MAPPER, false);
+        assertEquals("", MAPPER.writeValueAsString(buf));
+        buf.close();
+        
+        buf = new TokenBuffer(MAPPER, false);
+        buf.writeStartArray();
+        buf.writeBoolean(true);
+        buf.writeBoolean(false);
+        long l = 1L + Integer.MAX_VALUE;
+        buf.writeNumber(l);
+        buf.writeNumber((short) 4);
+        buf.writeNumber(0.5);
+        buf.writeEndArray();
+        assertEquals(aposToQuotes("[true,false,"+l+",4,0.5]"), MAPPER.writeValueAsString(buf));
+        buf.close();
+
+        buf = new TokenBuffer(MAPPER, false);
+        buf.writeStartObject();
+        buf.writeFieldName(new SerializedString("foo"));
+        buf.writeNull();
+        buf.writeFieldName("bar");
+        buf.writeNumber(BigInteger.valueOf(123));
+        buf.writeFieldName("dec");
+        buf.writeNumber(BigDecimal.valueOf(5).movePointLeft(2));
+        assertEquals(aposToQuotes("{'foo':null,'bar':123,'dec':0.05}"), MAPPER.writeValueAsString(buf));
         buf.close();
     }
 

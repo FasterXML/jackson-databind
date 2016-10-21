@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.format;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -60,6 +61,30 @@ public class MapEntryFormatTest extends BaseMapTest
         }
     }
 
+    static class EntryWithDefaultWrapper {
+        @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
+                content=JsonInclude.Include.NON_DEFAULT)
+        public Map.Entry<String,String> entry;
+
+        public EntryWithDefaultWrapper(String key, String value) {
+            HashMap<String,String> map = new HashMap<>();
+            map.put(key, value);
+            entry = map.entrySet().iterator().next();
+        }
+    }
+
+    static class EntryWithNonAbsentWrapper {
+        @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
+                content=JsonInclude.Include.NON_ABSENT)
+        public Map.Entry<String,AtomicReference<String>> entry;
+
+        public EntryWithNonAbsentWrapper(String key, String value) {
+            HashMap<String,AtomicReference<String>> map = new HashMap<>();
+            map.put(key, new AtomicReference<String>(value));
+            entry = map.entrySet().iterator().next();
+        }
+    }
+    
     static class EmptyEntryWrapper {
         @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
                 content=JsonInclude.Include.NON_EMPTY)
@@ -109,13 +134,29 @@ public class MapEntryFormatTest extends BaseMapTest
         assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "b")));
         assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+                MAPPER.writeValueAsString(new EntryWithDefaultWrapper("a", "b")));
+        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EntryWithNullWrapper("a", "b")));
 
         assertEquals(aposToQuotes("{}"),
                 MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "")));
+        assertEquals(aposToQuotes("{}"),
+                MAPPER.writeValueAsString(new EntryWithDefaultWrapper("a", "")));
         assertEquals(aposToQuotes("{'entry':{'a':''}}"),
                 MAPPER.writeValueAsString(new EntryWithNullWrapper("a", "")));
         assertEquals(aposToQuotes("{}"),
                 MAPPER.writeValueAsString(new EntryWithNullWrapper("a", null)));
+    }
+
+    public void testInclusionWithReference() throws Exception
+    {
+        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+                MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", "b")));
+        // empty String not excluded since reference is not absent, just points to empty
+        // (so would need 3rd level inclusion definition)
+        assertEquals(aposToQuotes("{'entry':{'a':''}}"),
+                MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", "")));
+        assertEquals(aposToQuotes("{}"),
+                MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", null)));
     }
 }

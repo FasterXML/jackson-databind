@@ -320,7 +320,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             }
         } else if (rootName.isEmpty()) {
             wrap = false;
-        } else { // [JACKSON-764]
+        } else {
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
             gen.writeStartObject();
@@ -331,14 +331,8 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             if (wrap) {
                 gen.writeEndObject();
             }
-        } catch (IOException ioe) { // As per [JACKSON-99], pass IOException and subtypes as-is
-            throw ioe;
-        } catch (Exception e) { // but wrap RuntimeExceptions, to get path information
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            throw new JsonMappingException(gen, msg, e);
+        } catch (Exception e) {
+            throw _wrapAsIOE(gen, e);
         }
     }
 
@@ -353,6 +347,8 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
+    // 21-Oct-2016, tatu: Does not seem to be used.... remove for 2.9?
+    /*
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType) throws IOException
     {
         _generator = gen;
@@ -390,16 +386,11 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             if (wrap) {
                 gen.writeEndObject();
             }
-        } catch (IOException ioe) { // no wrapping for IO (and derived)
-            throw ioe;
-        } catch (Exception e) { // but others do need to be, to get path etc
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            reportMappingProblem(e, msg);
+        } catch (Exception e) {
+            throw _wrapAsIOE(gen, e);
         }
     }
+    */
 
     /**
      * The method to be called by {@link ObjectWriter}
@@ -444,7 +435,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             }
         } else if (rootName.isEmpty()) {
             wrap = false;
-        } else { // [JACKSON-764]
+        } else {
             // empty String means explicitly disabled; non-empty that it is enabled
             wrap = true;
             gen.writeStartObject();
@@ -455,14 +446,8 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             if (wrap) {
                 gen.writeEndObject();
             }
-        } catch (IOException ioe) { // no wrapping for IO (and derived)
-            throw ioe;
-        } catch (Exception e) { // but others do need to be, to get path etc
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            reportMappingProblem(e, msg);
+        } catch (Exception e) {
+            throw _wrapAsIOE(gen, e);
         }
     }
 
@@ -519,26 +504,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             if (wrap) {
                 gen.writeEndObject();
             }
-        } catch (IOException ioe) { // no wrapping for IO (and derived)
-            throw ioe;
-        } catch (Exception e) { // but others do need to be, to get path etc
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            reportMappingProblem(e, msg);
+        } catch (Exception e) {
+            throw _wrapAsIOE(gen, e);
         }
-    }
-
-    /**
-     * @deprecated since 2.6; remove from 2.7 or later
-     */
-    @Deprecated
-    public void serializePolymorphic(JsonGenerator gen, Object value, TypeSerializer typeSer)
-            throws IOException
-    {
-        JavaType t = (value == null) ? null : _config.constructType(value.getClass());
-        serializePolymorphic(gen, value, t, null, typeSer);
     }
 
     /**
@@ -551,16 +519,22 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         JsonSerializer<Object> ser = getDefaultNullValueSerializer();
         try {
             ser.serialize(null, gen, this);
-        } catch (IOException ioe) { // no wrapping for IO (and derived)
-            throw ioe;
-        } catch (Exception e) { // but others do need to be, to get path etc
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            reportMappingProblem(e, msg);
+        } catch (Exception e) {
+            throw _wrapAsIOE(gen, e);
         }
     }
+
+    private IOException _wrapAsIOE(JsonGenerator g, Exception e) {
+        if (e instanceof IOException) {
+            return (IOException) e;
+        }
+        String msg = e.getMessage();
+        if (msg == null) {
+            msg = "[no message for "+e.getClass().getName()+"]";
+        }
+        return new JsonMappingException(g, msg, e);
+    }
+
     /*
     /********************************************************
     /* Access to caching details

@@ -79,6 +79,7 @@ public class BeanUtil
     /**
      * @since 2.5
      */
+    @Deprecated // since 2.9, not used any more
     public static String okNameForSetter(AnnotatedMethod am, boolean stdNaming) {
         String name = okNameForMutator(am, "set", stdNaming);
         if ((name != null) 
@@ -161,25 +162,21 @@ public class BeanUtil
     {
         Class<?> rt = am.getRawType();
         // Ok, first: must return an array type
-        if (rt == null || !rt.isArray()) {
-            return false;
-        }
-        /* And that type needs to be "net.sf.cglib.proxy.Callback".
-         * Theoretically could just be a type that implements it, but
-         * for now let's keep things simple, fix if need be.
-         */
-        Class<?> compType = rt.getComponentType();
-        // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
-        String pkgName = ClassUtil.getPackageName(compType);
-        if (pkgName != null) {
-            if (pkgName.contains(".cglib")) {
-                if (pkgName.startsWith("net.sf.cglib")
-                    // also, as per [JACKSON-177]
-                    || pkgName.startsWith("org.hibernate.repackage.cglib")
-                    // and [core#674]
-                    || pkgName.startsWith("org.springframework.cglib")
-                        ) {
-                    return true;
+        if (rt.isArray()) {
+            /* And that type needs to be "net.sf.cglib.proxy.Callback".
+             * Theoretically could just be a type that implements it, but
+             * for now let's keep things simple, fix if need be.
+             */
+            Class<?> compType = rt.getComponentType();
+            // Actually, let's just verify it's a "net.sf.cglib.*" class/interface
+            String pkgName = ClassUtil.getPackageName(compType);
+            if (pkgName != null) {
+                if (pkgName.contains(".cglib")) {
+                    return pkgName.startsWith("net.sf.cglib")
+                        // also, as per [JACKSON-177]
+                        || pkgName.startsWith("org.hibernate.repackage.cglib")
+                        // and [core#674]
+                        || pkgName.startsWith("org.springframework.cglib");
                 }
             }
         }
@@ -194,10 +191,7 @@ public class BeanUtil
     {
         Class<?> argType = am.getRawParameterType(0);
         String pkgName = ClassUtil.getPackageName(argType);
-        if (pkgName != null && pkgName.startsWith("groovy.lang")) {
-            return true;
-        }
-        return false;
+        return (pkgName != null) && pkgName.startsWith("groovy.lang");
     }
 
     /**
@@ -205,15 +199,8 @@ public class BeanUtil
      */
     protected static boolean isGroovyMetaClassGetter(AnnotatedMethod am)
     {
-        Class<?> rt = am.getRawType();
-        if (rt == null || rt.isArray()) {
-            return false;
-        }
-        String pkgName = ClassUtil.getPackageName(rt);
-        if (pkgName != null && pkgName.startsWith("groovy.lang")) {
-            return true;
-        }
-        return false;
+        String pkgName = ClassUtil.getPackageName(am.getRawType());
+        return (pkgName != null) && pkgName.startsWith("groovy.lang");
     }
 
     /*

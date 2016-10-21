@@ -1157,7 +1157,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _appendAt = 1;
         }
     }
-    
+
+    // 21-Oct-2016, tatu: Does not seem to be used or needed
+    /*
     protected final void _appendRaw(int rawType, Object value)
     {
         Segment next = _hasNativeId
@@ -1170,6 +1172,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _appendAt = 1;
         }
     }
+    */
 
     @Override
     protected void _reportUnsupportedOperation() {
@@ -1795,6 +1798,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return _next;
         }
 
+        /*
         public Segment appendRaw(int index, int rawTokenType, Object value)
         {
             if (index < TOKENS_PER_SEGMENT) {
@@ -1817,6 +1821,28 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _next.set(0, rawTokenType, value, objectId, typeId);
             return _next;
         }
+
+        private void set(int index, int rawTokenType, Object value, Object objectId, Object typeId)
+        {
+            _tokens[index] = value;
+            long typeCode = (long) rawTokenType;
+            if (index > 0) {
+                typeCode <<= (index << 2);
+            }
+            _tokenTypes |= typeCode;
+            assignNativeIds(index, objectId, typeId);
+        }
+
+        private void set(int index, int rawTokenType, Object value)
+        {
+            _tokens[index] = value;
+            long typeCode = (long) rawTokenType;
+            if (index > 0) {
+                typeCode <<= (index << 2);
+            }
+            _tokenTypes |= typeCode;
+        }
+        */
 
         private void set(int index, JsonToken tokenType)
         {
@@ -1863,27 +1889,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             assignNativeIds(index, objectId, typeId);
         }
 
-        private void set(int index, int rawTokenType, Object value)
-        {
-            _tokens[index] = value;
-            long typeCode = (long) rawTokenType;
-            if (index > 0) {
-                typeCode <<= (index << 2);
-            }
-            _tokenTypes |= typeCode;
-        }
-
-        private void set(int index, int rawTokenType, Object value, Object objectId, Object typeId)
-        {
-            _tokens[index] = value;
-            long typeCode = (long) rawTokenType;
-            if (index > 0) {
-                typeCode <<= (index << 2);
-            }
-            _tokenTypes |= typeCode;
-            assignNativeIds(index, objectId, typeId);
-        }
-
         private final void assignNativeIds(int index, Object objectId, Object typeId)
         {
             if (_nativeIds == null) {
@@ -1900,14 +1905,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**
          * @since 2.3
          */
-        public Object findObjectId(int index) {
+        private Object findObjectId(int index) {
             return (_nativeIds == null) ? null : _nativeIds.get(_objectIdIndex(index));
         }
         
         /**
          * @since 2.3
          */
-        public Object findTypeId(int index) {
+        private Object findTypeId(int index) {
             return (_nativeIds == null) ? null : _nativeIds.get(_typeIdIndex(index));
         }
 

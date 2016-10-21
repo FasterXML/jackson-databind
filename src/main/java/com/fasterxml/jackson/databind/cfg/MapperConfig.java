@@ -319,12 +319,14 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public BeanDescription introspectClassAnnotations(Class<?> cls) {
         return introspectClassAnnotations(constructType(cls));
     }
-    
+
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    public abstract BeanDescription introspectClassAnnotations(JavaType type);
+    public final BeanDescription introspectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forClassAnnotations(this, type, this);
+    }
 
     /**
      * Accessor for getting bean description that only contains immediate class
@@ -363,7 +365,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *
      * @since 2.7
      */
-    public abstract JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType);
+    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
+        ConfigOverride overrides = findConfigOverride(baseType);
+        if (overrides != null) {
+            JsonInclude.Value v = overrides.getInclude();
+            if (v != null) {
+                return v;
+            }
+        }
+        return getDefaultPropertyInclusion();
+    }
 
     /**
      * Accessor for default property inclusion to use for serialization,
@@ -374,8 +385,18 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * 
      * @since 2.8.2
      */
-    public abstract JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
-            JsonInclude.Value defaultIncl);
+    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
+            JsonInclude.Value defaultIncl)
+    {
+        ConfigOverride overrides = findConfigOverride(baseType);
+        if (overrides != null) {
+            JsonInclude.Value v = overrides.getInclude();
+            if (v != null) {
+                return v;
+            }
+        }
+        return defaultIncl;
+    }
 
     /**
      * Accessor for default format settings to use for serialization (and, to a degree

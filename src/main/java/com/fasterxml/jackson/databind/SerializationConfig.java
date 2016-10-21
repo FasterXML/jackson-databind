@@ -848,15 +848,6 @@ public final class SerializationConfig
     }
 
     /**
-     * Accessor for getting bean description that only contains class
-     * annotations: useful if no getter/setter/creator information is needed.
-     */
-    @Override
-    public BeanDescription introspectClassAnnotations(JavaType type) {
-        return getClassIntrospector().forClassAnnotations(this, type, this);
-    }
-
-    /**
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
@@ -885,32 +876,6 @@ public final class SerializationConfig
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion() {
         return _serializationInclusion;
-    }
-
-    @Override
-    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        ConfigOverride overrides = findConfigOverride(baseType);
-        if (overrides != null) {
-            JsonInclude.Value v = overrides.getInclude();
-            if (v != null) {
-                return v;
-            }
-        }
-        return _serializationInclusion;
-    }
-
-    @Override
-    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
-            JsonInclude.Value defaultIncl)
-    {
-        ConfigOverride overrides = findConfigOverride(baseType);
-        if (overrides != null) {
-            JsonInclude.Value v = overrides.getInclude();
-            if (v != null) {
-                return v;
-            }
-        }
-        return defaultIncl;
     }
 
     /*

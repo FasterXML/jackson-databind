@@ -509,11 +509,27 @@ public class BeanDeserializerFactory
              *   other types, and only then create constructor parameter, if any.
              */
             if (propDef.hasSetter()) {
-                JavaType propertyType = propDef.getSetter().getParameterType(0);
+                AnnotatedMethod setter = propDef.getSetter();
+                JavaType propertyType = setter.getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
+                if (_isMergeableProperty(ctxt, setter, propertyType)) {
+                    AnnotatedMember accessor = propDef.getAccessor();
+                    if (accessor != null) {
+                        accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                        prop = MergingSettableBeanProperty.construct(prop, accessor);
+                    }
+                }
             } else if (propDef.hasField()) {
-                JavaType propertyType = propDef.getField().getType();
+                AnnotatedField field = propDef.getField();
+                JavaType propertyType = field.getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
+                if (_isMergeableProperty(ctxt, field, propertyType)) {
+                    AnnotatedMember accessor = propDef.getAccessor();
+                    if (accessor != null) {
+                        accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                        prop = MergingSettableBeanProperty.construct(prop, accessor);
+                    }
+                }
             } else if (useGettersAsSetters && propDef.hasGetter()) {
                 /* May also need to consider getters
                  * for Map/Collection properties; but with lowest precedence
@@ -568,6 +584,22 @@ public class BeanDeserializerFactory
                 builder.addProperty(prop);
             }
         }
+    }
+
+    protected boolean _isMergeableProperty(DeserializationContext ctxt,
+            AnnotatedMember accessor, JavaType type)
+    {
+        AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+        if (ai != null) {
+            JsonSetter.Value setter = ai.findSetterInfo(accessor);
+            if (setter != null) {
+                Boolean b = setter.getMerge();
+                if (b != null) {
+                    return b.booleanValue();
+                }
+            }
+        }
+        return false;
     }
 
     /**

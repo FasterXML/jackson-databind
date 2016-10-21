@@ -1,12 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
@@ -19,14 +16,14 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  * @since 2.9
  */
 public class MergingSettableBeanProperty
-    extends SettableBeanProperty
+    extends SettableBeanProperty.Delegating
 {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Underlying actual property (field- or member-backed).
+     * Member (field, method) used for accessing existing value.
      */
-    protected final SettableBeanProperty _delegate;
+    protected final AnnotatedMember _accessor;
 
     /*
     /**********************************************************
@@ -34,50 +31,29 @@ public class MergingSettableBeanProperty
     /**********************************************************
      */
 
-    public MergingSettableBeanProperty(SettableBeanProperty delegate)
+    protected MergingSettableBeanProperty(SettableBeanProperty delegate,
+            AnnotatedMember accessor)
     {
         super(delegate);
-        _delegate = delegate;
+        _accessor = accessor;
     }
 
     protected MergingSettableBeanProperty(MergingSettableBeanProperty src,
             SettableBeanProperty delegate)
     {
-        super(src);
-        _delegate = src._delegate;
+        super(delegate);
+        _accessor = src._accessor;
+    }
+
+    public static MergingSettableBeanProperty construct(SettableBeanProperty delegate,
+            AnnotatedMember accessor)
+    {
+        return new MergingSettableBeanProperty(delegate, accessor);
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return _new(_delegate.withValueDeserializer(deser));
-    }
-
-    @Override
-    public SettableBeanProperty withName(PropertyName newName) {
-        return _new(_delegate.withName(newName));
-    }
-
-    protected MergingSettableBeanProperty _new(SettableBeanProperty newDelegate) {
-        if (newDelegate == _delegate) {
-            return this;
-        }
-        return new MergingSettableBeanProperty(this, newDelegate);
-    }
-
-    /*
-    /**********************************************************
-    /* BeanProperty impl
-    /**********************************************************
-     */
-
-    @Override
-    public AnnotatedMember getMember() {
-        return _delegate.getMember();
-    }
-
-    @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return _delegate.getAnnotation(acls);
+    protected SettableBeanProperty withDelegate(SettableBeanProperty d) {
+        return new MergingSettableBeanProperty(d, _accessor);
     }
 
     /*
@@ -90,25 +66,39 @@ public class MergingSettableBeanProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        // TODO Auto-generated method stub
+        delegate.set(instance, _deserialize(p, ctxt, instance));
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
             DeserializationContext ctxt, Object instance) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        return delegate.setAndReturn(instance, _deserialize(p, ctxt, instance));
     }
 
     @Override
     public void set(Object instance, Object value) throws IOException {
-        // TODO Auto-generated method stub
+        delegate.set(instance, value);
     }
 
     @Override
     public Object setAndReturn(Object instance, Object value)
-            throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+            throws IOException
+    {
+        return delegate.setAndReturn(instance, value);
+    }
+
+    protected Object _deserialize(JsonParser p, DeserializationContext ctxt,
+            Object instance) throws IOException
+    {
+        Object value = _accessor.getValue(instance);
+        // 20-Oct-2016, tatu: Couple of possibilities of how to proceed; for
+        //    now, default to "normal" handling without merging
+        if (value == null) {
+            return delegate.deserialize(p, ctxt);
+        }
+        Object result = delegate.deserializeWith(p,  ctxt,  value);
+        // 20-Oct-2016, tatu: Similarly, we may get same object or different one;
+        //   whether to return original or new is an open question.
+        return result;
     }
 }

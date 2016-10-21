@@ -140,15 +140,6 @@ public abstract class AnnotatedMember
     }
 
     /**
-     * @deprecated Since 2.7 use {@link #fixAccess(boolean)} instead
-     */
-    @Deprecated
-    public final void fixAccess() {
-//        fixAccess(false);
-        fixAccess(true);
-    }
-
-    /**
      * Optional method that can be used to assign value of
      * this member on given object, if this is a supported
      * operation for member type.

@@ -371,7 +371,7 @@ public abstract class SettableBeanProperty
     }
 
     public boolean hasValueTypeDeserializer() { return (_valueTypeDeserializer != null); }
-    
+
     public JsonDeserializer<Object> getValueDeserializer() {
         JsonDeserializer<Object> deser = _valueDeserializer;
         if (deser == MISSING_VALUE_DESERIALIZER) {
@@ -483,6 +483,29 @@ public abstract class SettableBeanProperty
             return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         return _valueDeserializer.deserialize(p, ctxt);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public final Object deserializeWith(JsonParser p, DeserializationContext ctxt,
+            Object toUpdate) throws IOException
+    {
+        JsonToken t = p.getCurrentToken();
+
+        // 20-Oct-2016, tatu: Not 100% sure what to do; probably best to simply return
+        //   null value and let caller decide what to do
+        if (t == JsonToken.VALUE_NULL) {
+            return _valueDeserializer.getNullValue(ctxt);
+        }
+        // 20-Oct-2016, tatu: Also tricky -- for now, report an erro
+        if (_valueTypeDeserializer != null) {
+            ctxt.reportBadDefinition(getType(),
+                    String.format("Can not merge polymorphic property '%s'",
+                            getName()));
+//            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        }
+        return _valueDeserializer.deserialize(p, ctxt, toUpdate);
     }
 
     /*

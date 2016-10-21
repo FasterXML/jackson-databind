@@ -70,7 +70,7 @@ public class AnyGetterWriter
      */
     public void getAndFilter(Object bean, JsonGenerator gen, SerializerProvider provider,
             PropertyFilter filter)
-                    throws Exception
+        throws Exception
     {
         Object value = _accessor.getValue(bean);
         if (value == null) {

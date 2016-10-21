@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.deser;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
 public class TestInnerClass extends BaseMapTest
 {
-    // [JACKSON-594]
     static class Dog
     {
       public String name;
@@ -16,9 +16,10 @@ public class TestInnerClass extends BaseMapTest
           brain = new Brain();
           brain.isThinking = thinking;
       }
-      
+
       // note: non-static
       public class Brain {
+          @JsonProperty("brainiac")
           public boolean isThinking;
 
           public String parentName() { return name; }
@@ -45,5 +46,11 @@ public class TestInnerClass extends BaseMapTest
         assertEquals("Smurf", output.brain.parentName());
         output.name = "Foo";
         assertEquals("Foo", output.brain.parentName());
+
+        // also, null handling
+        input.brain = null;
+
+        output = mapper.readValue(mapper.writeValueAsString(input), Dog.class);
+        assertNull(output.brain);
     }
 }

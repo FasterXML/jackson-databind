@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -17,14 +17,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * to regular implementation.
  */
 public final class InnerClassProperty
-    extends SettableBeanProperty
+    extends SettableBeanProperty.Delegating
 {
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Actual property that we use after value construction.
-     */
-    protected final SettableBeanProperty _delegate;
 
     /**
      * Constructor used when deserializing this property.
@@ -42,7 +37,6 @@ public final class InnerClassProperty
             Constructor<?> ctor)
     {
         super(delegate);
-        _delegate = delegate;
         _creator = ctor;
     }
 
@@ -50,53 +44,20 @@ public final class InnerClassProperty
      * Constructor used with JDK Serialization; needed to handle transient
      * Constructor, wrap/unwrap in/out-of Annotated variant.
      */
-    protected InnerClassProperty(InnerClassProperty src, AnnotatedConstructor ann)
+    protected InnerClassProperty(SettableBeanProperty src, AnnotatedConstructor ann)
     {
         super(src);
-        _delegate = src._delegate;
         _annotated = ann;
         _creator = (_annotated == null) ? null : _annotated.getAnnotated();
         if (_creator == null) {
             throw new IllegalArgumentException("Missing constructor (broken JDK (de)serialization?)");
         }
     }
-    
-    protected InnerClassProperty(InnerClassProperty src, JsonDeserializer<?> deser)
-    {
-        super(src, deser);
-        _delegate = src._delegate.withValueDeserializer(deser);
-        _creator = src._creator;
-    }
-
-    protected InnerClassProperty(InnerClassProperty src, PropertyName newName) {
-        super(src, newName);
-        _delegate = src._delegate.withName(newName);
-        _creator = src._creator;
-    }
 
     @Override
-    public InnerClassProperty withName(PropertyName newName) {
-        return new InnerClassProperty(this, newName);
+    protected SettableBeanProperty withDelegate(SettableBeanProperty d) {
+        return new InnerClassProperty(d, _creator);
     }
-
-    @Override
-    public InnerClassProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new InnerClassProperty(this, deser);
-    }
-    
-    @Override
-    public void fixAccess(DeserializationConfig config) {
-        _delegate.fixAccess(config);
-    }
-
-    // // // BeanProperty impl
-    
-    @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return _delegate.getAnnotation(acls);
-    }
-
-    @Override public AnnotatedMember getMember() {  return _delegate.getMember(); }
 
     /*
     /**********************************************************
@@ -105,15 +66,15 @@ public final class InnerClassProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt, Object bean)
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object bean)
         throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         Object value;
         if (t == JsonToken.VALUE_NULL) {
             value = _valueDeserializer.getNullValue(ctxt);
         } else if (_valueTypeDeserializer != null) {
-            value = _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
+            value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         } else  { // the usual case
             try {
                 value = _creator.newInstance(bean);
@@ -121,28 +82,21 @@ public final class InnerClassProperty
                 ClassUtil.unwrapAndThrowAsIAE(e, "Failed to instantiate class "+_creator.getDeclaringClass().getName()+", problem: "+e.getMessage());
                 value = null;
             }
-            _valueDeserializer.deserialize(jp, ctxt, value);
+            _valueDeserializer.deserialize(p, ctxt, value);
         }
         set(bean, value);
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
+    public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance)
         throws IOException
     {
-        return setAndReturn(instance, deserialize(jp, ctxt));
-    }
-    
-    @Override
-    public final void set(Object instance, Object value) throws IOException {
-        _delegate.set(instance, value);
+        return setAndReturn(instance, deserialize(p, ctxt));
     }
 
-    @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException {
-        return _delegate.setAndReturn(instance, value);
-    }
+// these are fine with defaults
+//    public final void set(Object instance, Object value) throws IOException { }
+//    public Object setAndReturn(Object instance, Object value) throws IOException { }
 
     /*
     /**********************************************************
@@ -157,9 +111,9 @@ public final class InnerClassProperty
 
     Object writeReplace() {
         // need to construct a fake instance to support serialization
-        if (_annotated != null) {
-            return this;
+        if (_annotated == null) {
+            return new InnerClassProperty(this, new AnnotatedConstructor(null, _creator, null, null));
         }
-        return new InnerClassProperty(this, new AnnotatedConstructor(null, _creator, null, null));
+        return this;
     }
 }

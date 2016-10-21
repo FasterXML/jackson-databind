@@ -666,7 +666,7 @@ public abstract class SettableBeanProperty
 
         @Override
         public int getCreatorIndex() { return delegate.getCreatorIndex(); }
-        
+
         @Override
         public Object getInjectableValueId() { return delegate.getInjectableValueId(); }
 
@@ -685,7 +685,7 @@ public abstract class SettableBeanProperty
         /* Actual mutators
         /**********************************************************
          */
-        
+
         @Override
         public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
                 Object instance) throws IOException {

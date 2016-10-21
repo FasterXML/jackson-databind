@@ -836,7 +836,7 @@ public abstract class BeanDeserializerBase
         }
         return null;
     }
-    
+
     /**
      * Helper method that will handle gruesome details of dealing with properties
      * that have non-static inner class as value...
@@ -856,10 +856,10 @@ public abstract class BeanDeserializerBase
                 Class<?> valueClass = prop.getType().getRawClass();
                 Class<?> enclosing = ClassUtil.getOuterClass(valueClass);
                 // and is inner class of the bean class...
-                if (enclosing != null && enclosing == _beanType.getRawClass()) {
+                if ((enclosing != null) && (enclosing == _beanType.getRawClass())) {
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
                         Class<?>[] paramTypes = ctor.getParameterTypes();
-                        if (paramTypes.length == 1 && paramTypes[0] == enclosing) {
+                        if ((paramTypes.length == 1) && (paramTypes[0] == enclosing)) {
                             if (ctxt.canOverrideAccessModifiers()) {
                                 ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }

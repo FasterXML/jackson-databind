@@ -37,12 +37,6 @@ public class UntypedObjectDeserializer
 
     protected final static Object[] NO_OBJECTS = new Object[0];
 
-    /**
-     * @deprecated Since 2.3, construct a new instance, needs to be resolved
-     */
-    @Deprecated
-    public final static UntypedObjectDeserializer instance = new UntypedObjectDeserializer(null, null);
-
     /*
     /**********************************************************
     /* Possible custom deserializer overrides we need to use

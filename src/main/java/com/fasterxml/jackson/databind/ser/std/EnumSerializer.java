@@ -52,14 +52,6 @@ public class EnumSerializer
     /* Construction, initialization
     /**********************************************************
      */
-    
-    /**
-     * @deprecated Since 2.1
-     */
-    @Deprecated
-    public EnumSerializer(EnumValues v) {
-        this(v, null);
-    }
 
     public EnumSerializer(EnumValues v, Boolean serializeAsIndex)
     {

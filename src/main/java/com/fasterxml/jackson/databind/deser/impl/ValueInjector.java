@@ -33,14 +33,6 @@ public class ValueInjector
         _valueId = valueId;
     }
 
-    @Deprecated // since 2.3
-    public ValueInjector(String propName, JavaType type,
-            Annotations contextAnnotations, AnnotatedMember mutator,
-            Object valueId)
-    {
-        this(new PropertyName(propName), type, contextAnnotations, mutator, valueId);
-    }
-
     public Object findValue(DeserializationContext context, Object beanInstance)
     {
         return context.findInjectableValue(_valueId, this, beanInstance);

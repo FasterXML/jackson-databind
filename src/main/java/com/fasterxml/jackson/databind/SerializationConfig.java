@@ -118,7 +118,7 @@ public final class SerializationConfig
      * with non-default values.
      *<p>
      * NOTE: type changed in 2.7, to include both value and content
-     * inclusion options./
+     * inclusion options.
      */
     protected final JsonInclude.Value _serializationInclusion;
 

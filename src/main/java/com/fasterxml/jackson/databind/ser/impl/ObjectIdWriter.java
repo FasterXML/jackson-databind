@@ -68,14 +68,7 @@ public final class ObjectIdWriter
             ObjectIdGenerator<?> generator, boolean alwaysAsId)
     {
         String simpleName = (propName == null) ? null : propName.getSimpleName();
-        return construct(idType, simpleName, generator, alwaysAsId);
-    }
-    
-    @Deprecated // since 2.3
-    public static ObjectIdWriter construct(JavaType idType, String propName,
-            ObjectIdGenerator<?> generator, boolean alwaysAsId)
-    {
-        SerializableString serName = (propName == null) ? null : new SerializedString(propName);
+        SerializableString serName = (simpleName == null) ? null : new SerializedString(simpleName);
         return new ObjectIdWriter(idType, serName, generator, null, alwaysAsId);
     }
 

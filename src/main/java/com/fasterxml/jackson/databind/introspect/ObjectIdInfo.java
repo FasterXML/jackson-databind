@@ -25,17 +25,6 @@ public class ObjectIdInfo
         this(name, scope, gen, false, resolver);
     }
 
-    @Deprecated // since 2.4
-    public ObjectIdInfo(PropertyName name, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen)
-    {
-        this(name, scope, gen, false);
-    }
-
-    @Deprecated // since 2.3
-    public ObjectIdInfo(String name, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen) {
-        this(new PropertyName(name), scope, gen, false);
-    }
-    
     protected ObjectIdInfo(PropertyName prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen,
             boolean alwaysAsId)
     {

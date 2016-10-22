@@ -4,8 +4,9 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
-import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
+
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
@@ -55,13 +56,6 @@ public class ObjectIdReader
         idProperty = idProp;
     }
 
-    @Deprecated // since 2.4
-    protected ObjectIdReader(JavaType t, PropertyName propName, ObjectIdGenerator<?> gen,
-            JsonDeserializer<?> deser, SettableBeanProperty idProp)
-    {
-        this(t,propName, gen, deser, idProp, new SimpleObjectIdResolver());
-    }
-
     /**
      * Factory method called by {@link com.fasterxml.jackson.databind.ser.std.BeanSerializerBase}
      * with the initial information based on standard settings for the type
@@ -72,14 +66,6 @@ public class ObjectIdReader
             SettableBeanProperty idProp, ObjectIdResolver resolver)
     {
         return new ObjectIdReader(idType, propName, generator, deser, idProp, resolver);
-    }
-
-    @Deprecated // since 2.4
-    public static ObjectIdReader construct(JavaType idType, PropertyName propName,
-            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser,
-            SettableBeanProperty idProp)
-    {
-        return construct(idType, propName, generator, deser, idProp, new SimpleObjectIdResolver());
     }
 
     /*

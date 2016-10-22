@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
@@ -405,6 +406,18 @@ public abstract class DeserializationContext
         return _config.getNodeFactory();
     }
 
+    /**
+     * Convenience method, functionally equivalent to:
+     *<pre>
+     *  getConfig().findConfigOverride(type);
+     * </pre>
+     *
+     * @since 2.9
+     */
+    public final ConfigOverride findConfigOverride(Class<?> type) {
+        return _config.findConfigOverride(type);
+    }
+    
     /*
     /**********************************************************
     /* Public API, pass-through to DeserializerCache

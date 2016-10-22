@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
  * Configuration object that is accessed by databinding functionality
@@ -32,13 +33,20 @@ public abstract class ConfigOverride
     protected JsonIgnoreProperties.Value _ignorals;
 
     /**
+     * Definitions of setter overrides for things like mergeability.
+     *
+     * @since 2.9
+     */
+    protected JsonSetter.Value _setterInfo;
+
+    /**
      * Flag that indicates whether "is ignorable type" is specified for this type;
      * and if so, is it to be ignored (true) or not ignored (false); `null` is
      * used to indicate "not specified", in which case other configuration (class
      * annotation) is used.
      */
     protected Boolean _isIgnoredType;
-    
+
     protected ConfigOverride() { }
     protected ConfigOverride(ConfigOverride src) {
         _format = src._format;
@@ -47,11 +55,38 @@ public abstract class ConfigOverride
         _isIgnoredType = src._isIgnoredType;
     }
 
+    /**
+     * Accessor for immutable "empty" instance that has no configuration overrides defined.
+     *
+     * @since 2.9
+     */
+    public static ConfigOverride empty() {
+        return Empty.INSTANCE;
+    }
+
     public JsonFormat.Value getFormat() { return _format; }
     public JsonInclude.Value getInclude() { return _include; }
+
+    /**
+     * @since 2.9
+     */
+    public JsonSetter.Value getSetterInfo() { return _setterInfo; }
+
     public JsonIgnoreProperties.Value getIgnorals() { return _ignorals; }
 
     public Boolean getIsIgnoredType() {
         return _isIgnoredType;
+    }
+
+    /**
+     * Implementation used solely for "empty" instance; has no mutators
+     * and is not changed by core functionality.
+     *
+     * @since 2.9
+     */
+    final static class Empty extends ConfigOverride {
+        final static Empty INSTANCE = new Empty();
+
+        private Empty() { }
     }
 }

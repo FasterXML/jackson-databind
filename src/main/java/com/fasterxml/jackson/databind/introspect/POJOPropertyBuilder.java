@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -46,6 +47,11 @@ public class POJOPropertyBuilder
     protected Linked<AnnotatedMethod> _getters;
 
     protected Linked<AnnotatedMethod> _setters;
+
+    /**
+     * @since 2.9
+     */
+    protected transient ConfigOverride _configOverride;
 
     public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
             boolean forSerialization, PropertyName internalName) {
@@ -559,6 +565,17 @@ public class POJOPropertyBuilder
         JsonInclude.Value v = (_annotationIntrospector == null) ?
                 null : _annotationIntrospector.findPropertyInclusion(a);
         return (v == null) ? JsonInclude.Value.empty() : v;
+    }
+
+    @Override // since 2.9
+    public ConfigOverride findConfigOverride(Class<?> propType) {
+        if (_configOverride == null) {
+            _configOverride = _config.findConfigOverride(propType);
+            if (_configOverride == null) {
+                _configOverride = ConfigOverride.empty();
+            }
+        }
+        return _configOverride;
     }
 
     public JsonProperty.Access findAccess() {

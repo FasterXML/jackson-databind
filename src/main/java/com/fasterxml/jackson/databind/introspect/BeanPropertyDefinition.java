@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Named;
 
@@ -21,6 +22,8 @@ public abstract class BeanPropertyDefinition
     implements Named
 {
     protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
+
+    protected final static ConfigOverride EMPTY_OVERRIDES = ConfigOverride.empty();
 
     /*
     /**********************************************************
@@ -237,5 +240,14 @@ public abstract class BeanPropertyDefinition
      */
     public JsonInclude.Value findInclusion() {
         return EMPTY_INCLUDE;
+    }
+
+    /**
+     * Accessor for finding per-type overrides applicable to this property.
+     *
+     * @since 2.9
+     */
+    public ConfigOverride findConfigOverride(Class<?> propType) {
+        return EMPTY_OVERRIDES;
     }
 }

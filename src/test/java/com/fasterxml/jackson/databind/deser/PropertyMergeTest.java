@@ -19,6 +19,10 @@ public class PropertyMergeTest extends BaseMapTest
         public AB loc = new AB(1, 2);
     }
 
+    static class NonMergeConfig {
+        public AB loc = new AB(1, 2);
+    }
+
     static class AB {
         public int a, b;
 
@@ -45,11 +49,27 @@ public class PropertyMergeTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testBeanMerging() throws Exception
+    public void testBeanMergingViaProp() throws Exception
     {
         Config config = MAPPER.readValue(aposToQuotes("{'loc':{'b':3}}"), Config.class);
         assertEquals(1, config.loc.a);
         assertEquals(3, config.loc.b);
+    }
+
+    public void testBeanMergingViaType() throws Exception
+    {
+        // by default, no merging
+        NonMergeConfig config = MAPPER.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
+        assertEquals(3, config.loc.a);
+        assertEquals(0, config.loc.b); // not passed, nor merge from original
+
+        // but with type-overrides
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(AB.class).setSetterInfo(
+                JsonSetter.Value.forMerging());
+        config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
+        assertEquals(3, config.loc.a);
+        assertEquals(2, config.loc.b); // original, merged
     }
 
     public void testCollectionMerging() throws Exception

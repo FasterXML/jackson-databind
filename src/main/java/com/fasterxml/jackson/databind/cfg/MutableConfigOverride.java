@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
  * Extension of {@link ConfigOverride} that allows changing of
@@ -24,7 +25,7 @@ public class MutableConfigOverride
     protected MutableConfigOverride(MutableConfigOverride src) {
         super(src);
     }
-    
+
     protected MutableConfigOverride copy() {
         return new MutableConfigOverride(this);
     }
@@ -33,9 +34,14 @@ public class MutableConfigOverride
         _format = v;
         return this;
     }
-    
+
     public MutableConfigOverride setInclude(JsonInclude.Value v) {
         _include = v;
+        return this;
+    }
+
+    public MutableConfigOverride setSetterInfo(JsonSetter.Value v) {
+        _setterInfo = v;
         return this;
     }
 
@@ -43,8 +49,9 @@ public class MutableConfigOverride
         _ignorals = v;
         return this;
     }
-    
+
     public MutableConfigOverride setIsIgnoredType(Boolean v) {
+        
         _isIgnoredType = v;
         return this;
     }

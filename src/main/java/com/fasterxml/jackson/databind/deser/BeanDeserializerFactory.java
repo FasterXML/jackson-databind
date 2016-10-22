@@ -140,15 +140,14 @@ public class BeanDeserializerFactory
     }
 
     @Override
-    public JsonDeserializer<Object> createBuilderBasedDeserializer(
-    		DeserializationContext ctxt, JavaType valueType, BeanDescription beanDesc,
-    		Class<?> builderClass)
-        throws JsonMappingException
+    public JsonDeserializer<Object> createBuilderBasedDeserializer(DeserializationContext ctxt,
+            JavaType valueType, BeanDescription beanDesc, Class<?> builderClass)
+                    throws JsonMappingException
     {
-    	// First: need a BeanDescription for builder class
-    	JavaType builderType = ctxt.constructType(builderClass);
-    	BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
-    	return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
+        // First: need a BeanDescription for builder class
+        JavaType builderType = ctxt.constructType(builderClass);
+        BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
+    	    return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
     }
     
     /**
@@ -512,7 +511,7 @@ public class BeanDeserializerFactory
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, setter, propertyType)) {
+                if (_isMergeableProperty(ctxt, setter, propertyType, propDef)) {
                     AnnotatedMember accessor = propDef.getAccessor();
                     if (accessor != null) {
                         accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -523,7 +522,7 @@ public class BeanDeserializerFactory
                 AnnotatedField field = propDef.getField();
                 JavaType propertyType = field.getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, field, propertyType)) {
+                if (_isMergeableProperty(ctxt, field, propertyType, propDef)) {
                     AnnotatedMember accessor = propDef.getAccessor();
                     if (accessor != null) {
                         accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -587,7 +586,7 @@ public class BeanDeserializerFactory
     }
 
     protected boolean _isMergeableProperty(DeserializationContext ctxt,
-            AnnotatedMember accessor, JavaType type)
+            AnnotatedMember accessor, JavaType type, BeanPropertyDefinition propDef)
     {
         AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
         if (ai != null) {
@@ -597,6 +596,14 @@ public class BeanDeserializerFactory
                 if (b != null) {
                     return b.booleanValue();
                 }
+            }
+        }
+        ConfigOverride override = propDef.findConfigOverride(type.getRawClass());
+        JsonSetter.Value v = override.getSetterInfo();
+        if (v != null) {
+            Boolean b = v.getMerge();
+            if (b != null) {
+                return b.booleanValue();
             }
         }
         return false;

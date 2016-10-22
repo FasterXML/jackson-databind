@@ -4,9 +4,11 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 
@@ -19,7 +21,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 public class SimpleBeanPropertyDefinition
     extends BeanPropertyDefinition
 {
-    protected final AnnotationIntrospector _introspector;
+    protected final MapperConfig<?> _config;
 
     /**
      * Member that defines logical property. Assumption is that it
@@ -45,26 +47,25 @@ public class SimpleBeanPropertyDefinition
      */
     protected final JsonInclude.Value _inclusion;
 
+    /**
+     * @since 2.9
+     */
+    protected transient ConfigOverride _configOverride;
+
     /*
     /**********************************************************
     /* Construction
     /**********************************************************
      */
 
-    protected SimpleBeanPropertyDefinition(AnnotatedMember member, PropertyName fullName,
-            AnnotationIntrospector intr, PropertyMetadata metadata,
-            JsonInclude.Include inclusion)
-    {
-        this(member, fullName, intr, metadata,
-                ((inclusion == null) || (inclusion == JsonInclude.Include.USE_DEFAULTS)
-                        ? EMPTY_INCLUDE : JsonInclude.Value.construct(inclusion, null)));
-    }
-    
-    protected SimpleBeanPropertyDefinition(AnnotatedMember member, PropertyName fullName,
-            AnnotationIntrospector intr, PropertyMetadata metadata,
+    /**
+     * @since 2.9
+     */
+    protected SimpleBeanPropertyDefinition(MapperConfig<?> config, AnnotatedMember member,
+            PropertyName fullName, PropertyMetadata metadata,
             JsonInclude.Value inclusion)
     {
-        _introspector = intr;
+        _config = config;
         _member = member;
         _fullName = fullName;
         _metadata = (metadata == null) ? PropertyMetadata.STD_OPTIONAL: metadata;
@@ -76,9 +77,8 @@ public class SimpleBeanPropertyDefinition
      */
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
     		AnnotatedMember member) {
-        return new SimpleBeanPropertyDefinition(member, PropertyName.construct(member.getName()),
-                (config == null) ? null : config.getAnnotationIntrospector(),
-                        null, EMPTY_INCLUDE);
+        return new SimpleBeanPropertyDefinition(config, member, PropertyName.construct(member.getName()),
+                null, EMPTY_INCLUDE);
     }
 
     /**
@@ -90,14 +90,19 @@ public class SimpleBeanPropertyDefinition
     }
 
     /**
+     * Method called to create instance for virtual properties.
+     *
      * @since 2.5
      */
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
             AnnotatedMember member, PropertyName name, PropertyMetadata metadata,
-            JsonInclude.Include inclusion) {
-          return new SimpleBeanPropertyDefinition(member, name,
-                  (config == null) ? null : config.getAnnotationIntrospector(),
-                          metadata, inclusion);
+            JsonInclude.Include inclusion)
+    {
+        JsonInclude.Value inclValue
+             = ((inclusion == null) || (inclusion == JsonInclude.Include.USE_DEFAULTS)) 
+             ? EMPTY_INCLUDE : JsonInclude.Value.construct(inclusion, null);
+        return new SimpleBeanPropertyDefinition(config, member, name,
+                  metadata, inclValue);
     }
     
     /**
@@ -106,9 +111,8 @@ public class SimpleBeanPropertyDefinition
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
             AnnotatedMember member, PropertyName name, PropertyMetadata metadata,
             JsonInclude.Value inclusion) {
-          return new SimpleBeanPropertyDefinition(member, name,
-                  (config == null) ? null : config.getAnnotationIntrospector(),
-                          metadata, inclusion);
+          return new SimpleBeanPropertyDefinition(config, member, name,
+                  metadata, inclusion);
     }
 
     /*
@@ -122,8 +126,8 @@ public class SimpleBeanPropertyDefinition
         if (_fullName.hasSimpleName(newName) && !_fullName.hasNamespace()) {
             return this;
         }
-        return new SimpleBeanPropertyDefinition(_member, new PropertyName(newName),
-                _introspector, _metadata, _inclusion);
+        return new SimpleBeanPropertyDefinition(_config, _member, new PropertyName(newName),
+                _metadata, _inclusion);
     }
 
     @Override
@@ -131,8 +135,8 @@ public class SimpleBeanPropertyDefinition
         if (_fullName.equals(newName)) {
             return this;
         }
-        return new SimpleBeanPropertyDefinition(_member, newName,
-                _introspector, _metadata, _inclusion);
+        return new SimpleBeanPropertyDefinition(_config, _member, newName,
+                _metadata, _inclusion);
     }
 
     /**
@@ -142,8 +146,8 @@ public class SimpleBeanPropertyDefinition
         if (metadata.equals(_metadata)) {
             return this;
         }
-        return new SimpleBeanPropertyDefinition(_member, _fullName,
-                _introspector, metadata, _inclusion);
+        return new SimpleBeanPropertyDefinition(_config, _member, _fullName,
+                metadata, _inclusion);
     }
 
     /**
@@ -153,8 +157,8 @@ public class SimpleBeanPropertyDefinition
         if (_inclusion == inclusion) {
             return this;
         }
-        return new SimpleBeanPropertyDefinition(_member, _fullName,
-                _introspector, _metadata, inclusion);
+        return new SimpleBeanPropertyDefinition(_config, _member, _fullName,
+                _metadata, inclusion);
     }
 
     /*
@@ -179,8 +183,11 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public PropertyName getWrapperName() {
-        return ((_introspector == null) && (_member != null))
-                ? null : _introspector.findWrapperName(_member);
+        AnnotationIntrospector ai = _annotationIntrospector();
+        if ((ai == null) || (_member == null)) {
+            return null;
+        }
+        return ai.findWrapperName(_member);
     }
 
     // hmmh. what should we claim here?
@@ -200,6 +207,17 @@ public class SimpleBeanPropertyDefinition
     @Override
     public JsonInclude.Value findInclusion() {
         return _inclusion;
+    }
+
+    @Override // since 2.9
+    public ConfigOverride findConfigOverride(Class<?> propType) {
+        if (_configOverride == null) {
+            _configOverride = _config.findConfigOverride(propType);
+            if (_configOverride == null) {
+                _configOverride = ConfigOverride.empty();
+            }
+        }
+        return _configOverride;
     }
 
     /*
@@ -299,4 +317,14 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public AnnotatedMember getPrimaryMember() { return _member; }
+
+    /*
+    /**********************************************************
+    /* Internal methods
+    /**********************************************************
+     */
+
+    private final AnnotationIntrospector _annotationIntrospector() {
+        return _config.getAnnotationIntrospector();
+    }
 }

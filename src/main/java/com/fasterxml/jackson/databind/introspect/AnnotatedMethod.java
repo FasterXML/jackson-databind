@@ -207,9 +207,9 @@ public final class AnnotatedMethod
     /*****************************************************
      */
 
+    @Override
     public String getFullName() {
-        return getDeclaringClass().getName() + "#" + getName() + "("
-            +getParameterCount()+" params)";
+        return String.format("%s(%d params)", super.getFullName(), getParameterCount());
     }
 
     public Class<?>[] getRawParameterTypes()

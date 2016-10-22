@@ -39,15 +39,6 @@ public class VirtualAnnotatedMember extends AnnotatedMember
         _name = name;
     }
 
-    /**
-     * @deprecated Since 2.8
-     */
-    @Deprecated
-    public VirtualAnnotatedMember(TypeResolutionContext typeContext, Class<?> declaringClass,
-            String name, Class<?> rawType) {
-        this(typeContext, declaringClass, name, typeContext.resolveType(rawType));
-    }
-
     @Override
     public Annotated withAnnotations(AnnotationMap fallback) {
         return this;
@@ -106,10 +97,6 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     /**********************************************************
      */
 
-    public String getFullName() {
-        return getDeclaringClass().getName() + "#" + getName();
-    }
-
     public int getAnnotationCount() { return 0; }
 
     @Override
@@ -128,6 +115,6 @@ public class VirtualAnnotatedMember extends AnnotatedMember
 
     @Override
     public String toString() {
-        return "[field "+getFullName()+"]";
+        return "[virtual "+getFullName()+"]";
     }
 }

@@ -126,10 +126,6 @@ public final class AnnotatedField
     /**********************************************************
      */
 
-    public String getFullName() {
-        return getDeclaringClass().getName() + "#" + getName();
-    }
-
     public int getAnnotationCount() { return _annotations.size(); }
 
     /**

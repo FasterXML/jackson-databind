@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 
@@ -21,17 +22,18 @@ public abstract class ReferenceTypeDeserializer<T>
     extends StdDeserializer<T>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 1L;
-    
+    private static final long serialVersionUID = 2L; // 2.9
+
     /**
      * Full type of property (or root value) for which this deserializer
      * has been constructed and contextualized.
      */
     protected final JavaType _fullType;
-    
+
+    protected final ValueInstantiator _valueInstantiator;
+
     protected final TypeDeserializer _valueTypeDeserializer;
-    
-    protected final JsonDeserializer<?> _valueDeserializer;
+    protected final JsonDeserializer<Object> _valueDeserializer;
 
     /*
     /**********************************************************
@@ -39,13 +41,22 @@ public abstract class ReferenceTypeDeserializer<T>
     /**********************************************************
      */
 
-    public ReferenceTypeDeserializer(JavaType fullType,
+    @SuppressWarnings("unchecked")
+    public ReferenceTypeDeserializer(JavaType fullType, ValueInstantiator vi,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
         super(fullType);
+        _valueInstantiator = vi;
         _fullType = fullType;
-        _valueDeserializer = deser;
+        _valueDeserializer = (JsonDeserializer<Object>) deser;
         _valueTypeDeserializer = typeDeser;
+    }
+
+    @Deprecated // since 2.9
+    public ReferenceTypeDeserializer(JavaType fullType,
+            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+    {
+        this(fullType, null, typeDeser, deser);
     }
 
     @Override
@@ -64,6 +75,8 @@ public abstract class ReferenceTypeDeserializer<T>
         if ((deser == _valueDeserializer) && (typeDeser == _valueTypeDeserializer)) {
             return this;
         }
+
+        // !!! 23-Oct-2016, tatu: TODO: full support for configurable ValueInstantiators?
         return withResolved(typeDeser, deser);
     }
 
@@ -79,6 +92,25 @@ public abstract class ReferenceTypeDeserializer<T>
     public abstract T getNullValue(DeserializationContext ctxt);
 
     public abstract T referenceValue(Object contents);
+
+    /**
+     * Method called in case of "merging update", in which we should try
+     * update reference instead of creating a new one. If this does not
+     * succeed, should just create a new instance.
+     *
+     * @since 2.9
+     */
+    public abstract T updateReference(T reference, Object contents);
+
+    /**
+     * Method that may be called to find contents of specified reference,
+     * if any; or `null` if none. Note that method should never fail, so
+     * for types that use concept of "absence" vs "presence", `null` is
+     * to be returned for both "absent" and "reference to `null`" cases.
+     *
+     * @since 2.9
+     */
+    public abstract Object getReferenced(T reference);
     
     /*
     /**********************************************************
@@ -94,13 +126,34 @@ public abstract class ReferenceTypeDeserializer<T>
     /* Deserialization
     /**********************************************************
      */
-    
+
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        // 23-Oct-2016, tatu: ValueInstantiator only defined for non-vanilla instances,
+        //    but do check... might work
+        if (_valueInstantiator != null) {
+            @SuppressWarnings("unchecked")
+            T value = (T) _valueInstantiator.createUsingDefault(ctxt);
+            return deserialize(p, ctxt, value);
+        }
         Object contents = (_valueTypeDeserializer == null)
                 ? _valueDeserializer.deserialize(p, ctxt)
                 : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         return referenceValue(contents);
+    }
+
+    @Override
+    public T deserialize(JsonParser p, DeserializationContext ctxt, T reference) throws IOException {
+        Object contents = getReferenced(reference);
+        // Whether to error or not... for now, just go back to default then
+        if ((contents == null) || (_valueTypeDeserializer != null)) {
+            contents = (_valueTypeDeserializer == null)
+                    ? _valueDeserializer.deserialize(p, ctxt)
+                    : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+            return referenceValue(contents);
+        }
+        contents = _valueDeserializer.deserialize(p, ctxt, contents);
+        return updateReference(reference, contents);
     }
 
     @Override

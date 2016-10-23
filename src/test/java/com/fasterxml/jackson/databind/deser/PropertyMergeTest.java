@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.OptBoolean;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
  * 
  * @since 2.9
  */
+@SuppressWarnings("serial")
 public class PropertyMergeTest extends BaseMapTest
 {
     static class Config {
@@ -41,6 +43,19 @@ public class PropertyMergeTest extends BaseMapTest
         }
     }
 
+    // Custom type that would be deserializable by default
+    static class StringReference extends AtomicReference<String> {
+        public StringReference(String str) {
+            set(str);
+        }
+    }
+
+    static class MergedReference
+    {
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public StringReference value = new StringReference("default");
+    }
+    
     /*
     /********************************************************
     /* Test methods
@@ -76,17 +91,27 @@ public class PropertyMergeTest extends BaseMapTest
     {
         // but with type-overrides
         ObjectMapper mapper = new ObjectMapper()
+                // 23-Oct-2016, tatu: should work either way, but leave disabled
+                //   to ensure handling by scalar types
+                .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
                 .setDefaultSetterInfo(JsonSetter.Value.forMerging());
             NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
     }
-    
+
     public void testCollectionMerging() throws Exception
     {
         CollectionWrapper w = MAPPER.readValue(aposToQuotes("{'bag':['b']}"), CollectionWrapper.class);
         assertEquals(2, w.bag.size());
         assertTrue(w.bag.contains("a"));
         assertTrue(w.bag.contains("b"));
+    }
+
+    public void testReferenceMerging() throws Exception
+    {
+        MergedReference result = MAPPER.readValue(aposToQuotes("{'value':'override'}"),
+                MergedReference.class);
+        assertEquals("override", result.value.get());
     }
 }

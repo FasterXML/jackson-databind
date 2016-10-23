@@ -1291,8 +1291,19 @@ public abstract class BasicDeserializerFactory
 
         if (deser == null) {
             // Just one referential type as of JDK 1.7 / Java 7: AtomicReference (Java 8 adds Optional)
-            if (AtomicReference.class.isAssignableFrom(type.getRawClass())) {
-                return new AtomicReferenceDeserializer(type, contentTypeDeser, contentDeser);
+            if (type.isTypeOrSubTypeOf(AtomicReference.class)) {
+                Class<?> rawType = type.getRawClass();
+                ValueInstantiator inst;
+                if (rawType == AtomicReference.class) {
+                    inst = null;
+                } else {
+                    /* 23-Oct-2016, tatu: Note that subtypes are probably not supportable
+                     *    without either forcing merging (to avoid having to create instance)
+                     *    or something else...
+                     */
+                    inst = findValueInstantiator(ctxt, beanDesc);
+                }
+                return new AtomicReferenceDeserializer(type, inst, contentTypeDeser, contentDeser);
             }
         }
         if (deser != null) {

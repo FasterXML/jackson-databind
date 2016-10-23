@@ -22,7 +22,16 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
     protected StdScalarDeserializer(StdScalarDeserializer<?> src) { super(src); }
     
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
-        return typeDeserializer.deserializeTypedFromScalar(jp, ctxt);
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+        return typeDeserializer.deserializeTypedFromScalar(p, ctxt);
+    }
+
+    /**
+     * Overridden to simply call <code>deserialize()</code> method that does not take value
+     * to update, since scalar values are usually non-mergeable.
+     */
+    @Override // since 2.9
+    public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue) throws IOException {
+        return deserialize(p, ctxt);
     }
 }

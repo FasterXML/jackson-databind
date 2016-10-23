@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
-import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -511,7 +510,7 @@ public class BeanDeserializerFactory
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, setter, propertyType, propDef)) {
+                if (_isMergeableProperty(ctxt, setter, propDef)) {
                     AnnotatedMember accessor = propDef.getAccessor();
                     if (accessor != null) {
                         accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -522,7 +521,7 @@ public class BeanDeserializerFactory
                 AnnotatedField field = propDef.getField();
                 JavaType propertyType = field.getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, field, propertyType, propDef)) {
+                if (_isMergeableProperty(ctxt, field, propDef)) {
                     AnnotatedMember accessor = propDef.getAccessor();
                     if (accessor != null) {
                         accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -586,7 +585,7 @@ public class BeanDeserializerFactory
     }
 
     protected boolean _isMergeableProperty(DeserializationContext ctxt,
-            AnnotatedMember accessor, JavaType type, BeanPropertyDefinition propDef)
+            AnnotatedMember accessor, BeanPropertyDefinition propDef)
     {
         AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
         if (ai != null) {
@@ -598,8 +597,7 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        ConfigOverride override = propDef.findConfigOverride(type.getRawClass());
-        JsonSetter.Value v = override.getSetterInfo();
+        JsonSetter.Value v = propDef.getConfigOverride().getSetterInfo();
         if (v != null) {
             Boolean b = v.getMerge();
             if (b != null) {
@@ -631,19 +629,18 @@ public class BeanDeserializerFactory
                 continue;
             }
             if (!property.hasConstructorParameter()) { // never skip constructor params
-                Class<?> rawPropertyType = null;
-                if (property.hasSetter()) {
-                    rawPropertyType = property.getSetter().getRawParameterType(0);
-                } else if (property.hasField()) {
-                    rawPropertyType = property.getField().getRawType();
-                }
-
-                // Some types are declared as ignorable as well
-                if ((rawPropertyType != null)
-                        && isIgnorableType(ctxt.getConfig(), beanDesc, rawPropertyType, ignoredTypes)) {
-                    // important: make ignorable, to avoid errors if value is actually seen
-                    builder.addIgnorable(name);
-                    continue;
+                AnnotatedMember primary = property.getPrimaryMember();
+                // 22-Oct-2016, tatu: Looks like there are properties defined for single-arg
+                //   delegating creator (... or something)
+                if (primary != null) {
+                    Class<?> rawPropertyType = primary.getRawType();
+                    // Some types are declared as ignorable as well
+                    if ((rawPropertyType != null)
+                            && isIgnorableType(ctxt.getConfig(), property, rawPropertyType, ignoredTypes)) {
+                        // important: make ignorable, to avoid errors if value is actually seen
+                        builder.addIgnorable(name);
+                        continue;
+                    }
                 }
             }
             result.add(property);
@@ -880,24 +877,26 @@ public class BeanDeserializerFactory
      * Helper method that will check whether given raw type is marked as always ignorable
      * (for purpose of ignoring properties with type)
      */
-    protected boolean isIgnorableType(DeserializationConfig config, BeanDescription beanDesc,
+    protected boolean isIgnorableType(DeserializationConfig config, BeanPropertyDefinition propDef,
             Class<?> type, Map<Class<?>,Boolean> ignoredTypes)
     {
         Boolean status = ignoredTypes.get(type);
         if (status != null) {
             return status.booleanValue();
         }
-        // 21-Apr-2016, tatu: For 2.8, can specify config overrides
-        ConfigOverride override = config.findConfigOverride(type);
-        if (override != null) {
-            status = override.getIsIgnoredType();
-        }
-        if (status == null) {
-            BeanDescription desc = config.introspectClassAnnotations(type);
-            status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
-            // We default to 'false', i.e. not ignorable
+        // 22-Oct-2016, tatu: Slight check to skip primitives, String
+        if ((type == String.class) || type.isPrimitive()) {
+            status = Boolean.FALSE;
+        } else {
+            // 21-Apr-2016, tatu: For 2.8, can specify config overrides
+            status = propDef.getConfigOverride().getIsIgnoredType();
             if (status == null) {
-                status = Boolean.FALSE;
+                BeanDescription desc = config.introspectClassAnnotations(type);
+                status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
+                // We default to 'false', i.e. not ignorable
+                if (status == null) {
+                    status = Boolean.FALSE;
+                }
             }
         }
         ignoredTypes.put(type, status);

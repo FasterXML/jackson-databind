@@ -24,6 +24,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     extends MapperConfig<T>
     implements java.io.Serializable
 {
+    /**
+     * @since 2.9
+     */
+    protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
+
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
@@ -466,6 +471,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final ContextAttributes getAttributes() {
         return _attributes;
+    }
+
+    @Override
+    public final ConfigOverride getConfigOverride(Class<?> type) {
+        ConfigOverride override = _configOverrides.findOverride(type);
+        return (override == null) ? EMPTY_OVERRIDE : override;
     }
 
     @Override

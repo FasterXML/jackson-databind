@@ -210,12 +210,9 @@ public class SimpleBeanPropertyDefinition
     }
 
     @Override // since 2.9
-    public ConfigOverride findConfigOverride(Class<?> propType) {
+    public ConfigOverride getConfigOverride() {
         if (_configOverride == null) {
-            _configOverride = _config.findConfigOverride(propType);
-            if (_configOverride == null) {
-                _configOverride = ConfigOverride.empty();
-            }
+            _configOverride = _config.getConfigOverride(_member.getRawType());
         }
         return _configOverride;
     }

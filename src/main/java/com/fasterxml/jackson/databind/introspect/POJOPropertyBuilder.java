@@ -68,7 +68,8 @@ public class POJOPropertyBuilder
         _forSerialization = forSerialization;
     }
 
-    public POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
+    // protected since 2.9 (was public before)
+    protected POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
     {
         _config = src._config;
         _annotationIntrospector = src._annotationIntrospector;
@@ -80,7 +81,7 @@ public class POJOPropertyBuilder
         _setters = src._setters;
         _forSerialization = src._forSerialization;
     }
-    
+
     /*
     /**********************************************************
     /* Fluent factory methods
@@ -98,7 +99,7 @@ public class POJOPropertyBuilder
         PropertyName newName = _name.withSimpleName(newSimpleName);
         return (newName == _name) ? this : new POJOPropertyBuilder(this, newName);
     }
-    
+
     /*
     /**********************************************************
     /* Comparable implementation: sort alphabetically, except
@@ -185,7 +186,34 @@ public class POJOPropertyBuilder
                 || _anyExplicitNames(_ctorParameters)
                 ;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Simple metadata
+    /**********************************************************
+     */
+
+    @Override
+    public PropertyMetadata getMetadata() {
+        final Boolean b = _findRequired();
+        final String desc = _findDescription();
+        final Integer idx = _findIndex();
+        final String def = _findDefaultValue();
+        if (b == null && idx == null && def == null) {
+            return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
+                    : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
+        }
+        return PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
+    }
+
+    @Override // since 2.9
+    public ConfigOverride getConfigOverride() {
+        if (_configOverride == null) {
+            _configOverride = _config.getConfigOverride(getPrimaryMember().getRawType());
+        }
+        return _configOverride;
+    }
+
     /*
     /**********************************************************
     /* BeanPropertyDefinition implementation, accessor access
@@ -428,7 +456,12 @@ public class POJOPropertyBuilder
         if (_forSerialization) {
             return getAccessor();
         }
-        return getMutator();
+        AnnotatedMember m = getMutator();
+        // for setterless properties, however...
+        if (m == null) {
+            m = getAccessor();
+        }
+        return m;
     }
 
     protected int _getterPriority(AnnotatedMethod m)
@@ -492,19 +525,6 @@ public class POJOPropertyBuilder
         return (b != null) && b.booleanValue();
     }
 
-    @Override
-    public PropertyMetadata getMetadata() {
-        final Boolean b = _findRequired();
-        final String desc = _findDescription();
-        final Integer idx = _findIndex();
-        final String def = _findDefaultValue();
-        if (b == null && idx == null && def == null) {
-            return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
-                    : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
-        }
-        return PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
-    }
-
     protected Boolean _findRequired() {
        return fromMemberAnnotations(new WithMember<Boolean>() {
             @Override
@@ -565,17 +585,6 @@ public class POJOPropertyBuilder
         JsonInclude.Value v = (_annotationIntrospector == null) ?
                 null : _annotationIntrospector.findPropertyInclusion(a);
         return (v == null) ? JsonInclude.Value.empty() : v;
-    }
-
-    @Override // since 2.9
-    public ConfigOverride findConfigOverride(Class<?> propType) {
-        if (_configOverride == null) {
-            _configOverride = _config.findConfigOverride(propType);
-            if (_configOverride == null) {
-                _configOverride = ConfigOverride.empty();
-            }
-        }
-        return _configOverride;
     }
 
     public JsonProperty.Access findAccess() {

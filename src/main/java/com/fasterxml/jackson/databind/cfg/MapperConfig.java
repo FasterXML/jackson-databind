@@ -392,12 +392,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @since 2.7
      */
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        ConfigOverride overrides = findConfigOverride(baseType);
-        if (overrides != null) {
-            JsonInclude.Value v = overrides.getInclude();
-            if (v != null) {
-                return v;
-            }
+        JsonInclude.Value v = getConfigOverride(baseType).getInclude();
+        if (v != null) {
+            return v;
         }
         return getDefaultPropertyInclusion();
     }
@@ -414,12 +411,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
             JsonInclude.Value defaultIncl)
     {
-        ConfigOverride overrides = findConfigOverride(baseType);
-        if (overrides != null) {
-            JsonInclude.Value v = overrides.getInclude();
-            if (v != null) {
-                return v;
-            }
+        JsonInclude.Value v = getConfigOverride(baseType).getInclude();
+        if (v != null) {
+            return v;
         }
         return defaultIncl;
     }
@@ -453,15 +447,31 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
             AnnotatedClass actualClass);
 
     /**
-     * Accessor for finding possible {@link ConfigOverride} to use for
-     * properties of given type. Note that only directly associate override
+     * Accessor for finding {@link ConfigOverride} to use for
+     * properties of given type, if any exist; or return `null` if not.
+     *<p>
+     * Note that only directly associated override
      * is found; no type hierarchy traversal is performed.
      *
      * @since 2.8
      * 
-     * @return Override object if there is an override for specified type; `null` if not
+     * @return Override object to use for the type, if defined; null if none.
      */
     public abstract ConfigOverride findConfigOverride(Class<?> type);
+
+    /**
+     * Accessor for finding {@link ConfigOverride} to use for
+     * properties of given type, if any exist; or if none, return an immutable
+     * "empty" instance with no overrides.
+     *<p>
+     * Note that only directly associated override
+     * is found; no type hierarchy traversal is performed.
+     *
+     * @since 2.9
+     * 
+     * @return Override object to use for the type, never null (but may be empty)
+     */
+    public abstract ConfigOverride getConfigOverride(Class<?> type);
 
     /*
     /**********************************************************

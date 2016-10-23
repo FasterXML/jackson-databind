@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.util.Named;
  * Bean properties are logical entities that represent data
  * that Java objects (POJOs (Plain Old Java Objects), sometimes also called "beans")
  * contain; and that are accessed using accessors (methods like getters
- * and setters, fields, constructor parametrers).
+ * and setters, fields, constructor parameters).
  * Instances allow access to annotations directly associated
  * to property (via field or method), as well as contextual
  * annotations (annotations for class that contains properties).
@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.util.Named;
  * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}
  * resolution occurs (<code>createContextual(...)</code> method is called).
  * References may (need to) be retained by serializers and deserializers,
- * especially when further resolving dependant handlers like value
+ * especially when further resolving dependent handlers like value
  * serializers/deserializers or structured types.
  */
 public interface BeanProperty extends Named

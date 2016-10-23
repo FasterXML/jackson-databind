@@ -23,6 +23,9 @@ public abstract class BeanPropertyDefinition
 {
     protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
+    /**
+     * @since 2.9
+     */
     protected final static ConfigOverride EMPTY_OVERRIDES = ConfigOverride.empty();
 
     /*
@@ -51,7 +54,7 @@ public abstract class BeanPropertyDefinition
 
     /*
     /**********************************************************
-    /* Basic property information, name, type
+    /* Property name information
     /**********************************************************
      */
 
@@ -86,15 +89,6 @@ public abstract class BeanPropertyDefinition
     public abstract PropertyName getWrapperName();
 
     /**
-     * Method for accessing additional metadata.
-     * NOTE: will never return null, so de-referencing return value
-     * is safe.
-     * 
-     * @since 2.3
-     */
-    public abstract PropertyMetadata getMetadata();
-    
-    /**
      * Accessor that can be called to check whether property was included
      * due to an explicit marker (usually annotation), or just by naming
      * convention.
@@ -119,7 +113,43 @@ public abstract class BeanPropertyDefinition
     public boolean isExplicitlyNamed() {
         return isExplicitlyIncluded();
     }
-    
+
+    /*
+    /**********************************************************
+    /* Basic property metadata
+    /**********************************************************
+     */
+
+    /**
+     * Method for accessing additional metadata.
+     * NOTE: will never return null, so de-referencing return value
+     * is safe.
+     * 
+     * @since 2.3
+     */
+    public abstract PropertyMetadata getMetadata();
+
+    /**
+     * Method used to check if this property is expected to have a value;
+     * and if none found, should either be considered invalid (and most likely
+     * fail deserialization), or handled by other means (by providing default
+     * value)
+     */
+    public boolean isRequired() {
+        PropertyMetadata md = getMetadata();
+        return (md != null)  && md.isRequired();
+    }
+
+    /**
+     * Accessor for finding per-type overrides applicable to this property;
+     * never returns null
+     *
+     * @return ConfigOverride applicable, based on property type.
+     *
+     * @since 2.9
+     */
+    public abstract ConfigOverride getConfigOverride();
+
     /*
     /**********************************************************
     /* Capabilities
@@ -218,17 +248,6 @@ public abstract class BeanPropertyDefinition
      * (or, when multiple references exist, all but first AS Object Identifier).
      */
     public ObjectIdInfo findObjectIdInfo() { return null; }
-    
-    /**
-     * Method used to check if this property is expected to have a value;
-     * and if none found, should either be considered invalid (and most likely
-     * fail deserialization), or handled by other means (by providing default
-     * value)
-     */
-    public boolean isRequired() {
-        PropertyMetadata md = getMetadata();
-        return (md != null)  && md.isRequired();
-    }
 
     /**
      * Method used to check if this property has specific inclusion override
@@ -240,14 +259,5 @@ public abstract class BeanPropertyDefinition
      */
     public JsonInclude.Value findInclusion() {
         return EMPTY_INCLUDE;
-    }
-
-    /**
-     * Accessor for finding per-type overrides applicable to this property.
-     *
-     * @since 2.9
-     */
-    public ConfigOverride findConfigOverride(Class<?> propType) {
-        return EMPTY_OVERRIDES;
     }
 }

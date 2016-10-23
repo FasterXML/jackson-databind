@@ -102,8 +102,8 @@ public abstract class ConcreteBeanPropertyBase
             return v0;
         }
         JsonInclude.Value v = intr.findPropertyInclusion(member);
-        if (v == null) {
-            return v0;
+        if (v0 == null) {
+            return v;
         }
         return v0.withOverrides(v);
     }

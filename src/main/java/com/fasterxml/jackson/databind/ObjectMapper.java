@@ -125,7 +125,7 @@ public class ObjectMapper
     implements Versioned,
         java.io.Serializable // as of 2.1
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L; // as of 2.9
 
     /*
     /**********************************************************
@@ -341,9 +341,9 @@ public class ObjectMapper
      * Currently active per-type configuration overrides, accessed by
      * declared type of property.
      *
-     * @since 2.8
+     * @since 2.9
      */
-    protected ConfigOverrides _propertyOverrides;
+    protected final ConfigOverrides _configOverrides;
 
     /*
     /**********************************************************
@@ -504,12 +504,14 @@ public class ObjectMapper
         _subtypeResolver = src._subtypeResolver;
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
-        _propertyOverrides = src._propertyOverrides.copy();
+        _configOverrides = src._configOverrides.copy();
         _mixIns = src._mixIns.copy();
 
         RootNameLookup rootNames = new RootNameLookup();
-        _serializationConfig = new SerializationConfig(src._serializationConfig, _mixIns, rootNames, _propertyOverrides);
-        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, _mixIns, rootNames, _propertyOverrides);
+        _serializationConfig = new SerializationConfig(src._serializationConfig,
+                _mixIns, rootNames, _configOverrides);
+        _deserializationConfig = new DeserializationConfig(src._deserializationConfig,
+                _mixIns, rootNames,  _configOverrides);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 
@@ -562,12 +564,11 @@ public class ObjectMapper
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixIns = mixins;
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
-        ConfigOverrides propOverrides = new ConfigOverrides();
-        _propertyOverrides = propOverrides;
+        _configOverrides = new ConfigOverrides();
         _serializationConfig = new SerializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, propOverrides);
+                    _subtypeResolver, mixins, rootNames, _configOverrides);
         _deserializationConfig = new DeserializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, propOverrides);
+                    _subtypeResolver, mixins, rootNames, _configOverrides);
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
@@ -1190,7 +1191,7 @@ public class ObjectMapper
     public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource) {
         addMixIn(target, mixinSource);
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, introspection
@@ -1333,27 +1334,6 @@ public class ObjectMapper
     }
 
     /**
-     * Convenience method, equivalent to calling:
-     *<pre>
-     *  setPropertyInclusion(JsonInclude.Value.construct(incl, Include.ALWAYS));
-     *</pre>
-     */
-    public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
-        setPropertyInclusion(JsonInclude.Value.construct(incl, JsonInclude.Include.USE_DEFAULTS));
-        return this;
-    }
-
-    /**
-     * Method for setting default POJO property inclusion strategy for serialization.
-     *
-     * @since 2.7
-     */
-    public ObjectMapper setPropertyInclusion(JsonInclude.Value incl) {
-        _serializationConfig = _serializationConfig.withPropertyInclusion(incl);
-        return this;
-    }
-
-    /**
      * Method for specifying {@link PrettyPrinter} to use when "default pretty-printing"
      * is enabled (by enabling {@link SerializationFeature#INDENT_OUTPUT})
      * 
@@ -1365,6 +1345,56 @@ public class ObjectMapper
      */
     public ObjectMapper setDefaultPrettyPrinter(PrettyPrinter pp) {
         _serializationConfig = _serializationConfig.withDefaultPrettyPrinter(pp);
+        return this;
+    }
+
+    /*
+    /**********************************************************
+    /* Configuration: global-default/per-type override settings
+    /**********************************************************
+     */
+    
+    /**
+     * Convenience method, equivalent to calling:
+     *<pre>
+     *  setPropertyInclusion(JsonInclude.Value.construct(incl, Include.ALWAYS));
+     *</pre>
+     */
+    public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
+        setPropertyInclusion(JsonInclude.Value.construct(incl, JsonInclude.Include.USE_DEFAULTS));
+        return this;
+    }
+
+    /**
+     * @since 2.7
+     * @deprecated Since 2.9 use {@link #setDefaultPropertyInclusion}
+     */
+    @Deprecated
+    public ObjectMapper setPropertyInclusion(JsonInclude.Value incl) {
+        return setDefaultPropertyInclusion(incl);
+    }
+
+    /**
+     * Method for setting default POJO property inclusion strategy for serialization,
+     * applied for all properties for which there are no per-type or per-property
+     * overrides (via annotations or config overrides).
+     *
+     * @since 2.9 (basically rename of <code>setPropertyInclusion</code>)
+     */
+    public ObjectMapper setDefaultPropertyInclusion(JsonInclude.Value incl) {
+        _configOverrides.setDefaultInclusion(incl);
+        return this;
+    }
+    
+    /**
+     * Method for setting default Setter configuration, regarding things like
+     * merging, null-handling; used for properties for which there are
+     * no per-type or per-property overrides (via annotations or config overrides).
+     *
+     * @since 2.9
+     */
+    public ObjectMapper setDefaultSetterInfo(JsonSetter.Value v) {
+        _configOverrides.setDefaultSetterInfo(v);
         return this;
     }
 
@@ -1510,7 +1540,7 @@ public class ObjectMapper
      * @since 2.8
      */
     public MutableConfigOverride configOverride(Class<?> type) {
-        return _propertyOverrides.findOrCreateOverride(type);
+        return _configOverrides.findOrCreateOverride(type);
     }
 
     /*

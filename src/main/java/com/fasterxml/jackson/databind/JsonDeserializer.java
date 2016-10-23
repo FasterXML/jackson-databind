@@ -123,6 +123,9 @@ public abstract class JsonDeserializer<T>
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
         throws IOException, JsonProcessingException
     {
+        if (ctxt.isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
+            return deserialize(p, ctxt);
+        }
         throw new UnsupportedOperationException("Can not update object of type "
                 +intoValue.getClass().getName()+" (by deserializer of type "+getClass().getName()+")");
     }

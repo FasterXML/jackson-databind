@@ -4,9 +4,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -47,11 +49,6 @@ public class POJOPropertyBuilder
     protected Linked<AnnotatedMethod> _getters;
 
     protected Linked<AnnotatedMethod> _setters;
-
-    /**
-     * @since 2.9
-     */
-    protected transient ConfigOverride _configOverride;
 
     public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
             boolean forSerialization, PropertyName internalName) {
@@ -206,12 +203,22 @@ public class POJOPropertyBuilder
         return PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
     }
 
-    @Override // since 2.9
-    public ConfigOverride getConfigOverride() {
-        if (_configOverride == null) {
-            _configOverride = _config.getConfigOverride(getPrimaryMember().getRawType());
+    @Override
+    public JavaType getPrimaryType() {
+        AnnotatedMember m = getPrimaryMember();
+        if (m == null) {
+            return TypeFactory.unknownType();
         }
-        return _configOverride;
+        return m.getType();
+    }
+
+    @Override
+    public Class<?> getRawPrimaryType() {
+        AnnotatedMember m = getPrimaryMember();
+        if (m == null) {
+            return Object.class;
+        }
+        return m.getRawType();
     }
 
     /*
@@ -595,7 +602,22 @@ public class POJOPropertyBuilder
             }
         }, JsonProperty.Access.AUTO);
     }
-    
+
+    @Override
+    public JsonSetter.Value findSetterInfo() {
+        AnnotatedMember m = getPrimaryMember();
+        Class<?> rawType = (m == null) ? Object.class : m.getRawType();
+        JsonSetter.Value setterInfo = _config.getDefaultSetterInfo(rawType);
+
+        if ((m != null) && (_annotationIntrospector != null)) {
+            JsonSetter.Value setter = _annotationIntrospector.findSetterInfo(m);
+            if (setter != null) {
+                setterInfo = setterInfo.withOverrides(setter);
+            }
+        }
+        return setterInfo;
+    }
+
     /*
     /**********************************************************
     /* Data aggregation
@@ -1094,7 +1116,7 @@ public class POJOPropertyBuilder
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes

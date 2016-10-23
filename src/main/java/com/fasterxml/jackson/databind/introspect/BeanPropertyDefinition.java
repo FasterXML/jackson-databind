@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Named;
 
@@ -22,11 +22,6 @@ public abstract class BeanPropertyDefinition
     implements Named
 {
     protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
-
-    /**
-     * @since 2.9
-     */
-    protected final static ConfigOverride EMPTY_OVERRIDES = ConfigOverride.empty();
 
     /*
     /**********************************************************
@@ -121,6 +116,16 @@ public abstract class BeanPropertyDefinition
      */
 
     /**
+     * @since 2.9
+     */
+    public abstract JavaType getPrimaryType();
+
+    /**
+     * @since 2.9
+     */
+    public abstract Class<?> getRawPrimaryType();
+    
+    /**
      * Method for accessing additional metadata.
      * NOTE: will never return null, so de-referencing return value
      * is safe.
@@ -139,16 +144,6 @@ public abstract class BeanPropertyDefinition
         PropertyMetadata md = getMetadata();
         return (md != null)  && md.isRequired();
     }
-
-    /**
-     * Accessor for finding per-type overrides applicable to this property;
-     * never returns null
-     *
-     * @return ConfigOverride applicable, based on property type.
-     *
-     * @since 2.9
-     */
-    public abstract ConfigOverride getConfigOverride();
 
     /*
     /**********************************************************
@@ -218,12 +213,12 @@ public abstract class BeanPropertyDefinition
     /*
     /**********************************************************
     /* More refined access to configuration features
-    /* (usually based on annotations)
+    /* (usually based on annotations and/or config overrides)
     /* Since most trivial implementations do not support
     /* these methods, they are implemented as no-ops.
     /**********************************************************
      */
-    
+
     /**
      * Method used to find View-inclusion definitions for the property.
      */
@@ -257,7 +252,18 @@ public abstract class BeanPropertyDefinition
      * 
      * @since 2.5
      */
-    public JsonInclude.Value findInclusion() {
-        return EMPTY_INCLUDE;
-    }
+    public abstract JsonInclude.Value findInclusion();
+
+    /**
+     * Method used to find setter info settings that apply to this property, considering:
+     *<ol>
+     * <li>Global default settings</li>
+     * <li>Per-type overrides</li>
+     * <li>Annotations on property itself</li>
+     *</ol>
+     * and merging information as appropriate
+     *
+     * @since 2.9
+     */
+    public abstract JsonSetter.Value findSetterInfo();
 }

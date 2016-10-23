@@ -29,6 +29,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
+    protected final static JsonSetter.Value EMPTY_SETTER_INFO = JsonSetter.Value.empty();
+
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
@@ -108,8 +110,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * @since 2.8
      */
     protected MapperConfigBase(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
         _mixIns = mixins;
@@ -119,6 +121,23 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = null;
         // default to "no attributes"
         _attributes = ContextAttributes.getEmpty();
+        _configOverrides = configOverrides;
+    }
+
+    /**
+     * @since 2.8
+     */
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src,
+            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
+    {
+        super(src);
+        _mixIns = mixins;
+        _subtypeResolver = src._subtypeResolver;
+        _rootNames = rootNames;
+        _rootName = src._rootName;
+        _view = src._view;
+        _attributes = src._attributes;
         _configOverrides = configOverrides;
     }
 
@@ -224,22 +243,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = attr;
         _configOverrides = src._configOverrides;
-    }
-
-    /**
-     * @since 2.8
-     */
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
-    {
-        super(src);
-        _mixIns = mixins;
-        _subtypeResolver = src._subtypeResolver;
-        _rootNames = rootNames;
-        _rootName = src._rootName;
-        _view = src._view;
-        _attributes = src._attributes;
-        _configOverrides = configOverrides;
     }
 
     /*
@@ -473,6 +476,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _attributes;
     }
 
+    /*
+    /**********************************************************
+    /* Configuration access; default/overrides
+    /**********************************************************
+     */
+
     @Override
     public final ConfigOverride getConfigOverride(Class<?> type) {
         ConfigOverride override = _configOverrides.findOverride(type);
@@ -482,6 +491,21 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final ConfigOverride findConfigOverride(Class<?> type) {
         return _configOverrides.findOverride(type);
+    }
+
+    @Override
+    public final JsonInclude.Value getDefaultPropertyInclusion() {
+        return _configOverrides.getDefaultInclusion();
+    }
+
+    @Override
+    public final JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
+        JsonInclude.Value v = getConfigOverride(baseType).getInclude();
+        JsonInclude.Value def = getDefaultPropertyInclusion();
+        if (def == null) {
+            return v;
+        }
+        return def.withOverrides(v);
     }
 
     @Override
@@ -519,6 +543,22 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
                 : intr.findPropertyIgnorals(actualClass);
         JsonIgnoreProperties.Value overrides = getDefaultPropertyIgnorals(baseType);
         return JsonIgnoreProperties.Value.merge(base, overrides);
+    }
+
+    @Override // since 2.9
+    public JsonSetter.Value getDefaultSetterInfo(Class<?> type) {
+        JsonSetter.Value setterInfo = _configOverrides.getDefaultSetterInfo();
+        ConfigOverride overrides = _configOverrides.findOverride(type);
+        if (overrides != null) {
+            JsonSetter.Value override = overrides.getSetterInfo();
+            if (override != null) {
+                setterInfo = JsonSetter.Value.merge(setterInfo, override);
+            }
+        }
+        if (setterInfo == null) {
+            return EMPTY_SETTER_INFO;
+        }
+        return setterInfo;
     }
 
     /*

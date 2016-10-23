@@ -26,7 +26,7 @@ public class MutableConfigOverride
         super(src);
     }
 
-    protected MutableConfigOverride copy() {
+    public MutableConfigOverride copy() {
         return new MutableConfigOverride(this);
     }
 
@@ -51,7 +51,6 @@ public class MutableConfigOverride
     }
 
     public MutableConfigOverride setIsIgnoredType(Boolean v) {
-        
         _isIgnoredType = v;
         return this;
     }

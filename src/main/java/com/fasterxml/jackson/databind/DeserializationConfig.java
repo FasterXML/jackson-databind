@@ -93,7 +93,7 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************
-    /* Life-cycle, constructors
+    /* Life-cycle, primary constructors for new instances
     /**********************************************************
      */
 
@@ -101,8 +101,8 @@ public final class DeserializationConfig
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
     public DeserializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
     {
         super(base, str, mixins, rootNames, configOverrides);
         _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
@@ -113,6 +113,32 @@ public final class DeserializationConfig
         _formatReadFeatures = 0;
         _formatReadFeaturesToChange = 0;
     }
+
+    /**
+     * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
+     *
+     * @since 2.9
+     */
+    protected DeserializationConfig(DeserializationConfig src,
+            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
+    {
+        super(src, mixins, rootNames, configOverrides);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _parserFeatures = src._parserFeatures;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _formatReadFeatures = src._formatReadFeatures;
+        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, secondary constructors to support
+    /* "mutant factories", with single property changes
+    /**********************************************************
+     */
 
     private DeserializationConfig(DeserializationConfig src,
             int mapperFeatures, int deserFeatures,
@@ -221,24 +247,6 @@ public final class DeserializationConfig
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
     {
         super(src, mixins);
-        _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-    }
-
-    /**
-     * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
-     *
-     * @since 2.8
-     */
-    protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
-    {
-        super(src, mixins, rootNames, configOverrides);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
@@ -721,17 +729,6 @@ public final class DeserializationConfig
         if (_formatReadFeaturesToChange != 0) {
             p.overrideFormatFeatures(_formatReadFeatures, _formatReadFeaturesToChange);
         }
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration: default settings with per-type overrides
-    /**********************************************************
-     */
-
-    @Override
-    public JsonInclude.Value getDefaultPropertyInclusion() {
-        return EMPTY_INCLUDE;
     }
 
     /*

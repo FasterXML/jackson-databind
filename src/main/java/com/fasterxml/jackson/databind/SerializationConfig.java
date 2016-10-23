@@ -41,10 +41,6 @@ public final class SerializationConfig
     // since 2.6
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
 
-    // since 2.7
-    // Default is "USE_DEFAULTS, USE_DEFAULTS"
-    protected final static JsonInclude.Value DEFAULT_INCLUSION = JsonInclude.Value.empty();
-
     /*
     /**********************************************************
     /* Configured helper objects
@@ -104,36 +100,21 @@ public final class SerializationConfig
      * @since 2.7
      */
     protected final int _formatWriteFeaturesToChange;
-    
-    /*
-    /**********************************************************
-    /* Other configuration
-    /**********************************************************
-     */
-    
-    /**
-     * Which Bean/Map properties are to be included in serialization?
-     * Default settings is to include all regardless of value; can be
-     * changed to only include non-null properties, or properties
-     * with non-default values.
-     *<p>
-     * NOTE: type changed in 2.7, to include both value and content
-     * inclusion options.
-     */
-    protected final JsonInclude.Value _serializationInclusion;
 
     /*
     /**********************************************************
-    /* Life-cycle, constructors
+    /* Life-cycle, primary constructors for new instances
     /**********************************************************
      */
 
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
+     *
+     * @since 2.9
      */
     public SerializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
     {
         super(base, str, mixins, rootNames, configOverrides);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
@@ -143,14 +124,38 @@ public final class SerializationConfig
         _generatorFeaturesToChange = 0;
         _formatWriteFeatures = 0;
         _formatWriteFeaturesToChange = 0;
-        _serializationInclusion = DEFAULT_INCLUSION;
     }
+
+    /**
+     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
+     *
+     * @since 2.9
+     */
+    protected SerializationConfig(SerializationConfig src,
+            SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
+    {
+        super(src, mixins, rootNames, configOverrides);
+        _serFeatures = src._serFeatures;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _formatWriteFeatures = src._formatWriteFeatures;
+        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, secondary constructors to support
+    /* "mutant factories", with single property changes
+    /**********************************************************
+     */
 
     private SerializationConfig(SerializationConfig src, SubtypeResolver str)
     {
         super(src, str);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -166,7 +171,6 @@ public final class SerializationConfig
     {
         super(src, mapperFeatures);
         _serFeatures = serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = generatorFeatures;
@@ -179,7 +183,6 @@ public final class SerializationConfig
     {
         super(src, base);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -192,7 +195,6 @@ public final class SerializationConfig
     {
         super(src);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = filters;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -205,7 +207,6 @@ public final class SerializationConfig
     {
         super(src, view);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -218,7 +219,6 @@ public final class SerializationConfig
     {
         super(src);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = incl;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -231,7 +231,6 @@ public final class SerializationConfig
     {
         super(src, rootName);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -247,7 +246,6 @@ public final class SerializationConfig
     {
         super(src, attrs);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -263,7 +261,6 @@ public final class SerializationConfig
     {
         super(src, mixins);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
@@ -279,28 +276,8 @@ public final class SerializationConfig
     {
         super(src);
         _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = defaultPP;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
-        _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
-    }
-
-    /**
-     * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
-     *
-     * @since 2.8
-     */
-    protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins,
-            RootNameLookup rootNames, ConfigOverrides configOverrides)
-    {
-        super(src, mixins, rootNames, configOverrides);
-        _serFeatures = src._serFeatures;
-        _serializationInclusion = src._serializationInclusion;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -740,15 +717,19 @@ public final class SerializationConfig
     }
 
     /**
+     * Mutant factory method for constructing a new instance with different
+     * default inclusion criteria configuration.
+     *
      * @since 2.7
+     *
+     * @deprecated Since 2.9; not needed any more
      */
+    @Deprecated
     public SerializationConfig withPropertyInclusion(JsonInclude.Value incl) {
-        if (_serializationInclusion.equals(incl)) {
-            return this;
-        }
-        return new SerializationConfig(this, incl);
+        _configOverrides.setDefaultInclusion(incl);
+        return this;
     }
-    
+
     /**
      * @since 2.6
      */
@@ -825,13 +806,8 @@ public final class SerializationConfig
     @Deprecated
     public JsonInclude.Include getSerializationInclusion()
     {
-        JsonInclude.Include incl = _serializationInclusion.getValueInclusion();
+        JsonInclude.Include incl = getDefaultPropertyInclusion().getValueInclusion();
         return (incl == JsonInclude.Include.USE_DEFAULTS) ? JsonInclude.Include.ALWAYS : incl;
-    }
-
-    @Override
-    public JsonInclude.Value getDefaultPropertyInclusion() {
-        return _serializationInclusion;
     }
 
     /*
@@ -891,7 +867,7 @@ public final class SerializationConfig
     public FilterProvider getFilterProvider() {
         return _filterProvider;
     }
-
+    
     /**
      * Accessor for configured blueprint "default" {@link PrettyPrinter} to
      * use, if default pretty-printing is enabled.

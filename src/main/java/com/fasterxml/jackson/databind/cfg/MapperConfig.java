@@ -38,7 +38,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     implements ClassIntrospector.MixInResolver,
         java.io.Serializable
 {
-    private static final long serialVersionUID = 1L; // since 2.5
+    private static final long serialVersionUID = 2L; // since 2.9
 
     /**
      * @since 2.7
@@ -59,7 +59,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Immutable container object for simple configuration settings.
      */
     protected final BaseSettings _base;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -376,6 +376,33 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
 
     /**
+     * Accessor for finding {@link ConfigOverride} to use for
+     * properties of given type, if any exist; or return `null` if not.
+     *<p>
+     * Note that only directly associated override
+     * is found; no type hierarchy traversal is performed.
+     *
+     * @since 2.8
+     * 
+     * @return Override object to use for the type, if defined; null if none.
+     */
+    public abstract ConfigOverride findConfigOverride(Class<?> type);
+
+    /**
+     * Accessor for finding {@link ConfigOverride} to use for
+     * properties of given type, if any exist; or if none, return an immutable
+     * "empty" instance with no overrides.
+     *<p>
+     * Note that only directly associated override
+     * is found; no type hierarchy traversal is performed.
+     *
+     * @since 2.9
+     * 
+     * @return Override object to use for the type, never null (but may be empty)
+     */
+    public abstract ConfigOverride getConfigOverride(Class<?> type);
+    
+    /**
      * Accessor for default property inclusion to use for serialization,
      * used unless overridden by per-type or per-property overrides.
      *
@@ -391,13 +418,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *
      * @since 2.7
      */
-    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
-        JsonInclude.Value v = getConfigOverride(baseType).getInclude();
-        if (v != null) {
-            return v;
-        }
-        return getDefaultPropertyInclusion();
-    }
+    public abstract JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType);
 
     /**
      * Accessor for default property inclusion to use for serialization,
@@ -428,6 +449,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
 
     /**
+     * Accessor for default setter info to use for properties of specified type,
+     * considering both global defaults and possible per-type overrides.
+     *
+     * @return Setter info to use; never null
+     *
+     * @since 2.9
+     */
+    public abstract JsonSetter.Value getDefaultSetterInfo(Class<?> baseType);
+    
+    /**
      * Accessor for default property ignorals to use, if any, for given base type,
      * based on config overrides settings (see {@link #findConfigOverride(Class)}).
      *
@@ -445,33 +476,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType,
             AnnotatedClass actualClass);
-
-    /**
-     * Accessor for finding {@link ConfigOverride} to use for
-     * properties of given type, if any exist; or return `null` if not.
-     *<p>
-     * Note that only directly associated override
-     * is found; no type hierarchy traversal is performed.
-     *
-     * @since 2.8
-     * 
-     * @return Override object to use for the type, if defined; null if none.
-     */
-    public abstract ConfigOverride findConfigOverride(Class<?> type);
-
-    /**
-     * Accessor for finding {@link ConfigOverride} to use for
-     * properties of given type, if any exist; or if none, return an immutable
-     * "empty" instance with no overrides.
-     *<p>
-     * Note that only directly associated override
-     * is found; no type hierarchy traversal is performed.
-     *
-     * @since 2.9
-     * 
-     * @return Override object to use for the type, never null (but may be empty)
-     */
-    public abstract ConfigOverride getConfigOverride(Class<?> type);
 
     /*
     /**********************************************************

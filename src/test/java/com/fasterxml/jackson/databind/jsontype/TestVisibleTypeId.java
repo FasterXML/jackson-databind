@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 
 /**
- * Tests to verify [JACKSON-437], [JACKSON-762]
+ * Tests to verify that Type Id may be exposed during deserialization,
  */
 public class TestVisibleTypeId extends BaseMapTest
 {

@@ -418,7 +418,21 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.5
      */
-    IGNORE_DUPLICATE_MODULE_REGISTRATIONS(true)
+    IGNORE_DUPLICATE_MODULE_REGISTRATIONS(true),
+
+    /**
+     * Setting that determines what happens if an attempt is made to "merge"
+     * value of a property, where value does not support merging; either
+     * merging is skipped and new value is created (<code>true</code>) or
+     * an exception is thrown (false).
+     * This feature is most relevant when default setter info has been changed
+     * with {@link com.fasterxml.jackson.databind.ObjectMapper#setDefaultSetterInfo}.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.9
+     */
+    IGNORE_MERGE_FOR_UNMERGEABLE(true)
     
     ;
 

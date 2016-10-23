@@ -248,7 +248,7 @@ public class TestMapFiltering extends BaseMapTest
     {
         // basic Map<String,String> subclass:
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyInclusion(JsonInclude.Value.empty()
+        mapper.setDefaultPropertyInclusion(JsonInclude.Value.empty()
                 .withContentInclusion(JsonInclude.Include.NON_EMPTY));
         assertEquals(aposToQuotes("{'a':'b'}"), mapper.writeValueAsString(
                 new StringMap497()

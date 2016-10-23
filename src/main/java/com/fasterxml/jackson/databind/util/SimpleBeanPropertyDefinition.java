@@ -4,13 +4,12 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
-import com.fasterxml.jackson.databind.cfg.ConfigOverride;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Simple immutable {@link BeanPropertyDefinition} implementation that can
@@ -46,11 +45,6 @@ public class SimpleBeanPropertyDefinition
      * @since 2.5
      */
     protected final JsonInclude.Value _inclusion;
-
-    /**
-     * @since 2.9
-     */
-    protected transient ConfigOverride _configOverride;
 
     /*
     /**********************************************************
@@ -205,16 +199,41 @@ public class SimpleBeanPropertyDefinition
     }
 
     @Override
+    public JavaType getPrimaryType() {
+        if (_member == null) {
+            return TypeFactory.unknownType();
+        }
+        return _member.getType();
+    }
+
+    @Override
+    public Class<?> getRawPrimaryType() {
+        if (_member == null) {
+            return Object.class;
+        }
+        return _member.getRawType();
+    }
+
+    @Override
     public JsonInclude.Value findInclusion() {
         return _inclusion;
     }
 
     @Override // since 2.9
-    public ConfigOverride getConfigOverride() {
-        if (_configOverride == null) {
-            _configOverride = _config.getConfigOverride(_member.getRawType());
+    public JsonSetter.Value findSetterInfo()
+    {
+        Class<?> rawType = (_member == null) ? Object.class : _member.getRawType();
+        JsonSetter.Value setterInfo = _config.getDefaultSetterInfo(rawType);
+        if (_member != null) {
+            AnnotationIntrospector ai = _annotationIntrospector();
+            if (ai != null) {
+                JsonSetter.Value setter = ai.findSetterInfo(_member);
+                if (setter != null) {
+                    setterInfo = setterInfo.withOverrides(setter);
+                }
+            }
         }
-        return _configOverride;
+        return setterInfo;
     }
 
     /*

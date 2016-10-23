@@ -72,6 +72,16 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(2, config.loc.b); // original, merged
     }
 
+    public void testBeanMergingViaGlobal() throws Exception
+    {
+        // but with type-overrides
+        ObjectMapper mapper = new ObjectMapper()
+                .setDefaultSetterInfo(JsonSetter.Value.forMerging());
+            NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
+        assertEquals(3, config.loc.a);
+        assertEquals(2, config.loc.b); // original, merged
+    }
+    
     public void testCollectionMerging() throws Exception
     {
         CollectionWrapper w = MAPPER.readValue(aposToQuotes("{'bag':['b']}"), CollectionWrapper.class);

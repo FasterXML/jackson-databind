@@ -510,7 +510,7 @@ public class BeanDeserializerFactory
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, setter, propDef)) {
+                if (_isMergeableProperty(ctxt, propDef)) {
                     AnnotatedMember accessor = propDef.getAccessor();
                     if (accessor != null) {
                         accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -521,7 +521,7 @@ public class BeanDeserializerFactory
                 AnnotatedField field = propDef.getField();
                 JavaType propertyType = field.getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, field, propDef)) {
+                if (_isMergeableProperty(ctxt, propDef)) {
                     AnnotatedMember accessor = propDef.getAccessor();
                     if (accessor != null) {
                         accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -585,19 +585,9 @@ public class BeanDeserializerFactory
     }
 
     protected boolean _isMergeableProperty(DeserializationContext ctxt,
-            AnnotatedMember accessor, BeanPropertyDefinition propDef)
+            BeanPropertyDefinition propDef)
     {
-        AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
-        if (ai != null) {
-            JsonSetter.Value setter = ai.findSetterInfo(accessor);
-            if (setter != null) {
-                Boolean b = setter.getMerge();
-                if (b != null) {
-                    return b.booleanValue();
-                }
-            }
-        }
-        JsonSetter.Value v = propDef.getConfigOverride().getSetterInfo();
+        JsonSetter.Value v = propDef.findSetterInfo();
         if (v != null) {
             Boolean b = v.getMerge();
             if (b != null) {
@@ -889,7 +879,7 @@ public class BeanDeserializerFactory
             status = Boolean.FALSE;
         } else {
             // 21-Apr-2016, tatu: For 2.8, can specify config overrides
-            status = propDef.getConfigOverride().getIsIgnoredType();
+            status = config.getConfigOverride(type).getIsIgnoredType();
             if (status == null) {
                 BeanDescription desc = config.introspectClassAnnotations(type);
                 status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());

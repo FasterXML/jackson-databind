@@ -799,6 +799,7 @@ public class BeanSerializerFactory
      * Method that will apply by-type limitations (as per [JACKSON-429]);
      * by default this is based on {@link com.fasterxml.jackson.annotation.JsonIgnoreType}
      * annotation but can be supplied by module-provided introspectors too.
+     * Starting with 2.8 there are also "Config overrides" to consider.
      */
     protected void removeIgnorableTypes(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
@@ -809,15 +810,19 @@ public class BeanSerializerFactory
         while (it.hasNext()) {
             BeanPropertyDefinition property = it.next();
             AnnotatedMember accessor = property.getAccessor();
+            /* 22-Oct-2016, tatu: Looks like this removal is an important part of
+             *    processing, as taking it out will result in a few test failures...
+             *    But should probably be done somewhere else, not here?
+             */
             if (accessor == null) {
                 it.remove();
                 continue;
             }
-            Class<?> type = accessor.getRawType();
+            Class<?> type = property.getRawPrimaryType();
             Boolean result = ignores.get(type);
             if (result == null) {
                 // 21-Apr-2016, tatu: For 2.8, can specify config overrides
-                result = property.getConfigOverride().getIsIgnoredType();
+                result = config.getConfigOverride(type).getIsIgnoredType();
                 if (result == null) {
                     BeanDescription desc = config.introspectClassAnnotations(type);
                     AnnotatedClass ac = desc.getClassInfo();

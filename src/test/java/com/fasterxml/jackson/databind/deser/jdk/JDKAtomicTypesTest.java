@@ -149,7 +149,7 @@ public class JDKAtomicTypesTest
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS);
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyInclusion(incl);
+        mapper.setDefaultPropertyInclusion(incl);
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
@@ -159,7 +159,7 @@ public class JDKAtomicTypesTest
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL);
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyInclusion(incl);
+        mapper.setDefaultPropertyInclusion(incl);
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
@@ -169,7 +169,7 @@ public class JDKAtomicTypesTest
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT);
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyInclusion(incl);
+        mapper.setDefaultPropertyInclusion(incl);
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
@@ -179,7 +179,7 @@ public class JDKAtomicTypesTest
         JsonInclude.Value incl =
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY);
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyInclusion(incl);
+        mapper.setDefaultPropertyInclusion(incl);
         assertEquals(aposToQuotes("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }

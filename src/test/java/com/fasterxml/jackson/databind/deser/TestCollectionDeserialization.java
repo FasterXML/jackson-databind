@@ -288,7 +288,7 @@ public class TestCollectionDeserialization
     // And then a round-trip test for singleton collections
     public void testSingletonCollections() throws Exception
     {
-        final TypeReference<?> xbeanListType = new TypeReference<List<XBean>>() { };
+        final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
 
         String json = MAPPER.writeValueAsString(Collections.singleton(new XBean(3)));
         Collection<XBean> result = MAPPER.readValue(json, xbeanListType);

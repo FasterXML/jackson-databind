@@ -72,6 +72,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         throw new IllegalStateException();
     }
 
+    // !!! TODO: should support, is doable (logically); but not yet supported so:
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.FALSE;
+    }
+    
     /**
      * @since 2.7
      */

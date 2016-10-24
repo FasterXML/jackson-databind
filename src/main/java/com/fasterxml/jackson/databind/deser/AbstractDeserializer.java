@@ -82,7 +82,17 @@ public class AbstractDeserializer
     
     @Override
     public boolean isCachable() { return true; }
-    
+
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        /* 23-Oct-2016, tatu: Not exactly sure what to do with this; polymorphic
+         *   type handling seems bit risky so for now claim it "may or may not be"
+         *   possible, which does allow explicit per-type/per-property merging attempts,
+         *   but avoids general-configuration merges
+         */
+        return null;
+    }
+
     /**
      * Overridden to return true for those instances that are
      * handling value for which Object Identity handling is enabled

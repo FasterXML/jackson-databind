@@ -37,6 +37,11 @@ public final class TypeWrappedDeserializer
         return _deserializer.handledType();
     }
 
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _deserializer.supportsUpdate(config);
+    }
+    
     @Override
     public JsonDeserializer<?> getDelegatee() {
         return _deserializer.getDelegatee();
@@ -58,13 +63,13 @@ public final class TypeWrappedDeserializer
     }
     
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        return _deserializer.deserializeWithType(jp, ctxt, _typeDeserializer);
+        return _deserializer.deserializeWithType(p, ctxt, _typeDeserializer);
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
         TypeDeserializer typeDeserializer) throws IOException
     {
         // should never happen? (if it can, could call on that object)
@@ -72,12 +77,12 @@ public final class TypeWrappedDeserializer
     }
 
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt,
+    public Object deserialize(JsonParser p, DeserializationContext ctxt,
             Object intoValue) throws IOException
     {
         /* 01-Mar-2013, tatu: Hmmh. Tough call as to what to do... need
          *   to delegate, but will this work reliably? Let's just hope so:
          */
-        return _deserializer.deserialize(jp,  ctxt, intoValue);
+        return _deserializer.deserialize(p,  ctxt, intoValue);
     }
 }

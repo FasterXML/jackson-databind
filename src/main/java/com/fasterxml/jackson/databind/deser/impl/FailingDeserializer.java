@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -23,7 +25,7 @@ public class FailingDeserializer extends StdDeserializer<Object>
     }
     
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JsonMappingException{
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         ctxt.reportInputMismatch(this, _message);
         return null;
     }

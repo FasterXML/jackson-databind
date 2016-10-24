@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
@@ -202,6 +203,13 @@ public class UntypedObjectDeserializer
          *   are problems with false sharing, this may need to be revisited.
          */
         return true;
+    }
+
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        // 23-Oct-2016, tatu: In theory, some values would be updateable (Maps, Collections),
+        //    but seems very error prone, so for now declare that we do not support it.
+        return Boolean.FALSE;
     }
 
     @Override
@@ -474,6 +482,13 @@ public class UntypedObjectDeserializer
         public final static Vanilla std = new Vanilla();
 
         public Vanilla() { super(Object.class); }
+
+        @Override // since 2.9
+        public Boolean supportsUpdate(DeserializationConfig config) {
+            // 23-Oct-2016, tatu: In theory, some values would be updateable (Maps, Collections),
+            //    but seems very error prone, so for now declare that we do not support it.
+            return Boolean.FALSE;
+        }
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException

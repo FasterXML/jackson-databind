@@ -49,6 +49,13 @@ public final class StringArrayDeserializer
         _unwrapSingle = unwrapSingle;
     }
 
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        // 23-Oct-2016, tatu: In theory could support some specific cases; and there's
+        //   question of logical vs physical update. But for now, claim we can't do it.
+        return Boolean.FALSE;
+    }
+    
     /**
      * Contextualization is needed to see whether we can "inline" deserialization
      * of String values, or if we have to use separate value deserializer.

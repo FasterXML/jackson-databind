@@ -25,7 +25,7 @@ public class AtomicReferenceDeserializer
     {
         super(fullType, inst, typeDeser, deser);
     }
-
+    
     /*
     /**********************************************************
     /* Abstract method implementations

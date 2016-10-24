@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -27,6 +28,13 @@ public abstract class ContainerDeserializerBase<T>
     /**********************************************************
      */
 
+    @Override // since 2.9
+    public final Boolean supportsUpdate(DeserializationConfig config) {
+        // 23-Oct-2016, tatu: Most if not all containers should support merges
+        //    so let's default to that:
+        return Boolean.TRUE;
+    }
+    
     @Override
     public SettableBeanProperty findBackReference(String refName) {
         JsonDeserializer<Object> valueDeser = getContentDeserializer();

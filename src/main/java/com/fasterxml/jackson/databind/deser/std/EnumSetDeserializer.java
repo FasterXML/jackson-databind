@@ -96,7 +96,12 @@ public class EnumSetDeserializer
         }
         return true;
     }
-    
+
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.TRUE;
+    }
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
@@ -118,15 +123,32 @@ public class EnumSetDeserializer
     /**********************************************************
      */
 
-    @SuppressWarnings("unchecked") 
     @Override
     public EnumSet<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
+        EnumSet result = constructSet();
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
-            return handleNonArray(p, ctxt);
+            return handleNonArray(p, ctxt, result);
         }
-        EnumSet result = constructSet();
+        return _deserialize(p, ctxt, result);
+    }
+
+    @Override
+    public EnumSet<?> deserialize(JsonParser p, DeserializationContext ctxt,
+            EnumSet<?> result) throws IOException
+    {
+        // Ok: must point to START_ARRAY (or equivalent)
+        if (!p.isExpectedStartArrayToken()) {
+            return handleNonArray(p, ctxt, result);
+        }
+        return _deserialize(p, ctxt, result);
+    }
+    
+    @SuppressWarnings("unchecked") 
+    protected final EnumSet<?> _deserialize(JsonParser p, DeserializationContext ctxt,
+            EnumSet result) throws IOException
+    {
         JsonToken t;
 
         try {
@@ -164,12 +186,12 @@ public class EnumSetDeserializer
     @SuppressWarnings("unchecked") 
     private EnumSet constructSet()
     {
-        // superbly ugly... but apparently necessary
         return EnumSet.noneOf(_enumClass);
     }
 
     @SuppressWarnings("unchecked") 
-    protected EnumSet<?> handleNonArray(JsonParser p, DeserializationContext ctxt)
+    protected EnumSet<?> handleNonArray(JsonParser p, DeserializationContext ctxt,
+            EnumSet result)
         throws IOException
     {
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
@@ -179,8 +201,6 @@ public class EnumSetDeserializer
         if (!canWrap) {
             return (EnumSet<?>) ctxt.handleUnexpectedToken(EnumSet.class, p);
         }
-
-        EnumSet result = constructSet();
         // First: since `null`s not allowed, slightly simpler...
         if (p.hasToken(JsonToken.VALUE_NULL)) {
             return (EnumSet<?>) ctxt.handleUnexpectedToken(_enumClass, p);

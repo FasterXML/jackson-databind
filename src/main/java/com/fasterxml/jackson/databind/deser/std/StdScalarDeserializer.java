@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -34,4 +35,14 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue) throws IOException {
         return deserialize(p, ctxt);
     }
+
+    /**
+     * By default assumption is that scalar types can not be updated: many are immutable
+     * values (such as primitives and wrappers)
+     */
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.FALSE;
+    }
+
 }

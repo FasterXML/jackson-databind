@@ -66,13 +66,40 @@ public class MergingSettableBeanProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        delegate.set(instance, _deserialize(p, ctxt, instance));
+        Object oldValue = _accessor.getValue(instance);
+        Object newValue;
+        // 20-Oct-2016, tatu: Couple of possibilities of how to proceed; for
+        //    now, default to "normal" handling without merging
+        if (oldValue == null) {
+            newValue = delegate.deserialize(p, ctxt);
+        } else {
+            newValue = delegate.deserializeWith(p, ctxt, oldValue);
+        }
+        if (newValue != oldValue) {
+            delegate.set(instance, newValue);
+        }
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-            DeserializationContext ctxt, Object instance) throws IOException {
-        return delegate.setAndReturn(instance, _deserialize(p, ctxt, instance));
+            DeserializationContext ctxt, Object instance) throws IOException
+    {
+        Object oldValue = _accessor.getValue(instance);
+        Object newValue;
+        // 20-Oct-2016, tatu: Couple of possibilities of how to proceed; for
+        //    now, default to "normal" handling without merging
+        if (oldValue == null) {
+            newValue = delegate.deserialize(p, ctxt);
+        } else {
+            newValue = delegate.deserializeWith(p, ctxt, oldValue);
+        }
+        // 23-Oct-2016, tatu: One possible complication here; should we always
+        //    try calling setter on builder? Presumably should not be required,
+        //    but may need to revise
+        if (newValue != oldValue) {
+            return delegate.setAndReturn(instance, newValue);
+        }
+        return instance;
     }
 
     @Override
@@ -85,20 +112,5 @@ public class MergingSettableBeanProperty
             throws IOException
     {
         return delegate.setAndReturn(instance, value);
-    }
-
-    protected Object _deserialize(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
-    {
-        Object value = _accessor.getValue(instance);
-        // 20-Oct-2016, tatu: Couple of possibilities of how to proceed; for
-        //    now, default to "normal" handling without merging
-        if (value == null) {
-            return delegate.deserialize(p, ctxt);
-        }
-        Object result = delegate.deserializeWith(p,  ctxt,  value);
-        // 20-Oct-2016, tatu: Similarly, we may get same object or different one;
-        //   whether to return original or new is an open question.
-        return result;
     }
 }

@@ -158,6 +158,14 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     @Override
     public boolean isCachable() { return true; }
 
+    /* 23-Oct-2016, tatu: Certain subtypes (Array, Object) actually do support
+     *   updates, but default to false; can be improved in future.
+     */
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.FALSE;
+    }
+    
     /*
     /**********************************************************
     /* Overridable methods

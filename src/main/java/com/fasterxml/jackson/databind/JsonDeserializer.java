@@ -331,6 +331,29 @@ public abstract class JsonDeserializer<T>
                 +"': type: value deserializer of type "+getClass().getName()+" does not support them");
     }
 
+    /**
+     * Introspection method that may be called to see whether deserializer supports
+     * update of an existing value (aka "merging") or not. Return value should either
+     * be {@link Boolean#FALSE} if update is not supported at all (immutable values);
+     * {@link Boolean#TRUE} if update should usually work (regular POJOs, for example),
+     * or <code>null</code> if this is either not known, or may sometimes work.
+     *<p>
+     * Information gathered is typically used to either prevent merging update for
+     * property (either by skipping, if based on global defaults; or by exception during
+     * deserialization construction if explicit attempt made) if {@link Boolean#FALSE}
+     * returned, or inclusion if {@link Boolean#TRUE} is specified. If "unknown" case
+     * (<code>null</code> returned) behavior is to exclude property if global defaults
+     * used; or to allow if explicit per-type or property merging is defined.
+     *<p>
+     * Default implementation returns <code>null</code> to allow explicit per-type
+     * or per-property attempts.
+     *
+     * @since 2.9
+     */
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Deprecated methods

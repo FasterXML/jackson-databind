@@ -50,15 +50,39 @@ public class PropertyMergeTest extends BaseMapTest
         }
     }
 
+    static class MergedMap
+    {
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public Map<String,String> values = new LinkedHashMap<>();
+        {
+            values.put("a", "x");
+        }
+    }
+
+    static class MergedList
+    {
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public List<String> values = new ArrayList<>();
+        {
+            values.add("a");
+        }
+    }
+
+    static class MergedEnumSet
+    {
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public EnumSet<ABC> abc = EnumSet.of(ABC.B);
+    }
+
     static class MergedReference
     {
         @JsonSetter(merge=OptBoolean.TRUE)
         public StringReference value = new StringReference("default");
     }
-    
+
     /*
     /********************************************************
-    /* Test methods
+    /* Test methods, POJO merging
     /********************************************************
      */
 
@@ -100,6 +124,12 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(2, config.loc.b); // original, merged
     }
 
+    /*
+    /********************************************************
+    /* Test methods, Collection merging
+    /********************************************************
+     */
+
     public void testCollectionMerging() throws Exception
     {
         CollectionWrapper w = MAPPER.readValue(aposToQuotes("{'bag':['b']}"), CollectionWrapper.class);
@@ -108,6 +138,42 @@ public class PropertyMergeTest extends BaseMapTest
         assertTrue(w.bag.contains("b"));
     }
 
+    public void testListMerging() throws Exception
+    {
+        MergedList w = MAPPER.readValue(aposToQuotes("{'values':['x']}"), MergedList.class);
+        assertEquals(2, w.values.size());
+        assertTrue(w.values.contains("a"));
+        assertTrue(w.values.contains("x"));
+    }
+
+    public void testEnumSetMerging() throws Exception
+    {
+        MergedEnumSet result = MAPPER.readValue(aposToQuotes("{'abc':['A']}"), MergedEnumSet.class);
+        assertEquals(2, result.abc.size());
+        assertTrue(result.abc.contains(ABC.B)); // original
+        assertTrue(result.abc.contains(ABC.A)); // added
+    }
+
+    /*
+    /********************************************************
+    /* Test methods, Map merging
+    /********************************************************
+     */
+
+    public void testMapMerging() throws Exception
+    {
+        MergedMap v = MAPPER.readValue(aposToQuotes("{'values':{'c':'y'}}"), MergedMap.class);
+        assertEquals(2, v.values.size());
+        assertEquals("y", v.values.get("c"));
+        assertEquals("x", v.values.get("a"));
+    }
+
+    /*
+    /********************************************************
+    /* Test methods, reference types
+    /********************************************************
+     */
+    
     public void testReferenceMerging() throws Exception
     {
         MergedReference result = MAPPER.readValue(aposToQuotes("{'value':'override'}"),

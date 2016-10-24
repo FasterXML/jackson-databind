@@ -881,6 +881,14 @@ public abstract class BeanDeserializerBase
     @Override
     public boolean isCachable() { return true; }
 
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        // although with possible caveats, yes, values can be updated
+        // 23-Oct-2016, tatu: Perhaps in future could and should verify from
+        //   bean settings...
+        return Boolean.TRUE;
+    }
+    
     @Override
     public Class<?> handledType() {
         return _beanType.getRawClass();

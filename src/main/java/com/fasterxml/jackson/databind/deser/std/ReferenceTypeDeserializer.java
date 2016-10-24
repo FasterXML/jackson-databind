@@ -121,6 +121,16 @@ public abstract class ReferenceTypeDeserializer<T>
     @Override
     public JavaType getValueType() { return _fullType; }
 
+    /**
+     * By default we assume that updateability mostly relies on value
+     * deserializer; if it supports updates, typically that's what
+     * matters. So let's just delegate.
+     */
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _valueDeserializer.supportsUpdate(config);
+    }
+
     /*
     /**********************************************************
     /* Deserialization

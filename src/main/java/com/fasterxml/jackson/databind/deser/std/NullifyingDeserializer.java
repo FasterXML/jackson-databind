@@ -26,7 +26,12 @@ public class NullifyingDeserializer
     /* Deserializer API
     /**********************************************************
      */
-    
+
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.FALSE;
+    }
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {

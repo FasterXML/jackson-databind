@@ -148,6 +148,11 @@ public class StdDelegatingDeserializer<T>
         return _delegateDeserializer.handledType();
     }
 
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _delegateDeserializer.supportsUpdate(config);
+    }
+
     /*
     /**********************************************************
     /* Serialization

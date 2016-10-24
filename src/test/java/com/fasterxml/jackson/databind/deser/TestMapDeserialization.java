@@ -57,7 +57,7 @@ public class TestMapDeserialization
         }
     }
 
-    // Issue #142
+    // [databind#142]
     public static class EnumMapContainer {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
         public EnumMap<KeyEnum,ITestType> testTypes;

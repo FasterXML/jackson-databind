@@ -528,18 +528,22 @@ public class BeanDeserializerFactory
                         prop = MergingSettableBeanProperty.construct(prop, accessor);
                     }
                 }
-            } else if (useGettersAsSetters && propDef.hasGetter()) {
-                /* May also need to consider getters
-                 * for Map/Collection properties; but with lowest precedence
-                 */
-                AnnotatedMethod getter = propDef.getGetter();
-                // should only consider Collections and Maps, for now?
-                Class<?> rawPropertyType = getter.getRawType();
-                if (Collection.class.isAssignableFrom(rawPropertyType)
-                        || Map.class.isAssignableFrom(rawPropertyType)) {
-                    prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
+            } else if (propDef.hasGetter()) {
+//System.err.println("No setters, property: "+propDef.getName());
+
+                if (useGettersAsSetters) {
+                    // May also need to consider getters
+                    // for Map/Collection properties; but with lowest precedence
+                    AnnotatedMethod getter = propDef.getGetter();
+                    // should only consider Collections and Maps, for now?
+                    Class<?> rawPropertyType = getter.getRawType();
+                    if (Collection.class.isAssignableFrom(rawPropertyType)
+                            || Map.class.isAssignableFrom(rawPropertyType)) {
+                        prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
+                    }
                 }
             }
+
             // 25-Sep-2014, tatu: No point in finding constructor parameters for abstract types
             //   (since they are never used anyway)
             if (isConcrete && propDef.hasConstructorParameter()) {

@@ -25,6 +25,14 @@ public class PropertyMergeTest extends BaseMapTest
         public AB loc = new AB(1, 2);
     }
 
+    // another variant where all we got is a getter
+    static class NoSetterConfig {
+        AB _value = new AB(1, 2);
+ 
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public AB getValue() { return _value; }
+    }
+
     static class AB {
         public int a, b;
 
@@ -123,6 +131,17 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
     }
+
+    // should even work with no setter
+    /*
+    public void testBeanMergingWithoutSetter() throws Exception
+    {
+        NoSetterConfig config = MAPPER.readValue(aposToQuotes("{'value':{'b':99}}"),
+                NoSetterConfig.class);
+        assertEquals(99, config._value.b);
+        assertEquals(1, config._value.a);
+    }
+    */
 
     /*
     /********************************************************

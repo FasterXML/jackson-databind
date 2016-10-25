@@ -72,6 +72,7 @@ public class TestJavaType
         JavaType baseType = tf.constructType(BaseType.class);
         assertSame(BaseType.class, baseType.getRawClass());
         assertTrue(baseType.hasRawClass(BaseType.class));
+        assertFalse(baseType.isTypeOrSubTypeOf(SubType.class));
 
         assertFalse(baseType.isArrayType());
         assertFalse(baseType.isContainerType());
@@ -84,8 +85,28 @@ public class TestJavaType
         assertNull(baseType.getContentType());
         assertNull(baseType.getKeyType());
         assertNull(baseType.getValueHandler());
+
+        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$BaseType;", baseType.getGenericSignature());
+        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$BaseType;", baseType.getErasedSignature());
     }
 
+    @SuppressWarnings("deprecation")
+    public void testDeprecated()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType baseType = tf.constructType(BaseType.class);
+        assertTrue(baseType.hasRawClass(BaseType.class));
+        assertNull(baseType.getParameterSource());
+        assertNull(baseType.getContentTypeHandler());
+        assertNull(baseType.getContentValueHandler());
+        assertFalse(baseType.hasValueHandler());
+        assertFalse(baseType.hasHandlers());
+
+        assertSame(baseType, baseType.forcedNarrowBy(BaseType.class));
+        JavaType sub = baseType.forcedNarrowBy(SubType.class);
+        assertTrue(sub.hasRawClass(SubType.class));
+    }
+    
     public void testArrayType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -119,6 +140,9 @@ public class TestJavaType
         assertNotNull(mapT.getContentType());
         assertNotNull(mapT.getKeyType());
 
+        assertEquals("Ljava/util/HashMap<Ljava/lang/Object;Ljava/lang/Object;>;", mapT.getGenericSignature());
+        assertEquals("Ljava/util/HashMap;", mapT.getErasedSignature());
+        
         assertTrue(mapT.equals(mapT));
         assertFalse(mapT.equals(null));
         assertFalse(mapT.equals("xyz"));
@@ -127,7 +151,17 @@ public class TestJavaType
     public void testEnumType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
-        assertTrue(tf.constructType(MyEnum.class).isEnumType());
+        JavaType enumT = tf.constructType(MyEnum.class);
+        assertTrue(enumT.isEnumType());
+        assertFalse(enumT.hasHandlers());
+        assertTrue(enumT.isTypeOrSubTypeOf(MyEnum.class));
+        assertTrue(enumT.isTypeOrSubTypeOf(Object.class));
+        assertNull(enumT.containedType(3));
+        assertTrue(enumT.containedTypeOrUnknown(3).isJavaLangObject());
+
+        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$MyEnum;", enumT.getGenericSignature());
+        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$MyEnum;", enumT.getErasedSignature());
+
         assertTrue(tf.constructType(MyEnum2.class).isEnumType());
         assertTrue(tf.constructType(MyEnum.A.getClass()).isEnumType());
         assertTrue(tf.constructType(MyEnum2.A.getClass()).isEnumType());
@@ -164,7 +198,8 @@ public class TestJavaType
         m = Generic1194.class.getMethod("getList");
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/List<Ljava/lang/String;>;", t.getGenericSignature());
-
+        assertEquals("Ljava/util/List;", t.getErasedSignature());
+        
         m = Generic1194.class.getMethod("getMap");
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;",

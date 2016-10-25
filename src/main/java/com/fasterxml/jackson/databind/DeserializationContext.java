@@ -1256,13 +1256,12 @@ public abstract class DeserializationContext
             JsonDeserializer<?> deser)
         throws JsonMappingException
     {
-        if (!isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            return;
+        if (isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+            // Do we know properties that are expected instead?
+            Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
+            throw UnrecognizedPropertyException.from(_parser,
+                    instanceOrClass, fieldName, propIds);
         }
-        // Do we know properties that are expected instead?
-        Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
-        throw UnrecognizedPropertyException.from(_parser,
-                instanceOrClass, fieldName, propIds);
     }
 
     /**
@@ -1271,15 +1270,9 @@ public abstract class DeserializationContext
      * @deprecated Since 2.9: not clear this ever occurs
      */
     @Deprecated // since 2.9
-    public void reportMissingContent(String msg, Object... msgArgs)
-        throws JsonMappingException
+    public void reportMissingContent(String msg, Object... msgArgs) throws JsonMappingException
     {
-        if (msg == null) {
-            msg = "No content to map due to end-of-input";
-        } else {
-            msg = _format(msg, msgArgs);
-        }
-        throw InputMismatchException.from(getParser(), (JavaType) null, msg);
+        throw InputMismatchException.from(getParser(), (JavaType) null, "No content to map due to end-of-input");
     }
 
     /**
@@ -1588,8 +1581,7 @@ public abstract class DeserializationContext
     public void reportMappingException(String msg, Object... msgArgs)
         throws JsonMappingException
     {
-        msg = _format(msg, msgArgs);
-        throw JsonMappingException.from(getParser(), msg);
+        throw JsonMappingException.from(getParser(), _format(msg, msgArgs));
     }
 
     /**

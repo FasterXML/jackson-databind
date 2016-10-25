@@ -233,17 +233,13 @@ public class BeanDeserializerFactory
             }
         }
         JsonDeserializer<?> deserializer;
-
-        /* 19-Mar-2012, tatu: This check used to be done earlier; but we have to defer
-         *   it a bit to collect information on ObjectIdReader, for example.
-         */
         if (type.isAbstract() && !valueInstantiator.canInstantiate()) {
             deserializer = builder.buildAbstract();
         } else {
             deserializer = builder.build();
         }
-
-        // [JACKSON-440]: may have modifier(s) that wants to modify or replace serializer we just built:
+        // may have modifier(s) that wants to modify or replace serializer we just built
+        // (note that `resolve()` and `createContextual()` called later on)
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deserializer = mod.modifyDeserializer(config, beanDesc, deserializer);

@@ -211,15 +211,7 @@ public abstract class JavaType
         if (subclass == _class) { // can still optimize for simple case
             return this;
         }
-        JavaType result = _narrow(subclass);
-        // TODO: these checks should NOT actually be needed; above should suffice:
-        if (_valueHandler != result.<Object>getValueHandler()) {
-            result = result.withValueHandler(_valueHandler);
-        }
-        if (_typeHandler != result.<Object>getTypeHandler()) {
-            result = result.withTypeHandler(_typeHandler);
-        }
-        return result;
+        return  _narrow(subclass);
     }
 
     @Deprecated // since 2.7

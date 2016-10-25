@@ -125,7 +125,8 @@ public class StdKeyDeserializer extends KeyDeserializer
                 return result;
             }
         } catch (Exception re) {
-            return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation, problem: %s", re.getMessage());
+            return ctxt.handleWeirdKey(_keyClass, key, "not a valid representation, problem: (%s) %s",
+                    re.getClass().getName(), re.getMessage());
         }
         if (_keyClass.isEnum() && ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
             return null;

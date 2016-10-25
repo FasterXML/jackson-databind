@@ -559,7 +559,8 @@ public class BasicBeanDescription extends BeanDescription
     {
         // So, of all single-arg static methods:
         for (AnnotatedMethod am : _classInfo.getStaticMethods()) {
-            if (isFactoryMethod(am)) {
+            // 24-Oct-2016, tatu: Better ensure it only takes 1 arg, no matter what
+            if (isFactoryMethod(am) && am.getParameterCount() == 1) {
                 // And must take one of expected arg types (or supertype)
                 Class<?> actualArgType = am.getRawParameterType(0);
                 for (Class<?> expArgType : expArgTypes) {
@@ -581,7 +582,6 @@ public class BasicBeanDescription extends BeanDescription
         if (!getBeanClass().isAssignableFrom(rt)) {
             return false;
         }
-
         /* Also: must be a recognized factory method, meaning:
          * (a) marked with @JsonCreator annotation, or
          * (b) "valueOf" (at this point, need not be public)
@@ -591,12 +591,15 @@ public class BasicBeanDescription extends BeanDescription
             return true;
         }
         final String name = am.getName();
+        // 24-Oct-2016, tatu: As per [databind#1429] must ensure takes exactly one arg
         if ("valueOf".equals(name)) {
-            return true;
+            if (am.getParameterCount() == 1) {
+                return true;
+            }
         }
         // [databind#208] Also accept "fromString()", if takes String or CharSequence
         if ("fromString".equals(name)) {
-            if (1 == am.getParameterCount()) {
+            if (am.getParameterCount() == 1) {
                 Class<?> cls = am.getRawParameterType(0);
                 if (cls == String.class || CharSequence.class.isAssignableFrom(cls)) {
                     return true;

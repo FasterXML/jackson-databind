@@ -29,6 +29,8 @@ Project: jackson-databind
 2.8.5 (not yet released)
 
 #1417: Further issues with `@JsonInclude` with `NON_DEFAULT`
+#1429: `StdKeyDeserializer` can erroneously use a static factory method
+  with more than one argument
 - Improvements to #1411 fix to ensure consistent `null` key handling
 
 2.8.4 (14-Oct-2016)

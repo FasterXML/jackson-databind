@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 @SuppressWarnings("serial")
-public class TestMapDeserialization
+public class MapDeserializationTest
     extends BaseMapTest
 {
     static enum Key {

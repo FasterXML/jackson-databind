@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
-public class KeyDeser1429Test extends BaseMapTest
+public class MapKeyDeserializationTest extends BaseMapTest
 {
     static class FullName {
         private String _firstname, _lastname;

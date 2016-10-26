@@ -499,6 +499,8 @@ public class BeanDeserializerFactory
         final boolean mergeByDefault = ctxt.getConfig().getDefaultSetterInfo().shouldMerge();
         for (BeanPropertyDefinition propDef : propDefs) {
             SettableBeanProperty prop = null;
+            PropertyMetadata.MergeInfo merge;
+            
             /* 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
              *   we need to do linkage (as per [databind#318]), and so need to start with
              *   other types, and only then create constructor parameter, if any.
@@ -507,22 +509,28 @@ public class BeanDeserializerFactory
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
+                merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
             } else if (propDef.hasField()) {
                 AnnotatedField field = propDef.getField();
                 JavaType propertyType = field.getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-            } else if (propDef.hasGetter()) {
-//System.err.println("No setters, property: "+propDef.getName());
-
-                if (useGettersAsSetters) {
-                    // May also need to consider getters
-                    // for Map/Collection properties; but with lowest precedence
-                    AnnotatedMethod getter = propDef.getGetter();
-                    // should only consider Collections and Maps, for now?
-                    Class<?> rawPropertyType = getter.getRawType();
-                    if (Collection.class.isAssignableFrom(rawPropertyType)
-                            || Map.class.isAssignableFrom(rawPropertyType)) {
+                merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
+            } else {
+                merge = null;
+                // NOTE: specifically getter, since field was already checked above
+                AnnotatedMethod getter = propDef.getGetter();
+                if (getter != null) {
+                    if (useGettersAsSetters && _isSetterlessType(getter.getRawType())) {
                         prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
+                    } else if (!propDef.hasConstructorParameter()) {
+                        // 25-Oct-2016, tatu: If merging enabled, might not need setter.
+                        //   We can not quite support this with creator parameters; in theory
+                        //   possibly, but right not not due to complexities of routing, so
+                        //   just prevent
+                        merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
+                        if (merge != null) {
+                            prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
+                        }
                     }
                 }
             }
@@ -559,14 +567,12 @@ public class BeanDeserializerFactory
                 continue;
             }
 
+            if (merge != null) {
+                AnnotatedMember accessor = merge.getter;
+                accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                prop = MergingSettableBeanProperty.construct(prop, accessor);
+            }
             if (prop != null) {
-                PropertyMetadata.MergeInfo merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
-                if (merge != null) {
-                    AnnotatedMember accessor = propDef.getAccessor();
-                    accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                    prop = MergingSettableBeanProperty.construct(prop, accessor);
-                }
-
                 // one more thing before adding to builder: copy any metadata
                 Class<?>[] views = propDef.findViews();
                 if (views == null) {
@@ -576,6 +582,14 @@ public class BeanDeserializerFactory
                 builder.addProperty(prop);
             }
         }
+    }
+
+    private boolean _isSetterlessType(Class<?> rawType) {
+        // May also need to consider getters
+        // for Map/Collection properties; but with lowest precedence
+        // should only consider Collections and Maps, for now?
+        return Collection.class.isAssignableFrom(rawType)
+                || Map.class.isAssignableFrom(rawType);
     }
 
     /**

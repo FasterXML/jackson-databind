@@ -34,7 +34,8 @@ public class PropertyMergeTest extends BaseMapTest
     }
 
     static class AB {
-        public int a, b;
+        public int a;
+        public int b;
 
         protected AB() { }
         public AB(int a0, int b0) {
@@ -133,7 +134,6 @@ public class PropertyMergeTest extends BaseMapTest
     }
 
     // should even work with no setter
-    /*
     public void testBeanMergingWithoutSetter() throws Exception
     {
         NoSetterConfig config = MAPPER.readValue(aposToQuotes("{'value':{'b':99}}"),
@@ -141,7 +141,6 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(99, config._value.b);
         assertEquals(1, config._value.a);
     }
-    */
 
     /*
     /********************************************************

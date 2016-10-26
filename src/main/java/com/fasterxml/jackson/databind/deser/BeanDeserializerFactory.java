@@ -587,14 +587,22 @@ public class BeanDeserializerFactory
     protected boolean _isMergeableProperty(DeserializationContext ctxt,
             BeanPropertyDefinition propDef)
     {
-        JsonSetter.Value v = propDef.findSetterInfo();
-        if (v != null) {
-            Boolean b = v.getMerge();
-            if (b != null) {
-                return b.booleanValue();
+        AnnotatedMember m = propDef.getPrimaryMember();
+        if (m == null) {
+            return false;
+        }
+
+        Class<?> rawType = propDef.getRawPrimaryType();
+        JsonSetter.Value setterInfo = ctxt.getConfig().getDefaultSetterInfo(rawType);
+
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if ((intr != null)) {
+            JsonSetter.Value setter = intr.findSetterInfo(m);
+            if (setter != null) {
+                setterInfo = setterInfo.withOverrides(setter);
             }
         }
-        return false;
+        return (setterInfo != null) && setterInfo.shouldMerge();
     }
 
     /**

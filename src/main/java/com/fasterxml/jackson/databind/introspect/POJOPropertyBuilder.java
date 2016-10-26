@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -601,21 +600,6 @@ public class POJOPropertyBuilder
                 return _annotationIntrospector.findPropertyAccess(member);
             }
         }, JsonProperty.Access.AUTO);
-    }
-
-    @Override
-    public JsonSetter.Value findSetterInfo() {
-        AnnotatedMember m = getPrimaryMember();
-        Class<?> rawType = (m == null) ? Object.class : m.getRawType();
-        JsonSetter.Value setterInfo = _config.getDefaultSetterInfo(rawType);
-
-        if ((m != null) && (_annotationIntrospector != null)) {
-            JsonSetter.Value setter = _annotationIntrospector.findSetterInfo(m);
-            if (setter != null) {
-                setterInfo = setterInfo.withOverrides(setter);
-            }
-        }
-        return setterInfo;
     }
 
     /*

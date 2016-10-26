@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+
 /**
  * Simple container class used for storing "additional" metadata about
  * properties. Carved out to reduce number of distinct properties that
@@ -13,12 +15,41 @@ public class PropertyMetadata
 {
     private static final long serialVersionUID = -1;
 
-    public final static PropertyMetadata STD_REQUIRED = new PropertyMetadata(Boolean.TRUE, null, null, null);
+    public final static PropertyMetadata STD_REQUIRED = new PropertyMetadata(Boolean.TRUE,
+            null, null, null, null);
 
-    public final static PropertyMetadata STD_OPTIONAL = new PropertyMetadata(Boolean.FALSE, null, null, null);
+    public final static PropertyMetadata STD_OPTIONAL = new PropertyMetadata(Boolean.FALSE,
+            null, null, null, null);
 
-    public final static PropertyMetadata STD_REQUIRED_OR_OPTIONAL = new PropertyMetadata(null, null, null, null);
-    
+    public final static PropertyMetadata STD_REQUIRED_OR_OPTIONAL = new PropertyMetadata(null,
+            null, null, null, null);
+
+    /**
+     * Helper class used for containing information about expected merge
+     * information for this property, if merging is expected.
+     *
+     * @since 2.9
+     */
+    public final static class MergeInfo {
+        public final AnnotatedMember getter;
+
+        /**
+         * Flag that is set if the information came from global defaults,
+         * and not from explicit per-property annotations or per-type
+         * config overrides.
+         */
+        public final boolean fromDefaults;
+
+        protected MergeInfo(AnnotatedMember getter, boolean fromDefaults) {
+            this.getter = getter;
+            this.fromDefaults = fromDefaults;
+        }
+
+        public static MergeInfo create(AnnotatedMember getter, boolean fromDefaults) {
+            return new MergeInfo(getter, fromDefaults);
+        }
+    }
+
     /**
      * Three states: required, not required and unknown; unknown represented
      * as null.
@@ -38,12 +69,25 @@ public class PropertyMetadata
     protected final Integer _index;
 
     /**
-     * Optional default value, as String, for property; not used cor
+     * Optional default value, as String, for property; not used for
      * any functionality by core databind, offered as metadata for
      * extensions.
      */
     protected final String _defaultValue;
-    
+
+    /**
+     * Settings regarding merging, if property is determined to possibly
+     * be mergeable (possibly since global settings may be omitted for
+     * non-mergeable types).
+     *<p>
+     * NOTE: transient since it is assumed that this information is only
+     * relevant during initial setup and not needed after full initialization.
+     * May be changed if this proves necessary.
+     * 
+     * @since 2.9
+     */
+    protected final transient MergeInfo _mergeInfo;
+
     /*
     /**********************************************************
     /* Construction, configuration
@@ -51,20 +95,22 @@ public class PropertyMetadata
      */
 
     /**
-     * @since 2.5
+     * @since 2.9
      */
-    protected PropertyMetadata(Boolean req, String desc, Integer index, String def)
+    protected PropertyMetadata(Boolean req, String desc, Integer index, String def,
+            MergeInfo mergeInfo)
     {
         _required = req;
         _description = desc;
         _index = index;
         _defaultValue = (def == null || def.isEmpty()) ? null : def;
+        _mergeInfo = mergeInfo;
     }
 
     public static PropertyMetadata construct(boolean req, String desc, Integer index,
             String defaultValue) {
         if (desc != null || index != null || defaultValue != null) {
-            return new PropertyMetadata(req, desc, index, defaultValue);
+            return new PropertyMetadata(req, desc, index, defaultValue, null);
         }
         return req ? STD_REQUIRED : STD_OPTIONAL;
     }
@@ -85,7 +131,14 @@ public class PropertyMetadata
     }
 
     public PropertyMetadata withDescription(String desc) {
-        return new PropertyMetadata(_required, desc, _index, _defaultValue);
+        return new PropertyMetadata(_required, desc, _index, _defaultValue, _mergeInfo);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public PropertyMetadata withMergeInfo(MergeInfo mergeInfo) {
+        return new PropertyMetadata(_required, _description, _index, _defaultValue, mergeInfo);
     }
 
     public PropertyMetadata withDefaultValue(String def) {
@@ -97,11 +150,11 @@ public class PropertyMetadata
         } else if (_defaultValue.equals(def)) {
             return this;
         }
-        return new PropertyMetadata(_required, _description, _index, def);
+        return new PropertyMetadata(_required, _description, _index, def, _mergeInfo);
     }
     
     public PropertyMetadata withIndex(Integer index) {
-        return new PropertyMetadata(_required, _description, index, _defaultValue);
+        return new PropertyMetadata(_required, _description, index, _defaultValue, _mergeInfo);
     }
     
     public PropertyMetadata withRequired(Boolean b) {
@@ -114,7 +167,7 @@ public class PropertyMetadata
                 return this;
             }
         }
-        return new PropertyMetadata(b, _description, _index, _defaultValue);
+        return new PropertyMetadata(b, _description, _index, _defaultValue, _mergeInfo);
     }
     
     /*
@@ -151,4 +204,9 @@ public class PropertyMetadata
      * @since 2.4
      */
     public boolean hasIndex() { return _index != null; }
+
+    /**
+     * @since 2.9
+     */
+    public MergeInfo getMergeInfo() { return _mergeInfo; }
 }

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSetter;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -141,8 +140,7 @@ public abstract class BeanPropertyDefinition
      * value)
      */
     public boolean isRequired() {
-        PropertyMetadata md = getMetadata();
-        return (md != null)  && md.isRequired();
+        return getMetadata().isRequired();
     }
 
     /*
@@ -253,17 +251,4 @@ public abstract class BeanPropertyDefinition
      * @since 2.5
      */
     public abstract JsonInclude.Value findInclusion();
-
-    /**
-     * Method used to find setter info settings that apply to this property, considering:
-     *<ol>
-     * <li>Global default settings</li>
-     * <li>Per-type overrides</li>
-     * <li>Annotations on property itself</li>
-     *</ol>
-     * and merging information as appropriate
-     *
-     * @since 2.9
-     */
-    public abstract JsonSetter.Value findSetterInfo();
 }

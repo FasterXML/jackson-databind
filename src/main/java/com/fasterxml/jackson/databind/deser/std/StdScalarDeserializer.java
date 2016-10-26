@@ -33,6 +33,9 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
      */
     @Override // since 2.9
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue) throws IOException {
+        // 25-Oct-2016, tatu: And if attempt is made, see if we are to complain...
+        ctxt.reportBadMerge(this);
+        // except that it is possible to suppress this; and if so...
         return deserialize(p, ctxt);
     }
 

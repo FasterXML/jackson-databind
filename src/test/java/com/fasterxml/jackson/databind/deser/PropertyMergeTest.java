@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Tests to make sure that the new "merging" property of
@@ -89,13 +90,23 @@ public class PropertyMergeTest extends BaseMapTest
         public StringReference value = new StringReference("default");
     }
 
+    // // // Classes with invalid merge definition(s)
+    
+    static class CantMergeInts {
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public int value;
+    }
+
     /*
     /********************************************************
     /* Test methods, POJO merging
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper()
+            // 25-Oct-2016, tatu: leave enabled until proper filtering is implemented
+            .enable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
+    ;
 
     public void testBeanMergingViaProp() throws Exception
     {
@@ -124,9 +135,8 @@ public class PropertyMergeTest extends BaseMapTest
     {
         // but with type-overrides
         ObjectMapper mapper = new ObjectMapper()
-                // 23-Oct-2016, tatu: should work either way, but leave disabled
-                //   to ensure handling by scalar types
-                .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
+// !!! 25-Oct-2016, tatu: temporarily force ignoral until we can rewrite
+                .enable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
                 .setDefaultSetterInfo(JsonSetter.Value.forMerging());
             NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
@@ -197,5 +207,24 @@ public class PropertyMergeTest extends BaseMapTest
         MergedReference result = MAPPER.readValue(aposToQuotes("{'value':'override'}"),
                 MergedReference.class);
         assertEquals("override", result.value.get());
+    }
+
+    /*
+    /********************************************************
+    /* Test methods, failure checking
+    /********************************************************
+     */
+
+    public void testInvalidPropertyMerge() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+                .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE);
+        
+        try {
+            mapper.readValue("{\"value\":3}", CantMergeInts.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "can not be merged");
+        }
     }
 }

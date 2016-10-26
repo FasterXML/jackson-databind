@@ -1230,50 +1230,6 @@ public abstract class DeserializationContext
         msg = _format(msg, msgArgs);
         throw wrongTokenException(getParser(), targetType, expToken, msg);
     }
-    
-    @Deprecated // since 2.9
-    public void reportWrongTokenException(JsonParser p,
-            JsonToken expToken, String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        msg = _format(msg, msgArgs);
-        throw wrongTokenException(p, expToken, msg);
-    }
-    
-    /**
-     * Helper method for reporting a problem with unhandled unknown property.
-     * 
-     * @param instanceOrClass Either value being populated (if one has been
-     *   instantiated), or Class that indicates type that would be (or
-     *   have been) instantiated
-     * @param deser Deserializer that had the problem, if called by deserializer
-     *   (or on behalf of one)
-     *
-     * @deprecated Since 2.8 call {@link #handleUnknownProperty} instead
-     */
-    @Deprecated
-    public void reportUnknownProperty(Object instanceOrClass, String fieldName,
-            JsonDeserializer<?> deser)
-        throws JsonMappingException
-    {
-        if (isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            // Do we know properties that are expected instead?
-            Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
-            throw UnrecognizedPropertyException.from(_parser,
-                    instanceOrClass, fieldName, propIds);
-        }
-    }
-
-    /**
-     * @since 2.8
-     *
-     * @deprecated Since 2.9: not clear this ever occurs
-     */
-    @Deprecated // since 2.9
-    public void reportMissingContent(String msg, Object... msgArgs) throws JsonMappingException
-    {
-        throw InputMismatchException.from(getParser(), (JavaType) null, "No content to map due to end-of-input");
-    }
 
     /**
      * @since 2.8
@@ -1337,7 +1293,50 @@ public abstract class DeserializationContext
         msg = _format(msg, msgArgs);
         throw InputMismatchException.from(getParser(), targetType, msg);
     }
+
+    @Deprecated // since 2.9
+    public void reportWrongTokenException(JsonParser p,
+            JsonToken expToken, String msg, Object... msgArgs)
+        throws JsonMappingException
+    {
+        msg = _format(msg, msgArgs);
+        throw wrongTokenException(p, expToken, msg);
+    }
     
+    /**
+     * Helper method for reporting a problem with unhandled unknown property.
+     * 
+     * @param instanceOrClass Either value being populated (if one has been
+     *   instantiated), or Class that indicates type that would be (or
+     *   have been) instantiated
+     * @param deser Deserializer that had the problem, if called by deserializer
+     *   (or on behalf of one)
+     *
+     * @deprecated Since 2.8 call {@link #handleUnknownProperty} instead
+     */
+    @Deprecated
+    public void reportUnknownProperty(Object instanceOrClass, String fieldName,
+            JsonDeserializer<?> deser)
+        throws JsonMappingException
+    {
+        if (isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+            // Do we know properties that are expected instead?
+            Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
+            throw UnrecognizedPropertyException.from(_parser,
+                    instanceOrClass, fieldName, propIds);
+        }
+    }
+
+    /**
+     * @since 2.8
+     *
+     * @deprecated Since 2.9: not clear this ever occurs
+     */
+    @Deprecated // since 2.9
+    public void reportMissingContent(String msg, Object... msgArgs) throws JsonMappingException {
+        throw InputMismatchException.from(getParser(), (JavaType) null, "No content to map due to end-of-input");
+    }
+
     /*
     /**********************************************************
     /* Methods for problem reporting, in cases where recovery
@@ -1380,6 +1379,29 @@ public abstract class DeserializationContext
     @Override
     public <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException {
         throw InvalidDefinitionException.from(_parser, msg, type);
+    }
+
+    /**
+     * Method that deserializer may call if it is called to do an update ("merge")
+     * but deserializer operates on a non-mergeable type. Although this should
+     * usually be caught earlier, sometimes it may only be caught during operation
+     * and if so this is the method to call.
+     * Note that if {@link MapperFeature#IGNORE_MERGE_FOR_UNMERGEABLE} is enabled,
+     * this method will simply return null; otherwise {@link InvalidDefinitionException}
+     * will be thrown.
+     *
+     * @since 2.9
+     */
+    public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException {
+        if (isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
+            return null;
+        }
+
+        Class<?> raw = deser.handledType();
+        JavaType type = constructType(raw);
+        String msg = String.format("Invalid configuration: values of type %s can not be merged",
+                type);
+        throw InvalidDefinitionException.from(getParser(), msg, type);
     }
 
     /*

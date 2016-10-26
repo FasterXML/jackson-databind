@@ -433,7 +433,7 @@ public class BeanDeserializerBuilder
         }
 
         return new BuilderBasedDeserializer(this,
-                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
+                _beanDesc, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 anyViews);
     }
 

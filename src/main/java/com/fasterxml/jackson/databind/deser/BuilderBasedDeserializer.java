@@ -26,6 +26,14 @@ public class BuilderBasedDeserializer
     private static final long serialVersionUID = 1L;
 
     protected final AnnotatedMethod _buildMethod;
+
+    /**
+     * Type that the builder will produce, target type; as opposed to
+     * `handledType()` which refers to Builder class.
+     *
+     * @since 2.9
+     */
+    protected final JavaType _targetType;
 	
     /*
     /**********************************************************
@@ -37,19 +45,35 @@ public class BuilderBasedDeserializer
      * Constructor used by {@link BeanDeserializerBuilder}.
      */
     public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc,
+            BeanDescription beanDesc, JavaType targetType,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             Set<String> ignorableProps, boolean ignoreAllUnknown,
             boolean hasViews)
     {
         super(builder, beanDesc, properties, backRefs,
                 ignorableProps, ignoreAllUnknown, hasViews);
+        _targetType = targetType;
         _buildMethod = builder.getBuildMethod();
         // 05-Mar-2012, tatu: Can not really make Object Ids work with builders, not yet anyway
         if (_objectIdReader != null) {
             throw new IllegalArgumentException("Can not use Object Id with Builder-based deserialization (type "
                     +beanDesc.getType()+")");
         }
+    }
+
+    /**
+     * @deprecated Since 2.9
+     */
+    @Deprecated
+    public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
+            BeanDescription beanDesc,
+            BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
+            Set<String> ignorableProps, boolean ignoreAllUnknown,
+            boolean hasViews)
+    {
+        this(builder, beanDesc,
+                beanDesc.getType(), // Wrong! But got no access via `BeanDeserializerBuilder`
+                properties, backRefs, ignorableProps, ignoreAllUnknown, hasViews);
     }
 
     /**
@@ -65,26 +89,31 @@ public class BuilderBasedDeserializer
     {
         super(src, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
+        _targetType = src._targetType;
     }
     
     protected BuilderBasedDeserializer(BuilderBasedDeserializer src, NameTransformer unwrapper) {
         super(src, unwrapper);
         _buildMethod = src._buildMethod;
+        _targetType = src._targetType;
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, ObjectIdReader oir) {
         super(src, oir);
         _buildMethod = src._buildMethod;
+        _targetType = src._targetType;
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, Set<String> ignorableProps) {
         super(src, ignorableProps);
         _buildMethod = src._buildMethod;
+        _targetType = src._targetType;
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, BeanPropertyMap props) {
         super(src, props);
         _buildMethod = src._buildMethod;
+        _targetType = src._targetType;
     }
     
     @Override
@@ -115,7 +144,7 @@ public class BuilderBasedDeserializer
     @Override
     protected BeanDeserializerBase asArrayDeserializer() {
         SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
-        return new BeanAsArrayBuilderDeserializer(this, props, _buildMethod);
+        return new BeanAsArrayBuilderDeserializer(this, _targetType, props, _buildMethod);
     }
     
     /*
@@ -123,7 +152,7 @@ public class BuilderBasedDeserializer
     /* JsonDeserializer implementation
     /**********************************************************
      */
-    
+
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
             throws IOException
     {
@@ -137,7 +166,7 @@ public class BuilderBasedDeserializer
             return wrapInstantiationProblem(e, ctxt);
         }
     }
-    
+
     /**
      * Main deserialization method for bean-based objects (POJOs).
      */
@@ -145,11 +174,9 @@ public class BuilderBasedDeserializer
     public final Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = p.getCurrentToken();
-        
         // common case first:
-        if (t == JsonToken.START_OBJECT) {
-            t = p.nextToken();
+        if (p.isExpectedStartObjectToken()) {
+            JsonToken t = p.nextToken();
             if (_vanillaProcessing) {
             	return finishBuild(ctxt, vanillaDeserialize(p, ctxt, t));
             }
@@ -157,27 +184,25 @@ public class BuilderBasedDeserializer
             return finishBuild(ctxt, builder);
         }
         // and then others, generally requiring use of @JsonCreator
-        if (t != null) {
-            switch (t) {
-            case VALUE_STRING:
-                return finishBuild(ctxt, deserializeFromString(p, ctxt));
-            case VALUE_NUMBER_INT:
-                return finishBuild(ctxt, deserializeFromNumber(p, ctxt));
-            case VALUE_NUMBER_FLOAT:
-            	return finishBuild(ctxt, deserializeFromDouble(p, ctxt));
-            case VALUE_EMBEDDED_OBJECT:
-                return p.getEmbeddedObject();
-            case VALUE_TRUE:
-            case VALUE_FALSE:
-                return finishBuild(ctxt, deserializeFromBoolean(p, ctxt));
-            case START_ARRAY:
-                // these only work if there's a (delegating) creator...
-                return finishBuild(ctxt, deserializeFromArray(p, ctxt));
-            case FIELD_NAME:
-            case END_OBJECT:
-                return finishBuild(ctxt, deserializeFromObject(p, ctxt));
-            default:
-            }
+        switch (p.getCurrentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            return finishBuild(ctxt, deserializeFromString(p, ctxt));
+        case JsonTokenId.ID_NUMBER_INT:
+            return finishBuild(ctxt, deserializeFromNumber(p, ctxt));
+        case JsonTokenId.ID_NUMBER_FLOAT:
+            return finishBuild(ctxt, deserializeFromDouble(p, ctxt));
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
+            return p.getEmbeddedObject();
+        case JsonTokenId.ID_TRUE:
+        case JsonTokenId.ID_FALSE:
+            return finishBuild(ctxt, deserializeFromBoolean(p, ctxt));
+        case JsonTokenId.ID_START_ARRAY:
+            // these only work if there's a (delegating) creator...
+            return finishBuild(ctxt, deserializeFromArray(p, ctxt));
+        case JsonTokenId.ID_FIELD_NAME:
+        case JsonTokenId.ID_END_OBJECT:
+            return finishBuild(ctxt, deserializeFromObject(p, ctxt));
+        default:
         }
         return ctxt.handleUnexpectedToken(handledType(), p);
     }
@@ -189,15 +214,24 @@ public class BuilderBasedDeserializer
      */
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
-    		Object builder)
-        throws IOException
+    		Object value) throws IOException
     {
-        /* Important: we call separate method which does NOT call
-         * 'finishBuild()', to avoid problems with recursion
-         */
-        return finishBuild(ctxt, _deserialize(p, ctxt, builder));
+        // 26-Oct-2016, tatu: I can not see any of making this actually
+        //    work correctly, so let's indicate problem right away
+        JavaType valueType = _targetType;
+        // Did they try to give us builder?
+        Class<?> builderRawType = handledType();
+        Class<?> instRawType = value.getClass();
+        if (builderRawType.isAssignableFrom(instRawType)) {
+            return ctxt.reportBadDefinition(valueType, String.format(
+                    "Deserialization of %s by passing existing Builder (%s) instance not supported",
+                    valueType, builderRawType.getName()));
+        }
+        return ctxt.reportBadDefinition(valueType, String.format(
+                "Deserialization of %s by passing existing instance (of %s) not supported",
+                valueType, instRawType.getName()));
     }
-    
+
     /*
     /**********************************************************
     /* Concrete deserialization methods
@@ -206,7 +240,7 @@ public class BuilderBasedDeserializer
 
     protected final Object _deserialize(JsonParser p,
             DeserializationContext ctxt, Object builder)
-        throws IOException, JsonProcessingException
+        throws IOException
     {        
         if (_injectables != null) {
             injectValues(ctxt, builder);
@@ -246,14 +280,14 @@ public class BuilderBasedDeserializer
         }
         return builder;
     }
-    
+
     /**
      * Streamlined version that is only used when no "special"
      * features are enabled.
      */
     private final Object vanillaDeserialize(JsonParser p,
     		DeserializationContext ctxt, JsonToken t)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
         for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
@@ -280,7 +314,7 @@ public class BuilderBasedDeserializer
      */
     @Override
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_nonStandardCreation) {
             if (_unwrappedPropertyHandler != null) {
@@ -331,7 +365,7 @@ public class BuilderBasedDeserializer
     @SuppressWarnings("resource")
     protected final Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     { 
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
@@ -423,7 +457,7 @@ public class BuilderBasedDeserializer
     
     protected final Object deserializeWithView(JsonParser p, DeserializationContext ctxt,
             Object bean, Class<?> activeView)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = p.getCurrentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
@@ -460,7 +494,7 @@ public class BuilderBasedDeserializer
      */
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
@@ -520,7 +554,7 @@ public class BuilderBasedDeserializer
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser p,
     		DeserializationContext ctxt, Object bean)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -565,7 +599,7 @@ public class BuilderBasedDeserializer
     @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser p,
     		DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
@@ -649,7 +683,7 @@ public class BuilderBasedDeserializer
      */
     
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithExternalTypeId(p, ctxt);
@@ -659,7 +693,7 @@ public class BuilderBasedDeserializer
 
     protected Object deserializeWithExternalTypeId(JsonParser p,
     		DeserializationContext ctxt, Object bean)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
@@ -712,9 +746,12 @@ public class BuilderBasedDeserializer
 
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p,
     		DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // !!! 04-Mar-2012, TODO: Need to fix -- will not work as is...
-        throw new IllegalStateException("Deserialization with Builder, External type id, @JsonCreator not yet implemented");
+        JavaType t = _targetType;
+        return ctxt.reportBadDefinition(t, String.format(
+                "Deserialization (of %s) with Builder, External type id, @JsonCreator not yet implemented",
+                t));
     }
 }

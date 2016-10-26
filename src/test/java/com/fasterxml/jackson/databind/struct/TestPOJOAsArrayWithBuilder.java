@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Unit tests for "POJO as array" feature using Builder-style
@@ -28,6 +29,12 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     static class SimpleBuilderXY
     {
         public int x, y;
+
+        protected SimpleBuilderXY() { }
+        protected SimpleBuilderXY(int x0, int y0) {
+            x = x0;
+            y = y0;
+        }
         
         public SimpleBuilderXY withX(int x0) {
             this.x = x0;
@@ -58,5 +65,21 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
         ValueClassXY value = MAPPER.readValue("[1,2]", ValueClassXY.class);
         assertEquals(2, value._x);
         assertEquals(3, value._y);
+    }
+
+    // Won't work, but verify exception
+    public void testBuilderWithUpdate() throws Exception
+    {
+        // Ok, first, simple case of all values being present
+        try {
+            /*value =*/ MAPPER.readerFor(ValueClassXY.class)
+                    .withValueToUpdate(new ValueClassXY(6, 7))
+                    .readValue("[1,2]");
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Deserialization of");
+            verifyException(e, "by passing existing instance");
+            verifyException(e, "ValueClassXY");
+        }
     }
 }

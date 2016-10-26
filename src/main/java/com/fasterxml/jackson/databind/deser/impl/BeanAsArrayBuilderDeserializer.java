@@ -25,7 +25,15 @@ public class BeanAsArrayBuilderDeserializer
     final protected SettableBeanProperty[] _orderedProperties;
 
     final protected AnnotatedMethod _buildMethod;
-        
+
+    /**
+     * Type that the builder will produce, target type; as opposed to
+     * `handledType()` which refers to Builder class.
+     *
+     * @since 2.9
+     */
+    protected final JavaType _targetType;
+
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization
@@ -36,13 +44,17 @@ public class BeanAsArrayBuilderDeserializer
      * Main constructor used both for creating new instances (by
      * {@link BeanDeserializer#asArrayDeserializer}) and for
      * creating copies with different delegate.
+     *
+     * @since 2.9
      */
     public BeanAsArrayBuilderDeserializer(BeanDeserializerBase delegate,
+            JavaType targetType,
             SettableBeanProperty[] ordered,
             AnnotatedMethod buildMethod)
     {
         super(delegate);
         _delegate = delegate;
+        _targetType = targetType;
         _orderedProperties = ordered;
         _buildMethod = buildMethod;
     }
@@ -60,19 +72,19 @@ public class BeanAsArrayBuilderDeserializer
     @Override
     public BeanDeserializerBase withObjectIdReader(ObjectIdReader oir) {
         return new BeanAsArrayBuilderDeserializer(_delegate.withObjectIdReader(oir),
-                _orderedProperties, _buildMethod);
+                _targetType, _orderedProperties, _buildMethod);
     }
 
     @Override
     public BeanDeserializerBase withIgnorableProperties(Set<String> ignorableProps) {
         return new BeanAsArrayBuilderDeserializer(_delegate.withIgnorableProperties(ignorableProps),
-                _orderedProperties, _buildMethod);
+                _targetType, _orderedProperties, _buildMethod);
     }
 
     @Override
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         return new BeanAsArrayBuilderDeserializer(_delegate.withBeanProperties(props),
-                _orderedProperties, _buildMethod);
+                _targetType, _orderedProperties, _buildMethod);
     }
 
     @Override
@@ -145,50 +157,11 @@ public class BeanAsArrayBuilderDeserializer
     }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object builder)
+    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object value)
         throws IOException
     {
-        /* No good way to verify that we have an array... although could I guess
-         * check via JsonParser. So let's assume everything is working fine, for now.
-         */
-        if (_injectables != null) {
-            injectValues(ctxt, builder);
-        }
-        final SettableBeanProperty[] props = _orderedProperties;
-        int i = 0;
-        final int propCount = props.length;
-        while (true) {
-            if (p.nextToken() == JsonToken.END_ARRAY) {
-                return finishBuild(ctxt, builder);
-            }
-            if (i == propCount) {
-                break;
-            }
-            SettableBeanProperty prop = props[i];
-            if (prop != null) { // normal case
-                try {
-                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
-                } catch (Exception e) {
-                    wrapAndThrow(e, builder, prop.getName(), ctxt);
-                }
-            } else { // just skip?
-                p.skipChildren();
-            }
-            ++i;
-        }
-        
-        // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown) {
-            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
-                    propCount);
-            // never gets here
-        }
-        // otherwise, skip until end
-        do {
-            p.skipChildren();
-        } while (p.nextToken() != JsonToken.END_ARRAY);
-        return finishBuild(ctxt, builder);
+        // 26-Oct-2016, tatu: Will fail, but let the original deserializer provide message
+        return _delegate.deserialize(p, ctxt, value);
     }
 
     // needed since 2.1

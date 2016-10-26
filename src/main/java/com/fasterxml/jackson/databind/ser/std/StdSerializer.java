@@ -138,7 +138,7 @@ public abstract class StdSerializer<T>
     {
         ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
         if (!isOptional) {
-    		    schema.put("required", !isOptional);
+            schema.put("required", !isOptional);
         }
         return schema;
     }
@@ -149,13 +149,9 @@ public abstract class StdSerializer<T>
     /**********************************************************
      */
 
-    protected ObjectNode createObjectNode() {
-        return JsonNodeFactory.instance.objectNode();
-    }
-    
     protected ObjectNode createSchemaNode(String type)
     {
-        ObjectNode schema = createObjectNode();
+        ObjectNode schema = JsonNodeFactory.instance.objectNode();
         schema.put("type", type);
         return schema;
     }
@@ -177,9 +173,7 @@ public abstract class StdSerializer<T>
      */
     protected void visitStringFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException {
-        if (visitor != null) {
-            /*JsonStringFormatVisitor v2 =*/ visitor.expectStringFormat(typeHint);
-        }
+        /*JsonStringFormatVisitor v2 =*/ visitor.expectStringFormat(typeHint);
     }
 
     /**
@@ -193,11 +187,9 @@ public abstract class StdSerializer<T>
             JsonValueFormat format)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonStringFormatVisitor v2 = visitor.expectStringFormat(typeHint);
-            if (v2 != null) {
-                v2.format(format);
-            }
+        JsonStringFormatVisitor v2 = visitor.expectStringFormat(typeHint);
+        if (v2 != null) {
+            v2.format(format);
         }
     }
 
@@ -211,12 +203,10 @@ public abstract class StdSerializer<T>
             NumberType numberType)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                if (numberType != null) {
-                    v2.numberType(numberType);
-                }
+        JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+        if (v2 != null) {
+            if (numberType != null) {
+                v2.numberType(numberType);
             }
         }
     }
@@ -232,15 +222,13 @@ public abstract class StdSerializer<T>
             NumberType numberType, JsonValueFormat format)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                if (numberType != null) {
-                    v2.numberType(numberType);
-                }
-                if (format != null) {
-                    v2.format(format);
-                }
+        JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+        if (v2 != null) {
+            if (numberType != null) {
+                v2.numberType(numberType);
+            }
+            if (format != null) {
+                v2.format(format);
             }
         }
     }
@@ -255,11 +243,9 @@ public abstract class StdSerializer<T>
             NumberType numberType)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(numberType);
-            }
+        JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
+        if (v2 != null) {
+            v2.numberType(numberType);
         }
     }
 
@@ -270,12 +256,10 @@ public abstract class StdSerializer<T>
             JsonSerializer<?> itemSerializer, JavaType itemType)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-            if (v2 != null) {
-                if (itemSerializer != null) {
-                    v2.itemsFormat(itemSerializer, itemType);
-                }
+        JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+        if (v2 != null) {
+            if (itemSerializer != null) {
+                v2.itemsFormat(itemSerializer, itemType);
             }
         }
     }
@@ -287,14 +271,12 @@ public abstract class StdSerializer<T>
             JsonFormatTypes itemType)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-            if (v2 != null) {
-                v2.itemsFormat(itemType);
-            }
+        JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+        if (v2 != null) {
+            v2.itemsFormat(itemType);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for exception handling

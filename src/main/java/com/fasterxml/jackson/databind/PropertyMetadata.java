@@ -45,8 +45,16 @@ public class PropertyMetadata
             this.fromDefaults = fromDefaults;
         }
 
-        public static MergeInfo create(AnnotatedMember getter, boolean fromDefaults) {
-            return new MergeInfo(getter, fromDefaults);
+        public static MergeInfo createForDefaults(AnnotatedMember getter) {
+            return new MergeInfo(getter, true);
+        }
+
+        public static MergeInfo createForTypeOverride(AnnotatedMember getter) {
+            return new MergeInfo(getter, false);
+        }
+
+        public static MergeInfo createForPropertyOverride(AnnotatedMember getter) {
+            return new MergeInfo(getter, false);
         }
     }
 

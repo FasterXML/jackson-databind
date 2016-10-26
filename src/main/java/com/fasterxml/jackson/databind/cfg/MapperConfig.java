@@ -449,16 +449,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract JsonFormat.Value getDefaultPropertyFormat(Class<?> baseType);
 
     /**
-     * Accessor for default setter info to use for properties of specified type,
-     * considering both global defaults and possible per-type overrides.
-     *
-     * @return Setter info to use; never null
-     *
-     * @since 2.9
-     */
-    public abstract JsonSetter.Value getDefaultSetterInfo(Class<?> baseType);
-    
-    /**
      * Accessor for default property ignorals to use, if any, for given base type,
      * based on config overrides settings (see {@link #findConfigOverride(Class)}).
      *

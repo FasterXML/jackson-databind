@@ -29,8 +29,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
-    protected final static JsonSetter.Value EMPTY_SETTER_INFO = JsonSetter.Value.empty();
-
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
@@ -543,22 +541,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
                 : intr.findPropertyIgnorals(actualClass);
         JsonIgnoreProperties.Value overrides = getDefaultPropertyIgnorals(baseType);
         return JsonIgnoreProperties.Value.merge(base, overrides);
-    }
-
-    @Override // since 2.9
-    public JsonSetter.Value getDefaultSetterInfo(Class<?> type) {
-        JsonSetter.Value setterInfo = _configOverrides.getDefaultSetterInfo();
-        ConfigOverride overrides = _configOverrides.findOverride(type);
-        if (overrides != null) {
-            JsonSetter.Value override = overrides.getSetterInfo();
-            if (override != null) {
-                setterInfo = JsonSetter.Value.merge(setterInfo, override);
-            }
-        }
-        if (setterInfo == null) {
-            return EMPTY_SETTER_INFO;
-        }
-        return setterInfo;
     }
 
     /*

@@ -83,7 +83,7 @@ public class TestJdkTypes
     public void testInetAddress() throws IOException
     {
         assertEquals(quote("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
-        assertEquals(quote("ning.com"), MAPPER.writeValueAsString(InetAddress.getByName("ning.com")));
+        assertEquals(quote("google.com"), MAPPER.writeValueAsString(InetAddress.getByName("google.com")));
     }
 
     public void testInetSocketAddress() throws IOException
@@ -92,8 +92,8 @@ public class TestJdkTypes
                 quote("127.0.0.1:8080"),
                 MAPPER.writeValueAsString(new InetSocketAddress("127.0.0.1", 8080)));
         assertEquals(
-                quote("ning.com:6667"),
-                MAPPER.writeValueAsString(new InetSocketAddress("ning.com", 6667)));
+                quote("google.com:6667"),
+                MAPPER.writeValueAsString(new InetSocketAddress("google.com", 6667)));
         assertEquals(
                 quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
                 MAPPER.writeValueAsString(new InetSocketAddress("2001:db8:85a3:8d3:1319:8a2e:370:7348", 443)));

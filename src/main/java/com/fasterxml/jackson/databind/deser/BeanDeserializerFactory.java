@@ -494,8 +494,9 @@ public class BeanDeserializerFactory
                 propDefs = mod.updateProperties(ctxt.getConfig(), beanDesc, propDefs);
             }
         }
-        
+
         // At which point we still have all kinds of properties; not all with mutators:
+        final boolean mergeByDefault = ctxt.getConfig().getDefaultSetterInfo().shouldMerge();
         for (BeanPropertyDefinition propDef : propDefs) {
             SettableBeanProperty prop = null;
             /* 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
@@ -506,24 +507,10 @@ public class BeanDeserializerFactory
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, propDef)) {
-                    AnnotatedMember accessor = propDef.getAccessor();
-                    if (accessor != null) {
-                        accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                        prop = MergingSettableBeanProperty.construct(prop, accessor);
-                    }
-                }
             } else if (propDef.hasField()) {
                 AnnotatedField field = propDef.getField();
                 JavaType propertyType = field.getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                if (_isMergeableProperty(ctxt, propDef)) {
-                    AnnotatedMember accessor = propDef.getAccessor();
-                    if (accessor != null) {
-                        accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                        prop = MergingSettableBeanProperty.construct(prop, accessor);
-                    }
-                }
             } else if (propDef.hasGetter()) {
 //System.err.println("No setters, property: "+propDef.getName());
 
@@ -573,6 +560,13 @@ public class BeanDeserializerFactory
             }
 
             if (prop != null) {
+                PropertyMetadata.MergeInfo merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
+                if (merge != null) {
+                    AnnotatedMember accessor = propDef.getAccessor();
+                    accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                    prop = MergingSettableBeanProperty.construct(prop, accessor);
+                }
+
                 // one more thing before adding to builder: copy any metadata
                 Class<?>[] views = propDef.findViews();
                 if (views == null) {
@@ -584,25 +578,55 @@ public class BeanDeserializerFactory
         }
     }
 
-    protected boolean _isMergeableProperty(DeserializationContext ctxt,
-            BeanPropertyDefinition propDef)
+    /**
+     * Helper method called to check to see if it is likely that this property
+     * should used merging setting; this is only tentative at this point given
+     * that we do not yet have access to the deserializer.
+     *
+     * @since 2.9
+     */
+    protected PropertyMetadata.MergeInfo _checkMergeable(DeserializationContext ctxt,
+            BeanPropertyDefinition propDef, SettableBeanProperty prop,
+            boolean mergeByDefault)
     {
-        AnnotatedMember m = propDef.getPrimaryMember();
-        if (m == null) {
-            return false;
+        AnnotatedMember acc = propDef.getAccessor();
+        if (acc == null) { // can't access value
+            return null;
         }
-
-        Class<?> rawType = propDef.getRawPrimaryType();
-        JsonSetter.Value setterInfo = ctxt.getConfig().getDefaultSetterInfo(rawType);
-
+        // Ok, first: does property itself have something to say?
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if ((intr != null)) {
-            JsonSetter.Value setter = intr.findSetterInfo(m);
+            JsonSetter.Value setter = intr.findSetterInfo(acc);
             if (setter != null) {
-                setterInfo = setterInfo.withOverrides(setter);
+                Boolean b = setter.getMerge();
+                if (b != null) {
+                    if (!b.booleanValue()) { // explicitly prevented
+                        return null;
+                    }
+                    return PropertyMetadata.MergeInfo.createForPropertyOverride(acc);
+                }
             }
         }
-        return (setterInfo != null) && setterInfo.shouldMerge();
+        // If not, config override?
+        // 25-Oct-2016, tatu: Either this, or type of accessor...
+        Class<?> rawType = propDef.getRawPrimaryType();
+        JsonSetter.Value setterInfo = ctxt.getConfig().getConfigOverride(rawType)
+                .getSetterInfo();
+
+        if (setterInfo != null) {
+            Boolean b = setterInfo.getMerge();
+            if (b != null) {
+                if (!b.booleanValue()) { // explicitly prevented
+                    return null;
+                }
+                return PropertyMetadata.MergeInfo.createForTypeOverride(acc);
+            }
+        }
+
+        if (mergeByDefault) {
+            return PropertyMetadata.MergeInfo.createForDefaults(acc);
+        }
+        return null;
     }
 
     /**

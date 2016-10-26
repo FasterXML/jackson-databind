@@ -804,6 +804,18 @@ public final class DeserializationConfig
         return _nodeFactory;
     }
 
+    /**
+     * Accessor for the baseline setter info used as the global baseline,
+     * not considering possible per-type overrides.
+     *
+     * @return Global base settings; never null
+     *
+     * @since 2.9
+     */
+    public JsonSetter.Value getDefaultSetterInfo() {
+        return _configOverrides.getDefaultSetterInfo();
+    }
+
     /*
     /**********************************************************
     /* Introspection methods

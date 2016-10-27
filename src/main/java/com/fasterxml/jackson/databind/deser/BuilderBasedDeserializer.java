@@ -338,6 +338,7 @@ public class BuilderBasedDeserializer
     { 
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
@@ -349,6 +350,10 @@ public class BuilderBasedDeserializer
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT

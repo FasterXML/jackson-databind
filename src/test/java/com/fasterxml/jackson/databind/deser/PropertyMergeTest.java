@@ -135,12 +135,19 @@ public class PropertyMergeTest extends BaseMapTest
     {
         // but with type-overrides
         ObjectMapper mapper = new ObjectMapper()
-// !!! 25-Oct-2016, tatu: temporarily force ignoral until we can rewrite
-                .enable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
                 .setDefaultSetterInfo(JsonSetter.Value.forMerging());
-            NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
+        NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
+
+        // also, test with bigger POJO type; just as smoke test
+        FiveMinuteUser user0 = new FiveMinuteUser("Bob", "Bush", true, FiveMinuteUser.Gender.MALE,
+                new byte[] { 1, 2, 3, 4, 5 });
+        FiveMinuteUser user = mapper.readerFor(FiveMinuteUser.class)
+                .withValueToUpdate(user0)
+                .readValue(aposToQuotes("{'name':{'last':'Brown'}}"));
+        assertEquals("Bob", user.getName().getFirst());
+        assertEquals("Brown", user.getName().getLast());
     }
 
     // should even work with no setter

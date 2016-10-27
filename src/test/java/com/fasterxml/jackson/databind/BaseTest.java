@@ -59,28 +59,28 @@ public abstract class BaseTest
 
         public static class Name
         {
-          private String _first, _last;
+            private String _first, _last;
 
-          public Name() { }
-          public Name(String f, String l) {
-              _first = f;
-              _last = l;
-          }
-          
-          public String getFirst() { return _first; }
-          public String getLast() { return _last; }
+            public Name() { }
+            public Name(String f, String l) {
+                _first = f;
+                _last = l;
+            }
 
-          public void setFirst(String s) { _first = s; }
-          public void setLast(String s) { _last = s; }
+            public String getFirst() { return _first; }
+            public String getLast() { return _last; }
 
-          @Override
-          public boolean equals(Object o)
-          {
-              if (o == this) return true;
-              if (o == null || o.getClass() != getClass()) return false;
-              Name other = (Name) o;
-              return _first.equals(other._first) && _last.equals(other._last); 
-          }
+            public void setFirst(String s) { _first = s; }
+            public void setLast(String s) { _last = s; }
+
+            @Override
+            public boolean equals(Object o)
+            {
+                if (o == this) return true;
+                if (o == null || o.getClass() != getClass()) return false;
+                Name other = (Name) o;
+                return _first.equals(other._first) && _last.equals(other._last); 
+            }
         }
 
         private Gender _gender;
@@ -267,16 +267,6 @@ public abstract class BaseTest
         assertEquals(String.valueOf(expValue), jp.getText());
     }
 
-    /**
-     * Method that checks whether Unit tests appear to run from Ant build
-     * scripts.
-     * 
-     * @since 1.6
-     */
-    protected static boolean runsFromAnt() {
-        return "true".equals(System.getProperty("FROM_ANT"));
-    }
-    
     /*
     /**********************************************************
     /* Parser/generator construction

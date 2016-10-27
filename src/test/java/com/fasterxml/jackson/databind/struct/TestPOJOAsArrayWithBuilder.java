@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.struct;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
@@ -70,6 +71,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
     static class CreatorBuilder {
         private final int a, b;
+
         private int c;
 
         @JsonCreator
@@ -80,10 +82,12 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
             this.b = b;
         }
         
+        @JsonView(String.class)
         public CreatorBuilder withC(int v) {
             c = v;
             return this;
         }
+
         public CreatorValue build() {
             return new CreatorValue(a, b, c);
         }
@@ -130,10 +134,43 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     // test to ensure @JsonCreator also works
     public void testWithCreator() throws Exception
     {
-        final String json = "[1,2,3]";
-        CreatorValue value = MAPPER.readValue(json, CreatorValue.class);        
+        CreatorValue value = MAPPER.readValue("[1,2,3]", CreatorValue.class);
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(3, value.c);
+
+        // and should be ok with partial too?
+        value = MAPPER.readValue("[1,2]", CreatorValue.class);
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(0, value.c);
+
+        value = MAPPER.readValue("[1]", CreatorValue.class);
+        assertEquals(1, value.a);
+        assertEquals(0, value.b);
+        assertEquals(0, value.c);
+
+        value = MAPPER.readValue("[]", CreatorValue.class);
+        assertEquals(0, value.a);
+        assertEquals(0, value.b);
+        assertEquals(0, value.c);
+    }
+
+    public void testWithCreatorAndView() throws Exception
+    {
+        ObjectReader reader = MAPPER.readerFor(CreatorValue.class);
+        CreatorValue value;
+
+        // First including values in view
+        value = reader.withView(String.class).readValue("[1,2,3]");
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(3, value.c);
+
+        // then not including view
+        value = reader.withView(Character.class).readValue("[1,2,3]");
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(0, value.c);
     }
 }

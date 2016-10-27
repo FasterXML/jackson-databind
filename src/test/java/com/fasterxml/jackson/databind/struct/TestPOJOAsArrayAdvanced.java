@@ -56,6 +56,27 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         public int c;
     }
 
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class AsArrayWithViewAndCreator
+    {
+        @JsonView(ViewA.class)
+        public int a;
+        @JsonView(ViewB.class)
+        public int b;
+        public int c;
+
+        @JsonCreator
+        public AsArrayWithViewAndCreator(@JsonProperty("a") int a,
+                @JsonProperty("b") int b,
+                @JsonProperty("c") int c)
+        {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
     /*
     /*****************************************************
     /* Basic tests
@@ -75,12 +96,23 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         assertEquals("[1,null,3]", json);
 
         // and then that conversely deserializer does something similar
-        AsArrayWithView output = MAPPER.readerFor(AsArrayWithView.class).withView(ViewB.class)
+        AsArrayWithView result = MAPPER.readerFor(AsArrayWithView.class).withView(ViewB.class)
                 .readValue("[1,2,3]");
         // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
-        assertEquals(3, output.c);
-        assertEquals(2, output.b);
-        assertEquals(0, output.a);
+        assertEquals(3, result.c);
+        assertEquals(2, result.b);
+        assertEquals(0, result.a);
+    }
+
+    public void testWithViewAndCreator() throws Exception
+    {
+        AsArrayWithViewAndCreator result = MAPPER.readerFor(AsArrayWithViewAndCreator.class)
+                .withView(ViewB.class)
+                .readValue("[1,2,3]");
+        // should include 'c' (not view-able) and 'b' (include in ViewB) but not 'a'
+        assertEquals(3, result.c);
+        assertEquals(2, result.b);
+        assertEquals(0, result.a);
     }
 
     public void testWithCreatorsOrdered() throws Exception

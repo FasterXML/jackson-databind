@@ -381,8 +381,8 @@ public class BeanDeserializer
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
-
         TokenBuffer unknown = null;
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         JsonToken t = p.getCurrentToken();
         List<BeanReferring> referrings = null;
@@ -393,8 +393,13 @@ public class BeanDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp,
-                        _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
+                Object value;
+                if ((activeView != null) && !creatorProp.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
+                value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
+                if (buffer.assignParameter(creatorProp, value)) {
                     p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -616,7 +621,7 @@ public class BeanDeserializer
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case
-                if (activeView != null && !prop.visibleInView(activeView)) {
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.views;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import com.fasterxml.jackson.databind.*;
@@ -32,6 +34,23 @@ public class TestViewDeserialization extends BaseMapTest
 
         @JsonView(ViewA.class)
         public int b;
+    }
+
+    static class ViewsAndCreatorBean
+    {
+        @JsonView(ViewA.class)
+        public int a;
+
+        @JsonView(ViewB.class)
+        public int b;
+
+        @JsonCreator
+        public ViewsAndCreatorBean(@JsonProperty("a") int a,
+                @JsonProperty("b") int b)
+        {
+            this.a = a;
+            this.b = b;
+        }
     }
 
     /*
@@ -94,5 +113,22 @@ public class TestViewDeserialization extends BaseMapTest
         // 'a' not there any more
         assertEquals(0, bean.a);
         assertEquals(2, bean.b);
+    }
+
+    public void testWithCreatorAndViews() throws Exception
+    {
+        ViewsAndCreatorBean result; 
+
+        result = mapper.readerFor(ViewsAndCreatorBean.class)
+                .withView(ViewA.class)
+                .readValue(aposToQuotes("{'a':1,'b':2}"));
+        assertEquals(1, result.a);
+        assertEquals(0, result.b);
+
+        result = mapper.readerFor(ViewsAndCreatorBean.class)
+                .withView(ViewB.class)
+                .readValue(aposToQuotes("{'a':1,'b':2}"));
+        assertEquals(0, result.a);
+        assertEquals(2, result.b);
     }
 }

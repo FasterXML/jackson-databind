@@ -222,6 +222,7 @@ public class BeanAsArrayDeserializer
         final SettableBeanProperty[] props = _orderedProperties;
         int i = 0;
         final int propCount = props.length;
+
         while (true) {
             if (p.nextToken() == JsonToken.END_ARRAY) {
                 return bean;
@@ -277,13 +278,19 @@ public class BeanAsArrayDeserializer
         final int propCount = props.length;
         int i = 0;
         Object bean = null;
-        
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+
         for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
                 p.skipChildren();
                 continue;
             }
+            if ((activeView != null) && !prop.visibleInView(activeView)) {
+                p.skipChildren();
+                continue;
+            }
+
             // if we have already constructed POJO, things are simple:
             if (bean != null) {
                 try {

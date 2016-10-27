@@ -385,7 +385,7 @@ public abstract class SettableBeanProperty
     public boolean visibleInView(Class<?> activeView) {
         return (_viewMatcher == null) || _viewMatcher.isVisibleForView(activeView);
     }
-    
+
     public boolean hasViews() { return _viewMatcher != null; }
     
     /**

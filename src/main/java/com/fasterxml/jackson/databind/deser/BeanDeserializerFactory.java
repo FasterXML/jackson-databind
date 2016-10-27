@@ -557,7 +557,11 @@ public class BeanDeserializerFactory
                 if (prop != null) {
                     cprop.setFallbackSetter(prop);
                 }
-                prop = cprop;
+                Class<?>[] views = propDef.findViews();
+                if (views == null) {
+                    views = beanDesc.findDefaultViews();
+                }
+                cprop.setViews(views);
                 builder.addCreatorProperty(cprop);
                 continue;
             }

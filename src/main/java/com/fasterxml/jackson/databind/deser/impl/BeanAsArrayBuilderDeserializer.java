@@ -264,12 +264,17 @@ public class BeanAsArrayBuilderDeserializer
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         int i = 0;
         Object builder = null;
         
         for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
+                p.skipChildren();
+                continue;
+            }
+            if ((activeView != null) && !prop.visibleInView(activeView)) {
                 p.skipChildren();
                 continue;
             }

@@ -467,6 +467,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType,
             AnnotatedClass actualClass);
 
+    /**
+     * Accessor for the baseline setter info used as the global baseline,
+     * not considering possible per-type overrides.
+     *
+     * @return Global base settings; never null
+     *
+     * @since 2.9
+     */
+    public abstract JsonSetter.Value getDefaultSetterInfo();
+
     /*
     /**********************************************************
     /* Configuration: other

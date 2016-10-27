@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -49,6 +49,8 @@ public class POJOPropertyBuilder
 
     protected Linked<AnnotatedMethod> _setters;
 
+    protected transient PropertyMetadata _metadata;
+
     public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
             boolean forSerialization, PropertyName internalName) {
         this(config, ai, forSerialization, internalName, internalName);
@@ -80,7 +82,7 @@ public class POJOPropertyBuilder
 
     /*
     /**********************************************************
-    /* Fluent factory methods
+    /* Mutant factory methods
     /**********************************************************
      */
 
@@ -191,15 +193,66 @@ public class POJOPropertyBuilder
 
     @Override
     public PropertyMetadata getMetadata() {
-        final Boolean b = _findRequired();
-        final String desc = _findDescription();
-        final Integer idx = _findIndex();
-        final String def = _findDefaultValue();
-        if (b == null && idx == null && def == null) {
-            return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
-                    : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
+        if (_metadata == null) {
+            final Boolean b = _findRequired();
+            final String desc = _findDescription();
+            final Integer idx = _findIndex();
+            final String def = _findDefaultValue();
+            if (b == null && idx == null && def == null) {
+                _metadata = (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
+                        : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
+            } else {
+                _metadata = PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
+            }
+            if (!_forSerialization) {
+                PropertyMetadata.MergeInfo mergeInfo = _getMergeInfo();
+                if (mergeInfo != null) {
+                    _metadata = _metadata.withMergeInfo(mergeInfo);
+                }
+            }
         }
-        return PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
+        return _metadata;
+    }
+
+    protected PropertyMetadata.MergeInfo _getMergeInfo()
+    {
+        AnnotatedMember acc = getAccessor();
+        if (acc == null) { // can't access value
+            return null;
+        }
+        // Ok, first: does property itself have something to say?
+        if ((_annotationIntrospector != null)) {
+            JsonSetter.Value setter = _annotationIntrospector.findSetterInfo(acc);
+            if (setter != null) {
+                Boolean b = setter.getMerge();
+                if (b != null) {
+                    if (!b.booleanValue()) { // explicitly prevented
+                        return null;
+                    }
+                    return PropertyMetadata.MergeInfo.createForPropertyOverride(acc);
+                }
+            }
+        }
+        // If not, config override?
+        // 25-Oct-2016, tatu: Either this, or type of accessor...
+        Class<?> rawType = getRawPrimaryType();
+        JsonSetter.Value setterInfo = _config.getConfigOverride(rawType)
+                .getSetterInfo();
+
+        if (setterInfo != null) {
+            Boolean b = setterInfo.getMerge();
+            if (b != null) {
+                if (!b.booleanValue()) { // explicitly prevented
+                    return null;
+                }
+                return PropertyMetadata.MergeInfo.createForTypeOverride(acc);
+            }
+        }
+        boolean defMerge = ((DeserializationConfig) _config).getDefaultSetterInfo().shouldMerge();
+        if (defMerge) {
+            return PropertyMetadata.MergeInfo.createForDefaults(acc);
+        }
+        return null;
     }
 
     @Override
@@ -763,7 +816,7 @@ public class POJOPropertyBuilder
         AnnotationMap ann = _getAllAnnotations(nodes[index]);
         while (++index < nodes.length) {
             if (nodes[index] != null) {
-              return AnnotationMap.merge(ann, _mergeAnnotations(index, nodes));
+                return AnnotationMap.merge(ann, _mergeAnnotations(index, nodes));
             }
         }
         return ann;

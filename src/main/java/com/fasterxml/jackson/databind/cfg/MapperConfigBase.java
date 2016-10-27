@@ -543,6 +543,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return JsonIgnoreProperties.Value.merge(base, overrides);
     }
 
+    @Override
+    public JsonSetter.Value getDefaultSetterInfo() {
+        return _configOverrides.getDefaultSetterInfo();
+    }
+
     /*
     /**********************************************************
     /* Other config access

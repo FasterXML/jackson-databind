@@ -496,10 +496,8 @@ public class BeanDeserializerFactory
         }
 
         // At which point we still have all kinds of properties; not all with mutators:
-        final boolean mergeByDefault = ctxt.getConfig().getDefaultSetterInfo().shouldMerge();
         for (BeanPropertyDefinition propDef : propDefs) {
             SettableBeanProperty prop = null;
-            PropertyMetadata.MergeInfo merge;
             
             /* 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
              *   we need to do linkage (as per [databind#318]), and so need to start with
@@ -509,26 +507,23 @@ public class BeanDeserializerFactory
                 AnnotatedMethod setter = propDef.getSetter();
                 JavaType propertyType = setter.getParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
             } else if (propDef.hasField()) {
                 AnnotatedField field = propDef.getField();
                 JavaType propertyType = field.getType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
-                merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
             } else {
-                merge = null;
                 // NOTE: specifically getter, since field was already checked above
                 AnnotatedMethod getter = propDef.getGetter();
                 if (getter != null) {
                     if (useGettersAsSetters && _isSetterlessType(getter.getRawType())) {
                         prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
                     } else if (!propDef.hasConstructorParameter()) {
+                        PropertyMetadata md = propDef.getMetadata();
                         // 25-Oct-2016, tatu: If merging enabled, might not need setter.
                         //   We can not quite support this with creator parameters; in theory
                         //   possibly, but right not not due to complexities of routing, so
                         //   just prevent
-                        merge = _checkMergeable(ctxt, propDef, prop, mergeByDefault);
-                        if (merge != null) {
+                        if (md.getMergeInfo() != null) {
                             prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
                         }
                     }
@@ -567,10 +562,13 @@ public class BeanDeserializerFactory
                 continue;
             }
 
+            PropertyMetadata.MergeInfo merge = propDef.getMetadata().getMergeInfo();
             if (merge != null) {
                 AnnotatedMember accessor = merge.getter;
                 accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                prop = MergingSettableBeanProperty.construct(prop, accessor);
+                if (!(prop instanceof SetterlessProperty)) {
+                    prop = MergingSettableBeanProperty.construct(prop, accessor);
+                }
             }
             if (prop != null) {
                 // one more thing before adding to builder: copy any metadata
@@ -600,8 +598,7 @@ public class BeanDeserializerFactory
      * @since 2.9
      */
     protected PropertyMetadata.MergeInfo _checkMergeable(DeserializationContext ctxt,
-            BeanPropertyDefinition propDef, SettableBeanProperty prop,
-            boolean mergeByDefault)
+            BeanPropertyDefinition propDef, boolean mergeByDefault)
     {
         AnnotatedMember acc = propDef.getAccessor();
         if (acc == null) { // can't access value

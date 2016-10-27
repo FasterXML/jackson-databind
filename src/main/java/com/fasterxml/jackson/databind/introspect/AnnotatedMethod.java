@@ -123,7 +123,7 @@ public final class AnnotatedMethod
     }
 
     public final Object callOn(Object pojo) throws Exception {
-        return _method.invoke(pojo);
+        return _method.invoke(pojo, (Object[]) null);
     }
 
     public final Object callOnWith(Object pojo, Object... args) throws Exception {
@@ -191,7 +191,7 @@ public final class AnnotatedMethod
     public Object getValue(Object pojo) throws IllegalArgumentException
     {
         try {
-            return _method.invoke(pojo);
+            return _method.invoke(pojo, (Object[]) null);
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException("Failed to getValue() with method "
                     +getFullName()+": "+e.getMessage(), e);

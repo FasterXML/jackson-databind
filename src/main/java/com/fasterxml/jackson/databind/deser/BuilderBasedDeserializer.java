@@ -173,7 +173,7 @@ public class BuilderBasedDeserializer
             return builder;
         }
         try {
-            return _buildMethod.getMember().invoke(builder);
+            return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }

@@ -680,7 +680,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             SerializerProvider prov) throws Exception {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
-                : _accessorMethod.invoke(bean);
+                : _accessorMethod.invoke(bean, (Object[]) null);
 
         // Null handling is bit different, check that first
         if (value == null) {
@@ -752,7 +752,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             SerializerProvider prov) throws Exception {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean)
-                : _accessorMethod.invoke(bean);
+                : _accessorMethod.invoke(bean, (Object[]) null);
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
                 _nullSerializer.serialize(null, gen, prov);
@@ -908,7 +908,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     public final Object get(Object bean) throws Exception {
         return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod
-                .invoke(bean);
+                .invoke(bean, (Object[]) null);
     }
 
     /**

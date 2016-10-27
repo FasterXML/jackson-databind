@@ -102,7 +102,7 @@ public class EnumResolver implements java.io.Serializable
         for (int i = enumValues.length; --i >= 0; ) {
             Enum<?> en = enumValues[i];
             try {
-                Object o = accessor.invoke(en);
+                Object o = accessor.invoke(en, (Object[]) null);
                 if (o != null) {
                     map.put(o.toString(), en);
                 }

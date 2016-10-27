@@ -114,7 +114,7 @@ public class BeanAsArrayBuilderDeserializer
         throws IOException
     {
         try {
-            return _buildMethod.getMember().invoke(builder);
+            return _buildMethod.getMember().invoke(builder, (Object[]) null);
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }

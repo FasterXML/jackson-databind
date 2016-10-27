@@ -6,7 +6,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.deser.std.*;
@@ -37,11 +39,11 @@ public class TestCustomDeserializers
         }
 
         @Override
-        public T deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public T deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
         {
             // need to skip, if structured...
-            jp.skipChildren();
+            p.skipChildren();
             return value;
         }
     }
@@ -65,29 +67,29 @@ public class TestCustomDeserializers
     static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
     {
         @Override
-        public CustomBean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public CustomBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             int a = 0, b = 0;
-            JsonToken t = jp.getCurrentToken();
+            JsonToken t = p.getCurrentToken();
             if (t == JsonToken.START_OBJECT) {
-                t = jp.nextToken();
+                t = p.nextToken();
             } else if (t != JsonToken.FIELD_NAME) {
                 throw new Error();
             }
             while(t == JsonToken.FIELD_NAME) {
-                final String fieldName = jp.getCurrentName();
-                t = jp.nextToken();
+                final String fieldName = p.getCurrentName();
+                t = p.nextToken();
                 if (t != JsonToken.VALUE_NUMBER_INT) {
-                    throw new JsonParseException(jp, "expecting number got "+ t);
+                    throw new JsonParseException(p, "expecting number got "+ t);
                 }
                 if (fieldName.equals("a")) {
-                    a = jp.getIntValue();
+                    a = p.getIntValue();
                 } else if (fieldName.equals("b")) {
-                    b = jp.getIntValue();
+                    b = p.getIntValue();
                 } else {
                     throw new Error();
                 }
-                t = jp.nextToken();
+                t = p.nextToken();
             }
             return new CustomBean(a, b);
         }
@@ -102,7 +104,6 @@ public class TestCustomDeserializers
         }
     }
 
-    // [JACKSON-882]
     public static class CustomKey {
         private final int id;
 
@@ -130,8 +131,8 @@ public class TestCustomDeserializers
      
     static class CustomKeySerializer extends JsonSerializer<CustomKey> {
         @Override
-        public void serialize(CustomKey value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeFieldName(String.valueOf(value.getId()));
+        public void serialize(CustomKey value, JsonGenerator g, SerializerProvider provider) throws IOException {
+            g.writeFieldName(String.valueOf(value.getId()));
         }
     }
 
@@ -142,7 +143,7 @@ public class TestCustomDeserializers
         }
     }
 
-    // [#375]
+    // [databind#375]
 
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -201,9 +202,9 @@ public class TestCustomDeserializers
         }
 
         @Override
-        public Bean375Inner deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Bean375Inner deserialize(JsonParser p, DeserializationContext ctxt)
                 throws IOException, JsonProcessingException {
-            int x = jp.getIntValue();
+            int x = p.getIntValue();
             if (negative) {
                 x = -x;
             } else {
@@ -257,7 +258,55 @@ public class TestCustomDeserializers
             return p.getText().toUpperCase();
         }
     }
-    
+
+    static class DelegatingModuleImpl extends SimpleModule
+    {
+        public DelegatingModuleImpl() {
+            super("test", Version.unknownVersion());
+        }
+
+        @Override
+        public void setupModule(SetupContext context)
+        {
+            super.setupModule(context);
+            context.addBeanDeserializerModifier(new BeanDeserializerModifier() {
+                @Override
+                public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                        BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+                    if (deserializer.handledType() == String.class) {
+                        JsonDeserializer<?> d = new MyStringDeserializer(deserializer);
+                        // just for test coverage purposes...
+                        if (d.getDelegatee() != deserializer) {
+                            throw new Error("Can not access delegatee!");
+                        }
+                        return d;
+                    }
+                    return deserializer;
+                }
+            });
+        }
+    }
+
+    static class MyStringDeserializer extends DelegatingDeserializer
+    {
+        public MyStringDeserializer(JsonDeserializer<?> newDel) {
+            super(newDel);
+        }
+
+        @Override
+        protected JsonDeserializer<?> newDelegatingInstance(JsonDeserializer<?> newDel) {
+            return new MyStringDeserializer(newDel);
+        }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+        {
+            Object ob = _delegatee.deserialize(p, ctxt);
+            return "MY:"+ob;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -398,5 +447,13 @@ public class TestCustomDeserializers
         StringWrapper sw = mapper.readValue("{\"str\":\"foo\"}", StringWrapper.class);
         assertNotNull(sw);
         assertEquals("FOO", sw.str);
+    }
+
+    public void testDelegatingDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper().registerModule(
+                new DelegatingModuleImpl());
+        String str = mapper.readValue(quote("foo"), String.class);
+        assertEquals("MY:foo", str);
     }
 }

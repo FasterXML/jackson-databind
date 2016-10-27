@@ -37,6 +37,9 @@ public class StdDelegatingDeserializer<T>
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Converter that was used for creating {@link #_delegateDeserializer}.
+     */
     protected final Converter<Object,T> _converter;
 
     /**

@@ -74,20 +74,6 @@ public class SettableAnyProperty
         this(property, setter, type, null, valueDeser, typeDeser);
     }
 
-    /**
-     * Constructor used for JDK Serialization when reading persisted object
-     */
-    protected SettableAnyProperty(SettableAnyProperty src)
-    {
-        _property = src._property;
-        _setter = src._setter;
-        _type = src._type;
-        _valueDeserializer = src._valueDeserializer;
-        _valueTypeDeserializer = src._valueTypeDeserializer;
-        _keyDeserializer = src._keyDeserializer;
-        _setterIsField = src._setterIsField;
-    }
-
     public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
         return new SettableAnyProperty(_property, _setter, _type,
                 _keyDeserializer, deser, _valueTypeDeserializer);

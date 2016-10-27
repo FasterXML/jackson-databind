@@ -3,6 +3,14 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.LRUMap;
 
@@ -33,6 +41,25 @@ public class TestJDKSerialization extends BaseMapTest
         public ABC abc = ABC.B;
 
         public Map<String,ABC> stuff = new LinkedHashMap<String,ABC>();
+    }
+
+    static class AnyBean {
+        HashMap<String,Object> _map;
+
+        public AnyBean() {
+            _map = new HashMap<String,Object>();
+        }
+
+        @JsonAnySetter
+        AnyBean addEntry(String key, Object value) {
+            _map.put(key, value);
+            return this;
+        }
+
+        @JsonAnyGetter
+        public Map<String,Object> properties() {
+            return _map;
+        }
     }
 
     /*
@@ -107,6 +134,9 @@ public class TestJDKSerialization extends BaseMapTest
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
         assertEquals(EXP_JSON, origWriter.writeValueAsString(p));
+        String json = origWriter.writeValueAsString(new AnyBean()
+                .addEntry("a", "b"));
+        assertNotNull(json);
         byte[] bytes = jdkSerialize(origWriter);
         ObjectWriter writer2 = jdkDeserialize(bytes);
         assertEquals(EXP_JSON, writer2.writeValueAsString(p));
@@ -115,13 +145,21 @@ public class TestJDKSerialization extends BaseMapTest
     public void testObjectReader() throws IOException
     {
         ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
-        final String JSON = "{\"x\":1,\"y\":2}";
+        String JSON = "{\"x\":1,\"y\":2}";
         MyPojo p1 = origReader.readValue(JSON);
         assertEquals(2, p1.y);
-        byte[] bytes = jdkSerialize(origReader);
-        ObjectReader reader2 = jdkDeserialize(bytes);
+        ObjectReader anyReader = MAPPER.readerFor(AnyBean.class);
+        AnyBean any = anyReader.readValue(JSON);
+        assertEquals(Integer.valueOf(2), any.properties().get("y"));
+        
+        byte[] readerBytes = jdkSerialize(origReader);
+        ObjectReader reader2 = jdkDeserialize(readerBytes);
         MyPojo p2 = reader2.readValue(JSON);
         assertEquals(2, p2.y);
+
+        ObjectReader anyReader2 = jdkDeserialize(jdkSerialize(anyReader));
+        AnyBean any2 = anyReader2.readValue(JSON);
+        assertEquals(Integer.valueOf(2), any2.properties().get("y"));
     }
 
     public void testObjectMapper() throws IOException

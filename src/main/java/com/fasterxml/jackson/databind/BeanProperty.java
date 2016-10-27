@@ -196,8 +196,11 @@ public interface BeanProperty extends Named
      * Simple stand-alone implementation, useful as a placeholder
      * or base class for more complex implementations.
      */
-    public static class Std implements BeanProperty
+    public static class Std implements BeanProperty,
+        java.io.Serializable // 2.9
     {
+        private static final long serialVersionUID = 1L;
+
         protected final PropertyName _name;
         protected final JavaType _type;
         protected final PropertyName _wrapperName;
@@ -215,7 +218,7 @@ public interface BeanProperty extends Named
          * Annotations defined in the context class (if any); may be null
          * if no annotations were found
          */
-        protected final Annotations _contextAnnotations;
+        protected final transient Annotations _contextAnnotations;
 
         public Std(PropertyName name, JavaType type, PropertyName wrapperName,
                 Annotations contextAnnotations, AnnotatedMember member,

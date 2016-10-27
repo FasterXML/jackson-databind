@@ -73,7 +73,7 @@ public class BuilderAdvancedTest extends BaseMapTest
 
         Location loc;
 
-        @JsonUnwrapped
+        @JsonUnwrapped(prefix="loc.")
         public UnwrappingBuilder withLocation(Location l) {
             loc = l;
             return this;
@@ -112,7 +112,7 @@ public class BuilderAdvancedTest extends BaseMapTest
 
     public void testWithUnwrapping() throws Exception
     {
-        final String json = aposToQuotes("{'x':3,'name':'Foobar','y':5}}");
+        final String json = aposToQuotes("{'loc.x':3,'name':'Foobar','loc.y':5}}");
         UnwrappingValue result = MAPPER.readValue(json, UnwrappingValue.class);
         assertNotNull(result);
         assertNotNull(result.location);

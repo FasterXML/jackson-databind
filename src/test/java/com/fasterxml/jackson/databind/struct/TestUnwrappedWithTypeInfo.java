@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

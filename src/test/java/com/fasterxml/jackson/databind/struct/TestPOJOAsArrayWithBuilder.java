@@ -50,7 +50,45 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
             return new ValueClassXY(x, y);
         }
     }
-    
+
+    // Also, with creator:
+
+    @JsonDeserialize(builder=CreatorBuilder.class)
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class CreatorValue
+    {
+        final int a, b, c;
+
+        protected CreatorValue(int a, int b, int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    static class CreatorBuilder {
+        private final int a, b;
+        private int c;
+
+        @JsonCreator
+        public CreatorBuilder(@JsonProperty("a") int a,
+                @JsonProperty("b") int b)
+        {
+            this.a = a;
+            this.b = b;
+        }
+        
+        public CreatorBuilder withC(int v) {
+            c = v;
+            return this;
+        }
+        public CreatorValue build() {
+            return new CreatorValue(a, b, c);
+        }
+    }
+
     /*
     /*****************************************************
     /* Basic tests
@@ -81,5 +119,21 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
             verifyException(e, "by passing existing instance");
             verifyException(e, "ValueClassXY");
         }
+    }
+
+    /*
+    /*****************************************************
+    /* Creator test(s)
+    /*****************************************************
+     */
+    
+    // test to ensure @JsonCreator also works
+    public void testWithCreator() throws Exception
+    {
+        final String json = "[1,2,3]";
+        CreatorValue value = MAPPER.readValue(json, CreatorValue.class);        
+        assertEquals(1, value.a);
+        assertEquals(2, value.b);
+        assertEquals(3, value.c);
     }
 }

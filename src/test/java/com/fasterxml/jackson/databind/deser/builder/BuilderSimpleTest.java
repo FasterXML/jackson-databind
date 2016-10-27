@@ -1,13 +1,9 @@
-package com.fasterxml.jackson.databind.creators;
+package com.fasterxml.jackson.databind.deser.builder;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -15,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 public class BuilderSimpleTest extends BaseMapTest
 {
     // // Simple 2-property value class, builder with standard naming
-	
+
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
     {
@@ -47,7 +43,7 @@ public class BuilderSimpleTest extends BaseMapTest
     }
 
     // // 3-property value, with more varied builder
-	
+
     @JsonDeserialize(builder=BuildABC.class)
     static class ValueClassABC
     {
@@ -60,6 +56,7 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
+    @JsonIgnoreProperties({ "d" })
     static class BuildABC
     {
         public int a; // to be used as is
@@ -105,7 +102,6 @@ public class BuilderSimpleTest extends BaseMapTest
             return new ValueImmutable(value);
         }
     }
-    
     // And then with custom naming:
 
     @JsonDeserialize(builder=BuildFoo.class)
@@ -128,40 +124,6 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
-    // And with creator(s)
-	
-    @JsonDeserialize(builder=CreatorBuilder.class)
-    static class CreatorValue
-    {
-        final int a, b, c;
-
-        protected CreatorValue(int a, int b, int c) {
-            this.a = a;
-            this.b = b;
-            this.c = c;
-        }
-    }
-
-    static class CreatorBuilder {
-        private final int a, b;
-        private int c;
-
-        @JsonCreator
-        public CreatorBuilder(@JsonProperty("a") int a,
-                @JsonProperty("b") int b)
-        {
-            this.a = a;
-            this.b = b;
-        }
-        
-        public CreatorBuilder withC(int v) {
-            c = v;
-            return this;
-        }
-        public CreatorValue build() {
-            return new CreatorValue(a, b, c);
-        }
-    }
 
     // for [databind#761]
 
@@ -229,25 +191,6 @@ public class BuilderSimpleTest extends BaseMapTest
         // should also be ok: more specific type
         public ValueInterface2Impl build() {
             return new ValueInterface2Impl(x);
-        }
-    }
-    
-    // for [databind#761]
-    @JsonDeserialize(builder = ValueBuilderWrongBuildType.class)
-    static class ValueClassWrongBuildType {
-    }
-
-    static class ValueBuilderWrongBuildType
-    {
-        public int x;
-
-        public ValueBuilderWrongBuildType withX(int x0) {
-            this.x = x0;
-            return this;
-        }
-
-        public ValueClassXY build() {
-            return null;
         }
     }
 
@@ -345,13 +288,19 @@ public class BuilderSimpleTest extends BaseMapTest
     
     public void testMultiAccess() throws Exception
     {
-        String json = "{\"c\":3,\"a\":2,\"b\":-9}";
+        String json = aposToQuotes("{'c':3,'a':2,'b':-9}");
         ValueClassABC value = MAPPER.readValue(json, ValueClassABC.class);
         assertNotNull(value);
-    	    // note: ctor adds one to both values
-        assertEquals(value.a, 2);
-        assertEquals(value.b, -9);
-        assertEquals(value.c, 3);
+        assertEquals(2, value.a);
+        assertEquals(-9, value.b);
+        assertEquals(3, value.c);
+
+        // also, since we can ignore some properties:
+        value = MAPPER.readValue(aposToQuotes("{'c':3,'d':5,'b':-9}"), ValueClassABC.class);
+        assertNotNull(value);
+        assertEquals(0, value.a);
+        assertEquals(-9, value.b);
+        assertEquals(3, value.c);
     }
 
     // test for Immutable builder, to ensure return value is used
@@ -370,16 +319,6 @@ public class BuilderSimpleTest extends BaseMapTest
         assertEquals(1, value.value);
     }
 
-    // test to ensure @JsonCreator also work
-    public void testWithCreator() throws Exception
-    {
-        final String json = "{\"a\":1,\"c\":3,\"b\":2}";
-        CreatorValue value = MAPPER.readValue(json, CreatorValue.class);        
-        assertEquals(1, value.a);
-        assertEquals(2, value.b);
-        assertEquals(3, value.c);
-    }
-
     // for [databind#761]
     
     public void testBuilderMethodReturnMoreGeneral() throws Exception
@@ -394,19 +333,6 @@ public class BuilderSimpleTest extends BaseMapTest
         final String json = "{\"x\":1}";
         ValueInterface2 value = MAPPER.readValue(json, ValueInterface2.class);
         assertEquals(2, value.getX());
-    }
-    
-    public void testBuilderMethodReturnInvalidType() throws Exception
-    {
-        final String json = "{\"x\":1}";
-        try {
-            MAPPER.readValue(json, ValueClassWrongBuildType.class);
-            fail("Missing expected JsonProcessingException exception");
-        } catch(JsonProcessingException e) {
-            assertTrue(
-                    "Exception cause must be IllegalArgumentException",
-                    e.getCause() instanceof IllegalArgumentException);
-        }
     }
 
     public void testSelfBuilder777() throws Exception

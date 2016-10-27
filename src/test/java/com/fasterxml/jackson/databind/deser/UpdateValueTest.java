@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.databind.creators;
+package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestValueUpdate extends BaseMapTest
+public class UpdateValueTest extends BaseMapTest
 {
     static class Bean
     {
@@ -50,8 +50,11 @@ public class TestValueUpdate extends BaseMapTest
     public void testValueUpdateOther() throws Exception
     {
         Bean bean = new Bean("abc", "def");
-        ObjectReader r = MAPPER.reader().withValueToUpdate(bean);
+        ObjectReader r = MAPPER.readerFor(Bean.class).withValueToUpdate(bean);
         // but, changed our minds, no update
         r = r.withValueToUpdate(null);
+        // should be safe to read regardless
+        Bean result = r.readValue(aposToQuotes("{'a':'x'}"));
+        assertNotNull(result);
     }
 }

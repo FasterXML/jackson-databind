@@ -94,6 +94,18 @@ public class BeanAsArrayBuilderDeserializer
 
     /*
     /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
+    
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        // 26-Oct-2016, tatu: No, we can't merge Builder-based POJOs as of now
+        return Boolean.FALSE;
+    }
+
+    /*
+    /**********************************************************
     /* JsonDeserializer implementation
     /**********************************************************
      */

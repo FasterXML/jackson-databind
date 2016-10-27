@@ -23,6 +23,17 @@ public class TestUnwrapped extends BaseMapTest
         }
     }
 
+    final static class Location {
+        public int x;
+        public int y;
+
+        public Location() { }
+        public Location(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+    
     static class DeepUnwrapping
     {
         @JsonUnwrapped
@@ -43,17 +54,6 @@ public class TestUnwrapped extends BaseMapTest
         @JsonCreator
         public UnwrappingWithCreator(@JsonProperty("name") String n) {
             name = n;
-        }
-    }
-    
-    final static class Location {
-        public int x;
-        public int y;
-
-        public Location() { }
-        public Location(int x, int y) {
-            this.x = x;
-            this.y = y;
         }
     }
 

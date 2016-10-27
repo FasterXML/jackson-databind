@@ -146,6 +146,18 @@ public class BuilderBasedDeserializer
         SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
         return new BeanAsArrayBuilderDeserializer(this, _targetType, props, _buildMethod);
     }
+
+    /*
+    /**********************************************************
+    /* JsonDeserializer implementation
+    /**********************************************************
+     */
+
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        // 26-Oct-2016, tatu: No, we can't merge Builder-based POJOs as of now
+        return Boolean.FALSE;
+    }
     
     /*
     /**********************************************************
@@ -178,7 +190,7 @@ public class BuilderBasedDeserializer
         if (p.isExpectedStartObjectToken()) {
             JsonToken t = p.nextToken();
             if (_vanillaProcessing) {
-            	return finishBuild(ctxt, vanillaDeserialize(p, ctxt, t));
+                return finishBuild(ctxt, vanillaDeserialize(p, ctxt, t));
             }
             Object builder = deserializeFromObject(p, ctxt);
             return finishBuild(ctxt, builder);
@@ -237,49 +249,6 @@ public class BuilderBasedDeserializer
     /* Concrete deserialization methods
     /**********************************************************
      */
-
-    protected final Object _deserialize(JsonParser p,
-            DeserializationContext ctxt, Object builder)
-        throws IOException
-    {        
-        if (_injectables != null) {
-            injectValues(ctxt, builder);
-        }
-        if (_unwrappedPropertyHandler != null) {
-            return deserializeWithUnwrapped(p, ctxt, builder);
-        }
-        if (_externalTypeIdHandler != null) {
-            return deserializeWithExternalTypeId(p, ctxt, builder);
-        }
-        if (_needViewProcesing) {
-            Class<?> view = ctxt.getActiveView();
-            if (view != null) {
-                return deserializeWithView(p, ctxt, builder, view);
-            }
-        }
-        JsonToken t = p.getCurrentToken();
-        // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
-        if (t == JsonToken.START_OBJECT) {
-            t = p.nextToken();
-        }
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
-            // Skip field name:
-            p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
-            
-            if (prop != null) { // normal case
-                try {
-                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
-                } catch (Exception e) {
-                    wrapAndThrow(e, builder, propName, ctxt);
-                }
-                continue;
-            }
-            handleUnknownVanilla(p, ctxt, handledType(), propName);
-        }
-        return builder;
-    }
 
     /**
      * Streamlined version that is only used when no "special"
@@ -448,7 +417,49 @@ public class BuilderBasedDeserializer
         }
         return bean;
     }
-    
+
+    protected final Object _deserialize(JsonParser p,
+            DeserializationContext ctxt, Object builder) throws IOException
+    {        
+        if (_injectables != null) {
+            injectValues(ctxt, builder);
+        }
+        if (_unwrappedPropertyHandler != null) {
+            return deserializeWithUnwrapped(p, ctxt, builder);
+        }
+        if (_externalTypeIdHandler != null) {
+            return deserializeWithExternalTypeId(p, ctxt, builder);
+        }
+        if (_needViewProcesing) {
+            Class<?> view = ctxt.getActiveView();
+            if (view != null) {
+                return deserializeWithView(p, ctxt, builder, view);
+            }
+        }
+        JsonToken t = p.getCurrentToken();
+        // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
+        if (t == JsonToken.START_OBJECT) {
+            t = p.nextToken();
+        }
+        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+            String propName = p.getCurrentName();
+            // Skip field name:
+            p.nextToken();
+            SettableBeanProperty prop = _beanProperties.find(propName);
+            
+            if (prop != null) { // normal case
+                try {
+                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
+                } catch (Exception e) {
+                    wrapAndThrow(e, builder, propName, ctxt);
+                }
+                continue;
+            }
+            handleUnknownVanilla(p, ctxt, handledType(), propName);
+        }
+        return builder;
+    }
+
     /*
     /**********************************************************
     /* Deserializing when we have to consider an active View

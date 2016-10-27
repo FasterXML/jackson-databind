@@ -561,15 +561,6 @@ public class BeanDeserializerFactory
                 builder.addCreatorProperty(cprop);
                 continue;
             }
-
-            PropertyMetadata.MergeInfo merge = propDef.getMetadata().getMergeInfo();
-            if (merge != null) {
-                AnnotatedMember accessor = merge.getter;
-                accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-                if (!(prop instanceof SetterlessProperty)) {
-                    prop = MergingSettableBeanProperty.construct(prop, accessor);
-                }
-            }
             if (prop != null) {
                 // one more thing before adding to builder: copy any metadata
                 Class<?>[] views = propDef.findViews();
@@ -588,56 +579,6 @@ public class BeanDeserializerFactory
         // should only consider Collections and Maps, for now?
         return Collection.class.isAssignableFrom(rawType)
                 || Map.class.isAssignableFrom(rawType);
-    }
-
-    /**
-     * Helper method called to check to see if it is likely that this property
-     * should used merging setting; this is only tentative at this point given
-     * that we do not yet have access to the deserializer.
-     *
-     * @since 2.9
-     */
-    protected PropertyMetadata.MergeInfo _checkMergeable(DeserializationContext ctxt,
-            BeanPropertyDefinition propDef, boolean mergeByDefault)
-    {
-        AnnotatedMember acc = propDef.getAccessor();
-        if (acc == null) { // can't access value
-            return null;
-        }
-        // Ok, first: does property itself have something to say?
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if ((intr != null)) {
-            JsonSetter.Value setter = intr.findSetterInfo(acc);
-            if (setter != null) {
-                Boolean b = setter.getMerge();
-                if (b != null) {
-                    if (!b.booleanValue()) { // explicitly prevented
-                        return null;
-                    }
-                    return PropertyMetadata.MergeInfo.createForPropertyOverride(acc);
-                }
-            }
-        }
-        // If not, config override?
-        // 25-Oct-2016, tatu: Either this, or type of accessor...
-        Class<?> rawType = propDef.getRawPrimaryType();
-        JsonSetter.Value setterInfo = ctxt.getConfig().getConfigOverride(rawType)
-                .getSetterInfo();
-
-        if (setterInfo != null) {
-            Boolean b = setterInfo.getMerge();
-            if (b != null) {
-                if (!b.booleanValue()) { // explicitly prevented
-                    return null;
-                }
-                return PropertyMetadata.MergeInfo.createForTypeOverride(acc);
-            }
-        }
-
-        if (mergeByDefault) {
-            return PropertyMetadata.MergeInfo.createForDefaults(acc);
-        }
-        return null;
     }
 
     /**

@@ -104,8 +104,8 @@ public class PropertyMergeTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper()
-            // 25-Oct-2016, tatu: leave enabled until proper filtering is implemented
-            .enable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
+            // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
+            .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
     ;
 
     public void testBeanMergingViaProp() throws Exception

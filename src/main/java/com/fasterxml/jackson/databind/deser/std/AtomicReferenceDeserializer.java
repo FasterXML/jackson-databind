@@ -58,4 +58,10 @@ public class AtomicReferenceDeserializer
         reference.set(contents);
         return reference;
     }
+
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        // yes; regardless of value deserializer reference itself may be updated
+        return Boolean.TRUE;
+    }
 }

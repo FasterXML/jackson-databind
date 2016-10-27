@@ -534,6 +534,16 @@ public abstract class BeanDeserializerBase
                 _beanProperties.remove(prop);
                 continue;
             }
+
+            // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
+            //   merging needed, and now seems to be reasonable time to do that.
+            {
+                PropertyMetadata.MergeInfo merge = prop.getMetadata().getMergeInfo();
+                if (merge != null) {
+                    prop = _resolveMergeSettings(ctxt, prop, merge);
+                }
+            }
+
             // non-static inner classes too:
             prop = _resolveInnerClassValuedProperty(ctxt, prop);
             if (prop != origProp) {
@@ -868,6 +878,35 @@ public abstract class BeanDeserializerBase
                     }
                 }
             }
+        }
+        return prop;
+    }
+
+    protected SettableBeanProperty _resolveMergeSettings(DeserializationContext ctxt,
+            SettableBeanProperty prop, PropertyMetadata.MergeInfo merge)
+        throws JsonMappingException
+    {
+        JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
+        Boolean mayMerge = valueDeser.supportsUpdate(ctxt.getConfig());
+
+        if (mayMerge == null) {
+            // we don't really know if it's ok; so only use if explicitly specified
+            if (merge.fromDefaults) {
+                return prop;
+            }
+        } else if (!mayMerge.booleanValue()) { // prevented
+            if (!merge.fromDefaults) {
+                // If attempts was made via explicit annotation/per-type config override,
+                // should be reported; may or may not result in exception
+                ctxt.reportBadMerge(valueDeser);
+            }
+            return prop;
+        }
+        // Anyway; if we get this far, do enable merging
+        AnnotatedMember accessor = merge.getter;
+        accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+        if (!(prop instanceof SetterlessProperty)) {
+            prop = MergingSettableBeanProperty.construct(prop, accessor);
         }
         return prop;
     }

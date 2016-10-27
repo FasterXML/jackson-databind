@@ -60,7 +60,8 @@ public abstract class ReferenceTypeDeserializer<T>
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+            throws JsonMappingException
     {
         JsonDeserializer<?> deser = _valueDeserializer;
         if (deser == null) {
@@ -86,7 +87,8 @@ public abstract class ReferenceTypeDeserializer<T>
     /**********************************************************
      */
 
-    protected abstract ReferenceTypeDeserializer<T> withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser);
+    protected abstract ReferenceTypeDeserializer<T> withResolved(TypeDeserializer typeDeser,
+            JsonDeserializer<?> valueDeser);
 
     @Override
     public abstract T getNullValue(DeserializationContext ctxt);
@@ -128,7 +130,8 @@ public abstract class ReferenceTypeDeserializer<T>
      */
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
-        return _valueDeserializer.supportsUpdate(config);
+        return (_valueDeserializer == null) ? null
+                : _valueDeserializer.supportsUpdate(config);
     }
 
     /*
@@ -153,16 +156,29 @@ public abstract class ReferenceTypeDeserializer<T>
     }
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt, T reference) throws IOException {
-        Object contents = getReferenced(reference);
-        // Whether to error or not... for now, just go back to default then
-        if ((contents == null) || (_valueTypeDeserializer != null)) {
+    public T deserialize(JsonParser p, DeserializationContext ctxt, T reference) throws IOException
+    {
+        Object contents;
+        // 26-Oct-2016, tatu: first things first; see if we should be able to merge:
+        Boolean B = _valueDeserializer.supportsUpdate(ctxt.getConfig());
+        // if explicitly stated that merge won't work...
+        if (B.equals(Boolean.FALSE) ||  (_valueTypeDeserializer != null)) {
             contents = (_valueTypeDeserializer == null)
                     ? _valueDeserializer.deserialize(p, ctxt)
                     : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
-            return referenceValue(contents);
+        } else {
+            // Otherwise, see if we can merge the value
+            contents = getReferenced(reference);
+            // Whether to error or not... for now, just go back to default then
+            if (contents == null) {
+                contents = (_valueTypeDeserializer == null)
+                        ? _valueDeserializer.deserialize(p, ctxt)
+                        : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+                return referenceValue(contents);
+            } else {
+                contents = _valueDeserializer.deserialize(p, ctxt, contents);
+            }
         }
-        contents = _valueDeserializer.deserialize(p, ctxt, contents);
         return updateReference(reference, contents);
     }
 

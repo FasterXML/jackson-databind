@@ -3540,8 +3540,6 @@ public class ObjectMapper
     public <T> T convertValue(Object fromValue, Class<T> toValueType)
         throws IllegalArgumentException
     {
-        // sanity check for null first:
-        if (fromValue == null) return null;
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
     } 
 
@@ -3562,8 +3560,6 @@ public class ObjectMapper
     public <T> T convertValue(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
-        // sanity check for null first:
-        if (fromValue == null) return null;
         return (T) _convert(fromValue, toValueType);
     } 
 
@@ -3578,17 +3574,21 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
-    {        
-        // also, as per [databind#11], consider case for simple cast
-        /* But with caveats: one is that while everything is Object.class, we don't
-         * want to "optimize" that out; and the other is that we also do not want
-         * to lose conversions of generic types.
-         */
-        Class<?> targetType = toValueType.getRawClass();
-        if (targetType != Object.class
-                && !toValueType.hasGenericTypes()
-                && targetType.isAssignableFrom(fromValue.getClass())) {
-            return fromValue;
+    {
+        // [databind#1433] Do not shortcut null values.
+        // This defaults primitives and fires deserializer getNullValue hooks.
+        if (fromValue != null) {
+            // also, as per [databind#11], consider case for simple cast
+            /* But with caveats: one is that while everything is Object.class, we don't
+             * want to "optimize" that out; and the other is that we also do not want
+             * to lose conversions of generic types.
+             */
+            Class<?> targetType = toValueType.getRawClass();
+            if (targetType != Object.class
+                    && !toValueType.hasGenericTypes()
+                    && targetType.isAssignableFrom(fromValue.getClass())) {
+                return fromValue;
+            }
         }
         
         // Then use TokenBuffer, which is a JsonGenerator:

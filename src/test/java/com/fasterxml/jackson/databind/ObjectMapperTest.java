@@ -338,4 +338,10 @@ public class ObjectMapperTest extends BaseMapTest
                 .readTree(input);
         assertNotNull(n);
     }
+    
+    // [databind#1433]
+    public void testConvertValueNullPrimitive() throws Exception
+    {
+        assertEquals(Integer.valueOf(0), MAPPER.convertValue(null, Integer.TYPE));
+    }
 }

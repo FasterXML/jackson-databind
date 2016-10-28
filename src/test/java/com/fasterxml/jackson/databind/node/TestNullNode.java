@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestNullNode extends NodeTestBase
 {
@@ -74,6 +76,14 @@ public class TestNullNode extends NodeTestBase
         n = root.get("x");
         assertNotNull(n);
         assertTrue(n.isNull());
+    }
+
+    public void testNullSerialization() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        StringWriter sw = new StringWriter();
+        mapper.writeValue(sw, NullNode.instance);
+        assertEquals("null", sw.toString());
     }
 
     public void testNullHandlingCovariance() throws Exception

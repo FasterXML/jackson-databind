@@ -11,8 +11,7 @@ import com.fasterxml.jackson.databind.*;
  * This unit test suite tries to verify that the trees ObjectMapper
  * constructs can be serialized properly.
  */
-public class TestTreeMapperSerializer
-    extends BaseMapTest
+public class TestTreeMapperSerializer extends NodeTestBase
 {
     final static String FIELD1 = "first";
     final static String FIELD2 = "Second?";
@@ -24,8 +23,7 @@ public class TestTreeMapperSerializer
 
     final static double DOUBLE_VALUE = 9.25;
 
-    public void testFromArray()
-        throws Exception
+    public void testFromArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode root = mapper.createArrayNode();
@@ -126,16 +124,7 @@ public class TestTreeMapperSerializer
         }
     }
 
-    public void testNull() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, NullNode.instance);
-        assertEquals("null", sw.toString());
-    }
-
-    public void testBinary()
-        throws Exception
+    public void testBinary() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         final int LENGTH = 13045;

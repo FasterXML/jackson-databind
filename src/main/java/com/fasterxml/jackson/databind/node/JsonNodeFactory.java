@@ -183,11 +183,11 @@ public class JsonNodeFactory
      * {@link NumericNode}, but just {@link ValueNode}.
      */
     @Override
-    public ValueNode numberNode(Long value) {
-        if (value == null) {
+    public ValueNode numberNode(Long v) {
+        if (v == null) {
             return nullNode();
         }
-        return LongNode.valueOf(value.longValue());
+        return LongNode.valueOf(v.longValue());
     }
 
     /**
@@ -195,7 +195,12 @@ public class JsonNodeFactory
      * that expresses given unlimited range integer value
      */
     @Override
-    public NumericNode numberNode(BigInteger v) { return BigIntegerNode.valueOf(v); }
+    public ValueNode numberNode(BigInteger v) {
+        if (v == null) {
+            return nullNode();
+        }
+        return BigIntegerNode.valueOf(v);
+    }
 
     /**
      * Factory method for getting an instance of JSON numeric value
@@ -244,8 +249,12 @@ public class JsonNodeFactory
      * @see #JsonNodeFactory(boolean)
      */
     @Override
-    public NumericNode numberNode(BigDecimal v)
+    public ValueNode numberNode(BigDecimal v)
     {
+        if (v == null) {
+            return nullNode();
+        }
+
         /*
          * If the user wants the exact representation of this big decimal,
          * return the value directly

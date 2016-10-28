@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 public class ArrayNodeTest
     extends BaseMapTest
 {
-    public void testBasics() throws IOException
+    public void testDirectCreation() throws IOException
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         assertStandardEquals(n);
@@ -67,6 +67,9 @@ public class ArrayNodeTest
         assertNotNull(n.remove(0));
         assertEquals(2, n.size());
         assertTrue(n.get(0).isTextual());
+        assertNull(n.remove(-1));
+        assertNull(n.remove(100));
+        assertEquals(2, n.size());
 
         ArrayList<JsonNode> nodes = new ArrayList<JsonNode>();
         nodes.add(text);
@@ -86,12 +89,42 @@ public class ArrayNodeTest
         assertEquals(6, n.size());
 
         // Try serializing it for fun, too...
-        JsonGenerator jg = new MappingJsonFactory().createGenerator(new StringWriter());
-        n.serialize(jg, null);
+        JsonGenerator g = objectMapper().getFactory().createGenerator(new StringWriter());
+        n.serialize(g, null);
+        g.close();
 
         n.removeAll();
         assertEquals(0, n.size());
-        jg.close();
+    }
+
+    public void testDirectCreation2() throws IOException
+    {
+        JsonNodeFactory f = objectMapper().getNodeFactory();
+        ArrayList<JsonNode> list = new ArrayList<>();
+        list.add(f.booleanNode(true));
+        list.add(f.textNode("foo"));
+        ArrayNode n = new ArrayNode(f, list);
+        assertEquals(2, n.size());
+        assertTrue(n.get(0).isBoolean());
+        assertTrue(n.get(1).isTextual());
+
+        // also, should fail with invalid set attempt
+        try {
+            n.set(2, f.nullNode());
+            fail("Should not pass");
+        } catch (IndexOutOfBoundsException e) {
+            verifyException(e, "illegal index");
+        }
+        n.insert(1, (String) null);
+        assertEquals(3, n.size());
+        assertTrue(n.get(0).isBoolean());
+        assertTrue(n.get(1).isNull());
+        assertTrue(n.get(2).isTextual());
+
+        n.removeAll();
+        n.insert(0, (JsonNode) null);
+        assertEquals(1, n.size());
+        assertTrue(n.get(0).isNull());
     }
 
     public void testArrayViaMapper() throws Exception
@@ -107,7 +140,7 @@ public class ArrayNodeTest
         assertTrue(an2.isArray());
         assertEquals(4, an2.size());
     }
-    
+
     public void testAdds()
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
@@ -132,6 +165,54 @@ public class ArrayNodeTest
         assertEquals(14, n.size());
     }
 
+    public void testNullAdds()
+    {
+        JsonNodeFactory f = objectMapper().getNodeFactory();
+        ArrayNode array = f.arrayNode(14);
+
+        array.add((BigDecimal) null);
+        array.add((BigInteger) null);
+        array.add((Boolean) null);
+        array.add((byte[]) null);
+        array.add((Double) null);
+        array.add((Float) null);
+        array.add((Integer) null);
+        array.add((JsonNode) null);
+        array.add((Long) null);
+        array.add((String) null);
+
+        assertEquals(10, array.size());
+        
+        for (JsonNode node : array) {
+            assertTrue(node.isNull());
+        }
+    }
+
+    public void testNullInserts()
+    {
+        JsonNodeFactory f = objectMapper().getNodeFactory();
+        ArrayNode array = f.arrayNode(3);
+
+        array.insert(0, (BigDecimal) null);
+        array.insert(0, (BigInteger) null);
+        array.insert(0, (Boolean) null);
+        // Offsets out of the range are fine; negative become 0;
+        // super big just add at the end
+        array.insert(-56, (byte[]) null);
+        array.insert(0, (Double) null);
+        array.insert(200, (Float) null);
+        array.insert(0, (Integer) null);
+        array.insert(1, (JsonNode) null);
+        array.insert(array.size(), (Long) null);
+        array.insert(1, (String) null);
+
+        assertEquals(10, array.size());
+        
+        for (JsonNode node : array) {
+            assertTrue(node.isNull());
+        }
+    }
+    
     public void testNullChecking()
     {
         ArrayNode a1 = JsonNodeFactory.instance.arrayNode();

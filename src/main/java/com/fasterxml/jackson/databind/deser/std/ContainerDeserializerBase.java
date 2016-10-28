@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Intermediate base deserializer class that adds more shared accessor
@@ -93,9 +94,7 @@ public abstract class ContainerDeserializerBase<T>
             throw (IOException) t;
         }
         // for [databind#1141]
-        if (key == null) {
-            key = "N/A";
-        }
+        key = ClassUtil.nonNull(key, "N/A");
         throw JsonMappingException.wrapWithPath(t, ref, key);
     }
 }

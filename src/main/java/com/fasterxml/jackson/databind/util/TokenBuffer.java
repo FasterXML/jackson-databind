@@ -1423,7 +1423,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (ob instanceof String) {
                     return (String) ob;
                 }
-                return (ob == null) ? null : ob.toString();
+                return ClassUtil.nullOrToString(ob);
             }
             if (_currToken == null) {
                 return null;
@@ -1431,8 +1431,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             switch (_currToken) {
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
-                Object ob = _currentObject();
-                return (ob == null) ? null : ob.toString();
+                return ClassUtil.nullOrToString(_currentObject());
             default:
             	return _currToken.asString();
             }

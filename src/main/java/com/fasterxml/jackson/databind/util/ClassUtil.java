@@ -604,6 +604,46 @@ public final class ClassUtil
 
     /*
     /**********************************************************
+    /* Class classification
+    /**********************************************************
+     */
+    
+    public static boolean isBogusClass(Class<?> cls) {
+        return (cls == Void.class || cls == Void.TYPE
+                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
+    }
+
+    public static boolean isNonStaticInnerClass(Class<?> cls) {
+        return !Modifier.isStatic(cls.getModifiers())
+                && (getEnclosingClass(cls) != null);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static boolean isObjectOrPrimitive(Class<?> cls) {
+        return (cls == CLS_OBJECT) || cls.isPrimitive();
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static <T> T nonNull(T valueOrNull, T defaultValue) {
+        return (valueOrNull == null) ? defaultValue : valueOrNull;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static String nullOrToString(Object value) {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
+
+    /*
+    /**********************************************************
     /* Primitive type support
     /**********************************************************
      */
@@ -887,23 +927,6 @@ public final class ClassUtil
 
     public static boolean isJacksonStdImpl(Class<?> implClass) {
         return (implClass.getAnnotation(JacksonStdImpl.class) != null);
-    }
-
-    public static boolean isBogusClass(Class<?> cls) {
-        return (cls == Void.class || cls == Void.TYPE
-                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
-    }
-
-    public static boolean isNonStaticInnerClass(Class<?> cls) {
-        return !Modifier.isStatic(cls.getModifiers())
-                && (getEnclosingClass(cls) != null);
-    }
-
-    /**
-     * @since 2.7
-     */
-    public static boolean isObjectOrPrimitive(Class<?> cls) {
-        return (cls == CLS_OBJECT) || cls.isPrimitive();
     }
 
     /*

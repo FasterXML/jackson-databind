@@ -205,54 +205,86 @@ public class POJOPropertyBuilder
                 _metadata = PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
             }
             if (!_forSerialization) {
-                PropertyMetadata.MergeInfo mergeInfo = _getMergeInfo();
-                if (mergeInfo != null) {
-                    _metadata = _metadata.withMergeInfo(mergeInfo);
-                }
+                _metadata = _getSetterInfo(_metadata);
             }
         }
         return _metadata;
     }
 
-    protected PropertyMetadata.MergeInfo _getMergeInfo()
+    /**
+     * Helper method that contains logic for accessing and merging all setter
+     * information that we needed, regarding things like possible merging
+     * of property value, and handling of incoming nulls.
+     */
+    protected PropertyMetadata _getSetterInfo(PropertyMetadata metadata)
     {
-        AnnotatedMember acc = getAccessor();
-        if (acc == null) { // can't access value
-            return null;
-        }
-        // Ok, first: does property itself have something to say?
-        if ((_annotationIntrospector != null)) {
-            JsonSetter.Value setter = _annotationIntrospector.findSetterInfo(acc);
-            if (setter != null) {
-                Boolean b = setter.getMerge();
-                if (b != null) {
-                    if (!b.booleanValue()) { // explicitly prevented
-                        return null;
-                    }
-                    return PropertyMetadata.MergeInfo.createForPropertyOverride(acc);
-                }
-            }
-        }
-        // If not, config override?
-        // 25-Oct-2016, tatu: Either this, or type of accessor...
-        Class<?> rawType = getRawPrimaryType();
-        JsonSetter.Value setterInfo = _config.getConfigOverride(rawType)
-                .getSetterInfo();
+        boolean mergeSet = false;
+        JsonSetter.Nulls valueNulls = null;
+        JsonSetter.Nulls contentNulls = null;
 
-        if (setterInfo != null) {
-            Boolean b = setterInfo.getMerge();
-            if (b != null) {
-                if (!b.booleanValue()) { // explicitly prevented
-                    return null;
+        AnnotatedMember acc = getAccessor();
+        if (acc != null) {
+            // Ok, first: does property itself have something to say?
+            if (_annotationIntrospector != null) {
+                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(acc);
+                if (setterInfo != null) {
+                    Boolean b = setterInfo.getMerge();
+                    if (b != null) {
+                        mergeSet = true;
+                        if (b.booleanValue()) {
+                            metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForPropertyOverride(acc));
+                        }
+                    }
+                    valueNulls = setterInfo.nonDefaultValueNulls();
+                    contentNulls = setterInfo.nonDefaultContentNulls();
                 }
-                return PropertyMetadata.MergeInfo.createForTypeOverride(acc);
+            }
+            // If not, config override?
+            // 25-Oct-2016, tatu: Either this, or type of accessor...
+            if (!mergeSet || (valueNulls != null) || (contentNulls != null)) {
+                Class<?> rawType = getRawPrimaryType();
+                JsonSetter.Value setterInfo = _config.getConfigOverride(rawType)
+                        .getSetterInfo();
+                if (setterInfo != null) {
+                    if (!mergeSet) {
+                        Boolean b = setterInfo.getMerge();
+                        if (b != null) {
+                            mergeSet = true;
+                            if (b.booleanValue()) {
+                                metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForTypeOverride(acc));
+                            }
+                        }
+                    }
+                    if (valueNulls != null) {
+                        valueNulls = setterInfo.nonDefaultValueNulls();
+                    }
+                    if (contentNulls != null) {
+                        contentNulls = setterInfo.nonDefaultContentNulls();
+                    }
+                }
             }
         }
-        boolean defMerge = ((DeserializationConfig) _config).getDefaultSetterInfo().shouldMerge();
-        if (defMerge) {
-            return PropertyMetadata.MergeInfo.createForDefaults(acc);
+        if (!mergeSet || (valueNulls != null) || (contentNulls != null)) {
+            JsonSetter.Value setterInfo = ((DeserializationConfig) _config).getDefaultSetterInfo();
+            if (!mergeSet) {
+                Boolean b = setterInfo.getMerge();
+                if (b != null) {
+                    if (b.booleanValue()) {
+                        metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForDefaults(acc));
+                    }
+                }
+            }
+            if (valueNulls != null) {
+                valueNulls = setterInfo.nonDefaultValueNulls();
+            }
+            if (contentNulls != null) {
+                contentNulls = setterInfo.nonDefaultContentNulls();
+            }
         }
-        return null;
+        if ((valueNulls != null) || (contentNulls != null)) {
+            metadata = metadata.withNulls(valueNulls, contentNulls);
+        }
+        return metadata;
     }
 
     @Override

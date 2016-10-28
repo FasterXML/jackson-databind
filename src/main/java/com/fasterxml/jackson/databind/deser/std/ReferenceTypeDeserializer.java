@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 
@@ -46,6 +47,12 @@ public abstract class ReferenceTypeDeserializer<T>
         _fullType = fullType;
         _valueDeserializer = deser;
         _valueTypeDeserializer = typeDeser;
+    }
+
+    // NOTE: for forwards-compatibility; added in 2.8.5 since 2.9.0 has it
+    public ReferenceTypeDeserializer(JavaType fullType, ValueInstantiator inst,
+            TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
+        this(fullType, typeDeser, deser);
     }
 
     @Override

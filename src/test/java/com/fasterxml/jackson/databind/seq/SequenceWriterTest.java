@@ -42,7 +42,7 @@ public class SequenceWriterTest extends BaseMapTest
         
         public ImplB(int v) { b = v; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, simple writes

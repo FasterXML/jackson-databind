@@ -73,11 +73,10 @@ public abstract class ReferenceTypeDeserializer<T>
         if (typeDeser != null) {
             typeDeser = typeDeser.forProperty(property);
         }
+        // !!! 23-Oct-2016, tatu: TODO: full support for configurable ValueInstantiators?
         if ((deser == _valueDeserializer) && (typeDeser == _valueTypeDeserializer)) {
             return this;
         }
-
-        // !!! 23-Oct-2016, tatu: TODO: full support for configurable ValueInstantiators?
         return withResolved(typeDeser, deser);
     }
 
@@ -87,6 +86,13 @@ public abstract class ReferenceTypeDeserializer<T>
     /**********************************************************
      */
 
+    /**
+     * Mutant factory method called when changes are needed; should construct
+     * newly configured instance with new values as indicated.
+     *<p>
+     * NOTE: caller has verified that there are changes, so implementations
+     * need NOT check if a new instance is needed.
+     */
     protected abstract ReferenceTypeDeserializer<T> withResolved(TypeDeserializer typeDeser,
             JsonDeserializer<?> valueDeser);
 

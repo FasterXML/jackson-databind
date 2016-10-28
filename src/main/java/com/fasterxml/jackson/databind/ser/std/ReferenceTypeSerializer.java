@@ -127,13 +127,16 @@ public abstract class ReferenceTypeSerializer<T>
 
     @Override
     public JsonSerializer<T> unwrappingSerializer(NameTransformer transformer) {
-        JsonSerializer<Object> ser = _valueSerializer;
-        if (ser != null) {
-            ser = ser.unwrappingSerializer(transformer);
+        JsonSerializer<Object> valueSer = _valueSerializer;
+        if (valueSer != null) {
+            valueSer = valueSer.unwrappingSerializer(transformer);
         }
         NameTransformer unwrapper = (_unwrapper == null) ? transformer
                 : NameTransformer.chainedTransformer(transformer, _unwrapper);
-        return withResolved(_property, _valueTypeSerializer, ser, unwrapper);
+        if ((_valueSerializer == valueSer) && (_unwrapper == unwrapper)) {
+            return this;
+        }
+        return withResolved(_property, _valueTypeSerializer, valueSer, unwrapper);
     }
 
     /*
@@ -143,6 +146,12 @@ public abstract class ReferenceTypeSerializer<T>
      */
 
     /**
+     * Mutant factory method called when changes are needed; should construct
+     * newly configured instance with new values as indicated.
+     *<p>
+     * NOTE: caller has verified that there are changes, so implementations
+     * need NOT check if a new instance is needed.
+     *
      * @since 2.9
      */
     protected abstract ReferenceTypeSerializer<T> withResolved(BeanProperty prop,
@@ -152,6 +161,9 @@ public abstract class ReferenceTypeSerializer<T>
     /**
      * Mutant factory method called to create a differently constructed instance,
      * specifically with different exclusion rules for contained value.
+     *<p>
+     * NOTE: caller has verified that there are changes, so implementations
+     * need NOT check if a new instance is needed.
      *
      * @since 2.9
      */
@@ -199,7 +211,14 @@ public abstract class ReferenceTypeSerializer<T>
             }
         }
         // First, resolve wrt property, resolved serializers
-        ReferenceTypeSerializer<?> refSer = withResolved(property, typeSer, ser, _unwrapper);
+        ReferenceTypeSerializer<?> refSer;
+        if ((_property == property)
+                && (_valueTypeSerializer == typeSer) && (_valueSerializer == ser)) {
+            refSer = this;
+        } else {
+            refSer = withResolved(property, typeSer, ser, _unwrapper);
+        }
+
         // and then see if we have property-inclusion overrides
         if (property != null) {
             JsonInclude.Value inclV = property.findPropertyInclusion(provider.getConfig(), handledType());

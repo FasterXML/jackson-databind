@@ -38,11 +38,6 @@ public class AtomicReferenceSerializer
             TypeSerializer vts, JsonSerializer<?> valueSer,
             NameTransformer unwrapper)
     {
-        if ((_property == prop)
-                && (_valueTypeSerializer == vts) && (_valueSerializer == valueSer)
-                && (_unwrapper == unwrapper)) {
-            return this;
-        }
         return new AtomicReferenceSerializer(this, prop, vts, valueSer, unwrapper,
                 _suppressableValue, _suppressNulls);
     }
@@ -51,10 +46,6 @@ public class AtomicReferenceSerializer
     public ReferenceTypeSerializer<AtomicReference<?>> withContentInclusion(Object suppressableValue,
             boolean suppressNulls)
     {
-        if ((_suppressableValue == suppressableValue)
-                && (_suppressNulls == suppressNulls)) {
-            return this;
-        }
         return new AtomicReferenceSerializer(this, _property, _valueTypeSerializer,
                 _valueSerializer, _unwrapper,
                 suppressableValue, suppressNulls);

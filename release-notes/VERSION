@@ -33,6 +33,8 @@ Project: jackson-databind
  (reported by Josh G)
 #1411: MapSerializer._orderEntries should check for null keys
  (reported by Jörn H)
+#1432: Off by 1 bug in PropertyValueBuffer
+ (reported by Kevin D)
 
 2.8.3 (17-Sep-2016)
 

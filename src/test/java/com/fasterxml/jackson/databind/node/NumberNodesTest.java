@@ -12,8 +12,10 @@ import com.fasterxml.jackson.databind.*;
  * Basic tests for {@link JsonNode} implementations that
  * contain numeric values.
  */
-public class TestNumberNodes extends NodeTestBase
+public class NumberNodesTest extends NodeTestBase
 {
+    private final ObjectMapper MAPPER = objectMapper();
+    
     public void testShort()
     {
         ShortNode n = ShortNode.valueOf((short) 1);
@@ -37,8 +39,33 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(ShortNode.valueOf(Short.MAX_VALUE).canConvertToLong());
         assertTrue(ShortNode.valueOf(Short.MIN_VALUE).canConvertToLong());
     }
-    
-	public void testInt()
+
+    public void testIntViaMapper() throws Exception
+    {
+        int value = -90184;
+        JsonNode result = MAPPER.readTree(String.valueOf(value));
+        assertTrue(result.isNumber());
+        assertTrue(result.isIntegralNumber());
+        assertTrue(result.isInt());
+        assertType(result, IntNode.class);
+        assertFalse(result.isLong());
+        assertFalse(result.isFloatingPointNumber());
+        assertFalse(result.isDouble());
+        assertFalse(result.isNull());
+        assertFalse(result.isTextual());
+        assertFalse(result.isMissingNode());
+
+        assertEquals(value, result.numberValue().intValue());
+        assertEquals(value, result.intValue());
+        assertEquals(String.valueOf(value), result.asText());
+        assertEquals((double) value, result.doubleValue());
+        assertEquals((long) value, result.longValue());
+
+        // also, equality should work ok
+        assertEquals(result, IntNode.valueOf(value));
+    }
+
+    public void testInt()
     {
         IntNode n = IntNode.valueOf(1);
         assertStandardEquals(n);
@@ -62,6 +89,7 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(IntNode.valueOf(0).canConvertToLong());
         assertTrue(IntNode.valueOf(Integer.MAX_VALUE).canConvertToLong());
         assertTrue(IntNode.valueOf(Integer.MIN_VALUE).canConvertToLong());
+
     }
 
     public void testLong()
@@ -92,6 +120,31 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(LongNode.valueOf(Long.MIN_VALUE).canConvertToLong());
     }
 
+    public void testLongViaMapper() throws Exception
+    {
+        // need to use something being 32-bit value space
+        long value = 12345678L << 32;
+        JsonNode result = MAPPER.readTree(String.valueOf(value));
+        assertTrue(result.isNumber());
+        assertTrue(result.isIntegralNumber());
+        assertTrue(result.isLong());
+        assertType(result, LongNode.class);
+        assertFalse(result.isInt());
+        assertFalse(result.isFloatingPointNumber());
+        assertFalse(result.isDouble());
+        assertFalse(result.isNull());
+        assertFalse(result.isTextual());
+        assertFalse(result.isMissingNode());
+
+        assertEquals(value, result.numberValue().longValue());
+        assertEquals(value, result.longValue());
+        assertEquals(String.valueOf(value), result.asText());
+        assertEquals((double) value, result.doubleValue());
+
+        // also, equality should work ok
+        assertEquals(result, LongNode.valueOf(value));
+    }
+
     public void testDouble() throws Exception
     {
         DoubleNode n = DoubleNode.valueOf(0.25);
@@ -105,7 +158,6 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         assertEquals("0.25", n.asText());
 
-        // 1.6:
         assertNodeNumbers(DoubleNode.valueOf(4.5), 4, 4.5);
 
         assertTrue(DoubleNode.valueOf(0).canConvertToInt());
@@ -123,6 +175,31 @@ public class TestNumberNodes extends NodeTestBase
         n = (DoubleNode) num;
         assertEquals(-0.0, n.doubleValue());
         assertEquals("-0.0", String.valueOf(n.doubleValue()));
+    }
+
+    public void testDoubleViaMapper() throws Exception
+    {
+        double value = 3.04;
+        JsonNode result = MAPPER.readTree(String.valueOf(value));
+        assertTrue(result.isNumber());
+        assertFalse(result.isNull());
+        assertType(result, DoubleNode.class);
+        assertTrue(result.isFloatingPointNumber());
+        assertTrue(result.isDouble());
+        assertFalse(result.isInt());
+        assertFalse(result.isLong());
+        assertFalse(result.isIntegralNumber());
+        assertFalse(result.isTextual());
+        assertFalse(result.isMissingNode());
+
+        assertEquals(value, result.doubleValue());
+        assertEquals(value, result.numberValue().doubleValue());
+        assertEquals((int) value, result.intValue());
+        assertEquals((long) value, result.longValue());
+        assertEquals(String.valueOf(value), result.asText());
+
+        // also, equality should work ok
+        assertEquals(result, DoubleNode.valueOf(value));
     }
 
     // @since 2.2
@@ -173,6 +250,7 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals(JsonParser.NumberType.BIG_DECIMAL, n.numberType());
         assertTrue(n.isNumber());
         assertFalse(n.isIntegralNumber());
+        assertFalse(n.isArray());
         assertTrue(n.isBigDecimal());
         assertEquals(BigDecimal.ONE, n.numberValue());
         assertEquals(1, n.intValue());
@@ -180,7 +258,6 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals(BigDecimal.ONE, n.decimalValue());
         assertEquals("1", n.asText());
 
-        // 1.6:
         assertNodeNumbers(n, 1, 1.0);
 
         assertTrue(DecimalNode.valueOf(BigDecimal.ZERO).canConvertToInt());
@@ -192,8 +269,31 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(DecimalNode.valueOf(BigDecimal.ZERO).canConvertToLong());
         assertTrue(DecimalNode.valueOf(BigDecimal.valueOf(Long.MAX_VALUE)).canConvertToLong());
         assertTrue(DecimalNode.valueOf(BigDecimal.valueOf(Long.MIN_VALUE)).canConvertToLong());
-    }
 
+        // no "natural" way to get it, must construct
+        BigDecimal value = new BigDecimal("0.1");
+        JsonNode result = DecimalNode.valueOf(value);
+
+        assertFalse(result.isObject());
+        assertTrue(result.isNumber());
+        assertFalse(result.isIntegralNumber());
+        assertFalse(result.isLong());
+        assertType(result, DecimalNode.class);
+        assertFalse(result.isInt());
+        assertTrue(result.isFloatingPointNumber());
+        assertTrue(result.isBigDecimal());
+        assertFalse(result.isDouble());
+        assertFalse(result.isNull());
+        assertFalse(result.isTextual());
+        assertFalse(result.isMissingNode());
+
+        assertEquals(value, result.numberValue());
+        assertEquals(value.toString(), result.asText());
+
+        // also, equality should work ok
+        assertEquals(result, DecimalNode.valueOf(value));
+    }
+    
     public void testDecimalNodeEqualsHashCode()
     {
         /*
@@ -284,7 +384,6 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals("100", mapper.writeValueAsString(tree));
     }
 
-    // Related to [Issue#333]
     public void testCanonicalNumbers() throws Exception
     {
         JsonNodeFactory f = new JsonNodeFactory();

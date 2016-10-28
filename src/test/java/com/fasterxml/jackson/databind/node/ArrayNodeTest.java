@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 /**
  * Additional tests for {@link ArrayNode} container class.
  */
-public class TestArrayNode
+public class ArrayNodeTest
     extends BaseMapTest
 {
     public void testBasics() throws IOException
@@ -94,6 +94,20 @@ public class TestArrayNode
         jg.close();
     }
 
+    public void testArrayViaMapper() throws Exception
+    {
+        final String JSON = "[[[-0.027512,51.503221],[-0.008497,51.503221],[-0.008497,51.509744],[-0.027512,51.509744]]]";
+
+        JsonNode n = objectMapper().readTree(JSON);
+        assertNotNull(n);
+        assertTrue(n.isArray());
+        ArrayNode an = (ArrayNode) n;
+        assertEquals(1, an.size());
+        ArrayNode an2 = (ArrayNode) n.get(0);
+        assertTrue(an2.isArray());
+        assertEquals(4, an2.size());
+    }
+    
     public void testAdds()
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
@@ -166,5 +180,75 @@ public class TestArrayNode
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
         p.close();
+    }
+
+    public void testArrayNodeEquality()
+    {
+        ArrayNode n1 = new ArrayNode(null);
+        ArrayNode n2 = new ArrayNode(null);
+
+        assertTrue(n1.equals(n2));
+        assertTrue(n2.equals(n1));
+
+        n1.add(TextNode.valueOf("Test"));
+
+        assertFalse(n1.equals(n2));
+        assertFalse(n2.equals(n1));
+
+        n2.add(TextNode.valueOf("Test"));
+
+        assertTrue(n1.equals(n2));
+        assertTrue(n2.equals(n1));
+    }
+
+    public void testSimpleArray() throws Exception
+    {
+        ArrayNode result = objectMapper().createArrayNode();
+
+        assertTrue(result.isArray());
+        assertType(result, ArrayNode.class);
+
+        assertFalse(result.isObject());
+        assertFalse(result.isNumber());
+        assertFalse(result.isNull());
+        assertFalse(result.isTextual());
+
+        // and let's add stuff...
+        result.add(false);
+        result.insertNull(0);
+
+        // should be equal to itself no matter what
+        assertEquals(result, result);
+        assertFalse(result.equals(null)); // but not to null
+
+        // plus see that we can access stuff
+        assertEquals(NullNode.instance, result.path(0));
+        assertEquals(NullNode.instance, result.get(0));
+        assertEquals(BooleanNode.FALSE, result.path(1));
+        assertEquals(BooleanNode.FALSE, result.get(1));
+        assertEquals(2, result.size());
+
+        assertNull(result.get(-1));
+        assertNull(result.get(2));
+        JsonNode missing = result.path(2);
+        assertTrue(missing.isMissingNode());
+        assertTrue(result.path(-100).isMissingNode());
+
+        // then construct and compare
+        ArrayNode array2 = objectMapper().createArrayNode();
+        array2.addNull();
+        array2.add(false);
+        assertEquals(result, array2);
+
+        // plus remove entries
+        JsonNode rm1 = array2.remove(0);
+        assertEquals(NullNode.instance, rm1);
+        assertEquals(1, array2.size());
+        assertEquals(BooleanNode.FALSE, array2.get(0));
+        assertFalse(result.equals(array2));
+
+        JsonNode rm2 = array2.remove(0);
+        assertEquals(BooleanNode.FALSE, rm2);
+        assertEquals(0, array2.size());
     }
 }

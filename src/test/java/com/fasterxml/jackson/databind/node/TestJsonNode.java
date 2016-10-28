@@ -44,7 +44,7 @@ public class TestJsonNode extends NodeTestBase
         assertFalse(TextNode.valueOf("false").asBoolean(false));
     }
 
-    public void testBoolean()
+    public void testBoolean() throws Exception
     {
         BooleanNode f = BooleanNode.getFalse();
         assertNotNull(f);
@@ -67,11 +67,23 @@ public class TestJsonNode extends NodeTestBase
         assertEquals("true", t.asText());
         assertEquals(JsonToken.VALUE_TRUE, t.asToken());
 
-        // 1.6:
         assertNodeNumbers(f, 0, 0.0);
         assertNodeNumbers(t, 1, 1.0);
-    }
+    
+        JsonNode result = objectMapper().readTree("true\n");
+        assertFalse(result.isNull());
+        assertFalse(result.isNumber());
+        assertFalse(result.isTextual());
+        assertTrue(result.isBoolean());
+        assertType(result, BooleanNode.class);
+        assertTrue(result.booleanValue());
+        assertEquals("true", result.asText());
+        assertFalse(result.isMissingNode());
 
+        // also, equality should work ok
+        assertEquals(result, BooleanNode.valueOf(true));
+        assertEquals(result, BooleanNode.getTrue());
+    }
 
     public void testBinary() throws Exception
     {

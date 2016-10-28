@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -32,6 +31,12 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Instances are initially constructed by {@link ObjectMapper} and can be
  * reused, shared, cached; both because of thread-safety and because
  * instances are relatively light-weight.
+ *<p>
+ * NOTE: this class is NOT meant as sub-classable (with Jackson 2.8 and
+ * above) by users. It is left as non-final mostly to allow frameworks
+ * that require bytecode generation for proxying and similar use cases,
+ * but there is no expecation that functionality should be extended
+ * by sub-classing.
  */
 public class ObjectReader
     extends ObjectCodec
@@ -333,8 +338,7 @@ public class ObjectReader
 
     /*
     /**********************************************************
-    /* Methods sub-classes may choose to override, if customized
-    /* initialization is needed.
+    /* Methods for initializing parser instance to use
     /**********************************************************
      */
 
@@ -1160,7 +1164,7 @@ public class ObjectReader
     }
      
     @Override
-    public void writeTree(JsonGenerator jgen, TreeNode rootNode) {
+    public void writeTree(JsonGenerator g, TreeNode rootNode) {
         throw new UnsupportedOperationException();
     }
     
@@ -1323,8 +1327,7 @@ public class ObjectReader
      * it will just be ignored; result is always a newly constructed
      * {@link JsonNode} instance.
      */
-    public JsonNode readTree(InputStream in)
-        throws IOException, JsonProcessingException
+    public JsonNode readTree(InputStream in) throws IOException
     {
         if (_dataFormatReaders != null) {
             return _detectBindAndCloseAsTree(in);
@@ -1341,8 +1344,7 @@ public class ObjectReader
      * it will just be ignored; result is always a newly constructed
      * {@link JsonNode} instance.
      */
-    public JsonNode readTree(Reader r)
-        throws IOException, JsonProcessingException
+    public JsonNode readTree(Reader r) throws IOException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(r);
@@ -1359,8 +1361,7 @@ public class ObjectReader
      * it will just be ignored; result is always a newly constructed
      * {@link JsonNode} instance.
      */
-    public JsonNode readTree(String json)
-        throws IOException, JsonProcessingException
+    public JsonNode readTree(String json) throws IOException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
@@ -1635,32 +1636,43 @@ public class ObjectReader
         }
     }
 
-    protected JsonNode _bindAndCloseAsTree(JsonParser p0) throws IOException {
+    protected final JsonNode _bindAndCloseAsTree(JsonParser p0) throws IOException {
         try (JsonParser p = p0) {
             return _bindAsTree(p);
         }
     }
     
-    protected JsonNode _bindAsTree(JsonParser p) throws IOException
+    protected final JsonNode _bindAsTree(JsonParser p) throws IOException
     {
-        JsonNode result;
-        DeserializationContext ctxt = createDeserializationContext(p);
-        JsonToken t = _initForReading(ctxt, p);
-        if (t == JsonToken.VALUE_NULL || t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-            result = NullNode.instance;
-        } else {
-            JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
-            if (_unwrapRoot) {
-                result = (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
-            } else {
-                result = (JsonNode) deser.deserialize(p, ctxt);
+        // 27-Oct-2016, tatu: Need to inline `_initForReading()` due to
+        //   special requirements by tree reading (no fail on eof)
+        
+        _config.initialize(p);
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+
+        JsonToken t = p.getCurrentToken();
+        if (t == null) {
+            t = p.nextToken();
+            if (t == null) { // [databind#1406]: expose end-of-input as `null`
+                return null;
             }
         }
-        // Need to consume the token too
-        p.clearCurrentToken();
-        return result;
+        DeserializationContext ctxt = createDeserializationContext(p);
+        if (t == JsonToken.VALUE_NULL) {
+            return ctxt.getNodeFactory().nullNode();
+        }
+        JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
+        Object result;
+        if (_unwrapRoot) {
+            result = _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+        } else {
+            result = deser.deserialize(p, ctxt);
+        }
+        return (JsonNode) result;
     }
-    
+
     /**
      * @since 2.1
      */

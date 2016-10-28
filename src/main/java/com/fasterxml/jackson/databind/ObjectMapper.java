@@ -2352,11 +2352,9 @@ public class ObjectMapper
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    public JsonNode readTree(InputStream in)
-        throws IOException, JsonProcessingException
+    public JsonNode readTree(InputStream in) throws IOException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(in), JSON_NODE_TYPE);
-        return (n == null) ? NullNode.instance : n;
+        return _readTreeAndClose(_jsonFactory.createParser(in));
     }
 
     /**
@@ -2382,11 +2380,8 @@ public class ObjectMapper
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
      */
-    public JsonNode readTree(Reader r)
-        throws IOException, JsonProcessingException
-    {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(r), JSON_NODE_TYPE);
-        return (n == null) ? NullNode.instance : n;
+    public JsonNode readTree(Reader r) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(r));
     }
 
     /**
@@ -2412,11 +2407,8 @@ public class ObjectMapper
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    public JsonNode readTree(String content)
-        throws IOException, JsonProcessingException
-    {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(content), JSON_NODE_TYPE);
-        return (n == null) ? NullNode.instance : n;
+    public JsonNode readTree(String content) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(content));
     }
 
     /**
@@ -2435,11 +2427,8 @@ public class ObjectMapper
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    public JsonNode readTree(byte[] content)
-        throws IOException, JsonProcessingException
-    {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(content), JSON_NODE_TYPE);
-        return (n == null) ? NullNode.instance : n;
+    public JsonNode readTree(byte[] content) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(content));
     }
     
     /**
@@ -2465,8 +2454,7 @@ public class ObjectMapper
     public JsonNode readTree(File file)
         throws IOException, JsonProcessingException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(file), JSON_NODE_TYPE);
-        return (n == null) ? NullNode.instance : n;
+        return _readTreeAndClose(_jsonFactory.createParser(file));
     }
 
     /**
@@ -2489,11 +2477,8 @@ public class ObjectMapper
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    public JsonNode readTree(URL source)
-        throws IOException, JsonProcessingException
-    {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(source), JSON_NODE_TYPE);
-        return (n == null) ? NullNode.instance : n;
+    public JsonNode readTree(URL source) throws IOException {
+        return _readTreeAndClose(_jsonFactory.createParser(source));
     }
 
     /*
@@ -3837,9 +3822,47 @@ public class ObjectMapper
                 }
                 ctxt.checkUnresolvedObjectId();
             }
-            // Need to consume the token too
-            p.clearCurrentToken();
             return result;
+        }
+    }
+
+    /**
+     * Similar to {@link #_readMapAndClose} but specialized for <code>JsonNode</code>
+     * reading.
+     *
+     * @since 2.9
+     */
+    protected JsonNode _readTreeAndClose(JsonParser p0) throws IOException
+    {
+        try (JsonParser p = p0) {
+            final JavaType valueType = JSON_NODE_TYPE;
+
+            // 27-Oct-2016, tatu: Need to inline `_initForReading()` due to
+            //   special requirements by tree reading (no fail on eof)
+            
+            _deserializationConfig.initialize(p); // since 2.5
+            JsonToken t = p.getCurrentToken();
+            if (t == null) {
+                t = p.nextToken();
+                if (t == null) { // [databind#1406]: expose end-of-input as `null`
+                    return null;
+                }
+            }
+            if (t == JsonToken.VALUE_NULL) {
+                return _deserializationConfig.getNodeFactory().nullNode();
+            }
+            DeserializationConfig cfg = getDeserializationConfig();
+            DeserializationContext ctxt = createDeserializationContext(p, cfg);
+            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
+            Object result;
+            if (cfg.useRootWrapping()) {
+                result = _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
+            } else {
+                result = deser.deserialize(p, ctxt);
+            }
+            // No ObjectIds so can ignore
+//            ctxt.checkUnresolvedObjectId();
+            return (JsonNode) result;
         }
     }
 

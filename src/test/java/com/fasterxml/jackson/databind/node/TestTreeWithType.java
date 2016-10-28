@@ -20,7 +20,7 @@ public class TestTreeWithType extends BaseMapTest
         }
     }
 
-    // [Issue#353]
+    // [databind#353]
     public class SavedCookie {
         public String name, value;
 

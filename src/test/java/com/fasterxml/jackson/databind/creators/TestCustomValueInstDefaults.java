@@ -1,7 +1,13 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.creators;
+
+import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.ValueInstantiators;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -262,6 +268,112 @@ public class TestCustomValueInstDefaults extends BaseTest
         }
     }
 
+    static class ClassWith32Props {
+        @JsonCreator
+        public ClassWith32Props(@JsonProperty("p1") String p1,
+                @JsonProperty("p2") String p2,
+                @JsonProperty("p3") String p3, @JsonProperty("p4") String p4,
+                @JsonProperty("p5") String p5, @JsonProperty("p6") String p6,
+                @JsonProperty("p7") String p7, @JsonProperty("p8") String p8,
+                @JsonProperty("p9") String p9, @JsonProperty("p10") String p10,
+                @JsonProperty("p11") String p11, @JsonProperty("p12") String p12,
+                @JsonProperty("p13") String p13, @JsonProperty("p14") String p14,
+                @JsonProperty("p15") String p15, @JsonProperty("p16") String p16,
+                @JsonProperty("p17") String p17, @JsonProperty("p18") String p18,
+                @JsonProperty("p19") String p19, @JsonProperty("p20") String p20,
+                @JsonProperty("p21") String p21, @JsonProperty("p22") String p22,
+                @JsonProperty("p23") String p23, @JsonProperty("p24") String p24,
+                @JsonProperty("p25") String p25, @JsonProperty("p26") String p26,
+                @JsonProperty("p27") String p27, @JsonProperty("p28") String p28,
+                @JsonProperty("p29") String p29, @JsonProperty("p30") String p30,
+                @JsonProperty("p31") String p31, @JsonProperty("p32") String p32) {
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p3 = p3;
+            this.p4 = p4;
+            this.p5 = p5;
+            this.p6 = p6;
+            this.p7 = p7;
+            this.p8 = p8;
+            this.p9 = p9;
+            this.p10 = p10;
+            this.p11 = p11;
+            this.p12 = p12;
+            this.p13 = p13;
+            this.p14 = p14;
+            this.p15 = p15;
+            this.p16 = p16;
+            this.p17 = p17;
+            this.p18 = p18;
+            this.p19 = p19;
+            this.p20 = p20;
+            this.p21 = p21;
+            this.p22 = p22;
+            this.p23 = p23;
+            this.p24 = p24;
+            this.p25 = p25;
+            this.p26 = p26;
+            this.p27 = p27;
+            this.p28 = p28;
+            this.p29 = p29;
+            this.p30 = p30;
+            this.p31 = p31;
+            this.p32 = p32;
+        }
+
+        public final String p1, p2, p3, p4;
+        public final String p5, p6, p7, p8;
+        public final String p9, p10, p11, p12;
+        public final String p13, p14, p15, p16;
+        public final String p17, p18, p19, p20;
+        public final String p21, p22, p23, p24;
+        public final String p25, p26, p27, p28;
+        public final String p29, p30, p31, p32;
+    }
+
+    static class VerifyingValueInstantiator extends StdValueInstantiator {
+        protected VerifyingValueInstantiator(StdValueInstantiator src) {
+            super(src);
+        }
+
+        @Override
+        public Object createFromObjectWith(DeserializationContext ctxt, SettableBeanProperty[] props, PropertyValueBuffer buffer) throws IOException {
+            for (SettableBeanProperty prop : props) {
+                assertTrue("prop " + prop.getName() + " was expected to have buffer.hasParameter(prop) be true but was false", buffer.hasParameter(prop));
+            }
+            return super.createFromObjectWith(ctxt, props, buffer);
+        }
+    }
+
+    // [databind#1432]
+    
+    public static class ClassWith32Module extends SimpleModule {
+        public ClassWith32Module() {
+            super("test", Version.unknownVersion());
+        }
+
+        @Override
+        public void setupModule(SetupContext context) {
+            context.addValueInstantiators(new ValueInstantiators.Base() {
+                @Override
+                public ValueInstantiator findValueInstantiator(DeserializationConfig config,
+                        BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
+                    if (beanDesc.getBeanClass() == ClassWith32Props.class) {
+                        return new VerifyingValueInstantiator((StdValueInstantiator)
+                                defaultInstantiator);
+                    }
+                    return defaultInstantiator;
+                }
+            });
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
     // When all values are in the source, no defaults should be used.
     public void testAllPresent() throws Exception
     {
@@ -415,4 +527,29 @@ public class TestCustomValueInstDefaults extends BaseTest
         assertEquals(BigBucket.DEFAULT_S, big.s15);
         assertEquals(BigBucket.DEFAULT_S, big.s16);
     }
+
+    // [databind#1432]
+    public void testClassWith32CreatorParams() throws Exception
+    {
+        StringBuilder sb = new StringBuilder()
+                .append("{\n");
+        for (int i = 1; i <= 32; ++i) {
+            sb.append("\"p").append(i).append("\" : \"NotNull")
+                .append(i).append("\"");
+            if (i < 32) {
+                sb.append(",\n");
+            }
+        }
+        sb.append("\n}\n");
+        String json = sb.toString();
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new ClassWith32Module());
+        ClassWith32Props result = mapper.readValue(json, ClassWith32Props.class);
+        // let's assume couple of first, last ones suffice
+        assertEquals("NotNull1", result.p1);
+        assertEquals("NotNull2", result.p2);
+        assertEquals("NotNull31", result.p31);
+        assertEquals("NotNull32", result.p32);
+    }
 }
+

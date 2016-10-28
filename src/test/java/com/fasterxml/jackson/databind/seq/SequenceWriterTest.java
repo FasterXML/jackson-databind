@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.seq;
 
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -44,7 +42,7 @@ public class SequenceWriterTest extends BaseMapTest
         
         public ImplB(int v) { b = v; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, simple writes

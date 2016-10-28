@@ -274,10 +274,10 @@ public class PropertyValueBuffer
             }
         } else {
             if (!_paramsSeenBig.get(ix)) {
+                _paramsSeenBig.set(ix);
                 if (--_paramsNeeded <= 0) {
                     return true;
                 }
-                _paramsSeenBig.set(ix);
             }
         }
         return false;

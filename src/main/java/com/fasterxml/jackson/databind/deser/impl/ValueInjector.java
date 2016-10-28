@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public class ValueInjector
     extends BeanProperty.Std
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Identifier used for looking up value to inject
      */

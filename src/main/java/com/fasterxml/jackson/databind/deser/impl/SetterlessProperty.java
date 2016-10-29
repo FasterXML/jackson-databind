@@ -110,7 +110,7 @@ public final class SetterlessProperty
         // Ok: then, need to fetch Collection/Map to modify:
         Object toModify;
         try {
-            toModify = _getter.invoke(instance);
+            toModify = _getter.invoke(instance, (Object[]) null);
         } catch (Exception e) {
             _throwAsIOE(p, e);
             return; // never gets here

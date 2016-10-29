@@ -273,15 +273,10 @@ public abstract class AsArraySerializerBase<T>
         throws JsonMappingException
     {
         ObjectNode o = createSchemaNode("array", true);
-        JavaType contentType = _elementType;
-        if (contentType != null) {
+        if (_elementSerializer != null) {
             JsonNode schemaNode = null;
-            // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
-            if (contentType.getRawClass() != Object.class) {
-                JsonSerializer<Object> ser = provider.findValueSerializer(contentType, _property);
-                if (ser instanceof SchemaAware) {
-                    schemaNode = ((SchemaAware) ser).getSchema(provider, null);
-                }
+            if (_elementSerializer instanceof SchemaAware) {
+                schemaNode = ((SchemaAware) _elementSerializer).getSchema(provider, null);
             }
             if (schemaNode == null) {
                 schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();

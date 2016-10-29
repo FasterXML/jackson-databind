@@ -135,22 +135,19 @@ public class StdArraySerializers
         public final void serialize(boolean[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
-            if (len == 1) {
-                if (((_unwrapSingle == null) &&
-                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                        || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, g, provider);
-                    return;
-                }
+            if ((len == 1) && _shouldUnwrapSingle(provider)) {
+                serializeContents(value, g, provider);
+                return;
             }
             g.writeStartArray(len);
+            g.setCurrentValue(value);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
         
         @Override
         public void serializeContents(boolean[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeBoolean(value[i]);
@@ -220,16 +217,13 @@ public class StdArraySerializers
         @Override
         public final void serialize(short[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
-        	final int len = value.length;
-            if (len == 1) {
-                if (((_unwrapSingle == null) &&
-                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                        || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, g, provider);
-                    return;
-                }
+            final int len = value.length;
+            if ((len == 1) && _shouldUnwrapSingle(provider)) {
+                serializeContents(value, g, provider);
+                return;
             }
             g.writeStartArray(len);
+            g.setCurrentValue(value);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
@@ -237,7 +231,7 @@ public class StdArraySerializers
         @SuppressWarnings("cast")
         @Override
         public void serializeContents(short[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
@@ -287,11 +281,12 @@ public class StdArraySerializers
         
         @Override
         public void serialize(char[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
                 g.writeStartArray(value.length);
+                g.setCurrentValue(value);
                 _writeArrayContents(g, value);
                 g.writeEndArray();
             } else {
@@ -302,7 +297,7 @@ public class StdArraySerializers
         @Override
         public void serializeWithType(char[] value, JsonGenerator g, SerializerProvider provider,
                 TypeSerializer typeSer)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
@@ -317,7 +312,7 @@ public class StdArraySerializers
         }
 
         private final void _writeArrayContents(JsonGenerator g, char[] value)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeString(value, i, 1);
@@ -397,13 +392,9 @@ public class StdArraySerializers
         public final void serialize(int[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
-            if (len == 1) {
-                if (((_unwrapSingle == null) &&
-                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                        || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, g, provider);
-                    return;
-                }
+            if ((len == 1) && _shouldUnwrapSingle(provider)) {
+                serializeContents(value, g, provider);
+                return;
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.setCurrentValue(value);
@@ -479,13 +470,9 @@ public class StdArraySerializers
         public final void serialize(long[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
-            if (len == 1) {
-                if (((_unwrapSingle == null) &&
-                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                        || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, g, provider);
-                    return;
-                }
+            if ((len == 1) && _shouldUnwrapSingle(provider)) {
+                serializeContents(value, g, provider);
+                return;
             }
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.setCurrentValue(value);
@@ -575,22 +562,19 @@ public class StdArraySerializers
         public final void serialize(float[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
-            if (len == 1) {
-                if (((_unwrapSingle == null) &&
-                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                        || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, g, provider);
-                    return;
-                }
+            if ((len == 1) && _shouldUnwrapSingle(provider)) {
+                serializeContents(value, g, provider);
+                return;
             }
             g.writeStartArray(len);
+            g.setCurrentValue(value);
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
         
         @Override
         public void serializeContents(float[] value, JsonGenerator g, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
@@ -673,16 +657,12 @@ public class StdArraySerializers
         public final void serialize(double[] value, JsonGenerator g, SerializerProvider provider) throws IOException
         {
             final int len = value.length;
-            if (len == 1) {
-                if (((_unwrapSingle == null) &&
-                        provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                        || (_unwrapSingle == Boolean.TRUE)) {
-                    serializeContents(value, g, provider);
-                    return;
-                }
+            if ((len == 1) && _shouldUnwrapSingle(provider)) {
+                serializeContents(value, g, provider);
+                return;
             }
-            // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.setCurrentValue(value);
+            // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.writeArray(value, 0, value.length);
         }
 

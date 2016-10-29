@@ -111,16 +111,14 @@ public abstract class ArraySerializerBase<T>
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
-        if (((_unwrapSingle == null) &&
-                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                || (_unwrapSingle == Boolean.TRUE)) {
+        if (_shouldUnwrapSingle(provider)) {
             if (hasSingleElement(value)) {
                 serializeContents(value, gen, provider);
                 return;
             }
         }
-        gen.setCurrentValue(value);
         gen.writeStartArray();
+        gen.setCurrentValue(value);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         serializeContents(value, gen, provider);
         gen.writeEndArray();
@@ -140,4 +138,14 @@ public abstract class ArraySerializerBase<T>
     
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException;
+
+    /**
+     * @since 2.9
+     */
+    protected final boolean _shouldUnwrapSingle(SerializerProvider provider) {
+        if (_unwrapSingle == null) {
+            return provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+        }
+        return _unwrapSingle.booleanValue();
+    }
 }

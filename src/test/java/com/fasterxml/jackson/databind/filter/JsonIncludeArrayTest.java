@@ -115,11 +115,13 @@ public class JsonIncludeArrayTest extends BaseMapTest
 
     public void testDoubleArray() throws IOException
     {
+        assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyDoubleArray()));
         assertEquals("{\"value\":[0.25,-1.0]}", MAPPER.writeValueAsString(new NonEmptyDoubleArray(0.25,-1.0)));
     }
 
     public void testFloatArray() throws IOException
     {
+        assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyFloatArray()));
         assertEquals("{\"value\":[0.5]}", MAPPER.writeValueAsString(new NonEmptyFloatArray(0.5f)));
     }
 }

@@ -17,6 +17,9 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
  */
 @JacksonStdImpl
 public final class StringArrayDeserializer
+// 28-Oct-2016, tatu: Should do this:
+//    extends ContainerDeserializerBase<String[]>
+// but for now won't:
     extends StdDeserializer<String[]>
     implements ContextualDeserializer
 {
@@ -51,9 +54,7 @@ public final class StringArrayDeserializer
 
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
-        // 23-Oct-2016, tatu: In theory could support some specific cases; and there's
-        //   question of logical vs physical update. But for now, claim we can't do it.
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
     
     /**
@@ -93,7 +94,7 @@ public final class StringArrayDeserializer
             return handleNonArray(p, ctxt);
         }
         if (_elementDeserializer != null) {
-            return _deserializeCustom(p, ctxt);
+            return _deserializeCustom(p, ctxt, null);
         }
 
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
@@ -130,13 +131,22 @@ public final class StringArrayDeserializer
     /**
      * Offlined version used when we do not use the default deserialization method.
      */
-    protected final String[] _deserializeCustom(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected final String[] _deserializeCustom(JsonParser p, DeserializationContext ctxt,
+            String[] old) throws IOException
     {
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
-        Object[] chunk = buffer.resetAndStart();
-        final JsonDeserializer<String> deser = _elementDeserializer;
+        int ix;
+        Object[] chunk;
+
+        if (old == null) {
+            ix = 0;
+            chunk = buffer.resetAndStart();
+        } else {
+            ix = old.length;
+            chunk = buffer.resetAndStart(old, ix);
+        }
         
-        int ix = 0;
+        final JsonDeserializer<String> deser = _elementDeserializer;
 
         try {
             while (true) {
@@ -170,12 +180,62 @@ public final class StringArrayDeserializer
         ctxt.returnObjectBuffer(buffer);
         return result;
     }
-    
+
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
+    @Override
+    public String[] deserialize(JsonParser p, DeserializationContext ctxt,
+            String[] intoValue) throws IOException
+    {
+        // Ok: must point to START_ARRAY (or equivalent)
+        if (!p.isExpectedStartArrayToken()) {
+            String[] arr = handleNonArray(p, ctxt);
+            if (arr == null) {
+                return intoValue;
+            }
+            final int offset = intoValue.length;
+            String[] result = new String[offset + arr.length];
+            System.arraycopy(intoValue, 0, result, 0, offset);
+            System.arraycopy(arr, 0, result, offset, arr.length);
+            return result;
+        }
+
+        if (_elementDeserializer != null) {
+            return _deserializeCustom(p, ctxt, intoValue);
+        }
+        final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
+        int ix = intoValue.length;
+        Object[] chunk = buffer.resetAndStart(intoValue, ix);
+
+        try {
+            while (true) {
+                String value = p.nextTextValue();
+                if (value == null) {
+                    JsonToken t = p.getCurrentToken();
+                    if (t == JsonToken.END_ARRAY) {
+                        break;
+                    }
+                    if (t != JsonToken.VALUE_NULL) {
+                        value = _parseString(p, ctxt);
+                    }
+                }
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                chunk[ix++] = value;
+            }
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+        }
+        String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
+        ctxt.returnObjectBuffer(buffer);
+        return result;
+    }
+    
     private final String[] handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // implicit arrays from single values?
@@ -184,7 +244,8 @@ public final class StringArrayDeserializer
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (canWrap) {
             return new String[] { p.hasToken(JsonToken.VALUE_NULL) ? null : _parseString(p, ctxt) };
-        } else if (p.hasToken(JsonToken.VALUE_STRING)
+        }
+        if (p.hasToken(JsonToken.VALUE_STRING)
                     && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
             String str = p.getText();
             if (str.length() == 0) {

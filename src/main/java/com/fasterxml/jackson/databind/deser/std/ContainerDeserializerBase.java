@@ -30,9 +30,7 @@ public abstract class ContainerDeserializerBase<T>
      */
 
     @Override // since 2.9
-    public final Boolean supportsUpdate(DeserializationConfig config) {
-        // 23-Oct-2016, tatu: Most if not all containers should support merges
-        //    so let's default to that:
+    public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
     }
     
@@ -40,12 +38,13 @@ public abstract class ContainerDeserializerBase<T>
     public SettableBeanProperty findBackReference(String refName) {
         JsonDeserializer<Object> valueDeser = getContentDeserializer();
         if (valueDeser == null) {
-            throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
-                    +"': type: container deserializer of type "+getClass().getName()+" returned null for 'getContentDeserializer()'");
+            throw new IllegalArgumentException(String.format(
+                    "Can not handle managed/back reference '%s': type: container deserializer of type %s returned null for 'getContentDeserializer()'",
+                    refName, getClass().getName()));
         }
         return valueDeser.findBackReference(refName);
     }
-    
+
     /*
     /**********************************************************
     /* Extended API

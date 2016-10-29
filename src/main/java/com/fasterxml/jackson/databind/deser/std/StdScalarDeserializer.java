@@ -47,5 +47,4 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
     }
-
 }

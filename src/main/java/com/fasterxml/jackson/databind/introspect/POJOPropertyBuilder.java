@@ -242,7 +242,7 @@ public class POJOPropertyBuilder
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
             if (!mergeSet || (valueNulls != null) || (contentNulls != null)) {
-                Class<?> rawType = getRawPrimaryType();
+                Class<?> rawType = acc.getType().getRawClass();
                 JsonSetter.Value setterInfo = _config.getConfigOverride(rawType)
                         .getSetterInfo();
                 if (setterInfo != null) {

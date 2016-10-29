@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Helper class to use for constructing Object arrays by appending entries
- * to create arrays of various lengths (length that is not known a priori). 
+ * to create arrays of various lengths (length that is not known a priori).
  */
 public final class ObjectBuffer
 {
@@ -67,8 +67,21 @@ public final class ObjectBuffer
     {
         _reset();
         if (_freeBuffer == null) {
-            return new Object[12];
+            return (_freeBuffer = new Object[12]);
         }
+        return _freeBuffer;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public Object[] resetAndStart(Object[] base, int count)
+    {
+        _reset();
+        if ((_freeBuffer == null) || (_freeBuffer.length < count)) {
+            _freeBuffer = new Object[Math.max(12, count)];
+        }
+        System.arraycopy(base, 0, _freeBuffer, 0, count);
         return _freeBuffer;
     }
 
@@ -121,6 +134,7 @@ public final class ObjectBuffer
         int totalSize = lastChunkEntries + _size;
         Object[] result = new Object[totalSize];
         _copyTo(result, totalSize, lastChunk, lastChunkEntries);
+        _reset();
         return result;
     }
 
@@ -154,6 +168,7 @@ public final class ObjectBuffer
         for (int i = 0; i < lastChunkEntries; ++i) {
             resultList.add(lastChunk[i]);
         }
+        _reset();
     }
     
     /**

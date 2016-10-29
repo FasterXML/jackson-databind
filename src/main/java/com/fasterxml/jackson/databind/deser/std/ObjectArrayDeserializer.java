@@ -228,7 +228,60 @@ public class ObjectArrayDeserializer
          */
         return (Object[]) typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
-    
+
+    public Object[] deserialize(JsonParser p, DeserializationContext ctxt,
+            Object[] intoValue) throws IOException
+    {
+        if (!p.isExpectedStartArrayToken()) {
+            Object[] arr = handleNonArray(p, ctxt);
+            if (arr == null) {
+                return intoValue;
+            }
+            final int offset = intoValue.length;
+            Object[] result = new Object[offset + arr.length];
+            System.arraycopy(intoValue, 0, result, 0, offset);
+            System.arraycopy(arr, 0, result, offset, arr.length);
+            return result;
+        }
+
+        final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
+        int ix = intoValue.length;
+        Object[] chunk = buffer.resetAndStart(intoValue, ix);
+        JsonToken t;
+        final TypeDeserializer typeDeser = _elementTypeDeserializer;
+
+        try {
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                Object value;
+                
+                if (t == JsonToken.VALUE_NULL) {
+                    value = _elementDeserializer.getNullValue(ctxt);
+                } else if (typeDeser == null) {
+                    value = _elementDeserializer.deserialize(p, ctxt);
+                } else {
+                    value = _elementDeserializer.deserializeWithType(p, ctxt, typeDeser);
+                }
+                if (ix >= chunk.length) {
+                    chunk = buffer.appendCompletedChunk(chunk);
+                    ix = 0;
+                }
+                chunk[ix++] = value;
+            }
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
+        }
+
+        Object[] result;
+
+        if (_untyped) {
+            result = buffer.completeAndClearBuffer(chunk, ix);
+        } else {
+            result = buffer.completeAndClearBuffer(chunk, ix, _elementClass);
+        }
+        ctxt.returnObjectBuffer(buffer);
+        return result;
+    }
+
     /*
     /**********************************************************
     /* Internal methods
@@ -259,7 +312,7 @@ public class ObjectArrayDeserializer
                 return null;
             }
         }
-        
+
         // Can we do implicit coercion to a single-element array still?
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
                 ((_unwrapSingle == null) &&

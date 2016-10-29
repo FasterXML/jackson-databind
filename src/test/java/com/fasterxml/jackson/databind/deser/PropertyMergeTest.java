@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
@@ -90,8 +91,17 @@ public class PropertyMergeTest extends BaseMapTest
         public StringReference value = new StringReference("default");
     }
 
-    // // // Classes with invalid merge definition(s)
+    static class MergedX<T>
+    {
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public T value;
+
+        public MergedX(T v) { value = v; }
+        protected MergedX() { }
+    }
     
+    // // // Classes with invalid merge definition(s)
+
     static class CantMergeInts {
         @JsonSetter(merge=OptBoolean.TRUE)
         public int value;
@@ -181,6 +191,24 @@ public class PropertyMergeTest extends BaseMapTest
         assertTrue(w.values.contains("x"));
     }
 
+    // Test that uses generic type
+    public void testGenericListMerging() throws Exception
+    {
+        Collection<String> l = new ArrayList<>();
+        l.add("foo");
+        MergedX<Collection<String>> input = new MergedX<Collection<String>>(l);
+
+        MergedX<Collection<String>> result = MAPPER
+                .readerFor(new TypeReference<MergedX<Collection<String>>>() {})
+                .withValueToUpdate(input)
+                .readValue(aposToQuotes("{'value':['bar']}"));
+        assertSame(input, result);
+        assertEquals(2, result.value.size());
+        Iterator<String> it = result.value.iterator();
+        assertEquals("foo", it.next());
+        assertEquals("bar", it.next());
+    }
+
     public void testEnumSetMerging() throws Exception
     {
         MergedEnumSet result = MAPPER.readValue(aposToQuotes("{'abc':['A']}"), MergedEnumSet.class);
@@ -205,10 +233,55 @@ public class PropertyMergeTest extends BaseMapTest
 
     /*
     /********************************************************
+    /* Test methods, array merging
+    /********************************************************
+     */
+
+    public void testObjectArrayMerging() throws Exception
+    {
+        MergedX<Object[]> input = new MergedX<Object[]>(new Object[] {
+                "foo"
+        });
+        final JavaType type = MAPPER.getTypeFactory().constructType(new TypeReference<MergedX<Object[]>>() {});
+        MergedX<Object[]> result = MAPPER.readerFor(type)
+                .withValueToUpdate(input)
+                .readValue(aposToQuotes("{'value':['bar']}"));
+        assertSame(input, result);
+        assertEquals(2, result.value.length);
+        assertEquals("foo", result.value[0]);
+        assertEquals("bar", result.value[1]);
+
+        // and with one trick
+        result = MAPPER.readerFor(type)
+                .with(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .withValueToUpdate(input)
+                .readValue(aposToQuotes("{'value':'zap'}"));
+        assertSame(input, result);
+        assertEquals(3, result.value.length);
+        assertEquals("foo", result.value[0]);
+        assertEquals("bar", result.value[1]);
+        assertEquals("zap", result.value[2]);
+    }
+
+    public void testStringArrayMerging() throws Exception
+    {
+        MergedX<String[]> input = new MergedX<String[]>(new String[] { "foo" });
+        MergedX<String[]> result = MAPPER
+                .readerFor(new TypeReference<MergedX<String[]>>() {})
+                .withValueToUpdate(input)
+                .readValue(aposToQuotes("{'value':['bar']}"));
+        assertSame(input, result);
+        assertEquals(2, result.value.length);
+        assertEquals("foo", result.value[0]);
+        assertEquals("bar", result.value[1]);
+    }
+    
+    /*
+    /********************************************************
     /* Test methods, reference types
     /********************************************************
      */
-    
+
     public void testReferenceMerging() throws Exception
     {
         MergedReference result = MAPPER.readValue(aposToQuotes("{'value':'override'}"),

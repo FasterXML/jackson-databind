@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
@@ -72,10 +74,9 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         throw new IllegalStateException();
     }
 
-    // !!! TODO: should support, is doable (logically); but not yet supported so:
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
     
     /**
@@ -105,6 +106,47 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
+    @Override
+    public T deserialize(JsonParser p, DeserializationContext ctxt, T existing) throws IOException
+    {
+        T newValue = deserialize(p, ctxt);
+        if (existing == null) {
+            return newValue;
+        }
+        int len = Array.getLength(existing);
+        if (len == 0) {
+            return newValue;
+        }
+        return _concat(existing, newValue);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected abstract T _concat(T oldValue, T newValue);
+
+    /**
+     * Convenience method that constructs a concatenation of two arrays,
+     * with the type they have.
+     *
+     * @since 2.9
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T concatArrays(T array1, T array2)
+    {
+        int len1 = Array.getLength(array1);
+        if (len1 == 0) {
+            return array2;
+        }
+        int len2 = Array.getLength(array2);
+        if (len2 == 0) {
+            return array1;
+        }
+        Object result = Arrays.copyOf((Object[]) array1, len1 + len2);
+        System.arraycopy(array2, 0, result, len1, len2);
+        return (T) result;
+    }
+    
     @SuppressWarnings("unchecked")
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -149,7 +191,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             // 11-Dec-2015, tatu: Not sure how re-wrapping would work; omit
             return this;
         }
-        
+
         @Override
         public char[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
@@ -212,6 +254,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             // not sure how this should work...
             return (char[]) ctxt.handleUnexpectedToken(_valueClass, p);
         }
+
+        @Override
+        protected char[] _concat(char[] oldValue, char[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            char[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
+        }
     }
 
     /*
@@ -267,6 +318,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected boolean[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             return new boolean[] { _parseBooleanPrimitive(p, ctxt) };
+        }
+
+        @Override
+        protected boolean[] _concat(boolean[] oldValue, boolean[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            boolean[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
         }
     }
 
@@ -361,6 +421,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             }
             return new byte[] { value };
         }
+
+        @Override
+        protected byte[] _concat(byte[] oldValue, byte[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            byte[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
+        }
     }
 
     @JacksonStdImpl
@@ -408,6 +477,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected short[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             return new short[] { _parseShortPrimitive(p, ctxt) };
+        }
+
+        @Override
+        protected short[] _concat(short[] oldValue, short[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            short[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
         }
     }
 
@@ -460,6 +538,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new int[] { _parseIntPrimitive(p, ctxt) };
         }
+
+        @Override
+        protected int[] _concat(int[] oldValue, int[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            int[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
+        }
     }
 
     @JacksonStdImpl
@@ -509,6 +596,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected long[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             return new long[] { _parseLongPrimitive(p, ctxt) };
+        }
+
+        @Override
+        protected long[] _concat(long[] oldValue, long[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            long[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
         }
     }
 
@@ -560,6 +656,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException {
             return new float[] { _parseFloatPrimitive(p, ctxt) };
         }
+
+        @Override
+        protected float[] _concat(float[] oldValue, float[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            float[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
+        }
     }
 
     @JacksonStdImpl
@@ -607,6 +712,15 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected double[] handleSingleElementUnwrapped(JsonParser p,
                 DeserializationContext ctxt) throws IOException {
             return new double[] { _parseDoublePrimitive(p, ctxt) };
+        }
+
+        @Override
+        protected double[] _concat(double[] oldValue, double[] newValue) {
+            int len1 = oldValue.length;
+            int len2 = newValue.length;
+            double[] result = Arrays.copyOf(oldValue, len1+len2);
+            System.arraycopy(newValue, 0, result, len1, len2);
+            return result;
         }
     }
 }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Class that represents a "wildcard" set method which can be used
@@ -194,7 +195,7 @@ public class SettableAnyProperty
         throws IOException
     {
         if (e instanceof IllegalArgumentException) {
-            String actType = (value == null) ? "[NULL]" : value.getClass().getName();
+            String actType = ClassUtil.classNameOf(value, "[NULL]");
             StringBuilder msg = new StringBuilder("Problem deserializing \"any\" property '").append(propName);
             msg.append("' of class "+getClassName()+" (expected type: ").append(_type);
             msg.append("; actual type: ").append(actType).append(")");

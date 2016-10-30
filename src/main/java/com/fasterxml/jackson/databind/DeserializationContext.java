@@ -378,9 +378,11 @@ public abstract class DeserializationContext
 
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance)
+        throws JsonMappingException
     {
         if (_injectableValues == null) {
-            throw new IllegalStateException("No 'injectableValues' configured, can not inject value with id ["+valueId+"]");
+            reportBadDefinition(ClassUtil.classOf(valueId), String.format(
+"No 'injectableValues' configured, can not inject value with id [%s]", valueId));
         }
         return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
     }

@@ -1184,16 +1184,6 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Helper method called to indicate a non-specific deserialization problem
-     * caused by a bad definition of a type.
-     *
-     * @since 2.9
-     */
-    public <T> T reportBadDefinition(Class<?> type, String msg) throws JsonMappingException {
-        throw InvalidDefinitionException.from(getGenerator(), msg, constructType(type));
-    }
-
-    /**
      * @since 2.9
      */
     public <T> T reportBadDefinition(JavaType type, String msg, Throwable cause)

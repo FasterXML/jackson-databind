@@ -4,6 +4,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for resolving type parameters for given class
@@ -335,7 +336,9 @@ name, i, t.getRawClass()));
     @Override public boolean equals(Object o)
     {
         if (o == this) return true;
-        if (o == null || o.getClass() != getClass()) return false;
+        if (!ClassUtil.hasClass(o, getClass())) {
+            return false;
+        }
         TypeBindings other = (TypeBindings) o;
         int len = _types.length;
         if (len != other.size()) {

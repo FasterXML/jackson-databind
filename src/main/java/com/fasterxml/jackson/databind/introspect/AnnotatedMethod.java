@@ -260,7 +260,9 @@ public final class AnnotatedMethod
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (o == null || o.getClass() != getClass()) return false;
+        if (!ClassUtil.hasClass(o, getClass())) {
+            return false;
+        }
         return ((AnnotatedMethod) o)._method == _method;
     }
     

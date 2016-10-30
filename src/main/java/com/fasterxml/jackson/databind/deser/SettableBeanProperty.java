@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ViewMatcher;
 
 /**
@@ -521,7 +522,7 @@ public abstract class SettableBeanProperty
     protected void _throwAsIOE(JsonParser p, Exception e, Object value) throws IOException
     {
         if (e instanceof IllegalArgumentException) {
-            String actType = (value == null) ? "[NULL]" : value.getClass().getName();
+            String actType = ClassUtil.classNameOf(value, "[NULL]");
             StringBuilder msg = new StringBuilder("Problem deserializing property '").append(getName());
             msg.append("' (expected type: ").append(getType());
             msg.append("; actual type: ").append(actType).append(")");

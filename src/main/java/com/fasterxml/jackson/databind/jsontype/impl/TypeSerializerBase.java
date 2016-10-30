@@ -51,7 +51,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
     // As per [databind#633], maybe better just not do anything...
     protected void handleMissingId(Object value) {
         /*
-        String typeDesc = (value == null) ? "NULL" : value.getClass().getName();
+        String typeDesc = ClassUtil.classNameOf(value, "NULL");
         throw new IllegalArgumentException("Can not resolve type id for "
                 +typeDesc+" (using "+_idResolver.getClass().getName()+")");
                 */

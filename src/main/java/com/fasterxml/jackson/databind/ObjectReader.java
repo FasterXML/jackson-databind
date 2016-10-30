@@ -1861,7 +1861,8 @@ public class ObjectReader
         // Sanity check: must have actual type...
         JavaType t = _valueType;
         if (t == null) {
-            ctxt.reportBadDefinition(null, "No value type configured for ObjectReader");
+            ctxt.reportBadDefinition((JavaType) null,
+                    "No value type configured for ObjectReader");
         }
         // First: have we already seen it?
         JsonDeserializer<Object> deser = _rootDeserializers.get(t);

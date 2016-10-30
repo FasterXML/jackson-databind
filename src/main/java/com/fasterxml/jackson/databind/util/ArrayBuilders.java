@@ -162,7 +162,7 @@ public final class ArrayBuilders
             @Override
             public boolean equals(Object other) {
                 if (other == this) return true;
-                if (other == null || other.getClass() != defaultValueType) {
+                if (!ClassUtil.hasClass(other, defaultValueType)) {
                     return false;
                 }
                 if (Array.getLength(other) != length) return false;

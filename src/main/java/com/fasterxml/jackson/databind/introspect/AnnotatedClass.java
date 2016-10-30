@@ -1215,7 +1215,9 @@ public final class AnnotatedClass
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (o == null || o.getClass() != getClass()) return false;
+        if (!ClassUtil.hasClass(o, getClass())) {
+            return false;
+        }
         return ((AnnotatedClass) o)._class == _class;
     }
 }

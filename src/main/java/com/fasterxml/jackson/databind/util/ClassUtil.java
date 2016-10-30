@@ -642,6 +642,33 @@ public final class ClassUtil
         return value.toString();
     }
 
+    /**
+     * @since 2.9
+     */
+    public static Class<?> classOf(Object inst) {
+        if (inst == null) {
+            return null;
+        }
+        return inst.getClass();
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static boolean hasClass(Object inst, Class<?> raw) {
+        return (inst != null) && (inst.getClass() == raw);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static String classNameOf(Object inst, String defName) {
+        if (inst == null) {
+            return defName;
+        }
+        return inst.getClass().getName();
+    }
+
     /*
     /**********************************************************
     /* Primitive type support

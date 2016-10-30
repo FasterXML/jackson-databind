@@ -229,6 +229,7 @@ public class ObjectArrayDeserializer
         return (Object[]) typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
+    @Override // since 2.9
     public Object[] deserialize(JsonParser p, DeserializationContext ctxt,
             Object[] intoValue) throws IOException
     {

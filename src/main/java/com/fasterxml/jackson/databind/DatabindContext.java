@@ -239,4 +239,12 @@ public abstract class DatabindContext
      * @since 2.9
      */
     public abstract <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException;
+
+
+    /**
+     * @since 2.9
+     */
+    public <T> T reportBadDefinition(Class<?> type, String msg) throws JsonMappingException {
+        return reportBadDefinition(constructType(type), msg);
+    }
 }

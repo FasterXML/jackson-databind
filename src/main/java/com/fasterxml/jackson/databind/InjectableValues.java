@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.util.ClassUtil;
+
 /**
  * Abstract class that defines API for objects that provide value to
  * "inject" during deserialization. An instance of this object
@@ -23,7 +25,7 @@ public abstract class InjectableValues
      *    if available; null if bean has not yet been constructed.
      */
     public abstract Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-            BeanProperty forProperty, Object beanInstance);
+            BeanProperty forProperty, Object beanInstance) throws JsonMappingException;
 
     /*
     /**********************************************************
@@ -63,11 +65,13 @@ public abstract class InjectableValues
         
         @Override
         public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-                BeanProperty forProperty, Object beanInstance)
+                BeanProperty forProperty, Object beanInstance) throws JsonMappingException
         {
             if (!(valueId instanceof String)) {
-                String type = (valueId == null) ? "[null]" : valueId.getClass().getName();
-                throw new IllegalArgumentException("Unrecognized inject value id type ("+type+"), expecting String");
+                ctxt.reportBadDefinition(ClassUtil.classOf(valueId),
+                        String.format(
+                        "Unrecognized inject value id type (%s), expecting String",
+                        ClassUtil.classNameOf(valueId, "[null]")));
             }
             String key = (String) valueId;
             Object ob = _values.get(key);

@@ -119,7 +119,6 @@ public class RawValue
     
     @Override
     public String toString() {
-        return String.format("[RawValue of type %s]",
-                (_value == null) ? "NULL" : _value.getClass().getName());
+        return String.format("[RawValue of type %s]", ClassUtil.classNameOf(_value, "NULL"));
     }
 }

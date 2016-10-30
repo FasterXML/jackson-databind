@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Object that represents method parameters, mostly so that associated
@@ -167,7 +168,9 @@ public final class AnnotatedParameter
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (o == null || o.getClass() != getClass()) return false;
+        if (!ClassUtil.hasClass(o, getClass())) {
+            return false;
+        }
         AnnotatedParameter other = (AnnotatedParameter) o;
         return other._owner.equals(_owner) && (other._index == _index);
     }

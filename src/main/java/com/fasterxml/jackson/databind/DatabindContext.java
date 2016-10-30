@@ -134,7 +134,10 @@ public abstract class DatabindContext
      * type (usually {@link java.lang.Class})
      */
     public JavaType constructType(Type type) {
-         return getTypeFactory().constructType(type);
+        if (type == null) {
+            return null;
+        }
+        return getTypeFactory().constructType(type);
     }
 
     /**

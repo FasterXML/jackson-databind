@@ -17,6 +17,8 @@ public class DeserConfigTest extends BaseMapTest
         assertFalse(config.hasDeserializationFeatures(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY.getMask()));
         assertTrue(config.hasSomeOfFeatures(DeserializationFeature.EAGER_DESERIALIZER_FETCH.getMask()
                 + DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY.getMask()));
+        assertFalse(config.hasSomeOfFeatures(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY.getMask()));
+
         // if no changes then same config object
         assertSame(config, config.without());
         assertSame(config, config.with());

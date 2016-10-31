@@ -605,9 +605,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> type)
         throws JsonMappingException
     {
-        if (type == null) {
-            throw new IllegalArgumentException("A class must be provided");
-        }
         /* no need for embedded type information for JSON schema generation (all
          * type information it needs is accessible via "untyped" serializer)
          */

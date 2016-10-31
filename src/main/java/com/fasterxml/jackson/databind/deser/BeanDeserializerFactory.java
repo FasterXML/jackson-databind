@@ -551,7 +551,7 @@ public class BeanDeserializerFactory
                 if (cprop == null) {
                     ctxt.reportBadTypeDefinition(beanDesc,
                             "Could not find creator property with name '%s' (in class %s)",
-                            name, beanDesc.getBeanClass().getName());
+                            name, ClassUtil.classNameOf(beanDesc.getBeanClass()));
                     continue;
                 }
                 if (prop != null) {

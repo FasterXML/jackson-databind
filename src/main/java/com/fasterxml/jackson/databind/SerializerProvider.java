@@ -1404,20 +1404,6 @@ public abstract class SerializerProvider
     /**********************************************************
      */
 
-    protected String _desc(Object value) {
-        if (value == null) {
-            return "N/A";
-        }
-        return "'"+value+"'";
-    }
-
-    protected String _quotedString(Object value) {
-        if (value == null) {
-            return "N/A";
-        }
-        return String.valueOf(value);
-    }
-
     protected final DateFormat _dateFormat()
     {
         if (_dateFormat != null) {
@@ -1438,13 +1424,5 @@ public abstract class SerializerProvider
         }
         */
         return df;
-    }
-
-    // @since 2.9
-    protected String _format(String msg, Object... msgArgs) {
-        if (msgArgs.length > 0) {
-            return String.format(msg, msgArgs);
-        }
-        return msg;
     }
 }

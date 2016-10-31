@@ -1,16 +1,13 @@
-package com.fasterxml.jackson.databind.seq;
+package com.fasterxml.jackson.databind;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.FormatSchema;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 public class ObjectReaderTest extends BaseMapTest
@@ -123,6 +120,8 @@ public class ObjectReaderTest extends BaseMapTest
     {
         JsonNodeFactory nodes = new JsonNodeFactory(true);
         ObjectReader r = MAPPER.reader().with(nodes);
+        // but also no further changes if attempting again
+        assertSame(r, r.with(nodes));
         assertTrue(r.createArrayNode().isArray());
         assertTrue(r.createObjectNode().isObject());
     }
@@ -143,7 +142,6 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(r.isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE));
     }
 
-    @SuppressWarnings("deprecation")
     public void testMiscSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();
@@ -167,11 +165,25 @@ public class ObjectReaderTest extends BaseMapTest
         assertNotSame(r, newR);
         assertSame(newR, newR.forType(String.class));
 
+        DeserializationProblemHandler probH = new DeserializationProblemHandler() {
+        };
+        newR = r.withHandler(probH);
+        assertNotSame(r, newR);
+        assertSame(newR, newR.withHandler(probH));
+        r = newR;
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedSettings() throws Exception
+    {
+        ObjectReader r = MAPPER.reader();
+
         // and deprecated variants
+        ObjectReader newR = r.forType(MAPPER.constructType(String.class));
         assertSame(newR, newR.withType(String.class));
         assertSame(newR, newR.withType(MAPPER.constructType(String.class)));
 
-        newR = r.withRootName(PropertyName.construct("foo"));
+        newR = newR.withRootName(PropertyName.construct("foo"));
         assertNotSame(r, newR);
         assertSame(newR, newR.withRootName(PropertyName.construct("foo")));
     }

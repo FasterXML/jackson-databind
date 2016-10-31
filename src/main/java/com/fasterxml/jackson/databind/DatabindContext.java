@@ -25,6 +25,15 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class DatabindContext
 {
+    /**
+     * Let's limit length of error messages, for cases where underlying data
+     * may be very large -- no point in spamming logs with megabytes of meaningless
+     * data.
+     *
+     * @since 2.9
+     */
+    private final static int MAX_ERROR_STR_LEN = 500;
+
     /*
     /**********************************************************
     /* Generic config access
@@ -249,5 +258,76 @@ public abstract class DatabindContext
      */
     public <T> T reportBadDefinition(Class<?> type, String msg) throws JsonMappingException {
         return reportBadDefinition(constructType(type), msg);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.9
+     */
+    protected final String _format(String msg, Object... msgArgs) {
+        if (msgArgs.length > 0) {
+            return String.format(msg, msgArgs);
+        }
+        return msg;
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected final String _truncate(String desc) {
+        if (desc == null) {
+            return "";
+        }
+        if (desc.length() <= MAX_ERROR_STR_LEN) {
+            return desc;
+        }
+        return desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected String _quotedString(String desc) {
+        if (desc == null) {
+            return "[N/A]";
+        }
+        // !!! should we quote it? (in case there are control chars, linefeeds)
+        return String.format("\"%s\"", _truncate(desc));
+    }
+    
+    /**
+     * @since 2.9
+     */
+    protected String _colonConcat(String msgBase, String extra) {
+        if (extra == null) {
+            return msgBase;
+        }
+        return msgBase + ": " + extra;
+    }
+    
+    /**
+     * @since 2.9
+     */
+    protected String _calcName(Class<?> cls) {
+        if (cls.isArray()) {
+            return _calcName(cls.getComponentType())+"[]";
+        }
+        return cls.getName();
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected String _desc(String desc) {
+        if (desc == null) {
+            return "[N/A]";
+        }
+        // !!! should we quote it? (in case there are control chars, linefeeds)
+        return _truncate(desc);
     }
 }

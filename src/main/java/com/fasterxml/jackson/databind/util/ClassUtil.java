@@ -662,9 +662,9 @@ public final class ClassUtil
     /**
      * @since 2.9
      */
-    public static String classNameOf(Object inst, String defName) {
+    public static String classNameOf(Object inst) {
         if (inst == null) {
-            return defName;
+            return "[null]";
         }
         return inst.getClass().getName();
     }

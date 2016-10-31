@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.seq;
+package com.fasterxml.jackson.databind;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**

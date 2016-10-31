@@ -195,7 +195,7 @@ public class SettableAnyProperty
         throws IOException
     {
         if (e instanceof IllegalArgumentException) {
-            String actType = ClassUtil.classNameOf(value, "[NULL]");
+            String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing \"any\" property '").append(propName);
             msg.append("' of class "+getClassName()+" (expected type: ").append(_type);
             msg.append("; actual type: ").append(actType).append(")");

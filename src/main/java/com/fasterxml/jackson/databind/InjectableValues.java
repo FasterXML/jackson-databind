@@ -71,7 +71,7 @@ public abstract class InjectableValues
                 ctxt.reportBadDefinition(ClassUtil.classOf(valueId),
                         String.format(
                         "Unrecognized inject value id type (%s), expecting String",
-                        ClassUtil.classNameOf(valueId, "[null]")));
+                        ClassUtil.classNameOf(valueId)));
             }
             String key = (String) valueId;
             Object ob = _values.get(key);

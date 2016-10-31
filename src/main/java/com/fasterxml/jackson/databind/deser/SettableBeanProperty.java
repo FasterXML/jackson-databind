@@ -522,7 +522,7 @@ public abstract class SettableBeanProperty
     protected void _throwAsIOE(JsonParser p, Exception e, Object value) throws IOException
     {
         if (e instanceof IllegalArgumentException) {
-            String actType = ClassUtil.classNameOf(value, "[NULL]");
+            String actType = ClassUtil.classNameOf(value);
             StringBuilder msg = new StringBuilder("Problem deserializing property '").append(getName());
             msg.append("' (expected type: ").append(getType());
             msg.append("; actual type: ").append(actType).append(")");

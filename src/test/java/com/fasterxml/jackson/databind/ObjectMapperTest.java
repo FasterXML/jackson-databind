@@ -4,10 +4,9 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -18,19 +17,12 @@ public class ObjectMapperTest extends BaseMapTest
         int value = 3;
         
         public void setX(int v) { value = v; }
+
+        protected Bean() { }
+        public Bean(int v) { value = v; }
     }
 
     static class EmptyBean { }
-    
-    // for [databind#206]
-    @SuppressWarnings("serial")
-    static class CustomMapper extends ObjectMapper {
-        @Override
-        protected DefaultDeserializationContext createDeserializationContext(JsonParser jp,
-                DeserializationConfig cfg) {
-            return super.createDeserializationContext(jp, cfg);
-        }
-    }
 
     @SuppressWarnings("serial")
     static class MyAnnotationIntrospector extends JacksonAnnotationIntrospector { }
@@ -48,15 +40,81 @@ public class ObjectMapperTest extends BaseMapTest
             g.writeRaw(" , ");
         }
     }
-    
+
+    // for [databind#206]
+    @SuppressWarnings("serial")
+    static class NoCopyMapper extends ObjectMapper { }
+
+    final ObjectMapper MAPPER = new ObjectMapper();
+
+    /*
+    /**********************************************************
+    /* Test methods, config
+    /**********************************************************
+     */
+
+    public void testFactorFeatures()
+    {
+        assertTrue(MAPPER.isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES));
+    }
+
+    public void testGeneratorFeatures()
+    {
+        // and also for mapper
+        ObjectMapper mapper = new ObjectMapper();
+        assertFalse(mapper.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(mapper.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
+        mapper.disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM,
+                JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+    }
+
+    public void testParserFeatures()
+    {
+        // and also for mapper
+        ObjectMapper mapper = new ObjectMapper();
+                
+        assertTrue(mapper.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertFalse(mapper.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+
+        mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE,
+                JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        assertFalse(mapper.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, simple reads
+    /**********************************************************
+     */
+
+    public void testReadMethods() throws Exception
+    {
+        List<String> list = MAPPER.readValue(aposToQuotes("['b']"),
+                new TypeReference<List<String>>() { });
+        assertEquals(1, list.size());
+        assertEquals("b", list.get(0));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, simple writes
+    /**********************************************************
+     */
+
+    public void testIndentedWrite() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String json = mapper.writeValueAsString(new IntWrapper(3));
+        assertEquals("{\n  \"i\" : 3\n}", json);
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
-    final static ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testProps()
     {
         ObjectMapper m = new ObjectMapper();
@@ -123,10 +181,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertSame(f, m.getFactory());
         assertSame(m, f.getCodec());
     }
-    
-    /**
-     * Test for verifying working of [JACKSON-191]
-     */
+
     public void testProviderConfig() throws Exception   
     {
         ObjectMapper m = new ObjectMapper();
@@ -185,7 +240,7 @@ public class ObjectMapperTest extends BaseMapTest
         
         assertNotSame(m.getFactory(), m2.getFactory());
 
-        // [Issue#122]: Need to ensure mix-ins are not shared
+        // [databind#122]: Need to ensure mix-ins are not shared
         assertEquals(0, m.getSerializationConfig().mixInCount());
         assertEquals(0, m2.getSerializationConfig().mixInCount());
         assertEquals(0, m.getDeserializationConfig().mixInCount());
@@ -197,9 +252,19 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(1, m.getDeserializationConfig().mixInCount());
         assertEquals(0, m2.getDeserializationConfig().mixInCount());
 
-        // [Issue#913]: Ensure JsonFactory Features copied
+        // [databind#913]: Ensure JsonFactory Features copied
         assertTrue(m2.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        
+    }
+
+    public void testFailedCopy() throws Exception
+    {
+        NoCopyMapper src = new NoCopyMapper();
+        try {
+            src.copy();
+            fail("Should not pass");
+        } catch (IllegalStateException e) {
+            verifyException(e, "does not override copy()");
+        }
     }
 
     public void testAnnotationIntrospectorCopyin() 

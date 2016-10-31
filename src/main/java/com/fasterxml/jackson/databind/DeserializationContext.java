@@ -53,13 +53,6 @@ public abstract class DeserializationContext
 {
     private static final long serialVersionUID = 1L; // 2.6
 
-    /**
-     * Let's limit length of error messages, for cases where underlying data
-     * may be very large -- no point in spamming logs with megs of meaningless
-     * data.
-     */
-    private final static int MAX_ERROR_STR_LEN = 500;
-
     /*
     /**********************************************************
     /* Configuration, immutable
@@ -1680,61 +1673,5 @@ public abstract class DeserializationContext
         DateFormat df = _config.getDateFormat();
         _dateFormat = df = (DateFormat) df.clone();
         return df;
-    }
-
-    protected String _calcName(Class<?> cls) {
-        if (cls.isArray()) {
-            return _calcName(cls.getComponentType())+"[]";
-        }
-        return cls.getName();
-    }
-
-    protected String _valueDesc() {
-        try {
-            return _desc(_parser.getText());
-        } catch (Exception e) {
-            return "[N/A]";
-        }
-    }
-
-    protected String _desc(String desc) {
-        if (desc == null) {
-            return "[N/A]";
-        }
-        // !!! should we quote it? (in case there are control chars, linefeeds)
-        if (desc.length() > MAX_ERROR_STR_LEN) {
-            desc = desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);
-        }
-        return desc;
-    }
-
-    // @since 2.7
-    protected String _quotedString(String desc) {
-        if (desc == null) {
-            return "[N/A]";
-        }
-        // !!! should we quote it? (in case there are control chars, linefeeds)
-        if (desc.length() > MAX_ERROR_STR_LEN) {
-            return String.format("\"%s]...[%s\"",
-                    desc.substring(0, MAX_ERROR_STR_LEN),
-                    desc.substring(desc.length() - MAX_ERROR_STR_LEN));
-        }
-        return String.format("\"%s\"", desc);
-    }
-
-    // @since 2.9
-    protected String _colonConcat(String msgBase, String extra) {
-        if (extra == null) {
-            return msgBase;
-        }
-        return msgBase + ": " + extra;
-    }
-
-    // @since 2.9
-    protected String _format(String msg, Object... msgArgs) {
-        if (msgArgs.length > 0) {
-            return String.format(msg, msgArgs);
-        }
-        return msg;
     }
 }

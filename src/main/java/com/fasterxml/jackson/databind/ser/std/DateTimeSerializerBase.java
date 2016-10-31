@@ -87,11 +87,11 @@ public abstract class DateTimeSerializerBase<T>
     @Override
     public boolean isEmpty(SerializerProvider serializers, T value) {
         // let's assume "null date" (timestamp 0) qualifies for empty
-        return (value == null) || (_timestamp(value) == 0L);
+        return _timestamp(value) == 0L;
     }
-    
+
     protected abstract long _timestamp(T value);
-    
+
     @Override
     public JsonNode getSchema(SerializerProvider serializers, Type typeHint) {
         //todo: (ryan) add a format for the date in the schema?

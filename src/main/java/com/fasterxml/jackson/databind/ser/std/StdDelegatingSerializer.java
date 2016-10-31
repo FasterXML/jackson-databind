@@ -189,6 +189,9 @@ public class StdDelegatingSerializer
     public boolean isEmpty(SerializerProvider prov, Object value)
     {
         Object delegateValue = convertValue(value);
+        if (delegateValue == null) {
+            return true;
+        }
         if (_delegateSerializer == null) { // best we can do for now, too costly to look up
             return (value == null);
         }

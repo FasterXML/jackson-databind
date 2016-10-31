@@ -48,13 +48,9 @@ public class ToStringSerializer
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Object value) {
-        if (value == null) {
-            return true;
-        }
-        String str = value.toString();
-        return str.isEmpty();
+        return value.toString().isEmpty();
     }
-    
+
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
         throws IOException

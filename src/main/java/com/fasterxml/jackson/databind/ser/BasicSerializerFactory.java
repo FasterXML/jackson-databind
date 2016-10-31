@@ -94,12 +94,10 @@ public abstract class BasicSerializerFactory
             Object value = en.getValue();
             if (value instanceof JsonSerializer<?>) {
                 concrete.put(en.getKey().getName(), (JsonSerializer<?>) value);
-            } else if (value instanceof Class<?>) {
+            } else {
                 @SuppressWarnings("unchecked")
                 Class<? extends JsonSerializer<?>> cls = (Class<? extends JsonSerializer<?>>) value;
                 concLazy.put(en.getKey().getName(), cls);
-            } else { // should never happen, but:
-                throw new IllegalStateException("Internal error: unrecognized value of type "+en.getClass().getName());
             }
         }
 
@@ -544,7 +542,7 @@ public abstract class BasicSerializerFactory
          *   leave it as is; no clean way to make it work.
          */
         if (!staticTyping && type.useStaticType()) {
-            if (!type.isContainerType() || type.getContentType().getRawClass() != Object.class) {
+            if (!type.isContainerType() || !type.getContentType().isJavaLangObject()) {
                 staticTyping = true;
             }
         }
@@ -1140,6 +1138,8 @@ public abstract class BasicSerializerFactory
         return config.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }
 
+    // Commecnted out in 2.9
+    /*
     protected Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
     {
         if (src == null) {
@@ -1154,4 +1154,5 @@ public abstract class BasicSerializerFactory
         }
         return cls;
     }
+    */
 }

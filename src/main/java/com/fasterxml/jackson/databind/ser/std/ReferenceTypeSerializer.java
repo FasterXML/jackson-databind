@@ -317,7 +317,7 @@ public abstract class ReferenceTypeSerializer<T>
     public boolean isEmpty(SerializerProvider provider, T value)
     {
         // First, absent value (note: null check is just sanity check here)
-        if ((value == null) || !_isValuePresent(value)) {
+        if (!_isValuePresent(value)) {
             return true;
         }
         Object contents = _getReferenced(value);

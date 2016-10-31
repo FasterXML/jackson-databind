@@ -532,7 +532,7 @@ public class MapSerializer
     @Override
     public boolean isEmpty(SerializerProvider prov, Map<?,?> value)
     {
-        if (value == null || value.isEmpty()) {
+        if (value.isEmpty()) {
             return true;
         }
         

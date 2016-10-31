@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.merge;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,6 +23,11 @@ public class PropertyMergeTest extends BaseMapTest
     static class Config {
         @JsonSetter(merge=OptBoolean.TRUE)
         public AB loc = new AB(1, 2);
+
+        protected Config() { }
+        public Config(int a, int b) {
+            loc = new AB(a, b);
+        }
     }
 
     static class NonMergeConfig {
@@ -48,14 +53,6 @@ public class PropertyMergeTest extends BaseMapTest
         }
     }
 
-    static class CollectionWrapper {
-        @JsonSetter(merge=OptBoolean.TRUE)
-        public Collection<String> bag = new TreeSet<String>();
-        {
-            bag.add("a");
-        }
-    }
-
     // Custom type that would be deserializable by default
     static class StringReference extends AtomicReference<String> {
         public StringReference(String str) {
@@ -70,21 +67,6 @@ public class PropertyMergeTest extends BaseMapTest
         {
             values.put("a", "x");
         }
-    }
-
-    static class MergedList
-    {
-        @JsonSetter(merge=OptBoolean.TRUE)
-        public List<String> values = new ArrayList<>();
-        {
-            values.add("a");
-        }
-    }
-
-    static class MergedEnumSet
-    {
-        @JsonSetter(merge=OptBoolean.TRUE)
-        public EnumSet<ABC> abc = EnumSet.of(ABC.B);
     }
 
     static class MergedReference
@@ -125,6 +107,11 @@ public class PropertyMergeTest extends BaseMapTest
         Config config = MAPPER.readValue(aposToQuotes("{'loc':{'b':3}}"), Config.class);
         assertEquals(1, config.loc.a);
         assertEquals(3, config.loc.b);
+
+        config = MAPPER.readerForUpdating(new Config(5, 7))
+                .readValue(aposToQuotes("{'loc':{'b':2}}"));
+        assertEquals(5, config.loc.a);
+        assertEquals(2, config.loc.b);
     }
 
     public void testBeanMergingViaType() throws Exception
@@ -169,54 +156,6 @@ public class PropertyMergeTest extends BaseMapTest
                 NoSetterConfig.class);
         assertEquals(99, config._value.b);
         assertEquals(1, config._value.a);
-    }
-
-    /*
-    /********************************************************
-    /* Test methods, Collection merging
-    /********************************************************
-     */
-
-    public void testCollectionMerging() throws Exception
-    {
-        CollectionWrapper w = MAPPER.readValue(aposToQuotes("{'bag':['b']}"), CollectionWrapper.class);
-        assertEquals(2, w.bag.size());
-        assertTrue(w.bag.contains("a"));
-        assertTrue(w.bag.contains("b"));
-    }
-
-    public void testListMerging() throws Exception
-    {
-        MergedList w = MAPPER.readValue(aposToQuotes("{'values':['x']}"), MergedList.class);
-        assertEquals(2, w.values.size());
-        assertTrue(w.values.contains("a"));
-        assertTrue(w.values.contains("x"));
-    }
-
-    // Test that uses generic type
-    public void testGenericListMerging() throws Exception
-    {
-        Collection<String> l = new ArrayList<>();
-        l.add("foo");
-        MergedX<Collection<String>> input = new MergedX<Collection<String>>(l);
-
-        MergedX<Collection<String>> result = MAPPER
-                .readerFor(new TypeReference<MergedX<Collection<String>>>() {})
-                .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':['bar']}"));
-        assertSame(input, result);
-        assertEquals(2, result.value.size());
-        Iterator<String> it = result.value.iterator();
-        assertEquals("foo", it.next());
-        assertEquals("bar", it.next());
-    }
-
-    public void testEnumSetMerging() throws Exception
-    {
-        MergedEnumSet result = MAPPER.readValue(aposToQuotes("{'abc':['A']}"), MergedEnumSet.class);
-        assertEquals(2, result.abc.size());
-        assertTrue(result.abc.contains(ABC.B)); // original
-        assertTrue(result.abc.contains(ABC.A)); // added
     }
 
     /*

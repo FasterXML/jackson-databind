@@ -300,9 +300,6 @@ public class MapEntrySerializer
     @Override
     public boolean isEmpty(SerializerProvider prov, Entry<?, ?> entry)
     {
-        if (entry == null) {
-            return true;
-        }
         Object value = entry.getValue();
         if (value == null) {
             return _suppressNulls;

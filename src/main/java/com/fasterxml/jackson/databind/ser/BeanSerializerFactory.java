@@ -113,7 +113,7 @@ public class BeanSerializerFactory
     protected Iterable<Serializers> customSerializers() {
         return _factoryConfig.serializers();
     }
-    
+
     /*
     /**********************************************************
     /* SerializerFactory impl

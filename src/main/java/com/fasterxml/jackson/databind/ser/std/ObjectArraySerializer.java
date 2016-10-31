@@ -183,7 +183,7 @@ public class ObjectArraySerializer
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Object[] value) {
-        return (value == null) || (value.length == 0);
+        return value.length == 0;
     }
 
     @Override

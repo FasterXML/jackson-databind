@@ -523,7 +523,6 @@ public class TestPOJOPropertiesCollector
             }
         }
     }
-
     /*
     /**********************************************************
     /* Helper methods

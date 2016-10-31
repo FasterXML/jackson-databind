@@ -180,7 +180,7 @@ public class PropertyMetadata
                 return this;
             }
             def = null;
-        } else if (_defaultValue.equals(def)) {
+        } else if (def.equals(_defaultValue)) {
             return this;
         }
         return new PropertyMetadata(_required, _description, _index, def,
@@ -197,10 +197,8 @@ public class PropertyMetadata
             if (_required == null) {
                 return this;
             }
-        } else {
-            if (_required != null && _required.booleanValue() == b.booleanValue()) {
-                return this;
-            }
+        } else if (b.equals(_required)) {
+            return this;
         }
         return new PropertyMetadata(b, _description, _index, _defaultValue,
                 _mergeInfo, _valueNulls, _contentNulls);

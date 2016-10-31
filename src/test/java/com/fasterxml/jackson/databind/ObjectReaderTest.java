@@ -140,6 +140,10 @@ public class ObjectReaderTest extends BaseMapTest
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
         assertTrue(r.isEnabled(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES));
         assertTrue(r.isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE));
+
+        // alternative method too... can't recall why two
+        assertSame(r, r.with(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
+                DeserializationFeature.FAIL_ON_INVALID_SUBTYPE));
     }
 
     public void testMiscSettings() throws Exception

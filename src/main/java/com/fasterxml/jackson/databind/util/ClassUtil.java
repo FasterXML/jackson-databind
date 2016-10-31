@@ -645,6 +645,16 @@ public final class ClassUtil
     /**
      * @since 2.9
      */
+    public static String nonNullString(String str) {
+        if (str == null) {
+            return "";
+        }
+        return str;
+    }
+
+    /**
+     * @since 2.9
+     */
     public static Class<?> classOf(Object inst) {
         if (inst == null) {
             return null;

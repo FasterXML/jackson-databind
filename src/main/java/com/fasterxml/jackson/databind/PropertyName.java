@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Simple value class used for containing names of properties as defined
@@ -62,17 +63,23 @@ public class PropertyName
 
     public PropertyName(String simpleName, String namespace)
     {
-        _simpleName = (simpleName == null) ? "" : simpleName;
+        _simpleName = ClassUtil.nonNullString(simpleName);
         _namespace = namespace;
     }
 
     // To support JDK serialization, recovery of Singleton instance
     protected Object readResolve() {
-        if (_simpleName == null || _USE_DEFAULT.equals(_simpleName)) {
-            return USE_DEFAULT;
-        }
-        if (_simpleName.equals(_NO_NAME) && _namespace == null) {
-            return NO_NAME;
+        if (_namespace == null) {
+            if (_simpleName == null || _USE_DEFAULT.equals(_simpleName)) {
+                return USE_DEFAULT;
+            }
+            // 30-Oct-2016, tatu: I don't see how this could ever occur...
+            //     or how to distinguish USE_DEFAULT/NO_NAME from serialized
+            /*
+            if (_simpleName.equals(_NO_NAME)) {
+                return NO_NAME;
+            }
+            */
         }
         return this;
     }
@@ -182,10 +189,8 @@ public class PropertyName
      * @since 2.3
      */
     public boolean hasSimpleName(String str) {
-        if (str == null) {
-            return _simpleName == null;
-        }
-        return str.equals(_simpleName);
+        // _simpleName never null so...
+        return _simpleName.equals(str);
     }
     
     public boolean hasNamespace() {

@@ -201,6 +201,14 @@ public class ObjectWriterTest
         newW = w.withRootName("foo");
         assertNotSame(w, newW);
         assertSame(newW, newW.withRootName(PropertyName.construct("foo")));
+
+        FormatSchema schema = new BogusSchema();
+        try {
+            newW = w.with(schema);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Can not use FormatSchema");
+        }
     }
 
     public void testFeatureSettings() throws Exception

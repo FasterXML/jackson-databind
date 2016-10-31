@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Type wrapper that tries to use an extra JSON Object, with a single
@@ -222,7 +223,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
      * @since 2.6
      */
     protected String _validTypeId(String typeId) {
-        return (typeId == null) ? "" : typeId;
+        return ClassUtil.nonNullString(typeId);
     }
 
     // @since 2.9

@@ -42,7 +42,7 @@ public class ObjectReader
     extends ObjectCodec
     implements Versioned, java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = 1L; // since 2.5
+    private static final long serialVersionUID = 2L; // since 2.9
 
     private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
@@ -180,9 +180,6 @@ public class ObjectReader
         _parserFactory = mapper._jsonFactory;
         _valueType = valueType;
         _valueToUpdate = valueToUpdate;
-        if (valueToUpdate != null && valueType.isArrayType()) {
-            throw new IllegalArgumentException("Can not update an array value");
-        }
         _schema = schema;
         _injectableValues = injectableValues;
         _unwrapRoot = config.useRootWrapping();
@@ -209,9 +206,6 @@ public class ObjectReader
         _valueType = valueType;
         _rootDeserializer = rootDeser;
         _valueToUpdate = valueToUpdate;
-        if (valueToUpdate != null && valueType.isArrayType()) {
-            throw new IllegalArgumentException("Can not update an array value");
-        }
         _schema = schema;
         _injectableValues = injectableValues;
         _unwrapRoot = config.useRootWrapping();
@@ -1015,7 +1009,7 @@ public class ObjectReader
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException, JsonProcessingException {
+    public <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException {
         return (T) forType((JavaType)valueType).readValue(p);
     }
 
@@ -1181,8 +1175,7 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(InputStream src)
-        throws IOException, JsonProcessingException
+    public <T> T readValue(InputStream src) throws IOException
     {
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
@@ -1198,8 +1191,7 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(Reader src)
-        throws IOException, JsonProcessingException
+    public <T> T readValue(Reader src) throws IOException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
@@ -1215,8 +1207,7 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(String src)
-        throws IOException, JsonProcessingException
+    public <T> T readValue(String src) throws IOException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
@@ -1232,8 +1223,7 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] src)
-        throws IOException, JsonProcessingException
+    public <T> T readValue(byte[] src) throws IOException
     {
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, 0, src.length);
@@ -1250,7 +1240,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, int offset, int length)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, offset, length);
@@ -1262,7 +1252,7 @@ public class ObjectReader
     
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
@@ -1279,7 +1269,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
@@ -1297,7 +1287,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonNode src)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
@@ -1395,7 +1385,7 @@ public class ObjectReader
      * to the token following it.
      */
     public <T> MappingIterator<T> readValues(JsonParser p)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         DeserializationContext ctxt = createDeserializationContext(p);
         // false -> do not close as caller gave parser instance
@@ -1423,7 +1413,7 @@ public class ObjectReader
      * <code>START_ARRAY</code> which is part of the first element).
      */
     public <T> MappingIterator<T> readValues(InputStream src)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
@@ -1437,7 +1427,7 @@ public class ObjectReader
      */
     @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(Reader src)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
@@ -1456,7 +1446,7 @@ public class ObjectReader
      */
     @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(String json)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
@@ -1472,7 +1462,7 @@ public class ObjectReader
      * Overloaded version of {@link #readValue(InputStream)}.
      */
     public <T> MappingIterator<T> readValues(byte[] src, int offset, int length)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
@@ -1485,7 +1475,7 @@ public class ObjectReader
      * Overloaded version of {@link #readValue(InputStream)}.
      */
     public final <T> MappingIterator<T> readValues(byte[] src)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         return readValues(src, 0, src.length);
     }
     
@@ -1493,7 +1483,7 @@ public class ObjectReader
      * Overloaded version of {@link #readValue(InputStream)}.
      */
     public <T> MappingIterator<T> readValues(File src)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(
@@ -1508,7 +1498,7 @@ public class ObjectReader
      * @param src URL to read to access JSON content to parse.
      */
     public <T> MappingIterator<T> readValues(URL src)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(
@@ -1542,12 +1532,12 @@ public class ObjectReader
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // should not occur, no real i/o...
-            throw new IllegalArgumentException(e.getMessage(), e);
+            throw JsonMappingException.fromUnexpectedIOE(e);
         }
     }    
 
     @Override
-    public void writeValue(JsonGenerator gen, Object value) throws IOException, JsonProcessingException {
+    public void writeValue(JsonGenerator gen, Object value) throws IOException {
         throw new UnsupportedOperationException("Not implemented for ObjectReader");
     }
 
@@ -1761,7 +1751,7 @@ public class ObjectReader
 
     @SuppressWarnings("resource")
     protected <T> MappingIterator<T> _detectBindAndReadValues(DataFormatReaders.Match match, boolean forceClosing)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (!match.hasMatch()) {
             _reportUnkownFormat(_dataFormatReaders, match);
@@ -1792,7 +1782,8 @@ public class ObjectReader
      * Method called to indicate that format detection failed to detect format
      * of given input
      */
-    protected void _reportUnkownFormat(DataFormatReaders detector, DataFormatReaders.Match match) throws JsonProcessingException
+    protected void _reportUnkownFormat(DataFormatReaders detector, DataFormatReaders.Match match)
+            throws JsonProcessingException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
         throw new JsonParseException(null, "Can not detect format from input, does not look like any of detectable formats "
@@ -1827,19 +1818,19 @@ public class ObjectReader
         return _context.createInstance(_config, p, _injectableValues);
     }
 
-    protected void _reportUndetectableSource(Object src) throws JsonProcessingException
-    {
-        // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
-        throw new JsonParseException(null, "Can not use source of type "
-                +src.getClass().getName()+" with format auto-detection: must be byte- not char-based");
-    }
-
     protected InputStream _inputStream(URL src) throws IOException {
         return src.openStream();
     }
 
     protected InputStream _inputStream(File f) throws IOException {
         return new FileInputStream(f);
+    }
+
+    protected void _reportUndetectableSource(Object src) throws JsonProcessingException
+    {
+        // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
+        throw new JsonParseException(null, "Can not use source of type "
+                +src.getClass().getName()+" with format auto-detection: must be byte- not char-based");
     }
 
     /*

@@ -145,6 +145,6 @@ public final class SetterlessProperty
     public Object setAndReturn(Object instance, Object value) throws IOException
     {
         set(instance, value);
-        return null;
+        return instance;
     }
 }

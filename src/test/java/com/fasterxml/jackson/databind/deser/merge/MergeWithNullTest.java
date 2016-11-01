@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.merge;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.OptBoolean;
@@ -19,6 +19,14 @@ public class MergeWithNullTest extends BaseMapTest
         }
     }
 
+    // another variant where all we got is a getter
+    static class NoSetterConfig {
+        AB _value = new AB(2, 3);
+
+        @JsonSetter(merge=OptBoolean.TRUE)
+        public AB getValue() { return _value; }
+    }
+
     static class AB {
         public int a;
         public int b;
@@ -29,7 +37,7 @@ public class MergeWithNullTest extends BaseMapTest
             b = b0;
         }
     }
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
@@ -44,6 +52,15 @@ public class MergeWithNullTest extends BaseMapTest
         assertEquals(5, config.loc.a);
         assertEquals(7, config.loc.b);
     }
-    
 
+    public void testSetterlessMergingWithNull() throws Exception
+    {
+        NoSetterConfig input = new NoSetterConfig();
+        NoSetterConfig result = MAPPER.readerForUpdating(input)
+                .readValue(aposToQuotes("{'value':null}"));
+        assertNotNull(result.getValue());
+        assertEquals(2, result.getValue().a);
+        assertEquals(3, result.getValue().b);
+        assertSame(input, result);
+    }
 }

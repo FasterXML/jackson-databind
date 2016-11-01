@@ -10,8 +10,12 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 /**
  * {@link SettableBeanProperty} implementation that will try to access value of
  * the property first, and if non-null value found, pass that for update
- * (using {@link com.fasterxml.jackson.databind.JsonDeserializer#deserialize(com.fasterxml.jackson.core.JsonParser, com.fasterxml.jackson.databind.DeserializationContext, Object)}
- * ) instead of constructing a new value. This is necessary to support "merging" properties.
+ * (using {@link com.fasterxml.jackson.databind.JsonDeserializer#deserialize(com.fasterxml.jackson.core.JsonParser, com.fasterxml.jackson.databind.DeserializationContext, Object)})
+ * instead of constructing a new value. This is necessary to support "merging" properties.
+ *<p>
+ * Note that there are many similarities to {@link SetterlessProperty}, which predates
+ * this variant; and that one is even used in cases where there is no mutator
+ * available.
  *
  * @since 2.9
  */
@@ -76,7 +80,11 @@ public class MergingSettableBeanProperty
             newValue = delegate.deserializeWith(p, ctxt, oldValue);
         }
         if (newValue != oldValue) {
-            delegate.set(instance, newValue);
+            // 31-Oct-2016, tatu: Basically should just ignore as null can't really
+            //    contribute to merging.
+            if (newValue != null) {
+                delegate.set(instance, newValue);
+            }
         }
     }
 
@@ -97,20 +105,31 @@ public class MergingSettableBeanProperty
         //    try calling setter on builder? Presumably should not be required,
         //    but may need to revise
         if (newValue != oldValue) {
-            return delegate.setAndReturn(instance, newValue);
+            // 31-Oct-2016, tatu: Basically should just ignore as null can't really
+            //    contribute to merging.
+            if (newValue != null) {
+                return delegate.setAndReturn(instance, newValue);
+            }
         }
         return instance;
     }
 
     @Override
     public void set(Object instance, Object value) throws IOException {
-        delegate.set(instance, value);
+        // 31-Oct-2016, tatu: Basically should just ignore as null can't really
+        //    contribute to merging.
+        if (value != null) {
+            delegate.set(instance, value);
+        }
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-            throws IOException
-    {
-        return delegate.setAndReturn(instance, value);
+    public Object setAndReturn(Object instance, Object value) throws IOException {
+        // 31-Oct-2016, tatu: Basically should just ignore as null can't really
+        //    contribute to merging.
+        if (value != null) {
+            return delegate.setAndReturn(instance, value);
+        }
+        return instance;
     }
 }

@@ -12,6 +12,7 @@ Project: jackson-databind
  (reported by Jörn H)
 #1432: Off by 1 bug in PropertyValueBuffer
  (reported by Kevin D)
+#1439: NPE when using with filter id, serializing `java.util.Map` types
 
 2.7.8 (26-Sep-2016)
 

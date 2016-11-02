@@ -38,6 +38,7 @@ Project: jackson-databind
   with more than one argument
 #1432: Off by 1 bug in PropertyValueBuffer
  (reported by Kevin D)
+#1439: NPE when using with filter id, serializing `java.util.Map` types
 - Improvements to #1411 fix to ensure consistent `null` key handling
 
 2.8.4 (14-Oct-2016)
@@ -62,8 +63,6 @@ Project: jackson-databind
  (reported by Josh G)
 #1411: MapSerializer._orderEntries should check for null keys
  (reported by Jörn H)
-#1432: Off by 1 bug in PropertyValueBuffer
- (reported by Kevin D)
 
 2.8.3 (17-Sep-2016)
 

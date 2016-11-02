@@ -636,9 +636,9 @@ public class MapSerializer
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value, gen, provider);
             }
-            if (_filterId != null) {
-                serializeFilteredFields(value, gen, provider,
-                        findPropertyFilter(provider, _filterId, value), _suppressableValue);
+            PropertyFilter pf;
+            if ((_filterId != null) && (pf = findPropertyFilter(provider, _filterId, value)) != null) {
+                serializeFilteredFields(value, gen, provider, pf, _suppressableValue);
             } else if ((_suppressableValue != null) || _suppressNulls) {
                 serializeOptionalFields(value, gen, provider, _suppressableValue);
             } else if (_valueSerializer != null) {
@@ -662,9 +662,9 @@ public class MapSerializer
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value, gen, provider);
             }
-            if (_filterId != null) {
-                serializeFilteredFields(value, gen, provider,
-                        findPropertyFilter(provider, _filterId, value), _suppressableValue);
+            PropertyFilter pf;
+            if ((_filterId != null) && (pf = findPropertyFilter(provider, _filterId, value)) != null) {
+                serializeFilteredFields(value, gen, provider, pf, _suppressableValue);
             } else if ((_suppressableValue != null) || _suppressNulls) {
                 serializeOptionalFields(value, gen, provider, _suppressableValue);
             } else if (_valueSerializer != null) {

@@ -499,7 +499,7 @@ public abstract class SettableBeanProperty
         if (t == JsonToken.VALUE_NULL) {
             return _valueDeserializer.getNullValue(ctxt);
         }
-        // 20-Oct-2016, tatu: Also tricky -- for now, report an erro
+        // 20-Oct-2016, tatu: Also tricky -- for now, report an error
         if (_valueTypeDeserializer != null) {
             ctxt.reportBadDefinition(getType(),
                     String.format("Can not merge polymorphic property '%s'",
@@ -523,12 +523,16 @@ public abstract class SettableBeanProperty
     {
         if (e instanceof IllegalArgumentException) {
             String actType = ClassUtil.classNameOf(value);
-            StringBuilder msg = new StringBuilder("Problem deserializing property '").append(getName());
-            msg.append("' (expected type: ").append(getType());
-            msg.append("; actual type: ").append(actType).append(")");
+            StringBuilder msg = new StringBuilder("Problem deserializing property '")
+                    .append(getName())
+                    .append("' (expected type: ")
+                    .append(getType())
+                    .append("; actual type: ")
+                    .append(actType).append(")");
             String origMsg = e.getMessage();
             if (origMsg != null) {
-                msg.append(", problem: ").append(origMsg);
+                msg.append(", problem: ")
+                    .append(origMsg);
             } else {
                 msg.append(" (no error message provided)");
             }

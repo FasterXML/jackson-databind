@@ -566,6 +566,10 @@ Kevin Donnelly (kpdonn@github)
   * Reported #1432: Off by 1 bug in PropertyValueBuffer
    (2.8.5)
 
+Nathanial Ofiesh (ofiesh@github)
+  * Reported #1441: Failure with custom Enum key deserializer, polymorphic types
+   (2.8.5)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

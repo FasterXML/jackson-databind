@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -149,6 +150,17 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         }
     }
 
+    // for [databind#1441]
+
+    enum SuperTypeEnum {
+        FOO;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type", defaultImpl = SuperType.class)
+    static class SuperType {
+        public Map<SuperTypeEnum, String> someMap;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -189,5 +201,26 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         JsonNode inner = ob.get("replacements");
         String firstFieldName = inner.fieldNames().next();
         assertEquals("green", firstFieldName);
+    }
+
+    // [databind#1441]
+    public void testCustomEnumKeySerializerWithPolymorphic() throws IOException
+    {
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addDeserializer(SuperTypeEnum.class, new JsonDeserializer<SuperTypeEnum>() {
+            @Override
+            public SuperTypeEnum deserialize(JsonParser p, DeserializationContext deserializationContext)
+                    throws IOException
+            {
+                return SuperTypeEnum.valueOf(p.getText());
+            }
+        });
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(simpleModule);
+
+        SuperType superType = mapper.readValue("{\"someMap\": {\"FOO\": \"bar\"}}",
+                SuperType.class);
+        assertEquals("Deserialized someMap.FOO should equal bar", "bar",
+                superType.someMap.get(SuperTypeEnum.FOO));
     }
 }

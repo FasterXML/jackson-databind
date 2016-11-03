@@ -194,7 +194,10 @@ public class ClassUtilTest extends BaseMapTest
     public void testFindEnumType()
     {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.A));
+        // different codepaths for empty and non-empty EnumSets...
         assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.allOf(TestEnum.class)));
+        assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.noneOf(TestEnum.class)));
+
         assertEquals(TestEnum.class, ClassUtil.findEnumType(new EnumMap<TestEnum,Integer>(TestEnum.class)));
     }
 

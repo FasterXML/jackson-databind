@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -46,5 +48,20 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals("C", values.serializedValueFor(ABC.C).toString());
         assertEquals(3, values.values().size());
         assertEquals(3, values.internalMap().size());
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testEnumResolver()
+    {
+        EnumResolver enumRes = EnumResolver.constructUnsafeUsingToString(ABC.class);
+        assertEquals(ABC.B, enumRes.getEnum(1));
+        assertNull(enumRes.getEnum(-1));
+        assertNull(enumRes.getEnum(3));
+        assertEquals(2, enumRes.lastValidIndex());
+        List<Enum<?>> enums = enumRes.getEnums();
+        assertEquals(3, enums.size());
+        assertEquals(ABC.A, enums.get(0));
+        assertEquals(ABC.B, enums.get(1));
+        assertEquals(ABC.C, enums.get(2));
     }
 }

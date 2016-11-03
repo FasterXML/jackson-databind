@@ -509,38 +509,6 @@ public class POJOPropertyBuilder
         }
         return new MemberIterator<AnnotatedParameter>(_ctorParameters);
     }
-    
-    @Override
-    public AnnotatedMember getAccessor()
-    {
-        AnnotatedMember m = getGetter();
-        if (m == null) {
-            m = getField();
-        }
-        return m;
-    }
-
-    @Override
-    public AnnotatedMember getMutator()
-    {
-        AnnotatedMember m = getConstructorParameter();
-        if (m == null) {
-            m = getSetter();
-            if (m == null) {
-                m = getField();
-            }
-        }
-        return m;
-    }
-
-    @Override
-    public AnnotatedMember getNonConstructorMutator() {
-        AnnotatedMember m = getSetter();
-        if (m == null) {
-            m = getField();
-        }
-        return m;
-    }
 
     @Override
     public AnnotatedMember getPrimaryMember() {

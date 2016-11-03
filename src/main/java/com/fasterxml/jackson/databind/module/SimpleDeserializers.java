@@ -85,7 +85,7 @@ public class SimpleDeserializers
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
+        return _find(type);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class SimpleDeserializers
             DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
+        return _find(type);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class SimpleDeserializers
             JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
+        return _find(type);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class SimpleDeserializers
             JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
+        return _find(type);
     }
     
     @Override
@@ -138,9 +138,12 @@ public class SimpleDeserializers
             DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(nodeType));
+        if (_classMappings == null) {
+            return null;
+        }
+        return _classMappings.get(new ClassKey(nodeType));
     }
-    
+
     @Override
     public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,
@@ -148,9 +151,9 @@ public class SimpleDeserializers
         throws JsonMappingException {
         // 21-Oct-2015, tatu: Unlikely this will really get used (reference types need more
         //    work, simple registration probably not sufficient). But whatever.
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(refType.getRawClass()));
+        return _find(refType);
     }
-    
+
     @Override
     public JsonDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
@@ -159,7 +162,7 @@ public class SimpleDeserializers
             JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
+        return _find(type);
     }
 
     @Override
@@ -170,6 +173,13 @@ public class SimpleDeserializers
             JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
+        return _find(type);
+    }
+
+    private final JsonDeserializer<?> _find(JavaType type) {
+        if (_classMappings == null) {
+            return null;
+        }
+        return _classMappings.get(new ClassKey(type.getRawClass()));
     }
 }

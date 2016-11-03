@@ -273,46 +273,6 @@ public class SimpleBeanPropertyDefinition
         return Collections.singleton(param).iterator();
     }
 
-    /**
-     * Method used to find accessor (getter, field to access) to use for accessing
-     * value of the property.
-     * Null if no such member exists.
-     */
-    @Override
-    public AnnotatedMember getAccessor() {
-        AnnotatedMember acc = getGetter();
-        if (acc == null) {
-            acc = getField();
-        }
-        return acc;
-    }
-
-    /**
-     * Method used to find mutator (constructor parameter, setter, field) to use for
-     * changing value of the property.
-     * Null if no such member exists.
-     */
-    @Override
-    public AnnotatedMember getMutator() {
-        AnnotatedMember acc = getConstructorParameter();
-        if (acc == null) {
-            acc = getSetter();
-            if (acc == null) {
-                acc = getField();
-            }
-        }
-        return acc;
-    }
-
-    @Override
-    public AnnotatedMember getNonConstructorMutator() {
-        AnnotatedMember acc = getSetter();
-        if (acc == null) {
-            acc = getField();
-        }
-        return acc;
-    }
-
     @Override
     public AnnotatedMember getPrimaryMember() { return _member; }
 }

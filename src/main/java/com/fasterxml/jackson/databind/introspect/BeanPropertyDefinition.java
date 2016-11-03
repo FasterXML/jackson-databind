@@ -183,20 +183,42 @@ public abstract class BeanPropertyDefinition
      * value of the property.
      * Null if no such member exists.
      */
-    public abstract AnnotatedMember getAccessor();
+    public AnnotatedMember getAccessor()
+    {
+        AnnotatedMember m = getGetter();
+        if (m == null) {
+            m = getField();
+        }
+        return m;
+    }
 
     /**
      * Method used to find mutator (constructor parameter, setter, field) to use for
      * changing value of the property.
      * Null if no such member exists.
      */
-    public abstract AnnotatedMember getMutator();
+    public AnnotatedMember getMutator() {
+        AnnotatedMember acc = getConstructorParameter();
+        if (acc == null) {
+            acc = getSetter();
+            if (acc == null) {
+                acc = getField();
+            }
+        }
+        return acc;
+    }
 
     /**
      * @since 2.3
      */
-    public abstract AnnotatedMember getNonConstructorMutator();
-    
+    public AnnotatedMember getNonConstructorMutator() {
+        AnnotatedMember m = getSetter();
+        if (m == null) {
+            m = getField();
+        }
+        return m;
+    }
+
     /**
      * Method used to find the property member (getter, setter, field) that has
      * the highest precedence in current context (getter method when serializing,

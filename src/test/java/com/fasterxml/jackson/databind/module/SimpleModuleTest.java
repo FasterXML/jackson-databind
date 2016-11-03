@@ -279,7 +279,10 @@ public class SimpleModuleTest extends BaseMapTest
         SimpleModule mod2 = new SimpleModule("test2", Version.unknownVersion());
         mod1.addSerializer(SimpleEnum.class, new SimpleEnumSerializer());
         mod1.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
-        mod2.addDeserializer(SimpleEnum.class, new SimpleEnumDeserializer());
+
+        Map<Class<?>,JsonDeserializer<?>> desers = new HashMap<>();
+        desers.put(SimpleEnum.class, new SimpleEnumDeserializer());
+        mod2.setDeserializers(new SimpleDeserializers(desers));
         mod2.addSerializer(CustomBean.class, new CustomBeanSerializer());
 
         ObjectMapper mapper = new ObjectMapper();

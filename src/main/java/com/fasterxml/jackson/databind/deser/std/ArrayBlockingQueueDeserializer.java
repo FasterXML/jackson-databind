@@ -79,27 +79,27 @@ public class ArrayBlockingQueueDeserializer
     
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         if (_delegateDeserializer != null) {
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(jp, ctxt));
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
-        if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-            String str = jp.getText();
+        if (p.getCurrentToken() == JsonToken.VALUE_STRING) {
+            String str = p.getText();
             if (str.length() == 0) {
                 return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
             }
         }
-        return deserialize(jp, ctxt, null);
+        return deserialize(p, ctxt, null);
     }
 
     @Override
-    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt, Collection<Object> result0) throws IOException
+    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt, Collection<Object> result0) throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
-        if (!jp.isExpectedStartArrayToken()) {
-            return handleNonArray(jp, ctxt, new ArrayBlockingQueue<Object>(1));
+        if (!p.isExpectedStartArrayToken()) {
+            return handleNonArray(p, ctxt, new ArrayBlockingQueue<Object>(1));
         }
         ArrayList<Object> tmp = new ArrayList<Object>();
         
@@ -108,15 +108,15 @@ public class ArrayBlockingQueueDeserializer
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         try {
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 Object value;
                 
                 if (t == JsonToken.VALUE_NULL) {
                     value = valueDes.getNullValue(ctxt);
                 } else if (typeDeser == null) {
-                    value = valueDes.deserialize(jp, ctxt);
+                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
                 tmp.add(value);
             }
@@ -131,8 +131,8 @@ public class ArrayBlockingQueueDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         // In future could check current token... for now this should be enough:
-        return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 }

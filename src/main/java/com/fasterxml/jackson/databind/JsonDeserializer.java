@@ -295,8 +295,7 @@ public abstract class JsonDeserializer<T>
      * @since 2.6 Added to replace earlier no-arguments variant
      */
     public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
-        // Change the direction in 2.7
-        return getEmptyValue();
+        return getNullValue(ctxt);
     }
     
     /**

@@ -44,6 +44,11 @@ public class AtomicReferenceDeserializer
     }
 
     @Override
+    public AtomicReference<Object> getEmptyValue(DeserializationContext ctxt) {
+        return new AtomicReference<Object>();
+    }
+    
+    @Override
     public AtomicReference<Object> referenceValue(Object contents) {
         return new AtomicReference<Object>(contents);
     }

@@ -563,7 +563,6 @@ public class MapSerializer
             return true;
         }
         // But if not statically known, try this:
-        PropertySerializerMap serializers = _dynamicValueSerializers;
         for (Object elemValue : value.values()) {
             if (elemValue == null) {
                 if (_suppressNulls) {
@@ -571,19 +570,11 @@ public class MapSerializer
                 }
                 return false;
             }
-
-            Class<?> cc = elemValue.getClass();
-            // 05-Nov-2015, tatu: Let's not worry about generic types here, actually;
-            //   unlikely to make any difference, but does add significant overhead
-            valueSer = serializers.serializerFor(cc);
-            if (valueSer == null) {
-                try {
-                    valueSer = _findAndAddDynamic(serializers, cc, prov);
-                } catch (JsonMappingException e) { // Ugh... can not just throw as-is, so...
-                    // 05-Nov-2015, tatu: For now, probably best not to assume empty then
-                    return false;
-                }
-                serializers = _dynamicValueSerializers;
+            try {
+                valueSer = _findSerializer(prov, elemValue);
+            } catch (JsonMappingException e) { // Ugh... can not just throw as-is, so...
+                // 05-Nov-2015, tatu: For now, probably best not to assume empty then
+                return false;
             }
             if (checkEmpty) {
                 if (!valueSer.isEmpty(prov, elemValue)) {
@@ -697,48 +688,37 @@ public class MapSerializer
         }
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final Set<String> ignored = _ignoredEntries;
+        Object keyElem = null;
 
-        PropertySerializerMap serializers = _dynamicValueSerializers;
-
-        for (Map.Entry<?,?> entry : value.entrySet()) {
-            Object valueElem = entry.getValue();
-            // First, serialize key
-            Object keyElem = entry.getKey();
-
-            if (keyElem == null) {
-                provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
-            } else {
-                // One twist: is entry ignorable? If so, skip
-                if ((ignored != null) && ignored.contains(keyElem)) continue;
-                keySerializer.serialize(keyElem, gen, provider);
-            }
-
-            // And then value
-            if (valueElem == null) {
-                provider.defaultSerializeNull(gen);
-                continue;
-            }
-            JsonSerializer<Object> serializer = _valueSerializer;
-            if (serializer == null) {
-                Class<?> cc = valueElem.getClass();
-                serializer = serializers.serializerFor(cc);
-                if (serializer == null) {
-                    if (_valueType.hasGenericTypes()) {
-                        serializer = _findAndAddDynamic(serializers,
-                                provider.constructSpecializedType(_valueType, cc), provider);
-                    } else {
-                        serializer = _findAndAddDynamic(serializers, cc, provider);
+        try {
+            for (Map.Entry<?,?> entry : value.entrySet()) {
+                Object valueElem = entry.getValue();
+                // First, serialize key
+                keyElem = entry.getKey();
+                if (keyElem == null) {
+                    provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
+                } else {
+                    // One twist: is entry ignorable? If so, skip
+                    if ((ignored != null) && ignored.contains(keyElem)) {
+                        continue;
                     }
-                    serializers = _dynamicValueSerializers;
+                    keySerializer.serialize(keyElem, gen, provider);
                 }
-            }
-            try {
+                // And then value
+                if (valueElem == null) {
+                    provider.defaultSerializeNull(gen);
+                    continue;
+                }
+                JsonSerializer<Object> serializer = _valueSerializer;
+                if (serializer == null) {
+                    serializer = _findSerializer(provider, valueElem);
+                }
                 serializer.serialize(valueElem, gen, provider);
-            } catch (Exception e) {
-                // Add reference information
-                String keyDesc = ""+keyElem;
-                wrapAndThrow(provider, e, value, keyDesc);
             }
+        } catch (Exception e) {
+            // Add reference information
+            String keyDesc = String.valueOf(keyElem);
+            wrapAndThrow(provider, e, value, keyDesc);
         }
     }
 
@@ -755,7 +735,6 @@ public class MapSerializer
             return;
         }
         final Set<String> ignored = _ignoredEntries;
-        PropertySerializerMap serializers = _dynamicValueSerializers;
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
@@ -780,17 +759,7 @@ public class MapSerializer
             } else {
                 valueSer = _valueSerializer;
                 if (valueSer == null) {
-                    Class<?> cc = valueElem.getClass();
-                    valueSer = serializers.serializerFor(cc);
-                    if (valueSer == null) {
-                        if (_valueType.hasGenericTypes()) {
-                            valueSer = _findAndAddDynamic(serializers,
-                                    provider.constructSpecializedType(_valueType, cc), provider);
-                        } else {
-                            valueSer = _findAndAddDynamic(serializers, cc, provider);
-                        }
-                        serializers = _dynamicValueSerializers;
-                    }
+                    valueSer = _findSerializer(provider, valueElem);
                 }
                 // also may need to skip non-empty values:
                 if (checkEmpty) {
@@ -866,8 +835,6 @@ public class MapSerializer
         throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
-
-        PropertySerializerMap serializers = _dynamicValueSerializers;
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
@@ -895,17 +862,7 @@ public class MapSerializer
             } else {
                 valueSer = _valueSerializer;
                 if (valueSer == null) {
-                    Class<?> cc = valueElem.getClass();
-                    valueSer = serializers.serializerFor(cc);
-                    if (valueSer == null) {
-                        if (_valueType.hasGenericTypes()) {
-                            valueSer = _findAndAddDynamic(serializers,
-                                    provider.constructSpecializedType(_valueType, cc), provider);
-                        } else {
-                            valueSer = _findAndAddDynamic(serializers, cc, provider);
-                        }
-                        serializers = _dynamicValueSerializers;
-                    }
+                    valueSer = _findSerializer(provider, valueElem);
                 }
                 // also may need to skip non-empty values:
                 if (checkEmpty) {
@@ -937,7 +894,6 @@ public class MapSerializer
         throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
-        PropertySerializerMap serializers = _dynamicValueSerializers;
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
@@ -961,16 +917,8 @@ public class MapSerializer
                 valueSer = provider.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
-                Class<?> cc = valueElem.getClass();
-                valueSer = serializers.serializerFor(cc);
                 if (valueSer == null) {
-                    if (_valueType.hasGenericTypes()) {
-                        valueSer = _findAndAddDynamic(serializers,
-                                provider.constructSpecializedType(_valueType, cc), provider);
-                    } else {
-                        valueSer = _findAndAddDynamic(serializers, cc, provider);
-                    }
-                    serializers = _dynamicValueSerializers;
+                    valueSer = _findSerializer(provider, valueElem);
                 }
                 // also may need to skip non-empty values:
                 if (checkEmpty) {
@@ -1086,16 +1034,7 @@ public class MapSerializer
         } else {
             valueSer = _valueSerializer;
             if (valueSer == null) {
-                Class<?> cc = value.getClass();
-                valueSer = _dynamicValueSerializers.serializerFor(cc);
-                if (valueSer == null) {
-                    if (_valueType.hasGenericTypes()) {
-                        valueSer = _findAndAddDynamic(_dynamicValueSerializers,
-                                provider.constructSpecializedType(_valueType, cc), provider);
-                    } else {
-                        valueSer = _findAndAddDynamic(_dynamicValueSerializers, cc, provider);
-                    }
-                }
+                valueSer = _findSerializer(provider, value);
             }
             if (_suppressableValue == MARKER_FOR_EMPTY) {
                 if (valueSer.isEmpty(provider, value)) {
@@ -1115,5 +1054,20 @@ public class MapSerializer
             String keyDesc = "";
             wrapAndThrow(provider, e, value, keyDesc);
         }
+    }
+
+    private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
+            Object value) throws JsonMappingException
+    {
+        final Class<?> cc = value.getClass();
+        JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
+        if (valueSer != null) {
+            return valueSer;
+        }
+        if (_valueType.hasGenericTypes()) {
+            return _findAndAddDynamic(_dynamicValueSerializers,
+                    provider.constructSpecializedType(_valueType, cc), provider);
+        }
+        return _findAndAddDynamic(_dynamicValueSerializers, cc, provider);
     }
 }

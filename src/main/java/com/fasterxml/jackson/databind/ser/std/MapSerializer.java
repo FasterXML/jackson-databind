@@ -715,10 +715,8 @@ public class MapSerializer
                 }
                 serializer.serialize(valueElem, gen, provider);
             }
-        } catch (Exception e) {
-            // Add reference information
-            String keyDesc = String.valueOf(keyElem);
-            wrapAndThrow(provider, e, value, keyDesc);
+        } catch (Exception e) { // Add reference information
+            wrapAndThrow(provider, e, value, String.valueOf(keyElem));
         }
     }
 
@@ -777,8 +775,7 @@ public class MapSerializer
                 keySerializer.serialize(keyElem, gen, provider);
                 valueSer.serialize(valueElem, gen, provider);
             } catch (Exception e) {
-                String keyDesc = ""+keyElem;
-                wrapAndThrow(provider, e, value, keyDesc);
+                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
             }
         }
     }
@@ -816,8 +813,7 @@ public class MapSerializer
                         ser.serializeWithType(valueElem, gen, provider, typeSer);
                     }
                 } catch (Exception e) {
-                    String keyDesc = ""+keyElem;
-                    wrapAndThrow(provider, e, value, keyDesc);
+                    wrapAndThrow(provider, e, value, String.valueOf(keyElem));
                 }
             }
         }
@@ -880,8 +876,7 @@ public class MapSerializer
             try {
                 filter.serializeAsField(valueElem, gen, provider, prop);
             } catch (Exception e) {
-                String keyDesc = ""+keyElem;
-                wrapAndThrow(provider, e, value, keyDesc);
+                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
             }
         }
     }
@@ -935,8 +930,7 @@ public class MapSerializer
             try {
                 valueSer.serializeWithType(valueElem, gen, provider, _valueTypeSerializer);
             } catch (Exception e) {
-                String keyDesc = ""+keyElem;
-                wrapAndThrow(provider, e, value, keyDesc);
+                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
             }
         }
     }
@@ -1040,10 +1034,9 @@ public class MapSerializer
                 if (valueSer.isEmpty(provider, value)) {
                     return;
                 }
-            } else if (_suppressableValue != null) {
-                if (_suppressableValue.equals(value)) {
-                    return;
-                }
+            } else if ((_suppressableValue != null)
+                && (_suppressableValue.equals(value))) {
+                return;
             }
         }
 
@@ -1051,8 +1044,7 @@ public class MapSerializer
             keySerializer.serialize(null, gen, provider);
             valueSer.serialize(value, gen, provider);
         } catch (Exception e) {
-            String keyDesc = "";
-            wrapAndThrow(provider, e, value, keyDesc);
+            wrapAndThrow(provider, e, value, "");
         }
     }
 

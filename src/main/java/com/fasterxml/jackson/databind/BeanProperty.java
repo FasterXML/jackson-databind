@@ -3,10 +3,12 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Value;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.Named;
 
@@ -315,6 +317,88 @@ public interface BeanProperty extends Named
         public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
                 SerializerProvider provider) {
             throw new UnsupportedOperationException("Instances of "+getClass().getName()+" should not get visited");
+        }
+    }
+
+    /**
+     * Alternative "Null" implementation that can be used in cases where a non-null
+     * {@link BeanProperty} is needed
+     *
+     * @since 2.9
+     */
+    public static class Bogus implements BeanProperty
+    {
+        @Override
+        public String getName() {
+            return "";
+        }
+
+        @Override
+        public PropertyName getFullName() {
+            return PropertyName.NO_NAME;
+        }
+
+        @Override
+        public JavaType getType() {
+            return TypeFactory.unknownType();
+        }
+
+        @Override
+        public PropertyName getWrapperName() {
+            return null;
+        }
+
+        @Override
+        public PropertyMetadata getMetadata() {
+            return PropertyMetadata.STD_REQUIRED_OR_OPTIONAL;
+        }
+
+        @Override
+        public boolean isRequired() {
+            return false;
+        }
+
+        @Override
+        public boolean isVirtual() {
+            return false;
+        }
+
+        @Override
+        public <A extends Annotation> A getAnnotation(Class<A> acls) {
+            return null;
+        }
+
+        @Override
+        public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
+            return null;
+        }
+
+        @Override
+        public AnnotatedMember getMember() {
+            return null;
+        }
+
+        @Override
+        @Deprecated
+        public Value findFormatOverrides(AnnotationIntrospector intr) {
+            return Value.empty();
+        }
+
+        @Override
+        public Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
+            return Value.empty();
+        }
+
+        @Override
+        public com.fasterxml.jackson.annotation.JsonInclude.Value findPropertyInclusion(
+                MapperConfig<?> config, Class<?> baseType)
+        {
+            return null;
+        }
+
+        @Override
+        public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
+                SerializerProvider provider) throws JsonMappingException {
         }
     }
 }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsonschema;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -79,6 +80,12 @@ public class NewSchemaTest extends BaseMapTest
         public String[] strs;
         public java.util.Date date;
         public java.util.Calendar calendar;
+    }
+
+    static class POJOWithRefs {
+        public AtomicReference<POJO> maybePOJO;
+
+        public AtomicReference<String> maybeString;
     }
 
     @JsonPropertyOrder({ "dec", "bigInt" })
@@ -197,6 +204,8 @@ public class NewSchemaTest extends BaseMapTest
         MAPPER.acceptJsonFormatVisitor(LinkedHashMap.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(ArrayList.class, new BogusJsonFormatVisitorWrapper());
         MAPPER.acceptJsonFormatVisitor(EnumSet.class, new BogusJsonFormatVisitorWrapper());
+
+        MAPPER.acceptJsonFormatVisitor(POJOWithRefs.class, new BogusJsonFormatVisitorWrapper());
     }
 
     public void testSimpleEnum() throws Exception

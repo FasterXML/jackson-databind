@@ -27,7 +27,7 @@ public class TestMapFiltering extends BaseMapTest
 
     @JsonFilter("filterForMaps")
     static class FilteredBean extends LinkedHashMap<String,Integer> { }
-    
+
     static class MapBean {
         @JsonFilter("filterX")
         @CustomOffset(1)
@@ -41,14 +41,31 @@ public class TestMapFiltering extends BaseMapTest
         }
     }
 
+    static class MapBeanNoOffset {
+        @JsonFilter("filterX")
+        public Map<String,Integer> values;
+        
+        public MapBeanNoOffset() {
+            values = new LinkedHashMap<String,Integer>();
+            values.put("a", 1);
+            values.put("b", 2);
+            values.put("c", 3);
+        }
+    }
+    
     static class TestMapFilter implements PropertyFilter
     {
         @Override
-        public void serializeAsField(Object value, JsonGenerator jgen,
+        public void serializeAsField(Object value, JsonGenerator g,
                 SerializerProvider provider, PropertyWriter writer)
             throws Exception
         {
             String name = writer.getName();
+
+            // sanity checks
+            assertNotNull(writer.getType());
+            assertEquals(name, writer.getFullName().getSimpleName());
+
             if (!"a".equals(name)) {
                 return;
             }
@@ -56,7 +73,7 @@ public class TestMapFiltering extends BaseMapTest
             int offset = (n == null) ? 0 : n.value();
             Integer I = offset + ((Integer) value).intValue();
 
-            writer.serializeAsField(I, jgen, provider);
+            writer.serializeAsField(I, g, provider);
         }
 
         @Override
@@ -70,15 +87,12 @@ public class TestMapFiltering extends BaseMapTest
         @Deprecated
         public void depositSchemaProperty(PropertyWriter writer,
                 ObjectNode propertiesNode, SerializerProvider provider)
-                throws JsonMappingException {
-            
-        }
+            throws JsonMappingException { }
 
         @Override
         public void depositSchemaProperty(PropertyWriter writer,
                 JsonObjectFormatVisitor objectVisitor,
-                SerializerProvider provider) throws JsonMappingException {
-        }
+                SerializerProvider provider) throws JsonMappingException { }
     }
 
     // [databind#527]
@@ -180,6 +194,10 @@ public class TestMapFiltering extends BaseMapTest
         String json = MAPPER.writer(prov).writeValueAsString(new MapBean());
         // a=1 should become a=2
         assertEquals(aposToQuotes("{'values':{'a':2}}"), json);
+
+        // and then one without annotation as contrast
+        json = MAPPER.writer(prov).writeValueAsString(new MapBeanNoOffset());
+        assertEquals(aposToQuotes("{'values':{'a':1}}"), json);
     }
 
     // [databind#527]

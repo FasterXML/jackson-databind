@@ -4,19 +4,13 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
-import com.fasterxml.jackson.databind.SerializerProvider;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Helper class needed to support flexible filtering of Map properties
@@ -28,6 +22,8 @@ public class MapProperty extends PropertyWriter
 {
     private static final long serialVersionUID = 1L;
 
+    private final static BeanProperty BOGUS_PROP = new BeanProperty.Bogus();
+    
     protected final TypeSerializer _typeSerializer;
 
     protected final BeanProperty _property;
@@ -40,7 +36,7 @@ public class MapProperty extends PropertyWriter
     {
         super((prop == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL : prop.getMetadata());
         _typeSerializer = typeSer;
-        _property = prop;
+        _property = (prop == null) ? BOGUS_PROP : prop;
     }
 
     /**
@@ -70,12 +66,12 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return (_property == null) ? null : _property.getAnnotation(acls);
+        return _property.getAnnotation(acls);
     }
 
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
-        return (_property == null) ? null : _property.getContextAnnotation(acls);
+        return _property.getContextAnnotation(acls);
     }
     
     @Override
@@ -128,9 +124,7 @@ public class MapProperty extends PropertyWriter
             SerializerProvider provider)
         throws JsonMappingException
     {
-        if (_property != null) {
-            _property.depositSchemaProperty(objectVisitor, provider);
-        }
+        _property.depositSchemaProperty(objectVisitor, provider);
     }
 
     @Override
@@ -142,16 +136,16 @@ public class MapProperty extends PropertyWriter
 
     @Override
     public JavaType getType() {
-        return (_property == null) ? TypeFactory.unknownType() : _property.getType();
+        return _property.getType();
     }
 
     @Override
     public PropertyName getWrapperName() {
-        return (_property == null) ? null : _property.getWrapperName();
+        return _property.getWrapperName();
     }
 
     @Override
     public AnnotatedMember getMember() {
-        return (_property == null) ? null : _property.getMember();
+        return _property.getMember();
     }
 }

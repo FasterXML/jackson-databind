@@ -61,26 +61,26 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
             Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
-                _delegate.serializeAsField(bean, jgen, prov);
+                _delegate.serializeAsField(bean, gen, prov);
             } else {
-                _delegate.serializeAsOmittedField(bean, jgen, prov);
+                _delegate.serializeAsOmittedField(bean, gen, prov);
             }
         }
 
         @Override
-        public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
             Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
-                _delegate.serializeAsElement(bean, jgen, prov);
+                _delegate.serializeAsElement(bean, gen, prov);
             } else {
-                _delegate.serializeAsPlaceholder(bean, jgen, prov);
+                _delegate.serializeAsPlaceholder(bean, gen, prov);
             }
         }
 
@@ -127,58 +127,48 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
-            final Class<?> activeView = prov.getActiveView();
-            if (activeView != null) {
-                int i = 0, len = _views.length;
-                for (; i < len; ++i) {
-                    if (_views[i].isAssignableFrom(activeView)) break;
-                }
-                // not included, bail out:
-                if (i == len) {
-                    _delegate.serializeAsOmittedField(bean, jgen, prov);
-                    return;
-                }
+            if (_inView(prov.getActiveView())) {
+                _delegate.serializeAsField(bean, gen, prov);
+                return;
             }
-            _delegate.serializeAsField(bean, jgen, prov);
+            _delegate.serializeAsOmittedField(bean, gen, prov);
         }
 
         @Override
-        public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
-            final Class<?> activeView = prov.getActiveView();
-            if (activeView != null) {
-                int i = 0, len = _views.length;
-                for (; i < len; ++i) {
-                    if (_views[i].isAssignableFrom(activeView)) break;
-                }
-                // not included, bail out:
-                if (i == len) {
-                    _delegate.serializeAsPlaceholder(bean, jgen, prov);
-                    return;
-                }
+            if (_inView(prov.getActiveView())) {
+                _delegate.serializeAsElement(bean, gen, prov);
+                return;
             }
-            _delegate.serializeAsElement(bean, jgen, prov);
+            _delegate.serializeAsPlaceholder(bean, gen, prov);
         }
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
                 SerializerProvider provider) throws JsonMappingException
         {
-            Class<?> activeView = provider.getActiveView();
-            if (activeView != null) {
-                int i = 0, len = _views.length;
-                for (; i < len; ++i) {
-                    if (_views[i].isAssignableFrom(activeView)) break;
-                }
-                if (i == len) { // not match? Just don't deposit
-                    return;
+            if (_inView(provider.getActiveView())) {
+                super.depositSchemaProperty(v, provider);
+            }
+        }
+
+        private final boolean _inView(Class<?> activeView) 
+        {
+            if (activeView == null) {
+                return true;
+            }
+            final int len = _views.length;
+            for (int i = 0; i < len; ++i) {
+                if (_views[i].isAssignableFrom(activeView)) {
+                    return true;
                 }
             }
-            super.depositSchemaProperty(v, provider);
+            return false;
         }
     }
 }

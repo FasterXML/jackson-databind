@@ -36,17 +36,16 @@ public class StringCollectionSerializer
     }
 
     protected StringCollectionSerializer(StringCollectionSerializer src,
-            JsonSerializer<?> ser, Boolean unwrapSingle)
+            Boolean unwrapSingle)
     {
-        super(src, ser, unwrapSingle);
+        super(src, unwrapSingle);
     }        
 
     @Override
-    public JsonSerializer<?> _withResolved(BeanProperty prop,
-            JsonSerializer<?> ser, Boolean unwrapSingle) {
-        return new StringCollectionSerializer(this, ser, unwrapSingle);
+    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+        return new StringCollectionSerializer(this, unwrapSingle);
     }
-    
+
     @Override protected JsonNode contentSchema() {
         return createSchemaNode("string", true);
     }
@@ -75,77 +74,44 @@ public class StringCollectionSerializer
                 _serializeUnwrapped(value, gen, provider);
                 return;
             }
-        }      
-        gen.writeStartArray(len);
-        if (_serializer == null) {
-            serializeContents(value, gen, provider);
-        } else {
-            serializeUsingCustom(value, gen, provider);
         }
+        gen.writeStartArray(len);
+        serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
 
     private final void _serializeUnwrapped(Collection<String> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
-        if (_serializer == null) {
-            serializeContents(value, gen, provider);
-        } else {
-            serializeUsingCustom(value, gen, provider);
-        }
+        serializeContents(value, gen, provider);
     }
 
     @Override
-    public void serializeWithType(Collection<String> value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Collection<String> value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
-        typeSer.writeTypePrefixForArray(value, jgen);
-        if (_serializer == null) {
-            serializeContents(value, jgen, provider);
-        } else {
-            serializeUsingCustom(value, jgen, provider);
-        }
-        typeSer.writeTypeSuffixForArray(value, jgen);
+        typeSer.writeTypePrefixForArray(value, g);
+        serializeContents(value, g, provider);
+        typeSer.writeTypeSuffixForArray(value, g);
     }
 
-    private final void serializeContents(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    private final void serializeContents(Collection<String> value, JsonGenerator g, SerializerProvider provider)
+        throws IOException
     {
-        if (_serializer != null) {
-            serializeUsingCustom(value, jgen, provider);
-            return;
-        }
         int i = 0;
-        for (String str : value) {
-            try {
+
+        try {
+            for (String str : value) {
                 if (str == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNull(g);
                 } else {
-                    jgen.writeString(str);
+                    g.writeString(str);
                 }
                 ++i;
-            } catch (Exception e) {
-                wrapAndThrow(provider, e, value, i);
             }
+        } catch (Exception e) {
+            wrapAndThrow(provider, e, value, i);
         }
-    }
-
-    private void serializeUsingCustom(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
-        final JsonSerializer<String> ser = _serializer;
-        int i = 0;
-        for (String str : value) {
-            try {
-                if (str == null) {
-                    provider.defaultSerializeNull(jgen);
-                } else {
-                    ser.serialize(str, jgen, provider);
-                }
-            } catch (Exception e) {
-                wrapAndThrow(provider, e, value, i);
-            }
-       }
     }
 }

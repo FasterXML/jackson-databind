@@ -22,19 +22,14 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 /**
  * Tests for verifying various issues with custom serializers.
  */
+@SuppressWarnings("serial")
 public class TestCustomSerializers extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper beans
-    /**********************************************************
-     */
-
     static class ElementSerializer extends JsonSerializer<Element>
     {
         @Override
-        public void serialize(Element value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-            jgen.writeString("element");
+        public void serialize(Element value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonProcessingException {
+            gen.writeString("element");
         }
     }
     
@@ -49,7 +44,6 @@ public class TestCustomSerializers extends BaseMapTest
     /**
      * Trivial simple custom escape definition set.
      */
-    @SuppressWarnings("serial")
     static class CustomEscapes extends CharacterEscapes
     {
         private final int[] _asciiEscapes;
@@ -110,8 +104,7 @@ public class TestCustomSerializers extends BaseMapTest
             prop = o;
         }
     }
-    
-    @SuppressWarnings("serial")
+
     static class ParentClassSerializer
         extends StdScalarSerializer<Object>
     {
@@ -127,7 +120,32 @@ public class TestCustomSerializers extends BaseMapTest
             gen.writeString(desc+"/"+value);
         }
     }
-    
+
+    static class UCStringSerializer extends StdScalarSerializer<String>
+    {
+        public UCStringSerializer() { super(String.class); }
+
+        @Override
+        public void serialize(String value, JsonGenerator gen,
+                SerializerProvider provider) throws IOException {
+            gen.writeString(value.toUpperCase());
+        }
+    }
+
+    // IMPORTANT: must associate serializer via property annotations
+    protected static class StringListWrapper
+    {
+        @JsonSerialize(contentUsing=UCStringSerializer.class)
+        public List<String> list;
+
+        public StringListWrapper(String... values) {
+            list = new ArrayList<>();
+            for (String value : values) {
+                list.add(value);
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -156,12 +174,13 @@ public class TestCustomSerializers extends BaseMapTest
 
         module.addSerializer(Collection.class, new JsonSerializer<Collection>() {
             @Override
-            public void serialize(Collection value, JsonGenerator jgen, SerializerProvider provider)
-                    throws IOException, JsonProcessingException {
+            public void serialize(Collection value, JsonGenerator gen, SerializerProvider provider)
+                    throws IOException
+            {
                 if (value.size() != 0) {
-                    collectionSerializer.serialize(value, jgen, provider);
+                    collectionSerializer.serialize(value, gen, provider);
                 } else {
-                    jgen.writeNull();
+                    gen.writeNull();
                 }
             }
         });
@@ -169,7 +188,7 @@ public class TestCustomSerializers extends BaseMapTest
         assertEquals("null", mapper.writeValueAsString(new ArrayList<Object>()));
     }
 
-    // [Issue#87]: delegating serializer
+    // [databind#87]: delegating serializer
     public void testDelegating() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -189,7 +208,7 @@ public class TestCustomSerializers extends BaseMapTest
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }
 
-    // [Issue#215]: Allow registering CharacterEscapes via ObjectWriter
+    // [databind#215]: Allow registering CharacterEscapes via ObjectWriter
     public void testCustomEscapes() throws Exception
     {
         assertEquals(quote("foo\\u0062\\Ar"),
@@ -206,5 +225,30 @@ public class TestCustomSerializers extends BaseMapTest
     {
         assertEquals(aposToQuotes("{'prop':'Issue631Bean/42'}"),
                 MAPPER.writeValueAsString(new Issue631Bean(42)));
+    }
+
+    public void testWithCustomElements() throws Exception
+    {
+        // First variant that uses per-property override
+        StringListWrapper wr = new StringListWrapper("a", null, "b");
+        assertEquals(aposToQuotes("{'list':['A',null,'B']}"),
+                MAPPER.writeValueAsString(wr));
+
+        // and then per-type registration
+        
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addSerializer(String.class, new UCStringSerializer());
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(module);
+
+        assertEquals(quote("FOOBAR"), mapper.writeValueAsString("foobar"));
+        assertEquals(aposToQuotes("['FOO',null]"),
+                mapper.writeValueAsString(new String[] { "foo", null }));
+
+        List<String> list = Arrays.asList("foo", null);
+        assertEquals(aposToQuotes("['FOO',null]"), mapper.writeValueAsString(list));
+
+        Set<String> set = new LinkedHashSet<String>(Arrays.asList("foo", null));
+        assertEquals(aposToQuotes("['FOO',null]"), mapper.writeValueAsString(set));
     }
 }

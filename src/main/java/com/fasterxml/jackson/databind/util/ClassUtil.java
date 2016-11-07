@@ -950,16 +950,19 @@ public final class ClassUtil
     /* Jackson-specific stuff
     /**********************************************************
      */
-    
+
     /**
      * Method that can be called to determine if given Object is the default
      * implementation Jackson uses; as opposed to a custom serializer installed by
      * a module or calling application. Determination is done using
      * {@link JacksonStdImpl} annotation on handler (serializer, deserializer etc)
      * class.
+     *<p>
+     * NOTE: passing `null` is legal, and will result in <code>true</code>
+     * being returned.
      */
     public static boolean isJacksonStdImpl(Object impl) {
-        return (impl != null) && isJacksonStdImpl(impl.getClass());
+        return (impl == null) || isJacksonStdImpl(impl.getClass());
     }
 
     public static boolean isJacksonStdImpl(Class<?> implClass) {

@@ -675,7 +675,7 @@ public abstract class BasicSerializerFactory
                     if (isIndexedList(raw)) {
                         if (elementRaw == String.class) {
                             // [JACKSON-829] Must NOT use if we have custom serializer
-                            if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
+                            if (ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
                                 ser = IndexedStringListSerializer.instance;
                             }
                         } else {
@@ -684,7 +684,7 @@ public abstract class BasicSerializerFactory
                         }
                     } else if (elementRaw == String.class) {
                         // [JACKSON-829] Must NOT use if we have custom serializer
-                        if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
+                        if (ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
                             ser = StringCollectionSerializer.instance;
                         }
                     }

@@ -37,14 +37,13 @@ public final class IndexedStringListSerializer
     }
 
     public IndexedStringListSerializer(IndexedStringListSerializer src,
-            JsonSerializer<?> ser, Boolean unwrapSingle) {
-        super(src, ser, unwrapSingle);
+            Boolean unwrapSingle) {
+        super(src, unwrapSingle);
     }
 
     @Override
-    public JsonSerializer<?> _withResolved(BeanProperty prop,
-            JsonSerializer<?> ser, Boolean unwrapSingle) {
-        return new IndexedStringListSerializer(this, ser, unwrapSingle);
+    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+        return new IndexedStringListSerializer(this, unwrapSingle);
     }
     
     @Override protected JsonNode contentSchema() { return createSchemaNode("string", true); }
@@ -73,24 +72,15 @@ public final class IndexedStringListSerializer
                 return;
             }
         }
-        
         gen.writeStartArray(len);
-        if (_serializer == null) {
-            serializeContents(value, gen, provider, len);
-        } else {
-            serializeUsingCustom(value, gen, provider, len);
-        }
+        serializeContents(value, gen, provider, len);
         gen.writeEndArray();
     }
 
     private final void _serializeUnwrapped(List<String> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
-        if (_serializer == null) {
-            serializeContents(value, gen, provider, 1);
-        } else {
-            serializeUsingCustom(value, gen, provider, 1);
-        }
+        serializeContents(value, gen, provider, 1);
     }
     
     @Override
@@ -100,11 +90,7 @@ public final class IndexedStringListSerializer
     {
         final int len = value.size();
         typeSer.writeTypePrefixForArray(value, gen);
-        if (_serializer == null) {
-            serializeContents(value, gen, provider, len);
-        } else {
-            serializeUsingCustom(value, gen, provider, len);
-        }
+        serializeContents(value, gen, provider, len);
         typeSer.writeTypeSuffixForArray(value, gen);
     }
 
@@ -119,25 +105,6 @@ public final class IndexedStringListSerializer
                     provider.defaultSerializeNull(gen);
                 } else {
                     gen.writeString(str);
-                }
-            }
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, value, i);
-        }
-    }
-
-    private final void serializeUsingCustom(List<String> value, JsonGenerator gen,
-            SerializerProvider provider, int len) throws IOException
-    {
-        int i = 0;
-        try {
-            final JsonSerializer<String> ser = _serializer;
-            for (i = 0; i < len; ++i) {
-                String str = value.get(i);
-                if (str == null) {
-                    provider.defaultSerializeNull(gen);
-                } else {
-                    ser.serialize(str, gen, provider);
                 }
             }
         } catch (Exception e) {

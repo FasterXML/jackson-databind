@@ -19,8 +19,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
     implements ContextualSerializer
 {
-    protected final JsonSerializer<String> _serializer;
-
     /**
      * Setting for specific local override for "unwrap single element arrays":
      * true for enable unwrapping, false for preventing it, `null` for using
@@ -29,29 +27,26 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
      * @since 2.6
      */
     protected final Boolean _unwrapSingle;
-    
+
     protected StaticListSerializerBase(Class<?> cls) {
         super(cls, false);
-        _serializer = null;
         _unwrapSingle = null;
     }
 
     /**
-     * @since 2.6
+     * @since 2.9
      */
-    @SuppressWarnings("unchecked")
     protected StaticListSerializerBase(StaticListSerializerBase<?> src,
-            JsonSerializer<?> ser, Boolean unwrapSingle) {
+            Boolean unwrapSingle) {
         super(src);
-        _serializer = (JsonSerializer<String>) ser;
         _unwrapSingle = unwrapSingle;
     }
 
     /**
-     * @since 2.6
+     * @since 2.9
      */
     public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
-            JsonSerializer<?> ser, Boolean unwrapSingle);
+            Boolean unwrapSingle);
 
     /*
     /**********************************************************
@@ -59,6 +54,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
@@ -81,9 +77,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         if (format != null) {
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
-        if (ser == null) {
-            ser = _serializer;
-        }
         // [databind#124]: May have a content converter
         ser = findConvertingContentSerializer(serializers, property, ser);
         if (ser == null) {
@@ -93,13 +86,16 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
-            ser = null;
+            if (unwrapSingle == _unwrapSingle) {
+                return this;
+            }
+            return _withResolved(property, unwrapSingle);
         }
+        // otherwise
+
         // note: will never have TypeSerializer, because Strings are "natural" type
-        if ((ser == _serializer) && (unwrapSingle == _unwrapSingle)) {
-            return this;
-        }
-        return _withResolved(property, ser, unwrapSingle);
+        return new CollectionSerializer(serializers.constructType(String.class),
+                true, /*TypeSerializer*/ null, (JsonSerializer<Object>) ser);
     }
 
     @Override

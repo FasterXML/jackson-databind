@@ -1045,9 +1045,7 @@ public abstract class DeserializationContext
             h = h.next();
         }
         // 18-May-2016, tatu: Only wrap if not already a valid type to throw
-        if (t instanceof IOException) {
-            throw (IOException) t;
-        }
+        ClassUtil.throwIfIOE(t);
         throw instantiationException(instClass, t);
     }
 

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -528,9 +529,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
             t = t.getCause();
         }
         // Errors to be passed as is
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
+        ClassUtil.throwIfError(t);
         // StackOverflowErrors are tricky ones; need to be careful...
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         // Ditto for IOExceptions; except we may want to wrap JSON exceptions
@@ -539,9 +538,7 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
                 throw (IOException) t;
             }
         } else if (!wrap) { // allow disabling wrapping for unchecked exceptions
-            if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            }
+            ClassUtil.throwIfRTE(t);
         }
         throw JsonMappingException.wrapWithPath(t, bean, fieldName);
     }

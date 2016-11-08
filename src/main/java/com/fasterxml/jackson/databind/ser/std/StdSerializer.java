@@ -306,10 +306,8 @@ public abstract class StdSerializer<T>
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }
-        // Errors and "plain" IOExceptions to be passed as is
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
+        // Errors and "plain" to be passed as is
+        ClassUtil.throwIfError(t);
         // Ditto for IOExceptions... except for mapping exceptions!
         boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
         if (t instanceof IOException) {
@@ -317,9 +315,7 @@ public abstract class StdSerializer<T>
                 throw (IOException) t;
             }
         } else if (!wrap) {
-            if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            }
+            ClassUtil.throwIfRTE(t);
         }
         // Need to add reference information
         throw JsonMappingException.wrapWithPath(t, bean, fieldName);
@@ -333,9 +329,7 @@ public abstract class StdSerializer<T>
             t = t.getCause();
         }
         // Errors are to be passed as is
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
+        ClassUtil.throwIfError(t);
         // Ditto for IOExceptions... except for mapping exceptions!
         boolean wrap = (provider == null) || provider.isEnabled(SerializationFeature.WRAP_EXCEPTIONS);
         if (t instanceof IOException) {
@@ -343,9 +337,7 @@ public abstract class StdSerializer<T>
                 throw (IOException) t;
             }
         } else if (!wrap) {
-            if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            }
+            ClassUtil.throwIfRTE(t);
         }
         // Need to add reference information
         throw JsonMappingException.wrapWithPath(t, bean, index);

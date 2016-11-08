@@ -90,13 +90,6 @@ public class ClassUtilTest extends BaseMapTest
             assertSame(e, e2);
         }
 
-        try {
-            ClassUtil.throwRootCause(e);
-            fail("Shouldn't get this far");
-        } catch (Exception eAct) {
-            assertSame(e, eAct);
-        }
-
         Error err = new Error();
         try {
             ClassUtil.throwAsIAE(err);

@@ -1647,9 +1647,7 @@ public abstract class BeanDeserializerBase
             t = t.getCause();
         }
         // Errors to be passed as is
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
+        ClassUtil.throwIfError(t);
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         // Ditto for IOExceptions; except we may want to wrap JSON exceptions
         if (t instanceof IOException) {
@@ -1657,9 +1655,7 @@ public abstract class BeanDeserializerBase
                 throw (IOException) t;
             }
         } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
-            if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            }
+            ClassUtil.throwIfRTE(t);
         }
         return t;
     }
@@ -1671,17 +1667,14 @@ public abstract class BeanDeserializerBase
             t = t.getCause();
         }
         // Errors and "plain" IOExceptions to be passed as is
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+        ClassUtil.throwIfError(t);
         if (t instanceof IOException) {
             // Since we have no more information to add, let's not actually wrap..
             throw (IOException) t;
-        } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
-            if (t instanceof RuntimeException) {
-                throw (RuntimeException) t;
-            }
+        }
+        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+        if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+            ClassUtil.throwIfRTE(t);
         }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }

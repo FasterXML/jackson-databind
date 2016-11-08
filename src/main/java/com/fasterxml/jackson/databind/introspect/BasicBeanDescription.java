@@ -336,8 +336,8 @@ public class BasicBeanDescription extends BeanDescription
             while (t.getCause() != null) {
                 t = t.getCause();
             }
-            if (t instanceof Error) throw (Error) t;
-            if (t instanceof RuntimeException) throw (RuntimeException) t;
+            ClassUtil.throwIfError(t);
+            ClassUtil.throwIfRTE(t);
             throw new IllegalArgumentException("Failed to instantiate bean of type "+_classInfo.getAnnotated().getName()+": ("+t.getClass().getName()+") "+t.getMessage(), t);
         }
     }

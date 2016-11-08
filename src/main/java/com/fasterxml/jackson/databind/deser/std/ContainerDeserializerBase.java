@@ -85,15 +85,13 @@ public abstract class ContainerDeserializerBase<T>
             t = t.getCause();
         }
         // Errors and "plain" IOExceptions to be passed as is
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
+        ClassUtil.throwIfError(t);
         // ... except for mapping exceptions
         if (t instanceof IOException && !(t instanceof JsonMappingException)) {
             throw (IOException) t;
         }
         // for [databind#1141]
-        key = ClassUtil.nonNull(key, "N/A");
-        throw JsonMappingException.wrapWithPath(t, ref, key);
+        throw JsonMappingException.wrapWithPath(t, ref,
+                ClassUtil.nonNull(key, "N/A"));
     }
 }

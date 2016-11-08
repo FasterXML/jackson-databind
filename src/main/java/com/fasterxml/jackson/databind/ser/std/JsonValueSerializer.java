@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Serializer class that can serialize Object that have a
@@ -290,9 +291,7 @@ public class JsonValueSerializer
                     while (t instanceof InvocationTargetException && t.getCause() != null) {
                         t = t.getCause();
                     }
-                    if (t instanceof Error) {
-                        throw (Error) t;
-                    }
+                    ClassUtil.throwIfError(t);
                     throw JsonMappingException.wrapWithPath(t, en, _accessorMethod.getName() + "()");
                 }
             }

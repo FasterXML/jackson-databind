@@ -297,9 +297,7 @@ public final class TypeFactory
                 prob = ClassUtil.getRootCause(e);
             }
         }
-        if (prob instanceof RuntimeException) {
-            throw (RuntimeException) prob;
-        }
+        ClassUtil.throwIfRTE(prob);
         throw new ClassNotFoundException(prob.getMessage(), prob);
     }
     

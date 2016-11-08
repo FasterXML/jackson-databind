@@ -351,9 +351,7 @@ public final class ClassUtil
                 prob = getRootCause(e);
             }
         }
-        if (prob instanceof RuntimeException) {
-            throw (RuntimeException) prob;
-        }
+        throwIfRTE(prob);
         throw new ClassNotFoundException(prob.getMessage(), prob);
     }
 
@@ -388,10 +386,55 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Exception handling
+    /* Exception handling; simple re-throw
     /**********************************************************
      */
 
+    /**
+     * Helper method that will check if argument is an {@link Error},
+     * and if so, (re)throw it; otherwise just return
+     *
+     * @since 2.9
+     */
+    public static Throwable throwIfError(Throwable t) {
+        if (t instanceof Error) {
+            throw (Error) t;
+        }
+        return t;
+    }
+
+    /**
+     * Helper method that will check if argument is an {@link RuntimeException},
+     * and if so, (re)throw it; otherwise just return
+     *
+     * @since 2.9
+     */
+    public static Throwable throwIfRTE(Throwable t) {
+        if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        }
+        return t;
+    }
+
+    /**
+     * Helper method that will check if argument is an {@link RuntimeException},
+     * and if so, (re)throw it; otherwise just return
+     *
+     * @since 2.9
+     */
+    public static Throwable throwIfIOE(Throwable t) throws IOException {
+        if (t instanceof IOException) {
+            throw (IOException) t;
+        }
+        return t;
+    }
+    
+    /*
+    /**********************************************************
+    /* Exception handling; other
+    /**********************************************************
+     */
+    
     /**
      * Method that can be used to find the "root cause", innermost
      * of chained (wrapped) exceptions.
@@ -405,41 +448,21 @@ public final class ClassUtil
     }
 
     /**
-     * Method that will unwrap root causes of given Throwable, and throw
-     * the innermost {@link Exception} or {@link Error} as is.
-     * This is useful in cases where mandatory wrapping is added, which
-     * is often done by Reflection API.
-     */
-    public static void throwRootCause(Throwable t) throws Exception
-    {
-        t = getRootCause(t);
-        if (t instanceof Exception) {
-            throw (Exception) t;
-        }
-        throw (Error) t;
-    }
-
-    /**
-     * Method that works like {@link #throwRootCause} if (and only if)
-     * root cause is an {@link IOException}; otherwise returns root cause
+     * Method that works like by calling {@link #getRootCause} and then
+     * either throwing it (if instanceof {@link IOException}), or
+     * return.
      *
      * @since 2.8
      */
-    public static Throwable throwRootCauseIfIOE(Throwable t) throws IOException
-    {
-        t = getRootCause(t);
-        if (t instanceof IOException) {
-            throw (IOException) t;
-        }
-        return t;
+    public static Throwable throwRootCauseIfIOE(Throwable t) throws IOException {
+        return throwIfIOE(getRootCause(t));
     }
 
     /**
      * Method that will wrap 't' as an {@link IllegalArgumentException} if it
      * is a checked exception; otherwise (runtime exception or error) throw as is
      */
-    public static void throwAsIAE(Throwable t)
-    {
+    public static void throwAsIAE(Throwable t) {
         throwAsIAE(t, t.getMessage());
     }
 
@@ -450,12 +473,8 @@ public final class ClassUtil
      */
     public static void throwAsIAE(Throwable t, String msg)
     {
-        if (t instanceof RuntimeException) {
-            throw (RuntimeException) t;
-        }
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
+        throwIfRTE(t);
+        throwIfError(t);
         throw new IllegalArgumentException(msg, t);
     }
 
@@ -500,12 +519,8 @@ public final class ClassUtil
         } catch (Exception e) {
             fail.addSuppressed(e);
         }
-        if (fail instanceof IOException) {
-            throw (IOException) fail;
-        }
-        if (fail instanceof RuntimeException) {
-            throw (RuntimeException) fail;
-        }
+        throwIfIOE(fail);
+        throwIfRTE(fail);
         throw new RuntimeException(fail);
     }
 
@@ -537,12 +552,8 @@ public final class ClassUtil
                 fail.addSuppressed(e);
             }
         }
-        if (fail instanceof IOException) {
-            throw (IOException) fail;
-        }
-        if (fail instanceof RuntimeException) {
-            throw (RuntimeException) fail;
-        }
+        throwIfIOE(fail);
+        throwIfRTE(fail);
         throw new RuntimeException(fail);
     }
 

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public class PropertyBuilder
 {
+    
     // @since 2.7
     private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
 
@@ -367,8 +368,8 @@ public class PropertyBuilder
         while (t.getCause() != null) {
             t = t.getCause();
         }
-        if (t instanceof Error) throw (Error) t;
-        if (t instanceof RuntimeException) throw (RuntimeException) t;
+        ClassUtil.throwIfError(t);
+        ClassUtil.throwIfRTE(t);
         throw new IllegalArgumentException("Failed to get property '"+propName+"' of default "+defaultBean.getClass().getName()+" instance");
     }
 }

@@ -546,17 +546,10 @@ public abstract class SettableBeanProperty
      */
     protected IOException _throwAsIOE(JsonParser p, Exception e) throws IOException
     {
-        if (e instanceof IOException) {
-            throw (IOException) e;
-        }
-        if (e instanceof RuntimeException) {
-            throw (RuntimeException) e;
-        }
+        ClassUtil.throwIfIOE(e);
+        ClassUtil.throwIfRTE(e);
         // let's wrap the innermost problem
-        Throwable th = e;
-        while (th.getCause() != null) {
-            th = th.getCause();
-        }
+        Throwable th = ClassUtil.getRootCause(e);
         throw JsonMappingException.from(p, th.getMessage(), th);
     }
 

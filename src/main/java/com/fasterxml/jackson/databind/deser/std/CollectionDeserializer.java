@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Basic serializer that can take JSON "Array" structure and
@@ -309,8 +310,8 @@ public class CollectionDeserializer
                 reference.getRoid().appendReferring(ref);
             } catch (Exception e) {
                 boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-                if (!wrap && e instanceof RuntimeException) {
-                    throw (RuntimeException)e;
+                if (!wrap) {
+                    ClassUtil.throwIfRTE(e);
                 }
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
             }

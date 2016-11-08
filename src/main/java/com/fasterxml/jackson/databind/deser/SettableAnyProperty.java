@@ -207,17 +207,10 @@ public class SettableAnyProperty
             }
             throw new JsonMappingException(null, msg.toString(), e);
         }
-        if (e instanceof IOException) {
-            throw (IOException) e;
-        }
-        if (e instanceof RuntimeException) {
-            throw (RuntimeException) e;
-        }
+        ClassUtil.throwIfIOE(e);
+        ClassUtil.throwIfRTE(e);
         // let's wrap the innermost problem
-        Throwable t = e;
-        while (t.getCause() != null) {
-            t = t.getCause();
-        }
+        Throwable t = ClassUtil.getRootCause(e);
         throw new JsonMappingException(null, t.getMessage(), t);
     }
 

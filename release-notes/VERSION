@@ -30,6 +30,7 @@ Project: jackson-databind
  (reported by Fabrizio C)
 #1434: Explicitly pass null on invoke calls with no arguments
  (contributed by Emiliano C)
+#1444: Change `ObjectMapper.setSerializationInclusion()` to apply to content inclusion too
 
 2.8.5 (not yet released)
 

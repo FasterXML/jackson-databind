@@ -1357,11 +1357,14 @@ public class ObjectMapper
     /**
      * Convenience method, equivalent to calling:
      *<pre>
-     *  setPropertyInclusion(JsonInclude.Value.construct(incl, Include.ALWAYS));
+     *  setPropertyInclusion(JsonInclude.Value.construct(incl, incl));
      *</pre>
+     *<p>
+     * NOTE: behavior differs slightly from 2.8, where second argument was
+     * implied to be <code>JsonInclude.Include.ALWAYS</code>.
      */
     public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
-        setPropertyInclusion(JsonInclude.Value.construct(incl, JsonInclude.Include.USE_DEFAULTS));
+        setPropertyInclusion(JsonInclude.Value.construct(incl, incl));
         return this;
     }
 

@@ -179,13 +179,6 @@ public class UntypedObjectDeserializer
         return this;
     }
 
-    protected JsonDeserializer<?> _withResolved(JsonDeserializer<?> mapDeser,
-            JsonDeserializer<?> listDeser,
-            JsonDeserializer<?> stringDeser, JsonDeserializer<?> numberDeser) {
-        return new UntypedObjectDeserializer(this,
-                mapDeser, listDeser, stringDeser, numberDeser);
-    }
-
     /*
     /**********************************************************
     /* Deserializer API
@@ -270,7 +263,7 @@ public class UntypedObjectDeserializer
         case JsonTokenId.ID_FALSE:
             return Boolean.FALSE;
 
-        case JsonTokenId.ID_NULL: // should not get this but...
+        case JsonTokenId.ID_NULL: // 08-Nov-2016, tatu: yes, occurs
             return null;
 
 //        case JsonTokenId.ID_END_ARRAY: // invalid
@@ -287,9 +280,7 @@ public class UntypedObjectDeserializer
         case JsonTokenId.ID_START_ARRAY:
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:
-            /* Output can be as JSON Object, Array or scalar: no way to know
-             * a this point:
-             */
+            // Output can be as JSON Object, Array or scalar: no way to know at this point:
             return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
         case JsonTokenId.ID_EMBEDDED_OBJECT:
@@ -539,13 +530,13 @@ public class UntypedObjectDeserializer
             case JsonTokenId.ID_FALSE:
                 return Boolean.FALSE;
 
-            case JsonTokenId.ID_NULL: // should not get this but...
-                return null;
-
             case JsonTokenId.ID_END_OBJECT:
                 // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
                 //    if caller has advanced to the first token of Object, but for empty Object
                 return new LinkedHashMap<String,Object>(2);
+
+            case JsonTokenId.ID_NULL: // 08-Nov-2016, tatu: yes, occurs
+                return null;
 
             //case JsonTokenId.ID_END_ARRAY: // invalid
             default:

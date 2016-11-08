@@ -1,13 +1,17 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -17,7 +21,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
 @SuppressWarnings("serial")
-public class TestUntypedDeserialization
+public class UntypedDeserializationTest
     extends BaseMapTest
 {
     static class UCStringDeserializer
@@ -26,8 +30,8 @@ public class TestUntypedDeserialization
         public UCStringDeserializer() { super(String.class); }
 
         @Override
-        public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            return jp.getText().toUpperCase();
+        public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return p.getText().toUpperCase();
         }
     }
 
@@ -42,7 +46,7 @@ public class TestUntypedDeserialization
         }
 
         @Override
-        public Number deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        public Number deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return value;
         }
     }
@@ -54,12 +58,12 @@ public class TestUntypedDeserialization
         public ListDeserializer() { super(List.class); }
 
         @Override
-        public List<Object> deserialize(JsonParser jp, DeserializationContext ctxt)
+        public List<Object> deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
             ArrayList<Object> list = new ArrayList<Object>();
-            while (jp.nextValue() != JsonToken.END_ARRAY) {
-                list.add("X"+jp.getText());
+            while (p.nextValue() != JsonToken.END_ARRAY) {
+                list.add("X"+p.getText());
             }
             return list;
         }
@@ -81,12 +85,12 @@ public class TestUntypedDeserialization
         public MapDeserializer() { super(Map.class); }
 
         @Override
-        public Map<String,Object> deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Map<String,Object> deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
             Map<String,Object> map = new LinkedHashMap<String,Object>();
-            while (jp.nextValue() != JsonToken.END_OBJECT) {
-                map.put(jp.getCurrentName(), "Y"+jp.getText());
+            while (p.nextValue() != JsonToken.END_OBJECT) {
+                map.put(p.getCurrentName(), "Y"+p.getText());
             }
             return map;
         }
@@ -100,7 +104,12 @@ public class TestUntypedDeserialization
             value = v;
         }
     }
-    
+
+    static class WrappedUntyped {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+        public Object value;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -162,7 +171,29 @@ public class TestUntypedDeserialization
 
         // and that's all folks!
     }
-    
+
+    public void testUntypedMap() throws Exception
+    {
+        // to get "untyped" default map-to-map, pass Object.class
+        String JSON = "{ \"foo\" : \"bar\", \"crazy\" : true, \"null\" : null }";
+
+        // Not a guaranteed cast theoretically, but will work:
+        @SuppressWarnings("unchecked")
+        Map<String,Object> result = (Map<String,Object>)MAPPER.readValue(JSON, Object.class);
+        assertNotNull(result);
+        assertTrue(result instanceof Map<?,?>);
+
+        assertEquals(3, result.size());
+
+        assertEquals("bar", result.get("foo"));
+        assertEquals(Boolean.TRUE, result.get("crazy"));
+        assertNull(result.get("null"));
+
+        // Plus, non existing:
+        assertNull(result.get("bar"));
+        assertNull(result.get(3));
+    }
+
     public void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
@@ -217,6 +248,62 @@ public class TestUntypedDeserialization
         assertNotNull(value);
         assertTrue(value instanceof Number);
         assertEquals(Integer.valueOf(13), value);
+    }
+
+    // Test that exercises non-vanilla variant, with just one simple custom deserializer
+    public void testNonVanilla() throws IOException
+    {
+        SimpleModule m = new SimpleModule("test-module");
+        m.addDeserializer(String.class, new UCStringDeserializer());
+        final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(m);
+
+        // Also: since this is now non-vanilla variant, try more alternatives
+        List<?> l = (List<?>) mapper.readValue("[ true, false, 7, 0.5, \"foo\"]", Object.class);
+        assertEquals(5, l.size());
+        assertEquals(Boolean.TRUE, l.get(0));
+        assertEquals(Boolean.FALSE, l.get(1));
+        assertEquals(Integer.valueOf(7), l.get(2));
+        assertEquals(Double.valueOf(0.5), l.get(3));
+        assertEquals("FOO", l.get(4));
+
+        l = (List<?>) mapper.readValue("[ {}, [] ]", Object.class);
+        assertEquals(2, l.size());
+        assertTrue(l.get(0) instanceof Map<?,?>);
+        assertTrue(l.get(1) instanceof List<?>);
+
+        ObjectReader rDefault = mapper.readerFor(WrappedUntyped.class);
+        ObjectReader rAlt = rDefault
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,
+                        DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
+        WrappedUntyped w;
+
+        w = rDefault.readValue(aposToQuotes("{'value':10}"));
+        assertEquals(Integer.valueOf(10), w.value);
+        w = rAlt.readValue(aposToQuotes("{'value':10}"));
+        assertEquals(BigInteger.TEN, w.value);
+
+        w = rDefault.readValue(aposToQuotes("{'value':5.0}"));
+        assertEquals(Double.valueOf(5.0), w.value);
+        w = rAlt.readValue(aposToQuotes("{'value':5.0}"));
+        assertEquals(new BigDecimal("5.0"), w.value);
+
+        StringBuilder sb = new StringBuilder(100).append("[0");
+        for (int i = 1; i < 100; ++i) {
+            sb.append(", ").append(i);
+        }
+        sb.append("]");
+        final String INT_ARRAY_JSON = sb.toString();
+
+        // First read as-is, no type wrapping
+        Object ob = mapper.readerFor(Object.class)
+                .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
+                .readValue(INT_ARRAY_JSON);
+        assertTrue(ob instanceof Object[]);
+        Object[] obs = (Object[]) ob;
+        for (int i = 0; i < 100; ++i) {
+            assertEquals(Integer.valueOf(i), obs[i]);
+        }
     }
 
     public void testUntypedWithListDeser() throws IOException

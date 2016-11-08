@@ -86,28 +86,6 @@ public class MapDeserializationTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testUntypedMap() throws Exception
-    {
-        // to get "untyped" default map-to-map, pass Object.class
-        String JSON = "{ \"foo\" : \"bar\", \"crazy\" : true, \"null\" : null }";
-
-        // Not a guaranteed cast theoretically, but will work:
-        @SuppressWarnings("unchecked")
-        Map<String,Object> result = (Map<String,Object>)MAPPER.readValue(JSON, Object.class);
-        assertNotNull(result);
-        assertTrue(result instanceof Map<?,?>);
-
-        assertEquals(3, result.size());
-
-        assertEquals("bar", result.get("foo"));
-        assertEquals(Boolean.TRUE, result.get("crazy"));
-        assertNull(result.get("null"));
-
-        // Plus, non existing:
-        assertNull(result.get("bar"));
-        assertNull(result.get(3));
-    }
-
     public void testBigUntypedMap() throws Exception
     {
         Map<String,Object> map = new LinkedHashMap<String,Object>();

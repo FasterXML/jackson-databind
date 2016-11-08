@@ -370,7 +370,7 @@ public abstract class JsonDeserializer<T>
      */
     @Deprecated
     public T getEmptyValue() { return getNullValue(); }
-    
+
     /*
     /**********************************************************
     /* Helper classes

@@ -22,7 +22,12 @@ public class JsonNodeDeserializer
      */
     private final static JsonNodeDeserializer instance = new JsonNodeDeserializer();
 
-    protected JsonNodeDeserializer() { super(JsonNode.class); }
+    protected JsonNodeDeserializer() {
+        // `null` means that explicit "merge" is honored and may or may not work, but
+        // that per-type and global defaults do not enable merging. This because
+        // some node types (Object, Array) do support, others don't.
+        super(JsonNode.class, null);
+    }
 
     /**
      * Factory method for accessing deserializer for specific node type
@@ -50,12 +55,6 @@ public class JsonNodeDeserializer
         return NullNode.getInstance();
     }
 
-    @Override
-    @Deprecated // since 2.6, remove from 2.7
-    public JsonNode getNullValue() {
-        return NullNode.getInstance();
-    }
-
     /**
      * Implementation that will produce types of any JSON nodes; not just one
      * deserializer is registered to handle (in case of more specialized handler).
@@ -70,8 +69,8 @@ public class JsonNodeDeserializer
         case JsonTokenId.ID_START_ARRAY:
             return deserializeArray(p, ctxt, ctxt.getNodeFactory());
         default:
-            return deserializeAny(p, ctxt, ctxt.getNodeFactory());
         }
+        return deserializeAny(p, ctxt, ctxt.getNodeFactory());
     }
 
     /*
@@ -87,15 +86,18 @@ public class JsonNodeDeserializer
 
         protected final static ObjectDeserializer _instance = new ObjectDeserializer();
 
-        protected ObjectDeserializer() { super(ObjectNode.class); }
+        protected ObjectDeserializer() { super(ObjectNode.class, true); }
 
         public static ObjectDeserializer getInstance() { return _instance; }
-        
+
         @Override
         public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            if (p.isExpectedStartObjectToken() || p.hasToken(JsonToken.FIELD_NAME)) {
+            if (p.isExpectedStartObjectToken()) {
                 return deserializeObject(p, ctxt, ctxt.getNodeFactory());
+            }
+            if (p.hasToken(JsonToken.FIELD_NAME)) {
+                return deserializeObjectAtName(p, ctxt, ctxt.getNodeFactory());
             }
             // 23-Sep-2015, tatu: Ugh. We may also be given END_OBJECT (similar to FIELD_NAME),
             //    if caller has advanced to the first token of Object, but for empty Object
@@ -104,8 +106,23 @@ public class JsonNodeDeserializer
             }
             return (ObjectNode) ctxt.handleUnexpectedToken(ObjectNode.class, p);
          }
+
+        /**
+         * Variant needed to support both root-level `updateValue()` and merging.
+         *
+         * @since 2.9
+         */
+        @Override
+        public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt,
+                ObjectNode node) throws IOException
+        {
+            if (p.isExpectedStartObjectToken() || p.hasToken(JsonToken.FIELD_NAME)) {
+                return (ObjectNode) updateObject(p, ctxt, (ObjectNode) node);
+            }
+            return (ObjectNode) ctxt.handleUnexpectedToken(ObjectNode.class, p);
+        }
     }
-        
+
     final static class ArrayDeserializer
         extends BaseNodeDeserializer<ArrayNode>
     {
@@ -113,15 +130,30 @@ public class JsonNodeDeserializer
 
         protected final static ArrayDeserializer _instance = new ArrayDeserializer();
 
-        protected ArrayDeserializer() { super(ArrayNode.class); }
+        protected ArrayDeserializer() { super(ArrayNode.class, true); }
 
         public static ArrayDeserializer getInstance() { return _instance; }
-        
+
         @Override
         public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             if (p.isExpectedStartArrayToken()) {
                 return deserializeArray(p, ctxt, ctxt.getNodeFactory());
+            }
+            return (ArrayNode) ctxt.handleUnexpectedToken(ArrayNode.class, p);
+        }
+
+        /**
+         * Variant needed to support both root-level `updateValue()` and merging.
+         *
+         * @since 2.9
+         */
+        @Override
+        public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt,
+                ArrayNode node) throws IOException
+        {
+            if (p.isExpectedStartArrayToken()) {
+                return (ArrayNode) updateArray(p, ctxt, (ArrayNode) node);
             }
             return (ArrayNode) ctxt.handleUnexpectedToken(ArrayNode.class, p);
         }
@@ -136,8 +168,11 @@ public class JsonNodeDeserializer
 abstract class BaseNodeDeserializer<T extends JsonNode>
     extends StdDeserializer<T>
 {
-    public BaseNodeDeserializer(Class<T> vc) {
+    protected final Boolean _supportsUpdates;
+
+    public BaseNodeDeserializer(Class<T> vc, Boolean supportsUpdates) {
         super(vc);
+        _supportsUpdates = supportsUpdates;
     }
 
     @Override
@@ -145,9 +180,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             TypeDeserializer typeDeserializer)
         throws IOException
     {
-        /* Output can be as JSON Object, Array or scalar: no way to know
-         * a priori. So:
-         */
+        // Output can be as JSON Object, Array or scalar: no way to know a priori:
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 
@@ -158,14 +191,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     @Override
     public boolean isCachable() { return true; }
 
-    /* 23-Oct-2016, tatu: Certain subtypes (Array, Object) actually do support
-     *   updates, but default to false; can be improved in future.
-     */
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
-        return Boolean.FALSE;
+        return _supportsUpdates;
     }
-    
+
     /*
     /**********************************************************
     /* Overridable methods
@@ -205,10 +235,121 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**********************************************************
      */
 
+    /**
+     * Method called to deserialize Object node instance when there is no existing
+     * node to modify.
+     */
     protected final ObjectNode deserializeObject(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
-        ObjectNode node = nodeFactory.objectNode();
+        final ObjectNode node = nodeFactory.objectNode();
+        String key = p.nextFieldName();
+        for (; key != null; key = p.nextFieldName()) {
+            JsonNode value;
+            JsonToken t = p.nextToken();
+            if (t == null) { // can this ever occur?
+                t = JsonToken.NOT_AVAILABLE; // can this ever occur?
+            }
+            switch (t.id()) {
+            case JsonTokenId.ID_START_OBJECT:
+                value = deserializeObject(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_START_ARRAY:
+                value = deserializeArray(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                value = _fromEmbedded(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_STRING:
+                value = nodeFactory.textNode(p.getText());
+                break;
+            case JsonTokenId.ID_NUMBER_INT:
+                value = _fromInt(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_TRUE:
+                value = nodeFactory.booleanNode(true);
+                break;
+            case JsonTokenId.ID_FALSE:
+                value = nodeFactory.booleanNode(false);
+                break;
+            case JsonTokenId.ID_NULL:
+                value = nodeFactory.nullNode();
+                break;
+            default:
+                value = deserializeAny(p, ctxt, nodeFactory);
+            }
+            JsonNode old = node.replace(key, value);
+            if (old != null) {
+                _handleDuplicateField(p, ctxt, nodeFactory,
+                        key, node, old, value);
+            }
+        }
+        return node;
+    }
+
+    /**
+     * Alternate deserialization method used when parser already points to first
+     * FIELD_NAME and not START_OBJECT.
+     *
+     * @since 2.9
+     */
+    protected final ObjectNode deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
+            final JsonNodeFactory nodeFactory) throws IOException
+    {
+        final ObjectNode node = nodeFactory.objectNode();
+        String key = p.getCurrentName();
+        for (; key != null; key = p.nextFieldName()) {
+            JsonNode value;
+            JsonToken t = p.nextToken();
+            if (t == null) { // can this ever occur?
+                t = JsonToken.NOT_AVAILABLE; // can this ever occur?
+            }
+            switch (t.id()) {
+            case JsonTokenId.ID_START_OBJECT:
+                value = deserializeObject(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_START_ARRAY:
+                value = deserializeArray(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                value = _fromEmbedded(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_STRING:
+                value = nodeFactory.textNode(p.getText());
+                break;
+            case JsonTokenId.ID_NUMBER_INT:
+                value = _fromInt(p, ctxt, nodeFactory);
+                break;
+            case JsonTokenId.ID_TRUE:
+                value = nodeFactory.booleanNode(true);
+                break;
+            case JsonTokenId.ID_FALSE:
+                value = nodeFactory.booleanNode(false);
+                break;
+            case JsonTokenId.ID_NULL:
+                value = nodeFactory.nullNode();
+                break;
+            default:
+                value = deserializeAny(p, ctxt, nodeFactory);
+            }
+            JsonNode old = node.replace(key, value);
+            if (old != null) {
+                _handleDuplicateField(p, ctxt, nodeFactory,
+                        key, node, old, value);
+            }
+        }
+        return node;
+    }
+    
+    /**
+     * Alternate deserialization method that is to update existing {@link ObjectNode}
+     * if possible.
+     *
+     * @since 2.9
+     */
+    protected final JsonNode updateObject(JsonParser p, DeserializationContext ctxt,
+        final ObjectNode node) throws IOException
+    {
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
@@ -217,17 +358,37 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             if (t == JsonToken.END_OBJECT) {
                 return node;
             }
+            // No, we don't have a JSON Object but some other type; deserialize normally
             if (t != JsonToken.FIELD_NAME) {
-                return (ObjectNode) ctxt.handleUnexpectedToken(handledType(), p);
+                return deserialize(p, ctxt);
             }
             key = p.getCurrentName();
         }
         for (; key != null; key = p.nextFieldName()) {
-            JsonNode value;
+            // If not, fall through to regular handling
             JsonToken t = p.nextToken();
+
+            // First: see if we can merge things:
+            JsonNode value = node.get(key);
+            if (value != null) {
+                if (value instanceof ObjectNode) {
+                    JsonNode newValue = updateObject(p, ctxt, (ObjectNode) value);
+                    if (newValue != null) {
+                        node.set(key, newValue);
+                        continue;
+                    }
+                } else if (value instanceof ArrayNode) {
+                    JsonNode newValue = updateArray(p, ctxt, (ArrayNode) value);
+                    if (newValue != null) {
+                        node.set(key, newValue);
+                        continue;
+                    }
+                }
+            }
             if (t == null) { // can this ever occur?
                 t = JsonToken.NOT_AVAILABLE; // can this ever occur?
             }
+            JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 value = deserializeObject(p, ctxt, nodeFactory);
@@ -305,14 +466,62 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         }
     }
 
+    /**
+     * Alternate deserialization method that is to update existing {@link ObjectNode}
+     * if possible.
+     *
+     * @since 2.9
+     */
+    protected final JsonNode updateArray(JsonParser p, DeserializationContext ctxt,
+        final ArrayNode node) throws IOException
+    {
+        final JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
+        while (true) {
+            JsonToken t = p.nextToken();
+            switch (t.id()) {
+            case JsonTokenId.ID_START_OBJECT:
+                node.add(deserializeObject(p, ctxt, nodeFactory));
+                break;
+            case JsonTokenId.ID_START_ARRAY:
+                node.add(deserializeArray(p, ctxt, nodeFactory));
+                break;
+            case JsonTokenId.ID_END_ARRAY:
+                return node;
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                node.add(_fromEmbedded(p, ctxt, nodeFactory));
+                break;
+            case JsonTokenId.ID_STRING:
+                node.add(nodeFactory.textNode(p.getText()));
+                break;
+            case JsonTokenId.ID_NUMBER_INT:
+                node.add(_fromInt(p, ctxt, nodeFactory));
+                break;
+            case JsonTokenId.ID_TRUE:
+                node.add(nodeFactory.booleanNode(true));
+                break;
+            case JsonTokenId.ID_FALSE:
+                node.add(nodeFactory.booleanNode(false));
+                break;
+            case JsonTokenId.ID_NULL:
+                node.add(nodeFactory.nullNode());
+                break;
+            default:
+                node.add(deserializeAny(p, ctxt, nodeFactory));
+                break;
+            }
+        }
+    }
+    
     protected final JsonNode deserializeAny(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
         switch (p.getCurrentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this
-        case JsonTokenId.ID_FIELD_NAME:
             return deserializeObject(p, ctxt, nodeFactory);
+        case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this?
+            return nodeFactory.objectNode();
+        case JsonTokenId.ID_FIELD_NAME:
+            return deserializeObjectAtName(p, ctxt, nodeFactory);
         case JsonTokenId.ID_START_ARRAY:
             return deserializeArray(p, ctxt, nodeFactory);
         case JsonTokenId.ID_EMBEDDED_OBJECT:
@@ -406,7 +615,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             return nodeFactory.rawValueNode((RawValue) ob);
         }
         if (ob instanceof JsonNode) {
-            // [Issue#433]: but could also be a JsonNode hiding in there!
+            // [databind#433]: but could also be a JsonNode hiding in there!
             return (JsonNode) ob;
         }
         // any other special handling needed?

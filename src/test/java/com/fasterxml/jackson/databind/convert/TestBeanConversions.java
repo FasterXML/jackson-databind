@@ -3,9 +3,11 @@ package com.fasterxml.jackson.databind.convert;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
@@ -89,6 +91,23 @@ public class TestBeanConversions
        public DummyBean convert(ConvertingBean cb) {
           return new DummyBean(cb.x, cb.y);
        }
+    }
+    
+    @JsonDeserialize(using = NullBeanDeserializer.class)
+    static class NullBean {
+        public static final NullBean NULL_INSTANCE = new NullBean();
+    }
+    
+    static class NullBeanDeserializer extends JsonDeserializer<NullBean> {
+        @Override
+        public NullBean getNullValue(final DeserializationContext context) {
+            return NullBean.NULL_INSTANCE;
+        }
+        
+        @Override
+        public NullBean deserialize(final JsonParser parser, final DeserializationContext context) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     /*
@@ -252,5 +271,14 @@ public class TestBeanConversions
         String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
         // must be  {"a":2,"b":4}
         assertEquals("{\"a\":2,\"b\":4}", json);
-     }
+    }
+    
+    // Test null conversions from [databind#1433]
+    public void testConversionIssue1433() throws Exception
+    {
+        assertNull(MAPPER.convertValue(null, Object.class));
+        assertNull(MAPPER.convertValue(null, PointZ.class));
+        
+        assertSame(NullBean.NULL_INSTANCE, MAPPER.convertValue(null, NullBean.class));
+    }
 }

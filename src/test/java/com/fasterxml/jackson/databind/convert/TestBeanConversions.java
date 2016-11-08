@@ -12,11 +12,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+/**
+ * Tests for various conversions, especially ones using
+ * {@link ObjectMapper#convertValue(Object, Class)}.
+ */
 public class TestBeanConversions
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    final ObjectMapper MAPPER = new ObjectMapper();
-
     static class PointZ {
         public int x, y;
 
@@ -66,7 +68,7 @@ public class TestBeanConversions
         public Leaf(int v) { value = v; }
     }
     
-    // [Issue#288]
+    // [databind#288]
 
     @JsonSerialize(converter = ConvertingBeanConverter.class)
     static class ConvertingBean { 
@@ -116,6 +118,8 @@ public class TestBeanConversions
     /**********************************************************
      */
     
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testBeanConvert()
     {
         // should have no problems convert between compatible beans...
@@ -279,6 +283,7 @@ public class TestBeanConversions
         assertNull(MAPPER.convertValue(null, Object.class));
         assertNull(MAPPER.convertValue(null, PointZ.class));
         
-        assertSame(NullBean.NULL_INSTANCE, MAPPER.convertValue(null, NullBean.class));
+        assertSame(NullBean.NULL_INSTANCE,
+                MAPPER.convertValue(null, NullBean.class));
     }
 }

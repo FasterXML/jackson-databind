@@ -55,7 +55,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
             jp.skipChildren();
             return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
         }
-        
     }
 
     /*

@@ -2,17 +2,20 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-public class TestDateDeserialization
+public class DateDeserializationTest
     extends BaseMapTest
 {
-    // Test for [JACKSON-435]
     static class DateAsStringBean
     {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="/yyyy/MM/dd/")
@@ -35,7 +38,12 @@ public class TestDateDeserialization
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH", timezone="CET")
         public Date date;
     }
-    
+
+    static class CalendarBean {
+        Calendar _v;
+        void setV(Calendar v) { _v = v; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -63,7 +71,7 @@ public class TestDateDeserialization
     public void testDateUtilWithStringTimestamp() throws Exception
     {
         long now = 1321992375446L;
-        /* As of 1.5.0, should be ok to pass as JSON String, as long
+        /* Should be ok to pass as JSON String, as long
          * as it is plain timestamp (all numbers, 64-bit)
          */
         String json = quote(String.valueOf(now));
@@ -263,7 +271,7 @@ public class TestDateDeserialization
         assertEquals(0, c.get(Calendar.MILLISECOND));
     }
 
-    // [Issue#338]
+    // [databind#338]
     public void testDateUtilISO8601NoMilliseconds() throws Exception
     {
         final String INPUT_STR = "2013-10-31T17:27:00";
@@ -284,7 +292,7 @@ public class TestDateDeserialization
         // 03-Nov-2013, tatu: This wouldn't work, and is the nominal reason
         //    for #338 I think
         /*
-        inputDate =  ISO8601Utils.parse(INPUT_STR);
+        inputDate =  ISO8601Utils.parse(INPUT_STR, new ParsePosition(0));
         c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.setTime(inputDate);
         assertEquals(2013, c.get(Calendar.YEAR));
@@ -504,6 +512,41 @@ public class TestDateDeserialization
         assertEquals(d.getTime(), d2.getTime());
     }
 
+    /*
+    /**********************************************************
+    /* Test(s) for array unwrapping
+    /**********************************************************
+     */
+    
+    public void testCalendarArrayUnwrap() throws Exception
+    {
+        ObjectReader reader = new ObjectMapper()
+                .readerFor(CalendarBean.class)
+                .without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final String inputDate = "1972-12-28T00:00:00.000+0000";
+        final String input = aposToQuotes("{'v':['"+inputDate+"']}");
+        try {
+            reader.readValue(input);
+            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
+        } catch (InputMismatchException exp) {
+            verifyException(exp, "Can not deserialize");
+            verifyException(exp, "out of START_ARRAY");
+        }
+
+        reader = reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        CalendarBean bean = reader.readValue(input);
+        assertNotNull(bean._v);
+        assertEquals(1972, bean._v.get(Calendar.YEAR));
+
+        // and finally, a fail due to multiple values:
+        try {
+            reader.readValue(aposToQuotes("{'v':['"+inputDate+"','"+inputDate+"']}"));
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (JsonMappingException exp) {
+            verifyException(exp, "Attempted to unwrap");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Tests to verify failing cases

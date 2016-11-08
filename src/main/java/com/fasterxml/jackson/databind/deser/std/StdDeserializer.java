@@ -48,7 +48,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected StdDeserializer(JavaType valueType) {
-        _valueClass = (valueType == null) ? null : valueType.getRawClass();
+        _valueClass = valueType.getRawClass();
     }
 
     /**
@@ -265,7 +265,7 @@ public abstract class StdDeserializer<T>
             }
             // So far so good: but does it fit?
             // as per [JACKSON-804], allow range up to 255, inclusive
-            if (value < Byte.MIN_VALUE || value > 255) {
+            if (_byteOverflow(value)) {
                 return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
                         "overflow, value can not be represented as 8-bit value");
                 // fall-through for deferred fails
@@ -318,7 +318,7 @@ public abstract class StdDeserializer<T>
                         "not a valid Short value");
             }
             // So far so good: but does it fit?
-            if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
+            if (_shortOverflow(value)) {
                 return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
                         "overflow, value can not be represented as 16-bit value");
             }
@@ -351,7 +351,7 @@ public abstract class StdDeserializer<T>
     {
         int value = _parseIntPrimitive(p, ctxt);
         // So far so good: but does it fit?
-        if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
+        if (_shortOverflow(value)) {
             Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, String.valueOf(value),
                     "overflow, value can not be represented as 16-bit value");
             return (v == null) ? (short) 0 : v.shortValue();
@@ -375,7 +375,7 @@ public abstract class StdDeserializer<T>
                 int len = text.length();
                 if (len > 9) {
                     long l = Long.parseLong(text);
-                    if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
+                    if (_intOverflow(l)) {
                         Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
                             "Overflow: numeric value (%s) out of range of int (%d -%d)",
                             text, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -436,7 +436,7 @@ public abstract class StdDeserializer<T>
                 }
                 if (len > 9) {
                     long l = Long.parseLong(text);
-                    if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
+                    if (_intOverflow(l)) {
                         return (Integer) ctxt.handleWeirdStringValue(_valueClass, text,
                             "Overflow: numeric value ("+text+") out of range of Integer ("+Integer.MIN_VALUE+" - "+Integer.MAX_VALUE+")");
                         // fall-through
@@ -561,7 +561,7 @@ public abstract class StdDeserializer<T>
         // We accept couple of different types; obvious ones first:
         JsonToken t = p.getCurrentToken();
         
-        if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
+        if (t == JsonToken.VALUE_NUMBER_FLOAT || t == JsonToken.VALUE_NUMBER_INT) { // coercing should work too
             return p.getFloatValue();
         }
         // And finally, let's allow Strings to be converted too
@@ -846,6 +846,9 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) {
             return p.getText();
         }
+        // 07-Nov-2016, tatu: Caller should take care of unwrapping and there shouldn't
+        //    be need for extra pass here...
+        /*
         // [databind#381]
         if ((t == JsonToken.START_ARRAY) && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
@@ -855,6 +858,7 @@ public abstract class StdDeserializer<T>
             }            
             return parsed;            
         }
+        */
         String value = p.getValueAsString();
         if (value != null) {
             return value;
@@ -1115,5 +1119,34 @@ handledType().getName());
         ctxt.reportInputMismatch(handledType(),
                 "Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
                 p.getValueAsString(), type);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.9
+     */
+    protected final boolean _byteOverflow(int value) {
+        // 07-nov-2016, tatu: We support "unsigned byte" as well
+        //    as Java signed range since that's relatively common usage
+        return (value < Byte.MIN_VALUE || value > 255);
+    }
+    
+    /**
+     * @since 2.9
+     */
+    protected final boolean _shortOverflow(int value) {
+        return (value < Short.MIN_VALUE || value > Short.MAX_VALUE);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected final boolean _intOverflow(long value) {
+        return (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE);
     }
 }

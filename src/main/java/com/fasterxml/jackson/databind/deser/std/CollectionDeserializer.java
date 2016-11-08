@@ -127,10 +127,6 @@ public class CollectionDeserializer
             JsonDeserializer<?> vd, TypeDeserializer vtd,
             Boolean unwrapSingle)
     {
-        if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)
-                && (_unwrapSingle == unwrapSingle)) {
-            return this;
-        }
         return new CollectionDeserializer(_collectionType,
                 (JsonDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
@@ -215,7 +211,14 @@ public class CollectionDeserializer
         if (valueTypeDeser != null) {
             valueTypeDeser = valueTypeDeser.forProperty(property);
         }
-        return withResolved(delegateDeser, valueDeser, valueTypeDeser, unwrapSingle);
+        if ( (unwrapSingle != _unwrapSingle)
+                || (delegateDeser != _delegateDeserializer)
+                || (valueDeser != _valueDeserializer)
+                || (valueTypeDeser != _valueTypeDeserializer)
+        ) {
+            return withResolved(delegateDeser, valueDeser, valueTypeDeser, unwrapSingle);
+        }
+        return this;
     }
 
     /*
@@ -244,7 +247,7 @@ public class CollectionDeserializer
     /* JsonDeserializer API
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt)
@@ -254,19 +257,28 @@ public class CollectionDeserializer
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserialize(p, ctxt));
         }
-        /* Empty String may be ok; bit tricky to check, however, since
-         * there is also possibility of "auto-wrapping" of single-element arrays.
-         * Hence we only accept empty String here.
-         */
+        // Empty String may be ok; bit tricky to check, however, since
+        // there is also possibility of "auto-wrapping" of single-element arrays.
+        // Hence we only accept empty String here.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             String str = p.getText();
             if (str.length() == 0) {
                 return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
             }
         }
-        return deserialize(p, ctxt, (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt));
+        return deserialize(p, ctxt, createDefaultInstance(ctxt));
     }
 
+    /**
+     * @since 2.9
+     */
+    @SuppressWarnings("unchecked")
+    protected Collection<Object> createDefaultInstance(DeserializationContext ctxt)
+        throws IOException
+    {
+        return (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt);
+    }
+    
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)

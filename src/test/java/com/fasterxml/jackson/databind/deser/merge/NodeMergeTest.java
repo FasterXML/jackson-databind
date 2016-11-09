@@ -58,17 +58,44 @@ public class NodeMergeTest extends BaseMapTest
         assertEquals("xyz", w.props.path("stuff").asText());
     }
 
+    public void testObjectDeepUpdate() throws Exception
+    {
+        ObjectNode base = MAPPER.createObjectNode();
+        ObjectNode props = base.putObject("props");
+        props.put("base", 123);
+        props.put("value", 456);
+        ArrayNode a = props.putArray("array");
+        a.add(true);
+        base.putNull("misc");
+        assertSame(base,
+                MAPPER.readerForUpdating(base)
+                .readValue(aposToQuotes(
+                        "{'props':{'value':true, 'extra':25.5, 'array' : [ 3 ]}}")));
+        assertEquals(2, base.size());
+        ObjectNode resultProps = (ObjectNode) base.get("props");
+        assertEquals(4, resultProps.size());
+        
+        assertEquals(123, resultProps.path("base").asInt());
+        assertTrue(resultProps.path("value").asBoolean());
+        assertEquals(25.5, resultProps.path("extra").asDouble());
+        JsonNode n = resultProps.get("array");
+        assertEquals(ArrayNode.class, n.getClass());
+        assertEquals(2, n.size());
+        assertEquals(3, n.get(1).asInt());
+    }
+
     public void testArrayNodeUpdateValue() throws Exception
     {
         ArrayNode base = MAPPER.createArrayNode();
         base.add("first");
         assertSame(base,
                 MAPPER.readerForUpdating(base)
-                .readValue(aposToQuotes("['second','third']")));
-        assertEquals(3, base.size());
+                .readValue(aposToQuotes("['second',false,null]")));
+        assertEquals(4, base.size());
         assertEquals("first", base.path(0).asText());
         assertEquals("second", base.path(1).asText());
-        assertEquals("third", base.path(2).asText());
+        assertFalse(base.path(2).asBoolean());
+        assertTrue(base.path(3).isNull());
     }
 
     public void testArrayNodeMerge() throws Exception

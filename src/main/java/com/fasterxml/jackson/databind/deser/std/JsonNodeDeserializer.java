@@ -354,12 +354,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else {
-            JsonToken t = p.getCurrentToken();
-            if (t == JsonToken.END_OBJECT) {
-                return node;
-            }
-            // No, we don't have a JSON Object but some other type; deserialize normally
-            if (t != JsonToken.FIELD_NAME) {
+            if (!p.hasToken(JsonToken.FIELD_NAME)) {
                 return deserialize(p, ctxt);
             }
             key = p.getCurrentName();
@@ -516,14 +511,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             final JsonNodeFactory nodeFactory) throws IOException
     {
         switch (p.getCurrentTokenId()) {
-        case JsonTokenId.ID_START_OBJECT:
-            return deserializeObject(p, ctxt, nodeFactory);
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this?
             return nodeFactory.objectNode();
         case JsonTokenId.ID_FIELD_NAME:
             return deserializeObjectAtName(p, ctxt, nodeFactory);
-        case JsonTokenId.ID_START_ARRAY:
-            return deserializeArray(p, ctxt, nodeFactory);
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             return _fromEmbedded(p, ctxt, nodeFactory);
         case JsonTokenId.ID_STRING:
@@ -538,6 +529,14 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             return nodeFactory.booleanNode(false);
         case JsonTokenId.ID_NULL:
             return nodeFactory.nullNode();
+
+            /* Caller checks for these, should not get here ever
+        case JsonTokenId.ID_START_OBJECT:
+            return deserializeObject(p, ctxt, nodeFactory);
+        case JsonTokenId.ID_START_ARRAY:
+            return deserializeArray(p, ctxt, nodeFactory);
+            */
+
             
             // These states can not be mapped; input stream is
             // off by an event or two

@@ -100,9 +100,8 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException
     {
-        /* Should there be separate handling for base64 stuff?
-         * for now this should be enough:
-         */
+        // Should there be separate handling for base64 stuff?
+        // for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
@@ -125,12 +124,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
      */
     protected abstract T _concat(T oldValue, T newValue);
 
-    /**
+    /*
      * Convenience method that constructs a concatenation of two arrays,
      * with the type they have.
      *
      * @since 2.9
-     */
     @SuppressWarnings("unchecked")
     public static <T> T concatArrays(T array1, T array2)
     {
@@ -146,6 +144,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         System.arraycopy(array2, 0, result, len1, len2);
         return (T) result;
     }
+    */
     
     @SuppressWarnings("unchecked")
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException

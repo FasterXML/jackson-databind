@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -186,36 +187,35 @@ public class CreatorProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        set(instance, deserialize(p, ctxt));
+        Object value = deserialize(p, ctxt);
+        if (_fallbackSetter == null) {
+            _reportMissingSetter(p, ctxt);
+        }
+        _fallbackSetter.set(instance, value);
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
             DeserializationContext ctxt, Object instance) throws IOException
     {
-        return setAndReturn(instance, deserialize(p, ctxt));
+        Object value = deserialize(p, ctxt);
+        if (_fallbackSetter == null) {
+            _reportMissingSetter(p, ctxt);
+        }
+        return _fallbackSetter.setAndReturn(instance, value);
     }
     
     @Override
     public void set(Object instance, Object value) throws IOException
     {
-        /* Hmmmh. Should we return quietly (NOP), or error?
-         * Perhaps better to throw an exception, since it's generally an error.
-         */
-        if (_fallbackSetter == null) {
-            throw new IllegalStateException("No fallback setter/field defined: can not use creator property for "
-                    +getClass().getName());
-        }
+        _verifySetter();
         _fallbackSetter.set(instance, value);
     }
 
     @Override
     public Object setAndReturn(Object instance, Object value) throws IOException
     {
-        if (_fallbackSetter == null) {
-            throw new IllegalStateException("No fallback setter/field defined: can not use creator property for "
-                    +getClass().getName());
-        }
+        _verifySetter();
         return _fallbackSetter.setAndReturn(instance, value);
     }
     
@@ -226,4 +226,24 @@ public class CreatorProperty
 
     @Override
     public String toString() { return "[creator property, name '"+getName()+"'; inject id '"+_injectableValueId+"']"; }
+
+    // since 2.9
+    private final void _verifySetter() throws IOException {
+        if (_fallbackSetter == null) {
+            _reportMissingSetter(null, null);
+        }
+    }
+
+    // since 2.9
+    private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        final String msg = "No fallback setter/field defined for creator property '"+getName()+"'";
+        // Hmmmh. Should we return quietly (NOP), or error?
+        // Perhaps better to throw an exception, since it's generally an error.
+        if (ctxt != null ) {
+            ctxt.reportBadDefinition(getType(), msg);
+        } else {
+            throw InvalidDefinitionException.from(p, msg, getType());
+        }
+    }
 }

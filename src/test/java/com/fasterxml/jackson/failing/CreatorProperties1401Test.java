@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-// for [databind#1401]: should allow "Any Setter" to back up otherwise problematic
-// Creator properties?
+// for [databind#1401]: should allow "Any Setter" to back up otherwise
+// problematic Creator properties?
 public class CreatorProperties1401Test extends BaseMapTest
 {
     // for [databind#1401]

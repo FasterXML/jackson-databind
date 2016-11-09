@@ -111,16 +111,16 @@ public class TestTreeMapperSerializer extends NodeTestBase
             }
             
             String doc = sw.toString();
-            JsonParser jp = new JsonFactory().createParser(new StringReader(doc));
+            JsonParser p = new JsonFactory().createParser(new StringReader(doc));
             
-            assertEquals(JsonToken.START_ARRAY, jp.nextToken());
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
             for (int i = -20; i <= 20; ++i) {
-                assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-                assertEquals(i, jp.getIntValue());
-                assertEquals(""+i, jp.getText());
+                assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(i, p.getIntValue());
+                assertEquals(""+i, p.getText());
             }
-            assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-            jp.close();
+            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
         }
     }
 
@@ -135,11 +135,11 @@ public class TestTreeMapperSerializer extends NodeTestBase
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, BinaryNode.valueOf(data));
 
-        JsonParser jp = new JsonFactory().createParser(sw.toString());
+        JsonParser p = new JsonFactory().createParser(sw.toString());
         // note: can't determine it's binary from json alone:
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertArrayEquals(data, jp.getBinaryValue());
-        jp.close();
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertArrayEquals(data, p.getBinaryValue());
+        p.close();
     }
 
     /*
@@ -151,63 +151,63 @@ public class TestTreeMapperSerializer extends NodeTestBase
     private void verifyFromArray(String input)
         throws Exception
     {
-        JsonParser jp = new JsonFactory().createParser(new StringReader(input));
+        JsonParser p = new JsonFactory().createParser(new StringReader(input));
         
-        assertEquals(JsonToken.START_ARRAY, jp.nextToken());
+        assertEquals(JsonToken.START_ARRAY, p.nextToken());
         
-        assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals(TEXT1, getAndVerifyText(jp));
+        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(TEXT1, getAndVerifyText(p));
         
-        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(3, jp.getIntValue());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(3, p.getIntValue());
         
-        assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals(FIELD1, getAndVerifyText(jp));
+        assertEquals(JsonToken.START_OBJECT, p.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD1, getAndVerifyText(p));
         
-        assertEquals(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals(FIELD2, getAndVerifyText(jp));
+        assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD2, getAndVerifyText(p));
         
-        assertEquals(JsonToken.START_ARRAY, jp.nextToken());
-        assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
         
-        assertEquals(JsonToken.VALUE_FALSE, jp.nextToken());
+        assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
         
-        assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
     }
 
     private void verifyFromMap(String input)
         throws Exception
     {
-        JsonParser jp = new JsonFactory().createParser(new StringReader(input));
-        assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals(FIELD4, getAndVerifyText(jp));
-        assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals(TEXT2, getAndVerifyText(jp));
+        JsonParser p = new JsonFactory().createParser(input);
+        assertEquals(JsonToken.START_OBJECT, p.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD4, getAndVerifyText(p));
+        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(TEXT2, getAndVerifyText(p));
         
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals(FIELD3, getAndVerifyText(jp));
-        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(-1, jp.getIntValue());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD3, getAndVerifyText(p));
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(-1, p.getIntValue());
         
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals(FIELD2, getAndVerifyText(jp));
-        assertEquals(JsonToken.START_ARRAY, jp.nextToken());
-        assertEquals(JsonToken.END_ARRAY, jp.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD2, getAndVerifyText(p));
+        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
         
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals(FIELD1, getAndVerifyText(jp));
-        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-        assertEquals(DOUBLE_VALUE, jp.getDoubleValue(), 0);
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD1, getAndVerifyText(p));
+        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(DOUBLE_VALUE, p.getDoubleValue(), 0);
         
-        assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
         
-        assertNull(jp.nextToken());
-        jp.close();
+        assertNull(p.nextToken());
+        p.close();
     }
 }

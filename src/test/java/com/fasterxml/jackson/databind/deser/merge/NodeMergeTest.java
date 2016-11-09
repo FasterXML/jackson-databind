@@ -41,10 +41,12 @@ public class NodeMergeTest extends BaseMapTest
         base.put("first", "foo");
         assertSame(base,
                 MAPPER.readerForUpdating(base)
-                .readValue(aposToQuotes("{'second':'bar'}")));
-        assertEquals(2, base.size());
+                .readValue(aposToQuotes("{'second':'bar', 'third':5, 'fourth':true}")));
+        assertEquals(4, base.size());
         assertEquals("bar", base.path("second").asText());
         assertEquals("foo", base.path("first").asText());
+        assertEquals(5, base.path("third").asInt());
+        assertTrue(base.path("fourth").asBoolean());
     }
 
     public void testObjectNodeMerge() throws Exception
@@ -71,10 +73,18 @@ public class NodeMergeTest extends BaseMapTest
 
     public void testArrayNodeMerge() throws Exception
     {
-        ArrayNodeWrapper w = MAPPER.readValue(aposToQuotes("{'list':[456]}"),
+        ArrayNodeWrapper w = MAPPER.readValue(aposToQuotes("{'list':[456,true,{},  [], 'foo']}"),
                 ArrayNodeWrapper.class);
-        assertEquals(2, w.list.size());
-        assertEquals(123, w.list.path(0).asInt());
-        assertEquals(456, w.list.path(1).asInt());
+        assertEquals(6, w.list.size());
+        assertEquals(123, w.list.get(0).asInt());
+        assertEquals(456, w.list.get(1).asInt());
+        assertTrue(w.list.get(2).asBoolean());
+        JsonNode n = w.list.get(3);
+        assertTrue(n.isObject());
+        assertEquals(0, n.size());
+        n = w.list.get(4);
+        assertTrue(n.isArray());
+        assertEquals(0, n.size());
+        assertEquals("foo", w.list.get(5).asText());
     }
 }

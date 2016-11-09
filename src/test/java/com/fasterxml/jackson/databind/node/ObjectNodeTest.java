@@ -9,11 +9,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 
 /**
  * Additional tests for {@link ObjectNode} container class.
  */
-public class TestObjectNode
+public class ObjectNodeTest
     extends BaseMapTest
 {
     @JsonDeserialize(as = DataImpl.class)
@@ -437,5 +438,16 @@ public class TestObjectNode
         MyValue de2 = MAPPER.readValue(json, MyValue.class);  // but this throws exception
 //        System.out.println("Deserialized to MyValue: "+de2);
         assertNotNull(de2);
+    }
+
+    public void testSimpleMismatch() throws Exception
+    {
+        ObjectMapper mapper = objectMapper();
+        try {
+            mapper.readValue("[ 1, 2, 3 ]", ObjectNode.class);
+            fail("Should not pass");
+        } catch (InputMismatchException e) {
+            verifyException(e, "out of START_ARRAY token");
+        }
     }
 }

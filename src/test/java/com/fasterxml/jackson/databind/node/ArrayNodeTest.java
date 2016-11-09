@@ -3,11 +3,11 @@ package com.fasterxml.jackson.databind.node;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
-
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -331,5 +331,16 @@ public class ArrayNodeTest
         JsonNode rm2 = array2.remove(0);
         assertEquals(BooleanNode.FALSE, rm2);
         assertEquals(0, array2.size());
+    }
+
+    public void testSimpleMismatch() throws Exception
+    {
+        ObjectMapper mapper = objectMapper();
+        try {
+            mapper.readValue(" 123 ", ArrayNode.class);
+            fail("Should not pass");
+        } catch (InputMismatchException e) {
+            verifyException(e, "out of VALUE_NUMBER_INT token");
+        }
     }
 }

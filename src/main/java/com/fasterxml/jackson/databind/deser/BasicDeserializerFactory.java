@@ -1400,12 +1400,12 @@ public abstract class BasicDeserializerFactory
         // the only non-standard thing is this:
         if (deser == null) {
             if (type.isEnumType()) {
-                return _createEnumKeyDeserializer(ctxt, type);
+                deser = _createEnumKeyDeserializer(ctxt, type);
+            } else {
+                deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
             }
-            deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
         }
-        
-        // and then new with 2.2: ability to post-process it too (Issue#120)
+        // and then post-processing
         if (deser != null) {
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
@@ -1464,7 +1464,7 @@ public abstract class BasicDeserializerFactory
                         +enumClass.getName()+")");
             }
         }
-        // [JACKSON-749] Also, need to consider @JsonValue, if one found
+        // Also, need to consider @JsonValue, if one found
         return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes);
     }
 

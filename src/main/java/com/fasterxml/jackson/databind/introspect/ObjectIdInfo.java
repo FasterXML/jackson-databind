@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Container object that encapsulates information usually
@@ -61,8 +62,8 @@ public class ObjectIdInfo
     @Override
     public String toString() {
         return "ObjectIdInfo: propName="+_propertyName
-                +", scope="+(_scope == null ? "null" : _scope.getName())
-                +", generatorType="+(_generator == null ? "null" : _generator.getName())
+                +", scope="+ClassUtil.nameOf(_scope)
+                +", generatorType="+ClassUtil.nameOf(_generator)
                 +", alwaysAsId="+_alwaysAsId;
     }
 }

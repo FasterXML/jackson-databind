@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link ValueInstantiator} implementation, which supports
@@ -79,7 +80,7 @@ public class StdValueInstantiator
      */
     @Deprecated
     public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
-        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.getName();
+        _valueTypeDesc = ClassUtil.nameOf(valueType);
         _valueClass = (valueType == null) ? Object.class : valueType;
     }
 

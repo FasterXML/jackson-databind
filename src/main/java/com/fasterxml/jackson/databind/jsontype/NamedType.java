@@ -43,6 +43,7 @@ public final class NamedType implements java.io.Serializable
 
     @Override
     public String toString() {
-    	return "[NamedType, class "+_class.getName()+", name: "+(_name == null ? "null" :("'"+_name+"'"))+"]";
+    	return "[NamedType, class "+_class.getName()+", name: "
+    	        +(_name == null ? "null" :("'"+_name+"'"))+"]";
     }
 }

@@ -212,9 +212,6 @@ public abstract class SerializerProvider
     protected SerializerProvider(SerializerProvider src,
             SerializationConfig config, SerializerFactory f)
     {
-        if (config == null) {
-            throw new NullPointerException();
-        }
         _serializerFactory = f;
         _config = config;
 
@@ -1154,10 +1151,12 @@ public abstract class SerializerProvider
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs) throws JsonMappingException {
-        msg = _format(msg, msgArgs);
-        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        String beanDesc = "N/A";
+        if (bean != null) {
+            beanDesc = _desc(bean.getType().getGenericSignature());
+        }
         msg = String.format("Invalid type definition for type %s: %s",
-                beanDesc, msg);
+                beanDesc, _format(msg, msgArgs));
         throw InvalidDefinitionException.from(getGenerator(), msg, bean, null);
     }
 
@@ -1171,8 +1170,14 @@ public abstract class SerializerProvider
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
             String message, Object... msgArgs) throws JsonMappingException {
         message = _format(message, msgArgs);
-        String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
-        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        String propName = "N/A";
+        if (prop != null) {
+            propName = _quotedString(prop.getName());
+        }
+        String beanDesc = "N/A";
+        if (bean != null) {
+            beanDesc = _desc(bean.getType().getGenericSignature());
+        }
         message = String.format("Invalid definition for property %s (of type %s): %s",
                 propName, beanDesc, message);
         throw InvalidDefinitionException.from(getGenerator(), message, bean, prop);
@@ -1232,8 +1237,7 @@ public abstract class SerializerProvider
      */
     @Deprecated // since 2.9
     public JsonMappingException mappingException(String message, Object... msgArgs) {
-        message = _format(message, msgArgs);
-        return JsonMappingException.from(getGenerator(), message);
+        return JsonMappingException.from(getGenerator(), _format(message, msgArgs));
     }
 
     /**
@@ -1247,8 +1251,7 @@ public abstract class SerializerProvider
      */
     @Deprecated // since 2.9
     protected JsonMappingException mappingException(Throwable t, String message, Object... msgArgs) {
-        message = _format(message, msgArgs);
-        return JsonMappingException.from(getGenerator(), message, t);
+        return JsonMappingException.from(getGenerator(), _format(message, msgArgs), t);
     }
 
     /*
@@ -1269,7 +1272,7 @@ public abstract class SerializerProvider
         }
         reportBadDefinition(rootType, String.format(
                 "Incompatible types: declared root type (%s) vs %s",
-                rootType, value.getClass().getName()));
+                rootType, ClassUtil.classNameOf(value)));
     }
 
     /**

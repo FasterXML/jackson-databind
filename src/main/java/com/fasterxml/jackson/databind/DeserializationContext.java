@@ -157,8 +157,10 @@ public abstract class DeserializationContext
             throw new IllegalArgumentException("Can not pass null DeserializerFactory");
         }
         _factory = df;
-        _cache = (cache == null) ? new DeserializerCache() : cache;
-        
+        if (cache == null) {
+            cache = new DeserializerCache();
+        }
+        _cache = cache;
         _featureFlags = 0;
         _config = null;
         _injectableValues = null;
@@ -776,10 +778,9 @@ public abstract class DeserializationContext
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
-            String propName = (prop == null) ? "NULL" : ("'"+prop.getName()+"'");
             return reportBadDefinition(type, String.format(
                     "Could not find JsonDeserializer for type %s (via property %s)",
-                    type, propName));
+                    type, ClassUtil.nameOf(prop)));
         }
         return (T) deser.deserialize(p, this);
     }
@@ -1035,12 +1036,12 @@ public abstract class DeserializationContext
             Object instance = h.value().handleInstantiationProblem(this, instClass, argument, t);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((instance == null) || instClass.isInstance(instance)) {
+                if (instClass.isInstance(instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
 "DeserializationProblemHandler.handleInstantiationProblem() for type %s returned value of type %s",
-                        instClass, instance.getClass()));
+                        instClass, ClassUtil.classNameOf(instance)));
             }
             h = h.next();
         }
@@ -1068,7 +1069,7 @@ public abstract class DeserializationContext
     {
         return handleUnexpectedToken(instClass, p.getCurrentToken(), p, null);
     }
-    
+
     /**
      * Method that deserializers should call if the first token of the value to
      * deserialize is of unexpected type (that is, type of token that deserializer
@@ -1362,7 +1363,7 @@ public abstract class DeserializationContext
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
             String msg, Object... msgArgs) throws JsonMappingException {
         msg = _format(msg, msgArgs);
-        String propName = (prop == null)  ? "N/A" : _quotedString(prop.getName());
+        String propName = ClassUtil.nameOf(prop);
         String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
         msg = String.format("Invalid definition for property %s (of type %s): %s",
                 propName, beanDesc, msg);
@@ -1556,7 +1557,8 @@ public abstract class DeserializationContext
      */
     @Deprecated
     public JsonMappingException unknownTypeException(JavaType type, String id,
-            String extraDesc) {
+            String extraDesc)
+    {
         String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
                 id, type);
         msg = _colonConcat(msg, extraDesc);
@@ -1646,10 +1648,9 @@ public abstract class DeserializationContext
      */
     @Deprecated
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
-        String tokenDesc = (token == null) ? "<end of input>" : String.format("%s token", token);
         return JsonMappingException.from(_parser,
-                String.format("Can not deserialize instance of %s out of %s",
-                        _calcName(targetClass), tokenDesc));
+                String.format("Can not deserialize instance of %s out of %s token",
+                        _calcName(targetClass), token));
     }
 
     /*

@@ -1180,7 +1180,6 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
-        
         return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
@@ -1196,10 +1195,9 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-
         return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
-    
+
     /**
      * Method that binds content read from given JSON string,
      * using configuration of this reader.

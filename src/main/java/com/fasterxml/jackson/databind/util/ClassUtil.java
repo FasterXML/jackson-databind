@@ -690,6 +690,32 @@ public final class ClassUtil
         return inst.getClass().getName();
     }
 
+    /**
+     * Returns either `cls.getName()` (if `cls` not null),
+     * or "[null]" if `cls` is null.
+     *
+     * @since 2.9
+     */
+    public static String nameOf(Class<?> cls) {
+        if (cls == null) {
+            return "[null]";
+        }
+        return cls.getName();
+    }
+    
+    /**
+     * Returns either (double-)quoted `named.getName()` (if `named` not null),
+     * or "[null]" if `named` is null.
+     *
+     * @since 2.9
+     */
+    public static String nameOf(Named named) {
+        if (named == null) {
+            return "[null]";
+        }
+        return String.format("'%s'", named.getName());
+    }
+
     /*
     /**********************************************************
     /* Primitive type support

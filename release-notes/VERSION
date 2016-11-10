@@ -45,6 +45,8 @@ Project: jackson-databind
 #1439: NPE when using with filter id, serializing `java.util.Map` types
 #1441: Failure with custom Enum key deserializer, polymorphic types
  (reported by Nathanial O)
+#1445: Map key deserializerModifiers ignored
+ (reported by alfonsobonso@github)
 - Improvements to #1411 fix to ensure consistent `null` key handling
 
 2.8.4 (14-Oct-2016)

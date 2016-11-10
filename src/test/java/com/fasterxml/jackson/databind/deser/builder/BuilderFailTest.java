@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.deser.builder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class BuilderFailTest extends BaseMapTest
 {
@@ -68,10 +70,20 @@ public class BuilderFailTest extends BaseMapTest
         try {
             MAPPER.readValue(json, ValueClassWrongBuildType.class);
             fail("Missing expected JsonProcessingException exception");
-        } catch(JsonProcessingException e) {
-            assertTrue(
-                    "Exception cause must be IllegalArgumentException",
-                    e.getCause() instanceof IllegalArgumentException);
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Build method");
+            verifyException(e, "has wrong return type");
+        }
+    }
+
+    public void testExtraFields() throws Exception
+    {
+        final String json = aposToQuotes("{'x':1,'y':2,'z':3}");
+        try {
+            MAPPER.readValue(json, ValueClassXY.class);
+            fail("should not pass");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized field \"z\"");
         }
     }
 }

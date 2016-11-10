@@ -26,6 +26,11 @@ public class BeanDeserializerBuilder
 
     final protected DeserializationConfig _config;
 
+    /**
+     * @since 2.9
+     */
+    final protected DeserializationContext _context;
+
     /*
     /**********************************************************
     /* General information about POJO
@@ -107,10 +112,11 @@ public class BeanDeserializerBuilder
      */
     
     public BeanDeserializerBuilder(BeanDescription beanDesc,
-            DeserializationConfig config)
+            DeserializationContext ctxt)
     { 
         _beanDesc = beanDesc;
-        _config = config;
+        _context = ctxt;
+        _config = ctxt.getConfig();
     }
 
     /**
@@ -120,6 +126,7 @@ public class BeanDeserializerBuilder
     protected BeanDeserializerBuilder(BeanDeserializerBuilder src)
     {
         _beanDesc = src._beanDesc;
+        _context = src._context;
         _config = src._config;
 
         // let's make copy of properties
@@ -146,7 +153,7 @@ public class BeanDeserializerBuilder
     private static <T> List<T> _copy(List<T> src) {
         return (src == null) ? null : new ArrayList<T>(src);
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle: state modification (adders, setters)
@@ -380,15 +387,15 @@ public class BeanDeserializerBuilder
      * Method for constructing a specialized deserializer that uses
      * additional external Builder object during data binding.
      */
-    public JsonDeserializer<?> buildBuilderBased(JavaType valueType,
-    		String expBuildMethodName)
+    public JsonDeserializer<?> buildBuilderBased(JavaType valueType, String expBuildMethodName)
+        throws JsonMappingException
     {
         // First: validation; must have build method that returns compatible type
         if (_buildMethod == null) {
             // as per [databind#777], allow empty name
             if (!expBuildMethodName.isEmpty()) {
-                throw new IllegalArgumentException(String.format(
-                        "Builder class %s does not have build method (name: '%s')",
+                _context.reportBadDefinition(_beanDesc.getType(),
+                        String.format("Builder class %s does not have build method (name: '%s')",
                         _beanDesc.getBeanClass().getName(),
                         expBuildMethodName));
             }
@@ -399,9 +406,11 @@ public class BeanDeserializerBuilder
             if ((rawBuildType != rawValueType)
                     && !rawBuildType.isAssignableFrom(rawValueType)
                     && !rawValueType.isAssignableFrom(rawBuildType)) {
-                throw new IllegalArgumentException("Build method '"+_buildMethod.getFullName()
-                        +" has bad return type ("+rawBuildType.getName()
-                        +"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
+                _context.reportBadDefinition(_beanDesc.getType(),
+                        String.format("Build method '%s' has wrong return type (%s), not compatible with POJO type (%s)",
+                        _buildMethod.getFullName(),
+                        rawBuildType.getName(),
+                        valueType.getRawClass().getName()));
             }
         }
         // And if so, we can try building the deserializer
@@ -423,10 +432,8 @@ public class BeanDeserializerBuilder
         }
 
         if (_objectIdReader != null) {
-            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
-             *   but no easy access. But hard to see id property being optional,
-             *   so let's consider required at this point.
-             */
+            // May or may not have annotations for id property; but no easy access.
+            // But hard to see id property being optional, so let's consider required at this point.
             ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader,
                     PropertyMetadata.STD_REQUIRED);
             propertyMap = propertyMap.withProperty(prop);

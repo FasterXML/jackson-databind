@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
@@ -191,8 +192,7 @@ public class TestPOJOAsArray extends BaseMapTest
     /* Compatibility with "single-elem as array" feature
     /*****************************************************
      */
-    
-    // for [JACKSON-805]
+
     public void testSerializeAsArrayWithSingleProperty() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
@@ -261,5 +261,33 @@ public class TestPOJOAsArray extends BaseMapTest
         NonAnnotatedXY result = mapper.readValue(json, NonAnnotatedXY.class);
         assertNotNull(result);
         assertEquals(3, result.y);
+    }
+
+    /*
+    /*****************************************************
+    /* Failure tests
+    /*****************************************************
+     */
+
+    public void testUnknownExtraProp() throws Exception
+    {
+        String json = "{\"value\":[true,\"Foobar\",42,13, false]}";
+        try {
+            MAPPER.readValue(json, PojoAsArrayWrapper.class);
+            fail("should not pass with extra element");
+        } catch (InputMismatchException e) {
+            verifyException(e, "Unexpected JSON values");
+        }
+
+        // but actually fine if skip-unknown set
+        PojoAsArrayWrapper v = MAPPER.readerFor(PojoAsArrayWrapper.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(json);
+        assertNotNull(v);
+        // note: +1 for both so
+        assertEquals(v.value.x, 42);
+        assertEquals(v.value.y, 13);
+        assertTrue(v.value.complete);
+        assertEquals("Foobar", v.value.name);
     }
 }

@@ -16,32 +16,32 @@ public class SingleValueAsArray1421Test
 
     static class A
     {
-        List<B> bs = Collections.emptyList();
+        List<Messages> bs = Collections.emptyList();
 
         @JsonCreator
-        A(final List<B> bs)
+        A(final List<Messages> bs)
         {
             this.bs = bs;
         }
     }
 
-    static class B
+    static class Messages
     {
-        List<C> cs = Collections.emptyList();
+        List<MessageWrapper> cs = Collections.emptyList();
 
         @JsonCreator
-        B(final List<C> cs)
+        Messages(final List<MessageWrapper> cs)
         {
             this.cs = cs;
         }
     }
 
-    public static class C
+    public static class MessageWrapper
     {
         String message;
 
         @JsonCreator
-        C(@JsonProperty("message") String message)
+        MessageWrapper(@JsonProperty("message") String message)
         {
             this.message = message;
         }

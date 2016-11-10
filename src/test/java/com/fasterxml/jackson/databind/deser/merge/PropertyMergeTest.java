@@ -1,11 +1,14 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
-import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
@@ -50,19 +53,17 @@ public class PropertyMergeTest extends BaseMapTest
         }
     }
 
+    @JsonPropertyOrder(alphabetic=true)
+    @JsonFormat(shape=Shape.ARRAY)
+    static class ABAsArray {
+        public int a;
+        public int b;
+    }
+
     // Custom type that would be deserializable by default
     static class StringReference extends AtomicReference<String> {
         public StringReference(String str) {
             set(str);
-        }
-    }
-
-    static class MergedMap
-    {
-        @JsonSetter(merge=OptBoolean.TRUE)
-        public Map<String,String> values = new LinkedHashMap<>();
-        {
-            values.put("a", "x");
         }
     }
 
@@ -157,19 +158,46 @@ public class PropertyMergeTest extends BaseMapTest
 
     /*
     /********************************************************
-    /* Test methods, Map merging
+    /* Test methods, as array
     /********************************************************
      */
 
-    public void testMapMerging() throws Exception
+    public void testBeanAsArrayMerging() throws Exception
     {
-        MergedMap v = MAPPER.readValue(aposToQuotes("{'values':{'c':'y'}}"), MergedMap.class);
-        assertEquals(2, v.values.size());
-        assertEquals("y", v.values.get("c"));
-        assertEquals("x", v.values.get("a"));
+        ABAsArray input = new ABAsArray();
+        input.a = 4;
+        input.b = 6;
+
+        assertSame(input, MAPPER.readerForUpdating(input)
+                .readValue("[1, 3]"));
+        assertEquals(1, input.a);
+        assertEquals(3, input.b);
+
+        // then with one too few
+        assertSame(input, MAPPER.readerForUpdating(input)
+                .readValue("[9]"));
+        assertEquals(9, input.a);
+        assertEquals(3, input.b);
+
+        // and finally with extra, failing
+        try {
+            MAPPER.readerForUpdating(input)
+                .readValue("[9, 8, 14]");
+            fail("Should not pass");
+        } catch (InputMismatchException e) {
+            verifyException(e, "expected at most 2 properties");
+        }
+
+        try {
+            MAPPER.readerForUpdating(input)
+                .readValue("\"blob\"");
+            fail("Should not pass");
+        } catch (InputMismatchException e) {
+            verifyException(e, "Can not deserialize");
+            verifyException(e, "from non-Array representation");
+        }
     }
 
-    
     /*
     /********************************************************
     /* Test methods, reference types

@@ -154,8 +154,9 @@ public class BeanAsArrayBuilderDeserializer
             }
             ++i;
         }
-        // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown) {
+        // 09-Nov-2016, tatu: Should call `handleUnknownProperty()` in Context, but it'd give
+        //   non-optimal exception message so...
+        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportInputMismatch(handledType(),
                     "Unexpected JSON values; expected at most %d properties (in JSON Array)",
                     propCount);
@@ -233,7 +234,7 @@ public class BeanAsArrayBuilderDeserializer
             p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown) {
+        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
                     "Unexpected JSON value(s); expected at most %d properties (in JSON Array)",
                     propCount);

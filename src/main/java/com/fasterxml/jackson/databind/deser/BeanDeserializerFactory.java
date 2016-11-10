@@ -419,7 +419,7 @@ public class BeanDeserializerFactory
      */
     protected BeanDeserializerBuilder constructBeanDeserializerBuilder(DeserializationContext ctxt,
             BeanDescription beanDesc) {
-        return new BeanDeserializerBuilder(beanDesc, ctxt.getConfig());
+        return new BeanDeserializerBuilder(beanDesc, ctxt);
     }
     
     /**

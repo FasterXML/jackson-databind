@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
@@ -172,5 +175,31 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(0, value.c);
+    }
+
+    /*
+    /*****************************************************
+    /* Failure tests
+    /*****************************************************
+     */
+
+    public void testUnknownExtraProp() throws Exception
+    {
+        String json = "[1, 2, 3, 4]";
+        try {
+            MAPPER.readValue(json, ValueClassXY.class);
+            fail("should not pass with extra element");
+        } catch (InputMismatchException e) {
+            verifyException(e, "Unexpected JSON values");
+        }
+
+        // but actually fine if skip-unknown set
+        ValueClassXY v = MAPPER.readerFor(ValueClassXY.class)
+                .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .readValue(json);
+        assertNotNull(v);
+        // note: +1 for both so
+        assertEquals(v._x, 2);
+        assertEquals(v._y, 3);
     }
 }

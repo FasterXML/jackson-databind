@@ -301,16 +301,13 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
     {
         String key = getPropertyName(newProp);
         int ix = _findIndexInHash(key);
-        
-        if (ix >= 0) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[ix];
-            _hashArea[ix] = newProp;
-            // also, replace in in-order
-            _propsInOrder[_findFromOrdered(prop)] = newProp;
-            return;
+        if (ix < 0) {
+            throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
         }
-        
-        throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
+        SettableBeanProperty prop = (SettableBeanProperty) _hashArea[ix];
+        _hashArea[ix] = newProp;
+        // also, replace in in-order
+        _propsInOrder[_findFromOrdered(prop)] = newProp;
     }
 
     private List<SettableBeanProperty> properties() {

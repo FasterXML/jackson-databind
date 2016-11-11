@@ -74,7 +74,7 @@ public class SingleValueAsArray1421Test extends BaseMapTest
         MAPPER.readValue(JSON, Bean1421A.class);
     }
 
-    public void test2() throws Exception {
+    public void testWithSingleString() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         Bean1421B<List<String>> a = objectMapper.readValue(quote("test2"),

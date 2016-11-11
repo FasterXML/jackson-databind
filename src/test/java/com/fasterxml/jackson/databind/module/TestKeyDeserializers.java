@@ -25,7 +25,6 @@ public class TestKeyDeserializers extends BaseMapTest
         
         public Foo(String v) { value = v; }
     }
-    
 
     /*
     /**********************************************************

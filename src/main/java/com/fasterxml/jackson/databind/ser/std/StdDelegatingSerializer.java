@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
 import java.io.IOException;
@@ -83,9 +84,7 @@ public class StdDelegatingSerializer
     protected StdDelegatingSerializer withDelegate(Converter<Object,?> converter,
             JavaType delegateType, JsonSerializer<?> delegateSerializer)
     {
-        if (getClass() != StdDelegatingSerializer.class) {
-            throw new IllegalStateException("Sub-class "+getClass().getName()+" must override 'withDelegate'");
-        }
+        ClassUtil.verifyMustOverride(StdDelegatingSerializer.class, this, "withDelegate");
         return new StdDelegatingSerializer(converter, delegateType, delegateSerializer);
     }
     

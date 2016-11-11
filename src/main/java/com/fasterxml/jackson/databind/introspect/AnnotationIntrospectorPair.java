@@ -733,13 +733,10 @@ public class AnnotationIntrospectorPair
     }
 
     protected boolean _isExplicitClassOrOb(Object maybeCls, Class<?> implicit) {
-        if (maybeCls == null) {
-            return false;
+        if (maybeCls instanceof Class<?>) {
+            Class<?> cls = (Class<?>) maybeCls;
+            return (cls != implicit) && !ClassUtil.isBogusClass(cls);
         }
-        if (!(maybeCls instanceof Class<?>)) {
-            return true;
-        }
-        Class<?> cls = (Class<?>) maybeCls;
-        return (cls != implicit && !ClassUtil.isBogusClass(cls));
+        return false;
     }
 }

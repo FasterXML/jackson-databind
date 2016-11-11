@@ -331,16 +331,14 @@ public abstract class DefaultDeserializationContext
 
         @Override
         public DefaultDeserializationContext copy() {
-            if (getClass() != Impl.class) {
-                return super.copy();
-            }
+            ClassUtil.verifyMustOverride(Impl.class, this, "copy");
            return new Impl(this);
         }
         
         @Override
         public DefaultDeserializationContext createInstance(DeserializationConfig config,
-                JsonParser jp, InjectableValues values) {
-            return new Impl(this, config, jp, values);
+                JsonParser p, InjectableValues values) {
+            return new Impl(this, config, p, values);
         }
 
         @Override

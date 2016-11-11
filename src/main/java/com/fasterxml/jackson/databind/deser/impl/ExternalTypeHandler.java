@@ -158,7 +158,7 @@ public class ExternalTypeHandler
                 // [databind#118]: Need to mind natural types, for which no type id
                 // will be included.
                 JsonToken t = tokens.firstToken();
-                if (t != null && t.isScalarValue()) {
+                if (t.isScalarValue()) { // can't be null as we never store empty buffers
                     JsonParser buffered = tokens.asParser(p);
                     buffered.nextToken();
                     SettableBeanProperty extProp = _properties[i].getProperty();

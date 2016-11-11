@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.BeanUtil;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard serializer implementation for serializing {link java.util.Map} types.
@@ -247,7 +248,7 @@ public class MapSerializer
         if (_valueTypeSerializer == vts) {
             return this;
         }
-        _ensureOverride();
+        _ensureOverride("_withValueTypeSerializer");
         return new MapSerializer(this, vts, _suppressableValue, _suppressNulls);
     }
 
@@ -258,7 +259,7 @@ public class MapSerializer
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
             Set<String> ignored, boolean sortKeys)
     {
-        _ensureOverride();
+        _ensureOverride("withResolved");
         MapSerializer ser = new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
         if (sortKeys != ser._sortKeys) {
             ser = new MapSerializer(ser, _filterId, sortKeys);
@@ -271,7 +272,7 @@ public class MapSerializer
         if (_filterId == filterId) {
             return this;
         }
-        _ensureOverride();
+        _ensureOverride("withFilterId");
         return new MapSerializer(this, filterId, _sortKeys);
     }
 
@@ -285,7 +286,7 @@ public class MapSerializer
         if ((suppressableValue == _suppressableValue) && (suppressNulls == _suppressNulls)) {
             return this;
         }
-        _ensureOverride();
+        _ensureOverride("withContentInclusion");
         return new MapSerializer(this, _valueTypeSerializer, suppressableValue, suppressNulls);
     }
 
@@ -325,12 +326,18 @@ public class MapSerializer
     /**
      * @since 2.5
      */
+    @Deprecated // since 2.9
     protected void _ensureOverride() {
-        if (getClass() != MapSerializer.class) {
-            throw new IllegalStateException("Missing override in class "+getClass().getName());
-        }
+        _ensureOverride("N/A");
     }
 
+    /**
+     * @since 2.9
+     */
+    protected void _ensureOverride(String method) {
+        ClassUtil.verifyMustOverride(MapSerializer.class, this, method);
+    }
+    
     /*
     /**********************************************************
     /* Deprecated creators
@@ -356,7 +363,7 @@ public class MapSerializer
         if (suppressableValue == _suppressableValue) {
             return this;
         }
-        _ensureOverride();
+        _ensureOverride("withContentInclusion");
         return new MapSerializer(this, _valueTypeSerializer, suppressableValue, _suppressNulls);
     }                
 

@@ -70,11 +70,7 @@ public class BeanDeserializerFactory
          *    Instead, let's actually just throw an error if this method is called when subtype
          *    has not properly overridden this method; this to indicate problem as soon as possible.
          */
-        if (getClass() != BeanDeserializerFactory.class) {
-            throw new IllegalStateException("Subtype of BeanDeserializerFactory ("+getClass().getName()
-                    +") has not properly overridden method 'withAdditionalDeserializers': can not instantiate subtype with "
-                    +"additional deserializer definitions");
-        }
+        ClassUtil.verifyMustOverride(BeanDeserializerFactory.class, this, "withConfig");
         return new BeanDeserializerFactory(config);
     }
     

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -95,9 +96,7 @@ public class StdDelegatingDeserializer<T>
     protected StdDelegatingDeserializer<T> withDelegate(Converter<Object,T> converter,
             JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
     {
-        if (getClass() != StdDelegatingDeserializer.class) {
-            throw new IllegalStateException("Sub-class "+getClass().getName()+" must override 'withDelegate'");
-        }
+        ClassUtil.verifyMustOverride(StdDelegatingDeserializer.class, this, "withDelegate");
         return new StdDelegatingDeserializer<T>(converter, delegateType, delegateDeserializer);
     }
 

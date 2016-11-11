@@ -626,6 +626,7 @@ public class ObjectMapper
     protected void _checkInvalidCopy(Class<?> exp)
     {
         if (getClass() != exp) {
+            // 10-Nov-2016, tatu: could almost use `ClassUtil.verifyMustOverride()` but not quite
             throw new IllegalStateException("Failed copy(): "+getClass().getName()
                     +" (version: "+version()+") does not override copy(); it has to");
         }

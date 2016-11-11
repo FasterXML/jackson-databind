@@ -288,27 +288,45 @@ public final class ClassUtil
         return false;
     }
 
-    /*
-    /**********************************************************
-    /* Type name handling methods
-    /**********************************************************
-     */
-    
-    /**
-     * Helper method used to construct appropriate description
-     * when passed either type (Class) or an instance; in latter
-     * case, class of instance is to be used.
-     */
-    public static String getClassDescription(Object classOrInstance)
-    {
-        if (classOrInstance == null) {
-            return "unknown";
-        }
-        Class<?> cls = (classOrInstance instanceof Class<?>) ?
-            (Class<?>) classOrInstance : classOrInstance.getClass();
-        return cls.getName();
+    public static boolean isBogusClass(Class<?> cls) {
+        return (cls == Void.class || cls == Void.TYPE
+                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
     }
 
+    public static boolean isNonStaticInnerClass(Class<?> cls) {
+        return !Modifier.isStatic(cls.getModifiers())
+                && (getEnclosingClass(cls) != null);
+    }
+
+    /**
+     * @since 2.7
+     */
+    public static boolean isObjectOrPrimitive(Class<?> cls) {
+        return (cls == CLS_OBJECT) || cls.isPrimitive();
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static boolean hasClass(Object inst, Class<?> raw) {
+        // 10-Nov-2016, tatu: Could use `Class.isInstance()` if we didn't care
+        //    about being exactly that type
+        return (inst != null) && (inst.getClass() == raw);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static void verifyMustOverride(Class<?> expType, Object instance,
+            String method)
+    {
+        if (instance.getClass() != expType) {
+            throw new IllegalStateException(String.format(
+                    "Sub-class %s (of class %s) must override method '%s'",
+                instance.getClass().getName(), expType.getName(), method));
+        }
+    }
+    
     /*
     /**********************************************************
     /* Class loading
@@ -615,27 +633,20 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Class classification
+    /* Class name, description access
     /**********************************************************
      */
-    
-    public static boolean isBogusClass(Class<?> cls) {
-        return (cls == Void.class || cls == Void.TYPE
-                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
-    }
-
-    public static boolean isNonStaticInnerClass(Class<?> cls) {
-        return !Modifier.isStatic(cls.getModifiers())
-                && (getEnclosingClass(cls) != null);
-    }
 
     /**
-     * @since 2.7
+     * @since 2.9
      */
-    public static boolean isObjectOrPrimitive(Class<?> cls) {
-        return (cls == CLS_OBJECT) || cls.isPrimitive();
+    public static Class<?> classOf(Object inst) {
+        if (inst == null) {
+            return null;
+        }
+        return inst.getClass();
     }
-
+    
     /**
      * @since 2.9
      */
@@ -663,23 +674,27 @@ public final class ClassUtil
         return str;
     }
 
-    /**
-     * @since 2.9
+    /*
+    /**********************************************************
+    /* Type name handling methods
+    /**********************************************************
      */
-    public static Class<?> classOf(Object inst) {
-        if (inst == null) {
-            return null;
+    
+    /**
+     * Helper method used to construct appropriate description
+     * when passed either type (Class) or an instance; in latter
+     * case, class of instance is to be used.
+     */
+    public static String getClassDescription(Object classOrInstance)
+    {
+        if (classOrInstance == null) {
+            return "unknown";
         }
-        return inst.getClass();
+        Class<?> cls = (classOrInstance instanceof Class<?>) ?
+            (Class<?>) classOrInstance : classOrInstance.getClass();
+        return cls.getName();
     }
-
-    /**
-     * @since 2.9
-     */
-    public static boolean hasClass(Object inst, Class<?> raw) {
-        return (inst != null) && (inst.getClass() == raw);
-    }
-
+    
     /**
      * @since 2.9
      */

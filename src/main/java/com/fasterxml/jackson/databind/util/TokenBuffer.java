@@ -246,7 +246,7 @@ public class TokenBuffer
         p.setLocation(src.getTokenLocation());
         return p;
     }
-    
+
     /*
     /**********************************************************
     /* Additional accessors
@@ -254,12 +254,10 @@ public class TokenBuffer
      */
 
     public JsonToken firstToken() {
-        if (_first != null) {
-            return _first.type(0);
-        }
-        return null;
+        // no need to null check; never create without `_first`
+        return _first.type(0);
     }
-    
+
     /*
     /**********************************************************
     /* Other custom methods not needed for implementing interfaces
@@ -291,7 +289,7 @@ public class TokenBuffer
         }
         return this;
     }
-    
+
     /**
      * Helper method that will write all contents of this buffer
      * using given {@link JsonGenerator}.

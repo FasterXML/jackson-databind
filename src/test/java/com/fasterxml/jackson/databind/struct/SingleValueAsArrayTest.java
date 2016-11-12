@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.struct;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 
-public class SingleValueAsArray1421Test extends BaseMapTest
+public class SingleValueAsArrayTest extends BaseMapTest
 {
     private static final String JSON = "[{\"message\":\"messageHere\"}]";
 

@@ -123,37 +123,6 @@ public class AnnotationIntrospectorPair
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
     }
-    
-    @Override
-    @Deprecated // since 2.6
-    public String[] findPropertiesToIgnore(Annotated ac) {
-        String[] result = _primary.findPropertiesToIgnore(ac);
-        if (result == null) {
-            result = _secondary.findPropertiesToIgnore(ac);
-        }
-        return result;            
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
-        String[] result = _primary.findPropertiesToIgnore(ac, forSerialization);
-        if (result == null) {
-            result = _secondary.findPropertiesToIgnore(ac, forSerialization);
-        }
-        return result;            
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac)
-    {
-        Boolean result = _primary.findIgnoreUnknownProperties(ac);
-        if (result == null) {
-            result = _secondary.findIgnoreUnknownProperties(ac);
-        }
-        return result;
-    }        
 
     @Override
     public Boolean isIgnorableType(AnnotatedClass ac)
@@ -194,6 +163,37 @@ public class AnnotationIntrospectorPair
         return str;
     }
 
+    @Override
+    @Deprecated // since 2.6
+    public String[] findPropertiesToIgnore(Annotated ac) {
+        String[] result = _primary.findPropertiesToIgnore(ac);
+        if (result == null) {
+            result = _secondary.findPropertiesToIgnore(ac);
+        }
+        return result;            
+    }
+
+    @Override
+    @Deprecated // since 2.8
+    public String[] findPropertiesToIgnore(Annotated ac, boolean forSerialization) {
+        String[] result = _primary.findPropertiesToIgnore(ac, forSerialization);
+        if (result == null) {
+            result = _secondary.findPropertiesToIgnore(ac, forSerialization);
+        }
+        return result;            
+    }
+
+    @Override
+    @Deprecated // since 2.8
+    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac)
+    {
+        Boolean result = _primary.findIgnoreUnknownProperties(ac);
+        if (result == null) {
+            result = _secondary.findIgnoreUnknownProperties(ac);
+        }
+        return result;
+    }        
+
     /*
     /******************************************************
     /* Property auto-detection
@@ -215,8 +215,8 @@ public class AnnotationIntrospectorPair
     /******************************************************
     /* Type handling
     /******************************************************
-    */
-    
+     */
+
     @Override
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
             AnnotatedClass ac, JavaType baseType)
@@ -272,8 +272,11 @@ public class AnnotationIntrospectorPair
         }
         return name;
     }
-    
-    // // // General member (field, method/constructor) annotations
+    /*
+    /******************************************************
+    /* General member (field, method/constructor) annotations
+    /******************************************************
+     */
     
     @Override        
     public ReferenceProperty findReferenceType(AnnotatedMember member) {

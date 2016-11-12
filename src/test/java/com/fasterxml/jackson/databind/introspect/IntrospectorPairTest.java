@@ -1,15 +1,17 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 
 // started with [databind#1025] in mind
 @SuppressWarnings("serial")
@@ -92,6 +94,80 @@ public class IntrospectorPairTest extends BaseMapTest
             return (JsonIgnoreProperties.Value) values.get("findPropertyIgnorals");
         }
 
+        @Override
+        public Boolean isIgnorableType(AnnotatedClass ac) {
+            return (Boolean) values.get("isIgnorableType");
+        }
+
+        @Override
+        public Object findFilterId(Annotated ann) {
+            return (Object) values.get("findFilterId");
+        }
+        
+        @Override
+        public Object findNamingStrategy(AnnotatedClass ac) {
+            return (Object) values.get("findNamingStrategy");
+        }
+
+        @Override
+        public String findClassDescription(AnnotatedClass ac) {
+            return (String) values.get("findClassDescription");
+        }
+
+        /*
+        /******************************************************
+        /* Property auto-detection
+        /******************************************************
+        */
+
+        @Override
+        public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
+            VisibilityChecker<?> checker)
+        {
+            VisibilityChecker<?> vc = (VisibilityChecker<?>) values.get("findAutoDetectVisibility");
+            // not really good but:
+            return (vc == null) ? checker : vc;
+        }
+
+        /*
+        /******************************************************
+        /* Type handling
+        /******************************************************
+         */
+
+        @Override
+        public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
+                AnnotatedClass ac, JavaType baseType)
+        {
+            return (TypeResolverBuilder<?>) values.get("findTypeResolver");
+        }
+
+        @Override
+        public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
+                AnnotatedMember am, JavaType baseType)
+        {
+            return (TypeResolverBuilder<?>) values.get("findPropertyTypeResolver");
+        }
+
+        @Override
+        public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
+                AnnotatedMember am, JavaType baseType)
+        {
+            return (TypeResolverBuilder<?>) values.get("findPropertyContentTypeResolver");
+        }
+        
+        @SuppressWarnings("unchecked")
+        @Override
+        public List<NamedType> findSubtypes(Annotated a)
+        {
+            return (List<NamedType>) values.get("findSubtypes");
+        }
+
+        @Override
+        public String findTypeName(AnnotatedClass ac) {
+            return (String) values.get("findTypeName");
+        }
+
         /*
         /******************************************************
         /* Helper methods
@@ -164,18 +240,137 @@ public class IntrospectorPairTest extends BaseMapTest
         assertEquals(name, new AnnotationIntrospectorPair(intr, NO_ANNOTATIONS).findRootName(null));
     }
 
+    public void testPropertyIgnorals() throws Exception
+    {
+        JsonIgnoreProperties.Value incl = JsonIgnoreProperties.Value.forIgnoredProperties("foo");
+        IntrospectorWithMap intr = new IntrospectorWithMap()
+                .add("findPropertyIgnorals", incl);
+        IntrospectorWithMap intrEmpty = new IntrospectorWithMap()
+                .add("findPropertyIgnorals", JsonIgnoreProperties.Value.empty());
+        assertEquals(JsonIgnoreProperties.Value.empty(),
+                new AnnotationIntrospectorPair(intrEmpty, intrEmpty).findPropertyIgnorals(null));
+        // should actually verify inclusion combining, but there are separate tests for that
+        assertEquals(incl, new AnnotationIntrospectorPair(intrEmpty, intr).findPropertyIgnorals(null));
+        assertEquals(incl, new AnnotationIntrospectorPair(intr, intrEmpty).findPropertyIgnorals(null));
+    }
+
+    public void testIsIgnorableType() throws Exception
+    {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("isIgnorableType", Boolean.TRUE);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("isIgnorableType", Boolean.FALSE);
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).isIgnorableType(null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, intr2).isIgnorableType(null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1).isIgnorableType(null));
+    }
+
+    public void testFindFilterId() throws Exception
+    {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findFilterId", "a");
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findFilterId", "b");
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findFilterId(null));
+        assertEquals("a", new AnnotationIntrospectorPair(intr1, intr2).findFilterId(null));
+        assertEquals("b", new AnnotationIntrospectorPair(intr2, intr1).findFilterId(null));
+    }
+
+    public void testFindNamingStrategy() throws Exception
+    {
+        // shouldn't be bogus Classes for real use, but works here
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findNamingStrategy", Integer.class);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findNamingStrategy", String.class);
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findNamingStrategy(null));
+        assertEquals(Integer.class,
+                new AnnotationIntrospectorPair(intr1, intr2).findNamingStrategy(null));
+        assertEquals(String.class,
+                new AnnotationIntrospectorPair(intr2, intr1).findNamingStrategy(null));
+    }
+
+    public void testFindClassDescription() throws Exception
+    {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findClassDescription", "Desc1");
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findClassDescription", "Desc2");
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findClassDescription(null));
+        assertEquals("Desc1",
+                new AnnotationIntrospectorPair(intr1, intr2).findClassDescription(null));
+        assertEquals("Desc2",
+                new AnnotationIntrospectorPair(intr2, intr1).findClassDescription(null));
+    }
+
+    // // // 3 deprecated methods, skip
+
+    /*
+    /******************************************************
+    /* Property auto-detection
+    /******************************************************
+    */
+
+    public void testFindAutoDetectVisibility() throws Exception
+    {
+        VisibilityChecker<?> vc = VisibilityChecker.Std.defaultInstance();
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findAutoDetectVisibility", vc);
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .findAutoDetectVisibility(null, null));
+        assertSame(vc, new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
+                .findAutoDetectVisibility(null, null));
+        assertSame(vc, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1)
+                .findAutoDetectVisibility(null, null));
+    }
+
+    /*
+    /******************************************************
+    /* Type handling
+    /******************************************************
+    */
+
+    public void testFindTypeResolver() throws Exception
+    {
+        /*
+        TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
+            AnnotatedClass ac, JavaType baseType)
+        return (TypeResolverBuilder<?>) values.get("findTypeResolver");
+        */
+    }
+    public void testFindPropertyTypeResolver() {
+    }
+
+    public void testFindPropertyContentTypeResolver() {
+    }
+
+    public void testFindSubtypes() {
+    }
+
+    public void testFindTypeName() {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("findTypeName", "type1");
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("findTypeName", "type2");
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).findTypeName(null));
+        assertEquals("type1",
+                new AnnotationIntrospectorPair(intr1, intr2).findTypeName(null));
+        assertEquals("type2",
+                new AnnotationIntrospectorPair(intr2, intr1).findTypeName(null));
+    }
+
     /*
     /**********************************************************
     /* Test methods, others
     /**********************************************************
      */
-    
+
     private final AnnotationIntrospectorPair introPair12
         = new AnnotationIntrospectorPair(new Introspector1(), new Introspector2());
 
     private final AnnotationIntrospectorPair introPair21
         = new AnnotationIntrospectorPair(new Introspector2(), new Introspector1());
-    
+
     // for [databind#1025]
     public void testInclusionMerging() throws Exception
     {

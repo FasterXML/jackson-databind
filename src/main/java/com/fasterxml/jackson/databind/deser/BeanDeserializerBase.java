@@ -1189,9 +1189,10 @@ public abstract class BeanDeserializerBase
     protected Object deserializeFromObjectUsingNonDefault(JsonParser p,
             DeserializationContext ctxt) throws IOException
     {
-        if (_delegateDeserializer != null) {
+        final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        if (delegateDeser != null) {
             return _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(p, ctxt));
+                    delegateDeser.deserialize(p, ctxt));
         }
         if (_propertyBasedCreator != null) {
             return _deserializeUsingPropertyBased(p, ctxt);
@@ -1210,19 +1211,20 @@ public abstract class BeanDeserializerBase
         throws IOException, JsonProcessingException;
 
     @SuppressWarnings("incomplete-switch")
-    public Object deserializeFromNumber(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromNumber(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
             return deserializeFromObjectId(p, ctxt);
         }
-
+        final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
         switch (p.getNumberType()) {
         case INT:
-            if (_delegateDeserializer != null) {
+            if (delegateDeser != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
                     Object bean = _valueInstantiator.createUsingDelegate(ctxt,
-                            _delegateDeserializer.deserialize(p, ctxt));
+                            delegateDeser.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
@@ -1231,10 +1233,10 @@ public abstract class BeanDeserializerBase
             }
             return _valueInstantiator.createFromInt(ctxt, p.getIntValue());
         case LONG:
-            if (_delegateDeserializer != null) {
+            if (delegateDeser != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
                     Object bean = _valueInstantiator.createUsingDelegate(ctxt,
-                            _delegateDeserializer.deserialize(p, ctxt));
+                            delegateDeser.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
@@ -1244,9 +1246,9 @@ public abstract class BeanDeserializerBase
             return _valueInstantiator.createFromLong(ctxt, p.getLongValue());
         }
         // actually, could also be BigInteger, so:
-        if (_delegateDeserializer != null) {
+        if (delegateDeser != null) {
             Object bean = _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(p, ctxt));
+                    delegateDeser.deserialize(p, ctxt));
             if (_injectables != null) {
                 injectValues(ctxt, bean);
             }
@@ -1263,13 +1265,14 @@ public abstract class BeanDeserializerBase
         if (_objectIdReader != null) {
             return deserializeFromObjectId(p, ctxt);
         }
-        
         /* Bit complicated if we have delegating creator; may need to use it,
          * or might not...
          */
-        if (_delegateDeserializer != null) {
+        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        if (delegateDeser != null) {
             if (!_valueInstantiator.canCreateFromString()) {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                        delegateDeser.deserialize(p, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }
@@ -1288,9 +1291,11 @@ public abstract class BeanDeserializerBase
         NumberType t = p.getNumberType();
         // no separate methods for taking float...
         if ((t == NumberType.DOUBLE) || (t == NumberType.FLOAT)) {
-            if (_delegateDeserializer != null) {
+            JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+            if (delegateDeser != null) {
                 if (!_valueInstantiator.canCreateFromDouble()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                            delegateDeser.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
@@ -1300,8 +1305,10 @@ public abstract class BeanDeserializerBase
             return _valueInstantiator.createFromDouble(ctxt, p.getDoubleValue());
         }
         // actually, could also be BigDecimal, so:
-        if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        if (delegateDeser != null) {
+            return _valueInstantiator.createUsingDelegate(ctxt,
+                    delegateDeser.deserialize(p, ctxt));
         }
         return ctxt.handleMissingInstantiator(handledType(), p,
                 "no suitable creator method found to deserialize from Number value (%s)",
@@ -1313,9 +1320,11 @@ public abstract class BeanDeserializerBase
      */
     public Object deserializeFromBoolean(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        if (_delegateDeserializer != null) {
+        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        if (delegateDeser != null) {
             if (!_valueInstantiator.canCreateFromBoolean()) {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                        delegateDeser.deserialize(p, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }
@@ -1328,29 +1337,16 @@ public abstract class BeanDeserializerBase
 
     public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        if (_arrayDelegateDeserializer != null) {
-            try {
-                Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt, _arrayDelegateDeserializer.deserialize(p, ctxt));
-                if (_injectables != null) {
-                    injectValues(ctxt, bean);
-                }
-                return bean;
-            } catch (Exception e) {
-                return wrapInstantiationProblem(e, ctxt);
-            }
-        }
+        // note: can not call `_delegateDeserializer()` since order reversed here:
+        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
         // fallback to non-array delegate
-        if (_delegateDeserializer != null) {
-            try {
-                Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
-                if (_injectables != null) {
-                    injectValues(ctxt, bean);
-                }
-                return bean;
-            } catch (Exception e) {
-                wrapInstantiationProblem(e, ctxt);
-                return null;
+        if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
+            Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt,
+                    delegateDeser.deserialize(p, ctxt));
+            if (_injectables != null) {
+                injectValues(ctxt, bean);
             }
+            return bean;
         }
         if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             JsonToken t = p.nextToken();
@@ -1386,6 +1382,17 @@ public abstract class BeanDeserializerBase
         // TODO: maybe add support for ValueInstantiator, embedded?
         
         return p.getEmbeddedObject();
+    }
+
+    /**
+     * @since 2.9
+     */
+    private final JsonDeserializer<Object> _delegateDeserializer() {
+        JsonDeserializer<Object> deser = _delegateDeserializer;
+        if (deser == null) {
+            deser = _arrayDelegateDeserializer;
+        }
+        return deser;
     }
 
     /*

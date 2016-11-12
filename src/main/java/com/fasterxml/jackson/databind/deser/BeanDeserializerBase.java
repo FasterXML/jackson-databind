@@ -1254,7 +1254,6 @@ public abstract class BeanDeserializerBase
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt) throws IOException;
 
-    @SuppressWarnings("incomplete-switch")
     public Object deserializeFromNumber(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
@@ -1263,8 +1262,8 @@ public abstract class BeanDeserializerBase
             return deserializeFromObjectId(p, ctxt);
         }
         final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
-        switch (p.getNumberType()) {
-        case INT:
+        NumberType nt = p.getNumberType();
+        if (nt == NumberType.INT) {
             if (delegateDeser != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
                     Object bean = _valueInstantiator.createUsingDelegate(ctxt,
@@ -1276,7 +1275,8 @@ public abstract class BeanDeserializerBase
                 }
             }
             return _valueInstantiator.createFromInt(ctxt, p.getIntValue());
-        case LONG:
+        }
+        if (nt == NumberType.LONG) {
             if (delegateDeser != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
                     Object bean = _valueInstantiator.createUsingDelegate(ctxt,
@@ -1303,7 +1303,8 @@ public abstract class BeanDeserializerBase
                 p.getNumberValue());
     }
 
-    public Object deserializeFromString(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromString(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {

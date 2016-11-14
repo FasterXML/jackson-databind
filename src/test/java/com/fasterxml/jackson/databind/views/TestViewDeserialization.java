@@ -130,5 +130,12 @@ public class TestViewDeserialization extends BaseMapTest
                 .readValue(aposToQuotes("{'a':1,'b':2}"));
         assertEquals(0, result.a);
         assertEquals(2, result.b);
+
+        // and actually... fine to skip incompatible stuff too
+        result = mapper.readerFor(ViewsAndCreatorBean.class)
+                .withView(ViewB.class)
+                .readValue(aposToQuotes("{'a':[ 1, 23, { } ],'b':2}"));
+        assertEquals(0, result.a);
+        assertEquals(2, result.b);
     }
 }

@@ -187,22 +187,16 @@ public class CreatorProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        Object value = deserialize(p, ctxt);
-        if (_fallbackSetter == null) {
-            _reportMissingSetter(p, ctxt);
-        }
-        _fallbackSetter.set(instance, value);
+        _verifySetter();
+        _fallbackSetter.set(instance, deserialize(p, ctxt));
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
             DeserializationContext ctxt, Object instance) throws IOException
     {
-        Object value = deserialize(p, ctxt);
-        if (_fallbackSetter == null) {
-            _reportMissingSetter(p, ctxt);
-        }
-        return _fallbackSetter.setAndReturn(instance, value);
+        _verifySetter();
+        return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
     }
     
     @Override

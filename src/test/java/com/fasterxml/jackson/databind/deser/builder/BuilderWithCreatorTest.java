@@ -40,6 +40,8 @@ public class BuilderWithCreatorTest extends BaseMapTest
         }
     }
 
+    // With String
+    
     @JsonDeserialize(builder=StringCreatorBuilder.class)
     static class StringCreatorValue
     {
@@ -58,6 +60,75 @@ public class BuilderWithCreatorTest extends BaseMapTest
 
         public StringCreatorValue build() {
             return new StringCreatorValue(v);
+        }
+    }
+
+    // With boolean
+    
+    @JsonDeserialize(builder=BooleanCreatorBuilder.class)
+    static class BooleanCreatorValue
+    {
+        final boolean value;
+
+        protected BooleanCreatorValue(boolean v) { value = v; }
+    }
+
+    static class BooleanCreatorBuilder {
+        private final boolean value;
+
+        @JsonCreator
+        public BooleanCreatorBuilder(boolean v) {
+            value = v;
+        }
+
+        public BooleanCreatorValue build() {
+            return new BooleanCreatorValue(value);
+        }
+    }
+    
+    // With Int
+    
+    @JsonDeserialize(builder=IntCreatorBuilder.class)
+    static class IntCreatorValue
+    {
+        final int value;
+
+        protected IntCreatorValue(int v) { value = v; }
+    }
+
+    static class IntCreatorBuilder {
+        private final int value;
+
+        @JsonCreator
+        public IntCreatorBuilder(int v) {
+            value = v;
+        }
+
+        public IntCreatorValue build() {
+            return new IntCreatorValue(value);
+        }
+    }
+
+    // With Double
+    
+    @JsonDeserialize(builder=DoubleCreatorBuilder.class)
+    static class DoubleCreatorValue
+    {
+        final double value;
+
+        protected DoubleCreatorValue(double v) { value = v; }
+    }
+
+    static class DoubleCreatorBuilder {
+        private final double value;
+
+        @JsonCreator
+        public DoubleCreatorBuilder(double v) {
+            value = v;
+        }
+
+        public DoubleCreatorValue build() {
+            return new DoubleCreatorValue(value);
         }
     }
 
@@ -80,8 +151,26 @@ public class BuilderWithCreatorTest extends BaseMapTest
 
     public void testWithDelegatingStringCreator() throws Exception
     {
-        final String EXP = "ALAKAZAM";
-        StringCreatorValue value = MAPPER.readValue(quote(EXP), StringCreatorValue.class);        
-        assertEquals(EXP, value.str);
+        final int EXP = 139;
+        IntCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
+                IntCreatorValue.class);        
+        assertEquals(EXP, value.value);
+    }
+
+    public void testWithDelegatingIntCreator() throws Exception
+    {
+        final double EXP = -3.75;
+        DoubleCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
+                DoubleCreatorValue.class);        
+        assertEquals(EXP, value.value);
+    }
+
+    public void testWithDelegatingBooleanCreator() throws Exception
+    {
+        final boolean EXP = true;
+        BooleanCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
+                BooleanCreatorValue.class);        
+        assertEquals(EXP, value.value);
     }
 }
+

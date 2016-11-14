@@ -357,6 +357,4 @@ public class BuilderSimpleTest extends BaseMapTest
         assertTrue(ob instanceof List);
         assertTrue(((List<?>) ob).isEmpty());
     }
-
-    
 }

@@ -43,6 +43,8 @@ Project: jackson-databind
   with more than one argument
 #1432: Off by 1 bug in PropertyValueBuffer
  (reported by Kevin D)
+#1438: `ACCEPT_CASE_INSENSITIVE_PROPERTIES` is not respected for creator properties
+ (reported by Jayson M)
 #1439: NPE when using with filter id, serializing `java.util.Map` types
 #1441: Failure with custom Enum key deserializer, polymorphic types
  (reported by Nathanial O)

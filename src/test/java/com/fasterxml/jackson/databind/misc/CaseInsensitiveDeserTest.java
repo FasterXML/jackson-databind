@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.misc;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 
@@ -16,6 +18,17 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     }
     static class Issue476Type {
         public String name, value;
+    }
+
+    // [databind#1438]
+    static class InsensitiveCreator
+    {
+        int v;
+
+        @JsonCreator
+        public InsensitiveCreator(@JsonProperty("value") int v0) {
+            v = v0;
+        }
     }
 
     /*
@@ -62,5 +75,13 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         BaseResponse response = INSENSITIVE_MAPPER.readValue(json, BaseResponse.class);
         assertEquals(2, response.errorCode);
         assertEquals("Signature not valid!", response.debugMessage);
+    }
+
+    // [databind#1438]
+    public void testCreatorWithInsensitive() throws Exception
+    {
+        final String json = aposToQuotes("{'VALUE':3}");
+        InsensitiveCreator bean = INSENSITIVE_MAPPER.readValue(json, InsensitiveCreator.class);
+        assertEquals(3, bean.v);
     }
 }

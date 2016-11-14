@@ -127,7 +127,7 @@ public class CreatorProperty
      * NOTE: one exception to immutability, due to problems with CreatorProperty instances
      * being shared between Bean, separate PropertyBasedCreator
      * 
-     * @since 2.6.0
+     * @since 2.6
      */
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
         _fallbackSetter = fallbackSetter;

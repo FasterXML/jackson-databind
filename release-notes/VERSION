@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.5 (not yet released)
+2.8.5 (14-Nov-2016)
 
 #1417: Further issues with `@JsonInclude` with `NON_DEFAULT`
 #1421: ACCEPT_SINGLE_VALUE_AS_ARRAY partially broken in 2.7.x, 2.8.x

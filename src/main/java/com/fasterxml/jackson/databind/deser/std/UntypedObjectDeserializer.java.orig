@@ -255,12 +255,13 @@ public class UntypedObjectDeserializer
             if (_numberDeserializer != null) {
                 return _numberDeserializer.deserialize(p, ctxt);
             }
-            // Need to allow overriding the behavior regarding which type to use
+            /* [JACKSON-72]: need to allow overriding the behavior regarding
+             *   which type to use
+             */
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                 return p.getDecimalValue();
             }
-            // as per [databind#1453] should not assume Double but:
-            return p.getNumberValue();
+            return p.getDoubleValue();
 
         case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
@@ -318,7 +319,7 @@ public class UntypedObjectDeserializer
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                 return p.getDecimalValue();
             }
-            return p.getNumberValue();
+            return Double.valueOf(p.getDoubleValue());
 
         case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
@@ -522,7 +523,7 @@ public class UntypedObjectDeserializer
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                     return p.getDecimalValue();
                 }
-                return p.getNumberValue();
+                return Double.valueOf(p.getDoubleValue());
 
             case JsonTokenId.ID_TRUE:
                 return Boolean.TRUE;
@@ -565,7 +566,7 @@ public class UntypedObjectDeserializer
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                     return p.getDecimalValue();
                 }
-                return p.getNumberValue();
+                return Double.valueOf(p.getDoubleValue());
 
             case JsonTokenId.ID_TRUE:
                 return Boolean.TRUE;

@@ -430,7 +430,7 @@ public class NumberDeserializers
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                     return p.getDecimalValue();
                 }
-                return Double.valueOf(p.getDoubleValue());
+                return p.getNumberValue();
 
             case JsonTokenId.ID_STRING:
                 /* Textual values are more difficult... not parsing itself, but figuring

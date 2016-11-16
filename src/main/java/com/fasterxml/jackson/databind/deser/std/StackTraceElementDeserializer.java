@@ -24,6 +24,7 @@ public class StackTraceElementDeserializer
             String className = "", methodName = "", fileName = "";
             // Java 9 adds couple more things
             String moduleName = null, moduleVersion = null;
+            String classLoaderName = null;
             int lineNumber = -1;
 
             while ((t = p.nextValue()) != JsonToken.END_OBJECT) {
@@ -31,6 +32,8 @@ public class StackTraceElementDeserializer
                 // TODO: with Java 8, convert to switch
                 if ("className".equals(propName)) {
                     className = p.getText();
+                } else if ("classLoaderName".equals(propName)) {
+                    classLoaderName = p.getText();
                 } else if ("fileName".equals(propName)) {
                     fileName = p.getText();
                 } else if ("lineNumber".equals(propName)) {
@@ -53,7 +56,7 @@ public class StackTraceElementDeserializer
                 }
             }
             return constructValue(ctxt, className, methodName, fileName, lineNumber,
-                    moduleName, moduleVersion);
+                    moduleName, moduleVersion, classLoaderName);
         } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final StackTraceElement value = deserialize(p, ctxt);
@@ -65,6 +68,14 @@ public class StackTraceElementDeserializer
         return (StackTraceElement) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
+    @Deprecated // since 2.9
+    protected StackTraceElement constructValue(DeserializationContext ctxt,
+            String className, String methodName, String fileName, int lineNumber,
+            String moduleName, String moduleVersion) {
+        return constructValue(ctxt, className, methodName, fileName, lineNumber,
+                moduleName, moduleVersion, null);
+    }
+
     /**
      * Overridable factory method used for constructing {@link StackTraceElement}s.
      *
@@ -72,7 +83,7 @@ public class StackTraceElementDeserializer
      */
     protected StackTraceElement constructValue(DeserializationContext ctxt,
             String className, String methodName, String fileName, int lineNumber,
-            String moduleName, String moduleVersion)
+            String moduleName, String moduleVersion, String classLoaderName)
     {
         // 21-May-2016, tatu: With Java 9, need to use different constructor, probably
         //   via different module, and throw exception here if extra args passed

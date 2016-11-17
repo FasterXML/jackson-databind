@@ -649,9 +649,8 @@ public final class TypeFactory
      */
     @Deprecated
     public JavaType constructType(Type type, Class<?> contextClass) {
-        TypeBindings bindings = (contextClass == null)
-                ? TypeBindings.emptyBindings() : constructType(contextClass).getBindings();
-        return _fromAny(null, type, bindings);
+        JavaType contextType = (contextClass == null) ? null : constructType(contextClass);
+        return constructType(type, contextType);
     }
 
     /**
@@ -659,8 +658,27 @@ public final class TypeFactory
      */
     @Deprecated
     public JavaType constructType(Type type, JavaType contextType) {
-        TypeBindings bindings = (contextType == null)
-                ? TypeBindings.emptyBindings() : contextType.getBindings();
+        TypeBindings bindings;
+        if (contextType == null) {
+            bindings = TypeBindings.emptyBindings();
+        } else {
+            bindings = contextType.getBindings();
+            // 16-Nov-2016, tatu: Unfortunately as per [databind#1456] this can't
+            //   be made to work for some cases used to work (even if accidentally);
+            //   however, we can try a simple heuristic to increase chances of
+            //   compatibility from 2.6 code
+            if (type.getClass() != Class.class) {
+                // Ok: so, ideally we would test super-interfaces if necessary;
+                // but let's assume most if not all cases are for classes.
+                while (bindings.isEmpty()) {
+                    contextType = contextType.getSuperClass();
+                    if (contextType == null) {
+                        break;
+                    }
+                    bindings = contextType.getBindings();
+                }
+            }
+        }
         return _fromAny(null, type, bindings);
     }
 

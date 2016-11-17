@@ -38,6 +38,8 @@ Project: jackson-databind
 2.8.6 (not yet released)
 
 #1453: `UntypedObjectDeserializer` does not retain `float` type (over `double`)
+#1456: `TypeFactory` type resolution broken in 2.7 for generic types
+   when using `constructType` with context
 
 2.8.5 (14-Nov-2016)
 
@@ -156,6 +158,12 @@ Project: jackson-databind
  (reported by Benson M)
 #1277: Add caching of resolved generic types for `TypeFactory`
  (requested by Andriy P)
+
+2.7.9 (not released yet)
+
+#1432: Off by 1 bug in PropertyValueBuffer
+ (reported by Kevin D)
+#1439: NPE when using with filter id, serializing `java.util.Map` types
 
 2.7.8 (26-Sep-2016)
 

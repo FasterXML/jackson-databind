@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.type;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 
-public class GenericParameterTypeFactory1456Test extends BaseMapTest
+// Tests for [databind#1456]: resolution using methods deprecated
+// in 2.7, but used to work in 2.6
+public class DeprecatedConstructType1456Test extends BaseMapTest
 {
     public static class BaseController<Entity extends BaseEntity> {
         public void process(Entity entity) {}
@@ -21,8 +23,9 @@ public class GenericParameterTypeFactory1456Test extends BaseMapTest
     public static class ImplEntity extends BaseEntity {}
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
-    public void testGenericParameterDirect() throws Exception
+
+    @SuppressWarnings("deprecation")
+    public void testGenericResolutionUsingDeprecated() throws Exception
     {
         Method proceed = BaseController.class.getMethod("process", BaseEntity.class);
         Type entityType = proceed.getGenericParameterTypes()[0];
@@ -31,6 +34,7 @@ public class GenericParameterTypeFactory1456Test extends BaseMapTest
         assertEquals(ImplEntity.class, resolvedType.getRawClass());
     }
 
+    // and this is how new code should resolve types if at all possible
     public void testGenericParameterViaClass() throws Exception
     {
         BeanDescription desc = MAPPER.getDeserializationConfig().introspect(

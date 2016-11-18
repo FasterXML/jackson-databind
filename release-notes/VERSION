@@ -164,6 +164,11 @@ Project: jackson-databind
 #1432: Off by 1 bug in PropertyValueBuffer
  (reported by Kevin D)
 #1439: NPE when using with filter id, serializing `java.util.Map` types
+#1451: Type parameter not passed by `ObjectWriter` if serializer pre-fetch disabled
+ (reported by Frédéric C)
+#1456: `TypeFactory` type resolution broken in 2.7 for generic types
+   when using `constructType` with context
+ (reported by Dmitry S)
 
 2.7.8 (26-Sep-2016)
 

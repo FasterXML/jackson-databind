@@ -575,6 +575,10 @@ Nathanial Ofiesh (ofiesh@github)
   * Reported #1441: Failure with custom Enum key deserializer, polymorphic types
    (2.8.5)
 
+Frédéric Camblor (fcamblor@github)
+  * Reported #1451: Type parameter not passed by `ObjectWriter` if serializer pre-fetch disabled
+   (2.8.6)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

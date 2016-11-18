@@ -398,7 +398,6 @@ public class DateDeserializationTest
         assertNull(MAPPER.readValue(quote(""), java.sql.Date.class));
     }
 
-    // for [JACKSON-334]
     public void test8601DateTimeNoMilliSecs() throws Exception
     {
         // ok, Zebra, no milliseconds

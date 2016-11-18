@@ -797,7 +797,7 @@ public abstract class StdDeserializer<T>
             }            
             return parsed;            
         }
-        return (java.util.Date)  ctxt.handleUnexpectedToken(_valueClass, p);
+        return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
     /**

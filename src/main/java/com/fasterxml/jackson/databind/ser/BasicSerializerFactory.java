@@ -658,7 +658,7 @@ public abstract class BasicSerializerFactory
                 // We may also want to use serialize Collections "as beans", if (and only if)
                 // this is specified with `@JsonFormat(shape=Object)`
                 JsonFormat.Value format = beanDesc.findExpectedFormat(null);
-                if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+                if ((format != null) && format.getShape() == JsonFormat.Shape.OBJECT) {
                     return null;
                 }
                 Class<?> raw = type.getRawClass();
@@ -744,7 +744,13 @@ public abstract class BasicSerializerFactory
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
     {
-        final SerializationConfig config = prov.getConfig();
+        // [databind#467]: This is where we could allow serialization "as POJO": But! It's
+        // nasty to undo, and does not apply on per-property basis. So, hardly optimal
+        JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+        if ((format != null) && format.getShape() == JsonFormat.Shape.OBJECT) {
+            return null;
+        }
+
         JsonSerializer<?> ser = null;
 
         // Order of lookups:
@@ -752,6 +758,7 @@ public abstract class BasicSerializerFactory
         // 2. Annotations (@JsonValue, @JsonDeserialize)
         // 3. Defaults
         
+        final SerializationConfig config = prov.getConfig();
         for (Serializers serializers : customSerializers()) { // (1) Custom
             ser = serializers.findMapSerializer(config, type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer);

@@ -430,9 +430,11 @@ public abstract class BeanSerializerBase
                                 provider.getConfig(), desc, format);
                         return provider.handlePrimaryContextualization(ser, property);
                     }
-                // 16-Oct-2016, tatu: Ditto for `Map.Entry` subtypes
-                } else if (Map.Entry.class.isAssignableFrom(_handledType)) {
-                    if (shape == JsonFormat.Shape.NATURAL) {
+                // 16-Oct-2016, tatu: Ditto for `Map`, `Map.Entry` subtypes
+                } else if (shape == JsonFormat.Shape.NATURAL) {
+                    if (_beanType.isMapLikeType() && Map.class.isAssignableFrom(_handledType)) {
+;
+                    } else if (Map.Entry.class.isAssignableFrom(_handledType)) {
                         JavaType mapEntryType = _beanType.findSuperType(Map.Entry.class);
 
                         JavaType kt = mapEntryType.containedTypeOrUnknown(0);

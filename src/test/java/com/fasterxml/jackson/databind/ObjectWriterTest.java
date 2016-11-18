@@ -167,6 +167,18 @@ public class ObjectWriterTest
         input.close();
     }
 
+    public void testViewSettings() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer();
+        ObjectWriter newW = w.withView(String.class);
+        assertNotSame(w, newW);
+        assertSame(newW, newW.withView(String.class));
+
+        newW = w.with(Locale.CANADA);
+        assertNotSame(w, newW);
+        assertSame(newW, newW.with(Locale.CANADA));
+    }
+
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
@@ -177,16 +189,7 @@ public class ObjectWriterTest
         JsonFactory f = new JsonFactory();
         w = w.with(f);
         assertSame(f, w.getFactory());
-
-        ObjectWriter newW = w.withView(String.class);
-        assertNotSame(w, newW);
-        assertSame(newW, newW.withView(String.class));
-
-        newW = w.with(Locale.CANADA);
-        assertNotSame(w, newW);
-        assertSame(newW, newW.with(Locale.CANADA));
-
-        newW = w.with(Base64Variants.MODIFIED_FOR_URL);
+        ObjectWriter newW = w.with(Base64Variants.MODIFIED_FOR_URL);
         assertNotSame(w, newW);
         assertSame(newW, newW.with(Base64Variants.MODIFIED_FOR_URL));
         
@@ -195,12 +198,6 @@ public class ObjectWriterTest
         assertEquals("b", w.getAttributes().getAttribute("a"));
         w = w.withoutAttribute("a");
         assertNull(w.getAttributes().getAttribute("a"));
-        w = w.withRootValueSeparator(new SerializedString(","));
-        assertSame(w, w.withRootValueSeparator(new SerializedString(",")));
-
-        newW = w.withRootName("foo");
-        assertNotSame(w, newW);
-        assertSame(newW, newW.withRootName(PropertyName.construct("foo")));
 
         FormatSchema schema = new BogusSchema();
         try {
@@ -209,6 +206,36 @@ public class ObjectWriterTest
         } catch (IllegalArgumentException e) {
             verifyException(e, "Can not use FormatSchema");
         }
+    }
+
+    public void testRootValueSettings() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer();
+        
+        // First, root name:
+        ObjectWriter newW = w.withRootName("foo");
+        assertNotSame(w, newW);
+        assertSame(newW, newW.withRootName(PropertyName.construct("foo")));
+        w = newW;
+        newW = w.withRootName((String) null);
+        assertNotSame(w, newW);
+        assertSame(newW, newW.withRootName((PropertyName) null));
+
+        // Then root value separator
+
+        w = w.withRootValueSeparator(new SerializedString(","));
+        assertSame(w, w.withRootValueSeparator(new SerializedString(",")));
+        assertSame(w, w.withRootValueSeparator(","));
+
+         newW = w.withRootValueSeparator("/");
+        assertNotSame(w, newW);
+        assertSame(newW, newW.withRootValueSeparator("/"));
+
+        newW = w.withRootValueSeparator((String) null);
+        assertNotSame(w, newW);
+
+        newW = w.withRootValueSeparator((SerializableString) null);
+        assertNotSame(w, newW);
     }
 
     public void testFeatureSettings() throws Exception

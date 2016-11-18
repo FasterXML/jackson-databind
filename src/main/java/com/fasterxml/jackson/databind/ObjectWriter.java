@@ -224,6 +224,9 @@ public class ObjectWriter
      * @since 2.5
      */
     protected ObjectWriter _new(ObjectWriter base, SerializationConfig config) {
+        if (config == _config) {
+            return this;
+        }
         return new ObjectWriter(base, config);
     }
 
@@ -235,6 +238,9 @@ public class ObjectWriter
      * @since 2.5
      */
     protected ObjectWriter _new(GeneratorSettings genSettings, Prefetch prefetch) {
+        if ((_generatorSettings == genSettings) && (_prefetch == prefetch)) {
+            return this;
+        }
         return new ObjectWriter(this, _config, genSettings, prefetch);
     }
 
@@ -266,8 +272,7 @@ public class ObjectWriter
      * with specified feature enabled.
      */
     public ObjectWriter with(SerializationFeature feature)  {
-        SerializationConfig newConfig = _config.with(feature);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this,  _config.with(feature));
     }
 
     /**
@@ -275,8 +280,7 @@ public class ObjectWriter
      * with specified features enabled.
      */
     public ObjectWriter with(SerializationFeature first, SerializationFeature... other) {
-        SerializationConfig newConfig = _config.with(first, other);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.with(first, other));
     }    
 
     /**
@@ -284,8 +288,7 @@ public class ObjectWriter
      * with specified features enabled.
      */
     public ObjectWriter withFeatures(SerializationFeature... features) {
-        SerializationConfig newConfig = _config.withFeatures(features);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.withFeatures(features));
     }    
     
     /**
@@ -293,8 +296,7 @@ public class ObjectWriter
      * with specified feature enabled.
      */
     public ObjectWriter without(SerializationFeature feature) {
-        SerializationConfig newConfig = _config.without(feature);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.without(feature));
     }    
 
     /**
@@ -302,8 +304,7 @@ public class ObjectWriter
      * with specified features enabled.
      */
     public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
-        SerializationConfig newConfig = _config.without(first, other);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.without(first, other));
     }    
 
     /**
@@ -311,8 +312,7 @@ public class ObjectWriter
      * with specified features enabled.
      */
     public ObjectWriter withoutFeatures(SerializationFeature... features) {
-        SerializationConfig newConfig = _config.withoutFeatures(features);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.withoutFeatures(features));
     }
 
     /*
@@ -325,32 +325,28 @@ public class ObjectWriter
      * @since 2.5
      */
     public ObjectWriter with(JsonGenerator.Feature feature)  {
-        SerializationConfig newConfig = _config.with(feature);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.with(feature));
     }
 
     /**
      * @since 2.5
      */
     public ObjectWriter withFeatures(JsonGenerator.Feature... features) {
-        SerializationConfig newConfig = _config.withFeatures(features);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.withFeatures(features));
     }
 
     /**
      * @since 2.5
      */
     public ObjectWriter without(JsonGenerator.Feature feature) {
-        SerializationConfig newConfig = _config.without(feature);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.without(feature));
     }
 
     /**
      * @since 2.5
      */
     public ObjectWriter withoutFeatures(JsonGenerator.Feature... features) {
-        SerializationConfig newConfig = _config.withoutFeatures(features);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.withoutFeatures(features));
     }
 
     /*
@@ -363,34 +359,30 @@ public class ObjectWriter
      * @since 2.7
      */
     public ObjectWriter with(FormatFeature feature)  {
-        SerializationConfig newConfig = _config.with(feature);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.with(feature));
     }
 
     /**
      * @since 2.7
      */
     public ObjectWriter withFeatures(FormatFeature... features) {
-        SerializationConfig newConfig = _config.withFeatures(features);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.withFeatures(features));
     }
 
     /**
      * @since 2.7
      */
     public ObjectWriter without(FormatFeature feature) {
-        SerializationConfig newConfig = _config.without(feature);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.without(feature));
     }
 
     /**
      * @since 2.7
      */
     public ObjectWriter withoutFeatures(FormatFeature... features) {
-        SerializationConfig newConfig = _config.withoutFeatures(features);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.withoutFeatures(features));
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle, fluent factories, type-related
@@ -407,10 +399,8 @@ public class ObjectWriter
      * 
      * @since 2.5
      */
-    public ObjectWriter forType(JavaType rootType)
-    {
-        Prefetch pf = _prefetch.forRootType(this, rootType);
-        return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
+    public ObjectWriter forType(JavaType rootType) {
+        return _new(_generatorSettings, _prefetch.forRootType(this, rootType));
     }
 
     /**
@@ -477,8 +467,7 @@ public class ObjectWriter
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter with(DateFormat df) {
-        SerializationConfig newConfig = _config.with(df);
-        return (newConfig == _config) ? this : _new(this, newConfig);
+        return _new(this, _config.with(df));
     }
 
     /**
@@ -494,8 +483,10 @@ public class ObjectWriter
      * provider for resolving filter instances by id.
      */
     public ObjectWriter with(FilterProvider filterProvider) {
-        return (filterProvider == _config.getFilterProvider()) ? this
-                 : _new(this, _config.withFilters(filterProvider));
+        if (filterProvider == _config.getFilterProvider()) {
+            return this;
+        }
+        return _new(this, _config.withFilters(filterProvider));
     }
 
     /**
@@ -503,11 +494,7 @@ public class ObjectWriter
      * printer (or, if null, will not do any pretty-printing)
      */
     public ObjectWriter with(PrettyPrinter pp) {
-        GeneratorSettings genSet = _generatorSettings.with(pp);
-        if (genSet == _generatorSettings) {
-            return this;
-        }
-        return _new(genSet, _prefetch);
+        return _new(_generatorSettings.with(pp), _prefetch);
     }
 
     /**
@@ -522,16 +509,14 @@ public class ObjectWriter
      *    and empty String ("") for "do NOT add root wrapper"
      */
     public ObjectWriter withRootName(String rootName) {
-        SerializationConfig newConfig = _config.withRootName(rootName);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.withRootName(rootName));
     }
 
     /**
      * @since 2.6
      */
     public ObjectWriter withRootName(PropertyName rootName) {
-        SerializationConfig newConfig = _config.withRootName(rootName);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.withRootName(rootName));
     }
 
     /**
@@ -545,8 +530,7 @@ public class ObjectWriter
      * @since 2.6
      */
     public ObjectWriter withoutRootName() {
-        SerializationConfig newConfig = _config.withRootName(PropertyName.NO_NAME);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.withRootName(PropertyName.NO_NAME));
     }
     
     /**
@@ -557,12 +541,8 @@ public class ObjectWriter
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter with(FormatSchema schema) {
-        GeneratorSettings genSet = _generatorSettings.with(schema);
-        if (genSet == _generatorSettings) {
-            return this;
-        }
         _verifySchemaType(schema);
-        return _new(genSet, _prefetch);
+        return _new(_generatorSettings.with(schema), _prefetch);
     }
 
     /**
@@ -582,18 +562,15 @@ public class ObjectWriter
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter withView(Class<?> view) {
-        SerializationConfig newConfig = _config.withView(view);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.withView(view));
     }    
 
     public ObjectWriter with(Locale l) {
-        SerializationConfig newConfig = _config.with(l);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.with(l));
     }
 
     public ObjectWriter with(TimeZone tz) {
-        SerializationConfig newConfig = _config.with(tz);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.with(tz));
     }
 
     /**
@@ -603,19 +580,14 @@ public class ObjectWriter
      * @since 2.1
      */
     public ObjectWriter with(Base64Variant b64variant) {
-        SerializationConfig newConfig = _config.with(b64variant);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.with(b64variant));
     }
 
     /**
      * @since 2.3
      */
     public ObjectWriter with(CharacterEscapes escapes) {
-        GeneratorSettings genSet = _generatorSettings.with(escapes);
-        if (genSet == _generatorSettings) {
-            return this;
-        }
-        return _new(genSet, _prefetch);
+        return _new(_generatorSettings.with(escapes), _prefetch);
     }
 
     /**
@@ -629,8 +601,7 @@ public class ObjectWriter
      * @since 2.3
      */
     public ObjectWriter with(ContextAttributes attrs) {
-        SerializationConfig newConfig = _config.with(attrs);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.with(attrs));
     }
 
     /**
@@ -640,46 +611,35 @@ public class ObjectWriter
      * @since 2.3
      */
     public ObjectWriter withAttributes(Map<?,?> attrs) {
-        SerializationConfig newConfig = _config.withAttributes(attrs);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.withAttributes(attrs));
     }
 
     /**
      * @since 2.3
      */
     public ObjectWriter withAttribute(Object key, Object value) {
-        SerializationConfig newConfig = _config.withAttribute(key, value);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.withAttribute(key, value));
     }
 
     /**
      * @since 2.3
      */
     public ObjectWriter withoutAttribute(Object key) {
-        SerializationConfig newConfig = _config.withoutAttribute(key);
-        return (newConfig == _config) ? this :  _new(this, newConfig);
+        return _new(this, _config.withoutAttribute(key));
     }
 
     /**
      * @since 2.5
      */
     public ObjectWriter withRootValueSeparator(String sep) {
-        GeneratorSettings genSet = _generatorSettings.withRootValueSeparator(sep);
-        if (genSet == _generatorSettings) {
-            return this;
-        }
-        return _new(genSet, _prefetch);
+        return _new(_generatorSettings.withRootValueSeparator(sep), _prefetch);
     }
 
     /**
      * @since 2.5
      */
     public ObjectWriter withRootValueSeparator(SerializableString sep) {
-        GeneratorSettings genSet = _generatorSettings.withRootValueSeparator(sep);
-        if (genSet == _generatorSettings) {
-            return this;
-        }
-        return _new(genSet, _prefetch);
+        return _new(_generatorSettings.withRootValueSeparator(sep), _prefetch);
     }
 
     /*
@@ -1278,11 +1238,13 @@ public class ObjectWriter
                 if (rootValueSeparator == null) {
                     return this;
                 }
-            } else if (sep.equals(rootValueSeparator)) {
+                return new GeneratorSettings(prettyPrinter, schema, characterEscapes, null);
+            }
+            if (sep.equals(_rootValueSeparatorAsString())) {
                 return this;
             }
             return new GeneratorSettings(prettyPrinter, schema, characterEscapes,
-                    (sep == null) ? null : new SerializedString(sep));
+                    new SerializedString(sep));
         }
 
         public GeneratorSettings withRootValueSeparator(SerializableString sep) {
@@ -1290,13 +1252,16 @@ public class ObjectWriter
                 if (rootValueSeparator == null) {
                     return this;
                 }
-            } else {
-                if (rootValueSeparator != null
-                        && sep.getValue().equals(rootValueSeparator.getValue())) {
-                    return this;
-                }
+                return new GeneratorSettings(prettyPrinter, schema, characterEscapes, null);
+            }
+            if (sep.equals(rootValueSeparator)) {
+                return this;
             }
             return new GeneratorSettings(prettyPrinter, schema, characterEscapes, sep);
+        }
+
+        private final String _rootValueSeparatorAsString() {
+            return (rootValueSeparator == null) ? null : rootValueSeparator.getValue();
         }
 
         /**

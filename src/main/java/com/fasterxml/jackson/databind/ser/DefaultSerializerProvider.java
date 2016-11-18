@@ -303,37 +303,21 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             _serializeNull(gen);
             return;
         }
-        Class<?> cls = value.getClass();
+        final Class<?> cls = value.getClass();
         // true, since we do want to cache root-level typed serializers (ditto for null property)
         final JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);
 
-        // Ok: should we wrap result in an additional property ("root name")?
-        final boolean wrap;
         PropertyName rootName = _config.getFullRootName();
-
         if (rootName == null) { // not explicitly specified
-            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-            if (wrap) {
-                gen.writeStartObject();
-                PropertyName pname = _config.findRootName(value.getClass());
-                gen.writeFieldName(pname.simpleAsEncoded(_config));
+            if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
+                _serialize(gen, value, ser, _config.findRootName(cls));
+                return;
             }
-        } else if (rootName.isEmpty()) {
-            wrap = false;
-        } else {
-            // empty String means explicitly disabled; non-empty that it is enabled
-            wrap = true;
-            gen.writeStartObject();
-            gen.writeFieldName(rootName.getSimpleName());
+        } else if (!rootName.isEmpty()) {
+            _serialize(gen, value, ser, rootName);
+            return;
         }
-        try {
-            ser.serialize(value, gen, this);
-            if (wrap) {
-                gen.writeEndObject();
-            }
-        } catch (Exception e) {
-            throw _wrapAsIOE(gen, e);
-        }
+        _serialize(gen, value, ser);
     }
 
     /**
@@ -347,8 +331,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
-    // 21-Oct-2016, tatu: Does not seem to be used.... remove for 2.9?
-    /*
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType) throws IOException
     {
         _generator = gen;
@@ -362,35 +344,18 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         }
         // root value, not reached via property:
         JsonSerializer<Object> ser = findTypedValueSerializer(rootType, true, null);
-
-        // Ok: should we wrap result in an additional property ("root name")?
-        final boolean wrap;
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
-            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-            if (wrap) {
-                gen.writeStartObject();
-                PropertyName pname = _config.findRootName(value.getClass());
-                gen.writeFieldName(pname.simpleAsEncoded(_config));
+            if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
+                _serialize(gen, value, ser, _config.findRootName(rootType));
+                return;
             }
-        } else if (rootName.isEmpty()) {
-            wrap = false;
-        } else {
-            // empty String means explicitly disabled; non-empty that it is enabled
-            wrap = true;
-            gen.writeStartObject();
-            gen.writeFieldName(rootName.getSimpleName());
+        } else if (!rootName.isEmpty()) {
+            _serialize(gen, value, ser, rootName);
+            return;
         }
-        try {
-            ser.serialize(value, gen, this);
-            if (wrap) {
-                gen.writeEndObject();
-            }
-        } catch (Exception e) {
-            throw _wrapAsIOE(gen, e);
-        }
+        _serialize(gen, value, ser);
     }
-    */
 
     /**
      * The method to be called by {@link ObjectWriter}
@@ -420,35 +385,20 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         if (ser == null) {
             ser = findTypedValueSerializer(rootType, true, null);
         }
-        // Ok: should we wrap result in an additional property ("root name")?
-        final boolean wrap;
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
-            // [JACKSON-163]
-            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-            if (wrap) {
-                gen.writeStartObject();
-                PropertyName pname = (rootType == null)
+            if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
+                rootName = (rootType == null)
                         ? _config.findRootName(value.getClass())
                         : _config.findRootName(rootType);
-                gen.writeFieldName(pname.simpleAsEncoded(_config));
+                _serialize(gen, value, ser, rootName);
+                return;
             }
-        } else if (rootName.isEmpty()) {
-            wrap = false;
-        } else {
-            // empty String means explicitly disabled; non-empty that it is enabled
-            wrap = true;
-            gen.writeStartObject();
-            gen.writeFieldName(rootName.getSimpleName());
+        } else if (!rootName.isEmpty()) {
+            _serialize(gen, value, ser, rootName);
+            return;
         }
-        try {
-            ser.serialize(value, gen, this);
-            if (wrap) {
-                gen.writeEndObject();
-            }
-        } catch (Exception e) {
-            throw _wrapAsIOE(gen, e);
-        }
+        _serialize(gen, value, ser);
     }
 
     /**
@@ -504,6 +454,31 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             if (wrap) {
                 gen.writeEndObject();
             }
+        } catch (Exception e) {
+            throw _wrapAsIOE(gen, e);
+        }
+    }
+
+    private final void _serialize(JsonGenerator gen, Object value,
+            JsonSerializer<Object> ser, PropertyName rootName)
+        throws IOException
+    {
+        try {
+            gen.writeStartObject();
+            gen.writeFieldName(rootName.simpleAsEncoded(_config));
+            ser.serialize(value, gen, this);
+            gen.writeEndObject();
+        } catch (Exception e) {
+            throw _wrapAsIOE(gen, e);
+        }
+    }
+
+    private final void _serialize(JsonGenerator gen, Object value,
+            JsonSerializer<Object> ser)
+        throws IOException
+    {
+        try {
+            ser.serialize(value, gen, this);
         } catch (Exception e) {
             throw _wrapAsIOE(gen, e);
         }

@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.seq;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
+
 import com.fasterxml.jackson.databind.*;
 
 public class SequenceWriterTest extends BaseMapTest
@@ -41,6 +46,40 @@ public class SequenceWriterTest extends BaseMapTest
         public int b;
         
         public ImplB(int v) { b = v; }
+    }
+
+    static class BareBase {
+        public int a = 1;
+    }
+
+    @JsonPropertyOrder({ "a", "b" })
+    static class BareBaseExt extends BareBase {
+        public int b = 2;
+    }
+
+    static class BareBaseCloseable extends BareBase
+        implements Closeable
+    {
+        public int c = 3;
+
+        boolean closed = false;
+        
+        @Override
+        public void close() throws IOException {
+            closed = true;
+        }
+    }
+
+    static class CloseableValue implements Closeable
+    {
+        public int x;
+
+        public boolean closed;
+        
+        @Override
+        public void close() throws IOException {
+            closed = true;
+        }
     }
 
     /*
@@ -137,7 +176,6 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
     }
 
-    @SuppressWarnings("resource")
     public void testPolymorphicArrayWithType() throws Exception
     {
         StringWriter strw = new StringWriter();
@@ -146,9 +184,53 @@ public class SequenceWriterTest extends BaseMapTest
                 .writeValuesAsArray(strw);
         w.write(new ImplA(-1))
             .write(new ImplB(3))
-            .write(new ImplA(7))
-            .close();
+            .write(new ImplA(7));
+        w.flush();
+        w.close();
         assertEquals(aposToQuotes("[{'type':'A','value':-1},{'type':'B','b':3},{'type':'A','value':7}]"),
                 strw.toString());
+    }
+
+    @SuppressWarnings("resource")
+    public void testSimpleCloseable() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer()
+                .with(SerializationFeature.CLOSE_CLOSEABLE);
+        CloseableValue input = new CloseableValue();
+        assertFalse(input.closed);
+        StringWriter out = new StringWriter();
+        SequenceWriter seq = w.writeValues(out);
+        input = new CloseableValue();
+        assertFalse(input.closed);
+        seq.write(input);
+        assertTrue(input.closed);
+        seq.close();
+        input.close();
+        assertEquals(aposToQuotes("{'x':0,'closed':false}"), out.toString());
+    }
+
+    public void testWithExplicitType() throws Exception
+    {
+        ObjectWriter w = MAPPER.writer()
+                // just for fun (and higher coverage):
+                .without(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)
+                .with(SerializationFeature.CLOSE_CLOSEABLE);
+        StringWriter out = new StringWriter();
+        SequenceWriter seq = w.writeValues(out);
+        // first full, as-is
+        seq.write(new BareBaseExt());
+        // but then just base type (no 'b' field)
+        seq.write(new BareBaseExt(), MAPPER.constructType(BareBase.class));
+
+        // one more. And note! Check for Closeable is for _value_, not type
+        // so it's fine to expect closing here
+        BareBaseCloseable cl = new BareBaseCloseable();
+        seq.write(cl, MAPPER.constructType(BareBase.class));
+        assertTrue(cl.closed);
+        cl.close();
+
+        seq.close();
+        seq.flush();
+        assertEquals(aposToQuotes("{'a':1,'b':2} {'a':1} {'a':1}"), out.toString());
     }
 }

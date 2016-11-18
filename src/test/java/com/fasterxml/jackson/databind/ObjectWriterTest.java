@@ -147,16 +147,6 @@ public class ObjectWriterTest
         assertTrue(input.closed);
         input.close();
 
-        // and via SequenceWriter too
-        StringWriter out = new StringWriter();
-        SequenceWriter seq = w.writeValues(out);
-        input = new CloseableValue();
-        assertFalse(input.closed);
-        seq.write(input);
-        assertTrue(input.closed);
-        seq.close();
-        input.close();
-
         // and via explicitly passed generator
         JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
         input = new CloseableValue();

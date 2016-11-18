@@ -21,6 +21,26 @@ public class TestKeySerializers extends BaseMapTest
         }
     }
 
+    public static class NullKeySerializer extends JsonSerializer<Object>
+    {
+        private String _null;
+        public NullKeySerializer(String s) { _null = s; }
+        @Override
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeFieldName(_null);
+        }
+    }
+
+    public static class NullValueSerializer extends JsonSerializer<Object>
+    {
+        private String _null;
+        public NullValueSerializer(String s) { _null = s; }
+        @Override
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeString(_null);
+        }
+    }
+    
     public static class NotKarlBean
     {
         public Map<String,Integer> map = new HashMap<String,Integer>();
@@ -148,6 +168,19 @@ public class TestKeySerializers extends BaseMapTest
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
 
+    public void testCustomNullSerializers() throws IOException
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
+        mapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer("NULL"));
+        Map<String,Integer> input = new HashMap<>();
+        input.put(null, 3);
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"NULL-KEY\":3}", json);
+        json = mapper.writeValueAsString(new Object[] { 1, null, true });
+        assertEquals("[1,\"NULL\",true]", json);
+    }
+    
     public void testCustomEnumInnerMapKey() throws Exception {
         Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
         Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);

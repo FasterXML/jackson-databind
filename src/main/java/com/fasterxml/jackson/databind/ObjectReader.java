@@ -1226,7 +1226,6 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, 0, src.length);
         }
-        
         return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
@@ -1243,7 +1242,6 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, offset, length);
         }
-
         return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src, offset, length),
                 false));
     }
@@ -1272,7 +1270,6 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-
         return (T) _bindAndClose(_considerFilter(_parserFactory.createParser(src), false));
     }
 
@@ -1290,7 +1287,6 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        
         return (T) _bindAndClose(_considerFilter(treeAsTokens(src), false));
     }
 

@@ -1327,8 +1327,8 @@ public abstract class SerializerProvider
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
              */
+            ser = null; // doesn't matter but compiler whines otherwise
             reportMappingProblem(iae, iae.getMessage());
-            return null; // never gets here
         }
 
         if (ser != null) {
@@ -1345,11 +1345,10 @@ public abstract class SerializerProvider
         try {
             ser = _createUntypedSerializer(type);
         } catch (IllegalArgumentException iae) {
-            /* We better only expose checked exceptions, since those
-             * are what caller is expected to handle
-             */
+            // We better only expose checked exceptions, since those
+            // are what caller is expected to handle
+            ser = null;
             reportMappingProblem(iae, iae.getMessage());
-            return null; // never gets here
         }
     
         if (ser != null) {

@@ -172,7 +172,7 @@ public class SequenceWriter
         if (_cfgCloseCloseable && (value instanceof Closeable)) {
             return _writeCloseableValue(value, type);
         }
-        /* 15-Dec-2014, tatu: I wonder if this could be come problematic. It shouldn't
+        /* 15-Dec-2014, tatu: I wonder if this could become problematic. It shouldn't
          *   really, since trying to use differently paramterized types in a sequence
          *   is likely to run into other issues. But who knows; if it does become an
          *   issue, may need to implement alternative, JavaType-based map.

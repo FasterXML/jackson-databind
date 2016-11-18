@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,9 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectReaderTest extends BaseMapTest
 {
@@ -26,6 +29,20 @@ public class ObjectReaderTest extends BaseMapTest
                 .readValue(p);
         p.close();
         assertTrue(ob instanceof List<?>);
+    }
+
+    public void testSimpleAltSources() throws Exception
+    {
+        final String JSON = "[1]";
+        final byte[] BYTES = JSON.getBytes("UTF-8");
+        Object ob = MAPPER.readerFor(Object.class)
+                .readValue(BYTES);
+        assertTrue(ob instanceof List<?>);
+
+        ob = MAPPER.readerFor(Object.class)
+                .readValue(BYTES, 0, BYTES.length);
+        assertTrue(ob instanceof List<?>);
+        assertEquals(1, ((List<?>) ob).size());
     }
 
     public void testParserFeatures() throws Exception
@@ -202,7 +219,44 @@ public class ObjectReaderTest extends BaseMapTest
 
     /*
     /**********************************************************
-    /* Test methods, failures
+    /* Test methods, ObjectCodec
+    /**********************************************************
+     */
+
+    public void testTreeToValue() throws Exception
+    {
+        ArrayNode n = MAPPER.createArrayNode();
+        n.add("xyz");
+        ObjectReader r = MAPPER.readerFor(String.class);
+        List<?> list = r.treeToValue(n, List.class);
+        assertEquals(1, list.size());
+    }
+    
+    public void testCodecUnsupportedWrites() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(String.class);
+        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
+        ObjectNode n = MAPPER.createObjectNode();
+        try {
+            r.writeTree(g, n);
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            ;
+        }
+        try {
+            r.writeValue(g, "Foo");
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            ;
+        }
+        g.close();
+
+        g.close();
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, failures, other
     /**********************************************************
      */
 

@@ -485,3 +485,6 @@ Josh Caplan (jecaplan@github)
   * Reported, suggested fix for #1368: Problem serializing `JsonMappingException` due to addition
     of non-ignored `processor` property (added in 2.7)
    (2.7.8)
+
+Frédéric Camblor (fcamblor@github)
+  * Reported #1451: Type parameter not passed by `ObjectWriter` if serializer pre-fetch disabled

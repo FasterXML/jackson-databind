@@ -1399,7 +1399,7 @@ public class ObjectWriter
                     ;
                 }
             }
-            return new Prefetch(null, null, typeSerializer);
+            return new Prefetch(newType, null, typeSerializer);
         }
 
         public final JsonSerializer<Object> getValueSerializer() {
@@ -1419,13 +1419,13 @@ public class ObjectWriter
         {
             if (typeSerializer != null) {
                 prov.serializePolymorphic(gen, value, rootType, valueSerializer, typeSerializer);
-                return;
-            }
-            if (valueSerializer != null) {
+            } else  if (valueSerializer != null) {
                 prov.serializeValue(gen, value, rootType, valueSerializer);
-                return;
+            } else if (rootType != null) {
+                prov.serializeValue(gen, value, rootType);
+            } else {
+                prov.serializeValue(gen, value);
             }
-            prov.serializeValue(gen, value);
         }
     }
 }

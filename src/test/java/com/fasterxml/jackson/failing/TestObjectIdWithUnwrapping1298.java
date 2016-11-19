@@ -45,6 +45,7 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
     public void testObjectIdWithRepeatedChild() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
+        // to keep output faithful to original, prevent auto-closing...
         mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
 
         // Equivalent to Spring _embedded for Bean w/ List property
@@ -58,9 +59,10 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 
         // serialize parent1 and parent2
         String json = mapper
-//                .writerWithDefaultPrettyPrinter()
+                .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(parents);
-        System.out.println("This works: " + json);
+        assertNotNull(json);
+//        System.out.println("This works: " + json);
 
         // Add parent3 to create ObjectId reference
         // Bean w/ repeated relationship from parent1, should generate ObjectId
@@ -74,10 +76,7 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 //                .writerWithDefaultPrettyPrinter()
                 .writeValue(sw, parents);
         } catch (Exception e) {
-            System.out.println("Failed output so far: " + sw);
-            throw e;
+            fail("Failed output so far: " + sw);
         }
-
-        System.out.println("Also works: " + sw);
     }
 }

@@ -40,6 +40,12 @@ public abstract class StdKeySerializers
         if (rawKeyType == String.class) {
             return DEFAULT_STRING_SERIALIZER;
         }
+        if ((rawKeyType == Integer.class) || (rawKeyType == Integer.TYPE)) {
+            return new Default(Default.TYPE_INTEGER, rawKeyType);
+        }
+        if ((rawKeyType == Long.class) || (rawKeyType == Long.TYPE)) {
+            return new Default(Default.TYPE_LONG, rawKeyType);
+        }
         if (rawKeyType.isPrimitive() || Number.class.isAssignableFrom(rawKeyType)) {
             // 28-Jun-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER, but makes
             //   more sense to use simpler one directly
@@ -121,7 +127,9 @@ public abstract class StdKeySerializers
         final static int TYPE_CALENDAR = 2;
         final static int TYPE_CLASS = 3;
         final static int TYPE_ENUM = 4;
-        final static int TYPE_TO_STRING = 5;
+        final static int TYPE_INTEGER = 5; // since 2.9
+        final static int TYPE_LONG = 6; // since 2.9
+        final static int TYPE_TO_STRING = 7;
 
         protected final int _typeId;
         
@@ -148,6 +156,10 @@ public abstract class StdKeySerializers
                             ? value.toString() : ((Enum<?>) value).name();
                     g.writeFieldName(str);
                 }
+                break;
+            case TYPE_INTEGER:
+            case TYPE_LONG:
+                g.writeFieldId(((Number) value).longValue());
                 break;
             case TYPE_TO_STRING:
             default:

@@ -420,9 +420,14 @@ public enum DeserializationFeature implements ConfigFeature
      * Note that exact behavior depends on date/time types in question; and specifically
      * JDK type of {@link java.util.Date} does NOT have in-built timezone information
      * so this setting has no effect.
+     * Further, while {@link java.util.Calendar} does have this information basic
+     * JDK {@link java.text.SimpleDateFormat} is unable to retain parsed zone information,
+     * and as a result, {@link java.util.Calendar} will always get context timezone
+     * adjustment regardless of this setting.
      *<p>
-     * As of Jackson 2.8, this feature is supported only by extension modules for Joda
-     * and Java 8 date/tyime datatypes.
+     *<p>
+     * Taking above into account, this feature is supported only by extension modules for
+     * Joda and Java 8 date/tyime datatypes.
      * 
      * @since 2.2
      */

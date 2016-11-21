@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Helper class used to resolve String values (either JSON Object field
@@ -83,17 +83,10 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * @deprecated Since 2.8, use {@link #constructUsingMethod(Class, Method, AnnotationIntrospector)} instead
+     * @since 2.9
      */
-    @Deprecated
-    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor) {
-        return constructUsingMethod(enumCls, accessor, null);
-    }
-
-    /**
-     * @since 2.8
-     */
-    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls, Method accessor,
+    public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
+            AnnotatedMember accessor,
             AnnotationIntrospector ai)
     {
         Enum<?>[] enumValues = enumCls.getEnumConstants();
@@ -102,7 +95,7 @@ public class EnumResolver implements java.io.Serializable
         for (int i = enumValues.length; --i >= 0; ) {
             Enum<?> en = enumValues[i];
             try {
-                Object o = accessor.invoke(en, (Object[]) null);
+                Object o = accessor.getValue(en);
                 if (o != null) {
                     map.put(o.toString(), en);
                 }
@@ -129,15 +122,6 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * @deprecated Since 2.8, use {@link #constructUnsafeUsingToString(Class, AnnotationIntrospector)} instead
-     */
-    @Deprecated
-    public static EnumResolver constructUnsafeUsingToString(Class<?> rawEnumCls)
-    {
-        return constructUnsafeUsingToString(rawEnumCls, null);
-    }
-
-    /**
      * Method that needs to be used instead of {@link #constructUsingToString}
      * if static type of enum is not known.
      *
@@ -153,21 +137,14 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * @deprecated Since 2.8, use {@link #constructUnsafeUsingMethod(Class, Method, AnnotationIntrospector)} instead.
-     */
-    @Deprecated
-    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor) {
-        return constructUnsafeUsingMethod(rawEnumCls, accessor, null);
-    }
-
-    /**
      * Method used when actual String serialization is indicated using @JsonValue
      * on a method.
      *
-     * @since 2.8
+     * @since 2.9
      */
     @SuppressWarnings({ "unchecked" })
-    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor,
+    public static EnumResolver constructUnsafeUsingMethod(Class<?> rawEnumCls,
+            AnnotatedMember accessor,
             AnnotationIntrospector ai)
     {            
         // wrong as ever but:

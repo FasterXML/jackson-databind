@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -38,11 +38,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class JsonValueSerializer
     extends StdSerializer<Object>
     implements ContextualSerializer, JsonFormatVisitable, SchemaAware
-    {
+{
     /**
-     * @since 2.8 (was "plain" method before)
+     * @since 2.9
      */
-    protected final AnnotatedMethod _accessorMethod;
+    protected final AnnotatedMember _accessor;
 
     protected final JsonSerializer<Object> _valueSerializer;
 
@@ -72,10 +72,10 @@ public class JsonValueSerializer
      *    to information we need
      */
     @SuppressWarnings("unchecked")
-    public JsonValueSerializer(AnnotatedMethod valueMethod, JsonSerializer<?> ser)
+    public JsonValueSerializer(AnnotatedMember accessor, JsonSerializer<?> ser)
     {
-        super(valueMethod.getType());
-        _accessorMethod = valueMethod;
+        super(accessor.getType());
+        _accessor = accessor;
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = null;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
@@ -86,7 +86,7 @@ public class JsonValueSerializer
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
         super(_notNullClass(src.handledType()));
-        _accessorMethod = src._accessorMethod;
+        _accessor = src._accessor;
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = property;
         _forceTypeInformation = forceTypeInfo;
@@ -128,7 +128,7 @@ public class JsonValueSerializer
              * if not, we don't really know the actual type until we get the instance.
              */
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            JavaType t = _accessorMethod.getType();
+            JavaType t = _accessor.getType();
             if (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || t.isFinal()) {
                 // false -> no need to cache
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
@@ -162,7 +162,7 @@ public class JsonValueSerializer
     public void serialize(Object bean, JsonGenerator gen, SerializerProvider prov) throws IOException
     {
         try {
-            Object value = _accessorMethod.getValue(bean);
+            Object value = _accessor.getValue(bean);
             if (value == null) {
                 prov.defaultSerializeNull(gen);
                 return;
@@ -179,7 +179,7 @@ public class JsonValueSerializer
             }
             ser.serialize(value, gen, prov);
         } catch (Exception e) {
-            wrapAndThrow(prov, e, bean, _accessorMethod.getName() + "()");
+            wrapAndThrow(prov, e, bean, _accessor.getName() + "()");
         }
     }
 
@@ -190,7 +190,7 @@ public class JsonValueSerializer
         // Regardless of other parts, first need to find value to serialize:
         Object value = null;
         try {
-            value = _accessorMethod.getValue(bean);
+            value = _accessor.getValue(bean);
             // and if we got null, can also just write it directly
             if (value == null) {
                 provider.defaultSerializeNull(gen);
@@ -217,7 +217,7 @@ public class JsonValueSerializer
             TypeSerializerRerouter rr = new TypeSerializerRerouter(typeSer0, bean);
             ser.serializeWithType(value, gen, provider, rr);
         } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, _accessorMethod.getName() + "()");
+            wrapAndThrow(provider, e, bean, _accessor.getName() + "()");
         }
     }
     
@@ -245,8 +245,8 @@ public class JsonValueSerializer
          *    
          *    Note that meaning of JsonValue, then, is very different for Enums. Sigh.
          */
-        final JavaType type = _accessorMethod.getType();
-        Class<?> declaring = _accessorMethod.getDeclaringClass();
+        final JavaType type = _accessor.getType();
+        Class<?> declaring = _accessor.getDeclaringClass();
         if ((declaring != null) && declaring.isEnum()) {
             if (_acceptJsonFormatVisitorForEnum(visitor, typeHint, declaring)) {
                 return;
@@ -285,14 +285,14 @@ public class JsonValueSerializer
                     // 21-Apr-2016, tatu: This is convoluted to the max, but essentially we
                     //   call `@JsonValue`-annotated accessor method on all Enum members,
                     //   so it all "works out". To some degree.
-                    enums.add(String.valueOf(_accessorMethod.callOn(en)));
+                    enums.add(String.valueOf(_accessor.getValue(en)));
                 } catch (Exception e) {
                     Throwable t = e;
                     while (t instanceof InvocationTargetException && t.getCause() != null) {
                         t = t.getCause();
                     }
                     ClassUtil.throwIfError(t);
-                    throw JsonMappingException.wrapWithPath(t, en, _accessorMethod.getName() + "()");
+                    throw JsonMappingException.wrapWithPath(t, en, _accessor.getName() + "()");
                 }
             }
             stringVisitor.enumTypes(enums);
@@ -324,7 +324,7 @@ public class JsonValueSerializer
 
     @Override
     public String toString() {
-        return "(@JsonValue serializer for method " + _accessorMethod.getDeclaringClass() + "#" + _accessorMethod.getName() + ")";
+        return "(@JsonValue serializer for method " + _accessor.getDeclaringClass() + "#" + _accessor.getName() + ")";
     }
 
     /*

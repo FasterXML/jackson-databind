@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * annotation with bean serialization.
  */
 @SuppressWarnings("serial")
-public class TestJsonValue
+public class JsonValueTest
     extends BaseMapTest
 {
     static class ValueClass<T>
@@ -26,12 +26,16 @@ public class TestJsonValue
         public ValueClass(T v) { _value = v; }
 
         @JsonValue T value() { return _value; }
-
-        // shouldn't need this, but may be useful for troubleshooting:
-        @Override
-        public String toString() { return "???"; }
     }
 
+    static class FieldValueClass<T>
+    {
+        @JsonValue(true)
+        final T _value;
+
+        public FieldValueClass(T v) { _value = v; }
+    }
+    
     /**
      * Another test class to check that it is also possible to
      * force specific serializer to use with @JsonValue annotated
@@ -54,8 +58,7 @@ public class TestJsonValue
     {
         public ToStringValueClass2(String value) { super(value); }
 
-        /* Simple as well, but let's ensure that other getters won't matter...
-         */
+        // Simple as well, but let's ensure that other getters won't matter...
 
         @JsonProperty int getFoobar() { return 4; }
 
@@ -87,6 +90,15 @@ public class TestJsonValue
         }
     }
 
+    static class MapFieldBean
+    {
+        @JsonValue
+        Map<String,String> stuff = new HashMap<>();
+        {
+            stuff.put("b", "2");
+        }
+    }
+    
     static class MapAsNumber extends HashMap<String,String>
     {
         @JsonValue
@@ -97,6 +109,17 @@ public class TestJsonValue
     {
         @JsonValue
         public int value() { return 13; }
+    }
+
+    // Just to ensure it's possible to disable annotation (usually
+    // via mix-ins, but here directly)
+    @JsonPropertyOrder({ "x", "y" })
+    static class DisabledJsonValue {
+        @JsonValue(false)
+        public int x = 1;
+
+        @JsonValue(false)
+        public int getY() { return 2; }
     }
 
     static class IntExtBean {
@@ -178,10 +201,16 @@ public class TestJsonValue
 
     private final ObjectMapper MAPPER = new ObjectMapper();
     
-    public void testSimpleJsonValue() throws Exception
+    public void testSimpleMethodJsonValue() throws Exception
     {
         assertEquals("\"abc\"", MAPPER.writeValueAsString(new ValueClass<String>("abc")));
         assertEquals("null", MAPPER.writeValueAsString(new ValueClass<String>(null)));
+    }
+
+    public void testSimpleFieldJsonValue() throws Exception
+    {
+        assertEquals("\"abc\"", MAPPER.writeValueAsString(new FieldValueClass<String>("abc")));
+        assertEquals("null", MAPPER.writeValueAsString(new FieldValueClass<String>(null)));
     }
 
     public void testJsonValueWithUseSerializer() throws Exception
@@ -199,6 +228,12 @@ public class TestJsonValue
         assertEquals("\"xyz\"", result);
     }
 
+    public void testDisabling() throws Exception
+    {
+        assertEquals(aposToQuotes("{'x':1,'y':2}"),
+                MAPPER.writeValueAsString(new DisabledJsonValue()));
+    }
+
     public void testValueWithStaticType() throws Exception
     {
         // Ok; first, with dynamic type:
@@ -211,12 +246,15 @@ public class TestJsonValue
     }
 
     public void testMapWithJsonValue() throws Exception {
+        // First via method
         assertEquals("{\"a\":\"1\"}", MAPPER.writeValueAsString(new MapBean()));
+
+        // then field
+        assertEquals("{\"b\":\"2\"}", MAPPER.writeValueAsString(new MapFieldBean()));
     }
 
     public void testWithMap() throws Exception {
         assertEquals("42", MAPPER.writeValueAsString(new MapAsNumber()));
-
     }
 
     public void testWithList() throws Exception {

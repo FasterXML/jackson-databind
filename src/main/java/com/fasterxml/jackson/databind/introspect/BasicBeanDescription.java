@@ -240,11 +240,18 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
+    @Deprecated // since 2.9
     public AnnotatedMethod findJsonValueMethod() {
         return (_propCollector == null) ? null
                 : _propCollector.getJsonValueMethod();
     }
 
+    @Override // since 2.9
+    public AnnotatedMember findJsonValueAccessor() {
+        return (_propCollector == null) ? null
+                : _propCollector.getJsonValueAccessor();
+    }
+ 
     @Override
     public Set<String> getIgnoredPropertyNames() {
         Set<String> ign = (_propCollector == null) ? null

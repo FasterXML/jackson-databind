@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -224,14 +223,14 @@ public abstract class BasicSerializerFactory
                 // As per [databind#47], also need to support @JsonValue
                 if (ser == null) {
                     beanDesc = config.introspect(keyType);
-                    AnnotatedMethod am = beanDesc.findJsonValueMethod();
+                    AnnotatedMember am = beanDesc.findJsonValueAccessor();
                     if (am != null) {
-                        final Class<?> rawType = am.getRawReturnType();
+                        final Class<?> rawType = am.getRawType();
                         JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
                                 rawType, true);
-                        Method m = am.getAnnotated();
                         if (config.canOverrideAccessModifiers()) {
-                            ClassUtil.checkAndFixAccess(m, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                            ClassUtil.checkAndFixAccess(am.getMember(),
+                                    config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
                         ser = new JsonValueSerializer(am, delegate);
                     } else {
@@ -345,14 +344,14 @@ public abstract class BasicSerializerFactory
             return SerializableSerializer.instance;
         }
         // Second: @JsonValue for any type
-        AnnotatedMethod valueMethod = beanDesc.findJsonValueMethod();
-        if (valueMethod != null) {
-            Method m = valueMethod.getAnnotated();
+        AnnotatedMember valueAccessor = beanDesc.findJsonValueAccessor();
+        if (valueAccessor != null) {
             if (prov.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(m, prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                ClassUtil.checkAndFixAccess(valueAccessor.getMember(),
+                        prov.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod);
-            return new JsonValueSerializer(valueMethod, ser);
+            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueAccessor);
+            return new JsonValueSerializer(valueAccessor, ser);
         }
         // No well-known annotations...
         return null;

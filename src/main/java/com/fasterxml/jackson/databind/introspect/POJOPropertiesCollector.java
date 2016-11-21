@@ -90,8 +90,10 @@ public class POJOPropertiesCollector
 
     /**
      * Method(s) marked with 'JsonValue' annotation
+     *<p>
+     * NOTE: before 2.9, was `AnnotatedMethod`; with 2.9 allows fields too
      */
-    protected LinkedList<AnnotatedMethod> _jsonValueGetters;
+    protected LinkedList<AnnotatedMember> _jsonValueAccessors;
 
     /**
      * Lazily collected list of properties that can be implicitly
@@ -166,20 +168,32 @@ public class POJOPropertiesCollector
         }
         return _injectables;
     }
-    
-    public AnnotatedMethod getJsonValueMethod()
+
+    @Deprecated // since 2.9
+    public AnnotatedMethod getJsonValueMethod() {
+        AnnotatedMember m = getJsonValueAccessor();
+        if (m instanceof AnnotatedMethod) {
+            return (AnnotatedMethod) m;
+        }
+        return null;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
             collectAll();
         }
         // If @JsonValue defined, must have a single one
-        if (_jsonValueGetters != null) {
-            if (_jsonValueGetters.size() > 1) {
-                reportProblem("Multiple value properties defined ("+_jsonValueGetters.get(0)+" vs "
-                        +_jsonValueGetters.get(1)+")");
+        if (_jsonValueAccessors != null) {
+            if (_jsonValueAccessors.size() > 1) {
+                reportProblem("Multiple 'as-value' properties defined ("+_jsonValueAccessors.get(0)+" vs "
+                        +_jsonValueAccessors.get(1)+")");
             }
             // otherwise we won't greatly care
-            return _jsonValueGetters.get(0);
+            return _jsonValueAccessors.get(0);
         }
         return null;
     }
@@ -367,7 +381,29 @@ public class POJOPropertiesCollector
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
         
         for (AnnotatedField f : _classDef.fields()) {
-            String implName = (ai == null) ? null : ai.findImplicitPropertyName(f);
+            String implName;
+            if (ai == null) {
+                implName = null;
+            } else {
+                implName = ai.findImplicitPropertyName(f);
+                // @JsonValue?
+                if (Boolean.TRUE.equals(ai.findAsValueAnnotation(f))) {
+                    if (_jsonValueAccessors == null) {
+                        _jsonValueAccessors = new LinkedList<>();
+                    }
+                    _jsonValueAccessors.add(f);
+                    continue;
+                }
+                // @JsonAnySetter?
+                // !!! 20-Nov-2016, tatu: This is wrong; needs to go via AnnotationIntrospector!
+                if (f.hasAnnotation(JsonAnySetter.class)) {
+                    if (_anySetterField == null) {
+                        _anySetterField = new LinkedList<AnnotatedMember>();
+                    }
+                    _anySetterField.add(f);
+                    continue;
+                }
+            }
             if (implName == null) {
                 implName = f.getName();
             }
@@ -417,18 +453,10 @@ public class POJOPropertiesCollector
              *  Also: if 'ignored' is set, need to included until a later point, to
              *  avoid losing ignoral information.
              */
-            if (pruneFinalFields && (pn == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
+            if (pruneFinalFields && (pn == null) && !ignored
+                    && Modifier.isFinal(f.getModifiers())) {
                 continue;
             }
-
-            //if field has annotation @JsonAnySetter
-            if(f.hasAnnotation(JsonAnySetter.class)) {
-            	if (_anySetterField == null) {
-            		_anySetterField = new LinkedList<AnnotatedMember>();
-            	}
-            	_anySetterField.add(f);
-            }
-            
             _property(props, implName).addField(f, pn, nameExplicit, visible, ignored);
         }
     }
@@ -550,11 +578,11 @@ public class POJOPropertiesCollector
                 return;
             }
             // @JsonValue?
-            if (ai.hasAsValueAnnotation(m)) {
-                if (_jsonValueGetters == null) {
-                    _jsonValueGetters = new LinkedList<AnnotatedMethod>();
+            if (Boolean.TRUE.equals(ai.findAsValueAnnotation(m))) {
+                if (_jsonValueAccessors == null) {
+                    _jsonValueAccessors = new LinkedList<>();
                 }
-                _jsonValueGetters.add(m);
+                _jsonValueAccessors.add(m);
                 return;
             }
         }

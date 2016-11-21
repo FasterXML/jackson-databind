@@ -184,6 +184,9 @@ public abstract class BeanDescription
      * if any. If multiple ones are found,
      * an error is reported by throwing {@link IllegalArgumentException}
      */
+    public abstract AnnotatedMember findJsonValueAccessor();
+
+    @Deprecated // since 2.9
     public abstract AnnotatedMethod findJsonValueMethod();
 
     public abstract AnnotatedMethod findMethod(String name, Class<?>[] paramTypes);

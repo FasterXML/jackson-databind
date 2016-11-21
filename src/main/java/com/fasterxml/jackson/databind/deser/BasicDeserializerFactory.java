@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -1243,7 +1242,7 @@ public abstract class BasicDeserializerFactory
             // Need to consider @JsonValue if one found
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass,
-                        config, beanDesc.findJsonValueMethod()));
+                        config, beanDesc.findJsonValueAccessor()));
             }
         }
 
@@ -1432,7 +1431,7 @@ public abstract class BasicDeserializerFactory
                 return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
-        EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
+        EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor());
         // May have @JsonCreator for static factory method:
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
             if (_hasCreatorAnnotation(ctxt, factory)) {
@@ -1863,14 +1862,15 @@ public abstract class BasicDeserializerFactory
     }
 
     protected EnumResolver constructEnumResolver(Class<?> enumClass,
-            DeserializationConfig config, AnnotatedMethod jsonValueMethod)
+            DeserializationConfig config, AnnotatedMember jsonValueAccessor)
     {
-        if (jsonValueMethod != null) {
-            Method accessor = jsonValueMethod.getAnnotated();
+        if (jsonValueAccessor != null) {
             if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(accessor, config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
+                        config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor, config.getAnnotationIntrospector());
+            return EnumResolver.constructUnsafeUsingMethod(enumClass,
+                    jsonValueAccessor, config.getAnnotationIntrospector());
         }
         // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
         //   here, but that won't do: it must be dynamically changeable...

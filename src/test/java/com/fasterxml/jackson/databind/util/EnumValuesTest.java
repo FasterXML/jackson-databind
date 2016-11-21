@@ -50,10 +50,9 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(3, values.internalMap().size());
     }
 
-    @SuppressWarnings("deprecation")
     public void testEnumResolver()
     {
-        EnumResolver enumRes = EnumResolver.constructUnsafeUsingToString(ABC.class);
+        EnumResolver enumRes = EnumResolver.constructUnsafeUsingToString(ABC.class, null);
         assertEquals(ABC.B, enumRes.getEnum(1));
         assertNull(enumRes.getEnum(-1));
         assertNull(enumRes.getEnum(3));

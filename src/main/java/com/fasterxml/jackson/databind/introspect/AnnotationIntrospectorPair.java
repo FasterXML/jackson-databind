@@ -563,23 +563,20 @@ public class AnnotationIntrospectorPair
         }
         return n;
     }
-    
-    @Override
-    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
-        return _primary.hasAsValueAnnotation(am) || _secondary.hasAsValueAnnotation(am);
-    }
 
+    @Override
+    public Boolean findAsValueAnnotation(Annotated a) {
+        Boolean b = _primary.findAsValueAnnotation(a);
+        if (b == null) {
+            b = _secondary.findAsValueAnnotation(a);
+        }
+        return b;
+    }
+    
     @Override
     public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
         return _primary.hasAnyGetterAnnotation(am) || _secondary.hasAnyGetterAnnotation(am);
     }
-    
-    @Override
-    @Deprecated
-    public String findEnumValue(Enum<?> value) {
-        String r = _primary.findEnumValue(value);
-        return (r == null) ? _secondary.findEnumValue(value) : r;
-    }        
 
     @Override
     public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
@@ -595,6 +592,19 @@ public class AnnotationIntrospectorPair
         return (en == null) ? _secondary.findDefaultEnumValue(enumCls) : en;
     }
 
+    @Override
+    @Deprecated // since 2.8
+    public String findEnumValue(Enum<?> value) {
+        String r = _primary.findEnumValue(value);
+        return (r == null) ? _secondary.findEnumValue(value) : r;
+    }        
+
+    @Override
+    @Deprecated // since 2.9
+    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
+        return _primary.hasAsValueAnnotation(am) || _secondary.hasAsValueAnnotation(am);
+    }
+    
     // // // Deserialization: general annotations
 
     @Override

@@ -973,10 +973,12 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
-        JsonValue ann = _findAnnotation(am, JsonValue.class);
-        // value of 'false' means disabled...
-        return (ann != null && ann.value());
+    public Boolean findAsValueAnnotation(Annotated a) {
+        JsonValue ann = _findAnnotation(a, JsonValue.class);
+        if (ann == null) {
+            return null;
+        }
+        return ann.value();
     }
 
     @Override
@@ -984,6 +986,14 @@ public class JacksonAnnotationIntrospector
     {
         // No dedicated disabling; regular @JsonIgnore used if needs to be ignored (handled separately)
         return _hasAnnotation(am, JsonAnyGetter.class);
+    }
+
+    @Override
+    @Deprecated // since 2.9
+    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
+        JsonValue ann = _findAnnotation(am, JsonValue.class);
+        // value of 'false' means disabled...
+        return (ann != null) && ann.value();
     }
 
     /*

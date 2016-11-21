@@ -856,13 +856,31 @@ public abstract class AnnotationIntrospector
      * should be used as "the value" of the object instance; usually
      * serialized as a primitive value such as String or number.
      *
-     * @return True if such annotation is found (and is not disabled);
-     *   false if no enabled annotation is found
+     * @return {@link Boolean#TRUE} if such annotation is found and is not disabled;
+     *   {@link Boolean#FALSE} if disabled annotation (block) is found (to indicate
+     *   accessor is definitely NOT to be used "as value"); or `null` if no
+     *   information found.
+     *   
+     * @since 2.9
      */
+    public Boolean findAsValueAnnotation(Annotated a) {
+        // 20-Nov-2016, tatu: Delegate in 2.9; remove redirect from later versions
+        if (a instanceof AnnotatedMethod) {
+            if (hasAsValueAnnotation((AnnotatedMethod) a)) {
+                return true;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @deprecated Since 2.9 Use {@link #findAsValueAnnotation(Annotated)} instead.
+     */
+    @Deprecated // since 2.9
     public boolean hasAsValueAnnotation(AnnotatedMethod am) {
         return false;
     }
-
+    
     /**
      * Method for checking whether given method has an annotation
      * that suggests that the method is to serve as "any setter";

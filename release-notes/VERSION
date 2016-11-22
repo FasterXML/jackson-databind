@@ -27,6 +27,8 @@ Project: jackson-databind
  by passing `MappingConfig`
 #1371: Add `MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES` to allow
  disabling use of `@CreatorProperties` as explicit `@JsonCreator` equivalent
+#1376: Add ability to disable JsonAnySetter/JsonAnyGetter via mixin
+ (suggested by brentryan@github)
 #1399: Add support for `@JsonSetter(merge=OptBoolean.TRUE`) to allow "deep update"
 #1406: `ObjectMapper.readTree()` methods do not return `null` on end-of-input
  (reported by Fabrizio C)

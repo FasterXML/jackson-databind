@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -189,8 +188,9 @@ public class POJOPropertiesCollector
         // If @JsonValue defined, must have a single one
         if (_jsonValueAccessors != null) {
             if (_jsonValueAccessors.size() > 1) {
-                reportProblem("Multiple 'as-value' properties defined ("+_jsonValueAccessors.get(0)+" vs "
-                        +_jsonValueAccessors.get(1)+")");
+                reportProblem("Multiple 'as-value' properties defined (%s vs %s)",
+                        _jsonValueAccessors.get(0),
+                        _jsonValueAccessors.get(1));
             }
             // otherwise we won't greatly care
             return _jsonValueAccessors.get(0);
@@ -205,14 +205,14 @@ public class POJOPropertiesCollector
         }
         if (_anyGetters != null) {
             if (_anyGetters.size() > 1) {
-                reportProblem("Multiple 'any-getters' defined ("+_anyGetters.get(0)+" vs "
-                        +_anyGetters.get(1)+")");
+                reportProblem("Multiple 'any-getters' defined (%s vs %s)",
+                        _anyGetters.get(0), _anyGetters.get(1));
             }
             return _anyGetters.getFirst();
         }        
         return null;
     }
-    
+
     public AnnotatedMember getAnySetterField()
     {
         if (!_collected) {
@@ -220,8 +220,8 @@ public class POJOPropertiesCollector
         }
         if (_anySetterField != null) {
             if (_anySetterField.size() > 1) {
-                reportProblem("Multiple 'any-Setters' defined ("+_anySetters.get(0)+" vs "
-                        +_anySetterField.get(1)+")");
+                reportProblem("Multiple 'any-setter' fields defined (%s vs %s)",
+                        _anySetterField.get(0), _anySetterField.get(1));
             }
             return _anySetterField.getFirst();
         }
@@ -235,8 +235,8 @@ public class POJOPropertiesCollector
         }
         if (_anySetters != null) {
             if (_anySetters.size() > 1) {
-                reportProblem("Multiple 'any-setters' defined ("+_anySetters.get(0)+" vs "
-                        +_anySetters.get(1)+")");
+                reportProblem("Multiple 'any-setter' methods defined (%s vs %s)",
+                        _anySetters.get(0), _anySetters.get(1));
             }
             return _anySetters.getFirst();
         }
@@ -395,8 +395,7 @@ public class POJOPropertiesCollector
                     continue;
                 }
                 // @JsonAnySetter?
-                // !!! 20-Nov-2016, tatu: This is wrong; needs to go via AnnotationIntrospector!
-                if (f.hasAnnotation(JsonAnySetter.class)) {
+                if (Boolean.TRUE.equals(ai.hasAnySetter(f))) {
                     if (_anySetterField == null) {
                         _anySetterField = new LinkedList<AnnotatedMember>();
                     }
@@ -407,7 +406,6 @@ public class POJOPropertiesCollector
             if (implName == null) {
                 implName = f.getName();
             }
-
             PropertyName pn;
 
             if (ai == null) {
@@ -550,11 +548,13 @@ public class POJOPropertiesCollector
             } else if (argCount == 1) { // setters
             	_addSetterMethod(props, m, ai);
             } else if (argCount == 2) { // any getter?
-                if (ai != null  && ai.hasAnySetterAnnotation(m)) {
-                    if (_anySetters == null) {
-                        _anySetters = new LinkedList<AnnotatedMethod>();
+                if (ai != null) {
+                    if (Boolean.TRUE.equals(ai.hasAnySetter(m))) {
+                        if (_anySetters == null) {
+                            _anySetters = new LinkedList<AnnotatedMethod>();
+                        }
+                        _anySetters.add(m);
                     }
-                    _anySetters.add(m);
                 }
             }
         }
@@ -1032,7 +1032,10 @@ public class POJOPropertiesCollector
     /**********************************************************
      */
 
-    protected void reportProblem(String msg) {
+    protected void reportProblem(String msg, Object... args) {
+        if (args.length > 0) {
+            msg = String.format(msg, args);
+        }
         throw new IllegalArgumentException("Problem with definition of "+_classDef+": "+msg);
     }
 

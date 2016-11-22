@@ -23,7 +23,7 @@ public abstract class BeanDescription
 {
     /**
      * Bean type information, including raw class and possible
-     * * generics information
+     * generics information
      */
     protected final JavaType _type;
 
@@ -155,42 +155,63 @@ public abstract class BeanDescription
     /* Basic API for finding property accessors
     /**********************************************************
      */
-    
-    public abstract AnnotatedMember findAnyGetter();
 
     /**
-     * Method used to locate the method of introspected class that
-     * implements {@link com.fasterxml.jackson.annotation.JsonAnySetter}. If no such method exists
-     * null is returned. If more than one are found, an exception
-     * is thrown.
-     * Additional checks are also made to see that method signature
-     * is acceptable: needs to take 2 arguments, first one String or
-     * Object; second any can be any type.
-     */
-    public abstract AnnotatedMethod findAnySetter();
-
-    /**
-     * Method used to locate the field of the class that implements
-     * {@link com.fasterxml.jackson.annotation.JsonAnySetter} If no such method
-     * exists null is returned. If more than one are found, an exception is thrown.
-     * 
-     * @since 2.8
-     */
-    public abstract AnnotatedMember findAnySetterField();
-
-    /**
-     * Method for locating the getter method that is annotated with
+     * Method for locating accessor (readable field, or "getter" method)
+     * that has
      * {@link com.fasterxml.jackson.annotation.JsonValue} annotation,
      * if any. If multiple ones are found,
      * an error is reported by throwing {@link IllegalArgumentException}
+     *
+     * @since 2.9
      */
     public abstract AnnotatedMember findJsonValueAccessor();
 
-    @Deprecated // since 2.9
-    public abstract AnnotatedMethod findJsonValueMethod();
+    public abstract AnnotatedMember findAnyGetter();
+
+    /**
+     * Method used to locate a mutator (settable field, or 2-argument set method)
+     * of introspected class that
+     * implements {@link com.fasterxml.jackson.annotation.JsonAnySetter}.
+     * If no such mutator exists null is returned. If more than one are found,
+     * an exception is thrown.
+     * Additional checks are also made to see that method signature
+     * is acceptable: needs to take 2 arguments, first one String or
+     * Object; second any can be any type.
+     *
+     * @since 2.9
+     */
+    public abstract AnnotatedMember findAnySetterAccessor();
 
     public abstract AnnotatedMethod findMethod(String name, Class<?>[] paramTypes);
+
+    @Deprecated // since 2.9
+    public abstract AnnotatedMethod findJsonValueMethod();
     
+    /**
+     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
+     */
+    @Deprecated
+    public AnnotatedMethod findAnySetter() {
+        AnnotatedMember m = findAnySetterAccessor();
+        if (m instanceof AnnotatedMethod) {
+            return (AnnotatedMethod) m;
+        }
+        return null;
+    }
+
+    /**
+     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
+     */
+    @Deprecated
+    public AnnotatedMember findAnySetterField() {
+        AnnotatedMember m = findAnySetterAccessor();
+        if (m instanceof AnnotatedField) {
+            return m;
+        }
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Basic API, class configuration

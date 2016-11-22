@@ -293,25 +293,39 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
-    public AnnotatedMethod findAnySetter() throws IllegalArgumentException
+    public AnnotatedMember findAnySetterAccessor() throws IllegalArgumentException
     {
-        AnnotatedMethod anySetter = (_propCollector == null) ? null
-                : _propCollector.getAnySetterMethod();
-        if (anySetter != null) {
-            /* Also, let's be somewhat strict on how field name is to be
-             * passed; String, Object make sense, others not
-             * so much.
-             */
-            /* !!! 18-May-2009, tatu: how about enums? Can add support if
-             *  requested; easy enough for devs to add support within
-             *  method.
-             */
-            Class<?> type = anySetter.getRawParameterType(0);
-            if (type != String.class && type != Object.class) {
-                throw new IllegalArgumentException("Invalid 'any-setter' annotation on method "+anySetter.getName()+"(): first argument not of type String or Object, but "+type.getName());
+        if (_propCollector != null) {
+            AnnotatedMethod anyMethod = _propCollector.getAnySetterMethod();
+            if (anyMethod != null) {
+                // Also, let's be somewhat strict on how field name is to be
+                // passed; String, Object make sense, others not so much.
+    
+                /* !!! 18-May-2009, tatu: how about enums? Can add support if
+                 *  requested; easy enough for devs to add support within method.
+                 */
+                Class<?> type = anyMethod.getRawParameterType(0);
+                if ((type != String.class) && (type != Object.class)) {
+                    throw new IllegalArgumentException(String.format(
+"Invalid 'any-setter' annotation on method '%s()': first argument not of type String or Object, but %s",
+anyMethod.getName(), type.getName()));
+                }
+                return anyMethod;
+            }
+            AnnotatedMember anyField = _propCollector.getAnySetterField();
+            if (anyField != null) {
+                // For now let's require a Map; in future can add support for other
+                // types like perhaps Iterable<Map.Entry>?
+                Class<?> type = anyField.getRawType();
+                if (!Map.class.isAssignableFrom(type)) {
+                    throw new IllegalArgumentException(String.format(
+"Invalid 'any-setter' annotation on field '%s': type is not instance of java.util.Map",
+anyField.getName()));
+                }
+                return anyField;
             }
         }
-        return anySetter;
+        return null;
     }
 
     @Override
@@ -464,23 +478,6 @@ public class BasicBeanDescription extends BeanDescription
         }
         return anyGetter;
     }
-
-    @Override
-    public AnnotatedMember findAnySetterField() throws IllegalArgumentException {
-        AnnotatedMember anySetter = (_propCollector == null) ? null : _propCollector.getAnySetterField();
-		if (anySetter != null) {
-			/*
-			 * For now let's require a Map; in future can add support for other
-			 * types like perhaps Iterable<Map.Entry>?
-			 */
-			Class<?> type = anySetter.getRawType();
-			if (!Map.class.isAssignableFrom(type)) {
-				throw new IllegalArgumentException("Invalid 'any-setter' annotation on field " + anySetter.getName()
-				        + "(): type is not instance of java.util.Map");
-			}
-		}
-		return anySetter;
-	}
 
     @Override
     public Map<String,AnnotatedMember> findBackReferenceProperties()

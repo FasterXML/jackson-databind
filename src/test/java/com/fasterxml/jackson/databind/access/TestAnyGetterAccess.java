@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.*;
  * Separate tests located in different package than code being
  * exercised; needed to trigger some access-related failures.
  */
-public class TestSerAnyGetter
+public class TestAnyGetterAccess
     extends BaseMapTest
 {
     /*

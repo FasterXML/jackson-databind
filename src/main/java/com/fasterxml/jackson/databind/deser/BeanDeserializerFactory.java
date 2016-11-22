@@ -455,19 +455,10 @@ public class BeanDeserializerFactory
         }
 
         // Also, do we have a fallback "any" setter?
-        AnnotatedMethod anySetterMethod = beanDesc.findAnySetter();
-        AnnotatedMember anySetterField = null;
-        if (anySetterMethod != null) {
-            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetterMethod));
+        AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        if (anySetter != null) {
+            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
         } else {
-            anySetterField = beanDesc.findAnySetterField();
-            if (anySetterField != null) {
-                builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetterField));
-            }
-        }
-        // NOTE: we do NOT add @JsonIgnore'd properties into blocked ones if there's any-setter
-        // Implicit ones via @JsonIgnore and equivalent?
-        if (anySetterMethod == null && anySetterField == null) {
             Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
             if (ignored2 != null) {
                 for (String propName : ignored2) {

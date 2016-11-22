@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.*;
  * Unit tests for verifying that {@link JsonAnySetter} annotation
  * works as expected.
  */
-public class TestAnyProperties
+public class AnySetterTest
     extends BaseMapTest
 {
     static class MapImitator
@@ -25,6 +25,16 @@ public class TestAnyProperties
         void addEntry(String key, Object value)
         {
             _map.put(key, value);
+        }
+    }
+
+    // for [databind#1376]
+    static class MapImitatorDisabled extends MapImitator
+    {
+        @Override
+        @JsonAnySetter(enabled=false)
+        void addEntry(String key, Object value) {
+            throw new RuntimeException("Should not get called");
         }
     }
 
@@ -228,6 +238,18 @@ public class TestAnyProperties
         assertEquals(Integer.valueOf(3), l.get(2));
     }
 
+    public void testAnySetterDisable() throws Exception
+    {
+        try {
+            MAPPER.readValue(aposToQuotes("{'value':3}"),
+                    MapImitatorDisabled.class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Unrecognized field \"value\"");
+        }
+
+    }
+
     public void testSimpleTyped() throws Exception
     {
         MapImitatorWithValue mapHolder = MAPPER.readValue
@@ -245,7 +267,7 @@ public class TestAnyProperties
             Broken b = MAPPER.readValue("{ \"a\" : 3 }", Broken.class);
             fail("Should have gotten an exception");
         } catch (JsonMappingException e) {
-            verifyException(e, "Multiple 'any-setters'");
+            verifyException(e, "Multiple 'any-setter' methods");
         }
     }
 

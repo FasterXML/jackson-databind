@@ -721,16 +721,20 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public Boolean hasAnySetter(Annotated a) {
+        Boolean b = _primary.hasAnySetter(a);
+        if (b == null) {
+            b = _secondary.hasAnySetter(a);
+        }
+        return b;
+    }
+
+    @Override
     public JsonSetter.Value findSetterInfo(Annotated a) {
         JsonSetter.Value v2 = _secondary.findSetterInfo(a);
         JsonSetter.Value v1 = _primary.findSetterInfo(a);
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
-    }
-
-    @Override
-    public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
-        return _primary.hasAnySetterAnnotation(am) || _secondary.hasAnySetterAnnotation(am);
     }
 
     @Override
@@ -753,6 +757,12 @@ public class AnnotationIntrospectorPair
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         JsonCreator.Mode mode = _primary.findCreatorAnnotation(config, a);
         return (mode == null) ? _secondary.findCreatorAnnotation(config, a) : mode;
+    }
+
+    @Override
+    @Deprecated // since 2.9
+    public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
+        return _primary.hasAnySetterAnnotation(am) || _secondary.hasAnySetterAnnotation(am);
     }
 
     protected boolean _isExplicitClassOrOb(Object maybeCls, Class<?> implicit) {

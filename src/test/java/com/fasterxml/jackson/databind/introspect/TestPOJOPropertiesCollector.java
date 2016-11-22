@@ -438,13 +438,16 @@ public class TestPOJOPropertiesCollector
 
     public void testJackson744() throws Exception
     {
-        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(Issue744Bean.class));
+        BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect
+                (MAPPER.constructType(Issue744Bean.class));
         assertNotNull(beanDesc);
-        AnnotatedMethod setter = beanDesc.findAnySetter();
+        AnnotatedMember setter = beanDesc.findAnySetterAccessor();
         assertNotNull(setter);
+        assertEquals("addAdditionalProperty", setter.getName());
+        assertTrue(setter instanceof AnnotatedMethod);
     }
 
-    // [#269]: Support new @JsonPropertyDescription
+    // [databind#269]: Support new @JsonPropertyDescription
     public void testPropertyDesc() throws Exception
     {
         // start via deser
@@ -455,7 +458,7 @@ public class TestPOJOPropertiesCollector
         _verifyProperty(beanDesc, true, false, "13");
     }
 
-    // [#438]: Support @JsonProperty.index
+    // [databind#438]: Support @JsonProperty.index
     public void testPropertyIndex() throws Exception
     {
         BeanDescription beanDesc = MAPPER.getDeserializationConfig().introspect(MAPPER.constructType(PropDescBean.class));

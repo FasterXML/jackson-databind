@@ -992,8 +992,7 @@ public class JacksonAnnotationIntrospector
 
     @Override
     @Deprecated // since 2.9
-    public boolean hasAnyGetterAnnotation(AnnotatedMethod am)
-    {
+    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
         // No dedicated disabling; regular @JsonIgnore used if needs to be ignored (handled separately)
         return _hasAnnotation(am, JsonAnyGetter.class);
     }
@@ -1203,18 +1202,23 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public boolean hasAnySetterAnnotation(AnnotatedMethod am)
-    {
-        /* No dedicated disabling; regular @JsonIgnore used
-         * if needs to be ignored (and if so, is handled prior
-         * to this method getting called)
-         */
-        return _hasAnnotation(am, JsonAnySetter.class);
+    public Boolean hasAnySetter(Annotated a) {
+        JsonAnySetter ann = _findAnnotation(a, JsonAnySetter.class);
+        if (ann == null) {
+            return null;
+        }
+        return ann.enabled();
     }
 
     @Override
     public JsonSetter.Value findSetterInfo(Annotated a) {
         return JsonSetter.Value.from(_findAnnotation(a, JsonSetter.class));
+    }
+
+    @Override
+    @Deprecated // since 2.9
+    public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
+        return _hasAnnotation(am, JsonAnySetter.class);
     }
 
     @Override

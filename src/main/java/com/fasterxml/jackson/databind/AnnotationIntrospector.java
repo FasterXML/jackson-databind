@@ -1189,8 +1189,10 @@ public abstract class AnnotationIntrospector
      *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
+     *   
+     * @since 2.9
      */
-    public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
+    public Boolean hasAnySetter(Annotated a) {
         return false;
     }
 
@@ -1261,6 +1263,14 @@ public abstract class AnnotationIntrospector
     @Deprecated
     public JsonCreator.Mode findCreatorBinding(Annotated a) {
         return null;
+    }
+
+    /**
+     * @deprecated Since 2.9 use {@link #hasAnySetter} instead.
+     */
+    @Deprecated // since 2.9
+    public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
+        return false;
     }
 
     /*

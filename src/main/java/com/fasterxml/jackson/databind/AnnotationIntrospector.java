@@ -863,7 +863,7 @@ public abstract class AnnotationIntrospector
      *   
      * @since 2.9
      */
-    public Boolean findAsValueAnnotation(Annotated a) {
+    public Boolean hasAsValue(Annotated a) {
         // 20-Nov-2016, tatu: Delegate in 2.9; remove redirect from later versions
         if (a instanceof AnnotatedMethod) {
             if (hasAsValueAnnotation((AnnotatedMethod) a)) {
@@ -874,14 +874,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * @deprecated Since 2.9 Use {@link #findAsValueAnnotation(Annotated)} instead.
-     */
-    @Deprecated // since 2.9
-    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
-        return false;
-    }
-    
-    /**
      * Method for checking whether given method has an annotation
      * that suggests that the method is to serve as "any setter";
      * method to be used for accessing set of miscellaneous "extra"
@@ -889,9 +881,18 @@ public abstract class AnnotationIntrospector
      *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
+     *
+     * @since 2.9
      */
-    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
-        return false;
+    public Boolean hasAnyGetter(Annotated a) {
+
+        // 21-Nov-2016, tatu: Delegate in 2.9; remove redirect from later versions
+        if (a instanceof AnnotatedMethod) {
+            if (hasAnyGetterAnnotation((AnnotatedMethod) a)) {
+                return true;
+            }
+        }
+        return null;
     }
 
     /**
@@ -939,6 +940,22 @@ public abstract class AnnotationIntrospector
         return value.name();
     }
 
+    /**
+     * @deprecated Since 2.9 Use {@link #hasAsValue(Annotated)} instead.
+     */
+    @Deprecated // since 2.9
+    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
+        return false;
+    }
+
+    /**
+     * @deprecated Since 2.9 Use {@link #hasAnyGetter} instead
+     */
+    @Deprecated
+    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
+        return false;
+    }
+    
     /*
     /**********************************************************
     /* Deserialization: general annotations

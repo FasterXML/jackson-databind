@@ -387,7 +387,7 @@ public class POJOPropertiesCollector
             } else {
                 implName = ai.findImplicitPropertyName(f);
                 // @JsonValue?
-                if (Boolean.TRUE.equals(ai.findAsValueAnnotation(f))) {
+                if (Boolean.TRUE.equals(ai.hasAsValue(f))) {
                     if (_jsonValueAccessors == null) {
                         _jsonValueAccessors = new LinkedList<>();
                     }
@@ -570,7 +570,8 @@ public class POJOPropertiesCollector
         
         // any getter?
         if (ai != null) {
-            if (ai.hasAnyGetterAnnotation(m)) {
+            // @JsonAnyGetter?
+            if (Boolean.TRUE.equals(ai.hasAnyGetter(m))) {
                 if (_anyGetters == null) {
                     _anyGetters = new LinkedList<AnnotatedMember>();
                 }
@@ -578,7 +579,7 @@ public class POJOPropertiesCollector
                 return;
             }
             // @JsonValue?
-            if (Boolean.TRUE.equals(ai.findAsValueAnnotation(m))) {
+            if (Boolean.TRUE.equals(ai.hasAsValue(m))) {
                 if (_jsonValueAccessors == null) {
                     _jsonValueAccessors = new LinkedList<>();
                 }

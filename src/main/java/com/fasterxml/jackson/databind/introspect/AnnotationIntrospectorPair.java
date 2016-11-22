@@ -565,17 +565,21 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Boolean findAsValueAnnotation(Annotated a) {
-        Boolean b = _primary.findAsValueAnnotation(a);
+    public Boolean hasAsValue(Annotated a) {
+        Boolean b = _primary.hasAsValue(a);
         if (b == null) {
-            b = _secondary.findAsValueAnnotation(a);
+            b = _secondary.hasAsValue(a);
         }
         return b;
     }
-    
+
     @Override
-    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
-        return _primary.hasAnyGetterAnnotation(am) || _secondary.hasAnyGetterAnnotation(am);
+    public Boolean hasAnyGetter(Annotated a) {
+        Boolean b = _primary.hasAnyGetter(a);
+        if (b == null) {
+            b = _secondary.hasAnyGetter(a);
+        }
+        return b;
     }
 
     @Override
@@ -605,6 +609,12 @@ public class AnnotationIntrospectorPair
         return _primary.hasAsValueAnnotation(am) || _secondary.hasAsValueAnnotation(am);
     }
     
+    @Override
+    @Deprecated // since 2.9
+    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
+        return _primary.hasAnyGetterAnnotation(am) || _secondary.hasAnyGetterAnnotation(am);
+    }
+
     // // // Deserialization: general annotations
 
     @Override

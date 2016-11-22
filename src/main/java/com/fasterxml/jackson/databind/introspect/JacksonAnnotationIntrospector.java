@@ -972,8 +972,8 @@ public class JacksonAnnotationIntrospector
         return null;
     }
 
-    @Override
-    public Boolean findAsValueAnnotation(Annotated a) {
+    @Override // since 2.9
+    public Boolean hasAsValue(Annotated a) {
         JsonValue ann = _findAnnotation(a, JsonValue.class);
         if (ann == null) {
             return null;
@@ -981,7 +981,17 @@ public class JacksonAnnotationIntrospector
         return ann.value();
     }
 
+    @Override // since 2.9
+    public Boolean hasAnyGetter(Annotated a) {
+        JsonAnyGetter ann = _findAnnotation(a, JsonAnyGetter.class);
+        if (ann == null) {
+            return null;
+        }
+        return ann.enabled();
+    }
+
     @Override
+    @Deprecated // since 2.9
     public boolean hasAnyGetterAnnotation(AnnotatedMethod am)
     {
         // No dedicated disabling; regular @JsonIgnore used if needs to be ignored (handled separately)

@@ -35,6 +35,18 @@ public class AnyGetterTest extends BaseMapTest
         }
     }
 
+    // For [databind#1376]: allow disabling any-getter
+    static class NotEvenAnyBean extends AnyOnlyBean
+    {
+        @JsonAnyGetter(enabled=false)
+        @Override
+        public Map<String,Integer> any() {
+            throw new RuntimeException("Should not get called!)");
+        }
+
+        public int getValue() { return 42; }
+    }
+    
     static class MapAsAny
     {
         protected Map<String,Object> stuff = new LinkedHashMap<String,Object>();
@@ -127,7 +139,7 @@ public class AnyGetterTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
     
-    public void testSimpleJsonValue() throws Exception
+    public void testSimpleAnyBean() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean());
         Map<?,?> map = MAPPER.readValue(json, Map.class);
@@ -151,6 +163,12 @@ public class AnyGetterTest extends BaseMapTest
         m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         json = serializeAsString(m, new AnyOnlyBean());
         assertEquals("{\"a\":3}", json);
+    }
+
+    public void testAnyDisabling() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new NotEvenAnyBean());
+        assertEquals(aposToQuotes("{'value':42}"), json);
     }
 
     // Trying to repro [databind#577]

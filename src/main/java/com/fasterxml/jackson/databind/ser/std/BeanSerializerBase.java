@@ -38,7 +38,7 @@ public abstract class BeanSerializerBase
         JsonFormatVisitable, SchemaAware
 {
     protected final static PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
-    
+
     final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
 
     /*
@@ -50,7 +50,7 @@ public abstract class BeanSerializerBase
     /**
      * @since 2.9
      */
-    final JavaType _beanType;
+    final protected JavaType _beanType;
 
     /**
      * Writers used for outputting actual property values

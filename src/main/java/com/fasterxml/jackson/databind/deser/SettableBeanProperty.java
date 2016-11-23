@@ -581,7 +581,6 @@ public abstract class SettableBeanProperty
      * module, but its use is not limited to only support it.
      *
      * @since 2.9
-     *
      */
     public static abstract class Delegating
         extends SettableBeanProperty

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 public class AsExistingPropertyTypeSerializer
     extends AsPropertyTypeSerializer
 {
-
     public AsExistingPropertyTypeSerializer(TypeIdResolver idRes,
             BeanProperty property, String propName)
     {
@@ -34,9 +33,11 @@ public class AsExistingPropertyTypeSerializer
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator gen) throws IOException
     {
-        final String typeId = idFromValue(value);
-        if ((typeId != null) && gen.canWriteTypeId()) {
-            gen.writeTypeId(typeId);
+        if (gen.canWriteTypeId()) { // only write explicitly if native type id
+            final String typeId = idFromValue(value);
+            if (typeId != null) {
+                gen.writeTypeId(typeId);
+            }
         }
         gen.writeStartObject();
     }
@@ -44,9 +45,11 @@ public class AsExistingPropertyTypeSerializer
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator gen, Class<?> type) throws IOException
     {
-        final String typeId = idFromValueAndType(value, type);
-        if ((typeId != null) && gen.canWriteTypeId()) {
-            gen.writeTypeId(typeId);
+        if (gen.canWriteTypeId()) { // only write explicitly if native type id
+            final String typeId = idFromValueAndType(value, type);
+            if (typeId != null) {
+                gen.writeTypeId(typeId);
+            }
         }
         gen.writeStartObject();
     }

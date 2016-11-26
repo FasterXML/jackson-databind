@@ -92,15 +92,19 @@ public class TestUntypedDeserialization
         }
     }
 
-    static class Untyped989 {
+    static class DelegatingUntyped {
         protected Object value;
         
         @JsonCreator // delegating
-        public Untyped989(Object v) {
+        public DelegatingUntyped(Object v) {
             value = v;
         }
     }
-    
+
+    static class WrappedUntyped1460 {
+        public Object value;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -253,8 +257,8 @@ public class TestUntypedDeserialization
 
     public void testNestedUntyped989() throws IOException
     {
-        Untyped989 pojo;
-        ObjectReader r = MAPPER.readerFor(Untyped989.class);
+        DelegatingUntyped pojo;
+        ObjectReader r = MAPPER.readerFor(DelegatingUntyped.class);
 
         pojo = r.readValue("[]");
         assertTrue(pojo.value instanceof List);
@@ -277,5 +281,18 @@ public class TestUntypedDeserialization
         MAPPER.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
         ob = MAPPER.readValue("[1]", Object.class);
         assertEquals(Object[].class, ob.getClass());
+    }
+
+    public void testUntypedIntAsLong() throws Exception
+    {
+        final String JSON = aposToQuotes("{'value':3}");
+        WrappedUntyped1460 w = MAPPER.readerFor(WrappedUntyped1460.class)
+                .readValue(JSON);
+        assertEquals(Integer.valueOf(3), w.value);
+
+        w = MAPPER.readerFor(WrappedUntyped1460.class)
+                .with(DeserializationFeature.USE_LONG_FOR_INTS)
+                .readValue(JSON);
+        assertEquals(Long.valueOf(3), w.value);
     }
 }

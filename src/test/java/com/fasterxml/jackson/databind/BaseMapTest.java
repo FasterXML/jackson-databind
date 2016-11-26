@@ -82,7 +82,7 @@ public abstract class BaseMapTest
     }
 
     protected static class ObjectWrapper {
-        private final Object object;
+        final Object object;
         protected ObjectWrapper(final Object object) {
             this.object = object;
         }

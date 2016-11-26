@@ -15,8 +15,8 @@ public class TestStdDateFormat
         assertNotNull(StdDateFormat.getRFC1123Format(tz, loc));
     }
 
-    // [databind#803
-    public void testLenient() throws Exception
+    // [databind#803]
+    public void testLenientDefaults() throws Exception
     {
         StdDateFormat f = StdDateFormat.instance;
 
@@ -37,22 +37,28 @@ public class TestStdDateFormat
         assertFalse(f2.isLenient());
         StdDateFormat f3 = f2.clone();
         assertFalse(f3.isLenient());
+    }
+
+    public void testLenientParsing() throws Exception
+    {
+        StdDateFormat f = StdDateFormat.instance.clone();
+        f.setLenient(false);
 
         // first, legal dates are... legal
-        Date dt = f3.parse("2015-11-30");
+        Date dt = f.parse("2015-11-30");
         assertNotNull(dt);
 
         // but as importantly, when not lenient, do not allow
         try {
-            f3.parse("2015-11-32");
+            f.parse("2015-11-32");
             fail("Should not pass");
         } catch (ParseException e) {
             verifyException(e, "can not parse date");
         }
 
         // ... yet, with lenient, do allow
-        f3.setLenient(true);
-        dt = f3.parse("2015-11-32");
+        f.setLenient(true);
+        dt = f.parse("2015-11-32");
         assertNotNull(dt);
     }
     

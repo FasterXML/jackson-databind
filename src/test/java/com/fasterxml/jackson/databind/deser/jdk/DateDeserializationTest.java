@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InputMismatchException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -42,6 +43,16 @@ public class DateDeserializationTest
     static class CalendarBean {
         Calendar _v;
         void setV(Calendar v) { _v = v; }
+    }
+
+    static class LenientCalendarBean {
+        @JsonFormat(lenient=OptBoolean.TRUE)
+        public Calendar value;
+    }
+    
+    static class StrictCalendarBean {
+        @JsonFormat(lenient=OptBoolean.FALSE)
+        public Calendar value;
     }
 
     /*
@@ -545,7 +556,46 @@ public class DateDeserializationTest
             verifyException(exp, "Attempted to unwrap");
         }
     }
-    
+
+    /*
+    /**********************************************************
+    /* Tests for leniency
+    /**********************************************************
+     */
+
+    public void testLenientCalendar() throws Exception
+    {
+        final String JSON = aposToQuotes("{'value':'2015-11-32'}");
+
+        // with lenient, can parse fine
+        LenientCalendarBean lenBean = MAPPER.readValue(JSON, LenientCalendarBean.class);
+        assertEquals(Calendar.DECEMBER, lenBean.value.get(Calendar.MONTH));
+        assertEquals(2, lenBean.value.get(Calendar.DAY_OF_MONTH));
+
+        // with strict, ought to produce exception
+        try {
+            MAPPER.readValue(JSON, StrictCalendarBean.class);
+            fail("Should not pass with invalid (with strict) date value");
+        } catch (InputMismatchException e) {
+            verifyException(e, "Can not deserialize value of type java.util.Calendar");
+            verifyException(e, "from String \"2015-11-32\"");
+            verifyException(e, "expected format");
+        }
+
+        // similarly with Date...
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(java.util.Date.class)
+            .setFormat(JsonFormat.Value.forLeniency(Boolean.FALSE));
+        try {
+            mapper.readValue(quote("2015-11-32"), java.util.Date.class);
+            fail("Should not pass with invalid (with strict) date value");
+        } catch (InputMismatchException e) {
+            verifyException(e, "Can not deserialize value of type java.util.Date");
+            verifyException(e, "from String \"2015-11-32\"");
+            verifyException(e, "expected format");
+        }
+    }
+
     /*
     /**********************************************************
     /* Tests to verify failing cases

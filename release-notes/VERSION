@@ -39,6 +39,7 @@ Project: jackson-databind
   (`JsonDeserializer.getNullValue()`)
  (contributed by jdmichal@github)
 #1444: Change `ObjectMapper.setSerializationInclusion()` to apply to content inclusion too
+#1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`
 
 2.8.6 (not yet released)
 

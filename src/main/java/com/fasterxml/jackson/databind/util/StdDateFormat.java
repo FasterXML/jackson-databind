@@ -171,7 +171,17 @@ public class StdDateFormat
         }
         return new StdDateFormat(_timezone, loc, _lenient);
     }
-    
+
+    /**
+     * @since 2.9
+     */
+    public StdDateFormat withLenient(Boolean b) {
+        if (_equals(b, _lenient)) {
+            return this;
+        }
+        return new StdDateFormat(_timezone, _locale, b);
+    }
+
     @Override
     public StdDateFormat clone() {
         /* Although there is that much state to share, we do need to
@@ -211,14 +221,6 @@ public class StdDateFormat
                 tz, loc, null);
     }
 
-    /**
-     * @deprecated Since 2.4; use variant that takes Locale
-     */
-    @Deprecated
-    public static DateFormat getRFC1123Format(TimeZone tz) {
-        return getRFC1123Format(tz, DEFAULT_LOCALE);
-    }
-
     /*
     /**********************************************************
     /* Public API, configuration
@@ -249,8 +251,8 @@ public class StdDateFormat
      */
     @Override // since 2.7
     public void setLenient(boolean enabled) {
-        Boolean newValue = enabled;
-        if (_lenient != newValue) {
+        Boolean newValue = Boolean.valueOf(enabled);
+        if (!_equals(newValue, _lenient)) {
             _lenient = newValue;
             // and since leniency settings may have been used:
             _clearFormats();
@@ -259,11 +261,8 @@ public class StdDateFormat
 
     @Override // since 2.7
     public boolean isLenient() {
-        if (_lenient == null) {
-            // default is, I believe, true
-            return true;
-        }
-        return _lenient.booleanValue();
+        // default is, I believe, true
+        return (_lenient == null) || _lenient.booleanValue();
     }
 
     /*
@@ -375,16 +374,25 @@ public class StdDateFormat
     /* Std overrides
     /**********************************************************
      */
-    
+
     @Override
     public String toString() {
-        String str = "DateFormat "+getClass().getName();
-        TimeZone tz = _timezone;
-        if (tz != null) {
-            str += " (timezone: "+tz+")";
-        }
-        str += "(locale: "+_locale+")";
-        return str;
+        return String.format("DateFormat %s: (timezone: %s, locale: %s)",
+                getClass().getName(), _timezone, _locale);
+    }
+
+    public String toPattern() { // same as SimpleDateFormat
+        StringBuilder sb = new StringBuilder(100);
+        sb.append("[one of: '")
+            .append(DATE_FORMAT_STR_ISO8601)
+            .append("', '")
+            .append(DATE_FORMAT_STR_RFC1123)
+            .append("' (")
+            ;
+        sb.append(Boolean.FALSE.equals(_lenient) ?
+                "strict" : "lenient")
+            .append(")]");
+        return sb.toString();
     }
 
     @Override // since 2.7[.2], as per [databind#1130]
@@ -402,6 +410,13 @@ public class StdDateFormat
     /* Helper methods
     /**********************************************************
      */
+
+    protected static <T> boolean _equals(T value1, T value2) {
+        if (value1 == value2) {
+            return true;
+        }
+        return (value1 != null) && value1.equals(value2);
+    }
 
     /**
      * Overridable helper method used to figure out which of supported

@@ -43,6 +43,8 @@ Project: jackson-databind
 
 2.8.6 (not yet released)
 
+#1425: `JsonNode.binaryValue()` ignores illegal character if it's the last one
+ (reported by binoternary@github)
 #1453: `UntypedObjectDeserializer` does not retain `float` type (over `double`)
 #1456: `TypeFactory` type resolution broken in 2.7 for generic types
    when using `constructType` with context

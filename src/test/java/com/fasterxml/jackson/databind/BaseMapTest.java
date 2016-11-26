@@ -243,6 +243,11 @@ public abstract class BaseMapTest
         assertArrayEquals(exp, act);
     }
 
+    protected void assertEquals(byte[] exp, byte[] act)
+    {
+        assertArrayEquals(exp, act);
+    }
+
     /**
      * Helper method for verifying 3 basic cookie cutter cases;
      * identity comparison (true), and against null (false),

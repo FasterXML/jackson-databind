@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.node.BinaryNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
@@ -22,7 +23,6 @@ public class TestTreeTraversingParser
         public List<String> kids;
     }
 
-    // Helper class for [JACKSON-370]
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class Jackson370Bean {
         public Inner inner;
@@ -45,65 +45,65 @@ public class TestTreeTraversingParser
             "{ \"a\" : 123, \"list\" : [ 12.25, null, true, { }, [ ] ] }";
         ObjectMapper m = new ObjectMapper();
         JsonNode tree = m.readTree(JSON);
-        JsonParser jp = tree.traverse();
+        JsonParser p = tree.traverse();
 
-        assertNull(jp.getCurrentToken());
-        assertNull(jp.getCurrentName());
+        assertNull(p.getCurrentToken());
+        assertNull(p.getCurrentName());
 
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertNull(jp.getCurrentName());
-        assertEquals("Expected START_OBJECT", JsonToken.START_OBJECT.asString(), jp.getText());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertNull(p.getCurrentName());
+        assertEquals("Expected START_OBJECT", JsonToken.START_OBJECT.asString(), p.getText());
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("a", jp.getCurrentName());
-        assertEquals("a", jp.getText());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.getText());
 
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals("a", jp.getCurrentName());
-        assertEquals(123, jp.getIntValue());
-        assertEquals("123", jp.getText());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals("a", p.getCurrentName());
+        assertEquals(123, p.getIntValue());
+        assertEquals("123", p.getText());
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("list", jp.getCurrentName());
-        assertEquals("list", jp.getText());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("list", p.getCurrentName());
+        assertEquals("list", p.getText());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertEquals("list", jp.getCurrentName());
-        assertEquals(JsonToken.START_ARRAY.asString(), jp.getText());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertEquals("list", p.getCurrentName());
+        assertEquals(JsonToken.START_ARRAY.asString(), p.getText());
 
-        assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-        assertNull(jp.getCurrentName());
-        assertEquals(12.25, jp.getDoubleValue(), 0);
-        assertEquals("12.25", jp.getText());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertNull(p.getCurrentName());
+        assertEquals(12.25, p.getDoubleValue(), 0);
+        assertEquals("12.25", p.getText());
 
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertNull(jp.getCurrentName());
-        assertEquals(JsonToken.VALUE_NULL.asString(), jp.getText());
+        assertToken(JsonToken.VALUE_NULL, p.nextToken());
+        assertNull(p.getCurrentName());
+        assertEquals(JsonToken.VALUE_NULL.asString(), p.getText());
 
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertNull(jp.getCurrentName());
-        assertTrue(jp.getBooleanValue());
-        assertEquals(JsonToken.VALUE_TRUE.asString(), jp.getText());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertNull(p.getCurrentName());
+        assertTrue(p.getBooleanValue());
+        assertEquals(JsonToken.VALUE_TRUE.asString(), p.getText());
 
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertNull(jp.getCurrentName());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        assertNull(jp.getCurrentName());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertNull(p.getCurrentName());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.getCurrentName());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertNull(jp.getCurrentName());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.getCurrentName());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertNull(p.getCurrentName());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.getCurrentName());
 
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        assertNull(jp.getCurrentName());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.getCurrentName());
 
-        assertNull(jp.nextToken());
+        assertNull(p.nextToken());
 
-        jp.close();
-        assertTrue(jp.isClosed());
+        p.close();
+        assertTrue(p.isClosed());
     }
 
     public void testArray() throws Exception
@@ -111,25 +111,25 @@ public class TestTreeTraversingParser
         // For convenience, parse tree from JSON first
         ObjectMapper m = new ObjectMapper();
 
-        JsonParser jp = m.readTree("[]").traverse();
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        jp.close();
+        JsonParser p = m.readTree("[]").traverse();
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
 
-        jp = m.readTree("[[]]").traverse();
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        jp.close();
+        p = m.readTree("[[]]").traverse();
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
 
-        jp = m.readTree("[[ 12.1 ]]").traverse();
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        jp.close();
+        p = m.readTree("[[ 12.1 ]]").traverse();
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
     }
     
     public void testNested() throws Exception
@@ -140,28 +140,28 @@ public class TestTreeTraversingParser
             ;
         ObjectMapper m = new ObjectMapper();
         JsonNode tree = m.readTree(JSON);
-        JsonParser jp = tree.traverse();
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        JsonParser p = tree.traverse();
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
         
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        jp.close();
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
     }
     
     /**
@@ -172,71 +172,71 @@ public class TestTreeTraversingParser
     {
         ObjectMapper m = new ObjectMapper();
         JsonNode tree = m.readTree(SAMPLE_DOC_JSON_SPEC);
-        JsonParser jp = tree.traverse();
-        verifyJsonSpecSampleDoc(jp, true);
-        jp.close();
+        JsonParser p = tree.traverse();
+        verifyJsonSpecSampleDoc(p, true);
+        p.close();
     }
 
     public void testBinaryPojo() throws Exception
     {
         byte[] inputBinary = new byte[] { 1, 2, 100 };
         POJONode n = new POJONode(inputBinary);
-        JsonParser jp = n.traverse();
+        JsonParser p = n.traverse();
 
-        assertNull(jp.getCurrentToken());
-        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, jp.nextToken());
-        byte[] data = jp.getBinaryValue();
+        assertNull(p.getCurrentToken());
+        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+        byte[] data = p.getBinaryValue();
         assertNotNull(data);
         assertArrayEquals(inputBinary, data);
-        Object pojo = jp.getEmbeddedObject();
+        Object pojo = p.getEmbeddedObject();
         assertSame(data, pojo);
-        jp.close();
+        p.close();
     }
 
     public void testBinaryNode() throws Exception
     {
         byte[] inputBinary = new byte[] { 0, -5 };
         BinaryNode n = new BinaryNode(inputBinary);
-        JsonParser jp = n.traverse();
+        JsonParser p = n.traverse();
 
-        assertNull(jp.getCurrentToken());
+        assertNull(p.getCurrentToken());
         // exposed as POJO... not as VALUE_STRING
-        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, jp.nextToken());
-        byte[] data = jp.getBinaryValue();
+        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+        byte[] data = p.getBinaryValue();
         assertNotNull(data);
         assertArrayEquals(inputBinary, data);
 
         // but as importantly, can be viewed as base64 encoded thing:
-        assertEquals("APs=", jp.getText());
+        assertEquals("APs=", p.getText());
 
-        assertNull(jp.nextToken());
-        jp.close();
+        assertNull(p.nextToken());
+        p.close();
     }
 
     public void testTextAsBinary() throws Exception
     {
         TextNode n = new TextNode("   APs=\n");
-        JsonParser jp = n.traverse();
-        assertNull(jp.getCurrentToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        byte[] data = jp.getBinaryValue();
+        JsonParser p = n.traverse();
+        assertNull(p.getCurrentToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        byte[] data = p.getBinaryValue();
         assertNotNull(data);
         assertArrayEquals(new byte[] { 0, -5 }, data);
 
-        assertNull(jp.nextToken());
-        jp.close();
-        assertTrue(jp.isClosed());
+        assertNull(p.nextToken());
+        p.close();
+        assertTrue(p.isClosed());
 
         // Also: let's verify we get an exception for garbage...
         n = new TextNode("?!??");
-        jp = n.traverse();
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        p = n.traverse();
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
-            jp.getBinaryValue();
-        } catch (JsonParseException e) {
+            p.getBinaryValue();
+        } catch (InvalidFormatException e) {
             verifyException(e, "Illegal character");
         }
-        jp.close();
+        p.close();
     }
 
     /**

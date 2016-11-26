@@ -991,7 +991,7 @@ public abstract class DeserializationContext
                 }
                 reportBadDefinition(constructType(instClass), String.format(
 "DeserializationProblemHandler.handleMissingInstantiator() for type %s returned value of type %s",
-                        instClass, instance.getClass()));
+                        instClass, ClassUtil.classNameOf(instance)));
             }
             h = h.next();
         }
@@ -1001,11 +1001,11 @@ public abstract class DeserializationContext
         //   match with token.
         if ((valueInst != null) && !valueInst.canInstantiate()) {
             msg = String.format("Can not construct instance of %s (no Creators, like default construct, exist): %s",
-                    instClass.getName(), msg);
+                    ClassUtil.nameOf(instClass), msg);
             return reportBadDefinition(constructType(instClass), msg);
         }
         msg = String.format("Can not construct instance of %s (although at least one Creator exists): %s",
-                instClass.getName(), msg);
+                ClassUtil.nameOf(instClass), msg);
         return reportInputMismatch(instClass, msg);
     }
 
@@ -1232,7 +1232,7 @@ public abstract class DeserializationContext
         throws JsonMappingException
     {
         String msg = String.format("No Object Id found for an instance of %s, to assign to property '%s'",
-                bean.getClass().getName(), oidReader.propertyName);
+                ClassUtil.classNameOf(bean), oidReader.propertyName);
         return reportInputMismatch(oidReader.idProperty, msg);
     }
 
@@ -1452,7 +1452,7 @@ public abstract class DeserializationContext
             String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not deserialize Map key of type %s from String %s: %s",
-                        keyClass.getName(), _quotedString(keyValue), msg),
+                        ClassUtil.nameOf(keyClass), _quotedString(keyValue), msg),
                 keyValue, keyClass);
     }
 
@@ -1473,7 +1473,7 @@ public abstract class DeserializationContext
             String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not deserialize value of type %s from String %s: %s",
-                        instClass.getName(), _quotedString(value), msg),
+                        ClassUtil.nameOf(instClass), _quotedString(value), msg),
                 value, instClass);
     }
 
@@ -1488,7 +1488,7 @@ public abstract class DeserializationContext
             String msg) {
         return InvalidFormatException.from(_parser,
                 String.format("Can not deserialize value of type %s from number %s: %s",
-                        instClass.getName(), String.valueOf(value), msg),
+                        ClassUtil.nameOf(instClass), String.valueOf(value), msg),
                 value, instClass);
     }
 
@@ -1505,7 +1505,7 @@ public abstract class DeserializationContext
         // Most likely problem with Creator definition, right?
         JavaType type = constructType(instClass);
         String msg = String.format("Can not construct instance of %s, problem: %s",
-                instClass.getName(), cause.getMessage());
+                ClassUtil.nameOf(instClass), cause.getMessage());
         InvalidDefinitionException e = InvalidDefinitionException.from(_parser, msg, type);
         e.initCause(cause);
         return e;
@@ -1523,7 +1523,8 @@ public abstract class DeserializationContext
     public JsonMappingException instantiationException(Class<?> instClass, String msg0) {
         // Most likely problem with Creator definition, right?
         JavaType type = constructType(instClass);
-        String msg = String.format("Can not construct instance of %s: %s", instClass.getName(), msg0);
+        String msg = String.format("Can not construct instance of %s: %s",
+                ClassUtil.nameOf(instClass), msg0);
         return InvalidDefinitionException.from(_parser, msg, type);
     }
 

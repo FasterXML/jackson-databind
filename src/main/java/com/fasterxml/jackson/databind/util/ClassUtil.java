@@ -715,6 +715,12 @@ public final class ClassUtil
         if (cls == null) {
             return "[null]";
         }
+        if (cls.isArray()) {
+            return nameOf(cls.getComponentType())+"[]";
+        }
+        if (cls.isPrimitive()) {
+            cls.getSimpleName();
+        }
         return cls.getName();
     }
     

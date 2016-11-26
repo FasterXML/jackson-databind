@@ -356,7 +356,19 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             
             // Most likely case: base64 encoded String?
             if (t == JsonToken.VALUE_STRING) {
-                return p.getBinaryValue(ctxt.getBase64Variant());
+                try {
+                    return p.getBinaryValue(ctxt.getBase64Variant());
+                } catch (JsonParseException e) {
+                    // 25-Nov-2016, tatu: related to [databind#1425], try to convert
+                    //   to a more usable one, as it's not really a JSON-level parse
+                    //   exception, but rather binding from JSON String into base64 decoded
+                    //   binary data
+                    String msg = e.getOriginalMessage();
+                    if (msg.contains("base64")) {
+                        return (byte[]) ctxt.handleWeirdStringValue(byte[].class,
+                                p.getText(), msg);
+                    }
+                }
             }
             // 31-Dec-2009, tatu: Also may be hidden as embedded Object
             if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {

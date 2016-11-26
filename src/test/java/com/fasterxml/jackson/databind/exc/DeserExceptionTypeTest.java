@@ -4,7 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 /**
@@ -65,7 +65,7 @@ public class DeserExceptionTypeTest
             Object result = MAPPER.readValue("    ", Object.class);
             fail("Expected an exception, but got result value: "+result);
         } catch (Exception e) {
-            verifyException(e, InputMismatchException.class, "No content");
+            verifyException(e, MismatchedInputException.class, "No content");
         }
     }
 
@@ -99,7 +99,7 @@ public class DeserExceptionTypeTest
             I = MAPPER.readValue(p, Integer.class);
             fail("Should have gotten an exception");
         } catch (IOException e) {
-            verifyException(e, InputMismatchException.class, "No content");
+            verifyException(e, MismatchedInputException.class, "No content");
         }
         // also: should have no current token after end-of-input
         JsonToken t = p.getCurrentToken();

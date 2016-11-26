@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
  * Intermediate exception type used as the base class for all {@link JsonMappingException}s
  * that are due to problems with target type definition; usually a problem with
  * annotations used on a class or its properties.
- * This is in contrast to {@link InputMismatchException} which
+ * This is in contrast to {@link MismatchedInputException} which
  * signals a problem with input to map.
  *
  * @since 2.9

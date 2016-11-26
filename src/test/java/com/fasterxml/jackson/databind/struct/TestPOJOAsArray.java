@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
@@ -275,7 +275,7 @@ public class TestPOJOAsArray extends BaseMapTest
         try {
             MAPPER.readValue(json, PojoAsArrayWrapper.class);
             fail("should not pass with extra element");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected JSON values");
         }
 

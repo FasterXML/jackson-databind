@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -1246,7 +1246,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException
     {
         msg = _format(msg, msgArgs);
-        throw InputMismatchException.from(getParser(), prop.getType(), msg);
+        throw MismatchedInputException.from(getParser(), prop.getType(), msg);
     }
 
     /**
@@ -1259,7 +1259,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException
     {
         msg = _format(msg, msgArgs);
-        throw InputMismatchException.from(getParser(), src.handledType(), msg);
+        throw MismatchedInputException.from(getParser(), src.handledType(), msg);
     }
 
     /**
@@ -1272,7 +1272,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException
     {
         msg = _format(msg, msgArgs);
-        throw InputMismatchException.from(getParser(), targetType, msg);
+        throw MismatchedInputException.from(getParser(), targetType, msg);
     }
 
     /**
@@ -1285,7 +1285,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException
     {
         msg = _format(msg, msgArgs);
-        throw InputMismatchException.from(getParser(), targetType, msg);
+        throw MismatchedInputException.from(getParser(), targetType, msg);
     }
 
     @Deprecated // since 2.9
@@ -1328,7 +1328,7 @@ public abstract class DeserializationContext
      */
     @Deprecated // since 2.9
     public void reportMissingContent(String msg, Object... msgArgs) throws JsonMappingException {
-        throw InputMismatchException.from(getParser(), (JavaType) null, "No content to map due to end-of-input");
+        throw MismatchedInputException.from(getParser(), (JavaType) null, "No content to map due to end-of-input");
     }
 
     /*
@@ -1421,7 +1421,7 @@ public abstract class DeserializationContext
         String msg = String.format("Unexpected token (%s), expected %s",
                 p.getCurrentToken(), expToken);
         msg = _colonConcat(msg, extra);
-        return InputMismatchException.from(p, targetType, msg);
+        return MismatchedInputException.from(p, targetType, msg);
     }
 
     public JsonMappingException wrongTokenException(JsonParser p, Class<?> targetType,
@@ -1430,7 +1430,7 @@ public abstract class DeserializationContext
         String msg = String.format("Unexpected token (%s), expected %s",
                 p.getCurrentToken(), expToken);
         msg = _colonConcat(msg, extra);
-        return InputMismatchException.from(p, targetType, msg);
+        return MismatchedInputException.from(p, targetType, msg);
     }
     
     @Deprecated // since 2.9
@@ -1563,7 +1563,7 @@ public abstract class DeserializationContext
         String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
                 id, type);
         msg = _colonConcat(msg, extraDesc);
-        return InputMismatchException.from(_parser, type, msg);
+        return MismatchedInputException.from(_parser, type, msg);
     }
 
     /**
@@ -1574,7 +1574,7 @@ public abstract class DeserializationContext
      */
     @Deprecated
     public JsonMappingException endOfInputException(Class<?> instClass) {
-        return InputMismatchException.from(_parser, instClass,
+        return MismatchedInputException.from(_parser, instClass,
                 "Unexpected end-of-input when trying to deserialize a "+instClass.getName());
     }
 

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Additional tests for {@link ObjectNode} container class.
@@ -446,7 +446,7 @@ public class ObjectNodeTest
         try {
             mapper.readValue("[ 1, 2, 3 ]", ObjectNode.class);
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "out of START_ARRAY token");
         }
     }

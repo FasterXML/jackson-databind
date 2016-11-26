@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JavaType;
  * @since 2.8
  */
 public class InvalidTypeIdException
-    extends InputMismatchException // since 2.9
+    extends MismatchedInputException // since 2.9
 {
     private static final long serialVersionUID = 1L; // silly Eclipse, warnings
 

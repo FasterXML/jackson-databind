@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class BuilderErrorHandling extends BaseMapTest
 {
@@ -53,7 +53,7 @@ public class BuilderErrorHandling extends BaseMapTest
         try {
             MAPPER.readValue(json, ValueClassXY.class);
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "unrecognized field");
         }
         // but pass if ok to ignore

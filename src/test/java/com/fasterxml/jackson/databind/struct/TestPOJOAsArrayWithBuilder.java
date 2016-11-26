@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
@@ -189,7 +189,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
         try {
             MAPPER.readValue(json, ValueClassXY.class);
             fail("should not pass with extra element");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected JSON values");
         }
 

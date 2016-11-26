@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 
 /**
- * Specialized sub-class of {@link InputMismatchException}
+ * Specialized sub-class of {@link MismatchedInputException}
  * that is used when the underlying problem appears to be that
  * of bad formatting of a value to deserialize.
  * 
  * @since 2.1
  */
 public class InvalidFormatException
-    extends InputMismatchException // since 2.9
+    extends MismatchedInputException // since 2.9
 {
     private static final long serialVersionUID = 1L; // silly Eclipse, warnings
 

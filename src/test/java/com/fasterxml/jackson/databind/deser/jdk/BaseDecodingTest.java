@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 // Mostly for [databind#1425]; not in optimal place (as it also has
 // tree-access tests), but has to do for now
@@ -30,7 +30,7 @@ public class BaseDecodingTest extends BaseMapTest
         try {
             MAPPER.readValue(quote(value), byte[].class);
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Failed to decode");
             verifyException(e, "as base64");
             verifyException(e, "Illegal character '!'");
@@ -42,7 +42,7 @@ public class BaseDecodingTest extends BaseMapTest
         try {
             /*byte[] b =*/ nodeValue.binaryValue();
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not access contents of TextNode as binary");
             verifyException(e, "Illegal character '!'");
         }

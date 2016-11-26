@@ -10,7 +10,7 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
@@ -538,7 +538,7 @@ public class DateDeserializationTest
         try {
             reader.readValue(input);
             fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
-        } catch (InputMismatchException exp) {
+        } catch (MismatchedInputException exp) {
             verifyException(exp, "Can not deserialize");
             verifyException(exp, "out of START_ARRAY");
         }
@@ -576,7 +576,7 @@ public class DateDeserializationTest
         try {
             MAPPER.readValue(JSON, StrictCalendarBean.class);
             fail("Should not pass with invalid (with strict) date value");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not deserialize value of type java.util.Calendar");
             verifyException(e, "from String \"2015-11-32\"");
             verifyException(e, "expected format");
@@ -589,7 +589,7 @@ public class DateDeserializationTest
         try {
             mapper.readValue(quote("2015-11-32"), java.util.Date.class);
             fail("Should not pass with invalid (with strict) date value");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not deserialize value of type java.util.Date");
             verifyException(e, "from String \"2015-11-32\"");
             verifyException(e, "expected format");

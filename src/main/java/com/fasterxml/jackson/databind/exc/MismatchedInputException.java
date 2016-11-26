@@ -14,11 +14,15 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  *<p>
  * This type is used as-is for some input problems, but in most cases there should be
  * more explicit subtypes to use.
+ *<p>
+ * NOTE: name chosen to differ from `java.util.InputMismatchException` since while that
+ * would have been better name, use of same overlapping name causes nasty issues
+ * with IDE auto-completion, so slightly less optimal chosen.
  *
  * @since 2.9
  */
 @SuppressWarnings("serial")
-public class InputMismatchException
+public class MismatchedInputException
     extends JsonMappingException
 {
     /**
@@ -26,39 +30,39 @@ public class InputMismatchException
      */
     protected Class<?> _targetType;
 
-    protected InputMismatchException(JsonParser p, String msg) {
+    protected MismatchedInputException(JsonParser p, String msg) {
         this(p, msg, (JavaType) null);
     }
 
-    protected InputMismatchException(JsonParser p, String msg, JsonLocation loc) {
+    protected MismatchedInputException(JsonParser p, String msg, JsonLocation loc) {
         super(p, msg, loc);
     }
 
-    protected InputMismatchException(JsonParser p, String msg, Class<?> targetType) {
+    protected MismatchedInputException(JsonParser p, String msg, Class<?> targetType) {
         super(p, msg);
         _targetType = targetType;
     }
 
-    protected InputMismatchException(JsonParser p, String msg, JavaType targetType) {
+    protected MismatchedInputException(JsonParser p, String msg, JavaType targetType) {
         super(p, msg);
         _targetType = (targetType == null) ? null : targetType.getRawClass();
     }
 
     // Only to prevent super-class static method from getting called
     @Deprecated // as of 2.9
-    public static InputMismatchException from(JsonParser p, String msg) {
+    public static MismatchedInputException from(JsonParser p, String msg) {
         return from(p, (Class<?>) null, msg);
     }
 
-    public static InputMismatchException from(JsonParser p, JavaType targetType, String msg) {
-        return new InputMismatchException(p, msg, targetType);
+    public static MismatchedInputException from(JsonParser p, JavaType targetType, String msg) {
+        return new MismatchedInputException(p, msg, targetType);
     }
 
-    public static InputMismatchException from(JsonParser p, Class<?> targetType, String msg) {
-        return new InputMismatchException(p, msg, targetType);
+    public static MismatchedInputException from(JsonParser p, Class<?> targetType, String msg) {
+        return new MismatchedInputException(p, msg, targetType);
     }
     
-    public InputMismatchException setTargetType(JavaType t) {
+    public MismatchedInputException setTargetType(JavaType t) {
         _targetType = t.getRawClass();
         return this;
     }

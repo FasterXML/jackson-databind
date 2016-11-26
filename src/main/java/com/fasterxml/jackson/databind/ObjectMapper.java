@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
 import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.*;
@@ -3900,7 +3900,7 @@ public class ObjectMapper
             if (t == null) {
                 // Throw mapping exception, since it's failure to map,
                 //   not an actual parsing problem
-                throw InputMismatchException.from(p, targetType,
+                throw MismatchedInputException.from(p, targetType,
                         "No content to map due to end-of-input");
             }
         }

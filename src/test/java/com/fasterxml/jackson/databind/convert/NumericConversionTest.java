@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.convert;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class NumericConversionTest extends BaseMapTest
 {
@@ -57,27 +57,27 @@ public class NumericConversionTest extends BaseMapTest
         try {
             R.forType(Long.class).readValue("1.5");
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not coerce a floating-point");
         }
 
         try {
             R.forType(Long.TYPE).readValue("1.5");
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not coerce a floating-point");
         }
         
         try {
             R.forType(LongWrapper.class).readValue("{\"l\": 7.7 }");
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not coerce a floating-point");
         }
         try {
             R.forType(long[].class).readValue("[ 2.5 ]");
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not coerce a floating-point");
         }
     }

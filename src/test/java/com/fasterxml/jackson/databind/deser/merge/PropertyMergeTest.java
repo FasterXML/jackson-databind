@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
@@ -184,7 +184,7 @@ public class PropertyMergeTest extends BaseMapTest
             MAPPER.readerForUpdating(input)
                 .readValue("[9, 8, 14]");
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "expected at most 2 properties");
         }
 
@@ -192,7 +192,7 @@ public class PropertyMergeTest extends BaseMapTest
             MAPPER.readerForUpdating(input)
                 .readValue("\"blob\"");
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Can not deserialize");
             verifyException(e, "from non-Array representation");
         }

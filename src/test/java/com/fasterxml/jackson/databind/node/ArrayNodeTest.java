@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InputMismatchException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -339,7 +339,7 @@ public class ArrayNodeTest
         try {
             mapper.readValue(" 123 ", ArrayNode.class);
             fail("Should not pass");
-        } catch (InputMismatchException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "out of VALUE_NUMBER_INT token");
         }
     }

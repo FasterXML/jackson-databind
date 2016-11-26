@@ -96,17 +96,21 @@ public class UntypedDeserializationTest
         }
     }
 
-    static class Untyped989 {
+    static class DelegatingUntyped {
         protected Object value;
         
         @JsonCreator // delegating
-        public Untyped989(Object v) {
+        public DelegatingUntyped(Object v) {
             value = v;
         }
     }
 
-    static class WrappedUntyped {
+    static class WrappedPolymorphicUntyped {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
+        public Object value;
+    }
+
+    static class WrappedUntyped1460 {
         public Object value;
     }
 
@@ -272,11 +276,11 @@ public class UntypedDeserializationTest
         assertTrue(l.get(0) instanceof Map<?,?>);
         assertTrue(l.get(1) instanceof List<?>);
 
-        ObjectReader rDefault = mapper.readerFor(WrappedUntyped.class);
+        ObjectReader rDefault = mapper.readerFor(WrappedPolymorphicUntyped.class);
         ObjectReader rAlt = rDefault
                 .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,
                         DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
-        WrappedUntyped w;
+        WrappedPolymorphicUntyped w;
 
         w = rDefault.readValue(aposToQuotes("{'value':10}"));
         assertEquals(Integer.valueOf(10), w.value);
@@ -340,8 +344,8 @@ public class UntypedDeserializationTest
 
     public void testNestedUntyped989() throws IOException
     {
-        Untyped989 pojo;
-        ObjectReader r = MAPPER.readerFor(Untyped989.class);
+        DelegatingUntyped pojo;
+        ObjectReader r = MAPPER.readerFor(DelegatingUntyped.class);
 
         pojo = r.readValue("[]");
         assertTrue(pojo.value instanceof List);
@@ -364,5 +368,18 @@ public class UntypedDeserializationTest
         MAPPER.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
         ob = MAPPER.readValue("[1]", Object.class);
         assertEquals(Object[].class, ob.getClass());
+    }
+
+    public void testUntypedIntAsLong() throws Exception
+    {
+        final String JSON = aposToQuotes("{'value':3}");
+        WrappedUntyped1460 w = MAPPER.readerFor(WrappedUntyped1460.class)
+                .readValue(JSON);
+        assertEquals(Integer.valueOf(3), w.value);
+
+        w = MAPPER.readerFor(WrappedUntyped1460.class)
+                .with(DeserializationFeature.USE_LONG_FOR_INTS)
+                .readValue(JSON);
+        assertEquals(Long.valueOf(3), w.value);
     }
 }

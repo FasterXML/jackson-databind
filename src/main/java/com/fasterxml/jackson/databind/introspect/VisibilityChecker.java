@@ -29,6 +29,15 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
     public T with(JsonAutoDetect ann);
 
     /**
+     * Method that can be used for merging default values from given
+     * source with values from this instance, and either return `this`
+     * instance (if no changes), or a new instance with applicable defaults.
+     *
+     * @since 2.9
+     */
+    public T withDefaults(VisibilityChecker<?> defaults);
+    
+    /**
      * Builder method that will create and return an instance that has specified
      * {@link Visibility} value to use for all property elements.
      * Typical usage would be something like:
@@ -168,7 +177,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          * visibility values
          */
         protected final static Std DEFAULT = new Std(Std.class.getAnnotation(JsonAutoDetect.class));
-        
+
         protected final Visibility _getterMinLevel;
         protected final Visibility _isGetterMinLevel;
         protected final Visibility _setterMinLevel;
@@ -185,7 +194,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          */
         public Std(JsonAutoDetect ann)
         {
-            // let's combine checks for enabled/disabled, with minimimum level checks:
+            // let's combine checks for enabled/disabled, with minimum level checks:
             _getterMinLevel = ann.getterVisibility();
             _isGetterMinLevel = ann.isGetterVisibility();
             _setterMinLevel = ann.setterVisibility();
@@ -196,7 +205,8 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         /**
          * Constructor that allows directly specifying minimum visibility levels to use
          */
-        public Std(Visibility getter, Visibility isGetter, Visibility setter, Visibility creator, Visibility field)
+        public Std(Visibility getter, Visibility isGetter, Visibility setter,
+                Visibility creator, Visibility field)
         {
             _getterMinLevel = getter;
             _isGetterMinLevel = isGetter;
@@ -251,6 +261,39 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         }
 
         @Override
+        public Std withDefaults(VisibilityChecker<?> defaults0)
+        {
+            if (defaults0 == null) {
+                return this;
+            }
+            // !!! 25-Nov-2016, tatu: not optimal, but without generic access
+            //    best we can do. Plan is to rewrite the whole thing for 3.x
+            Std defaults = (Std) defaults0;
+            Visibility getterMin = _defaultOrOverride(defaults._getterMinLevel, _getterMinLevel);
+            Visibility isGetterMin = _defaultOrOverride(defaults._isGetterMinLevel, _isGetterMinLevel);
+            Visibility setterMin = _defaultOrOverride(defaults._setterMinLevel, _setterMinLevel);
+            Visibility creatorMin = _defaultOrOverride(defaults._creatorMinLevel, _creatorMinLevel);
+            Visibility fieldMin = _defaultOrOverride(defaults._fieldMinLevel, _fieldMinLevel);
+
+            if ((getterMin == _getterMinLevel)
+                    && (isGetterMin == _isGetterMinLevel)
+                    && (setterMin == _setterMinLevel)
+                    && (creatorMin == _creatorMinLevel)
+                    && (fieldMin == _fieldMinLevel)
+                    ) {
+                return this;
+            }
+            return new Std(getterMin, isGetterMin, setterMin, creatorMin, fieldMin);
+        }
+
+        private Visibility _defaultOrOverride(Visibility defaults, Visibility override) {
+            if (override == Visibility.DEFAULT) {
+                return defaults;
+            }
+            return override;
+        }
+        
+        @Override
         public Std with(Visibility v)
         {
             if (v == Visibility.DEFAULT) {
@@ -258,7 +301,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
             }
             return new Std(v);
         }
-    
+
         @Override
         public Std withVisibility(PropertyAccessor method, Visibility v)
         {

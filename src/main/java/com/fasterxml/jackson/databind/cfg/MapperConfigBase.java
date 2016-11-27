@@ -227,7 +227,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
     }
-    
+
     /**
      * @since 2.3
      */
@@ -245,10 +245,84 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /*
     /**********************************************************
-    /* Addition fluent factory methods, common to all sub-types
+    /* Abstract fluent factory methods to be implemented by subtypes
     /**********************************************************
      */
 
+    /**
+     * @since 2.9 (in this case, demoted from sub-classes)
+     */
+    protected abstract T _withBase(BaseSettings newBase);
+
+    /**
+     * @since 2.9 (in this case, demoted from sub-classes)
+     */
+    protected abstract T _withMapperFeatures(int mapperFeatures);
+
+    /*
+    /**********************************************************
+    /* Additional shared fluent factory methods; features
+    /**********************************************************
+     */
+    
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features enabled.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public final T with(MapperFeature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperFeature f : features) {
+            newMapperFlags |= f.getMask();
+        }
+        if (newMapperFlags == _mapperFeatures) {
+            return (T) this;
+        }
+        return _withMapperFeatures(newMapperFlags);
+    }
+
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public final T without(MapperFeature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperFeature f : features) {
+             newMapperFlags &= ~f.getMask();
+        }
+        if (newMapperFlags == _mapperFeatures) {
+            return (T) this;
+        }
+        return _withMapperFeatures(newMapperFlags);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public final T with(MapperFeature feature, boolean state)
+    {
+        int newMapperFlags;
+        if (state) {
+            newMapperFlags = _mapperFeatures | feature.getMask();
+        } else {
+            newMapperFlags = _mapperFeatures & ~feature.getMask();
+        }
+        if (newMapperFlags == _mapperFeatures) {
+            return (T) this;
+        }
+        return _withMapperFeatures(newMapperFlags);
+    }
+
+    /*
+    /**********************************************************
+    /* Additional shared fluent factory methods; introspectors
+    /**********************************************************
+     */
+    
     /**
      * Method for constructing and returning a new instance with different
      * {@link AnnotationIntrospector} to use (replacing old one).
@@ -256,19 +330,25 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T with(AnnotationIntrospector ai);
+    public final T with(AnnotationIntrospector ai) {
+        return _withBase(_base.withAnnotationIntrospector(ai));
+    }
 
     /**
      * Method for constructing and returning a new instance with additional
      * {@link AnnotationIntrospector} appended (as the lowest priority one)
      */
-    public abstract T withAppendedAnnotationIntrospector(AnnotationIntrospector introspector);
+    public final T withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
+        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
+    }
 
     /**
      * Method for constructing and returning a new instance with additional
      * {@link AnnotationIntrospector} inserted (as the highest priority one)
      */
-    public abstract T withInsertedAnnotationIntrospector(AnnotationIntrospector introspector);
+    public final T withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
+        return _withBase(_base.withInsertedAnnotationIntrospector(ai));
+    }
     
     /**
      * Method for constructing and returning a new instance with different
@@ -278,122 +358,15 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T with(ClassIntrospector ci);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link DateFormat}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T with(DateFormat df);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link HandlerInstantiator}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T with(HandlerInstantiator hi);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link PropertyNamingStrategy}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T with(PropertyNamingStrategy strategy);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * root name to use (none, if null).
-     *<p>
-     * Note that when a root name is set to a non-Empty String, this will automatically force use
-     * of root element wrapping with given name. If empty String passed, will
-     * disable root name wrapping; and if null used, will instead use
-     * <code>SerializationFeature</code> to determine if to use wrapping, and annotation
-     * (or default name) for actual root name to use.
-     * 
-     * @param rootName to use: if null, means "use default" (clear setting);
-     *   if empty String ("") means that no root name wrapping is used;
-     *   otherwise defines root name to use.
-     *   
-     * @since 2.6
-     */
-    public abstract T withRootName(PropertyName rootName);
-
-    public T withRootName(String rootName) {
-        if (rootName == null) {
-            return withRootName((PropertyName) null);
-        }
-        return withRootName(PropertyName.construct(rootName));
+    public final T with(ClassIntrospector ci) {
+        return _withBase(_base.withClassIntrospector(ci));
     }
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link SubtypeResolver}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T with(SubtypeResolver str);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link TypeFactory}
-     * to use.
-     */
-    public abstract T with(TypeFactory typeFactory);
 
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link TypeResolverBuilder} to use.
+    /*
+    /**********************************************************
+    /* Additional shared fluent factory methods; attributes
+    /**********************************************************
      */
-    public abstract T with(TypeResolverBuilder<?> trb);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * view to use.
-     */
-    public abstract T withView(Class<?> view);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link VisibilityChecker}
-     * to use.
-     */
-    public abstract T with(VisibilityChecker<?> vc);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * minimal visibility level for specified property type
-     */
-    public abstract T withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * default {@link java.util.Locale} to use for formatting.
-     */
-    public abstract T with(Locale l);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * default {@link java.util.TimeZone} to use for formatting of date values.
-     */
-    public abstract T with(TimeZone tz);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * default {@link Base64Variant} to use with base64-encoded binary values.
-     */
-    public abstract T with(Base64Variant base64);
 
     /**
      * Method for constructing an instance that has specified
@@ -431,6 +404,151 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public T withoutAttribute(Object key) {
         return with(getAttributes().withoutSharedAttribute(key));
+    }
+
+    /*
+    /**********************************************************
+    /* Additional shared fluent factory methods; factories
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link TypeFactory}
+     * to use.
+     */
+    public final T with(TypeFactory tf) {
+        return _withBase( _base.withTypeFactory(tf));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link TypeResolverBuilder} to use.
+     */
+    public final T with(TypeResolverBuilder<?> trb) {
+        return _withBase(_base.withTypeResolverBuilder(trb));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link PropertyNamingStrategy}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public final T with(PropertyNamingStrategy pns) {
+        return _withBase(_base.withPropertyNamingStrategy(pns));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link HandlerInstantiator}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public final T with(HandlerInstantiator hi) {
+        return _withBase(_base.withHandlerInstantiator(hi));
+    }
+
+    /*
+    /**********************************************************
+    /* Additional shared fluent factory methods; other
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * default {@link Base64Variant} to use with base64-encoded binary values.
+     */
+    public final T with(Base64Variant base64) {
+        return _withBase(_base.with(base64));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link DateFormat}
+     * to use.
+     *<p>
+     * NOTE: non-final since <code>SerializationConfig</code> needs to override this
+     */
+    public T with(DateFormat df) {
+        return _withBase(_base.withDateFormat(df));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * default {@link java.util.Locale} to use for formatting.
+     */
+    public final T with(Locale l) {
+        return _withBase(_base.with(l));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * default {@link java.util.TimeZone} to use for formatting of date values.
+     */
+    public final T with(TimeZone tz) {
+        return _withBase(_base.with(tz));
+    }
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * root name to use (none, if null).
+     *<p>
+     * Note that when a root name is set to a non-Empty String, this will automatically force use
+     * of root element wrapping with given name. If empty String passed, will
+     * disable root name wrapping; and if null used, will instead use
+     * <code>SerializationFeature</code> to determine if to use wrapping, and annotation
+     * (or default name) for actual root name to use.
+     * 
+     * @param rootName to use: if null, means "use default" (clear setting);
+     *   if empty String ("") means that no root name wrapping is used;
+     *   otherwise defines root name to use.
+     *   
+     * @since 2.6
+     */
+    public abstract T withRootName(PropertyName rootName);
+
+    public T withRootName(String rootName) {
+        if (rootName == null) {
+            return withRootName((PropertyName) null);
+        }
+        return withRootName(PropertyName.construct(rootName));
+    }
+    
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link SubtypeResolver}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public abstract T with(SubtypeResolver str);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * view to use.
+     */
+    public abstract T withView(Class<?> view);
+
+    /**
+     * @deprecated Since 2.9 use configuration methods in {@link ObjectMapper}
+     */
+    @Deprecated
+    public T with(VisibilityChecker<?> vc) {
+        return _withBase(_base.withVisibilityChecker(vc));
+    }
+
+    /**
+     * @deprecated Since 2.9 use configuration methods in {@link ObjectMapper}
+     */
+    @Deprecated
+    public T withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
+        return _withBase(_base.withVisibility(forMethod, visibility));
     }
 
     /*

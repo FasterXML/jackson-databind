@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import java.text.DateFormat;
 import java.util.*;
-
-import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 
@@ -12,7 +9,6 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
@@ -29,8 +25,8 @@ public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
     implements java.io.Serializable // since 2.1
 {
-    // since 2.5
-    private static final long serialVersionUID = 1;
+    // since 2.9
+    private static final long serialVersionUID = 2;
 
     /*
     /**********************************************************
@@ -261,85 +257,31 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************
-    /* Life-cycle, factory methods from MapperConfig
+    /* Life-cycle, general factory methods from MapperConfig(Base)
+    /**********************************************************
+     */
+
+    @Override // since 2.9
+    protected final DeserializationConfig _withBase(BaseSettings newBase) {
+        return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
+    }
+
+    @Override // since 2.9
+    protected final DeserializationConfig _withMapperFeatures(int mapperFeatures) {
+        return new DeserializationConfig(this, mapperFeatures, _deserFeatures,
+                        _parserFeatures, _parserFeaturesToChange,
+                        _formatReadFeatures, _formatReadFeaturesToChange);
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, specific factory methods from MapperConfig
     /**********************************************************
      */
 
     @Override
-    public DeserializationConfig with(MapperFeature... features)
-    {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperFeature f : features) {
-            newMapperFlags |= f.getMask();
-        }
-        return (newMapperFlags == _mapperFeatures) ? this :
-            new DeserializationConfig(this, newMapperFlags, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
-                    
-    }
-
-    @Override
-    public DeserializationConfig without(MapperFeature... features)
-    {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperFeature f : features) {
-             newMapperFlags &= ~f.getMask();
-        }
-        return (newMapperFlags == _mapperFeatures) ? this :
-            new DeserializationConfig(this, newMapperFlags, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
-    }
-
-    @Override
-    public DeserializationConfig with(MapperFeature feature, boolean state)
-    {
-        int newMapperFlags;
-        if (state) {
-            newMapperFlags = _mapperFeatures | feature.getMask();
-        } else {
-            newMapperFlags = _mapperFeatures & ~feature.getMask();
-        }
-        return (newMapperFlags == _mapperFeatures) ? this :
-            new DeserializationConfig(this, newMapperFlags, _deserFeatures,
-                    _parserFeatures, _parserFeaturesToChange,
-                    _formatReadFeatures, _formatReadFeaturesToChange);
-    }
-
-    @Override
-    public DeserializationConfig with(ClassIntrospector ci) {
-        return _withBase(_base.withClassIntrospector(ci));
-    }
-
-    @Override
-    public DeserializationConfig with(AnnotationIntrospector ai) {
-        return _withBase(_base.withAnnotationIntrospector(ai));
-    }
-
-    @Override
-    public DeserializationConfig with(VisibilityChecker<?> vc) {
-        return _withBase(_base.withVisibilityChecker(vc));
-    }
-
-    @Override
-    public DeserializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-        return _withBase( _base.withVisibility(forMethod, visibility));
-    }
-    
-    @Override
-    public DeserializationConfig with(TypeResolverBuilder<?> trb) {
-        return _withBase(_base.withTypeResolverBuilder(trb));
-    }
-
-    @Override
     public DeserializationConfig with(SubtypeResolver str) {
         return (_subtypeResolver == str) ? this : new DeserializationConfig(this, str);
-    }
-    
-    @Override
-    public DeserializationConfig with(PropertyNamingStrategy pns) {
-        return _withBase(_base.withPropertyNamingStrategy(pns));
     }
 
     @Override
@@ -355,57 +297,13 @@ public final class DeserializationConfig
     }
 
     @Override
-    public DeserializationConfig with(TypeFactory tf) {
-        return _withBase( _base.withTypeFactory(tf));
-    }
-
-    @Override
-    public DeserializationConfig with(DateFormat df) {
-        return _withBase(_base.withDateFormat(df));
-    }
-    
-    @Override
-    public DeserializationConfig with(HandlerInstantiator hi) {
-        return _withBase(_base.withHandlerInstantiator(hi));
-    }
-
-    @Override
-    public DeserializationConfig withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return _withBase(_base.withInsertedAnnotationIntrospector(ai));
-    }
-
-    @Override
-    public DeserializationConfig withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
-    }
-
-    @Override
     public DeserializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new DeserializationConfig(this, view);
     }
 
     @Override
-    public DeserializationConfig with(Locale l) {
-        return _withBase(_base.with(l));
-    }
-
-    @Override
-    public DeserializationConfig with(TimeZone tz) {
-        return _withBase(_base.with(tz));
-    }
-
-    @Override
-    public DeserializationConfig with(Base64Variant base64) {
-        return _withBase(_base.with(base64));
-    }
-
-    @Override
     public DeserializationConfig with(ContextAttributes attrs) {
         return (attrs == _attributes) ? this : new DeserializationConfig(this, attrs);
-    }
-    
-    private final DeserializationConfig _withBase(BaseSettings newBase) {
-        return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
     }
 
     /*

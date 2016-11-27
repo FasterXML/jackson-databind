@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind;
 
 import java.text.DateFormat;
-import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -10,14 +9,10 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -215,18 +210,6 @@ public final class SerializationConfig
         _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
-    private SerializationConfig(SerializationConfig src, JsonInclude.Value incl)
-    {
-        super(src);
-        _serFeatures = src._serFeatures;
-        _filterProvider = src._filterProvider;
-        _defaultPrettyPrinter = src._defaultPrettyPrinter;
-        _generatorFeatures = src._generatorFeatures;
-        _generatorFeaturesToChange = src._generatorFeaturesToChange;
-        _formatWriteFeatures = src._formatWriteFeatures;
-        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
-    }
-
     private SerializationConfig(SerializationConfig src, PropertyName rootName)
     {
         super(src, rootName);
@@ -286,104 +269,20 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
-    /* Life-cycle, factory methods from MapperConfig
+    /* Life-cycle, factory methods from MapperConfig(Base)
     /**********************************************************
      */
 
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features enabled.
-     */
-    @Override
-    public SerializationConfig with(MapperFeature... features)
-    {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperFeature f : features) {
-            newMapperFlags |= f.getMask();
-        }
-        return (newMapperFlags == _mapperFeatures) ? this
-                : new SerializationConfig(this, newMapperFlags, _serFeatures,
+    @Override // since 2.9
+    protected final SerializationConfig _withBase(BaseSettings newBase) {
+        return (_base == newBase) ? this : new SerializationConfig(this, newBase);
+    }
+
+    @Override // since 2.9
+    protected final SerializationConfig _withMapperFeatures(int mapperFeatures) {
+        return new SerializationConfig(this, mapperFeatures, _serFeatures,
                         _generatorFeatures, _generatorFeaturesToChange,
                         _formatWriteFeatures, _formatWriteFeaturesToChange);
-    }
-    
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features disabled.
-     */
-    @Override
-    public SerializationConfig without(MapperFeature... features)
-    {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperFeature f : features) {
-             newMapperFlags &= ~f.getMask();
-        }
-        return (newMapperFlags == _mapperFeatures) ? this
-                : new SerializationConfig(this, newMapperFlags, _serFeatures,
-                        _generatorFeatures, _generatorFeaturesToChange,
-                        _formatWriteFeatures, _formatWriteFeaturesToChange);
-    }
-
-    @Override
-    public SerializationConfig with(MapperFeature feature, boolean state)
-    {
-        int newMapperFlags;
-        if (state) {
-            newMapperFlags = _mapperFeatures | feature.getMask();
-        } else {
-            newMapperFlags = _mapperFeatures & ~feature.getMask();
-        }
-        return (newMapperFlags == _mapperFeatures) ? this
-            : new SerializationConfig(this, newMapperFlags, _serFeatures,
-                    _generatorFeatures, _generatorFeaturesToChange,
-                    _formatWriteFeatures, _formatWriteFeaturesToChange);
-    }
-    
-    @Override
-    public SerializationConfig with(AnnotationIntrospector ai) {
-        return _withBase(_base.withAnnotationIntrospector(ai));
-    }
-
-    @Override
-    public SerializationConfig withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
-    }
-
-    @Override
-    public SerializationConfig withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return _withBase(_base.withInsertedAnnotationIntrospector(ai));
-    }
-
-    @Override
-    public SerializationConfig with(ClassIntrospector ci) {
-        return _withBase(_base.withClassIntrospector(ci));
-    }
-
-    /**
-     * In addition to constructing instance with specified date format,
-     * will enable or disable <code>SerializationFeature.WRITE_DATES_AS_TIMESTAMPS</code>
-     * (enable if format set as null; disable if non-null)
-     */
-    @Override
-    public SerializationConfig with(DateFormat df) {
-        SerializationConfig cfg =  new SerializationConfig(this, _base.withDateFormat(df));
-        // Also need to toggle this feature based on existence of date format:
-        if (df == null) {
-            cfg = cfg.with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        } else {
-            cfg = cfg.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        }
-        return cfg;
-    }
-
-    @Override
-    public SerializationConfig with(HandlerInstantiator hi) {
-        return _withBase(_base.withHandlerInstantiator(hi));
-    }
-
-    @Override
-    public SerializationConfig with(PropertyNamingStrategy pns) {
-        return _withBase(_base.withPropertyNamingStrategy(pns));
     }
 
     @Override
@@ -404,52 +303,34 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig with(TypeFactory tf) {
-        return _withBase(_base.withTypeFactory(tf));
-    }
-
-    @Override
-    public SerializationConfig with(TypeResolverBuilder<?> trb) {
-        return _withBase(_base.withTypeResolverBuilder(trb));
-    }
-
-    @Override
     public SerializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new SerializationConfig(this, view);
     }
-
-    @Override
-    public SerializationConfig with(VisibilityChecker<?> vc) {
-        return _withBase(_base.withVisibilityChecker(vc));
-    }
-
-    @Override
-    public SerializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-        return _withBase(_base.withVisibility(forMethod, visibility));
-    }
-
-    @Override
-    public SerializationConfig with(Locale l) {
-        return _withBase(_base.with(l));
-    }
-
-    @Override
-    public SerializationConfig with(TimeZone tz) {
-        return _withBase(_base.with(tz));
-    }
-
-    @Override
-    public SerializationConfig with(Base64Variant base64) {
-        return _withBase(_base.with(base64));
-    }
-
+    
     @Override
     public SerializationConfig with(ContextAttributes attrs) {
         return (attrs == _attributes) ? this : new SerializationConfig(this, attrs);
     }
 
-    private final SerializationConfig _withBase(BaseSettings newBase) {
-        return (_base == newBase) ? this : new SerializationConfig(this, newBase);
+    /*
+    /**********************************************************
+    /* Factory method overrides
+    /**********************************************************
+     */
+
+    /**
+     * In addition to constructing instance with specified date format,
+     * will enable or disable <code>SerializationFeature.WRITE_DATES_AS_TIMESTAMPS</code>
+     * (enable if format set as null; disable if non-null)
+     */
+    @Override
+    public SerializationConfig with(DateFormat df) {
+        SerializationConfig cfg = super.with(df);
+        // Also need to toggle this feature based on existence of date format:
+        if (df == null) {
+            return cfg.with(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        }
+        return cfg.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     /*

@@ -1225,12 +1225,13 @@ public class ObjectMapper
      * 
      * @since 2.6
      */
+    @SuppressWarnings("deprecation")
     public ObjectMapper setVisibility(VisibilityChecker<?> vc) {
         _deserializationConfig = _deserializationConfig.with(vc);
         _serializationConfig = _serializationConfig.with(vc);
         return this;
     }
-    
+
     /**
      * Convenience method that allows changing configuration for
      * underlying {@link VisibilityChecker}s, to change details of what kinds of
@@ -1255,13 +1256,14 @@ public class ObjectMapper
      * @return Modified mapper instance (that is, "this"), to allow chaining
      *    of configuration calls
      */
+    @SuppressWarnings("deprecation")
     public ObjectMapper setVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility)
     {
         _deserializationConfig = _deserializationConfig.withVisibility(forMethod, visibility);
         _serializationConfig = _serializationConfig.withVisibility(forMethod, visibility);
         return this;
     }
-    
+
     /**
      * Method for accessing subtype resolver in use.
      */

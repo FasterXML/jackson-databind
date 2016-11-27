@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 /**
  * Container for individual {@link ConfigOverride} values.
@@ -31,6 +32,11 @@ public class ConfigOverrides
      * @since 2.9
      */
     protected JsonSetter.Value _defaultSetterInfo;
+
+    /**
+     * @since 2.9
+     */
+    protected VisibilityChecker<?> _visibilityChecker;
 
     /*
     /**********************************************************
@@ -106,12 +112,26 @@ public class ConfigOverrides
         return _defaultSetterInfo;
     }
 
+    /**
+     * @since 2.9
+     */
+    public VisibilityChecker<?> getDefaultVisibility() {
+        return _visibilityChecker;
+    }
+
     public void setDefaultInclusion(JsonInclude.Value v) {
         _defaultInclusion = v;
     }
 
     public void setDefaultSetterInfo(JsonSetter.Value v) {
         _defaultSetterInfo = v;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public void setDefaultVisibility(VisibilityChecker<?> v) {
+        _visibilityChecker = v;
     }
 
     /*

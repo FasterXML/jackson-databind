@@ -268,9 +268,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
             vchecker = vchecker.withFieldVisibility(Visibility.NONE);
         }
         return vchecker;
-
     }
-    
+
     public final PropertyNamingStrategy getPropertyNamingStrategy() {
         return _base.getPropertyNamingStrategy();
     }

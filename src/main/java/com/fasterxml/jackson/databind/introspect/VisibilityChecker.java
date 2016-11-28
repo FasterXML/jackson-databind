@@ -29,14 +29,15 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
     public T with(JsonAutoDetect ann);
 
     /**
-     * Method that can be used for merging default values from given
-     * source with values from this instance, and either return `this`
-     * instance (if no changes), or a new instance with applicable defaults.
+     * Method that can be used for merging default values from `this`
+     * instance with specified overrides; and either return `this`
+     * if overrides had no effect (that is, result would be equal),
+     * or a new instance with merged visibility settings.
      *
      * @since 2.9
      */
-    public T withDefaults(VisibilityChecker<?> defaults);
-    
+    public T withOverrides(JsonAutoDetect.Value vis);
+
     /**
      * Builder method that will create and return an instance that has specified
      * {@link Visibility} value to use for all property elements.
@@ -149,23 +150,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
     * methods. As a result, type is declared is funky recursive generic
     * type, to allow for sub-classing of build methods with property type
     * co-variance.
-    *<p>
-    * Note on <code>JsonAutoDetect</code> annotation: it is used to
-    * access default minimum visibility access definitions.
     */
-    @JsonAutoDetect(
-        getterVisibility = Visibility.PUBLIC_ONLY,
-        isGetterVisibility = Visibility.PUBLIC_ONLY,
-        setterVisibility = Visibility.ANY,
-        /**
-         * By default, all matching single-arg constructed are found,
-         * regardless of visibility. Does not apply to factory methods,
-         * they can not be auto-detected; ditto for multiple-argument
-         * constructors.
-         */
-        creatorVisibility = Visibility.ANY,
-        fieldVisibility = Visibility.PUBLIC_ONLY
-    )
     public static class Std
         implements VisibilityChecker<Std>,
             java.io.Serializable
@@ -176,7 +161,13 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          * This is the canonical base instance, configured with default
          * visibility values
          */
-        protected final static Std DEFAULT = new Std(Std.class.getAnnotation(JsonAutoDetect.class));
+        protected final static Std DEFAULT = new Std(
+                Visibility.PUBLIC_ONLY, // getter
+                Visibility.PUBLIC_ONLY, // is-getter
+                Visibility.ANY, // setter
+                Visibility.ANY, // creator -- legacy, to support single-arg ctors
+                Visibility.PUBLIC_ONLY // field
+                );
 
         protected final Visibility _getterMinLevel;
         protected final Visibility _isGetterMinLevel;
@@ -246,44 +237,49 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         /********************************************************
          */
 
+        protected Std _with(Visibility g, Visibility isG, Visibility s,
+                Visibility cr, Visibility f) {
+            if ((g == _getterMinLevel)
+                    && (isG == _isGetterMinLevel)
+                    && (s == _setterMinLevel)
+                    && (cr == _creatorMinLevel)
+                    && (f == _fieldMinLevel)
+                    ) {
+                return this;
+            }
+            return new Std(g, isG, s, cr, f);
+        }
+
         @Override
         public Std with(JsonAutoDetect ann)
         {
             Std curr = this;
             if (ann != null) {
-                curr = curr.withGetterVisibility(ann.getterVisibility());
-                curr = curr.withIsGetterVisibility(ann.isGetterVisibility());
-                curr  = curr.withSetterVisibility(ann.setterVisibility());
-                curr = curr.withCreatorVisibility(ann.creatorVisibility());
-                curr = curr.withFieldVisibility(ann.fieldVisibility());
+                return _with(
+                        _defaultOrOverride(_getterMinLevel, ann.getterVisibility()),
+                        _defaultOrOverride(_isGetterMinLevel, ann.isGetterVisibility()),
+                        _defaultOrOverride(_setterMinLevel, ann.setterVisibility()),
+                        _defaultOrOverride(_creatorMinLevel, ann.creatorVisibility()),
+                        _defaultOrOverride(_fieldMinLevel, ann.fieldVisibility())
+                        );
             }
             return curr;
         }
 
-        @Override
-        public Std withDefaults(VisibilityChecker<?> defaults0)
+        @Override // since 2.9
+        public Std withOverrides(JsonAutoDetect.Value vis)
         {
-            if (defaults0 == null) {
-                return this;
+            Std curr = this;
+            if (vis != null) {
+                return _with(
+                        _defaultOrOverride(_getterMinLevel, vis.getGetterVisibility()),
+                        _defaultOrOverride(_isGetterMinLevel, vis.getIsGetterVisibility()),
+                        _defaultOrOverride(_setterMinLevel, vis.getSetterVisibility()),
+                        _defaultOrOverride(_creatorMinLevel, vis.getCreatorVisibility()),
+                        _defaultOrOverride(_fieldMinLevel, vis.getFieldVisibility())
+                        );
             }
-            // !!! 25-Nov-2016, tatu: not optimal, but without generic access
-            //    best we can do. Plan is to rewrite the whole thing for 3.x
-            Std defaults = (Std) defaults0;
-            Visibility getterMin = _defaultOrOverride(defaults._getterMinLevel, _getterMinLevel);
-            Visibility isGetterMin = _defaultOrOverride(defaults._isGetterMinLevel, _isGetterMinLevel);
-            Visibility setterMin = _defaultOrOverride(defaults._setterMinLevel, _setterMinLevel);
-            Visibility creatorMin = _defaultOrOverride(defaults._creatorMinLevel, _creatorMinLevel);
-            Visibility fieldMin = _defaultOrOverride(defaults._fieldMinLevel, _fieldMinLevel);
-
-            if ((getterMin == _getterMinLevel)
-                    && (isGetterMin == _isGetterMinLevel)
-                    && (setterMin == _setterMinLevel)
-                    && (creatorMin == _creatorMinLevel)
-                    && (fieldMin == _fieldMinLevel)
-                    ) {
-                return this;
-            }
-            return new Std(getterMin, isGetterMin, setterMin, creatorMin, fieldMin);
+            return curr;
         }
 
         private Visibility _defaultOrOverride(Visibility defaults, Visibility override) {
@@ -292,7 +288,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
             }
             return override;
         }
-        
+
         @Override
         public Std with(Visibility v)
         {
@@ -327,39 +323,39 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 	
         @Override
         public Std withGetterVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._getterMinLevel;
+            if (v == Visibility.DEFAULT) v = DEFAULT._getterMinLevel;
             if (_getterMinLevel == v) return this;
             return new Std(v, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
         }
 
         @Override
         public Std withIsGetterVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._isGetterMinLevel;
+            if (v == Visibility.DEFAULT) v = DEFAULT._isGetterMinLevel;
             if (_isGetterMinLevel == v) return this;
             return new Std(_getterMinLevel, v, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
         }
 
         @Override
         public Std withSetterVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._setterMinLevel;
+            if (v == Visibility.DEFAULT) v = DEFAULT._setterMinLevel;
             if (_setterMinLevel == v) return this;
             return new Std(_getterMinLevel, _isGetterMinLevel, v, _creatorMinLevel, _fieldMinLevel);
         }
-    
+
         @Override
         public Std withCreatorVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._creatorMinLevel;
+            if (v == Visibility.DEFAULT) v = DEFAULT._creatorMinLevel;
             if (_creatorMinLevel == v) return this;
             return new Std(_getterMinLevel, _isGetterMinLevel, _setterMinLevel, v, _fieldMinLevel);
         }
-    
+
         @Override
         public Std withFieldVisibility(Visibility v) {
             if (v == Visibility.DEFAULT)  v = DEFAULT._fieldMinLevel;
             if (_fieldMinLevel == v) return this;
             return new Std(_getterMinLevel, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, v);
         }
-		
+
         /*
         /********************************************************
         /* Public API impl
@@ -370,7 +366,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         public boolean isCreatorVisible(Member m) {
             return _creatorMinLevel.isVisible(m);
         }
-    	
+
         @Override
         public boolean isCreatorVisible(AnnotatedMember m) {
             return isCreatorVisible(m.getMember());
@@ -380,17 +376,17 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         public boolean isFieldVisible(Field f) {
             return _fieldMinLevel.isVisible(f);
         }
-        
+
         @Override
         public boolean isFieldVisible(AnnotatedField f) {
             return isFieldVisible(f.getAnnotated());
         }
-        
+
         @Override
         public boolean isGetterVisible(Method m) {
             return _getterMinLevel.isVisible(m);
         }
-    
+
         @Override
         public boolean isGetterVisible(AnnotatedMethod m) {
              return isGetterVisible(m.getAnnotated());

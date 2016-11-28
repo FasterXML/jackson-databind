@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,11 +41,6 @@ public class MutableConfigOverride
         return this;
     }
 
-    public MutableConfigOverride setSetterInfo(JsonSetter.Value v) {
-        _setterInfo = v;
-        return this;
-    }
-
     public MutableConfigOverride setIgnorals(JsonIgnoreProperties.Value v) {
         _ignorals = v;
         return this;
@@ -52,6 +48,22 @@ public class MutableConfigOverride
 
     public MutableConfigOverride setIsIgnoredType(Boolean v) {
         _isIgnoredType = v;
+        return this;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public MutableConfigOverride setSetterInfo(JsonSetter.Value v) {
+        _setterInfo = v;
+        return this;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public MutableConfigOverride setVisibility(JsonAutoDetect.Value v) {
+        _visibility = v;
         return this;
     }
 }

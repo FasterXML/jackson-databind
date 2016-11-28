@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 // Mostly for [databind#1425]; not in optimal place (as it also has
 // tree-access tests), but has to do for now
-public class BaseDecodingTest extends BaseMapTest
+public class Base64DecodingTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,6 +41,13 @@ public abstract class ConfigOverride
     protected JsonSetter.Value _setterInfo;
 
     /**
+     * Overrides for auto-detection visibility rules for this type.
+     *
+     * @since 2.9
+     */
+    protected JsonAutoDetect.Value _visibility;
+
+    /**
      * Flag that indicates whether "is ignorable type" is specified for this type;
      * and if so, is it to be ignored (true) or not ignored (false); `null` is
      * used to indicate "not specified", in which case other configuration (class
@@ -71,6 +79,11 @@ public abstract class ConfigOverride
      * @since 2.9
      */
     public JsonSetter.Value getSetterInfo() { return _setterInfo; }
+
+    /**
+     * @since 2.9
+     */
+    public JsonAutoDetect.Value getVisibility() { return _visibility; }
 
     public JsonIgnoreProperties.Value getIgnorals() { return _ignorals; }
 

@@ -31,7 +31,7 @@ public class TestAutoDetect
         int value;
 
         public void setValue(int x) {
-            throw new RuntimeException("Should NOT get called");
+            throw new IllegalArgumentException("Should NOT get called");
         }
     }
 
@@ -67,17 +67,38 @@ public class TestAutoDetect
     public void testVisibilityConfigOverridesForSer() throws Exception
     {
         // first, by default, both field/method should be visible
-        String json = MAPPER.writeValueAsString(new Feature1347SerBean());
-        assertEquals(aposToQuotes("{'field':2,'value':3}"), json);
+        final Feature1347SerBean input = new Feature1347SerBean();
+        assertEquals(aposToQuotes("{'field':2,'value':3}"),
+                MAPPER.writeValueAsString(input));
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(Feature1347SerBean.class)
-        // !!! TODO
-        ;
+            .setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.GETTER,
+                            Visibility.NONE));
+        assertEquals(aposToQuotes("{'field':2}"),
+                mapper.writeValueAsString(input));
     }
 
     // [databind#1347]
     public void testVisibilityConfigOverridesForDeser() throws Exception
     {
+        final String JSON = aposToQuotes("{'value':3}");
+
+        // by default, should throw exception
+        try {
+            /*Feature1347DeserBean bean =*/
+            MAPPER.readValue(JSON, Feature1347DeserBean.class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Should NOT get called");
+        }
+
+        // but when instructed to ignore setter, should work
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(Feature1347DeserBean.class)
+            .setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.SETTER,
+                        Visibility.NONE));
+        Feature1347DeserBean result = mapper.readValue(JSON, Feature1347DeserBean.class);
+        assertEquals(3, result.value);
     }
 }

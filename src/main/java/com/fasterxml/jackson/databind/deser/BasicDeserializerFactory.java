@@ -299,8 +299,8 @@ public abstract class BasicDeserializerFactory
         
         // need to construct suitable visibility checker:
         final DeserializationConfig config = ctxt.getConfig();
-        VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker();
-        vchecker = intr.findAutoDetectVisibility(beanDesc.getClassInfo(), vchecker);
+        VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker(beanDesc.getBeanClass(),
+                beanDesc.getClassInfo());
 
         /* 24-Sep-2014, tatu: Tricky part first; need to merge resolved property information
          *  (which has creator parameters sprinkled around) with actual creator

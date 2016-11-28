@@ -125,12 +125,8 @@ public class POJOPropertiesCollector
         _mutatorPrefix = (mutatorPrefix == null) ? "set" : mutatorPrefix;
         _annotationIntrospector = config.isAnnotationProcessingEnabled() ?
                 _config.getAnnotationIntrospector() : null;
-        if (_annotationIntrospector == null) {
-            _visibilityChecker = _config.getDefaultVisibilityChecker();
-        } else {
-            _visibilityChecker = _annotationIntrospector.findAutoDetectVisibility(classDef,
-                    _config.getDefaultVisibilityChecker());
-        }
+        _visibilityChecker = _config.getDefaultVisibilityChecker(type.getRawClass(),
+                classDef);
     }
 
     /*

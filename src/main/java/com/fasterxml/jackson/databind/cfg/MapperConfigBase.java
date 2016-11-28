@@ -31,6 +31,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
+    /**
+     * @since 2.9
+     */
+    private final static int AUTO_DETECT_MASK =
+            MapperFeature.AUTO_DETECT_FIELDS.getMask()
+            | MapperFeature.AUTO_DETECT_GETTERS.getMask()
+            | MapperFeature.AUTO_DETECT_IS_GETTERS.getMask()
+            | MapperFeature.AUTO_DETECT_SETTERS.getMask()
+            | MapperFeature.AUTO_DETECT_CREATORS.getMask()
+            ;
+
     /*
     /**********************************************************
     /* Immutable config
@@ -576,29 +587,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _attributes;
     }
 
-    @Override
-    public VisibilityChecker<?> getDefaultVisibilityChecker()
-    {
-        VisibilityChecker<?> vchecker = _configOverrides.getDefaultVisibility();
-        // then global overrides (disabling)
-        if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
-            vchecker = vchecker.withSetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-            vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
-            vchecker = vchecker.withGetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
-            vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-        }
-        return vchecker;
-    }
-    
     /*
     /**********************************************************
     /* Configuration access; default/overrides
@@ -669,7 +657,47 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
-    public JsonSetter.Value getDefaultSetterInfo() {
+    public final VisibilityChecker<?> getDefaultVisibilityChecker()
+    {
+        VisibilityChecker<?> vchecker = _configOverrides.getDefaultVisibility();
+        // then global overrides (disabling)
+        if ((_mapperFeatures & AUTO_DETECT_MASK) != 0) {
+            if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
+                vchecker = vchecker.withFieldVisibility(Visibility.NONE);
+            }
+            if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
+                vchecker = vchecker.withGetterVisibility(Visibility.NONE);
+            }
+            if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
+                vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
+            }
+            if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
+                vchecker = vchecker.withSetterVisibility(Visibility.NONE);
+            }
+            if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
+                vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
+            }
+        }
+        return vchecker;
+    }
+
+    @Override // since 2.9
+    public final VisibilityChecker<?> getDefaultVisibilityChecker(Class<?> baseType,
+            AnnotatedClass actualClass) {
+        VisibilityChecker<?> vc = getDefaultVisibilityChecker();
+        AnnotationIntrospector intr = getAnnotationIntrospector();
+        if (intr != null) {
+            vc = intr.findAutoDetectVisibility(actualClass, vc);
+        }
+        ConfigOverride overrides = _configOverrides.findOverride(baseType);
+        if (overrides != null) {
+            vc = vc.withOverrides(overrides.getVisibility()); // ok to pass null
+        }
+        return vc;
+    }
+
+    @Override
+    public final JsonSetter.Value getDefaultSetterInfo() {
         return _configOverrides.getDefaultSetterInfo();
     }
 

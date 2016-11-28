@@ -239,17 +239,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return NopAnnotationIntrospector.instance;
     }
 
-    /**
-     * Accessor for object used for determining whether specific property elements
-     * (method, constructors, fields) can be auto-detected based on
-     * their visibility (access modifiers). Can be changed to allow
-     * different minimum visibility levels for auto-detection. Note
-     * that this is the global handler; individual types (classes)
-     * can further override active checker used (using
-     * {@link JsonAutoDetect} annotation)
-     */
-    public abstract VisibilityChecker<?> getDefaultVisibilityChecker();
-
     public final PropertyNamingStrategy getPropertyNamingStrategy() {
         return _base.getPropertyNamingStrategy();
     }
@@ -380,7 +369,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @return Override object to use for the type, never null (but may be empty)
      */
     public abstract ConfigOverride getConfigOverride(Class<?> type);
-    
+
     /**
      * Accessor for default property inclusion to use for serialization,
      * used unless overridden by per-type or per-property overrides.
@@ -444,6 +433,30 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @since 2.8
      */
     public abstract JsonIgnoreProperties.Value getDefaultPropertyIgnorals(Class<?> baseType,
+            AnnotatedClass actualClass);
+
+    /**
+     * Accessor for object used for determining whether specific property elements
+     * (method, constructors, fields) can be auto-detected based on
+     * their visibility (access modifiers). Can be changed to allow
+     * different minimum visibility levels for auto-detection. Note
+     * that this is the global handler; individual types (classes)
+     * can further override active checker used (using
+     * {@link JsonAutoDetect} annotation)
+     */
+    public abstract VisibilityChecker<?> getDefaultVisibilityChecker();
+
+    /**
+     * Accessor for object used for determining whether specific property elements
+     * (method, constructors, fields) can be auto-detected based on
+     * their visibility (access modifiers). This is based on global defaults
+     * (as would be returned by {@link #getDefaultVisibilityChecker()}, but
+     * then modified by possible class annotation (see {@link JsonAutoDetect})
+     * and/or per-type config override (see {@link ConfigOverride#getVisibility()}).
+     *
+     * @since 2.9
+     */
+    public abstract VisibilityChecker<?> getDefaultVisibilityChecker(Class<?> baseType,
             AnnotatedClass actualClass);
 
     /**

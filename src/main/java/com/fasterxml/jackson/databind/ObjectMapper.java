@@ -1207,19 +1207,12 @@ public class ObjectMapper
     }
 
     /**
-     * @deprecated Since 2.6 use {@link #setVisibility(VisibilityChecker)} instead.
-     */
-    @Deprecated
-    public void setVisibilityChecker(VisibilityChecker<?> vc) {
-        setVisibility(vc);
-    }
-
-    /**
-     * Method for setting currently configured {@link VisibilityChecker},
+     * Method for setting currently configured default {@link VisibilityChecker},
      * object used for determining whether given property element
      * (method, field, constructor) can be auto-detected or not.
-     * This default checker is used if no per-class overrides
-     * are defined.
+     * This default checker is used as the base visibility:
+     * per-class overrides (both via annotations and per-type config overrides)
+     * can further change these settings.
      * 
      * @since 2.6
      */
@@ -1345,6 +1338,14 @@ public class ObjectMapper
     public ObjectMapper setDefaultPrettyPrinter(PrettyPrinter pp) {
         _serializationConfig = _serializationConfig.withDefaultPrettyPrinter(pp);
         return this;
+    }
+
+    /**
+     * @deprecated Since 2.6 use {@link #setVisibility(VisibilityChecker)} instead.
+     */
+    @Deprecated
+    public void setVisibilityChecker(VisibilityChecker<?> vc) {
+        setVisibility(vc);
     }
 
     /*

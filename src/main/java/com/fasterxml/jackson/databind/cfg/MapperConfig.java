@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -249,26 +248,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * can further override active checker used (using
      * {@link JsonAutoDetect} annotation)
      */
-    public VisibilityChecker<?> getDefaultVisibilityChecker() {
-        VisibilityChecker<?> vchecker = _base.getVisibilityChecker();
-        // then global overrides (disabling)
-        if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
-            vchecker = vchecker.withSetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-            vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
-            vchecker = vchecker.withGetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
-            vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
-        }
-        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-        }
-        return vchecker;
-    }
+    public abstract VisibilityChecker<?> getDefaultVisibilityChecker();
 
     public final PropertyNamingStrategy getPropertyNamingStrategy() {
         return _base.getPropertyNamingStrategy();
@@ -277,7 +257,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public final HandlerInstantiator getHandlerInstantiator() {
         return _base.getHandlerInstantiator();
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: type and subtype handling

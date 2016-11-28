@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.databind.creators;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -93,7 +94,9 @@ public class MultiArgConstructorTest extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
-        mapper.setVisibility(PropertyAccessor.CREATOR, Visibility.NONE);
+        mapper.setDefaultVisibility(
+                JsonAutoDetect.Value.noOverrides()
+                    .withCreatorVisibility(Visibility.NONE));
         try {
             /*MultiArgCtorBean bean =*/ mapper.readValue(aposToQuotes("{'b':13,  'a':-99}"),
                 MultiArgCtorBean.class);

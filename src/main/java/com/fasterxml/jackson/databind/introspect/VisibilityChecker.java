@@ -230,6 +230,13 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
             }
         }
 
+        /**
+         * @since 2.9
+         */
+        public static Std construct(JsonAutoDetect.Value vis) {
+            return DEFAULT.withOverrides(vis);
+        }
+
         /*
         /********************************************************
         /* Builder/fluent methods for instantiating configured

@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.Base64Variant;
 
 import com.fasterxml.jackson.databind.*;
@@ -535,22 +535,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public abstract T withView(Class<?> view);
 
-    /**
-     * @deprecated Since 2.9 use configuration methods in {@link ObjectMapper}
-     */
-    @Deprecated
-    public T with(VisibilityChecker<?> vc) {
-        return _withBase(_base.withVisibilityChecker(vc));
-    }
-
-    /**
-     * @deprecated Since 2.9 use configuration methods in {@link ObjectMapper}
-     */
-    @Deprecated
-    public T withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-        return _withBase(_base.withVisibility(forMethod, visibility));
-    }
-
     /*
     /**********************************************************
     /* Simple accessors
@@ -592,6 +576,29 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _attributes;
     }
 
+    @Override
+    public VisibilityChecker<?> getDefaultVisibilityChecker()
+    {
+        VisibilityChecker<?> vchecker = _configOverrides.getDefaultVisibility();
+        // then global overrides (disabling)
+        if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
+            vchecker = vchecker.withSetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
+            vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
+            vchecker = vchecker.withGetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
+            vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
+        }
+        if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
+            vchecker = vchecker.withFieldVisibility(Visibility.NONE);
+        }
+        return vchecker;
+    }
+    
     /*
     /**********************************************************
     /* Configuration access; default/overrides

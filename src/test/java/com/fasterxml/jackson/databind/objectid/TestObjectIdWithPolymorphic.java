@@ -2,11 +2,9 @@ package com.fasterxml.jackson.databind.objectid;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
@@ -134,11 +132,6 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
     public void testIssue811() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
-        om.disable(MapperFeature.AUTO_DETECT_CREATORS);
-        om.disable(MapperFeature.AUTO_DETECT_GETTERS);
-        om.disable(MapperFeature.AUTO_DETECT_IS_GETTERS);
-        om.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        
         om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
         om.enable(SerializationFeature.INDENT_OUTPUT);
         om.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");

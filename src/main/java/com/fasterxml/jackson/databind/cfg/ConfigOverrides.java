@@ -48,16 +48,19 @@ public class ConfigOverrides
         this(null,
                 // !!! TODO: change to (ALWAYS, ALWAYS)?
                 JsonInclude.Value.empty(),
-                JsonSetter.Value.empty()
+                JsonSetter.Value.empty(),
+                VisibilityChecker.Std.defaultInstance()
         );
     }
 
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl,
-            JsonSetter.Value defSetter) {
+            JsonSetter.Value defSetter,
+            VisibilityChecker<?> defVisibility) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
         _defaultSetterInfo = defSetter;
+        _visibilityChecker = defVisibility;
     }
 
     public ConfigOverrides copy()
@@ -70,7 +73,7 @@ public class ConfigOverrides
             newOverrides.put(entry.getKey(), entry.getValue().copy());
         }
         return new ConfigOverrides(newOverrides,
-                _defaultInclusion, _defaultSetterInfo);
+                _defaultInclusion, _defaultSetterInfo, _visibilityChecker);
     }
 
     /*

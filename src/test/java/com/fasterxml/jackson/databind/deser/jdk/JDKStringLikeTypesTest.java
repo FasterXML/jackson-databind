@@ -10,10 +10,11 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -161,13 +162,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         // escape backslashes (for portability with windows)
         String json = MAPPER.writeValueAsString(abs);
         File result = MAPPER.readValue(json, File.class);
-        assertEquals(abs, result.getAbsolutePath());
-
-        // Then #170
-        final ObjectMapper mapper2 = new ObjectMapper();
-        mapper2.setVisibility(PropertyAccessor.CREATOR, Visibility.NONE);
-
-        result = mapper2.readValue(json, File.class);
         assertEquals(abs, result.getAbsolutePath());
     }
 

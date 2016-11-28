@@ -291,8 +291,6 @@ public class ObjectMapper
     // 16-May-2009, tatu: Ditto ^^^
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
 
-    protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
-
     /**
      * Base settings contain defaults used for all {@link ObjectMapper}
      * instances.
@@ -300,7 +298,7 @@ public class ObjectMapper
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
             null, // can not share global ClassIntrospector any more (2.5+)
             DEFAULT_ANNOTATION_INTROSPECTOR,
-            STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
+             null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
@@ -1225,10 +1223,8 @@ public class ObjectMapper
      * 
      * @since 2.6
      */
-    @SuppressWarnings("deprecation")
     public ObjectMapper setVisibility(VisibilityChecker<?> vc) {
-        _deserializationConfig = _deserializationConfig.with(vc);
-        _serializationConfig = _serializationConfig.with(vc);
+        _configOverrides.setDefaultVisibility(vc);
         return this;
     }
 
@@ -1256,11 +1252,11 @@ public class ObjectMapper
      * @return Modified mapper instance (that is, "this"), to allow chaining
      *    of configuration calls
      */
-    @SuppressWarnings("deprecation")
     public ObjectMapper setVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility)
     {
-        _deserializationConfig = _deserializationConfig.withVisibility(forMethod, visibility);
-        _serializationConfig = _serializationConfig.withVisibility(forMethod, visibility);
+        VisibilityChecker<?> vc = _configOverrides.getDefaultVisibility();
+        vc = vc.withVisibility(forMethod, visibility);
+        _configOverrides.setDefaultVisibility(vc);
         return this;
     }
 
@@ -1401,6 +1397,19 @@ public class ObjectMapper
      */
     public ObjectMapper setDefaultSetterInfo(JsonSetter.Value v) {
         _configOverrides.setDefaultSetterInfo(v);
+        return this;
+    }
+
+    /**
+     * Method for setting auto-detection visibility definition
+     * defaults, which are in effect unless overridden by
+     * annotations (like <code>JsonAutoDetect</code>) or per-type
+     * visibility overrides.
+     *
+     * @since 2.9
+     */
+    public ObjectMapper setDefaultVisibility(JsonAutoDetect.Value vis) {
+        _configOverrides.setDefaultVisibility(VisibilityChecker.Std.construct(vis));
         return this;
     }
 

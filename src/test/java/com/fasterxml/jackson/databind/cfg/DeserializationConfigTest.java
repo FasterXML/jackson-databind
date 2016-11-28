@@ -5,10 +5,29 @@ import java.util.Collections;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
-public class DeserConfigTest extends BaseMapTest
+public class DeserializationConfigTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
+
+    public void testFeatureDefaults()
+    {
+        ObjectMapper m = new ObjectMapper();
+        DeserializationConfig cfg = m.getDeserializationConfig();
+
+        // Expected defaults:
+        assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
+        assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
+        assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_CREATORS));
+        assertTrue(cfg.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
+        assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
+
+        assertFalse(cfg.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+        assertFalse(cfg.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS));
+
+        assertTrue(cfg.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+    }
 
     public void testBasicFeatures() throws Exception
     {
@@ -59,14 +78,39 @@ public class DeserConfigTest extends BaseMapTest
         assertNotSame(config, config.withoutFeatures(BogusFormatFeature.FF_DISABLED_BY_DEFAULT,
                 BogusFormatFeature.FF_ENABLED_BY_DEFAULT));
     }
-    
+
+    /* Test to verify that we don't overflow number of features; if we
+     * hit the limit, need to change implementation -- this test just
+     * gives low-water mark
+     */
+    public void testEnumIndexes()
+    {
+        int max = 0;
+        
+        for (DeserializationFeature f : DeserializationFeature.values()) {
+            max = Math.max(max, f.ordinal());
+        }
+        if (max >= 31) { // 31 is actually ok; 32 not
+            fail("Max number of DeserializationFeature enums reached: "+max);
+        }
+    }
+
+    public void testOverrideIntrospectors()
+    {
+        ObjectMapper m = new ObjectMapper();
+        DeserializationConfig cfg = m.getDeserializationConfig();
+        // and finally, ensure we could override introspectors
+        cfg = cfg.with((ClassIntrospector) null); // no way to verify tho
+        cfg = cfg.with((AnnotationIntrospector) null);
+        assertNull(cfg.getAnnotationIntrospector());
+    }
+
     public void testMisc() throws Exception
     {
         DeserializationConfig config = MAPPER.getDeserializationConfig();
         assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion());
         assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion(String.class));
 
-        
         assertSame(config, config.withRootName((PropertyName) null)); // defaults to 'none'
 
         DeserializationConfig newConfig = config.withRootName(PropertyName.construct("foobar"));

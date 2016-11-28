@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -18,12 +18,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 public class TestBasicAnnotations
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-
     /// Class for testing {@link JsonProperty} annotations
     final static class SizeClassSetter
     {
@@ -88,6 +82,24 @@ public class TestBasicAnnotations
         @JsonDeserialize protected int a;
     }
 
+    @JsonAutoDetect(setterVisibility=Visibility.NONE)
+    final static class Dummy { }
+
+    final static class EmptyDummy { }
+
+    static class AnnoBean {
+        int value = 3;
+        
+        @JsonProperty("y")
+            public void setX(int v) { value = v; }
+    }
+
+    enum Alpha { A, B, C; }
+
+    public static class SimpleBean {
+        public int x, y;
+    }
+
     /*
     /**********************************************************
     /* Other helper classes
@@ -104,10 +116,10 @@ public class TestBasicAnnotations
             return new int[] { jp.getIntValue() };
         }
     }
-    
+
     /*
     /**********************************************************
-    /* Test methods
+    /* Test methods, basic
     /**********************************************************
      */
 
@@ -168,4 +180,46 @@ public class TestBasicAnnotations
         Issue442Bean bean = MAPPER.readValue("{\"i\":5}", Issue442Bean.class);
         assertEquals(5, bean.w.i);
     }
+
+    /*
+    /**********************************************************
+    /* Test methods, annotations disabled
+    /**********************************************************
+     */
+    
+    public void testAnnotationsDisabled() throws Exception
+    {
+        // first: verify that annotation introspection is enabled by default
+        ObjectMapper m = new ObjectMapper();
+        assertTrue(m.getDeserializationConfig().isEnabled(MapperFeature.USE_ANNOTATIONS));
+        // with annotations, property is renamed
+        AnnoBean bean = m.readValue("{ \"y\" : 0 }", AnnoBean.class);
+        assertEquals(0, bean.value);
+
+        m = new ObjectMapper();
+        m.configure(MapperFeature.USE_ANNOTATIONS, false);
+        // without annotations, should default to default bean-based name...
+        bean = m.readValue("{ \"x\" : 0 }", AnnoBean.class);
+        assertEquals(0, bean.value);
+    }
+
+    public void testEnumsWhenDisabled() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
+
+        m = new ObjectMapper();
+        m.configure(MapperFeature.USE_ANNOTATIONS, false);
+        // should still use the basic name handling here
+        assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
+    }
+
+    public void testNoAccessOverrides() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+        SimpleBean bean = m.readValue("{\"x\":1,\"y\":2}", SimpleBean.class);
+        assertEquals(1, bean.x);
+        assertEquals(2, bean.y);
+    }    
 }

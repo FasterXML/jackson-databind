@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
  * This unit test suite that tests use of {@link JsonIgnore}
  * annotation with deserialization.
  */
-public class TestAnnotationIgnore
+public class IgnoreWithDeserTest
     extends BaseMapTest
 {
     // Class for testing {@link JsonIgnore} annotations with setters

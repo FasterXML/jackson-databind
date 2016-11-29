@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.objectid;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
-public class JsonIdentiyInfo1388Test extends BaseMapTest
+public class ObjectIdReordering1388Test extends BaseMapTest
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class NamedThing {
@@ -50,28 +50,33 @@ public class JsonIdentiyInfo1388Test extends BaseMapTest
 
         final TypeReference<?> namedThingListType = new TypeReference<List<NamedThing>>() { };
 
-        final String jsog = mapper.writeValueAsString(Arrays.asList(thing, thing, thing));
         {
+            final String jsog = mapper.writeValueAsString(Arrays.asList(thing, thing, thing));
             final List<NamedThing> list = mapper.readValue(jsog, namedThingListType);
             _assertAllSame(list);
+            // this is the jsog representation of the list of 3 of the same item
+            assertTrue(jsog.equals("[{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"},1,1]"));
         }
 
-        // this is the jsog representation of the list of 3 of the same item
-        assertTrue(jsog.equals("[{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"},1,1]"));
-
         // now move it around it have forward references
-        final String forwardReferences = "[1,1,{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"}]";
         // this works
         {
-            final List<NamedThing> forward = mapper.readValue(forwardReferences, namedThingListType);
+            final String json = "[1,1,{\"@id\":1,\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\"}]";
+            final List<NamedThing> forward = mapper.readValue(json, namedThingListType);
             _assertAllSame(forward);
         }
 
-        // now move the @id to be not the first key in the object
-        final String notFirstKey = "[1,1,{\"id\":\"a59aa02c-fe3c-43f8-9b5a-5fe01878a818\",\"name\":\"Hello\",\"@id\":1}]";
-        // this fails
+        // next, move @id to between properties
         {
-            final List<NamedThing> forward = mapper.readValue(notFirstKey, namedThingListType);
+            final String json = aposToQuotes("[{'id':'a59aa02c-fe3c-43f8-9b5a-5fe01878a818','@id':1,'name':'Hello'}, 1, 1]");
+            final List<NamedThing> forward = mapper.readValue(json, namedThingListType);
+            _assertAllSame(forward);
+        }
+
+        // and last, move @id to be not the first key in the object
+        {
+            final String json = aposToQuotes("[{'id':'a59aa02c-fe3c-43f8-9b5a-5fe01878a818','name':'Hello','@id':1}, 1, 1]");
+            final List<NamedThing> forward = mapper.readValue(json, namedThingListType);
             _assertAllSame(forward);
         }
     }

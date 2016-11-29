@@ -107,9 +107,8 @@ public class PropertyValueBuffer
     {
         if (_paramsSeenBig == null) {
             return ((_paramsSeen >> prop.getCreatorIndex()) & 1) == 1;
-        } else {
-            return _paramsSeenBig.get(prop.getCreatorIndex());
         }
+        return _paramsSeenBig.get(prop.getCreatorIndex());
     }
 
     /**
@@ -250,6 +249,9 @@ public class PropertyValueBuffer
     public boolean isComplete() { return _paramsNeeded <= 0; }
 
     /**
+     * Method called to buffer value for given property, as well as check whether
+     * we now have values for all (creator) properties that we expect to get values for.
+     *
      * @return True if we have received all creator parameters
      * 
      * @since 2.6
@@ -265,14 +267,15 @@ public class PropertyValueBuffer
             if (old != newValue) {
                 _paramsSeen = newValue;
                 if (--_paramsNeeded <= 0) {
-                    return true;
+                    // 29-Nov-2016, tatu: But! May still require Object Id value
+                    return (_objectIdReader == null) || (_idValue != null);
                 }
             }
         } else {
             if (!_paramsSeenBig.get(ix)) {
                 _paramsSeenBig.set(ix);
                 if (--_paramsNeeded <= 0) {
-                    return true;
+                    // 29-Nov-2016, tatu: But! May still require Object Id value
                 }
             }
         }

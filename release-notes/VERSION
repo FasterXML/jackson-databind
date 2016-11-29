@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.8.6 (not yet released)
 
+#1388: `@JsonIdentityInfo`: id has to be the first key in deserialization when
+  deserializing with `@JsonCreator`
+ (reported by moodysalem@github)
 #1425: `JsonNode.binaryValue()` ignores illegal character if it's the last one
  (reported by binoternary@github)
 #1453: `UntypedObjectDeserializer` does not retain `float` type (over `double`)

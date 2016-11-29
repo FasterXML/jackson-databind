@@ -21,14 +21,21 @@ public class ExternalTypeHandler
     private final JavaType _beanType;
 
     private final ExtTypedProperty[] _properties;
-    private final HashMap<String, Integer> _nameToPropertyIndex;
+
+    /**
+     * Mapping from external property ids to one or more indexes;
+     * in most cases single index as <code>Integer</code>, but
+     * occasionally same name maps to multiple ones: if so,
+     * <code>List&lt;Integer&gt;</code>.
+     */
+    private final Map<String, Object> _nameToPropertyIndex;
 
     private final String[] _typeIds;
     private final TokenBuffer[] _tokens;
 
     protected ExternalTypeHandler(JavaType beanType,
             ExtTypedProperty[] properties,
-            HashMap<String, Integer> nameToPropertyIndex,
+            Map<String, Object> nameToPropertyIndex,
             String[] typeIds, TokenBuffer[] tokens)
     {
         _beanType = beanType;
@@ -66,23 +73,43 @@ public class ExternalTypeHandler
     /**
      * Method called to see if given property/value pair is an external type
      * id; and if so handle it. This is <b>only</b> to be called in case
-     * containing POJO has similarly named property as the external type id;
+     * containing POJO has similarly named property as the external type id AND
+     * value is of scalar type:
      * otherwise {@link #handlePropertyValue} should be called instead.
      */
+    @SuppressWarnings("unchecked")
     public boolean handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
             String propName, Object bean)
         throws IOException
     {
-        Integer I = _nameToPropertyIndex.get(propName);
-        if (I == null) {
+        Object ob = _nameToPropertyIndex.get(propName);
+        if (ob == null) {
             return false;
         }
-        int index = I.intValue();
+        final String typeId = p.getText();
+        // 28-Nov-2016, tatu: For [databind#291], need separate handling
+        if (ob instanceof List<?>) {
+            boolean result = false;
+            for (Integer index : (List<Integer>) ob) {
+                if (_handleTypePropertyValue(p, ctxt, propName, bean,
+                        typeId, index.intValue())) {
+                    result = true;
+                }
+            }
+            return result;
+        }
+        return _handleTypePropertyValue(p, ctxt, propName, bean,
+                typeId, ((Integer) ob).intValue());
+    }
+
+    private final boolean _handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
+            String propName, Object bean, String typeId, int index)
+        throws IOException
+    {
         ExtTypedProperty prop = _properties[index];
-        if (!prop.hasTypePropertyName(propName)) {
+        if (!prop.hasTypePropertyName(propName)) { // when could/should this ever happen?
             return false;
         }
-        String typeId = p.getText();
         // note: can NOT skip child values (should always be String anyway)
         boolean canDeserialize = (bean != null) && (_tokens[index] != null);
         // Minor optimization: deserialize properties as soon as we have all we need:
@@ -104,14 +131,44 @@ public class ExternalTypeHandler
      * 
      * @return True, if the given property was properly handled
      */
+    @SuppressWarnings("unchecked")
     public boolean handlePropertyValue(JsonParser p, DeserializationContext ctxt,
             String propName, Object bean) throws IOException
     {
-        Integer I = _nameToPropertyIndex.get(propName);
-        if (I == null) {
+        Object ob = _nameToPropertyIndex.get(propName);
+        if (ob == null) {
             return false;
         }
-        int index = I.intValue();
+        // 28-Nov-2016, tatu: For [databind#291], need separate handling
+        if (ob instanceof List<?>) {
+            Iterator<Integer> it = ((List<Integer>) ob).iterator();
+            Integer index = it.next();
+
+            ExtTypedProperty prop = _properties[index];
+            // For now, let's assume it's same type (either type id OR value)
+            // for all mappings, so we'll only check first one
+            if (prop.hasTypePropertyName(propName)) {
+                String typeId = p.getText();
+                p.skipChildren();
+                _typeIds[index] = typeId;
+                while (it.hasNext()) {
+                    _typeIds[it.next()] = typeId;
+                }
+            } else {
+                @SuppressWarnings("resource")
+                TokenBuffer tokens = new TokenBuffer(p, ctxt);
+                tokens.copyCurrentStructure(p);
+                _tokens[index] = tokens;
+                while (it.hasNext()) {
+                    _tokens[it.next()] = tokens;
+                }
+            }
+            return true;
+        }
+
+        // Otherwise only maps to a single value, in which case we can
+        // handle things in bit more optimal way...
+        int index = ((Integer) ob).intValue();
         ExtTypedProperty prop = _properties[index];
         boolean canDeserialize;
         if (prop.hasTypePropertyName(propName)) {
@@ -125,9 +182,8 @@ public class ExternalTypeHandler
             _tokens[index] = tokens;
             canDeserialize = (bean != null) && (_typeIds[index] != null);
         }
-        /* Minor optimization: let's deserialize properties as soon as
-         * we have all pertinent information:
-         */
+        // Minor optimization: let's deserialize properties as soon as
+        // we have all pertinent information:
         if (canDeserialize) {
             String typeId = _typeIds[index];
             // clear stored data, to avoid deserializing+setting twice:
@@ -312,8 +368,8 @@ public class ExternalTypeHandler
     {
         private final JavaType _beanType;
 
-        private final ArrayList<ExtTypedProperty> _properties = new ArrayList<ExtTypedProperty>();
-        private final HashMap<String, Integer> _nameToPropertyIndex = new HashMap<String, Integer>();
+        private final List<ExtTypedProperty> _properties = new ArrayList<>();
+        private final Map<String, Object> _nameToPropertyIndex = new HashMap<>();
 
         protected Builder(JavaType t) {
             _beanType = t;
@@ -323,10 +379,26 @@ public class ExternalTypeHandler
         {
             Integer index = _properties.size();
             _properties.add(new ExtTypedProperty(property, typeDeser));
-            _nameToPropertyIndex.put(property.getName(), index);
-            _nameToPropertyIndex.put(typeDeser.getPropertyName(), index);
+            _addPropertyIndex(property.getName(), index);
+            _addPropertyIndex(typeDeser.getPropertyName(), index);
         }
 
+        private void _addPropertyIndex(String name, Integer index) {
+            Object ob = _nameToPropertyIndex.get(name);
+            if (ob == null) {
+                _nameToPropertyIndex.put(name, index);
+            } else if (ob instanceof List<?>) {
+                @SuppressWarnings("unchecked")
+                List<Object> list = (List<Object>) ob;
+                list.add(index);
+            } else {
+                List<Object> list = new LinkedList<>();
+                list.add(ob);
+                list.add(index);
+                _nameToPropertyIndex.put(name, list);
+            }
+        }
+        
         /**
          * Method called after all external properties have been assigned, to further
          * link property with polymorphic value with possible property for type id

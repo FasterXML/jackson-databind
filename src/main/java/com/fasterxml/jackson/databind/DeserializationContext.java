@@ -1246,7 +1246,8 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException
     {
         msg = _format(msg, msgArgs);
-        throw MismatchedInputException.from(getParser(), prop.getType(), msg);
+        JavaType type = (prop == null) ? null : prop.getType();
+        throw MismatchedInputException.from(getParser(), type, msg);
     }
 
     /**

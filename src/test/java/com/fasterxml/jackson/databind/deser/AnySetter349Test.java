@@ -12,6 +12,7 @@ public class AnySetter349Test extends BaseMapTest
     static class Bean349
     {
         public String type;
+        public int x, y;
     
         private Map<String, Object> props = new HashMap<>();
     
@@ -32,18 +33,34 @@ public class AnySetter349Test extends BaseMapTest
     static class IdentityDTO349 {
         public int x, y;
     }
+
+    final static String UNWRAPPED_JSON_349 = aposToQuotes(
+"{ 'type' : 'IST',\n"
++" 'x' : 3,\n"
+//+" 'name' : 'BLAH-New',\n"
+//+" 'description' : 'namespace.name: X THIN FIR.DR-WD12-New',\n"
++" 'ZoomLinks': [ 'foofoofoofoo', 'barbarbarbar' ],\n"
++" 'y' : 4, 'z' : 8 }"
+            );
     
     public void testUnwrappedWithAny() throws Exception
     {
         final ObjectMapper mapper = objectMapper();
-        final String json = aposToQuotes(
-"{ 'type' : 'IST',\n"
-//+" 'spacename' : 'Foo Models',\n"
-//+" 'name' : 'BLAH-New',\n"
-//+" 'description' : 'namespace.name: X THIN FIR.DR-WD12-New',\n"
-+" 'ZoomLinks': [ 'foofoofoofoo', 'barbarbarbar' ] }"
-                );
-        Bean349 value = mapper.readValue(json,  Bean349.class);
+        Bean349 value = mapper.readValue(UNWRAPPED_JSON_349,  Bean349.class);
         assertNotNull(value);
+        assertEquals(3, value.x);
+        assertEquals(4, value.y);
+        assertEquals(2, value.props.size());
+    }
+
+    public void testUnwrappedWithAnyAsUpdate() throws Exception
+    {
+        final ObjectMapper mapper = objectMapper();
+        Bean349 bean = mapper.readerFor(Bean349.class)
+                .withValueToUpdate(new Bean349())
+                .readValue(UNWRAPPED_JSON_349);
+        assertEquals(3, bean.x);
+        assertEquals(4, bean.y);
+        assertEquals(2, bean.props.size());
     }
 }

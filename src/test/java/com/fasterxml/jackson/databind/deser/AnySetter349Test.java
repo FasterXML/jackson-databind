@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
@@ -26,7 +26,7 @@ public class AnySetter349Test extends BaseMapTest
         }
     
         @JsonUnwrapped
-        public IdentityDTO349 identity = null;
+        public IdentityDTO349 identity;
     }
 
     static class IdentityDTO349 {
@@ -38,9 +38,9 @@ public class AnySetter349Test extends BaseMapTest
         final ObjectMapper mapper = objectMapper();
         final String json = aposToQuotes(
 "{ 'type' : 'IST',\n"
-+" 'spacename' : 'Foo Models',\n"
-+" 'name' : 'BLAH-New',\n"
-+" 'description' : 'namespace.name: X THIN FIR.DR-WD12-New',\n"
+//+" 'spacename' : 'Foo Models',\n"
+//+" 'name' : 'BLAH-New',\n"
+//+" 'description' : 'namespace.name: X THIN FIR.DR-WD12-New',\n"
 +" 'ZoomLinks': [ 'foofoofoofoo', 'barbarbarbar' ] }"
                 );
         Bean349 value = mapper.readValue(json,  Bean349.class);

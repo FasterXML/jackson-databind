@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.8.6 (not yet released)
 
+#349: @JsonAnySetter with @JsonUnwrapped: deserialization fails with arrays
+ (reported by hdave@github)
 #1388: `@JsonIdentityInfo`: id has to be the first key in deserialization when
   deserializing with `@JsonCreator`
  (reported by moodysalem@github)

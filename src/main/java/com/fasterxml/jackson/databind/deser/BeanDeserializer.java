@@ -632,13 +632,24 @@ public class BeanDeserializer
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
-            // but... others should be passed to unwrapped property deserializers
-            tokens.writeFieldName(propName);
-            tokens.copyCurrentStructure(p);
+            // 29-Nov-2016, tatu: probably should try to avoid sending content
+            //    both to any setter AND buffer... but, for now, the only thing
+            //    we can do.
             // how about any setter? We'll get copies but...
-            if (_anySetter != null) {
+            if (_anySetter == null) {
+                // but... others should be passed to unwrapped property deserializers
+                tokens.writeFieldName(propName);
+                tokens.copyCurrentStructure(p);
+            } else {
+                // Need to copy to a separate buffer first
+                TokenBuffer b2 = new TokenBuffer(p, ctxt);
+                b2.copyCurrentStructure(p);
+                tokens.writeFieldName(propName);
+                tokens.append(b2);
                 try {
-                    _anySetter.deserializeAndSet(p, ctxt, bean, propName);
+                    JsonParser p2 = b2.asParser(p);
+                    p2.nextToken();
+                    _anySetter.deserializeAndSet(p2, ctxt, bean, propName);
                 } catch (Exception e) {
                     wrapAndThrow(e, bean, propName, ctxt);
                 }
@@ -681,12 +692,28 @@ public class BeanDeserializer
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
-            // but... others should be passed to unwrapped property deserializers
-            tokens.writeFieldName(propName);
-            tokens.copyCurrentStructure(p);
+            // 29-Nov-2016, tatu: probably should try to avoid sending content
+            //    both to any setter AND buffer... but, for now, the only thing
+            //    we can do.
             // how about any setter? We'll get copies but...
-            if (_anySetter != null) {
-                _anySetter.deserializeAndSet(p, ctxt, bean, propName);
+            if (_anySetter == null) {
+                // but... others should be passed to unwrapped property deserializers
+                tokens.writeFieldName(propName);
+                tokens.copyCurrentStructure(p);
+            } else {
+                // Need to copy to a separate buffer first
+                TokenBuffer b2 = new TokenBuffer(p, ctxt);
+                b2.copyCurrentStructure(p);
+                tokens.writeFieldName(propName);
+                tokens.append(b2);
+                try {
+                    JsonParser p2 = b2.asParser(p);
+                    p2.nextToken();
+                    _anySetter.deserializeAndSet(p2, ctxt, bean, propName);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, propName, ctxt);
+                }
+                continue;
             }
         }
         tokens.writeEndObject();
@@ -755,15 +782,29 @@ public class BeanDeserializer
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
-            tokens.writeFieldName(propName);
-            tokens.copyCurrentStructure(p);
-            // "any property"?
-            if (_anySetter != null) {
+            // 29-Nov-2016, tatu: probably should try to avoid sending content
+            //    both to any setter AND buffer... but, for now, the only thing
+            //    we can do.
+            // how about any setter? We'll get copies but...
+            if (_anySetter == null) {
+                // but... others should be passed to unwrapped property deserializers
+                tokens.writeFieldName(propName);
+                tokens.copyCurrentStructure(p);
+            } else {
+                // Need to copy to a separate buffer first
+                TokenBuffer b2 = new TokenBuffer(p, ctxt);
+                b2.copyCurrentStructure(p);
+                tokens.writeFieldName(propName);
+                tokens.append(b2);
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    JsonParser p2 = b2.asParser(p);
+                    p2.nextToken();
+                    buffer.bufferAnyProperty(_anySetter, propName,
+                            _anySetter.deserialize(p2, ctxt));
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
+                continue;
             }
         }
 

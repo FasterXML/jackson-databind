@@ -645,20 +645,16 @@ public class BeanDeserializer
                 // but... others should be passed to unwrapped property deserializers
                 tokens.writeFieldName(propName);
                 tokens.copyCurrentStructure(p);
-            } else {
-                // Need to copy to a separate buffer first
-                TokenBuffer b2 = new TokenBuffer(p, ctxt);
-                b2.copyCurrentStructure(p);
-                tokens.writeFieldName(propName);
-                tokens.append(b2);
-                try {
-                    JsonParser p2 = b2.asParser(p);
-                    p2.nextToken();
-                    _anySetter.deserializeAndSet(p2, ctxt, bean, propName);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
-                }
                 continue;
+            }
+            // Need to copy to a separate buffer first
+            TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
+            tokens.writeFieldName(propName);
+            tokens.append(b2);
+            try {
+                _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
             }
         }
         tokens.writeEndObject();
@@ -667,7 +663,8 @@ public class BeanDeserializer
     }
 
     @SuppressWarnings("resource")
-    protected Object deserializeWithUnwrapped(JsonParser p, DeserializationContext ctxt, Object bean)
+    protected Object deserializeWithUnwrapped(JsonParser p, DeserializationContext ctxt,
+            Object bean)
         throws IOException
     {
         JsonToken t = p.getCurrentToken();
@@ -707,14 +704,11 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
-                TokenBuffer b2 = new TokenBuffer(p, ctxt);
-                b2.copyCurrentStructure(p);
+                TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
                 tokens.writeFieldName(propName);
                 tokens.append(b2);
                 try {
-                    JsonParser p2 = b2.asParser(p);
-                    p2.nextToken();
-                    _anySetter.deserializeAndSet(p2, ctxt, bean, propName);
+                    _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
                 } catch (Exception e) {
                     wrapAndThrow(e, bean, propName, ctxt);
                 }
@@ -764,7 +758,6 @@ public class BeanDeserializer
                     if (bean.getClass() != _beanType.getRawClass()) {
                         // !!! 08-Jul-2011, tatu: Could probably support; but for now
                         //   it's too complicated, so bail out
-                        tokens.close();
                         ctxt.reportInputMismatch(creatorProp,
                                 "Can not create polymorphic instances with unwrapped values");
                         return null;
@@ -798,15 +791,12 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
-                TokenBuffer b2 = new TokenBuffer(p, ctxt);
-                b2.copyCurrentStructure(p);
+                TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
                 tokens.writeFieldName(propName);
                 tokens.append(b2);
                 try {
-                    JsonParser p2 = b2.asParser(p);
-                    p2.nextToken();
                     buffer.bufferAnyProperty(_anySetter, propName,
-                            _anySetter.deserialize(p2, ctxt));
+                            _anySetter.deserialize(b2.asParserOnFirstToken(), ctxt));
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -976,7 +966,8 @@ public class BeanDeserializer
             }
             // "any property"?
             if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                buffer.bufferAnyProperty(_anySetter, propName,
+                        _anySetter.deserialize(p, ctxt));
             }
         }
 

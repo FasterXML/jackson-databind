@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -41,7 +42,36 @@ public class BuilderWithViewTest extends BaseMapTest
               return new ValueClassXY(x, y);
         }
     }
-    
+
+    @JsonDeserialize(builder=CreatorBuilderXY.class)
+    static class CreatorValueXY
+    {
+        final int _x, _y;
+
+        protected CreatorValueXY(int x, int y) {
+            _x = x;
+            _y = y;
+        }
+    }
+
+    @JsonIgnoreProperties({ "bogus" })
+    static class CreatorBuilderXY
+    {
+        public int x, y;
+
+        @JsonCreator
+        public CreatorBuilderXY(@JsonProperty("x") @JsonView(ViewX.class) int x,
+                @JsonProperty("y") @JsonView(ViewY.class) int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public CreatorValueXY build() {
+              return new CreatorValueXY(x, y);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -64,5 +94,21 @@ public class BuilderWithViewTest extends BaseMapTest
                 .readValue(json);
         assertEquals(1, resultY._x);
         assertEquals(11, resultY._y);
+    }
+
+    public void testCreatorViews() throws Exception
+    {
+        final String json = aposToQuotes("{'x':5,'y':10,'bogus':false}");
+        CreatorValueXY resultX = MAPPER.readerFor(CreatorValueXY.class)
+                .withView(ViewX.class)
+                .readValue(json);
+        assertEquals(5, resultX._x);
+        assertEquals(0, resultX._y);
+
+        CreatorValueXY resultY = MAPPER.readerFor(CreatorValueXY.class)
+                .withView(ViewY.class)
+                .readValue(json);
+        assertEquals(0, resultY._x);
+        assertEquals(10, resultY._y);
     }
 }

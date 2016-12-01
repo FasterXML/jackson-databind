@@ -191,6 +191,22 @@ public class TokenBuffer
     }
 
     /**
+     * Convenience method, equivalent to:
+     *<pre>
+     * TokenBuffer b = new TokenBuffer(p);
+     * b.copyCurrentStructure(p);
+     * return b;
+     *</pre>
+     *
+     * @since 2.9
+     */
+    public static TokenBuffer asCopyOfValue(JsonParser p) throws IOException {
+        TokenBuffer b = new TokenBuffer(p);
+        b.copyCurrentStructure(p);
+        return b;
+    }
+
+    /**
      * @since 2.7
      */
     public TokenBuffer forceUseOfBigDecimal(boolean b) {
@@ -213,9 +229,24 @@ public class TokenBuffer
      * 
      * @return Parser that can be used for reading contents stored in this buffer
      */
-    public JsonParser asParser()
-    {
+    public JsonParser asParser() {
         return asParser(_objectCodec);
+    }
+
+    /**
+     * Same as:
+     *<pre>
+     *  JsonParser p = asParser();
+     *  p.nextToken();
+     *  return p;
+     *</pre>
+     *
+     * @since 2.9
+     */
+    public JsonParser asParserOnFirstToken() throws IOException {
+        JsonParser p = asParser(_objectCodec);
+        p.nextToken();
+        return p;
     }
 
     /**

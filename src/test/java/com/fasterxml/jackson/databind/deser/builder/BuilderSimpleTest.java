@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class BuilderSimpleTest extends BaseMapTest
 {
@@ -249,7 +250,7 @@ public class BuilderSimpleTest extends BaseMapTest
 
     public void testSimple() throws Exception
     {
-        String json = "{\"x\":1,\"y\":2}";
+        String json = aposToQuotes("{'x':1,'y':2}");
         Object o = MAPPER.readValue(json, ValueClassXY.class);
         assertNotNull(o);
         assertSame(ValueClassXY.class, o.getClass());
@@ -263,13 +264,14 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testSimpleWithIgnores() throws Exception
     {
         // 'z' is unknown, and would fail by default:
-        String json = "{\"x\":1,\"y\":2,\"z\":3}";
+        final String json = aposToQuotes("{'x':1,'y':2,'z':4}");
         Object o = null;
 
         try {
             o = MAPPER.readValue(json, ValueClassXY.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (UnrecognizedPropertyException e) {
+            assertEquals("z", e.getPropertyName());
             verifyException(e, "Unrecognized field \"z\"");
         }
 

@@ -42,60 +42,11 @@ public class BuilderAdvancedTest extends BaseMapTest
         }
     }
 
-    // // // Builder with unwrapped stuff
-
-    final static class Location {
-        public int x;
-        public int y;
-
-        public Location() { }
-        public Location(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    @JsonDeserialize(builder=UnwrappingBuilder.class)
-    static class UnwrappingValue
-    {
-        final String name;
-        final Location location;
-
-        protected UnwrappingValue(String n, Location l) {
-            name = n;
-            location = l;
-        }
-    }
-
-    static class UnwrappingBuilder
-    {
-        private String name;
-
-        Location loc;
-
-        @JsonUnwrapped(prefix="loc.")
-        public UnwrappingBuilder withLocation(Location l) {
-            loc = l;
-            return this;
-        }
-
-        public UnwrappingBuilder withName(String n) {
-            name = n;
-            return this;
-        }
-        
-        public UnwrappingValue build() {
-            return new UnwrappingValue(name, loc);
-        }
-    }
-
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-
-    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testWithInjectable() throws Exception
     {
@@ -108,16 +59,5 @@ public class BuilderAdvancedTest extends BaseMapTest
         assertEquals(8, bean._x);
         assertEquals(4, bean._y);
         assertEquals("stuffValue", bean._stuff);
-    }
-
-    public void testWithUnwrapping() throws Exception
-    {
-        final String json = aposToQuotes("{'loc.x':3,'name':'Foobar','loc.y':5}}");
-        UnwrappingValue result = MAPPER.readValue(json, UnwrappingValue.class);
-        assertNotNull(result);
-        assertNotNull(result.location);
-        assertEquals("Foobar", result.name);
-        assertEquals(3, result.location.x);
-        assertEquals(5, result.location.y);
     }
 }

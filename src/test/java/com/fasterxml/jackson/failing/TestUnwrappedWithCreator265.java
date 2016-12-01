@@ -57,7 +57,7 @@ public class TestUnwrappedWithCreator265 extends BaseMapTest
     /**********************************************************
      */
 
-    // For [Issue#265] / [Scala#90]
+    // For [databind#265] / [Scala#90]
     public void testUnwrappedWithCreator() throws Exception
     {
         JPerson person = new JPerson("MyName", new JAddress("main street", "springfield", "WA"), "bubba");

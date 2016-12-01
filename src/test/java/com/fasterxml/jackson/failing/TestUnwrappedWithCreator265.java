@@ -7,37 +7,28 @@ import com.fasterxml.jackson.databind.*;
 public class TestUnwrappedWithCreator265 extends BaseMapTest
 {
     static class JAddress {
-        protected String address;
-        protected String city;
-        protected String state;
-         
-        @JsonCreator
-        public JAddress( @JsonProperty("address") String address,
-                @JsonProperty("city") String city,
-                @JsonProperty("state") String state
-        ){
+        public String address;
+        public String city;
+        public String state;
+
+        protected JAddress() { }
+
+        public JAddress(String address, String city, String state) {
             this.address = address;
             this.city = city;
             this.state = state;
         }
-         
-        public String getAddress1() { return address; }
-        public String getCity() { return city; }
-        public String getState() { return state; }
     }
 
     static class JPerson {
         protected String _name;
         protected JAddress _address;
-        protected String _alias;
          
         @JsonCreator
         public JPerson(@JsonProperty("name") String name,
-        @JsonUnwrapped JAddress address,
-        @JsonProperty("alias") String alias) {
+        @JsonUnwrapped JAddress address) {
             _name = name;
             _address = address;
-            _alias = alias;
         }
          
         public String getName() {
@@ -47,8 +38,6 @@ public class TestUnwrappedWithCreator265 extends BaseMapTest
         @JsonUnwrapped public JAddress getAddress() {
             return _address;
         }
-         
-        public String getAlias() { return _alias; }
     }
 
     /*
@@ -60,7 +49,7 @@ public class TestUnwrappedWithCreator265 extends BaseMapTest
     // For [databind#265] / [Scala#90]
     public void testUnwrappedWithCreator() throws Exception
     {
-        JPerson person = new JPerson("MyName", new JAddress("main street", "springfield", "WA"), "bubba");
+        JPerson person = new JPerson("MyName", new JAddress("main street", "springfield", "WA"));
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(person);
         JPerson result = mapper.readValue(json, JPerson.class);

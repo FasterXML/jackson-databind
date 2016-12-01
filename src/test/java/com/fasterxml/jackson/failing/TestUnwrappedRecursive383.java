@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 // Problem with recursive definition of unwrapping
-public class TestUnwrappedIssue383 extends BaseMapTest
+public class TestUnwrappedRecursive383 extends BaseMapTest
 {
     // [databind#383]
     static class RecursivePerson {

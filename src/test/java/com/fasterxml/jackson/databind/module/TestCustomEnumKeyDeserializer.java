@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.Test;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -169,7 +167,6 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
      */
     
     // Test passing with the fix
-    @Test
     public void testWithEnumKeys() throws Exception {
         ObjectMapper plainObjectMapper = new ObjectMapper();
         JsonNode tree = plainObjectMapper.readTree(aposToQuotes("{'red' : [ 'a', 'b']}"));

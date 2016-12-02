@@ -251,12 +251,13 @@ public class SimpleModule
     
     /*
     /**********************************************************
-    /* Configuration methods
+    /* Configuration methods, adding serializers
     /**********************************************************
      */
     
     public SimpleModule addSerializer(JsonSerializer<?> ser)
     {
+        _checkNotNull(ser, "serializer");
         if (_serializers == null) {
             _serializers = new SimpleSerializers();
         }
@@ -266,6 +267,8 @@ public class SimpleModule
     
     public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
+        _checkNotNull(type, "type to register serializer for");
+        _checkNotNull(ser, "serializer");
         if (_serializers == null) {
             _serializers = new SimpleSerializers();
         }
@@ -275,15 +278,25 @@ public class SimpleModule
 
     public <T> SimpleModule addKeySerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
+        _checkNotNull(type, "type to register key serializer for");
+        _checkNotNull(ser, "key serializer");
         if (_keySerializers == null) {
             _keySerializers = new SimpleSerializers();
         }
         _keySerializers.addSerializer(type, ser);
         return this;
     }
+
+    /*
+    /**********************************************************
+    /* Configuration methods, adding deserializers
+    /**********************************************************
+     */
     
     public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
     {
+        _checkNotNull(type, "type to register deserializer for");
+        _checkNotNull(deser, "deserializer");
         if (_deserializers == null) {
             _deserializers = new SimpleDeserializers();
         }
@@ -293,12 +306,20 @@ public class SimpleModule
 
     public SimpleModule addKeyDeserializer(Class<?> type, KeyDeserializer deser)
     {
+        _checkNotNull(type, "type to register key deserializer for");
+        _checkNotNull(deser, "key deserializer");
         if (_keyDeserializers == null) {
             _keyDeserializers = new SimpleKeyDeserializers();
         }
         _keyDeserializers.addDeserializer(type, deser);
         return this;
     }
+
+    /*
+    /**********************************************************
+    /* Configuration methods, type mapping
+    /**********************************************************
+     */
 
     /**
      * Lazily-constructed resolver used for storing mappings from
@@ -308,27 +329,13 @@ public class SimpleModule
     public <T> SimpleModule addAbstractTypeMapping(Class<T> superType,
             Class<? extends T> subType)
     {
+        _checkNotNull(superType, "abstract type to map");
+        _checkNotNull(subType, "concrete type to map to");
         if (_abstractTypes == null) {
             _abstractTypes = new SimpleAbstractTypeResolver();
         }
         // note: addMapping() will verify arguments
         _abstractTypes = _abstractTypes.addMapping(superType, subType);
-        return this;
-    }
-
-    /**
-     * Method for registering {@link ValueInstantiator} to use when deserializing
-     * instances of type <code>beanType</code>.
-     *<p>
-     * Instantiator is
-     * registered when module is registered for <code>ObjectMapper</code>.
-     */
-    public SimpleModule addValueInstantiator(Class<?> beanType, ValueInstantiator inst)
-    {
-        if (_valueInstantiators == null) {
-            _valueInstantiators = new SimpleValueInstantiators();
-        }
-        _valueInstantiators = _valueInstantiators.addValueInstantiator(beanType, inst);
         return this;
     }
 
@@ -343,6 +350,7 @@ public class SimpleModule
             _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
         }
         for (Class<?> subtype : subtypes) {
+            _checkNotNull(subtype, "subtype to register");
             _subtypes.add(new NamedType(subtype));
         }
         return this;
@@ -359,11 +367,36 @@ public class SimpleModule
             _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
         }
         for (NamedType subtype : subtypes) {
+            _checkNotNull(subtype, "subtype to register");
             _subtypes.add(subtype);
         }
         return this;
     }
     
+    /*
+    /**********************************************************
+    /* Configuration methods, add other handlers
+    /**********************************************************
+     */
+    
+    /**
+     * Method for registering {@link ValueInstantiator} to use when deserializing
+     * instances of type <code>beanType</code>.
+     *<p>
+     * Instantiator is
+     * registered when module is registered for <code>ObjectMapper</code>.
+     */
+    public SimpleModule addValueInstantiator(Class<?> beanType, ValueInstantiator inst)
+    {
+        _checkNotNull(beanType, "class to register value instantiator for");
+        _checkNotNull(inst, "value instantiator");
+        if (_valueInstantiators == null) {
+            _valueInstantiators = new SimpleValueInstantiators();
+        }
+        _valueInstantiators = _valueInstantiators.addValueInstantiator(beanType, inst);
+        return this;
+    }
+
     /**
      * Method for specifying that annotations define by <code>mixinClass</code>
      * should be "mixed in" with annotations that <code>targetType</code>
@@ -374,13 +407,15 @@ public class SimpleModule
      */
     public SimpleModule setMixInAnnotation(Class<?> targetType, Class<?> mixinClass)
     {
+        _checkNotNull(targetType, "target type");
+        _checkNotNull(mixinClass, "mixin class");
         if (_mixins == null) {
             _mixins = new HashMap<Class<?>, Class<?>>();
         }
         _mixins.put(targetType, mixinClass);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Module impl
@@ -441,4 +476,21 @@ public class SimpleModule
 
     @Override
     public Version version() { return _version; }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.9
+     */
+    protected void _checkNotNull(Object thingy, String type)
+    {
+        if (thingy == null) {
+            throw new IllegalArgumentException(String.format(
+                    "Can not pass `null` as %s", type));
+        }
+    }
 }

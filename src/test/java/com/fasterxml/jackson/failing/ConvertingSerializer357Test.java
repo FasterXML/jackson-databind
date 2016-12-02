@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import com.fasterxml.jackson.databind.util.StdConverter;
 
-public class TestConvertingSerializer357
+public class ConvertingSerializer357Test
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     // [databind#357]

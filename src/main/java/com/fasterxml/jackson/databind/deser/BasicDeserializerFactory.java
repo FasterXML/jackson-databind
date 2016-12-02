@@ -469,8 +469,11 @@ public abstract class BasicDeserializerFactory
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
+                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++explicitNameCount;
+                    */
                     continue;
                 }
                 // One more thing: implicit names are ok iff ctor has creator annotation
@@ -695,8 +698,11 @@ public abstract class BasicDeserializerFactory
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
+                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    /*
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                     ++implicitNameCount;
+                    */
                     continue;
                 }
                 // One more thing: implicit names are ok iff ctor has creator annotation
@@ -784,6 +790,17 @@ public abstract class BasicDeserializerFactory
             return true;
         }
         return false;
+    }
+
+    // 01-Dec-2016, tatu: As per [databind#265] we can not yet support passing
+    //   of unwrapped values through creator properties, so fail fast
+    protected void _reportUnwrappedCreatorProperty(DeserializationContext ctxt,
+            BeanDescription beanDesc, AnnotatedParameter param)
+        throws JsonMappingException
+    {
+        ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                "Can not define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
+                param.getIndex()));
     }
 
     /**

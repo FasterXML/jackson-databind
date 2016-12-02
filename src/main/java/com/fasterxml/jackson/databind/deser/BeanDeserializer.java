@@ -291,7 +291,7 @@ public class BeanDeserializer
     @Override
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        /* 09-Dec-2014, tatu: As per [#622], we need to allow Object Id references
+        /* 09-Dec-2014, tatu: As per [databind#622], we need to allow Object Id references
          *   to come in as JSON Objects as well; but for now assume they will
          *   be simple, single-property references, which means that we can
          *   recognize them without having to buffer anything.
@@ -724,6 +724,10 @@ public class BeanDeserializer
     protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
+        // 01-Dec-2016, tatu: Note: This IS legal to call, but only when unwrapped
+        //    value itself is NOT passed via `CreatorProperty` (which isn't supported).
+        //    Ok however to pass via setter or field.
+        
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
@@ -738,7 +742,8 @@ public class BeanDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
+                if (buffer.assignParameter(creatorProp,
+                        _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {

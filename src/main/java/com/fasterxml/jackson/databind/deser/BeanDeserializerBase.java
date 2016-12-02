@@ -528,9 +528,8 @@ public abstract class BeanDeserializerBase
                     unwrapped = new UnwrappedPropertyHandler();
                 }
                 unwrapped.addProperty(prop);
-                /* 12-Dec-2014, tatu: As per [databind#647], we will have problems if
-                 *    the original property is left in place. So let's remove it now.
-                 */
+                // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
+                //    the original property is left in place. So let's remove it now.
                 _beanProperties.remove(prop);
                 continue;
             }
@@ -831,11 +830,20 @@ public abstract class BeanDeserializerBase
      */
     protected SettableBeanProperty _resolveUnwrappedProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
+        throws JsonMappingException
     {
         AnnotatedMember am = prop.getMember();
         if (am != null) {
             NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(am);
             if (unwrapper != null) {
+                // 01-Dec-2016, tatu: As per [databind#265] we can not yet support passing
+                //   of unwrapped values through creator properties, so fail fast
+                if (prop instanceof CreatorProperty) {
+                    ctxt.reportBadDefinition(getValueType(), String.format(
+                            "Can not define Creator property \"%s\" as `@JsonUnwrapped`: combination not yet supported",
+                            prop.getName()));
+                }
+                
                 JsonDeserializer<Object> orig = prop.getValueDeserializer();
                 JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(unwrapper);
                 if (unwrapping != orig && unwrapping != null) {

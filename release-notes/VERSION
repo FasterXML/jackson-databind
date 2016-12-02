@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #219: SqlDateSerializer does not obey SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS
  (reported by BrentDouglas@github)
+#265: Add descriptive exception for attempts to use `@JsonWrapped` via Creator parameter
 #291: @JsonTypeInfo with As.EXTERNAL_PROPERTY doesn't work if external type property
   is referenced more than once
  (reported by Starkom@github)

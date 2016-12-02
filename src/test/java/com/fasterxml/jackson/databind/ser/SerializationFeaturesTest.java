@@ -138,7 +138,7 @@ public class SerializationFeaturesTest
         HashSet<Long> longs = new HashSet<Long>();
         longs.add(42L);
         assertEquals("42", writer.writeValueAsString(longs));
-        // [Issue#180]
+        // [databind#180]
         final String EXP_STRINGS = "{\"values\":\"foo\"}";
         assertEquals(EXP_STRINGS, writer.writeValueAsString(new StringListBean(Collections.singletonList("foo"))));
 
@@ -148,8 +148,24 @@ public class SerializationFeaturesTest
         
         // arrays:
         assertEquals("true", writer.writeValueAsString(new boolean[] { true }));
+        assertEquals("[true,false]", writer.writeValueAsString(new boolean[] { true, false }));
         assertEquals("true", writer.writeValueAsString(new Boolean[] { Boolean.TRUE }));
+
+        assertEquals("3", writer.writeValueAsString(new short[] { 3 }));
+        assertEquals("[3,2]", writer.writeValueAsString(new short[] { 3, 2 }));
+        
         assertEquals("3", writer.writeValueAsString(new int[] { 3 }));
+        assertEquals("[3,2]", writer.writeValueAsString(new int[] { 3, 2 }));
+
+        assertEquals("1", writer.writeValueAsString(new long[] { 1L }));
+        assertEquals("[-1,4]", writer.writeValueAsString(new long[] { -1L, 4L }));
+
+        assertEquals("0.5", writer.writeValueAsString(new double[] { 0.5 }));
+        assertEquals("[0.5,2.5]", writer.writeValueAsString(new double[] { 0.5, 2.5 }));
+
+        assertEquals("0.5", writer.writeValueAsString(new float[] { 0.5f }));
+        assertEquals("[0.5,2.5]", writer.writeValueAsString(new float[] { 0.5f, 2.5f }));
+        
         assertEquals(quote("foo"), writer.writeValueAsString(new String[] { "foo" }));
     }
 }

@@ -58,23 +58,24 @@ public class StdArraySerializers
     protected abstract static class TypedPrimitiveArraySerializer<T>
         extends ArraySerializerBase<T>
     {
-        /**
-         * Type serializer to use for values, if any.
-         */
-        protected final TypeSerializer _valueTypeSerializer;
-        
         protected TypedPrimitiveArraySerializer(Class<T> cls) {
             super(cls);
-            _valueTypeSerializer = null;
         }
 
         protected TypedPrimitiveArraySerializer(TypedPrimitiveArraySerializer<T> src,
-                BeanProperty prop, TypeSerializer vts, Boolean unwrapSingle) {
+                BeanProperty prop, Boolean unwrapSingle) {
             super(src, prop, unwrapSingle);
-            _valueTypeSerializer = vts;
+        }
+
+        // 01-Dec-2016, tatu: Only now realized that due strong typing of Java arrays,
+        //    we can not really ever have value type serializers
+        @Override
+        public final ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+            // throw exception or just do nothing?
+            return this;
         }
     }
-    
+
     /*
     /****************************************************************
     /* Concrete serializers, arrays
@@ -144,7 +145,7 @@ public class StdArraySerializers
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
-        
+
         @Override
         public void serializeContents(boolean[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException
@@ -179,18 +180,13 @@ public class StdArraySerializers
 
         public ShortArraySerializer() { super(short[].class); }
         public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop,
-                TypeSerializer vts, Boolean unwrapSingle) {
-            super(src, prop, vts, unwrapSingle);
+                 Boolean unwrapSingle) {
+            super(src, prop, unwrapSingle);
         }
 
         @Override
         public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
-            return new ShortArraySerializer(this, prop, _valueTypeSerializer, unwrapSingle);
-        }
-
-        @Override
-        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new ShortArraySerializer(this, _property, vts, _unwrapSingle);
+            return new ShortArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -233,14 +229,6 @@ public class StdArraySerializers
         public void serializeContents(short[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException
         {
-            if (_valueTypeSerializer != null) {
-                for (int i = 0, len = value.length; i < len; ++i) {
-                    _valueTypeSerializer.writeTypePrefixForScalar(null, g, Short.TYPE);
-                    g.writeNumber(value[i]);
-                    _valueTypeSerializer.writeTypeSuffixForScalar(null, g);
-                }
-                return;
-            }
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber((int)value[i]);
             }
@@ -431,18 +419,13 @@ public class StdArraySerializers
 
         public LongArraySerializer() { super(long[].class); }
         public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
-                TypeSerializer vts, Boolean unwrapSingle) {
-            super(src, prop, vts, unwrapSingle);
+                Boolean unwrapSingle) {
+            super(src, prop, unwrapSingle);
         }
 
         @Override
         public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
-            return new LongArraySerializer(this, prop, _valueTypeSerializer, unwrapSingle);
-        }
-
-        @Override
-        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new LongArraySerializer(this, _property, vts, _unwrapSingle);
+            return new LongArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -483,15 +466,6 @@ public class StdArraySerializers
         public void serializeContents(long[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException
         {
-            if (_valueTypeSerializer != null) {
-                for (int i = 0, len = value.length; i < len; ++i) {
-                    _valueTypeSerializer.writeTypePrefixForScalar(null, g, Long.TYPE);
-                    g.writeNumber(value[i]);
-                    _valueTypeSerializer.writeTypeSuffixForScalar(null, g);
-                }
-                return;
-            }
-            
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);
             }
@@ -523,18 +497,13 @@ public class StdArraySerializers
             super(float[].class);
         }
         public FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
-                TypeSerializer vts, Boolean unwrapSingle) {
-            super(src, prop, vts, unwrapSingle);
-        }
-
-        @Override
-        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new FloatArraySerializer(this, _property, vts, _unwrapSingle);
+                Boolean unwrapSingle) {
+            super(src, prop, unwrapSingle);
         }
 
         @Override
         public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
-            return new FloatArraySerializer(this, prop, _valueTypeSerializer, unwrapSingle);
+            return new FloatArraySerializer(this, prop, unwrapSingle);
         }
 
         @Override
@@ -576,14 +545,6 @@ public class StdArraySerializers
         public void serializeContents(float[] value, JsonGenerator g, SerializerProvider provider)
             throws IOException
         {
-            if (_valueTypeSerializer != null) {
-                for (int i = 0, len = value.length; i < len; ++i) {
-                    _valueTypeSerializer.writeTypePrefixForScalar(null, g, Float.TYPE);
-                    g.writeNumber(value[i]);
-                    _valueTypeSerializer.writeTypeSuffixForScalar(null, g);
-                }
-                return;
-            }
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);
             }

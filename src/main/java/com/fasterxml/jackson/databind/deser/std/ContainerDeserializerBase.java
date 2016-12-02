@@ -78,7 +78,7 @@ public abstract class ContainerDeserializerBase<T>
     /**
      * Helper method called by various Map(-like) deserializers.
      */
-    protected void wrapAndThrow(Throwable t, Object ref, String key) throws IOException
+    protected <BOGUS> BOGUS wrapAndThrow(Throwable t, Object ref, String key) throws IOException
     {
         // to handle StackOverflow:
         while (t instanceof InvocationTargetException && t.getCause() != null) {

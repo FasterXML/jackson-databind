@@ -166,8 +166,7 @@ public class EnumMapDeserializer
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
             } catch (Exception e) {
-                wrapAndThrow(e, result, keyName);
-                return null;
+                return wrapAndThrow(e, result, keyName);
             }
             result.put(key, value);
         }

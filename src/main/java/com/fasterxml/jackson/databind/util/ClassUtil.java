@@ -435,7 +435,7 @@ public final class ClassUtil
     }
 
     /**
-     * Helper method that will check if argument is an {@link RuntimeException},
+     * Helper method that will check if argument is an {@link IOException},
      * and if so, (re)throw it; otherwise just return
      *
      * @since 2.9
@@ -446,7 +446,7 @@ public final class ClassUtil
         }
         return t;
     }
-    
+
     /*
     /**********************************************************
     /* Exception handling; other

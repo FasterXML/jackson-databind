@@ -575,8 +575,7 @@ public class MapDeserializer
                     try {
                         result = (Map<Object,Object>)creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _mapType.getRawClass(), key);
-                        return null;
+                        return wrapAndThrow(e, _mapType.getRawClass(), key);
                     }
                     _readAndBind(p, ctxt, result);
                     return result;
@@ -609,11 +608,6 @@ public class MapDeserializer
             wrapAndThrow(e, _mapType.getRawClass(), key);
             return null;
         }
-    }
-
-    @Deprecated // since 2.5
-    protected void wrapAndThrow(Throwable t, Object ref) throws IOException {
-        wrapAndThrow(t, ref, null);
     }
 
     private void handleUnresolvedReference(DeserializationContext ctxt,

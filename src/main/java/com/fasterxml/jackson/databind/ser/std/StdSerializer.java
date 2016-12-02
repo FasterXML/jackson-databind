@@ -30,18 +30,6 @@ public abstract class StdSerializer<T>
     extends JsonSerializer<T>
     implements JsonFormatVisitable, SchemaAware, java.io.Serializable
 {
-    /**
-     * Unique key we use to store a temporary lock, to prevent infinite recursion
-     * when resolving content converters (see [databind#357]).
-     *<p>
-     * NOTE: may need to revisit this if nested content converters are needed; if so,
-     * may need to create per-call lock object. But let's start with a simpler
-     * solution for now.
-     *
-     * @since 2.7
-     */
-    private final static Object CONVERTING_CONTENT_CONVERTER_LOCK = new Object();
-
     private static final long serialVersionUID = 1L;
 
     /**
@@ -363,28 +351,11 @@ public abstract class StdSerializer<T>
             BeanProperty prop, JsonSerializer<?> existingSerializer)
         throws JsonMappingException
     {
-        /* 19-Oct-2014, tatu: As per [databind#357], need to avoid infinite loop
-         *   when applying contextual content converter; this is not ideal way,
-         *   but should work for most cases.
-         */
-        Object ob = provider.getAttribute(CONVERTING_CONTENT_CONVERTER_LOCK);
-        if (ob != null) {
-            if (ob == Boolean.TRUE) { // just to ensure it's value we added.
-                return existingSerializer;
-            }
-        }
-
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null && prop != null) {
             AnnotatedMember m = prop.getMember();
             if (m != null) {
-                provider.setAttribute(CONVERTING_CONTENT_CONVERTER_LOCK, Boolean.TRUE);
-                Object convDef;
-                try {
-                    convDef = intr.findSerializationContentConverter(m);
-                } finally {
-                    provider.setAttribute(CONVERTING_CONTENT_CONVERTER_LOCK, null);
-                }
+                Object convDef = intr.findSerializationContentConverter(m);
                 if (convDef != null) {
                     Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getOutputType(provider.getTypeFactory());

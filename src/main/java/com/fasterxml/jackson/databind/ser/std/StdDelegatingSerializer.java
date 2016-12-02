@@ -115,9 +115,8 @@ public class StdDelegatingSerializer
             if (delegateType == null) {
                 delegateType = _converter.getOutputType(provider.getTypeFactory());
             }
-            /* 02-Apr-2015, tatu: For "dynamic case", where type is only specified as
-             *    java.lang.Object (or missing generic), [databind#731]
-             */
+            // 02-Apr-2015, tatu: For "dynamic case", where type is only specified as
+            //    java.lang.Object (or missing generic), [databind#731]
             if (!delegateType.isJavaLangObject()) {
                 delSer = provider.findValueSerializer(delegateType);
             }

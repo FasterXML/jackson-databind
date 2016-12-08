@@ -56,7 +56,7 @@ public abstract class BasicSerializerFactory
      * not instances
      */
     protected final static HashMap<String, Class<? extends JsonSerializer<?>>> _concreteLazy;
-    
+
     static {
         HashMap<String, Class<? extends JsonSerializer<?>>> concLazy
             = new HashMap<String, Class<? extends JsonSerializer<?>>>();
@@ -718,6 +718,7 @@ public abstract class BasicSerializerFactory
             boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
         return new IndexedListSerializer(elemType, staticTyping, vts, valueSerializer);
     }
+
     public ContainerSerializer<?> buildCollectionSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
         return new CollectionSerializer(elemType, staticTyping, vts, valueSerializer);
@@ -1144,7 +1145,7 @@ public abstract class BasicSerializerFactory
         return config.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }
 
-    // Commecnted out in 2.9
+    // Commented out in 2.9
     /*
     protected Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
     {

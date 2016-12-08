@@ -73,8 +73,10 @@ public class TestArraySerialization
 
     public void testStringArray() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new String[] { "a", "\"foo\"", null });
-        assertEquals("[\"a\",\"\\\"foo\\\"\",null]", json);
+        assertEquals("[\"a\",\"\\\"foo\\\"\",null]",
+                MAPPER.writeValueAsString(new String[] { "a", "\"foo\"", null }));
+        assertEquals("[]",
+                MAPPER.writeValueAsString(new String[] { }));
     }
 
     public void testDoubleArray() throws Exception

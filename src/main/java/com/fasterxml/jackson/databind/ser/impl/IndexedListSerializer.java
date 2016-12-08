@@ -81,15 +81,15 @@ public final class IndexedListSerializer
     }
     
     @Override
-    public void serializeContents(List<?> value, JsonGenerator jgen, SerializerProvider provider)
+    public void serializeContents(List<?> value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
         if (_elementSerializer != null) {
-            serializeContentsUsing(value, jgen, provider, _elementSerializer);
+            serializeContentsUsing(value, g, provider, _elementSerializer);
             return;
         }
         if (_valueTypeSerializer != null) {
-            serializeTypedContents(value, jgen, provider);
+            serializeTypedContents(value, g, provider);
             return;
         }
         final int len = value.size();
@@ -102,7 +102,7 @@ public final class IndexedListSerializer
             for (; i < len; ++i) {
                 Object elem = value.get(i);
                 if (elem == null) {
-                    provider.defaultSerializeNull(jgen);
+                    provider.defaultSerializeNull(g);
                 } else {
                     Class<?> cc = elem.getClass();
                     JsonSerializer<Object> serializer = serializers.serializerFor(cc);
@@ -116,7 +116,7 @@ public final class IndexedListSerializer
                         }
                         serializers = _dynamicSerializers;
                     }
-                    serializer.serialize(elem, jgen, provider);
+                    serializer.serialize(elem, g, provider);
                 }
             }
         } catch (Exception e) {

@@ -229,8 +229,10 @@ public class TestCollectionSerialization
 
     public void testListSerializer() throws IOException
     {
-        assertEquals("\"[ab, cd, ef]\"",
+        assertEquals(quote("[ab, cd, ef]"),
                 MAPPER.writeValueAsString(new PseudoList("ab", "cd", "ef")));
+        assertEquals(quote("[]"),
+                MAPPER.writeValueAsString(new PseudoList()));
     }
 
     @SuppressWarnings("deprecation")

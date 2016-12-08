@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 
 /**
@@ -81,17 +80,6 @@ public final class IndexedStringListSerializer
             SerializerProvider provider) throws IOException
     {
         serializeContents(value, gen, provider, 1);
-    }
-    
-    @Override
-    public void serializeWithType(List<String> value, JsonGenerator gen,
-            SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
-    {
-        final int len = value.size();
-        typeSer.writeTypePrefixForArray(value, gen);
-        serializeContents(value, gen, provider, len);
-        typeSer.writeTypeSuffixForArray(value, gen);
     }
 
     private final void serializeContents(List<String> value, JsonGenerator gen,

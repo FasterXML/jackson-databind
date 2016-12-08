@@ -52,6 +52,8 @@ public class IteratorSerializer
     public final void serialize(Iterator<?> value, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
+        // 02-Dec-2016, tatu: As per comments above, can't determine single element so...
+        /*
         if (((_unwrapSingle == null) &&
                 provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (_unwrapSingle == Boolean.TRUE)) {
@@ -60,43 +62,65 @@ public class IteratorSerializer
                 return;
             }
         }
+        */
         gen.writeStartArray();
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
     
     @Override
-    public void serializeContents(Iterator<?> value, JsonGenerator gen,
+    public void serializeContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
-        if (value.hasNext()) {
-            final TypeSerializer typeSer = _valueTypeSerializer;
-            JsonSerializer<Object> prevSerializer = null;
-            Class<?> prevClass = null;
-            do {
-                Object elem = value.next();
-                if (elem == null) {
-                    provider.defaultSerializeNull(gen);
-                    continue;
-                }
-                JsonSerializer<Object> currSerializer = _elementSerializer;
-                if (currSerializer == null) {
-                    // Minor optimization to avoid most lookups:
-                    Class<?> cc = elem.getClass();
-                    if (cc == prevClass) {
-                        currSerializer = prevSerializer;
-                    } else {
-                        currSerializer = provider.findValueSerializer(cc, _property);
-                        prevSerializer = currSerializer;
-                        prevClass = cc;
-                    }
-                }
-                if (typeSer == null) {
-                    currSerializer.serialize(elem, gen, provider);
-                } else {
-                    currSerializer.serializeWithType(elem, gen, provider, typeSer);
-                }
-            } while (value.hasNext());
+        if (!value.hasNext()) {
+            return;
         }
+        JsonSerializer<Object> serializer = _elementSerializer;
+        if (serializer == null) {
+            _serializeDynamicContents(value, g, provider);
+            return;
+        }
+        final TypeSerializer typeSer = _valueTypeSerializer;
+        do {
+            Object elem = value.next();
+            if (elem == null) {
+                provider.defaultSerializeNull(g);
+            } else if (typeSer == null) {
+                serializer.serialize(elem, g, provider);
+            } else {
+                serializer.serializeWithType(elem, g, provider, typeSer);
+            }
+        } while (value.hasNext());
+    }
+    
+    protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
+            SerializerProvider provider) throws IOException
+    {
+        JsonSerializer<Object> serializer = _elementSerializer;
+        final TypeSerializer typeSer = _valueTypeSerializer;
+        PropertySerializerMap serializers = _dynamicSerializers;
+        do {
+            Object elem = value.next();
+            if (elem == null) {
+                provider.defaultSerializeNull(g);
+                continue;
+            }
+            Class<?> cc = elem.getClass();
+            serializers.serializerFor(cc);
+            if (serializer == null) {
+                if (_elementType.hasGenericTypes()) {
+                    serializer = _findAndAddDynamic(serializers,
+                            provider.constructSpecializedType(_elementType, cc), provider);
+                } else {
+                    serializer = _findAndAddDynamic(serializers, cc, provider);
+                }
+                serializers = _dynamicSerializers;
+            }
+            if (typeSer == null) {
+                serializer.serialize(elem, g, provider);
+            } else {
+                serializer.serializeWithType(elem, g, provider, typeSer);
+            }
+        } while (value.hasNext());
     }
 }

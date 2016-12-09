@@ -78,11 +78,9 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
         // [databind#124]: May have a content converter
-        ser = findConvertingContentSerializer(serializers, property, ser);
+        ser = findContextualConvertingSerializer(serializers, property, ser);
         if (ser == null) {
             ser = serializers.findValueSerializer(String.class, property);
-        } else {
-            ser = serializers.handleSecondaryContextualization(ser, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
@@ -91,8 +89,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             }
             return _withResolved(property, unwrapSingle);
         }
-        // otherwise
-
+        // otherwise...
         // note: will never have TypeSerializer, because Strings are "natural" type
         return new CollectionSerializer(serializers.constructType(String.class),
                 true, /*TypeSerializer*/ null, (JsonSerializer<Object>) ser);

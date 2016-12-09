@@ -150,7 +150,7 @@ public class ObjectArraySerializer
             ser = _elementSerializer;
         }
         // [databind#124]: May have a content converter
-        ser = findConvertingContentSerializer(serializers, property, ser);
+        ser = findContextualConvertingSerializer(serializers, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
@@ -159,8 +159,6 @@ public class ObjectArraySerializer
                     ser = serializers.findValueSerializer(_elementType, property);
                 }
             }
-        } else {
-            ser = serializers.handleSecondaryContextualization(ser, property);
         }
         return withResolved(property, vts, ser, unwrapSingle);
     }

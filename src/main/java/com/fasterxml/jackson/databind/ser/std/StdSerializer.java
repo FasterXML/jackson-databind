@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -345,8 +347,42 @@ public abstract class StdSerializer<T>
      * @param existingSerializer (optional) configured content
      *    serializer if one already exists.
      * 
-     * @since 2.2
+     * @since 2.9
      */
+    protected JsonSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
+            BeanProperty property, JsonSerializer<?> existingSerializer)
+        throws JsonMappingException
+    {
+        // 08-Dec-2016, tatu: to fix [databind#357], need to prevent recursive calls for
+        //     same property
+        /*
+        @SuppressWarnings("unchecked")
+        Set<Object> conversions = (Set<Object>) provider.getAttribute(CONTENT_CONVERTER_LOCK);
+        if (conversions != null) {
+            if (conversions.contains(property)) {
+                return existingSerializer;
+            }
+        } else {
+            conversions = new HashSet<>();
+            provider.setAttribute(CONTENT_CONVERTER_LOCK, provider);
+        }
+        try {
+        } finally {
+        }
+        */
+            JsonSerializer<?> ser = findConvertingContentSerializer(provider, property, existingSerializer);
+            if (ser != null) {
+                return provider.handleSecondaryContextualization(ser, property);
+            }
+        return existingSerializer;
+    }
+
+//    private final static Object CONTENT_CONVERTER_LOCK = new Object();
+
+    /**
+     * @deprecated Since 2.9 use {link {@link #findContextualConvertingSerializer} instead
+     */
+    @Deprecated
     protected JsonSerializer<?> findConvertingContentSerializer(SerializerProvider provider,
             BeanProperty prop, JsonSerializer<?> existingSerializer)
         throws JsonMappingException

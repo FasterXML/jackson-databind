@@ -415,7 +415,7 @@ public class MapSerializer
             ser = _valueSerializer;
         }
         // [databind#124]: May have a content converter
-        ser = findConvertingContentSerializer(provider, property, ser);
+        ser = findContextualConvertingSerializer(provider, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
@@ -423,8 +423,6 @@ public class MapSerializer
             if (_valueTypeIsStatic && !_valueType.isJavaLangObject()) {
                 ser = provider.findValueSerializer(_valueType, property);
             }
-        } else {
-            ser = provider.handleSecondaryContextualization(ser, property);
         }
         if (keySer == null) {
             keySer = _keySerializer;

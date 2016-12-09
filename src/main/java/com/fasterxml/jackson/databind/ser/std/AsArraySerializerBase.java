@@ -191,7 +191,7 @@ public abstract class AsArraySerializerBase<T>
             ser = _elementSerializer;
         }
         // 18-Feb-2013, tatu: May have a content converter:
-        ser = findConvertingContentSerializer(serializers, property, ser);
+        ser = findContextualConvertingSerializer(serializers, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
@@ -200,8 +200,6 @@ public abstract class AsArraySerializerBase<T>
                     ser = serializers.findValueSerializer(_elementType, property);
                 }
             }
-        } else {
-            ser = serializers.handleSecondaryContextualization(ser, property);
         }
         if ((ser != _elementSerializer)
                 || (property != _property)

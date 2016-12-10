@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -34,6 +34,14 @@ public abstract class StdSerializer<T>
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Key used for storing a lock object to prevent infinite recursion when
+     * constructing converting serializers.
+     *
+     * @since 2.9
+     */
+    private final static Object KEY_CONTENT_CONVERTER_LOCK = new Object();
+    
     /**
      * Nominal type supported, usually declared type of
      * property for which serializer is used.
@@ -355,29 +363,28 @@ public abstract class StdSerializer<T>
     {
         // 08-Dec-2016, tatu: to fix [databind#357], need to prevent recursive calls for
         //     same property
-        /*
         @SuppressWarnings("unchecked")
-        Set<Object> conversions = (Set<Object>) provider.getAttribute(CONTENT_CONVERTER_LOCK);
+        Map<Object,Object> conversions = (Map<Object,Object>) provider.getAttribute(KEY_CONTENT_CONVERTER_LOCK);
         if (conversions != null) {
-            if (conversions.contains(property)) {
+            Object lock = conversions.get(property);
+            if (lock != null) {
                 return existingSerializer;
             }
         } else {
-            conversions = new HashSet<>();
-            provider.setAttribute(CONTENT_CONVERTER_LOCK, provider);
+            conversions = new IdentityHashMap<>();
+            provider.setAttribute(KEY_CONTENT_CONVERTER_LOCK, conversions);
         }
+        conversions.put(property, Boolean.TRUE);
         try {
-        } finally {
-        }
-        */
             JsonSerializer<?> ser = findConvertingContentSerializer(provider, property, existingSerializer);
             if (ser != null) {
                 return provider.handleSecondaryContextualization(ser, property);
             }
+        } finally {
+            conversions.remove(property);
+        }
         return existingSerializer;
     }
-
-//    private final static Object CONTENT_CONVERTER_LOCK = new Object();
 
     /**
      * @deprecated Since 2.9 use {link {@link #findContextualConvertingSerializer} instead

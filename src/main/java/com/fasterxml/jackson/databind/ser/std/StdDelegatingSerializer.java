@@ -160,15 +160,11 @@ public class StdDelegatingSerializer
             provider.defaultSerializeNull(gen);
             return;
         }
-System.err.println(" delegating.serialize. value: "+value.getClass());
-
         // 02-Apr-2015, tatu: As per [databind#731] may need to do dynamic lookup
         JsonSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
-System.err.println("DEBUG: dynamic lookup for delegator... ");            
             ser = _findSerializer(delegateValue, provider);
         }
-System.err.println(" delegating.serialize with -> "+ser);
         ser.serialize(delegateValue, gen, provider);
     }
 

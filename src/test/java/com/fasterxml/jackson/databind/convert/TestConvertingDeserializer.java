@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 public class TestConvertingDeserializer
@@ -99,6 +100,21 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         public String[] texts;
     }
 
+    // [databind#357]
+    static class Value { }
+
+    static class ListWrapper {
+        @JsonSerialize(contentConverter = ValueToStringListConverter.class)
+        public List<Value> list = Arrays.asList(new Value());
+    }
+
+    static class ValueToStringListConverter extends StdConverter<Value, List<String>> {
+        @Override
+        public List<String> convert(Value value) {
+            return Arrays.asList("Hello world!");
+        }
+    }
+
     // for [databind#795]
     
     static class ToNumberConverter extends StdConverter<String,Number>
@@ -114,7 +130,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         @JsonDeserialize(converter=ToNumberConverter.class)
         public Number value;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -196,6 +212,12 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertNotNull(p);
         assertEquals(1, p.x);
         assertEquals(2, p.y);
+    }
+
+    // [databind#357]
+    public void testConverterForList357() throws Exception {
+        String json = objectWriter().writeValueAsString(new ListWrapper());
+        assertEquals("{\"list\":[[\"Hello world!\"]]}", json);
     }
 
     // [databind#795]

@@ -95,7 +95,22 @@ public class TestConvertingSerializer
         }
     }
 
-    // [Issue#359]
+    // [databind#357]
+    static class Value { }
+
+    static class ListWrapper {
+        @JsonSerialize(contentConverter = ValueToStringListConverter.class)
+        public List<Value> list = Arrays.asList(new Value());
+    }
+
+    static class ValueToStringListConverter extends StdConverter<Value, List<String>> {
+        @Override
+        public List<String> convert(Value value) {
+            return Arrays.asList("Hello world!");
+        }
+    }
+
+    // [databind#359]
     static class Bean359 {
         @JsonSerialize(as = List.class, contentAs = Source.class)
         public List<Source> stuff = Arrays.asList(new Source());
@@ -124,7 +139,7 @@ public class TestConvertingSerializer
         }
     }
 
-    // [Issue#731]
+    // [databind#731]
     public static class DummyBean {
         public final int a, b;
         public DummyBean(int v1, int v2) {
@@ -147,21 +162,6 @@ public class TestConvertingSerializer
         @Override
         public Object convert(ConvertingBeanWithUntypedConverter cb) {
             return new DummyBean(cb.x, cb.y);
-        }
-    }
-
-    // [databind#357]
-    static class Value { }
-
-    static class ListWrapper {
-        @JsonSerialize(contentConverter = ValueToStringListConverter.class)
-        public List<Value> list = Arrays.asList(new Value());
-    }
-
-    static class ValueToStringListConverter extends StdConverter<Value, List<String>> {
-        @Override
-        public List<String> convert(Value value) {
-            return Arrays.asList("Hello world!");
         }
     }
 
@@ -205,6 +205,12 @@ public class TestConvertingSerializer
         assertEquals("{\"values\":{\"a\":[1,2]}}", json);
     }
 
+    // [databind#357]
+    public void testConverterForList357() throws Exception {
+        String json = objectWriter().writeValueAsString(new ListWrapper());
+        assertEquals("{\"list\":[[\"Hello world!\"]]}", json);
+    }
+    
     // [databind#359]
     public void testIssue359() throws Exception {
         String json = objectWriter().writeValueAsString(new Bean359());

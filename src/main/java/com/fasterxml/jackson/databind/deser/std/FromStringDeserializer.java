@@ -41,6 +41,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             TimeZone.class,
             InetAddress.class,
             InetSocketAddress.class,
+            StringBuilder.class,
         };
     }
     
@@ -85,6 +86,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_INET_ADDRESS;
         } else if (rawType == InetSocketAddress.class) {
             kind = Std.STD_INET_SOCKET_ADDRESS;
+        } else if (rawType == StringBuilder.class) {
+            kind = Std.STD_STRING_BUILDER;
         } else {
             return null;
         }
@@ -200,6 +203,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         public final static int STD_TIME_ZONE = 10;
         public final static int STD_INET_ADDRESS = 11;
         public final static int STD_INET_SOCKET_ADDRESS = 12;
+        public final static int STD_STRING_BUILDER = 13;
 
         protected final int _kind;
         
@@ -277,6 +281,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 }
                 // host or unbracketed IPv6, without port number
                 return new InetSocketAddress(value, 0);
+            case STD_STRING_BUILDER:
+                return new StringBuilder(value);
             }
             throw new IllegalArgumentException();
         }
@@ -291,9 +297,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             if (_kind == STD_LOCALE) {
                 return Locale.ROOT;
             }
+            if (_kind == STD_STRING_BUILDER) {
+                return new StringBuilder();
+            }
             return super._deserializeFromEmptyString();
         }
-
 
         protected int _firstHyphenOrUnderscore(String str)
         {

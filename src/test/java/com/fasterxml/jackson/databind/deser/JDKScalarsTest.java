@@ -111,21 +111,28 @@ public class JDKScalarsTest
         // first, simple case:
         BooleanBean result = MAPPER.readValue(new StringReader("{\"v\":true}"), BooleanBean.class);
         assertTrue(result._v);
-        // then [JACKSON-79]:
         result = MAPPER.readValue(new StringReader("{\"v\":null}"), BooleanBean.class);
         assertNotNull(result);
         assertFalse(result._v);
+        // [databind#1480]
+        result = MAPPER.readValue(new StringReader("{\"v\":1}"), BooleanBean.class);
+        assertNotNull(result);
+        assertTrue(result._v);
 
         // should work with arrays too..
         boolean[] array = MAPPER.readValue(new StringReader("[ null ]"), boolean[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
         assertFalse(array[0]);
+
+    }
         
-        // [Issue#381]
+    public void testBooleanPrimitiveArrayUnwrap() throws Exception
+    {
+        // [databind#381]
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        result = mapper.readValue(new StringReader("{\"v\":[true]}"), BooleanBean.class);
+        BooleanBean result = mapper.readValue(new StringReader("{\"v\":[true]}"), BooleanBean.class);
         assertTrue(result._v);
         
         try {
@@ -143,7 +150,7 @@ public class JDKScalarsTest
         assertNotNull(result);
         assertFalse(result._v);
         
-        array = mapper.readValue(new StringReader("[ [ null ] ]"), boolean[].class);
+        boolean[] array = mapper.readValue(new StringReader("[ [ null ] ]"), boolean[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
         assertFalse(array[0]);
@@ -161,9 +168,9 @@ public class JDKScalarsTest
         assertEquals(Boolean.FALSE, result);
 
         // should accept ints too, (0 == false, otherwise true)
-        result = MAPPER.readValue(new StringReader("0"), Boolean.class);
+        result = MAPPER.readValue("0", Boolean.class);
         assertEquals(Boolean.FALSE, result);
-        result = MAPPER.readValue(new StringReader("1"), Boolean.class);
+        result = MAPPER.readValue("1", Boolean.class);
         assertEquals(Boolean.TRUE, result);
     }
 

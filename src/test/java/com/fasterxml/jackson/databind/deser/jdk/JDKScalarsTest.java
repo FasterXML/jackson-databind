@@ -128,16 +128,14 @@ public class JDKScalarsTest
         assertNotNull(array);
         assertEquals(1, array.length);
         assertFalse(array[0]);
-
-        array = MAPPER.readValue("[ \"true\" ]", boolean[].class);
-        assertNotNull(array);
-        assertEquals(1, array.length);
-        assertTrue(array[0]);
+    }
         
+    public void testBooleanPrimitiveArrayUnwrap() throws Exception
+    {
         // [databind#381]
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        result = mapper.readValue("{\"v\":[true]}", BooleanBean.class);
+        BooleanBean result = mapper.readValue(new StringReader("{\"v\":[true]}"), BooleanBean.class);
         assertTrue(result._v);
 
         try {
@@ -155,7 +153,7 @@ public class JDKScalarsTest
         assertNotNull(result);
         assertFalse(result._v);
         
-        array = mapper.readValue("[ [ null ] ]", boolean[].class);
+        boolean[] array = mapper.readValue(new StringReader("[ [ null ] ]"), boolean[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
         assertFalse(array[0]);

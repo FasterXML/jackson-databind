@@ -50,6 +50,7 @@ Project: jackson-databind
   reference of `KeyDeserializer` passed
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`
+#1474: Replace use of `Class.newInstance()` (deprecated in Java 9) with call via Constructor
 
 2.8.6 (not yet released)
 

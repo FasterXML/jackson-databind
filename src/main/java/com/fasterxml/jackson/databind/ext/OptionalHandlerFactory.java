@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for isolating details of handling optional+external types
@@ -149,7 +150,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
     private Object instantiate(String className)
     {
         try {
-            return Class.forName(className).newInstance();
+            return ClassUtil.createInstance(Class.forName(className), false);
         } catch (LinkageError e) { }
         // too many different kinds to enumerate here:
         catch (Exception e) { }

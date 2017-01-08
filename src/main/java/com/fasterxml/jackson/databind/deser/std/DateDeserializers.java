@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.sql.Timestamp;
 import java.text.*;
 import java.util.*;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
@@ -59,7 +61,7 @@ public class DateDeserializers
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Intermediate class for Date-based ones
@@ -219,22 +221,25 @@ public class DateDeserializers
         /**
          * We may know actual expected type; if so, it will be
          * used for instantiation.
+         *
+         * @since 2.9
          */
-        protected final Class<? extends Calendar> _calendarClass;
+        protected final Constructor<Calendar> _defaultCtor;
 
         public CalendarDeserializer() {
             super(Calendar.class);
-            _calendarClass = null;
+            _defaultCtor = null;
         }
 
+        @SuppressWarnings("unchecked")
         public CalendarDeserializer(Class<? extends Calendar> cc) {
             super(cc);
-            _calendarClass = cc;
+            _defaultCtor = (Constructor<Calendar>) ClassUtil.findConstructor(cc, false);
         }
 
         public CalendarDeserializer(CalendarDeserializer src, DateFormat df, String formatString) {
             super(src, df, formatString);
-            _calendarClass = src._calendarClass;
+            _defaultCtor = src._defaultCtor;
         }
 
         @Override
@@ -249,11 +254,11 @@ public class DateDeserializers
             if (d == null) {
                 return null;
             }
-            if (_calendarClass == null) {
+            if (_defaultCtor == null) {
                 return ctxt.constructCalendar(d);
             }
             try {
-                Calendar c = _calendarClass.newInstance();            
+                Calendar c = _defaultCtor.newInstance();            
                 c.setTimeInMillis(d.getTime());
                 TimeZone tz = ctxt.getTimeZone();
                 if (tz != null) {
@@ -261,7 +266,7 @@ public class DateDeserializers
                 }
                 return c;
             } catch (Exception e) {
-                return (Calendar) ctxt.handleInstantiationProblem(_calendarClass, d, e);
+                return (Calendar) ctxt.handleInstantiationProblem(handledType(), d, e);
             }
         }
     }

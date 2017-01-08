@@ -609,13 +609,13 @@ public final class ClassUtil
         }
     }
 
-    public static <T> Constructor<T> findConstructor(Class<T> cls, boolean canFixAccess)
+    public static <T> Constructor<T> findConstructor(Class<T> cls, boolean forceAccess)
         throws IllegalArgumentException
     {
         try {
             Constructor<T> ctor = cls.getDeclaredConstructor();
-            if (canFixAccess) {
-                checkAndFixAccess(ctor);
+            if (forceAccess) {
+                checkAndFixAccess(ctor, forceAccess);
             } else {
                 // Has to be public...
                 if (!Modifier.isPublic(ctor.getModifiers())) {

@@ -307,12 +307,10 @@ public abstract class BasicSerializerFactory
         if (ser == null) {
             Class<? extends JsonSerializer<?>> serClass = _concreteLazy.get(clsName);
             if (serClass != null) {
-                try {
-                    return serClass.newInstance();
-                } catch (Exception e) {
-                    throw new IllegalStateException("Failed to instantiate standard serializer (of type "+serClass.getName()+"): "
-                            +e.getMessage(), e);
-                }
+                // 07-Jan-2017, tatu: Should never fail (since we control constructors),
+                //   but if it does will throw `IllegalArgumentException` with description,
+                //   which we could catch, re-title.
+                return ClassUtil.createInstance(serClass, false);
             }
         }
         return ser;

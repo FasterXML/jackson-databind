@@ -457,7 +457,7 @@ public class NumberDeserializers
                         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                             return new BigDecimal(text);
                         }
-                        return new Double(text);
+                        return Double.valueOf(text);
                     }
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                         return new BigInteger(text);

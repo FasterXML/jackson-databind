@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 public class TestConvertingDeserializer

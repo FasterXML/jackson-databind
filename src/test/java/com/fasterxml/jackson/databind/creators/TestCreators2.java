@@ -79,16 +79,6 @@ public class TestCreators2 extends BaseMapTest
         }
     }
 
-    static class MapBean
-    {
-        protected Map<String,Long> map;
-        
-        @JsonCreator
-        public MapBean(Map<String, Long> map) {
-            this.map = map;
-        }
-    }
-
     // For [JACKSON-470]: should be appropriately detected, reported error about
     static class BrokenCreatorBean
     {
@@ -157,6 +147,34 @@ public class TestCreators2 extends BaseMapTest
         public Issue700Bean(@JsonProperty("item") String item) { }
 
         public String getItem() { return null; }
+    }
+
+    static final class MultiPropCreator1476 {
+        private final int intField;
+        private final String stringField;
+
+        public MultiPropCreator1476(@JsonProperty("intField") int intField) {
+          this(intField, "empty");
+        }
+
+        public MultiPropCreator1476(@JsonProperty("stringField") String stringField) {
+          this(-1, stringField);
+        }
+
+        @JsonCreator
+        public MultiPropCreator1476(@JsonProperty("intField") int intField,
+                @JsonProperty("stringField") String stringField) {
+          this.intField = intField;
+          this.stringField = stringField;
+        }
+
+        public int getIntField() {
+          return intField;
+        }
+
+        public String getStringField() {
+          return stringField;
+        }
     }
 
     /*
@@ -236,30 +254,6 @@ public class TestCreators2 extends BaseMapTest
         verifyException(e, "don't like that name");
     }
 
-    @SuppressWarnings("unchecked")
-    public void testIssue465() throws Exception
-    {
-        final String JSON = "{\"A\":12}";
-
-        // first, test with regular Map, non empty
-        Map<String,Long> map = MAPPER.readValue(JSON, Map.class);
-        assertEquals(1, map.size());
-        assertEquals(Integer.valueOf(12), map.get("A"));
-        
-        MapBean bean = MAPPER.readValue(JSON, MapBean.class);
-        assertEquals(1, bean.map.size());
-        assertEquals(Long.valueOf(12L), bean.map.get("A"));
-
-        // and then empty ones
-        final String EMPTY_JSON = "{}";
-
-        map = MAPPER.readValue(EMPTY_JSON, Map.class);
-        assertEquals(0, map.size());
-        
-        bean = MAPPER.readValue(EMPTY_JSON, MapBean.class);
-        assertEquals(0, bean.map.size());
-    }
-
     public void testCreatorWithDupNames() throws Exception
     {
         try {
@@ -300,5 +294,14 @@ public class TestCreators2 extends BaseMapTest
     {
         Issue700Bean value = MAPPER.readValue("{ \"item\" : \"foo\" }", Issue700Bean.class);
         assertNotNull(value);
+    }
+
+    // [databind#1476]
+    public void testConstructorChoice() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        MultiPropCreator1476 pojo = mapper.readValue("{ \"intField\": 1, \"stringField\": \"foo\" }",
+                MultiPropCreator1476.class);
+        assertEquals(1, pojo.getIntField());
+        assertEquals("foo", pojo.getStringField());
     }
 }

@@ -194,6 +194,8 @@ Project: jackson-databind
 #1456: `TypeFactory` type resolution broken in 2.7 for generic types
    when using `constructType` with context
  (reported by Dmitry S)
+#1476: Wrong constructor picked up when deserializing object
+ (reported by laurentgo@github)
 
 2.7.8 (26-Sep-2016)
 

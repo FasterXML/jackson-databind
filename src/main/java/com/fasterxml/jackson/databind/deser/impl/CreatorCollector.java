@@ -162,36 +162,39 @@ public class CreatorCollector
             SettableBeanProperty[] injectables)
     {
         if (creator.getParameterType(0).isCollectionLikeType()) {
-            verifyNonDup(creator, C_ARRAY_DELEGATE, explicit);
-            _arrayDelegateArgs = injectables;
+            if (verifyNonDup(creator, C_ARRAY_DELEGATE, explicit)) {
+                _arrayDelegateArgs = injectables;
+            }
         } else {
-            verifyNonDup(creator, C_DELEGATE, explicit);
-            _delegateArgs = injectables;
+            if (verifyNonDup(creator, C_DELEGATE, explicit)) {
+                _delegateArgs = injectables;
+            }
         }
     }
     
     public void addPropertyCreator(AnnotatedWithParams creator, boolean explicit,
             SettableBeanProperty[] properties)
     {
-        verifyNonDup(creator, C_PROPS, explicit);
-        // Better ensure we have no duplicate names either...
-        if (properties.length > 1) {
-            HashMap<String,Integer> names = new HashMap<String,Integer>();
-            for (int i = 0, len = properties.length; i < len; ++i) {
-                String name = properties[i].getName();
-                /* [Issue-13]: Need to consider Injectables, which may not have
-                 *   a name at all, and need to be skipped
-                 */
-                if (name.length() == 0 && properties[i].getInjectableValueId() != null) {
-                    continue;
-                }
-                Integer old = names.put(name, Integer.valueOf(i));
-                if (old != null) {
-                    throw new IllegalArgumentException("Duplicate creator property \""+name+"\" (index "+old+" vs "+i+")");
+        if (verifyNonDup(creator, C_PROPS, explicit)) {
+            // Better ensure we have no duplicate names either...
+            if (properties.length > 1) {
+                HashMap<String,Integer> names = new HashMap<String,Integer>();
+                for (int i = 0, len = properties.length; i < len; ++i) {
+                    String name = properties[i].getName();
+                    /* [Issue-13]: Need to consider Injectables, which may not have
+                     *   a name at all, and need to be skipped
+                     */
+                    if (name.length() == 0 && properties[i].getInjectableValueId() != null) {
+                        continue;
+                    }
+                    Integer old = names.put(name, Integer.valueOf(i));
+                    if (old != null) {
+                        throw new IllegalArgumentException("Duplicate creator property \""+name+"\" (index "+old+" vs "+i+")");
+                    }
                 }
             }
+            _propertyBasedArgs = properties;
         }
-        _propertyBasedArgs = properties;
     }
 
     public void addIncompeteParameter(AnnotatedParameter parameter) {
@@ -293,7 +296,10 @@ public class CreatorCollector
         return member;
     }
 
-    protected void verifyNonDup(AnnotatedWithParams newOne, int typeIndex, boolean explicit)
+    /**
+     * @return True if specified Creator is to be used
+     */
+    protected boolean verifyNonDup(AnnotatedWithParams newOne, int typeIndex, boolean explicit)
     {
         final int mask = (1 << typeIndex);
         _hasNonDefaultCreator = true;
@@ -301,11 +307,10 @@ public class CreatorCollector
         // already had an explicitly marked one?
         if (oldOne != null) {
             boolean verify;
-
             if ((_explicitCreators & mask) != 0) { // already had explicitly annotated, leave as-is
                 // but skip, if new one not annotated
                 if (!explicit) {
-                    return;
+                    return false;
                 }
                 // both explicit: verify
                 verify = true;
@@ -327,7 +332,7 @@ public class CreatorCollector
                 // otherwise, which one to choose?
                 if (newType.isAssignableFrom(oldType)) {
                     // new type more generic, use old
-                    return;
+                    return false;
                 }
                 // new type more specific, use it
             }
@@ -336,6 +341,7 @@ public class CreatorCollector
             _explicitCreators |= mask;
         }
         _creators[typeIndex] = _fixAccess(newOne);
+        return true;
     }
 
     /*

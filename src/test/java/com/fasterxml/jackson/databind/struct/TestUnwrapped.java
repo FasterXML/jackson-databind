@@ -97,6 +97,20 @@ public class TestUnwrapped extends BaseMapTest
         private Inner inner;
     }
 
+    // [databind#1493]: case-insensitive handling
+    static class Person {
+        @JsonUnwrapped(prefix = "businessAddress.")
+        public Address businessAddress;
+    }
+
+    static class Address {
+        public String street;
+        public String addon;
+        public String zip;
+        public String town;    
+        public String country;
+    }
+
     /*
     /**********************************************************
     /* Tests, serialization
@@ -192,45 +206,13 @@ public class TestUnwrapped extends BaseMapTest
         assertTrue(actual.contains("Zebra"));
         assertFalse(actual.contains("inner"));
     }
-    
-    // 22-Apr-2013, tatu: Commented out as it can't be simply fixed; requires implementing
-    //    deep-update/merge. But leaving here to help with that effort, if/when it proceeds.
 
-    /*
-    // [databind#211]: Actually just variant of #160
-
-    static class Issue211Bean {
-        public String test1;
-
-        public String test2;
-        @JsonUnwrapped
-        public Issue211Unwrapped unwrapped;
-    }
-
-    static class Issue211Unwrapped {
-        public String test3;
-        public String test4;
-    }
-
-    public void testIssue211() throws Exception
+    // [databind#1493]: case-insensitive handling
+    public void testCaseInsensitiveUnwrap() throws Exception
     {
-         Issue211Bean bean = new Issue211Bean();
-         bean.test1 = "Field 1";
-         bean.test2 = "Field 2";
-         Issue211Unwrapped tJackson2 = new Issue211Unwrapped();
-         tJackson2.test3 = "Field 3";
-         tJackson2.test4 = "Field 4";
-         bean.unwrapped = tJackson2;
- 
-         final String JSON = "{\"test1\": \"Field 1 merged\", \"test3\": \"Field 3 merged\"}";
-         ObjectMapper o = new ObjectMapper();
-         Issue211Bean result = o.readerForUpdating(bean).withType(Issue211Bean.class).readValue(JSON);
-         assertSame(bean, result);
-         assertEquals("Field 1 merged", result.test1);
-         assertEquals("Field 2", result.test2);
-         assertNotNull(result.unwrapped);
-         assertEquals("Field 3 merged", result.unwrapped.test3);
-         assertEquals("Field 4", result.unwrapped.test4);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        Person p = mapper.readValue("{ }", Person.class);
+        assertNotNull(p);
     }
-    */
 }

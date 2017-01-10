@@ -1,5 +1,4 @@
 Project: jackson-databind
-
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
@@ -65,6 +64,7 @@ Project: jackson-databind
 #1456: `TypeFactory` type resolution broken in 2.7 for generic types
    when using `constructType` with context
 #1473: Add explicit deserializer for `StringBuilder` due to Java 9 changes
+#1493: `ACCEPT_CASE_INSENSITIVE_PROPERTIES` fails with `@JsonUnwrapped`
 
 2.8.5 (14-Nov-2016)
 

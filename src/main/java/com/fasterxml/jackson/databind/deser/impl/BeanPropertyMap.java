@@ -93,7 +93,7 @@ public class BeanPropertyMap
     protected void init(Collection<SettableBeanProperty> props)
     {
         _size = props.size();
-        
+
         // First: calculate size of primary hash area
         final int hashSize = findSize(_size);
         _hashMask = hashSize-1;
@@ -421,7 +421,8 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
      * Specialized method for removing specified existing entry.
      * NOTE: entry MUST exist, otherwise an exception is thrown.
      */
-    public void remove(SettableBeanProperty propToRm) {
+    public void remove(SettableBeanProperty propToRm)
+    {
         ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
         String key = getPropertyName(propToRm);
         boolean found = false;
@@ -432,7 +433,9 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
                 continue;
             }
             if (!found) {
-                found = key.equals(prop.getName());
+                // 09-Jan-2017, tatu: Important: must check name slot and NOT property name,
+                //   as only former is lower-case in case-insensitive case
+                found = key.equals(_hashArea[i-1]);
                 if (found) {
                     // need to leave a hole here
                     _propsInOrder[_findFromOrdered(prop)] = null;

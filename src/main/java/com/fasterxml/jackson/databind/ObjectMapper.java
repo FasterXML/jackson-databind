@@ -1388,6 +1388,19 @@ public class ObjectMapper
         _configOverrides.setDefaultInclusion(incl);
         return this;
     }
+
+    /**
+     * Short-cut for:
+     *<pre>
+     *  setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
+     *</pre>
+     *
+     * @since 2.9 (basically rename of <code>setPropertyInclusion</code>)
+     */
+    public ObjectMapper setDefaultPropertyInclusion(JsonInclude.Include incl) {
+        _configOverrides.setDefaultInclusion(JsonInclude.Value.construct(incl, incl));
+        return this;
+    }
     
     /**
      * Method for setting default Setter configuration, regarding things like

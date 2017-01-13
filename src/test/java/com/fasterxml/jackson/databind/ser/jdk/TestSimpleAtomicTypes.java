@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.util.concurrent.atomic.*;
 

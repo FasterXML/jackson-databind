@@ -22,16 +22,16 @@ public class SqlDateSerializer
 {
     public SqlDateSerializer() {
         // 11-Oct-2016, tatu: As per [databind#219] fixed for 2.9; was passing `false` prior
-        this(null);
+        this(null, null);
     }
 
-    protected SqlDateSerializer(Boolean useTimestamp) {
-        super(java.sql.Date.class, useTimestamp, null);
+    protected SqlDateSerializer(Boolean useTimestamp, DateFormat customFormat) {
+        super(java.sql.Date.class, useTimestamp, customFormat);
     }
 
     @Override
     public SqlDateSerializer withFormat(Boolean timestamp, DateFormat customFormat) {
-    	return new SqlDateSerializer(timestamp);
+    	return new SqlDateSerializer(timestamp, customFormat);
     }
 
     @Override

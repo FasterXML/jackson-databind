@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.util.*;
 
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * "Native" java type mapper; basically that is can properly serialize
  * core JDK objects to JSON.
  */
-public class TestUntypedSerialization
+public class UntypedSerializationTest
     extends BaseMapTest
 {
     public void testFromArray()

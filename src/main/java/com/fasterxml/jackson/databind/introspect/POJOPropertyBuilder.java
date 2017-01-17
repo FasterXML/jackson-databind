@@ -172,7 +172,11 @@ public class POJOPropertyBuilder
         return _anyExplicits(_fields)
                 || _anyExplicits(_getters)
                 || _anyExplicits(_setters)
-                || _anyExplicits(_ctorParameters)
+                // 16-Jan-2016, tatu: Creator names are special, in that name should exist too;
+                //   reason for this is [databind#1317]. Let's hope this works well, may need
+                //   to tweak further if this lowers visibility
+//                || _anyExplicits(_ctorParameters)
+                || _anyExplicitNames(_ctorParameters)
                 ;
     }
 
@@ -752,7 +756,7 @@ public class POJOPropertyBuilder
             }
             break;
         default:
-        case AUTO: // the default case: base it imply on visibility
+        case AUTO: // the default case: base it on visibility
             _getters = _removeNonVisible(_getters);
             _ctorParameters = _removeNonVisible(_ctorParameters);
     

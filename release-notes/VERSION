@@ -53,6 +53,10 @@ Project: jackson-databind
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`
 #1474: Replace use of `Class.newInstance()` (deprecated in Java 9) with call via Constructor
 
+2.8.7 (not yet released)
+
+#1317: '@JsonIgnore' annotation not working with creator properties, serialization
+
 2.8.6 (12-Jan-2017)
 
 #349: @JsonAnySetter with @JsonUnwrapped: deserialization fails with arrays

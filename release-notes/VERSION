@@ -3,6 +3,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.7 (not yet released)
+
+#1317: '@JsonIgnore' annotation not working with creator properties, serialization
+
 2.8.6 (12-Jan-2017)
 
 #349: @JsonAnySetter with @JsonUnwrapped: deserialization fails with arrays

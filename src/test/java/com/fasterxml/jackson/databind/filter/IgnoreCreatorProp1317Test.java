@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.filter;
 
 import java.beans.ConstructorProperties;
 
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.fasterxml.jackson.databind.*;
 
-public class Ignore1317Test extends BaseMapTest
+public class IgnoreCreatorProp1317Test extends BaseMapTest
 {
     static class Testing {
         @JsonIgnore

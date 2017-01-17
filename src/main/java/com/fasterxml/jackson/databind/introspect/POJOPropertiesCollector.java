@@ -311,7 +311,6 @@ public class POJOPropertiesCollector
         for (POJOPropertyBuilder property : props.values()) {
             property.mergeAnnotations(_forSerialization);
         }
-        
         // and then remove unneeded accessors (wrt read-only, read-write)
         _removeUnwantedAccessor(props);
 
@@ -342,7 +341,6 @@ public class POJOPropertiesCollector
         // well, almost last: there's still ordering...
         _sortProperties(props);
         _properties = props;
-
         _collected = true;
     }
 
@@ -427,7 +425,6 @@ public class POJOPropertiesCollector
             	}
             	_anySetterField.add(f);
             }
-            
             _property(props, implName).addField(f, pn, nameExplicit, visible, ignored);
         }
     }
@@ -689,7 +686,6 @@ public class POJOPropertiesCollector
     protected void _removeUnwantedProperties(Map<String, POJOPropertyBuilder> props)
     {
         Iterator<POJOPropertyBuilder> it = props.values().iterator();
-
         while (it.hasNext()) {
             POJOPropertyBuilder prop = it.next();
 
@@ -919,8 +915,8 @@ public class POJOPropertiesCollector
     {
         // Then how about explicit ordering?
         AnnotationIntrospector intr = _annotationIntrospector;
-        boolean sort;
         Boolean alpha = (intr == null) ? null : intr.findSerializationSortAlphabetically((Annotated) _classDef);
+        boolean sort;
         
         if (alpha == null) {
             sort = _config.shouldSortPropertiesAlphabetically();
@@ -950,7 +946,7 @@ public class POJOPropertiesCollector
         if (propertyOrder != null) {
             for (String name : propertyOrder) {
                 POJOPropertyBuilder w = all.get(name);
-                if (w == null) { // also, as per [JACKSON-268], we will allow use of "implicit" names
+                if (w == null) { // will also allow use of "implicit" names for sorting
                     for (POJOPropertyBuilder prop : props.values()) {
                         if (name.equals(prop.getInternalName())) {
                             w = prop;
@@ -984,7 +980,12 @@ public class POJOPropertiesCollector
                 cr = _creatorProperties;
             }
             for (POJOPropertyBuilder prop : cr) {
-                ordered.put(prop.getName(), prop);
+                // 16-Jan-2016, tatu: Related to [databind#1317], make sure not to accidentally
+                //    add back pruned creator properties!
+                String name = prop.getName();
+                if (all.containsKey(name)) {
+                    ordered.put(name, prop);
+                }
             }
         }
         // And finally whatever is left (trying to put again will not change ordering)

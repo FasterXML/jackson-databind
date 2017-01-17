@@ -684,12 +684,7 @@ public class BeanSerializerFactory
     {
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
         final SerializationConfig config = prov.getConfig();
-/*
-for (BeanPropertyDefinition property : properties) {
-    final AnnotatedMember accessor = property.getAccessor();
-System.err.println("Prop '"+property.getName()+"'\n acc: "+accessor+"\n prop: "+property);
-}
-        */
+
         // ignore specified types
         removeIgnorableTypes(config, beanDesc, properties);
         

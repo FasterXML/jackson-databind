@@ -417,8 +417,13 @@ public abstract class SettableBeanProperty
      * 
      * @since 2.1
      */
-    public int getCreatorIndex() { return -1; }
-    
+    public int getCreatorIndex() {
+        // changed from 'return -1' in 2.7.9 / 2.8.7
+        throw new IllegalStateException(String.format(
+                "Internal error: no creator index for property '%s' (of type %s)",
+                this.getName(), getClass().getName()));
+    }
+
     /**
      * Accessor for id of injectable value, if this bean property supports
      * value injection.

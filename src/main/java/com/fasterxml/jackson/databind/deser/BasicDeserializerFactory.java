@@ -396,6 +396,8 @@ public abstract class BasicDeserializerFactory
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
+        final boolean isNonStatic = ClassUtil.isNonStaticInnerClass(beanDesc.getBeanClass());
+
         // First things first: the "default constructor" (zero-arg
         // constructor; whether implicit or explicit) is NOT included
         // in list of constructors, so needs to be handled separately.
@@ -411,10 +413,18 @@ public abstract class BasicDeserializerFactory
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             final boolean isCreator = intr.hasCreatorAnnotation(ctor);
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
-            final int argCount = ctor.getParameterCount();
+            int argCount = ctor.getParameterCount();
+
+            // 24-Jan-2017, tatu: Handling of constructors for non-static inner classes
+            //   cause nothing but grief (see [databind#1503] for example)... ugh.
+            /*
+            if (isNonStatic) {
+                --argCount;
+            }
+            */
 
             // some single-arg factory methods (String, number) are auto-detected
-            if (argCount == 1) {
+            if ((argCount == 1) && !isNonStatic) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
                 boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
 
@@ -841,7 +851,12 @@ public abstract class BasicDeserializerFactory
         }
         // 15-Oct-2015, tatu: Not 100% if context needed; removing it does not make any
         //    existing unit tests fail. Still seems like the right thing to do.
-        JavaType t0 = beanDesc.resolveType(param.getParameterType());
+        java.lang.reflect.Type paramType = param.getParameterType();
+        JavaType t0 = beanDesc.resolveType(paramType);
+if (t0 == null) {
+System.err.println("type of: "+param.getClass());    
+//    throw new Error("FOOBAR: param #"+index+" type? "+paramType);
+}
         BeanProperty.Std property = new BeanProperty.Std(name, t0,
                 intr.findWrapperName(param),
                 beanDesc.getClassAnnotations(), param, metadata);

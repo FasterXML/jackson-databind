@@ -153,6 +153,7 @@ Project: jackson-databind
  (reported by Dmitry S)
 #1476: Wrong constructor picked up when deserializing object
  (reported by laurentgo@github)
+#1506: Missing `KeyDeserializer` for `CharSequence`
 
 2.7.8 (26-Sep-2016)
 

@@ -72,7 +72,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         int kind;
 
         // first common types:
-        if (raw == String.class || raw == Object.class) {
+        if (raw == String.class || raw == Object.class || raw == CharSequence.class) {
             return StringKD.forType(raw);
         } else if (raw == UUID.class) {
             kind = TYPE_UUID;

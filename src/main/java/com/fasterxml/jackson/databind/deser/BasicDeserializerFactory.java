@@ -398,6 +398,8 @@ public abstract class BasicDeserializerFactory
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
+        final boolean isNonStatic = ClassUtil.isNonStaticInnerClass(beanDesc.getBeanClass());
+
         // First things first: the "default constructor" (zero-arg
         // constructor; whether implicit or explicit) is NOT included
         // in list of constructors, so needs to be handled separately.
@@ -413,10 +415,18 @@ public abstract class BasicDeserializerFactory
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             final boolean isCreator = intr.hasCreatorAnnotation(ctor);
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
-            final int argCount = ctor.getParameterCount();
+            int argCount = ctor.getParameterCount();
+
+            // 24-Jan-2017, tatu: Handling of constructors for non-static inner classes
+            //   cause nothing but grief (see [databind#1503] for example)... ugh.
+            /*
+            if (isNonStatic) {
+                --argCount;
+            }
+            */
 
             // some single-arg factory methods (String, number) are auto-detected
-            if (argCount == 1) {
+            if ((argCount == 1) && !isNonStatic) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
                 boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
 

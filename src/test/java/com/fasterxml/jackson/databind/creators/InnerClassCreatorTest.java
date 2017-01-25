@@ -7,14 +7,14 @@ import com.fasterxml.jackson.databind.*;
 // for [databind#1501]
 public class InnerClassCreatorTest extends BaseMapTest
 {
-    static class Something {
+    static class Something1501 {
         public InnerSomething a;
 
         // important: must name the parameter (param names module, or explicit)
         @JsonCreator
-        public Something(@JsonProperty("a") InnerSomething a) { this.a = a; }
+        public Something1501(@JsonProperty("a") InnerSomething a) { this.a = a; }
 
-        public Something() { a = new InnerSomething(); }
+        public Something1501(boolean bogus) { a = new InnerSomething(); }
 
         class InnerSomething {
             @JsonCreator
@@ -22,11 +22,15 @@ public class InnerClassCreatorTest extends BaseMapTest
         }
     }
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    {
+        MAPPER.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    }
+
+    // Used to trigger `ArrayIndexOutOfBoundsException` for missing creator property index
     public void testIssue1501() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        String ser = mapper.writeValueAsString(new Something());
-        mapper.readValue(ser, Something.class);
+        String ser = MAPPER.writeValueAsString(new Something1501(false));
+        MAPPER.readValue(ser, Something1501.class);
     }
 }

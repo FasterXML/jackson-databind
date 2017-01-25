@@ -488,3 +488,7 @@ Josh Caplan (jecaplan@github)
 
 Frédéric Camblor (fcamblor@github)
   * Reported #1451: Type parameter not passed by `ObjectWriter` if serializer pre-fetch disabled
+
+Kevin Hogeland (khogeland@github)
+  * Reported #1501: `ArrayIndexOutOfBoundsException` on non-static inner class constructor
+   (2.7.9)

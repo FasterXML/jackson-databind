@@ -83,6 +83,15 @@ public final class InnerClassProperty
     public InnerClassProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new InnerClassProperty(this, deser);
     }
+
+    @Override
+    public void assignIndex(int index) { _delegate.assignIndex(index); }
+
+    @Override
+    public int getPropertyIndex() { return _delegate.getPropertyIndex(); }
+
+    @Override
+    public int getCreatorIndex() { return _delegate.getCreatorIndex(); }
     
     // // // BeanProperty impl
     

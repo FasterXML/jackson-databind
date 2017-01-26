@@ -65,7 +65,7 @@ public class ReadWriteOnlyProp935Test extends BaseMapTest
 
         ReadXWriteY result = MAPPER.readValue("{\"x\":5, \"y\":6}", ReadXWriteY.class);
         assertNotNull(result);
-        assertEquals(0, result.x);
+        assertEquals(1, result.x);
         assertEquals(6, result.y);
     }
 

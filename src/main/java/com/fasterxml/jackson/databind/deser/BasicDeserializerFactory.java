@@ -294,7 +294,7 @@ public abstract class BasicDeserializerFactory
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        CreatorCollector creators =  new CreatorCollector(beanDesc, ctxt.getConfig());
+        CreatorCollector creators = new CreatorCollector(beanDesc, ctxt.getConfig());
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         
         // need to construct suitable visibility checker:
@@ -312,10 +312,8 @@ public abstract class BasicDeserializerFactory
          */
         Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs = _findCreatorsFromProperties(ctxt,
                 beanDesc);
-
-        /* Important: first add factory methods; then constructors, so
-         * latter can override former!
-         */
+        // Important: first add factory methods; then constructors, so
+        // latter can override former!
         _addDeserializerFactoryMethods(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
@@ -397,8 +395,6 @@ public abstract class BasicDeserializerFactory
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
-        final boolean isNonStatic = ClassUtil.isNonStaticInnerClass(beanDesc.getBeanClass());
-
         // First things first: the "default constructor" (zero-arg
         // constructor; whether implicit or explicit) is NOT included
         // in list of constructors, so needs to be handled separately.
@@ -409,24 +405,25 @@ public abstract class BasicDeserializerFactory
             }
         }
 
+        // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
+        //     for now to skip attempts at using anything but no-args constructor (see
+        //     `InnerClassProperty` construction for that)
+        final boolean isNonStaticInnerClass = beanDesc.isNonStaticInnerClass();
+        if (isNonStaticInnerClass) {
+            // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
+            return;
+        }
+
         // may need to keep track for [#725]
         List<AnnotatedConstructor> implicitCtors = null;
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
             final boolean isCreator = (creatorMode != null) && (creatorMode != JsonCreator.Mode.DISABLED);
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
-            int argCount = ctor.getParameterCount();
-
-            // 24-Jan-2017, tatu: Handling of constructors for non-static inner classes
-            //   cause nothing but grief (see [databind#1503] for example)... ugh.
-            /*
-            if (isNonStatic) {
-                --argCount;
-            }
-            */
+            final int argCount = ctor.getParameterCount();
 
             // some single-arg factory methods (String, number) are auto-detected
-            if ((argCount == 1) && !isNonStatic) {
+            if (argCount == 1) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
                 boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef, creatorMode);
 
@@ -517,10 +514,13 @@ public abstract class BasicDeserializerFactory
                 if (impl == null || impl.isEmpty()) {
                     // Let's consider non-static inner class as a special case...
                     int ix = nonAnnotatedParam.getIndex();
-                    if ((ix == 0) && ClassUtil.isNonStaticInnerClass(ctor.getDeclaringClass())) {
+                    // 25-Jan-2017, tatu: Non-static inner classes skipped altogether, now
+                    /*
+                    if ((ix == 0) && isNonStaticInnerClass) {
                         throw new IllegalArgumentException("Non-static inner classes like "
                                 +ctor.getDeclaringClass().getName()+" can not use @JsonCreator for constructors");
                     }
+                    */
                     throw new IllegalArgumentException("Argument #"+ix
                             +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
                 }

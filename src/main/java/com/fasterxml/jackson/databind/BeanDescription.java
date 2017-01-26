@@ -52,6 +52,13 @@ public abstract class BeanDescription
     public Class<?> getBeanClass() { return _type.getRawClass(); }
 
     /**
+     * @since 2.9
+     */
+    public boolean isNonStaticInnerClass() {
+        return getClassInfo().isNonStaticInnerClass();
+    }
+
+    /**
      * Method for accessing low-level information about Class this
      * item describes.
      */

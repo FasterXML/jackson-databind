@@ -124,6 +124,14 @@ public final class AnnotatedClass
      */
     protected List<AnnotatedField> _fields;
 
+    /**
+     * Lazily determined property to see if this is a non-static inner
+     * class.
+     *
+     * @since 2.8.7
+     */
+    protected transient Boolean _nonStaticInnerClass;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -353,6 +361,18 @@ public final class AnnotatedClass
             resolveFields();
         }
         return _fields;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public boolean isNonStaticInnerClass()
+    {
+        Boolean B = _nonStaticInnerClass;
+        if (B == null) {
+            _nonStaticInnerClass = B = ClassUtil.isNonStaticInnerClass(_class);
+        }
+        return B.booleanValue();
     }
 
     /*

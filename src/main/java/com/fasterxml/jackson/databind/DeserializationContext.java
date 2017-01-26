@@ -997,7 +997,7 @@ public abstract class DeserializationContext
         }
 
         // 16-Oct-2016, tatu: This is either a definition problem (if no applicable creator
-        //   exists), or input mismatch problem (otherwise) since none of existing cretors
+        //   exists), or input mismatch problem (otherwise) since none of existing creators
         //   match with token.
         if ((valueInst != null) && !valueInst.canInstantiate()) {
             msg = String.format("Can not construct instance of %s (no Creators, like default construct, exist): %s",

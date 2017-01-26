@@ -396,8 +396,6 @@ public abstract class BasicDeserializerFactory
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
-        final boolean isNonStatic = ClassUtil.isNonStaticInnerClass(beanDesc.getBeanClass());
-
         // First things first: the "default constructor" (zero-arg
         // constructor; whether implicit or explicit) is NOT included
         // in list of constructors, so needs to be handled separately.
@@ -408,23 +406,24 @@ public abstract class BasicDeserializerFactory
             }
         }
 
+        // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
+        //     for now to skip attempts at using anything but no-args constructor (see
+        //     `InnerClassProperty` construction for that)
+        final boolean isNonStaticInnerClass = ClassUtil.isNonStaticInnerClass(beanDesc.getBeanClass());
+        if (isNonStaticInnerClass) {
+            // TODO: look for `@JsonCreator` annotated ones, throw explicit exception?
+            return;
+        }
+
         // may need to keep track for [#725]
         List<AnnotatedConstructor> implicitCtors = null;
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             final boolean isCreator = intr.hasCreatorAnnotation(ctor);
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
-            int argCount = ctor.getParameterCount();
-
-            // 24-Jan-2017, tatu: Handling of constructors for non-static inner classes
-            //   cause nothing but grief (see [databind#1503] for example)... ugh.
-            /*
-            if (isNonStatic) {
-                --argCount;
-            }
-            */
+            final int argCount = ctor.getParameterCount();
 
             // some single-arg factory methods (String, number) are auto-detected
-            if ((argCount == 1) && !isNonStatic) {
+            if ((argCount == 1) && !isNonStaticInnerClass) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
                 boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
 
@@ -853,10 +852,6 @@ public abstract class BasicDeserializerFactory
         //    existing unit tests fail. Still seems like the right thing to do.
         java.lang.reflect.Type paramType = param.getParameterType();
         JavaType t0 = beanDesc.resolveType(paramType);
-if (t0 == null) {
-System.err.println("type of: "+param.getClass());    
-//    throw new Error("FOOBAR: param #"+index+" type? "+paramType);
-}
         BeanProperty.Std property = new BeanProperty.Std(name, t0,
                 intr.findWrapperName(param),
                 beanDesc.getClassAnnotations(), param, metadata);

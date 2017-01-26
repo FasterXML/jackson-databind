@@ -769,7 +769,7 @@ public abstract class BeanDeserializerBase
      */
     protected SettableBeanProperty _resolveInnerClassValuedProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
-    {            
+    {
         /* Should we encounter a property that has non-static inner-class
          * as value, we need to add some more magic to find the "hidden" constructor...
          */
@@ -780,16 +780,19 @@ public abstract class BeanDeserializerBase
             ValueInstantiator vi = bd.getValueInstantiator();
             if (!vi.canCreateUsingDefault()) { // no default constructor
                 Class<?> valueClass = prop.getType().getRawClass();
+                // NOTE: almost same as `isNonStaticInnerClass()` but need to know enclosing...
                 Class<?> enclosing = ClassUtil.getOuterClass(valueClass);
                 // and is inner class of the bean class...
-                if (enclosing != null && enclosing == _beanType.getRawClass()) {
+                if ((enclosing != null) && (enclosing == _beanType.getRawClass())) {
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
                         Class<?>[] paramTypes = ctor.getParameterTypes();
-                        if (paramTypes.length == 1 && paramTypes[0] == enclosing) {
-                            if (ctxt.canOverrideAccessModifiers()) {
-                                ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                        if (paramTypes.length == 1) {
+                            if (enclosing.equals(paramTypes[0])) {
+                                if (ctxt.canOverrideAccessModifiers()) {
+                                    ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                                }
+                                return new InnerClassProperty(prop, ctor);
                             }
-                            return new InnerClassProperty(prop, ctor);
                         }
                     }
                 }

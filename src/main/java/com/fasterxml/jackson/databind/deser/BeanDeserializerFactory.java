@@ -147,10 +147,10 @@ public class BeanDeserializerFactory
     		Class<?> builderClass)
         throws JsonMappingException
     {
-    	// First: need a BeanDescription for builder class
-    	JavaType builderType = ctxt.constructType(builderClass);
-    	BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
-    	return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
+        // First: need a BeanDescription for builder class
+        JavaType builderType = ctxt.constructType(builderClass);
+        BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
+        return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
     }
     
     /**

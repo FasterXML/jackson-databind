@@ -5,14 +5,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.annotation.ObjectIdResolver;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
@@ -840,7 +837,7 @@ public abstract class BeanDeserializerBase
      */
     protected SettableBeanProperty _resolveInnerClassValuedProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
-    {            
+    {
         /* Should we encounter a property that has non-static inner-class
          * as value, we need to add some more magic to find the "hidden" constructor...
          */
@@ -851,16 +848,19 @@ public abstract class BeanDeserializerBase
             ValueInstantiator vi = bd.getValueInstantiator();
             if (!vi.canCreateUsingDefault()) { // no default constructor
                 Class<?> valueClass = prop.getType().getRawClass();
+                // NOTE: almost same as `isNonStaticInnerClass()` but need to know enclosing...
                 Class<?> enclosing = ClassUtil.getOuterClass(valueClass);
                 // and is inner class of the bean class...
-                if (enclosing != null && enclosing == _beanType.getRawClass()) {
+                if ((enclosing != null) && (enclosing == _beanType.getRawClass())) {
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
                         Class<?>[] paramTypes = ctor.getParameterTypes();
-                        if (paramTypes.length == 1 && paramTypes[0] == enclosing) {
-                            if (ctxt.canOverrideAccessModifiers()) {
-                                ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                        if (paramTypes.length == 1) {
+                            if (enclosing.equals(paramTypes[0])) {
+                                if (ctxt.canOverrideAccessModifiers()) {
+                                    ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+                                }
+                                return new InnerClassProperty(prop, ctor);
                             }
-                            return new InnerClassProperty(prop, ctor);
                         }
                     }
                 }
@@ -1202,8 +1202,16 @@ public abstract class BeanDeserializerBase
             return ctxt.handleMissingInstantiator(handledType(), p,
                     "abstract type (need to add/enable type information?)");
         }
-        return ctxt.handleMissingInstantiator(_beanType.getRawClass(), p,
-                "no suitable constructor found, can not deserialize from Object value (missing default constructor or creator, or perhaps need to add/enable type information?)");
+        // 25-Jan-2017, tatu: We do not actually support use of Creators for non-static
+        //   inner classes -- with one and only one exception; that of default constructor!
+        //   -- so let's indicate it
+        Class<?> raw = _beanType.getRawClass();
+        if (ClassUtil.isNonStaticInnerClass(raw)) {
+            return ctxt.handleMissingInstantiator(raw, p,
+"can only instantiate non-static inner class by using default, no-argument constructor");
+        }
+        return ctxt.handleMissingInstantiator(raw, p,
+"no suitable constructor found, can not deserialize from Object value (missing default constructor or creator, or perhaps need to add/enable type information?)");
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,

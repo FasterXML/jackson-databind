@@ -300,7 +300,11 @@ public class POJOPropertiesCollector
         // First: gather basic data
         _addFields(props);
         _addMethods(props);
-        _addCreators(props);
+        // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
+        //    inner classes, see [databind#1502]
+        if (!_classDef.isNonStaticInnerClass()) {
+            _addCreators(props);
+        }
         _addInjectables(props);
 
         // Remove ignored properties, first; this MUST precede annotation merging

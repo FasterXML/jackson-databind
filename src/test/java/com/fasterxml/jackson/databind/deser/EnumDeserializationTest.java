@@ -289,7 +289,8 @@ public class EnumDeserializationTest
             fail("Expected an error");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not deserialize");
-            verifyException(e, "not allowed to deserialize Enum value out of number: disable");
+            // 26-Jan-2017, tatu: as per [databind#1505], should fail bit differently
+            verifyException(e, "value not one of declared Enum");
         }
     }
 

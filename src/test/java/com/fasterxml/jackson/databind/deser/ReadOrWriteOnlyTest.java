@@ -1,9 +1,9 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
-public class ReadWriteOnlyProp935Test extends BaseMapTest
+public class ReadOrWriteOnlyTest extends BaseMapTest
 {
     // for [databind#935], verify read/write-only cases
     static class ReadXWriteY {
@@ -56,7 +56,7 @@ public class ReadWriteOnlyProp935Test extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     // [databind#935]
     public void testReadOnlyAndWriteOnly() throws Exception
     {
@@ -65,11 +65,11 @@ public class ReadWriteOnlyProp935Test extends BaseMapTest
 
         ReadXWriteY result = MAPPER.readValue("{\"x\":5, \"y\":6}", ReadXWriteY.class);
         assertNotNull(result);
-        assertEquals(0, result.x);
+        assertEquals(1, result.x);
         assertEquals(6, result.y);
     }
 
-    public void testReadOnl935() throws Exception
+    public void testReadOnly935() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Pojo935());
         Pojo935 result = MAPPER.readValue(json, Pojo935.class);

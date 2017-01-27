@@ -583,6 +583,10 @@ Frédéric Camblor (fcamblor@github)
   * Reported #1451: Type parameter not passed by `ObjectWriter` if serializer pre-fetch disabled
    (2.8.6)
 
+Stephan Schroevers (Stephan202@github)
+  * Reported #1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
+   (2.8.7)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

@@ -167,17 +167,12 @@ public class EnumDeserializer
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return null;
             }
-        } else {
-            // [databind#149]: Allow use of 'String' indexes as well
+        } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+            // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
             char c = name.charAt(0);
             if (c >= '0' && c <= '9') {
                 try {
                     int index = Integer.parseInt(name);
-                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-                        return ctxt.handleWeirdNumberValue(_enumClass(), index,
-                                "not allowed to deserialize Enum value out of number: disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow"
-                                );
-                    }
                     if (index >= 0 && index < _enumsByIndex.length) {
                         return _enumsByIndex[index];
                     }

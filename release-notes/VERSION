@@ -6,7 +6,9 @@ Project: jackson-databind
 2.8.7 (not yet released)
 
 #935: `@JsonProperty(access = Access.READ_ONLY)` - unexpected behaviour
-#1317: '@JsonIgnore' annotation not working with creator properties, serializatio
+#1317: '@JsonIgnore' annotation not working with creator properties, serialization
+#1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
+ (suggested by Stephan S)
 
 2.8.6 (12-Jan-2017)
 

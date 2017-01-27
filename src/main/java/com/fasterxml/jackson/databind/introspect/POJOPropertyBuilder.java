@@ -641,7 +641,7 @@ public class POJOPropertyBuilder
      * @param inferMutators Whether mutators can be "pulled in" by visible
      *    accessors or not. 
      */
-    public void removeNonVisible(boolean inferMutators)
+    public JsonProperty.Access removeNonVisible(boolean inferMutators)
     {
         /* 07-Jun-2015, tatu: With 2.6, we will allow optional definition
          *  of explicit access type for property; if not "AUTO", it will
@@ -680,6 +680,7 @@ public class POJOPropertyBuilder
                 _setters = _removeNonVisible(_setters);
             }
         }
+        return acc;
     }
 
     /**

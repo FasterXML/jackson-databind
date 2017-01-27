@@ -4,6 +4,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -727,10 +728,14 @@ public class POJOPropertiesCollector
 
         while (it.hasNext()) {
             POJOPropertyBuilder prop = it.next();
-            prop.removeNonVisible(inferMutators);
+            // 26-Jan-2017, tatu: [databind#935]: need to denote removal of
+            Access acc = prop.removeNonVisible(inferMutators);
+            if (!_forSerialization && (acc == Access.READ_ONLY)) {
+                _collectIgnorals(prop.getName());
+            }
         }
     }
-        
+
     /**
      * Helper method called to add explicitly ignored properties to a list
      * of known ignored properties; this helps in proper reporting of

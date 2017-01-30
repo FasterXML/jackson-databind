@@ -29,9 +29,10 @@ public final class ObjectIdValueProperty
         _objectIdReader = objectIdReader;
     }
 
-    protected ObjectIdValueProperty(ObjectIdValueProperty src, JsonDeserializer<?> deser)
+    protected ObjectIdValueProperty(ObjectIdValueProperty src, JsonDeserializer<?> deser,
+            NullValueProvider<?> nva)
     {
-        super(src, deser);
+        super(src, deser, nva);
         _objectIdReader = src._objectIdReader;
     }
 
@@ -41,13 +42,18 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public ObjectIdValueProperty withName(PropertyName newName) {
+    public SettableBeanProperty withName(PropertyName newName) {
         return new ObjectIdValueProperty(this, newName);
     }
 
     @Override
-    public ObjectIdValueProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new ObjectIdValueProperty(this, deser);
+    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        return new ObjectIdValueProperty(this, deser, _nullProvider);
+    }
+
+    @Override
+    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+        return new ObjectIdValueProperty(this, _valueDeserializer, nva);
     }
     
     // // // BeanProperty impl

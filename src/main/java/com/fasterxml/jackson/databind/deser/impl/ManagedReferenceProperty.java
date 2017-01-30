@@ -1,14 +1,12 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
@@ -17,7 +15,8 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * then to back property.
  */
 public final class ManagedReferenceProperty
-    extends SettableBeanProperty
+    // Changed to extends delegating base class in 2.9
+    extends SettableBeanProperty.Delegating
 {
     private static final long serialVersionUID = 1L;
 
@@ -29,67 +28,28 @@ public final class ManagedReferenceProperty
      */
     protected final boolean _isContainer;
 
-    protected final SettableBeanProperty _managedProperty;
-
     protected final SettableBeanProperty _backProperty;
 
     public ManagedReferenceProperty(SettableBeanProperty forward, String refName,
             SettableBeanProperty backward, Annotations contextAnnotations, boolean isContainer)
     {
-        super(forward.getFullName(), forward.getType(), forward.getWrapperName(),
-                forward.getValueTypeDeserializer(), contextAnnotations,
-                forward.getMetadata());
+        super(forward);
         _referenceName = refName;
-        _managedProperty = forward;
         _backProperty = backward;
         _isContainer = isContainer;
     }
 
-    protected ManagedReferenceProperty(ManagedReferenceProperty src, JsonDeserializer<?> deser)
-    {
-        super(src, deser);
-        _referenceName = src._referenceName;
-        _isContainer = src._isContainer;
-        _managedProperty = src._managedProperty;
-        _backProperty = src._backProperty;
-    }
-
-    protected ManagedReferenceProperty(ManagedReferenceProperty src, PropertyName newName) {
-        super(src, newName);
-        _referenceName = src._referenceName;
-        _isContainer = src._isContainer;
-        _managedProperty = src._managedProperty;
-        _backProperty = src._backProperty;
-    }
-
     @Override
-    public ManagedReferenceProperty withName(PropertyName newName) {
-        return new ManagedReferenceProperty(this, newName);
+    protected SettableBeanProperty withDelegate(SettableBeanProperty d) {
+        throw new IllegalStateException("Should never try to reset delegate");
     }
 
-    @Override
-    public ManagedReferenceProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new ManagedReferenceProperty(this, deser);
-    }
- 
+    // need to override to ensure both get fixed
     @Override
     public void fixAccess(DeserializationConfig config) {
-        _managedProperty.fixAccess(config);
+        delegate.fixAccess(config);
         _backProperty.fixAccess(config);
     }
-
-    /*
-    /**********************************************************
-    /* BeanProperty impl
-    /**********************************************************
-     */
-
-    @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return _managedProperty.getAnnotation(acls);
-    }
-
-    @Override public AnnotatedMember getMember() {  return _managedProperty.getMember(); }
 
     /*
     /**********************************************************
@@ -100,7 +60,7 @@ public final class ManagedReferenceProperty
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance)
             throws IOException {
-        set(instance, _managedProperty.deserialize(p, ctxt));
+        set(instance, delegate.deserialize(p, ctxt));
     }
 
     @Override
@@ -143,6 +103,6 @@ public final class ManagedReferenceProperty
             }
         }
         // and then the forward reference itself
-        return _managedProperty.setAndReturn(instance, value);
+        return delegate.setAndReturn(instance, value);
 	}
 }

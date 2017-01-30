@@ -72,6 +72,15 @@ public abstract class SettableBeanProperty
      */
     protected final TypeDeserializer _valueTypeDeserializer;
 
+    /**
+     * Entity used for possible translation from `null` into non-null
+     * value of type of this property.
+     * Often same as <code>_valueDeserializer</code>, but not always.
+     *
+     * @since 2.9
+     */
+    protected final NullValueProvider<Object> _nullProvider;
+
     /*
     /**********************************************************
     /* Configuration that is not yet immutable; generally assigned
@@ -154,6 +163,7 @@ public abstract class SettableBeanProperty
         }
         _valueTypeDeserializer = typeDeser;
         _valueDeserializer = MISSING_VALUE_DESERIALIZER;
+        _nullProvider = MISSING_VALUE_DESERIALIZER;
     }
 
     /**
@@ -177,6 +187,8 @@ public abstract class SettableBeanProperty
         _viewMatcher = null;
         _valueTypeDeserializer = null;
         _valueDeserializer = valueDeser;
+        // 29-Jan-2017, tatu: Presumed to be irrelevant for ObjectId values...
+        _nullProvider = valueDeser;
     }
     
     /**
@@ -194,13 +206,26 @@ public abstract class SettableBeanProperty
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
+        _nullProvider = src._nullProvider;
+    }
+
+    /**
+     * @deprecated Since 2.9 use {@link #SettableBeanProperty(SettableBeanProperty, JsonDeserializer, NullValueProvider)}
+     *    instead
+     */
+    @Deprecated // since 2.9
+    protected SettableBeanProperty(SettableBeanProperty src,
+            JsonDeserializer<?> deser)
+    {
+        this(src, deser, deser);
     }
 
     /**
      * Copy-with-deserializer-change constructor for sub-classes to use.
      */
     @SuppressWarnings("unchecked")
-    protected SettableBeanProperty(SettableBeanProperty src, JsonDeserializer<?> deser)
+    protected SettableBeanProperty(SettableBeanProperty src,
+            JsonDeserializer<?> deser, NullValueProvider<?> nullAccessor)
     {
         super(src);
         _propName = src._propName;
@@ -217,6 +242,11 @@ public abstract class SettableBeanProperty
             _valueDeserializer = (JsonDeserializer<Object>) deser;
         }
         _viewMatcher = src._viewMatcher;
+        // 29-Jan-2017, tatu: Bit messy, but for now has to do...
+        if (nullAccessor == MISSING_VALUE_DESERIALIZER) {
+            nullAccessor = deser;
+        }
+        _nullProvider = (NullValueProvider<Object>) nullAccessor;
     }
 
     /**
@@ -234,6 +264,7 @@ public abstract class SettableBeanProperty
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
+        _nullProvider = src._nullProvider;
     }
 
     /**
@@ -269,6 +300,11 @@ public abstract class SettableBeanProperty
         return (n == _propName) ? this : withName(n);
     }
 
+    /**
+     * @since 2.9
+     */
+    public abstract SettableBeanProperty withNullProvider(NullValueProvider<?> nva);
+
     public void setManagedReferenceName(String n) {
         _managedReferenceName = n;
     }
@@ -284,7 +320,7 @@ public abstract class SettableBeanProperty
             _viewMatcher = ViewMatcher.construct(views);
         }
     }
-    
+
     /**
      * Method used to assign index for property.
      */
@@ -481,9 +517,8 @@ public abstract class SettableBeanProperty
     public final Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = p.getCurrentToken();
-
         if (t == JsonToken.VALUE_NULL) {
-            return _valueDeserializer.getNullValue(ctxt);
+            return _nullProvider.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
             return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
@@ -502,7 +537,7 @@ public abstract class SettableBeanProperty
         // 20-Oct-2016, tatu: Not 100% sure what to do; probably best to simply return
         //   null value and let caller decide what to do
         if (t == JsonToken.VALUE_NULL) {
-            return _valueDeserializer.getNullValue(ctxt);
+            return _nullProvider.getNullValue(ctxt);
         }
         // 20-Oct-2016, tatu: Also tricky -- for now, report an error
         if (_valueTypeDeserializer != null) {
@@ -618,6 +653,11 @@ public abstract class SettableBeanProperty
         @Override
         public SettableBeanProperty withName(PropertyName newName) {
             return _with(delegate.withName(newName));
+        }
+
+        @Override
+        public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+            return _with(delegate.withNullProvider(nva));
         }
 
         @Override

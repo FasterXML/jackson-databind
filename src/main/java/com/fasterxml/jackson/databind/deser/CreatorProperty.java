@@ -98,8 +98,9 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
     }
 
-    protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser) {
-        super(src, deser);
+    protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
+            NullValueProvider<?> nva) {
+        super(src, deser, nva);
         _annotated = src._annotated;
         _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
@@ -107,15 +108,20 @@ public class CreatorProperty
     }
 
     @Override
-    public CreatorProperty withName(PropertyName newName) {
+    public SettableBeanProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
     }
     
     @Override
-    public CreatorProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new CreatorProperty(this, deser);
+    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        return new CreatorProperty(this, deser, _nullProvider);
     }
 
+    @Override
+    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+        return new CreatorProperty(this, _valueDeserializer, nva);
+    }
+    
     @Override
     public void fixAccess(DeserializationConfig config) {
         if (_fallbackSetter != null) {

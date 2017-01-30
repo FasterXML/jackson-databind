@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -43,6 +44,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * contextualization.
  */
 public abstract class JsonDeserializer<T>
+    implements NullValueProvider<T> // since 2.9
 {
     /*
     /**********************************************************
@@ -273,6 +275,7 @@ public abstract class JsonDeserializer<T>
      * 
      * @since 2.6 Added to replace earlier no-arguments variant
      */
+    @Override
     public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         // Change the direction in 2.7
         return getNullValue();

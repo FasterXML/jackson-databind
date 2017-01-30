@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -38,8 +39,9 @@ public final class MethodProperty
         _setter = method.getAnnotated();
     }
 
-    protected MethodProperty(MethodProperty src, JsonDeserializer<?> deser) {
-        super(src, deser);
+    protected MethodProperty(MethodProperty src, JsonDeserializer<?> deser,
+            NullValueProvider<?> nva) {
+        super(src, deser, nva);
         _annotated = src._annotated;
         _setter = src._setter;
     }
@@ -60,13 +62,18 @@ public final class MethodProperty
     }
     
     @Override
-    public MethodProperty withName(PropertyName newName) {
+    public SettableBeanProperty withName(PropertyName newName) {
         return new MethodProperty(this, newName);
     }
     
     @Override
-    public MethodProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new MethodProperty(this, deser);
+    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        return new MethodProperty(this, deser, _nullProvider);
+    }
+
+    @Override
+    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+        return new MethodProperty(this, _valueDeserializer, nva);
     }
 
     @Override

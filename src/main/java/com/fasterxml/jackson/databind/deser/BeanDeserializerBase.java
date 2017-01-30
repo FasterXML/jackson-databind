@@ -534,12 +534,7 @@ public abstract class BeanDeserializerBase
             // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
             //   merging needed, and now seems to be reasonable time to do that.
             final PropertyMetadata md = prop.getMetadata();
-            {
-                PropertyMetadata.MergeInfo merge = md.getMergeInfo();
-                if (merge != null) {
-                    prop = _resolveMergeSettings(ctxt, prop, merge);
-                }
-            }
+            prop = _resolveMergeAndNullSettings(ctxt, prop, md);
 
             // non-static inner classes too:
             prop = _resolveInnerClassValuedProperty(ctxt, prop);
@@ -891,31 +886,50 @@ public abstract class BeanDeserializerBase
         return prop;
     }
 
-    protected SettableBeanProperty _resolveMergeSettings(DeserializationContext ctxt,
-            SettableBeanProperty prop, PropertyMetadata.MergeInfo merge)
+    // @since 2.9
+    protected SettableBeanProperty _resolveMergeAndNullSettings(DeserializationContext ctxt,
+            SettableBeanProperty prop, PropertyMetadata propMetadata)
         throws JsonMappingException
     {
-        JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
-        Boolean mayMerge = valueDeser.supportsUpdate(ctxt.getConfig());
-
-        if (mayMerge == null) {
-            // we don't really know if it's ok; so only use if explicitly specified
-            if (merge.fromDefaults) {
+        PropertyMetadata.MergeInfo merge = propMetadata.getMergeInfo();
+        // First mergeability
+        if (merge != null) {
+            JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
+            Boolean mayMerge = valueDeser.supportsUpdate(ctxt.getConfig());
+    
+            if (mayMerge == null) {
+                // we don't really know if it's ok; so only use if explicitly specified
+                if (merge.fromDefaults) {
+                    return prop;
+                }
+            } else if (!mayMerge.booleanValue()) { // prevented
+                if (!merge.fromDefaults) {
+                    // If attempts was made via explicit annotation/per-type config override,
+                    // should be reported; may or may not result in exception
+                    ctxt.reportBadMerge(valueDeser);
+                }
                 return prop;
             }
-        } else if (!mayMerge.booleanValue()) { // prevented
-            if (!merge.fromDefaults) {
-                // If attempts was made via explicit annotation/per-type config override,
-                // should be reported; may or may not result in exception
-                ctxt.reportBadMerge(valueDeser);
+            // Anyway; if we get this far, do enable merging
+            AnnotatedMember accessor = merge.getter;
+            accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
+            if (!(prop instanceof SetterlessProperty)) {
+                prop = MergingSettableBeanProperty.construct(prop, accessor);
             }
-            return prop;
         }
-        // Anyway; if we get this far, do enable merging
-        AnnotatedMember accessor = merge.getter;
-        accessor.fixAccess(ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
-        if (!(prop instanceof SetterlessProperty)) {
-            prop = MergingSettableBeanProperty.construct(prop, accessor);
+
+        // And after this, see if we require non-standard null handling
+        JsonSetter.Nulls nulls = propMetadata.getValueNulls();
+        if (nulls != null) {
+            switch (nulls) {
+            case FAIL:
+                prop = prop.withNullProvider(new NullsFailProvider(prop.getFullName(), prop.getType()));
+                break;
+            case DESERIALIZER_NULL:
+            case DESERIALIZER_EMPTY:
+            case SKIP: // can't do here
+            default: // SET/DEFAULT, nothing to do; S
+            }
         }
         return prop;
     }

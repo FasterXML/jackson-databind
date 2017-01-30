@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -40,8 +41,9 @@ public final class FieldProperty
         _field = field.getAnnotated();
     }
 
-    protected FieldProperty(FieldProperty src, JsonDeserializer<?> deser) {
-        super(src, deser);
+    protected FieldProperty(FieldProperty src, JsonDeserializer<?> deser,
+            NullValueProvider<?> nva) {
+        super(src, deser, nva);
         _annotated = src._annotated;
         _field = src._field;
     }
@@ -65,15 +67,20 @@ public final class FieldProperty
         }
         _field = f;
     }
-    
+
     @Override
-    public FieldProperty withName(PropertyName newName) {
+    public SettableBeanProperty withName(PropertyName newName) {
         return new FieldProperty(this, newName);
     }
-    
+
     @Override
-    public FieldProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new FieldProperty(this, deser);
+    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        return new FieldProperty(this, deser, _nullProvider);
+    }
+
+    @Override
+    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+        return new FieldProperty(this, _valueDeserializer, nva);
     }
 
     @Override

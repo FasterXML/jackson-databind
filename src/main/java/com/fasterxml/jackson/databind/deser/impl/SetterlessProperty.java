@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -40,8 +41,9 @@ public final class SetterlessProperty
         _getter = method.getAnnotated();
     }
 
-    protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<?> deser) {
-        super(src, deser);
+    protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<?> deser,
+            NullValueProvider<?> nva) {
+        super(src, deser, nva);
         _annotated = src._annotated;
         _getter = src._getter;
     }
@@ -53,13 +55,18 @@ public final class SetterlessProperty
     }
 
     @Override
-    public SetterlessProperty withName(PropertyName newName) {
+    public SettableBeanProperty withName(PropertyName newName) {
         return new SetterlessProperty(this, newName);
     }
-    
+
     @Override
-    public SetterlessProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new SetterlessProperty(this, deser);
+    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        return new SetterlessProperty(this, deser, _nullProvider);
+    }
+
+    @Override
+    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+        return new SetterlessProperty(this, _valueDeserializer, nva);
     }
 
     @Override

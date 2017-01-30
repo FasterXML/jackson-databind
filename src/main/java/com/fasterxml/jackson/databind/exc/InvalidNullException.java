@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.exc;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Exception thrown if a `null` value is being encountered for a property
@@ -37,7 +38,7 @@ public class InvalidNullException
             PropertyName name, JavaType type)
     {
         String msg = String.format("Invalid `null` value encountered for property %s",
-                name);
+                ClassUtil.quotedOr(name, "<UNKNOWN>"));
         InvalidNullException exc = new InvalidNullException(ctxt, msg, name);
         if (type != null) {
             exc.setTargetType(type);

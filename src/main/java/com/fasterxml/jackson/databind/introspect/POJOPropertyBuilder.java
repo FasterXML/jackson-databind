@@ -245,7 +245,7 @@ public class POJOPropertyBuilder
             }
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
-            if (!mergeSet || (valueNulls != null) || (contentNulls != null)) {
+            if (!mergeSet || (valueNulls == null) || (contentNulls == null)) {
                 Class<?> rawType = acc.getType().getRawClass();
                 JsonSetter.Value setterInfo = _config.getConfigOverride(rawType)
                         .getSetterInfo();
@@ -259,16 +259,16 @@ public class POJOPropertyBuilder
                             }
                         }
                     }
-                    if (valueNulls != null) {
+                    if (valueNulls == null) {
                         valueNulls = setterInfo.nonDefaultValueNulls();
                     }
-                    if (contentNulls != null) {
+                    if (contentNulls == null) {
                         contentNulls = setterInfo.nonDefaultContentNulls();
                     }
                 }
             }
         }
-        if (!mergeSet || (valueNulls != null) || (contentNulls != null)) {
+        if (!mergeSet || (valueNulls == null) || (contentNulls == null)) {
             JsonSetter.Value setterInfo = ((DeserializationConfig) _config).getDefaultSetterInfo();
             if (!mergeSet) {
                 Boolean b = setterInfo.getMerge();
@@ -278,10 +278,10 @@ public class POJOPropertyBuilder
                     }
                 }
             }
-            if (valueNulls != null) {
+            if (valueNulls == null) {
                 valueNulls = setterInfo.nonDefaultValueNulls();
             }
-            if (contentNulls != null) {
+            if (contentNulls == null) {
                 contentNulls = setterInfo.nonDefaultContentNulls();
             }
         }

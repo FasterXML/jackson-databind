@@ -927,6 +927,8 @@ public abstract class BeanDeserializerBase
                 break;
             case DESERIALIZER_NULL:
             case DESERIALIZER_EMPTY:
+                // !!! TODO
+
             case SKIP: // can't do here
             default: // SET/DEFAULT, nothing to do; S
             }

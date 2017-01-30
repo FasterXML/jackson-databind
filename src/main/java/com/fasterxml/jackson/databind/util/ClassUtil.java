@@ -674,6 +674,19 @@ public final class ClassUtil
         return str;
     }
 
+    /**
+     * Returns either quoted value (with double-quotes) -- if argument non-null
+     * String -- or String NULL (no quotes) (if null).
+     *
+     * @since 2.9
+     */
+    public static String quotedOr(Object str, String forNull) {
+        if (str == null) {
+            return forNull;
+        }
+        return String.format("\"%s\"", str);
+    }
+
     /*
     /**********************************************************
     /* Type name handling methods

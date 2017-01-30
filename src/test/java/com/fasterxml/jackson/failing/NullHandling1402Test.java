@@ -36,7 +36,7 @@ public class NullHandling1402Test extends BaseMapTest
                     NullFail.class);
             fail("Should not pass");
         } catch (InvalidNullException e) {
-            verifyException(e, "'noNulls'");
+            verifyException(e, "noNulls");
         }
     }
 }

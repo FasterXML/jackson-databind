@@ -289,7 +289,7 @@ public abstract class JsonDeserializer<T>
      * Since version 2.6 (in which the context argument was added), call is
      * expected to be made each and every time an empty value is needed.
      *<p>
-     * Default implementation simple calls {@link #getNullValue} and
+     * Default implementation simply calls {@link #getNullValue} and
      * returns value.
      *
      * @since 2.6 Added to replace earlier no-arguments variant
@@ -297,7 +297,7 @@ public abstract class JsonDeserializer<T>
     public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return getNullValue(ctxt);
     }
-    
+
     /**
      * Accessor that can be used to check whether this deserializer
      * is expecting to possibly get an Object Identifier value instead of full value

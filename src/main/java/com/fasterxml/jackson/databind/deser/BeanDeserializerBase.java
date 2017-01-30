@@ -533,8 +533,9 @@ public abstract class BeanDeserializerBase
 
             // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
             //   merging needed, and now seems to be reasonable time to do that.
+            final PropertyMetadata md = prop.getMetadata();
             {
-                PropertyMetadata.MergeInfo merge = prop.getMetadata().getMergeInfo();
+                PropertyMetadata.MergeInfo merge = md.getMergeInfo();
                 if (merge != null) {
                     prop = _resolveMergeSettings(ctxt, prop, merge);
                 }

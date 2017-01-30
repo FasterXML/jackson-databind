@@ -144,7 +144,9 @@ public class PropertyMetadata
      */
     protected Object readResolve()
     {
-        if (_description == null && _index == null && _defaultValue == null) {
+        if ((_description == null) && (_index == null) && (_defaultValue == null)
+                && (_mergeInfo == null)
+                && (_valueNulls == null) && (_contentNulls == null)) {
             if (_required == null) {
                 return STD_REQUIRED_OR_OPTIONAL;
             }
@@ -224,9 +226,9 @@ public class PropertyMetadata
      * @since 2.6
      */
     public boolean hasDefaultValue() { return (_defaultValue != null); }
-    
+
     public boolean isRequired() { return (_required != null) && _required.booleanValue(); }
-    
+
     public Boolean getRequired() { return _required; }
 
     /**

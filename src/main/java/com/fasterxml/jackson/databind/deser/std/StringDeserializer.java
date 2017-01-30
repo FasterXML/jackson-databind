@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -23,6 +24,11 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     // since 2.6, slightly faster lookups for this very common type
     @Override
     public boolean isCachable() { return true; }
+
+    @Override // since 2.9
+    public String getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return "";
+    }
 
     @Override
     public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException

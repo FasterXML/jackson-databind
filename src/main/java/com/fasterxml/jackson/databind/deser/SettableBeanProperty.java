@@ -34,7 +34,7 @@ public abstract class SettableBeanProperty
      */
     protected static final JsonDeserializer<Object> MISSING_VALUE_DESERIALIZER = new FailingDeserializer(
             "No _valueDeserializer assigned");
-    
+
     /**
      * Logical name of the property (often but not always derived
      * from the setter method name)
@@ -50,14 +50,14 @@ public abstract class SettableBeanProperty
      * @since 2.2
      */
     protected final PropertyName _wrapperName;
-    
+
     /**
      * Class that contains this property (either class that declares
      * the property or one of its subclasses), class that is
      * deserialized using deserializer that contains this property.
      */
     protected final transient Annotations _contextAnnotations;
-    
+
     /**
      * Deserializer used for handling property value.
      *<p>
@@ -104,7 +104,7 @@ public abstract class SettableBeanProperty
      * TODO: should try to make immutable.
      */
     protected ViewMatcher _viewMatcher;
-    
+
     /**
      * Index of property (within all property of a bean); assigned
      * when all properties have been collected. Order of entries

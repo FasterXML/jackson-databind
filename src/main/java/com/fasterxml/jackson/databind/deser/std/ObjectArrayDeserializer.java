@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
@@ -24,13 +23,10 @@ public class ObjectArrayDeserializer
 {
     private static final long serialVersionUID = 1L;
 
+    protected final static Object[] NO_OBJECTS = new Object[0];
+
     // // Configuration
 
-    /**
-     * Full generic type of the array being deserialized
-     */
-    protected final ArrayType _arrayType;
-    
     /**
      * Flag that indicates whether the component type is Object or not.
      * Used for minor optimization when constructing result.
@@ -69,11 +65,10 @@ public class ObjectArrayDeserializer
     /**********************************************************
      */
 
-    public ObjectArrayDeserializer(ArrayType arrayType,
+    public ObjectArrayDeserializer(JavaType arrayType,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
         super(arrayType);
-        _arrayType = arrayType;
         _elementClass = arrayType.getContentType().getRawClass();
         _untyped = (_elementClass == Object.class);
         _elementDeserializer = elemDeser;
@@ -85,8 +80,7 @@ public class ObjectArrayDeserializer
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser,
             Boolean unwrapSingle)
     {
-        super(base._arrayType);
-        _arrayType = base._arrayType;
+        super(base._containerType);
         _elementClass = base._elementClass;
         _untyped = base._untyped;
 
@@ -125,11 +119,11 @@ public class ObjectArrayDeserializer
             BeanProperty property) throws JsonMappingException
     {
         JsonDeserializer<?> deser = _elementDeserializer;
-        Boolean unwrapSingle = findFormatFeature(ctxt, property, _arrayType.getRawClass(),
+        Boolean unwrapSingle = findFormatFeature(ctxt, property, _containerType.getRawClass(),
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
-        final JavaType vt = _arrayType.getContentType();
+        final JavaType vt = _containerType.getContentType();
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -155,13 +149,14 @@ public class ObjectArrayDeserializer
      */
 
     @Override
-    public JavaType getContentType() {
-        return _arrayType.getContentType();
-    }
-
-    @Override
     public JsonDeserializer<Object> getContentDeserializer() {
         return _elementDeserializer;
+    }
+
+    // need to override as we can't expose ValueInstantiator
+    @Override // since 2.9
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return NO_OBJECTS;
     }
     
     /*
@@ -326,7 +321,7 @@ public class ObjectArrayDeserializer
                     && _elementClass == Byte.class) {
                 return deserializeFromBase64(p, ctxt);
             }
-            return (Object[]) ctxt.handleUnexpectedToken(_arrayType.getRawClass(), p);
+            return (Object[]) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
         }
         JsonToken t = p.getCurrentToken();
         Object value;

@@ -3,12 +3,10 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -20,8 +18,11 @@ public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>
     implements ValueInstantiator.Gettable // since 2.9
 {
+    protected final JavaType _containerType;
+
     protected ContainerDeserializerBase(JavaType selfType) {
         super(selfType);
+        _containerType = selfType;
     }
 
     /*
@@ -31,10 +32,13 @@ public abstract class ContainerDeserializerBase<T>
      */
 
     @Override // since 2.9
+    public JavaType getValueType() { return _containerType; }
+    
+    @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
     }
-    
+
     @Override
     public SettableBeanProperty findBackReference(String refName) {
         JsonDeserializer<Object> valueDeser = getContentDeserializer();
@@ -56,7 +60,12 @@ public abstract class ContainerDeserializerBase<T>
      * Accessor for declared type of contained value elements; either exact
      * type, or one of its supertypes.
      */
-    public abstract JavaType getContentType();
+    public JavaType getContentType() {
+        if (_containerType == null) {
+            return TypeFactory.unknownType(); // should never occur but...
+        }
+        return _containerType.getContentType();
+    }
 
     /**
      * Accesor for deserializer use for deserializing content values.
@@ -69,6 +78,21 @@ public abstract class ContainerDeserializerBase<T>
     @Override
     public ValueInstantiator getValueInstantiator() {
         return null;
+    }
+
+    @Override // since 2.9
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        ValueInstantiator vi = getValueInstantiator();
+        if (vi == null || !vi.canCreateUsingDefault()) {
+            JavaType type = getValueType();
+            ctxt.reportBadDefinition(type,
+                    String.format("Can not create empty instance of %s, no default Creator", type));
+        }
+        try {
+            return vi.createUsingDefault(ctxt);
+        } catch (IOException e) {
+            return ClassUtil.throwAsMappingException(ctxt, e);
+        }
     }
 
     /*

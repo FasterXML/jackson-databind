@@ -33,8 +33,6 @@ public class CollectionDeserializer
 
     // // Configuration
 
-    protected final JavaType _collectionType;
-    
     /**
      * Value deserializer.
      */
@@ -94,7 +92,6 @@ public class CollectionDeserializer
             Boolean unwrapSingle)
     {
         super(collectionType);
-        _collectionType = collectionType;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
@@ -108,8 +105,7 @@ public class CollectionDeserializer
      */
     protected CollectionDeserializer(CollectionDeserializer src)
     {
-        super(src._collectionType);
-        _collectionType = src._collectionType;
+        super(src._containerType);
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
@@ -127,7 +123,7 @@ public class CollectionDeserializer
             JsonDeserializer<?> vd, TypeDeserializer vtd,
             Boolean unwrapSingle)
     {
-        return new CollectionDeserializer(_collectionType,
+        return new CollectionDeserializer(_containerType,
                 (JsonDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
     }
@@ -173,18 +169,18 @@ public class CollectionDeserializer
             if (_valueInstantiator.canCreateUsingDelegate()) {
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    ctxt.reportBadDefinition(_collectionType, String.format(
+                    ctxt.reportBadDefinition(_containerType, String.format(
 "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                            _collectionType,
+_containerType,
                             _valueInstantiator.getClass().getName()));
                 }
                 delegateDeser = findDeserializer(ctxt, delegateType, property);
             } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    ctxt.reportBadDefinition(_collectionType, String.format(
+                    ctxt.reportBadDefinition(_containerType, String.format(
 "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-                            _collectionType,
+                            _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
                 delegateDeser = findDeserializer(ctxt, delegateType, property);
@@ -200,7 +196,7 @@ public class CollectionDeserializer
         
         // May have a content converter
         valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
-        final JavaType vt = _collectionType.getContentType();
+        final JavaType vt = _containerType.getContentType();
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -226,11 +222,6 @@ public class CollectionDeserializer
     /* ContainerDeserializerBase API
     /**********************************************************
      */
-
-    @Override
-    public JavaType getContentType() {
-        return _collectionType.getContentType();
-    }
 
     @Override
     public JsonDeserializer<Object> getContentDeserializer() {
@@ -295,7 +286,7 @@ public class CollectionDeserializer
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         CollectionReferringAccumulator referringAccumulator =
             (valueDes.getObjectIdReader() == null) ? null :
-                new CollectionReferringAccumulator(_collectionType.getContentType().getRawClass(), result);
+                new CollectionReferringAccumulator(_containerType.getContentType().getRawClass(), result);
 
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
@@ -355,7 +346,7 @@ public class CollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            return (Collection<Object>) ctxt.handleUnexpectedToken(_collectionType.getRawClass(), p);
+            return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

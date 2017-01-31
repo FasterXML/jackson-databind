@@ -25,22 +25,22 @@ public class ArrayBlockingQueueDeserializer
     /**********************************************************
      */
 
-     public ArrayBlockingQueueDeserializer(JavaType collectionType,
+     public ArrayBlockingQueueDeserializer(JavaType containerType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator)
     {
-        super(collectionType, valueDeser, valueTypeDeser, valueInstantiator);
+        super(containerType, valueDeser, valueTypeDeser, valueInstantiator);
     }
 
     /**
      * Constructor used when creating contextualized instances.
      */
-     protected ArrayBlockingQueueDeserializer(JavaType collectionType,
+     protected ArrayBlockingQueueDeserializer(JavaType containerType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
             JsonDeserializer<Object> delegateDeser, Boolean unwrapSingle)
     {
-        super(collectionType, valueDeser, valueTypeDeser, valueInstantiator,
+        super(containerType, valueDeser, valueTypeDeser, valueInstantiator,
                 delegateDeser, unwrapSingle);
     }
 
@@ -60,7 +60,7 @@ public class ArrayBlockingQueueDeserializer
     protected ArrayBlockingQueueDeserializer withResolved(JsonDeserializer<?> dd,
             JsonDeserializer<?> vd, TypeDeserializer vtd, Boolean unwrapSingle)
     {
-        return new ArrayBlockingQueueDeserializer(_collectionType,
+        return new ArrayBlockingQueueDeserializer(_containerType,
                 (JsonDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
     }

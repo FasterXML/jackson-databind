@@ -21,8 +21,6 @@ public class EnumMapDeserializer
 {
     private static final long serialVersionUID = 1;
 
-    protected final JavaType _mapType;
-    
     protected final Class<?> _enumClass;
 
     protected KeyDeserializer _keyDeserializer;
@@ -44,7 +42,6 @@ public class EnumMapDeserializer
     public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeserializer, JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
     {
         super(mapType);
-        _mapType = mapType;
         _enumClass = mapType.getKeyType().getRawClass();
         _keyDeserializer = keyDeserializer;
         _valueDeserializer = (JsonDeserializer<Object>) valueDeser;
@@ -56,7 +53,7 @@ public class EnumMapDeserializer
         if ((keyDeserializer == _keyDeserializer) && (valueDeserializer == _valueDeserializer) && (valueTypeDeser == _valueTypeDeserializer)) {
             return this;
         }
-        return new EnumMapDeserializer(_mapType, keyDeserializer, valueDeserializer, _valueTypeDeserializer);
+        return new EnumMapDeserializer(_containerType, keyDeserializer, valueDeserializer, _valueTypeDeserializer);
     }
     
     /**
@@ -71,10 +68,10 @@ public class EnumMapDeserializer
         // quite as clean as it ought to be)
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
-            kd = ctxt.findKeyDeserializer(_mapType.getKeyType(), property);
+            kd = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         }
         JsonDeserializer<?> vd = _valueDeserializer;
-        final JavaType vt = _mapType.getContentType();
+        final JavaType vt = _containerType.getContentType();
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -106,13 +103,14 @@ public class EnumMapDeserializer
      */
 
     @Override
-    public JavaType getContentType() {
-        return _mapType.getContentType();
-    }
-
-    @Override
     public JsonDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
+    }
+
+    // Must override since we do not expose ValueInstantiator
+    @Override // since 2.9
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return constructMap();
     }
 
     /*
@@ -141,7 +139,7 @@ public class EnumMapDeserializer
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     return (EnumMap<?,?>) ctxt.handleWeirdStringValue(_enumClass, keyName,
                             "value not one of declared Enum instance names for %s",
-                            _mapType.getKeyType());
+                            _containerType.getKeyType());
                 }
                 /* 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                  *  just skip the entry then. But we must skip the value as well, if so.

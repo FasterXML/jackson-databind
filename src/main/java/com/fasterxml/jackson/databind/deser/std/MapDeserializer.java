@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
@@ -32,8 +34,6 @@ public class MapDeserializer
     private static final long serialVersionUID = 1L;
 
     // // Configuration: typing, deserializers
-
-    protected final JavaType _mapType;
 
     /**
      * Key deserializer to use; either passed via constructor
@@ -97,7 +97,6 @@ public class MapDeserializer
             TypeDeserializer valueTypeDeser)
     {
         super(mapType);
-        _mapType = mapType;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -114,8 +113,7 @@ public class MapDeserializer
      */
     protected MapDeserializer(MapDeserializer src)
     {
-        super(src._mapType);
-        _mapType = src._mapType;
+        super(src._containerType);
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -134,8 +132,7 @@ public class MapDeserializer
             TypeDeserializer valueTypeDeser,
             Set<String> ignorable)
     {
-        super(src._mapType);
-        _mapType = src._mapType;
+        super(src._containerType);
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -145,7 +142,7 @@ public class MapDeserializer
         _hasDefaultCreator = src._hasDefaultCreator;
         _ignorableProperties = ignorable;
 
-        _standardStringKey = _isStdKeyDeser(_mapType, keyDeser);
+        _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
     }
 
     /**
@@ -208,9 +205,9 @@ public class MapDeserializer
             if (_valueInstantiator.canCreateUsingDelegate()) {
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    ctxt.reportBadDefinition(_mapType, String.format(
+                    ctxt.reportBadDefinition(_containerType, String.format(
 "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                            _mapType,
+                            _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
                 /* Theoretically should be able to get CreatorProperty for delegate
@@ -221,9 +218,9 @@ public class MapDeserializer
             } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
                 JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
                 if (delegateType == null) {
-                    ctxt.reportBadDefinition(_mapType, String.format(
+                    ctxt.reportBadDefinition(_containerType, String.format(
 "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-                            _mapType,
+                            _containerType,
                             _valueInstantiator.getClass().getName()));
                 }
                 _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
@@ -233,7 +230,7 @@ public class MapDeserializer
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
         }
-        _standardStringKey = _isStdKeyDeser(_mapType, _keyDeserializer);
+        _standardStringKey = _isStdKeyDeser(_containerType, _keyDeserializer);
     }
 
     /**
@@ -246,7 +243,7 @@ public class MapDeserializer
     {
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
-            kd = ctxt.findKeyDeserializer(_mapType.getKeyType(), property);
+            kd = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         } else {
             if (kd instanceof ContextualKeyDeserializer) {
                 kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
@@ -258,7 +255,7 @@ public class MapDeserializer
         if (property != null) {
             vd = findConvertingContentDeserializer(ctxt, property, vd);
         }
-        final JavaType vt = _mapType.getContentType();
+        final JavaType vt = _containerType.getContentType();
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -293,11 +290,6 @@ public class MapDeserializer
     /* ContainerDeserializerBase API
     /**********************************************************
      */
-
-    @Override
-    public JavaType getContentType() {
-        return _mapType.getContentType();
-    }
 
     @Override
     public JsonDeserializer<Object> getContentDeserializer() {
@@ -412,9 +404,9 @@ public class MapDeserializer
      */
 
     @SuppressWarnings("unchecked")
-    public final Class<?> getMapClass() { return (Class<Map<Object,Object>>) _mapType.getRawClass(); }
+    public final Class<?> getMapClass() { return (Class<Map<Object,Object>>) _containerType.getRawClass(); }
 
-    @Override public JavaType getValueType() { return _mapType; }
+    @Override public JavaType getValueType() { return _containerType; }
 
     /*
     /**********************************************************
@@ -432,7 +424,7 @@ public class MapDeserializer
         MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
-            referringAccumulator = new MapReferringAccumulator(_mapType.getContentType().getRawClass(), result);
+            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
 
         String keyStr;
@@ -493,7 +485,7 @@ public class MapDeserializer
         MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = (valueDes.getObjectIdReader() != null);
         if (useObjectId) {
-            referringAccumulator = new MapReferringAccumulator(_mapType.getContentType().getRawClass(), result);
+            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
         
         String key;
@@ -575,7 +567,7 @@ public class MapDeserializer
                     try {
                         result = (Map<Object,Object>)creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        return wrapAndThrow(e, _mapType.getRawClass(), key);
+                        return wrapAndThrow(e, _containerType.getRawClass(), key);
                     }
                     _readAndBind(p, ctxt, result);
                     return result;
@@ -595,7 +587,7 @@ public class MapDeserializer
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
             } catch (Exception e) {
-                wrapAndThrow(e, _mapType.getRawClass(), key);
+                wrapAndThrow(e, _containerType.getRawClass(), key);
                 return null;
             }
             buffer.bufferMapProperty(actualKey, value);
@@ -605,7 +597,7 @@ public class MapDeserializer
         try {
             return (Map<Object,Object>)creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapAndThrow(e, _mapType.getRawClass(), key);
+            wrapAndThrow(e, _containerType.getRawClass(), key);
             return null;
         }
     }

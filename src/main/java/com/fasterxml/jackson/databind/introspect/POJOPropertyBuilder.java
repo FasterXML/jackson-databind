@@ -226,18 +226,22 @@ public class POJOPropertyBuilder
         JsonSetter.Nulls valueNulls = null;
         JsonSetter.Nulls contentNulls = null;
 
-//        AnnotatedMember acc = getPrimaryMember();
+        // Slightly confusing: first, annotations should be accessed via primary member
+        // (mutator); but accessor is needed for actual merge operation. So:
+        AnnotatedMember prim = getPrimaryMember();
         AnnotatedMember acc = getAccessor();
-        if (acc != null) {
+        if (prim != null) {
             // Ok, first: does property itself have something to say?
             if (_annotationIntrospector != null) {
-                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(acc);
+                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(prim);
                 if (setterInfo != null) {
-                    Boolean b = setterInfo.getMerge();
-                    if (b != null) {
-                        mergeSet = true;
-                        if (b.booleanValue()) {
-                            metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForPropertyOverride(acc));
+                    if (acc != null) {
+                        Boolean b = setterInfo.getMerge();
+                        if (b != null) {
+                            mergeSet = true;
+                            if (b.booleanValue()) {
+                                metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForPropertyOverride(acc));
+                            }
                         }
                     }
                     valueNulls = setterInfo.nonDefaultValueNulls();
@@ -247,11 +251,11 @@ public class POJOPropertyBuilder
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
             if (!mergeSet || (valueNulls == null) || (contentNulls == null)) {
-                Class<?> rawType = acc.getType().getRawClass();
+                Class<?> rawType = (acc == null) ? getRawPrimaryType() : acc.getRawType();
                 JsonSetter.Value setterInfo = _config.getConfigOverride(rawType)
                         .getSetterInfo();
                 if (setterInfo != null) {
-                    if (!mergeSet) {
+                    if (!mergeSet && (acc != null)) {
                         Boolean b = setterInfo.getMerge();
                         if (b != null) {
                             mergeSet = true;
@@ -271,7 +275,7 @@ public class POJOPropertyBuilder
         }
         if (!mergeSet || (valueNulls == null) || (contentNulls == null)) {
             JsonSetter.Value setterInfo = ((DeserializationConfig) _config).getDefaultSetterInfo();
-            if (!mergeSet) {
+            if (!mergeSet && (acc != null)) {
                 Boolean b = setterInfo.getMerge();
                 if (b != null) {
                     if (b.booleanValue()) {

@@ -948,7 +948,7 @@ public abstract class BeanDeserializerBase
                         if (!vi.canCreateUsingDefault()) {
                             final JavaType type = prop.getType();
                             ctxt.reportBadDefinition(type,
-                                    String.format("Can not create default instance of %s, no default Creator", type));
+                                    String.format("Can not create empty instance of %s, no default Creator", type));
                         }
                     }
                     return new NullsAsEmptyProvider(deser);
@@ -1116,7 +1116,6 @@ public abstract class BeanDeserializerBase
         return _valueInstantiator;
     }
 
-    // @since 2.9
     @Override // since 2.9
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         // alas, need to promote exception, if any:

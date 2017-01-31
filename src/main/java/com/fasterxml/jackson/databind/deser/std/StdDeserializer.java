@@ -83,7 +83,7 @@ public abstract class StdDeserializer<T>
     public final Class<?> getValueClass() { return _valueClass; }
 
     /**
-     * Exact structured type deserializer handles, if known.
+     * Exact structured type this deserializer handles, if known.
      *<p>
      * Default implementation just returns null.
      */

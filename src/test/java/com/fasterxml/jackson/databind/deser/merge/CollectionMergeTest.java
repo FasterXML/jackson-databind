@@ -44,10 +44,12 @@ public class CollectionMergeTest extends BaseMapTest
     static class MergedX<T>
     {
         @JsonSetter(merge=OptBoolean.TRUE)
-        public T value;
+        T value;
 
         public MergedX(T v) { value = v; }
         protected MergedX() { }
+
+        public void setValue(T v) { value = v; }
     }
 
     /*

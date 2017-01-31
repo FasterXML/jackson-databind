@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.filter;
 
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -46,6 +49,15 @@ public class NullConversionsTest extends BaseMapTest
         public void setValue(T v) {
             value = v;
         }
+    }
+
+    static class NoCtorWrapper {
+        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
+        public NoCtorPOJO value;
+    }
+
+    static class NoCtorPOJO {
+        public NoCtorPOJO(boolean b) { }
     }
     
     /*
@@ -121,5 +133,36 @@ public class NullConversionsTest extends BaseMapTest
         Point p = result.value;
         assertEquals(0, p.x);
         assertEquals(0, p.y);
+
+        // and then also failing case with no suitable creator:
+        try {
+            /* NoCtorWrapper nogo =*/ MAPPER.readValue(aposToQuotes("{'value':null}"),
+                    NoCtorWrapper.class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not create empty instance");
+        }
+    }
+
+    public void testNullsToEmptyCollection() throws Exception
+    {
+        GeneralEmpty<List<String>> result = MAPPER.readValue(aposToQuotes("{'value':null}"),
+                new TypeReference<GeneralEmpty<List<String>>>() { });
+        assertNotNull(result.value);
+        assertEquals(0, result.value.size());
+
+        // but also non-String type, since impls vary
+        GeneralEmpty<List<Integer>> result2 = MAPPER.readValue(aposToQuotes("{'value':null}"),
+                new TypeReference<GeneralEmpty<List<Integer>>>() { });
+        assertNotNull(result2.value);
+        assertEquals(0, result2.value.size());
+    }
+
+    public void testNullsToEmptyMap() throws Exception
+    {
+        GeneralEmpty<Map<String,String>> result = MAPPER.readValue(aposToQuotes("{'value':null}"),
+                new TypeReference<GeneralEmpty<Map<String,String>>>() { });
+        assertNotNull(result.value);
+        assertEquals(0, result.value.size());
     }
 }

@@ -27,8 +27,6 @@ public class MapEntryDeserializer
 
     // // Configuration: typing, deserializers
 
-    protected final JavaType _type;
-
     /**
      * Key deserializer to use; either passed via constructor
      * (when indicated by annotations), or resolved when
@@ -61,7 +59,6 @@ public class MapEntryDeserializer
         if (type.containedTypeCount() != 2) { // sanity check
             throw new IllegalArgumentException("Missing generic type information for "+type);
         }
-        _type = type;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -73,8 +70,7 @@ public class MapEntryDeserializer
      */
     protected MapEntryDeserializer(MapEntryDeserializer src)
     {
-        super(src._type);
-        _type = src._type;
+        super(src._containerType);
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -84,8 +80,7 @@ public class MapEntryDeserializer
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
-        super(src._type);
-        _type = src._type;
+        super(src._containerType);
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -124,7 +119,7 @@ public class MapEntryDeserializer
     {
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
-            kd = ctxt.findKeyDeserializer(_type.containedType(0), property);
+            kd = ctxt.findKeyDeserializer(_containerType.containedType(0), property);
         } else {
             if (kd instanceof ContextualKeyDeserializer) {
                 kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
@@ -132,7 +127,7 @@ public class MapEntryDeserializer
         }
         JsonDeserializer<?> vd = _valueDeserializer;
         vd = findConvertingContentDeserializer(ctxt, property, vd);
-        JavaType contentType = _type.containedType(1);
+        JavaType contentType = _containerType.containedType(1);
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(contentType, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -153,7 +148,7 @@ public class MapEntryDeserializer
 
     @Override
     public JavaType getContentType() {
-        return _type.containedType(1);
+        return _containerType.containedType(1);
     }
 
     @Override
@@ -238,17 +233,9 @@ public class MapEntryDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
-
-    /*
-    /**********************************************************
-    /* Other public accessors
-    /**********************************************************
-     */
-
-    @Override public JavaType getValueType() { return _type; }
 }

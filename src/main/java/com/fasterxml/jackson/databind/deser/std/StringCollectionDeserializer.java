@@ -26,8 +26,6 @@ public final class StringCollectionDeserializer
 
     // // Configuration
 
-    protected final JavaType _collectionType;
-    
     /**
      * Value deserializer to use, if NOT the standard one
      * (if it is, will be null).
@@ -76,7 +74,6 @@ public final class StringCollectionDeserializer
             JsonDeserializer<?> valueDeser, Boolean unwrapSingle)
     {
         super(collectionType);
-        _collectionType = collectionType;
         _valueDeserializer = (JsonDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeser;
@@ -90,7 +87,7 @@ public final class StringCollectionDeserializer
                 && (_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
             return this;
         }
-        return new StringCollectionDeserializer(_collectionType,
+        return new StringCollectionDeserializer(_containerType,
                 _valueInstantiator, delegateDeser, valueDeser, unwrapSingle);
     }
 
@@ -119,7 +116,7 @@ public final class StringCollectionDeserializer
             }
         }
         JsonDeserializer<?> valueDeser = _valueDeserializer;
-        final JavaType valueType = _collectionType.getContentType();
+        final JavaType valueType = _containerType.getContentType();
         if (valueDeser == null) {
             // [databind#125]: May have a content converter
             valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
@@ -146,18 +143,18 @@ public final class StringCollectionDeserializer
     /**********************************************************
      */
 
-    @Override
-    public JavaType getContentType() {
-        return _collectionType.getContentType();
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public JsonDeserializer<Object> getContentDeserializer() {
         JsonDeserializer<?> deser = _valueDeserializer;
         return (JsonDeserializer<Object>) deser;
     }
-    
+
+    @Override
+    public ValueInstantiator getValueInstantiator() {
+        return _valueInstantiator;
+    }
+
     /*
     /**********************************************************
     /* JsonDeserializer API
@@ -257,7 +254,7 @@ public final class StringCollectionDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (!canWrap) {
-            return (Collection<String>) ctxt.handleUnexpectedToken(_collectionType.getRawClass(), p);
+            return (Collection<String>) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
         JsonDeserializer<String> valueDes = _valueDeserializer;

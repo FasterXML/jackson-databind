@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 
@@ -919,16 +919,15 @@ public abstract class BeanDeserializerBase
         }
 
         // And after this, see if we require non-standard null handling
-        JsonSetter.Nulls nulls = propMetadata.getValueNulls();
+        final Nulls nulls = propMetadata.getValueNulls();
         if (nulls != null) {
             switch (nulls) {
             case FAIL:
                 prop = prop.withNullProvider(new NullsFailProvider(prop.getFullName(), prop.getType()));
                 break;
-            case DESERIALIZER_NULL:
-            case DESERIALIZER_EMPTY:
-                // !!! TODO
-
+            case AS_EMPTY:
+                prop = prop.withNullProvider(new NullsAsEmptyProvider(prop.getValueDeserializer()));
+                break;
             case SKIP: // can't do here
             default: // SET/DEFAULT, nothing to do; S
             }

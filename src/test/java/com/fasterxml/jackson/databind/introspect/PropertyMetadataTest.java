@@ -49,9 +49,9 @@ public class PropertyMetadataTest extends BaseMapTest
         assertNull(md.getDefaultValue());
         assertEquals(Boolean.FALSE, md.getRequired());
 
-        md = md.withNulls(JsonSetter.Nulls.DESERIALIZER_EMPTY,
+        md = md.withNulls(JsonSetter.Nulls.AS_EMPTY,
                 JsonSetter.Nulls.FAIL);
-        assertEquals(JsonSetter.Nulls.DESERIALIZER_EMPTY, md.getValueNulls());
+        assertEquals(JsonSetter.Nulls.AS_EMPTY, md.getValueNulls());
         assertEquals(JsonSetter.Nulls.FAIL, md.getContentNulls());
 
         assertFalse(md.hasDefaultValue());

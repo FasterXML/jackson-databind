@@ -26,7 +26,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     public boolean isCachable() { return true; }
 
     @Override // since 2.9
-    public String getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return "";
     }
 

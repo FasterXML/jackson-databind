@@ -140,7 +140,7 @@ public class NumberDeserializers
         }
 
         @Override
-        public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
             // [databind#1095]: Should not allow coercion from into null from Empty String
             // either, if `null` not allowed
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {

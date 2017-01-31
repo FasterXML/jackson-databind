@@ -226,6 +226,7 @@ public class POJOPropertyBuilder
         JsonSetter.Nulls valueNulls = null;
         JsonSetter.Nulls contentNulls = null;
 
+//        AnnotatedMember acc = getPrimaryMember();
         AnnotatedMember acc = getAccessor();
         if (acc != null) {
             // Ok, first: does property itself have something to say?

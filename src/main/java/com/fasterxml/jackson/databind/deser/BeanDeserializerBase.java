@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.util.*;
 public abstract class BeanDeserializerBase
     extends StdDeserializer<Object>
     implements ContextualDeserializer, ResolvableDeserializer,
+        ValueInstantiator.Gettable, // since 2.9
         java.io.Serializable // since 2.1
 {
     private static final long serialVersionUID = 1;
@@ -919,20 +920,44 @@ public abstract class BeanDeserializerBase
         }
 
         // And after this, see if we require non-standard null handling
+        NullValueProvider nuller = _findNullProvider(ctxt, prop, propMetadata);
+        if (nuller != null) {
+            prop = prop.withNullProvider(nuller);
+        }
+        return prop;
+    }
+
+    // @since 2.9
+    protected NullValueProvider _findNullProvider(DeserializationContext ctxt,
+            SettableBeanProperty prop, PropertyMetadata propMetadata)
+        throws JsonMappingException
+    {
         final Nulls nulls = propMetadata.getValueNulls();
         if (nulls != null) {
             switch (nulls) {
             case FAIL:
-                prop = prop.withNullProvider(new NullsFailProvider(prop.getFullName(), prop.getType()));
-                break;
+                return new NullsFailProvider(prop.getFullName(), prop.getType());
             case AS_EMPTY:
-                prop = prop.withNullProvider(new NullsAsEmptyProvider(prop.getValueDeserializer()));
-                break;
+                // Let's first do some sanity checking...
+                {
+                    JsonDeserializer<?> deser = prop.getValueDeserializer();
+                    // NOTE: although we could use `ValueInstantiator.Gettable` in general,
+                    // let's not since that would prevent being able to use custom impls:
+                    if (deser instanceof BeanDeserializerBase) {
+                        ValueInstantiator vi = ((BeanDeserializerBase) deser).getValueInstantiator();
+                        if (!vi.canCreateUsingDefault()) {
+                            final JavaType type = prop.getType();
+                            ctxt.reportBadDefinition(type,
+                                    String.format("Can not create default instance of %s, no default Creator", type));
+                        }
+                    }
+                    return new NullsAsEmptyProvider(deser);
+                }
             case SKIP: // can't do here
             default: // SET/DEFAULT, nothing to do; S
             }
         }
-        return prop;
+        return null;
     }
 
     /*
@@ -1086,8 +1111,20 @@ public abstract class BeanDeserializerBase
         return _backRefs.get(logicalName);
     }
 
+    @Override // ValueInstantiator.Gettable
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
+    }
+
+    // @since 2.9
+    @Override // since 2.9
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        // alas, need to promote exception, if any:
+        try {
+            return _valueInstantiator.createUsingDefault(ctxt);
+        } catch (IOException e) {
+            return ClassUtil.throwAsMappingException(ctxt, e);
+        }
     }
 
     /*

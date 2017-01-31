@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.exc.InvalidNullException;
  * Simple {@link NullValueProvider} that will always throw a
  * {@link InvalidNullException} when a null is encountered.
  */
-public class NullsAsEmptyProvider implements NullValueProvider<Object>
+public class NullsAsEmptyProvider implements NullValueProvider
 {
     protected final JsonDeserializer<?> _deserializer;
 

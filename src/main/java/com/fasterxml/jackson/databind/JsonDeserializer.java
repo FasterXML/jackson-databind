@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * contextualization.
  */
 public abstract class JsonDeserializer<T>
-    implements NullValueProvider<T> // since 2.9
+    implements NullValueProvider // since 2.9
 {
     /*
     /**********************************************************
@@ -292,12 +292,14 @@ public abstract class JsonDeserializer<T>
      * Since version 2.6 (in which the context argument was added), call is
      * expected to be made each and every time an empty value is needed.
      *<p>
+     * Since version 2.9 does not require return of `T` any more.
+     *<p>
      * Default implementation simply calls {@link #getNullValue} and
      * returns value.
      *
      * @since 2.6 Added to replace earlier no-arguments variant
      */
-    public T getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         return getNullValue(ctxt);
     }
 
@@ -372,7 +374,7 @@ public abstract class JsonDeserializer<T>
      * @deprecated Since 2.6 Use overloaded variant that takes context argument
      */
     @Deprecated
-    public T getEmptyValue() { return getNullValue(); }
+    public Object getEmptyValue() { return getNullValue(); }
 
     /*
     /**********************************************************

@@ -12,12 +12,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  *
  * @since 2.9
  */
-public interface NullValueProvider<T>
+public interface NullValueProvider
 {
     /**
      * Method called to possibly convert incoming `null` token (read via
      * underlying streaming input source) into other value of type accessor
      * supports. May return `null`, or value compatible with type binding.
      */
-    public T getNullValue(DeserializationContext ctxt) throws JsonMappingException;
+    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException;
 }

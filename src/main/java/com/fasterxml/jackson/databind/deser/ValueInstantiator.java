@@ -374,6 +374,19 @@ public abstract class ValueInstantiator
 
     /*
     /**********************************************************
+    /* Introspection
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.9
+     */
+    public interface Gettable {
+        public ValueInstantiator getValueInstantiator();
+    }
+
+    /*
+    /**********************************************************
     /* Standard Base implementation (since 2.8)
     /**********************************************************
      */

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.filter;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
@@ -21,7 +22,7 @@ public class NullConversionsTest extends BaseMapTest
         @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
         public String nullAsEmpty = "b";
     }
-    
+
     static class NullsForString {
         /*
         String n = "foo";
@@ -31,11 +32,22 @@ public class NullConversionsTest extends BaseMapTest
         }
         */
 
-        public String name = "foo";
-        
-        public String getName() { return name; }
+        String n = "foo";
+
+        public void setName(String n0) { n = n0; }
+        public String getName() { return n; }
     }
 
+    static class GeneralEmpty<T> {
+        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
+        public T value;
+
+        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
+        public void setValue(T v) {
+            value = v;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -77,7 +89,7 @@ public class NullConversionsTest extends BaseMapTest
         }
     }
 
-    public void testNullsToEmpty() throws Exception
+    public void testNullsToEmptyScalar() throws Exception
     {
         NullAsEmpty result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':'foo', 'nullsOk':null}"),
                 NullAsEmpty.class);
@@ -99,5 +111,15 @@ public class NullConversionsTest extends BaseMapTest
             .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
         NullsForString named = mapper.readValue(json, NullsForString.class);
         assertEquals("", named.getName());
+    }
+
+    public void testNullsToEmptyPojo() throws Exception
+    {
+        GeneralEmpty<Point> result = MAPPER.readValue(aposToQuotes("{'value':null}"),
+                new TypeReference<GeneralEmpty<Point>>() { });
+        assertNotNull(result.value);
+        Point p = result.value;
+        assertEquals(0, p.x);
+        assertEquals(0, p.y);
     }
 }

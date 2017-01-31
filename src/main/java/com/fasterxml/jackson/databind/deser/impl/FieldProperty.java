@@ -42,7 +42,7 @@ public final class FieldProperty
     }
 
     protected FieldProperty(FieldProperty src, JsonDeserializer<?> deser,
-            NullValueProvider<?> nva) {
+            NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
         _field = src._field;
@@ -79,7 +79,7 @@ public final class FieldProperty
     }
 
     @Override
-    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+    public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new FieldProperty(this, _valueDeserializer, nva);
     }
 

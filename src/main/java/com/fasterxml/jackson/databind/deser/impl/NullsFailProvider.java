@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.exc.InvalidNullException;
  * Simple {@link NullValueProvider} that will always throw a
  * {@link InvalidNullException} when a null is encountered.
  */
-public class NullsFailProvider implements NullValueProvider<Object>
+public class NullsFailProvider implements NullValueProvider
 {
     protected final PropertyName _name;
     protected final JavaType _type;

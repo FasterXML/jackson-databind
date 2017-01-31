@@ -30,7 +30,7 @@ public final class ObjectIdValueProperty
     }
 
     protected ObjectIdValueProperty(ObjectIdValueProperty src, JsonDeserializer<?> deser,
-            NullValueProvider<?> nva)
+            NullValueProvider nva)
     {
         super(src, deser, nva);
         _objectIdReader = src._objectIdReader;
@@ -52,7 +52,7 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+    public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new ObjectIdValueProperty(this, _valueDeserializer, nva);
     }
     

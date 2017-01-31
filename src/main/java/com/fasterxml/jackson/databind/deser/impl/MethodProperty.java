@@ -40,7 +40,7 @@ public final class MethodProperty
     }
 
     protected MethodProperty(MethodProperty src, JsonDeserializer<?> deser,
-            NullValueProvider<?> nva) {
+            NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
         _setter = src._setter;
@@ -72,7 +72,7 @@ public final class MethodProperty
     }
 
     @Override
-    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+    public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new MethodProperty(this, _valueDeserializer, nva);
     }
 

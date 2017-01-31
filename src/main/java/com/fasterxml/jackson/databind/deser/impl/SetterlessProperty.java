@@ -42,7 +42,7 @@ public final class SetterlessProperty
     }
 
     protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<?> deser,
-            NullValueProvider<?> nva) {
+            NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
         _getter = src._getter;
@@ -65,7 +65,7 @@ public final class SetterlessProperty
     }
 
     @Override
-    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+    public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new SetterlessProperty(this, _valueDeserializer, nva);
     }
 

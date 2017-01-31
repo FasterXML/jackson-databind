@@ -79,7 +79,7 @@ public abstract class SettableBeanProperty
      *
      * @since 2.9
      */
-    protected final NullValueProvider<Object> _nullProvider;
+    protected final NullValueProvider _nullProvider;
 
     /*
     /**********************************************************
@@ -225,7 +225,7 @@ public abstract class SettableBeanProperty
      */
     @SuppressWarnings("unchecked")
     protected SettableBeanProperty(SettableBeanProperty src,
-            JsonDeserializer<?> deser, NullValueProvider<?> nullAccessor)
+            JsonDeserializer<?> deser, NullValueProvider nullAccessor)
     {
         super(src);
         _propName = src._propName;
@@ -246,7 +246,7 @@ public abstract class SettableBeanProperty
         if (nullAccessor == MISSING_VALUE_DESERIALIZER) {
             nullAccessor = deser;
         }
-        _nullProvider = (NullValueProvider<Object>) nullAccessor;
+        _nullProvider = nullAccessor;
     }
 
     /**
@@ -303,7 +303,7 @@ public abstract class SettableBeanProperty
     /**
      * @since 2.9
      */
-    public abstract SettableBeanProperty withNullProvider(NullValueProvider<?> nva);
+    public abstract SettableBeanProperty withNullProvider(NullValueProvider nva);
 
     public void setManagedReferenceName(String n) {
         _managedReferenceName = n;
@@ -656,7 +656,7 @@ public abstract class SettableBeanProperty
         }
 
         @Override
-        public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+        public SettableBeanProperty withNullProvider(NullValueProvider nva) {
             return _with(delegate.withNullProvider(nva));
         }
 

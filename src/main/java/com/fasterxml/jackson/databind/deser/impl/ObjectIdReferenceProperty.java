@@ -26,7 +26,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     public ObjectIdReferenceProperty(ObjectIdReferenceProperty src, JsonDeserializer<?> deser,
-            NullValueProvider<?> nva)
+            NullValueProvider nva)
     {
         super(src, deser, nva);
         _forward = src._forward;
@@ -51,7 +51,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     @Override
-    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+    public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new ObjectIdReferenceProperty(this, _valueDeserializer, nva);
     }
     

@@ -99,7 +99,7 @@ public class CreatorProperty
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
-            NullValueProvider<?> nva) {
+            NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
         _creatorIndex = src._creatorIndex;
@@ -118,7 +118,7 @@ public class CreatorProperty
     }
 
     @Override
-    public SettableBeanProperty withNullProvider(NullValueProvider<?> nva) {
+    public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new CreatorProperty(this, _valueDeserializer, nva);
     }
     

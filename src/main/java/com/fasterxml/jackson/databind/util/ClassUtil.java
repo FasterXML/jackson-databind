@@ -7,7 +7,9 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 public final class ClassUtil
@@ -494,6 +496,19 @@ public final class ClassUtil
         throwIfRTE(t);
         throwIfError(t);
         throw new IllegalArgumentException(msg, t);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public static <T> T throwAsMappingException(DeserializationContext ctxt,
+            IOException e0) throws JsonMappingException {
+        if (e0 instanceof JsonMappingException) {
+            throw (JsonMappingException) e0;
+        }
+        JsonMappingException e = JsonMappingException.from(ctxt, e0.getMessage());
+        e.initCause(e0);
+        throw e;
     }
 
     /**

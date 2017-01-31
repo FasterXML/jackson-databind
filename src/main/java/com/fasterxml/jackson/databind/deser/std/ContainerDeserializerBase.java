@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @SuppressWarnings("serial")
 public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>
+    implements ValueInstantiator.Gettable // since 2.9
 {
     protected ContainerDeserializerBase(JavaType selfType) {
         super(selfType);
@@ -65,6 +66,7 @@ public abstract class ContainerDeserializerBase<T>
     /**
      * @since 2.9
      */
+    @Override
     public ValueInstantiator getValueInstantiator() {
         return null;
     }

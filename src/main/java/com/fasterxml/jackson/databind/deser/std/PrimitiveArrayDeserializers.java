@@ -29,6 +29,9 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
      */
     protected final Boolean _unwrapSingle;
 
+    // since 2.9
+    private transient Object _emptyValue;
+    
     protected PrimitiveArrayDeserializers(Class<T> cls) {
         super(cls);
         _unwrapSingle = null;
@@ -78,11 +81,23 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
     }
+
+    @Override // since 2.9
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        Object empty = _emptyValue;
+        if (empty == null) {
+            _emptyValue = empty = _constructEmpty();
+        }
+        return empty;
+    }
     
     /**
      * @since 2.7
      */
     protected abstract PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle);
+
+    // since 2.9
+    protected abstract T _constructEmpty();
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
@@ -149,7 +164,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     @SuppressWarnings("unchecked")
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        // [JACKSON-620] Empty String can become null...
+        // Empty String can become null...
         if (p.hasToken(JsonToken.VALUE_STRING)
                 && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
             if (p.getText().length() == 0) {
@@ -189,6 +204,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
             // 11-Dec-2015, tatu: Not sure how re-wrapping would work; omit
             return this;
+        }
+
+        @Override
+        protected char[] _constructEmpty() {
+            return new char[0];
         }
 
         @Override
@@ -287,6 +307,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         }
 
         @Override
+        protected boolean[] _constructEmpty() {
+            return new boolean[0];
+        }
+
+        @Override
         public boolean[] deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
@@ -347,6 +372,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
             return new ByteDeser(this, unwrapSingle);
+        }
+
+        @Override
+        protected byte[] _constructEmpty() {
+            return new byte[0];
         }
 
         @Override
@@ -458,7 +488,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
             return new ShortDeser(this, unwrapSingle);
         }
-        
+
+        @Override
+        protected short[] _constructEmpty() {
+            return new short[0];
+        }
+
         @Override
         public short[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
@@ -516,6 +551,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
             return new IntDeser(this, unwrapSingle);
+        }
+
+        @Override
+        protected int[] _constructEmpty() {
+            return new int[0];
         }
 
         @Override
@@ -579,6 +619,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         }
 
         @Override
+        protected long[] _constructEmpty() {
+            return new long[0];
+        }
+
+        @Override
         public long[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             if (!p.isExpectedStartArrayToken()) {
@@ -636,8 +681,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         }
 
         @Override
-        public float[] deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        protected float[] _constructEmpty() {
+            return new float[0];
+        }
+
+        @Override
+        public float[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -692,6 +741,11 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
             return new DoubleDeser(this, unwrapSingle);
+        }
+
+        @Override
+        protected double[] _constructEmpty() {
+            return new double[0];
         }
 
         @Override

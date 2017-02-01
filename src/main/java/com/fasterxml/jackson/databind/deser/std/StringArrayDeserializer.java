@@ -25,6 +25,8 @@ public final class StringArrayDeserializer
 {
     private static final long serialVersionUID = 2L;
 
+    private final static String[] NO_STRINGS = new String[0];
+
     public final static StringArrayDeserializer instance = new StringArrayDeserializer();
 
     /**
@@ -56,7 +58,12 @@ public final class StringArrayDeserializer
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
     }
-    
+
+    @Override // since 2.9
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return NO_STRINGS;
+    }
+
     /**
      * Contextualization is needed to see whether we can "inline" deserialization
      * of String values, or if we have to use separate value deserializer.

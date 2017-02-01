@@ -165,4 +165,34 @@ public class NullConversionsTest extends BaseMapTest
         assertNotNull(result.value);
         assertEquals(0, result.value.size());
     }
+
+    public void testNullsToEmptyArrays() throws Exception
+    {
+        final String json = aposToQuotes("{'value':null}");
+
+        GeneralEmpty<Object[]> result = MAPPER.readValue(json,
+                new TypeReference<GeneralEmpty<Object[]>>() { });
+        assertNotNull(result.value);
+        assertEquals(0, result.value.length);
+
+        GeneralEmpty<String[]> result2 = MAPPER.readValue(json,
+                new TypeReference<GeneralEmpty<String[]>>() { });
+        assertNotNull(result2.value);
+        assertEquals(0, result2.value.length);
+
+        GeneralEmpty<int[]> result3 = MAPPER.readValue(json,
+                new TypeReference<GeneralEmpty<int[]>>() { });
+        assertNotNull(result3.value);
+        assertEquals(0, result3.value.length);
+
+        GeneralEmpty<double[]> result4 = MAPPER.readValue(json,
+                new TypeReference<GeneralEmpty<double[]>>() { });
+        assertNotNull(result4.value);
+        assertEquals(0, result4.value.length);
+
+        GeneralEmpty<boolean[]> result5 = MAPPER.readValue(json,
+                new TypeReference<GeneralEmpty<boolean[]>>() { });
+        assertNotNull(result5.value);
+        assertEquals(0, result5.value.length);
+    }
 }

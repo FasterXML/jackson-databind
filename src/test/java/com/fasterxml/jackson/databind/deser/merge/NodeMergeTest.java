@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.annotation.JsonMerge;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -14,7 +14,7 @@ public class NodeMergeTest extends BaseMapTest
     ;
 
     static class ObjectNodeWrapper {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public ObjectNode props = MAPPER.createObjectNode();
         {
             props.put("default", "enabled");
@@ -22,7 +22,7 @@ public class NodeMergeTest extends BaseMapTest
     }
 
     static class ArrayNodeWrapper {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public ArrayNode list = MAPPER.createArrayNode();
         {
             list.add(123);

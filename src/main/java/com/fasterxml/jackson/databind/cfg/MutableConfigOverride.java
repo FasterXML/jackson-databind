@@ -66,4 +66,12 @@ public class MutableConfigOverride
         _visibility = v;
         return this;
     }
+
+    /**
+     * @since 2.9
+     */
+    public MutableConfigOverride setMergeable(Boolean v) {
+        _mergeable = v;
+        return this;
+    }
 }

@@ -1,14 +1,8 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.annotation.JsonMerge;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -19,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CollectionMergeTest extends BaseMapTest
 {
     static class CollectionWrapper {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public Collection<String> bag = new TreeSet<String>();
         {
             bag.add("a");
@@ -28,7 +22,7 @@ public class CollectionMergeTest extends BaseMapTest
 
     static class MergedList
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public List<String> values = new ArrayList<>();
         {
             values.add("a");
@@ -37,13 +31,13 @@ public class CollectionMergeTest extends BaseMapTest
 
     static class MergedEnumSet
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public EnumSet<ABC> abc = EnumSet.of(ABC.B);
     }
 
     static class MergedX<T>
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         T value;
 
         public MergedX(T v) { value = v; }

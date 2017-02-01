@@ -34,7 +34,7 @@ public abstract class ConfigOverride
     protected JsonIgnoreProperties.Value _ignorals;
 
     /**
-     * Definitions of setter overrides for things like mergeability.
+     * Definitions of setter overrides regarding null handling
      *
      * @since 2.9
      */
@@ -55,12 +55,19 @@ public abstract class ConfigOverride
      */
     protected Boolean _isIgnoredType;
 
+    /**
+     * Flag that indicates whether properties of this type default to being merged
+     * or not.
+     */
+    protected Boolean _mergeable;
+    
     protected ConfigOverride() { }
     protected ConfigOverride(ConfigOverride src) {
         _format = src._format;
         _include = src._include;
         _ignorals = src._ignorals;
         _isIgnoredType = src._isIgnoredType;
+        _mergeable = src._mergeable;
     }
 
     /**
@@ -75,6 +82,12 @@ public abstract class ConfigOverride
     public JsonFormat.Value getFormat() { return _format; }
     public JsonInclude.Value getInclude() { return _include; }
 
+    public JsonIgnoreProperties.Value getIgnorals() { return _ignorals; }
+
+    public Boolean getIsIgnoredType() {
+        return _isIgnoredType;
+    }
+    
     /**
      * @since 2.9
      */
@@ -85,12 +98,11 @@ public abstract class ConfigOverride
      */
     public JsonAutoDetect.Value getVisibility() { return _visibility; }
 
-    public JsonIgnoreProperties.Value getIgnorals() { return _ignorals; }
-
-    public Boolean getIsIgnoredType() {
-        return _isIgnoredType;
-    }
-
+    /**
+     * @since 2.9
+     */
+    public Boolean getMergeable() { return _mergeable; }
+    
     /**
      * Implementation used solely for "empty" instance; has no mutators
      * and is not changed by core functionality.

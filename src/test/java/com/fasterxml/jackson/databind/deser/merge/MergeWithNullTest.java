@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.annotation.JsonMerge;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -10,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MergeWithNullTest extends BaseMapTest
 {
     static class Config {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public AB loc = new AB(1, 2);
 
         protected Config() { }
@@ -23,7 +22,7 @@ public class MergeWithNullTest extends BaseMapTest
     static class NoSetterConfig {
         AB _value = new AB(2, 3);
 
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public AB getValue() { return _value; }
     }
 

@@ -469,6 +469,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract JsonSetter.Value getDefaultSetterInfo();
 
+    /**
+     * Accessor for the baseline merge info used as the global baseline,
+     * not considering possible per-type overrides.
+     *
+     * @return Global base settings; never null
+     *
+     * @since 2.9
+     */
+    public abstract Boolean getDefaultMergeable();
+
     /*
     /**********************************************************
     /* Configuration: other

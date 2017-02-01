@@ -1401,7 +1401,7 @@ public class ObjectMapper
         _configOverrides.setDefaultInclusion(JsonInclude.Value.construct(incl, incl));
         return this;
     }
-    
+
     /**
      * Method for setting default Setter configuration, regarding things like
      * merging, null-handling; used for properties for which there are
@@ -1424,6 +1424,18 @@ public class ObjectMapper
      */
     public ObjectMapper setDefaultVisibility(JsonAutoDetect.Value vis) {
         _configOverrides.setDefaultVisibility(VisibilityChecker.Std.construct(vis));
+        return this;
+    }
+
+    /**
+     * Method for setting default Setter configuration, regarding things like
+     * merging, null-handling; used for properties for which there are
+     * no per-type or per-property overrides (via annotations or config overrides).
+     *
+     * @since 2.9
+     */
+    public ObjectMapper setDefaultMergeable(Boolean b) {
+        _configOverrides.setDefaultMergeable(b);
         return this;
     }
 

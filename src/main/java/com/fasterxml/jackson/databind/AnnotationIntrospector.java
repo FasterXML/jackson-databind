@@ -1207,6 +1207,15 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Method for finding merge settings for property, if any.
+     *
+     * @since 2.9
+     */
+    public Boolean findMergeInfo(Annotated a) {
+        return null;
+    }
+
+    /**
      * Method called to check whether potential Creator (constructor or static factory
      * method) has explicit annotation to indicate it as actual Creator; and if so,
      * which {@link com.fasterxml.jackson.annotation.JsonCreator.Mode} to use.

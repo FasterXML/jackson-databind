@@ -38,6 +38,11 @@ public class ConfigOverrides
      */
     protected VisibilityChecker<?> _visibilityChecker;
 
+    /**
+     * @since 2.9
+     */
+    protected Boolean _defaultMergeable;
+
     /*
     /**********************************************************
     /* Life cycle
@@ -115,6 +120,10 @@ public class ConfigOverrides
         return _defaultSetterInfo;
     }
 
+    public Boolean getDefaultMergeable() {
+        return _defaultMergeable;
+    }
+
     /**
      * @since 2.9
      */
@@ -137,6 +146,13 @@ public class ConfigOverrides
         _visibilityChecker = v;
     }
 
+    /**
+     * @since 2.9
+     */
+    public void setDefaultMergeable(Boolean v) {
+        _defaultMergeable = v;
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

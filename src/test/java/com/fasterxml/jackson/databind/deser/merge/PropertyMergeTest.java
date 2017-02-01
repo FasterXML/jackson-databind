@@ -2,11 +2,9 @@ package com.fasterxml.jackson.databind.deser.merge;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -21,7 +19,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 public class PropertyMergeTest extends BaseMapTest
 {
     static class Config {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public AB loc = new AB(1, 2);
 
         protected Config() { }
@@ -38,7 +36,7 @@ public class PropertyMergeTest extends BaseMapTest
     static class NoSetterConfig {
         AB _value = new AB(1, 2);
  
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public AB getValue() { return _value; }
     }
 
@@ -69,13 +67,13 @@ public class PropertyMergeTest extends BaseMapTest
 
     static class MergedReference
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public StringReference value = new StringReference("default");
     }
 
     static class MergedX<T>
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public T value;
 
         public MergedX(T v) { value = v; }
@@ -85,7 +83,7 @@ public class PropertyMergeTest extends BaseMapTest
     // // // Classes with invalid merge definition(s)
 
     static class CantMergeInts {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public int value;
     }
 
@@ -121,8 +119,7 @@ public class PropertyMergeTest extends BaseMapTest
 
         // but with type-overrides
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(AB.class).setSetterInfo(
-                JsonSetter.Value.forMerging());
+        mapper.configOverride(AB.class).setMergeable(true);
         config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
@@ -132,7 +129,7 @@ public class PropertyMergeTest extends BaseMapTest
     {
         // but with type-overrides
         ObjectMapper mapper = new ObjectMapper()
-                .setDefaultSetterInfo(JsonSetter.Value.forMerging());
+                .setDefaultMergeable(true);
         NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged

@@ -55,7 +55,8 @@ public class JacksonAnnotationIntrospector
         JsonTypeInfo.class,
         JsonUnwrapped.class,
         JsonBackReference.class,
-        JsonManagedReference.class
+        JsonManagedReference.class,
+        JsonMerge.class // since 2.9
     };
 
     // NOTE: loading of Java7 dependencies is encapsulated by handlers in Java7Support,
@@ -1204,15 +1205,18 @@ public class JacksonAnnotationIntrospector
     @Override
     public Boolean hasAnySetter(Annotated a) {
         JsonAnySetter ann = _findAnnotation(a, JsonAnySetter.class);
-        if (ann == null) {
-            return null;
-        }
-        return ann.enabled();
+        return (ann == null) ? null : ann.enabled();
     }
 
     @Override
     public JsonSetter.Value findSetterInfo(Annotated a) {
         return JsonSetter.Value.from(_findAnnotation(a, JsonSetter.class));
+    }
+
+    @Override // since 2.9
+    public Boolean findMergeInfo(Annotated a) {
+        JsonMerge ann = _findAnnotation(a, JsonMerge.class);
+        return (ann == null) ? null : ann.value().asBoolean();
     }
 
     @Override

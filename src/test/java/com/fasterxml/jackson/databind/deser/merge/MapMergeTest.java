@@ -3,15 +3,15 @@ package com.fasterxml.jackson.databind.deser.merge;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.annotation.JsonMerge;
+
 import com.fasterxml.jackson.databind.*;
 
 public class MapMergeTest extends BaseMapTest
 {
     static class MergedMap
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge
         public Map<String,String> values = new LinkedHashMap<>();
         {
             values.put("a", "x");

@@ -737,6 +737,15 @@ public class AnnotationIntrospectorPair
             ? v1 : v2.withOverrides(v1);
     }
 
+    @Override // since 2.9
+    public Boolean findMergeInfo(Annotated a) {
+        Boolean b = _primary.findMergeInfo(a);
+        if (b == null) {
+            b = _secondary.findMergeInfo(a);
+        }
+        return b;
+    }
+
     @Override
     @Deprecated // since 2.9
     public boolean hasCreatorAnnotation(Annotated a) {

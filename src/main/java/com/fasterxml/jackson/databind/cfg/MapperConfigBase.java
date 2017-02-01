@@ -701,6 +701,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _configOverrides.getDefaultSetterInfo();
     }
 
+    @Override
+    public Boolean getDefaultMergeable() {
+        return _configOverrides.getDefaultMergeable();
+    }
+
     /*
     /**********************************************************
     /* Other config access

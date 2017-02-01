@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.deser.merge;
 
 import org.junit.Assert;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.OptBoolean;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -12,7 +13,7 @@ public class ArrayMergeTest extends BaseMapTest
 {
     static class MergedX<T>
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge(OptBoolean.TRUE)
         public T value;
 
         public MergedX(T v) { value = v; }

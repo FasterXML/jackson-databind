@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
@@ -35,6 +36,13 @@ public final class StringArrayDeserializer
     protected JsonDeserializer<String> _elementDeserializer;
 
     /**
+     * Handler we need for dealing with nulls.
+     *
+     * @since 2.9
+     */
+    protected final NullValueProvider _nullProvider;
+    
+    /**
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
@@ -44,13 +52,15 @@ public final class StringArrayDeserializer
     protected final Boolean _unwrapSingle;
 
     public StringArrayDeserializer() {
-        this(null, null);
+        this(null, null, null);
     }
 
     @SuppressWarnings("unchecked")
-    protected StringArrayDeserializer(JsonDeserializer<?> deser, Boolean unwrapSingle) {
+    protected StringArrayDeserializer(JsonDeserializer<?> deser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
         super(String[].class);
         _elementDeserializer = (JsonDeserializer<String>) deser;
+        _nullProvider = nuller;
         _unwrapSingle = unwrapSingle;
     }
 
@@ -69,7 +79,8 @@ public final class StringArrayDeserializer
      * of String values, or if we have to use separate value deserializer.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+            throws JsonMappingException
     {
         JsonDeserializer<?> deser = _elementDeserializer;
         // May have a content converter
@@ -83,14 +94,17 @@ public final class StringArrayDeserializer
         // One more thing: allow unwrapping?
         Boolean unwrapSingle = findFormatFeature(ctxt, property, String[].class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        NullValueProvider nuller = findContentNullProvider(ctxt, property, deser);
         // Ok ok: if all we got is the default String deserializer, can just forget about it
         if ((deser != null) && isDefaultDeserializer(deser)) {
             deser = null;
         }
-        if ((_elementDeserializer == deser) && (_unwrapSingle == unwrapSingle)) {
+        if ((_elementDeserializer == deser)
+                && (_unwrapSingle == unwrapSingle)
+                && (_nullProvider == nuller)) {
             return this;
         }
-        return new StringArrayDeserializer(deser, unwrapSingle);
+        return new StringArrayDeserializer(deser, nuller, unwrapSingle);
     }
 
     @Override
@@ -117,7 +131,9 @@ public final class StringArrayDeserializer
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }
-                    if (t != JsonToken.VALUE_NULL) {
+                    if (t == JsonToken.VALUE_NULL) {
+                        value = (String) _nullProvider.getNullValue(ctxt);
+                    } else {
                         value = _parseString(p, ctxt);
                     }
                 }
@@ -169,7 +185,11 @@ public final class StringArrayDeserializer
                         break;
                     }
                     // Ok: no need to convert Strings, but must recognize nulls
-                    value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue(ctxt) : deser.deserialize(p, ctxt);
+                    if (t == JsonToken.VALUE_NULL) {
+                        value = (String) _nullProvider.getNullValue(ctxt);
+                    } else {
+                        value = deser.deserialize(p, ctxt);
+                    }
                 } else {
                     value = deser.deserialize(p, ctxt);
                 }
@@ -225,7 +245,9 @@ public final class StringArrayDeserializer
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }
-                    if (t != JsonToken.VALUE_NULL) {
+                    if (t == JsonToken.VALUE_NULL) {
+                        value = (String) _nullProvider.getNullValue(ctxt);
+                    } else {
                         value = _parseString(p, ctxt);
                     }
                 }
@@ -242,7 +264,7 @@ public final class StringArrayDeserializer
         ctxt.returnObjectBuffer(buffer);
         return result;
     }
-    
+
     private final String[] handleNonArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // implicit arrays from single values?
@@ -250,7 +272,10 @@ public final class StringArrayDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (canWrap) {
-            return new String[] { p.hasToken(JsonToken.VALUE_NULL) ? null : _parseString(p, ctxt) };
+            String value = p.hasToken(JsonToken.VALUE_NULL)
+                    ? (String) _nullProvider.getNullValue(ctxt)
+                    : _parseString(p, ctxt);
+            return new String[] { value };
         }
         if (p.hasToken(JsonToken.VALUE_STRING)
                     && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {

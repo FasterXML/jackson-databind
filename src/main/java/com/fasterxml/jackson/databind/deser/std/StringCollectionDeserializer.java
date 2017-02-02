@@ -46,22 +46,6 @@ public final class StringCollectionDeserializer
      */
     protected final JsonDeserializer<Object> _delegateDeserializer;
 
-    /**
-     * Handler we need for dealing with nulls
-     *
-     * @since 2.9
-     */
-    protected final NullValueProvider _nullProvider;
-
-    /**
-     * Specific override for this instance (from proper, or global per-type overrides)
-     * to indicate whether single value may be taken to mean an unwrapped one-element array
-     * or not. If null, left to global defaults.
-     *
-     * @since 2.7
-     */
-    protected final Boolean _unwrapSingle;
-    
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -82,12 +66,10 @@ public final class StringCollectionDeserializer
             JsonDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
-        super(collectionType);
+        super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = (JsonDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeser;
-        _unwrapSingle = unwrapSingle;
-        _nullProvider = nuller;
     }
 
     protected StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
@@ -98,13 +80,14 @@ public final class StringCollectionDeserializer
                 && (_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
             return this;
         }
-        return new StringCollectionDeserializer(_containerType, _valueInstantiator, delegateDeser, valueDeser,
-                nuller, unwrapSingle);
+        return new StringCollectionDeserializer(_containerType, _valueInstantiator,
+                delegateDeser, valueDeser, nuller, unwrapSingle);
     }
 
     @Override // since 2.5
     public boolean isCachable() {
-        // 26-Mar-2015, tatu: Important: prevent caching if custom deserializers are involved
+        // 26-Mar-2015, tatu: Important: prevent caching if custom deserializers via annotations
+        //    are involved
         return (_valueDeserializer == null) && (_delegateDeserializer == null);
     }
     

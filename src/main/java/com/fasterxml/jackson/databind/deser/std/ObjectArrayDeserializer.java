@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
@@ -50,15 +51,6 @@ public class ObjectArrayDeserializer
      */
     protected final TypeDeserializer _elementTypeDeserializer;
 
-    /**
-     * Specific override for this instance (from proper, or global per-type overrides)
-     * to indicate whether single value may be taken to mean an unwrapped one-element array
-     * or not. If null, left to global defaults.
-     *
-     * @since 2.7
-     */
-    protected final Boolean _unwrapSingle;
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -68,34 +60,33 @@ public class ObjectArrayDeserializer
     public ObjectArrayDeserializer(JavaType arrayType,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
-        super(arrayType);
+        super(arrayType, null, null);
         _elementClass = arrayType.getContentType().getRawClass();
         _untyped = (_elementClass == Object.class);
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
-        _unwrapSingle = null;
     }
 
     protected ObjectArrayDeserializer(ObjectArrayDeserializer base,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser,
-            Boolean unwrapSingle)
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
-        super(base._containerType);
+        super(base, nuller, unwrapSingle);
         _elementClass = base._elementClass;
         _untyped = base._untyped;
 
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
-        _unwrapSingle = unwrapSingle;
     }
-    
+
     /**
      * Overridable fluent-factory method used to create contextual instances
      */
     public ObjectArrayDeserializer withDeserializer(TypeDeserializer elemTypeDeser,
             JsonDeserializer<?> elemDeser)
     {
-        return withResolved(elemTypeDeser, elemDeser, _unwrapSingle);
+        return withResolved(elemTypeDeser, elemDeser,
+                _nullProvider, _unwrapSingle);
     }
 
     /**
@@ -103,43 +94,46 @@ public class ObjectArrayDeserializer
      */
     @SuppressWarnings("unchecked")
     public ObjectArrayDeserializer withResolved(TypeDeserializer elemTypeDeser,
-            JsonDeserializer<?> elemDeser, Boolean unwrapSingle)
+            JsonDeserializer<?> elemDeser, NullValueProvider nuller, Boolean unwrapSingle)
     {
-        if ((unwrapSingle == _unwrapSingle)
+        if ((unwrapSingle == _unwrapSingle) && (nuller == _nullProvider)
                 && (elemDeser == _elementDeserializer)
                 && (elemTypeDeser == _elementTypeDeserializer)) {
             return this;
         }
         return new ObjectArrayDeserializer(this,
-                (JsonDeserializer<Object>) elemDeser, elemTypeDeser, unwrapSingle);
+                (JsonDeserializer<Object>) elemDeser, elemTypeDeser,
+                nuller, unwrapSingle);
+    }
+
+    @Override // since 2.5
+    public boolean isCachable() {
+        // Important: do NOT cache if polymorphic values, or if there are annotation-based
+        // custom deserializers
+        return (_elementDeserializer == null) && (_elementTypeDeserializer == null);
     }
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        JsonDeserializer<?> deser = _elementDeserializer;
+        JsonDeserializer<?> valueDeser = _elementDeserializer;
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _containerType.getRawClass(),
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // May have a content converter
-        deser = findConvertingContentDeserializer(ctxt, property, deser);
+        valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         final JavaType vt = _containerType.getContentType();
-        if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(vt, property);
+        if (valueDeser == null) {
+            valueDeser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleSecondaryContextualization(deser, property, vt);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, vt);
         }
         TypeDeserializer elemTypeDeser = _elementTypeDeserializer;
         if (elemTypeDeser != null) {
             elemTypeDeser = elemTypeDeser.forProperty(property);
         }
-        return withResolved(elemTypeDeser, deser, unwrapSingle);
-    }
-
-    @Override // since 2.5
-    public boolean isCachable() {
-        // Important: do NOT cache if polymorphic values, or ones with custom deserializer
-        return (_elementDeserializer == null) && (_elementTypeDeserializer == null);
+        NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
+        return withResolved(elemTypeDeser, valueDeser, nuller, unwrapSingle);
     }
 
     /*
@@ -186,7 +180,7 @@ public class ObjectArrayDeserializer
                 Object value;
                 
                 if (t == JsonToken.VALUE_NULL) {
-                    value = _elementDeserializer.getNullValue(ctxt);
+                    value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = _elementDeserializer.deserialize(p, ctxt);
                 } else {
@@ -251,7 +245,7 @@ public class ObjectArrayDeserializer
                 Object value;
                 
                 if (t == JsonToken.VALUE_NULL) {
-                    value = _elementDeserializer.getNullValue(ctxt);
+                    value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = _elementDeserializer.deserialize(p, ctxt);
                 } else {
@@ -327,7 +321,7 @@ public class ObjectArrayDeserializer
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = _elementDeserializer.getNullValue(ctxt);
+            value = _nullProvider.getNullValue(ctxt);
         } else if (_elementTypeDeserializer == null) {
             value = _elementDeserializer.deserialize(p, ctxt);
         } else {

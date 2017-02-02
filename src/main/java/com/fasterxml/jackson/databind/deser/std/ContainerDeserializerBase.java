@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -20,9 +21,51 @@ public abstract class ContainerDeserializerBase<T>
 {
     protected final JavaType _containerType;
 
-    protected ContainerDeserializerBase(JavaType selfType) {
+    /**
+     * Handler we need for dealing with nulls.
+     *
+     * @since 2.9
+     */
+    protected final NullValueProvider _nullProvider;
+
+    /**
+     * Specific override for this instance (from proper, or global per-type overrides)
+     * to indicate whether single value may be taken to mean an unwrapped one-element array
+     * or not. If null, left to global defaults.
+     *
+     * @since 2.9 (demoted from sub-classes where added in 2.7)
+     */
+    protected final Boolean _unwrapSingle;
+    
+    protected ContainerDeserializerBase(JavaType selfType,
+            NullValueProvider nuller, Boolean unwrapSingle) {
         super(selfType);
         _containerType = selfType;
+        _unwrapSingle = unwrapSingle;
+        _nullProvider = nuller;
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected ContainerDeserializerBase(ContainerDeserializerBase<?> base) {
+        this(base, base._nullProvider, base._unwrapSingle);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected ContainerDeserializerBase(ContainerDeserializerBase<?> base,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        super(base._containerType);
+        _containerType = base._containerType;
+        _nullProvider = nuller;
+        _unwrapSingle = unwrapSingle;
+    }
+    
+    @Deprecated // since 2.9
+    protected ContainerDeserializerBase(JavaType selfType) {
+        this(selfType, null, null);
     }
 
     /*

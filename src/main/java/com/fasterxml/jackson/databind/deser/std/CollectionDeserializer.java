@@ -54,22 +54,6 @@ public class CollectionDeserializer
      */
     protected final JsonDeserializer<Object> _delegateDeserializer;
 
-    /**
-     * Handler we need for dealing with nulls
-     *
-     * @since 2.9
-     */
-    protected final NullValueProvider _nullProvider;
-    
-    /**
-     * Specific override for this instance (from proper, or global per-type overrides)
-     * to indicate whether single value may be taken to mean an unwrapped one-element array
-     * or not. If null, left to global defaults.
-     *
-     * @since 2.7
-     */
-    protected final Boolean _unwrapSingle;
-
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
@@ -99,13 +83,11 @@ public class CollectionDeserializer
             ValueInstantiator valueInstantiator, JsonDeserializer<Object> delegateDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
-        super(collectionType);
+        super(collectionType, nuller, unwrapSingle);
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = delegateDeser;
-        _unwrapSingle = unwrapSingle;
-        _nullProvider = nuller;
     }
 
     /**
@@ -114,13 +96,11 @@ public class CollectionDeserializer
      */
     protected CollectionDeserializer(CollectionDeserializer src)
     {
-        super(src._containerType);
+        super(src);
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
-        _unwrapSingle = src._unwrapSingle;
-        _nullProvider = src._nullProvider;
     }
 
     /**

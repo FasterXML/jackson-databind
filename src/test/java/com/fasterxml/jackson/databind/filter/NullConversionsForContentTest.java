@@ -52,10 +52,33 @@ public class NullConversionsForContentTest extends BaseMapTest
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
         }
+
         // Then: List<String>
-        // Then: Map<String,String>
+        try {
+            MAPPER.readValue(JSON, new TypeReference<NullContentFail<List<String>>>() { });
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
+
         // Then: Object[]
+        try {
+            MAPPER.readValue(JSON, new TypeReference<NullContentFail<Object[]>>() { });
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
+
         // Then: String[]
+        try {
+            MAPPER.readValue(JSON, new TypeReference<NullContentFail<String[]>>() { });
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
+
+        // Then: Map<String,String>
+        // Then: EnumMap<Enum,String>
     }
 
     public void testNullsAsEmpty() throws Exception
@@ -78,8 +101,9 @@ public class NullConversionsForContentTest extends BaseMapTest
             assertEquals("", result.values.get(0));
         }
 
-        // Then: Map<String,String>
         // Then: Object[]
         // Then: String[]
+
+        // Then: Map<String,String>
     }
 }

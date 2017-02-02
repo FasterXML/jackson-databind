@@ -88,7 +88,7 @@ public final class AnnotatedClass
      * Combined list of Jackson annotations that the class has,
      * including inheritable ones from super classes and interfaces
      */
-    protected AnnotationMap _classAnnotations;
+    final protected AnnotationMap _classAnnotations;
 
     /**
      * Flag to indicate whether creator information has been resolved
@@ -144,8 +144,7 @@ public final class AnnotatedClass
      */
     private AnnotatedClass(JavaType type, Class<?> rawType, TypeBindings bindings,
             List<JavaType> superTypes,
-            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
-            AnnotationMap classAnnotations)
+            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
     {
         _type = type;
         _class = rawType;
@@ -156,13 +155,24 @@ public final class AnnotatedClass
         _mixInResolver = mir;
         _primaryMixIn = (_mixInResolver == null) ? null
             : _mixInResolver.findMixInClassFor(_class);
-        _classAnnotations = classAnnotations;
+        _classAnnotations = _resolveClassAnnotations();
+    }
+
+    private AnnotatedClass(AnnotatedClass base, AnnotationMap clsAnn) {
+        _type = base._type;
+        _class = base._class;
+        _bindings = base._bindings;
+        _superTypes = base._superTypes;
+        _annotationIntrospector = base._annotationIntrospector;
+        _typeFactory = base._typeFactory;
+        _mixInResolver = base._mixInResolver;
+        _primaryMixIn = base._primaryMixIn;
+        _classAnnotations = clsAnn;
     }
 
     @Override
     public AnnotatedClass withAnnotations(AnnotationMap ann) {
-        return new AnnotatedClass(_type, _class, _bindings, _superTypes,
-                _annotationIntrospector, _mixInResolver, _typeFactory, ann);
+        return new AnnotatedClass(this, ann);
     }
 
     /**
@@ -178,7 +188,7 @@ public final class AnnotatedClass
         Class<?> raw = type.getRawClass();
         return new AnnotatedClass(type, raw, type.getBindings(),
                 ClassUtil.findSuperTypes(type, null, false), intr,
-                (MixInResolver) config, config.getTypeFactory(), null);
+                (MixInResolver) config, config.getTypeFactory());
     }
 
     /**
@@ -192,7 +202,7 @@ public final class AnnotatedClass
         Class<?> raw = type.getRawClass();
         return new AnnotatedClass(type, raw, type.getBindings(),
                 ClassUtil.findSuperTypes(type, null, false),
-                intr, mir, config.getTypeFactory(), null);
+                intr, mir, config.getTypeFactory());
     }
     
     /**
@@ -204,12 +214,12 @@ public final class AnnotatedClass
     {
         if (config == null) {
             return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                    Collections.<JavaType>emptyList(), null, null, null, null);
+                    Collections.<JavaType>emptyList(), null, null, null);
         }
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                Collections.<JavaType>emptyList(), intr, (MixInResolver) config, config.getTypeFactory(), null);
+                Collections.<JavaType>emptyList(), intr, (MixInResolver) config, config.getTypeFactory());
     }
 
     public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls, MapperConfig<?> config,
@@ -217,12 +227,12 @@ public final class AnnotatedClass
     {
         if (config == null) {
             return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                    Collections.<JavaType>emptyList(), null, null, null, null);
+                    Collections.<JavaType>emptyList(), null, null, null);
         }
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                Collections.<JavaType>emptyList(), intr, mir, config.getTypeFactory(), null);
+                Collections.<JavaType>emptyList(), intr, mir, config.getTypeFactory());
     }
 
     /*
@@ -253,17 +263,17 @@ public final class AnnotatedClass
 
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return _classAnnotations().get(acls);
+        return _classAnnotations.get(acls);
     }
 
     @Override
     public boolean hasAnnotation(Class<?> acls) {
-        return _classAnnotations().has(acls);
+        return _classAnnotations.has(acls);
     }
 
     @Override
     public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
-        return _classAnnotations().hasOneOf(annoClasses);
+        return _classAnnotations.hasOneOf(annoClasses);
     }
 
     @Override
@@ -273,12 +283,12 @@ public final class AnnotatedClass
 
     @Override
     public Iterable<Annotation> annotations() {
-        return _classAnnotations().annotations();
+        return _classAnnotations.annotations();
     }
     
     @Override
     protected AnnotationMap getAllAnnotations() {
-        return _classAnnotations();
+        return _classAnnotations;
     }
 
     @Override
@@ -293,11 +303,11 @@ public final class AnnotatedClass
      */
 
     public Annotations getAnnotations() {
-        return _classAnnotations();
+        return _classAnnotations;
     }
 
     public boolean hasAnnotations() {
-        return _classAnnotations().size() > 0;
+        return _classAnnotations.size() > 0;
     }
 
     public AnnotatedConstructor getDefaultConstructor()
@@ -380,26 +390,6 @@ public final class AnnotatedClass
     /* Public API, main-level resolution methods
     /**********************************************************
      */
-
-    private AnnotationMap _classAnnotations() {
-        AnnotationMap anns = _classAnnotations;
-        if (anns == null) {
-            // 06-Dec-2015, tatu: yes, double-locking, typically not a good choice.
-            //  But for typical usage pattern here (and with JVM 7 and above) is
-            //  a reasonable choice to avoid non-common but existing race condition
-            //  from root name lookup style usage
-            // Also note that race condition stems from caching only used for loading
-            // where just class annotations are needed
-            synchronized (this) {
-                anns = _classAnnotations;
-                if (anns == null) {
-                    anns = _resolveClassAnnotations();
-                    _classAnnotations = anns;
-                }
-            }
-        }
-        return anns;
-    }
 
     /**
      * Initialization method that will recursively collect Jackson

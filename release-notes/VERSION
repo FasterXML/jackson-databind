@@ -59,6 +59,8 @@ Project: jackson-databind
 #1317: '@JsonIgnore' annotation not working with creator properties, serialization
 #1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
  (suggested by Stephan S)
+- Simplified processing of class annotations (for `AnnotatedClass`) to try to
+  solve rare concurrency problems with "root name" annotations.
 
 2.8.6 (12-Jan-2017)
 

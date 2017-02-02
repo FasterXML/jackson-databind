@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
-// for [databind#1402]; configurable null handling
+// for [databind#1402]; configurable null handling, for values themselves
 public class NullConversionsTest extends BaseMapTest
 {
     static class NullFail {

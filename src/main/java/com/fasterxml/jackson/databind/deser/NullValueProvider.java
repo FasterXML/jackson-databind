@@ -15,6 +15,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public interface NullValueProvider
 {
     /**
+     * Marker object used in some context to mark return value that is to indicate
+     * that `null` should be skipped (instead of being replaced).
+     */
+    public final static Object SKIP_MARKER = new Object();
+    
+    /**
      * Method called to possibly convert incoming `null` token (read via
      * underlying streaming input source) into other value of type accessor
      * supports. May return `null`, or value compatible with type binding.

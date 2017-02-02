@@ -4,10 +4,18 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerBase;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.impl.NullsAsEmptyProvider;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
+import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -992,10 +1000,10 @@ public abstract class StdDeserializer<T>
 
     /*
     /**********************************************************
-    /* Helper methods for sub-classes, deserializer construction
+    /* Helper methods for: deserializer construction
     /**********************************************************
      */
-    
+
     /**
      * Helper method that can be used to see if specified property has annotation
      * indicating that a converter is to be used for contained values (contents
@@ -1028,6 +1036,12 @@ public abstract class StdDeserializer<T>
         return existingDeserializer;
     }
 
+    /*
+    /**********************************************************
+    /* Helper methods for: accessing contextual config settings
+    /**********************************************************
+     */
+    
     /**
      * Helper method that may be used to find if this deserializer has specific
      * {@link JsonFormat} settings, either via property, or through type-specific
@@ -1063,6 +1077,78 @@ public abstract class StdDeserializer<T>
         JsonFormat.Value format = findFormatOverrides(ctxt, prop, typeForDefaults);
         if (format != null) {
             return format.getFeature(feat);
+        }
+        return null;
+    }
+
+    /**
+     * Method called to find {@link NullValueProvider} for a primary property, using
+     * "value nulls" setting. If no provider found (not defined, or is "skip"),
+     * will return `null`.
+     *
+     * @since 2.9
+     */
+    protected final NullValueProvider findValueNullProvider(DeserializationContext ctxt,
+            SettableBeanProperty prop, PropertyMetadata propMetadata)
+        throws JsonMappingException
+    {
+        if (prop != null) {
+            return _findNullProvider(ctxt, prop, propMetadata.getValueNulls(),
+                    prop.getValueDeserializer());
+        }
+        return null;
+    }
+
+    /**
+     * Method called to find {@link NullValueProvider} for a contents of a structured
+     * primary property (Collection, Map, array), using
+     * "content nulls" setting. If no provider found (not defined),
+     * will return given value deserializer (which is a null value provider).
+     *
+     * @since 2.9
+     */
+    protected NullValueProvider findContentNullProvider(DeserializationContext ctxt,
+            BeanProperty prop, JsonDeserializer<?> valueDeser)
+        throws JsonMappingException
+    {
+        if (prop != null) {
+            final Nulls nulls = prop.getMetadata().getContentNulls();
+            if (nulls == Nulls.SKIP) {
+                return NullsConstantProvider.skipper();
+            }
+            NullValueProvider prov = _findNullProvider(ctxt, prop, nulls, valueDeser);
+            if (prov != null) {
+                return prov;
+            }
+        }
+        return valueDeser;
+    }
+
+    // @since 2.9
+    protected final NullValueProvider _findNullProvider(DeserializationContext ctxt,
+            BeanProperty prop, Nulls nulls, JsonDeserializer<?> valueDeser)
+        throws JsonMappingException
+    {
+        if (nulls != null) {
+            switch (nulls) {
+            case FAIL:
+                return new NullsFailProvider(prop.getFullName(), prop.getType());
+            case AS_EMPTY:
+                // Let's first do some sanity checking...
+                // NOTE: although we could use `ValueInstantiator.Gettable` in general,
+                // let's not since that would prevent being able to use custom impls:
+                if (valueDeser instanceof BeanDeserializerBase) {
+                    ValueInstantiator vi = ((BeanDeserializerBase) valueDeser).getValueInstantiator();
+                    if (!vi.canCreateUsingDefault()) {
+                        final JavaType type = prop.getType();
+                        ctxt.reportBadDefinition(type,
+                                String.format("Can not create empty instance of %s, no default Creator", type));
+                    }
+                }
+                return new NullsAsEmptyProvider(valueDeser);
+            case SKIP: // not handled here
+            default: // SET/DEFAULT, nothing to do; S
+            }
         }
         return null;
     }

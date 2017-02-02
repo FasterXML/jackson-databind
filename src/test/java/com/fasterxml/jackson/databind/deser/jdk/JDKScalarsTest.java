@@ -1021,24 +1021,24 @@ public class JDKScalarsTest
 
         // by default, ok to rely on defaults
         bean = MAPPER.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.booleanValue);
+        assertEquals(Boolean.FALSE, bean.booleanValue);
         bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.byteValue);
+        assertEquals(Byte.valueOf((byte) 0), bean.byteValue);
 
         // char/Character is different... not sure if this should work or not:
         bean = MAPPER.readValue("{\"charValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.charValue);
+        assertEquals(Character.valueOf((char) 0), bean.charValue);
 
         bean = MAPPER.readValue("{\"shortValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.shortValue);
+        assertEquals(Short.valueOf((short)0), bean.shortValue);
         bean = MAPPER.readValue("{\"intValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.intValue);
+        assertEquals(Integer.valueOf(0), bean.intValue);
         bean = MAPPER.readValue("{\"longValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.longValue);
+        assertEquals(Long.valueOf(0L), bean.longValue);
         bean = MAPPER.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.floatValue);
+        assertEquals(Float.valueOf(.0f), bean.floatValue);
         bean = MAPPER.readValue("{\"doubleValue\":\"\"}", WrappersBean.class);
-        assertNull(bean.doubleValue);
+        assertEquals(Double.valueOf(.0d), bean.doubleValue);
     }
 
     public void testEmptyStringForPrimitives() throws IOException

@@ -83,12 +83,13 @@ public class JDKNumberDeserTest extends BaseMapTest
 
     public void testEmptyAsNumber() throws Exception
     {
-        assertNull(MAPPER.readValue(quote(""), Integer.class));
-        assertNull(MAPPER.readValue(quote(""), Long.class));
-        assertNull(MAPPER.readValue(quote(""), Float.class));
-        assertNull(MAPPER.readValue(quote(""), Double.class));
-        assertNull(MAPPER.readValue(quote(""), BigInteger.class));
-        assertNull(MAPPER.readValue(quote(""), BigDecimal.class));
+        assertEquals(Integer.valueOf(0), MAPPER.readValue(quote(""), Integer.class));
+        assertEquals(Long.valueOf(0L), MAPPER.readValue(quote(""), Long.class));
+        assertEquals(Float.valueOf(.0f), MAPPER.readValue(quote(""), Float.class));
+        assertEquals(Double.valueOf(.0d), MAPPER.readValue(quote(""), Double.class));
+
+        assertEquals(BigInteger.ZERO, MAPPER.readValue(quote(""), BigInteger.class));
+        assertEquals(BigDecimal.ZERO, MAPPER.readValue(quote(""), BigDecimal.class));
     }
 
     public void testDeserializeDecimalHappyPath() throws Exception {

@@ -6,6 +6,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -38,10 +39,11 @@ public class ArrayBlockingQueueDeserializer
      protected ArrayBlockingQueueDeserializer(JavaType containerType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
-            JsonDeserializer<Object> delegateDeser, Boolean unwrapSingle)
+            JsonDeserializer<Object> delegateDeser,
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
-        super(containerType, valueDeser, valueTypeDeser, valueInstantiator,
-                delegateDeser, unwrapSingle);
+        super(containerType, valueDeser, valueTypeDeser, valueInstantiator, delegateDeser,
+                nuller, unwrapSingle);
     }
 
     /**
@@ -58,11 +60,13 @@ public class ArrayBlockingQueueDeserializer
     @Override
     @SuppressWarnings("unchecked")
     protected ArrayBlockingQueueDeserializer withResolved(JsonDeserializer<?> dd,
-            JsonDeserializer<?> vd, TypeDeserializer vtd, Boolean unwrapSingle)
+            JsonDeserializer<?> vd, TypeDeserializer vtd,
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
         return new ArrayBlockingQueueDeserializer(_containerType,
                 (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
+                _valueInstantiator, (JsonDeserializer<Object>) dd,
+                nuller, unwrapSingle);
     }
 
     /*

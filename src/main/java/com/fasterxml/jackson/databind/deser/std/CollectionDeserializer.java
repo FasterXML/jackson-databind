@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -55,6 +55,13 @@ public class CollectionDeserializer
     protected final JsonDeserializer<Object> _delegateDeserializer;
 
     /**
+     * Handler we need for dealing with nulls
+     *
+     * @since 2.9
+     */
+    protected final NullValueProvider _nullProvider;
+    
+    /**
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
@@ -79,17 +86,18 @@ public class CollectionDeserializer
             JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null);
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null);
     }
 
     /**
      * Constructor used when creating contextualized instances.
+     *
+     * @since 2.9
      */
     protected CollectionDeserializer(JavaType collectionType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
-            ValueInstantiator valueInstantiator,
-            JsonDeserializer<Object> delegateDeser,
-            Boolean unwrapSingle)
+            ValueInstantiator valueInstantiator, JsonDeserializer<Object> delegateDeser,
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(collectionType);
         _valueDeserializer = valueDeser;
@@ -97,6 +105,7 @@ public class CollectionDeserializer
         _valueInstantiator = valueInstantiator;
         _delegateDeserializer = delegateDeser;
         _unwrapSingle = unwrapSingle;
+        _nullProvider = nuller;
     }
 
     /**
@@ -111,21 +120,23 @@ public class CollectionDeserializer
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _unwrapSingle = src._unwrapSingle;
+        _nullProvider = src._nullProvider;
     }
 
     /**
      * Fluent-factory method call to construct contextual instance.
      *
-     * @since 2.7
+     * @since 2.9
      */
     @SuppressWarnings("unchecked")
     protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
             JsonDeserializer<?> vd, TypeDeserializer vtd,
-            Boolean unwrapSingle)
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
         return new CollectionDeserializer(_containerType,
                 (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd, unwrapSingle);
+                _valueInstantiator, (JsonDeserializer<Object>) dd,
+                nuller, unwrapSingle);
     }
 
     /**
@@ -135,7 +146,7 @@ public class CollectionDeserializer
     protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
             JsonDeserializer<?> vd, TypeDeserializer vtd)
     {
-        return withResolved(dd, vd, vtd, _unwrapSingle);
+        return withResolved(dd, vd, vtd, vd, _unwrapSingle);
     }
 
     // Important: do NOT cache if polymorphic values
@@ -212,7 +223,9 @@ _containerType,
                 || (valueDeser != _valueDeserializer)
                 || (valueTypeDeser != _valueTypeDeserializer)
         ) {
-            return withResolved(delegateDeser, valueDeser, valueTypeDeser, unwrapSingle);
+            return withResolved(delegateDeser, valueDeser, valueTypeDeser,
+                    findContentNullProvider(ctxt, property, valueDeser),
+                    unwrapSingle);
         }
         return this;
     }
@@ -293,7 +306,7 @@ _containerType,
             try {
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue(ctxt);
+                    value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
@@ -356,7 +369,7 @@ _containerType,
 
         try {
             if (t == JsonToken.VALUE_NULL) {
-                value = valueDes.getNullValue(ctxt);
+                value = _nullProvider.getNullValue(ctxt);
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {

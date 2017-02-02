@@ -120,11 +120,16 @@ public class NumberDeserializers
         private static final long serialVersionUID = 1L;
 
         protected final T _nullValue;
+
+        // @since 2.9
+        protected final T _emptyValue;
+
         protected final boolean _primitive;
 
-        protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl) {
+        protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl, T empty) {
             super(vc);
             _nullValue = nvl;
+            _emptyValue = empty;
             _primitive = vc.isPrimitive();
         }
 
@@ -148,7 +153,7 @@ public class NumberDeserializers
                         "Can not map Empty String as null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
             }
-            return _nullValue;
+            return _emptyValue;
         }
     }
 
@@ -169,7 +174,7 @@ public class NumberDeserializers
 
         public BooleanDeserializer(Class<Boolean> cls, Boolean nvl)
         {
-            super(cls, nvl);
+            super(cls, nvl, Boolean.FALSE);
         }
         
         @Override
@@ -200,7 +205,7 @@ public class NumberDeserializers
         
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
-            super(cls, nvl);
+            super(cls, nvl, (byte) 0);
         }
 
         @Override
@@ -221,14 +226,14 @@ public class NumberDeserializers
         
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
-            super(cls, nvl);
+            super(cls, nvl, (short)0);
         }
 
         @Override
-        public Short deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Short deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            return _parseShort(jp, ctxt);
+            return _parseShort(p, ctxt);
         }
     }
 
@@ -243,7 +248,7 @@ public class NumberDeserializers
         
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
-            super(cls, nvl);
+            super(cls, nvl, '\0');
         }
 
         @Override
@@ -289,11 +294,11 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, Integer.valueOf(0));
+        final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, 0);
         final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
         
         public IntegerDeserializer(Class<Integer> cls, Integer nvl) {
-            super(cls, nvl);
+            super(cls, nvl, 0);
         }
 
         // since 2.6, slightly faster lookups for this very common type
@@ -327,11 +332,11 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        final static LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, Long.valueOf(0L));
+        final static LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, 0L);
         final static LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
         
         public LongDeserializer(Class<Long> cls, Long nvl) {
-            super(cls, nvl);
+            super(cls, nvl, 0L);
         }
 
         // since 2.6, slightly faster lookups for this very common type
@@ -357,7 +362,7 @@ public class NumberDeserializers
         final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
         
         public FloatDeserializer(Class<Float> cls, Float nvl) {
-            super(cls, nvl);
+            super(cls, nvl, 0.f);
         }
 
         @Override
@@ -377,21 +382,21 @@ public class NumberDeserializers
         final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
         
         public DoubleDeserializer(Class<Double> cls, Double nvl) {
-            super(cls, nvl);
+            super(cls, nvl, 0.d);
         }
 
         @Override
-        public Double deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            return _parseDouble(jp, ctxt);
+        public Double deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return _parseDouble(p, ctxt);
         }
 
         // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
         // (is it an error to even call this version?)
         @Override
-        public Double deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+        public Double deserializeWithType(JsonParser p, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer) throws IOException
         {
-            return _parseDouble(jp, ctxt);
+            return _parseDouble(p, ctxt);
         }
     }
 
@@ -495,18 +500,18 @@ public class NumberDeserializers
          * calling type deserializer.
          */
         @Override
-        public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
                                           TypeDeserializer typeDeserializer)
             throws IOException
         {
-            switch (jp.getCurrentTokenId()) {
+            switch (p.getCurrentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
             case JsonTokenId.ID_NUMBER_FLOAT:
             case JsonTokenId.ID_STRING:
                 // can not point to type information: hence must be non-typed (int/double)
-                return deserialize(jp, ctxt);
+                return deserialize(p, ctxt);
             }
-            return typeDeserializer.deserializeTypedFromScalar(jp, ctxt);
+            return typeDeserializer.deserializeTypedFromScalar(p, ctxt);
         }
     }
 
@@ -529,6 +534,11 @@ public class NumberDeserializers
         public final static BigIntegerDeserializer instance = new BigIntegerDeserializer();
 
         public BigIntegerDeserializer() { super(BigInteger.class); }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return BigInteger.ZERO;
+        }
 
         @SuppressWarnings("incomplete-switch")
         @Override
@@ -561,7 +571,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 String text = p.getText().trim();
                 if (text.length() == 0) {
-                    return null;
+                    return (BigInteger) getEmptyValue(ctxt);
                 }
                 try {
                     return new BigInteger(text);
@@ -585,6 +595,11 @@ public class NumberDeserializers
         public BigDecimalDeserializer() { super(BigDecimal.class); }
 
         @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return BigDecimal.ZERO;
+        }
+        
+        @Override
         public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
@@ -595,7 +610,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_STRING:
                 String text = p.getText().trim();
                 if (text.length() == 0) {
-                    return null;
+                    return (BigDecimal) getEmptyValue(ctxt);
                 }
                 try {
                     return new BigDecimal(text);

@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 
@@ -920,44 +920,11 @@ public abstract class BeanDeserializerBase
         }
 
         // And after this, see if we require non-standard null handling
-        NullValueProvider nuller = _findNullProvider(ctxt, prop, propMetadata);
+        NullValueProvider nuller = findValueNullProvider(ctxt, prop, propMetadata);
         if (nuller != null) {
             prop = prop.withNullProvider(nuller);
         }
         return prop;
-    }
-
-    // @since 2.9
-    protected NullValueProvider _findNullProvider(DeserializationContext ctxt,
-            SettableBeanProperty prop, PropertyMetadata propMetadata)
-        throws JsonMappingException
-    {
-        final Nulls nulls = propMetadata.getValueNulls();
-        if (nulls != null) {
-            switch (nulls) {
-            case FAIL:
-                return new NullsFailProvider(prop.getFullName(), prop.getType());
-            case AS_EMPTY:
-                // Let's first do some sanity checking...
-                {
-                    JsonDeserializer<?> deser = prop.getValueDeserializer();
-                    // NOTE: although we could use `ValueInstantiator.Gettable` in general,
-                    // let's not since that would prevent being able to use custom impls:
-                    if (deser instanceof BeanDeserializerBase) {
-                        ValueInstantiator vi = ((BeanDeserializerBase) deser).getValueInstantiator();
-                        if (!vi.canCreateUsingDefault()) {
-                            final JavaType type = prop.getType();
-                            ctxt.reportBadDefinition(type,
-                                    String.format("Can not create empty instance of %s, no default Creator", type));
-                        }
-                    }
-                    return new NullsAsEmptyProvider(deser);
-                }
-            case SKIP: // can't do here
-            default: // SET/DEFAULT, nothing to do; S
-            }
-        }
-        return null;
     }
 
     /*

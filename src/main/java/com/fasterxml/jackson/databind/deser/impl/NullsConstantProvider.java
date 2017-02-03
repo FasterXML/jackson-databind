@@ -9,8 +9,11 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
  * Simple {@link NullValueProvider} that will always throw a
  * {@link InvalidNullException} when a null is encountered.
  */
-public class NullsConstantProvider implements NullValueProvider
+public class NullsConstantProvider
+    implements NullValueProvider, java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final static NullsConstantProvider SKIPPER = new NullsConstantProvider(NullValueProvider.SKIP_MARKER);
 
     private final static NullsConstantProvider NULLER = new NullsConstantProvider(null);

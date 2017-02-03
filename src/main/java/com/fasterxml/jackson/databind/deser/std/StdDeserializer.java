@@ -1121,7 +1121,7 @@ public abstract class StdDeserializer<T>
                 return prov;
             }
         }
-        return NullsConstantProvider.nuller();
+        return valueDeser;
     }
 
     // @since 2.9

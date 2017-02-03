@@ -57,7 +57,7 @@ public final class StringCollectionDeserializer
     public StringCollectionDeserializer(JavaType collectionType,
             JsonDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, valueInstantiator, null, valueDeser, null, null);
+        this(collectionType, valueInstantiator, null, valueDeser, valueDeser, null);
     }
 
     @SuppressWarnings("unchecked")

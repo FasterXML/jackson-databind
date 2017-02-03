@@ -70,7 +70,7 @@ public class MapEntryDeserializer
      */
     protected MapEntryDeserializer(MapEntryDeserializer src)
     {
-        super(src._containerType);
+        super(src);
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -80,7 +80,7 @@ public class MapEntryDeserializer
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
-        super(src._containerType);
+        super(src);
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;

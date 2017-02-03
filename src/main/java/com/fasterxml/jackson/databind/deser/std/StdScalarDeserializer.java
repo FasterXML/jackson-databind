@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
  * Base class for deserializers that handle types that are serialized
@@ -46,5 +47,18 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
+    }
+
+    // Typically Scalar values have default setting of "nulls as nulls"
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        return AccessPattern.ALWAYS_NULL;
+    }
+
+    // While some scalar types have non-null empty values (hence can't say "ALWAYS_NULL")
+    // they are mostly immutable, shareable and so constant.
+    @Override // since 2.9
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.CONSTANT;
     }
 }

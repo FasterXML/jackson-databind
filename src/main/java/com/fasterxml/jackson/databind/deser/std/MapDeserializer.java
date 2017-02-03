@@ -96,7 +96,7 @@ public class MapDeserializer
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
-        super(mapType);
+        super(mapType, null, null);
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -113,7 +113,7 @@ public class MapDeserializer
      */
     protected MapDeserializer(MapDeserializer src)
     {
-        super(src._containerType);
+        super(src);
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -130,9 +130,10 @@ public class MapDeserializer
     protected MapDeserializer(MapDeserializer src,
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser,
+            NullValueProvider nuller,
             Set<String> ignorable)
     {
-        super(src._containerType);
+        super(src, nuller, src._unwrapSingle);
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -152,15 +153,18 @@ public class MapDeserializer
     @SuppressWarnings("unchecked")
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
+            NullValueProvider nuller,
             Set<String> ignorable)
     {
         
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
-                && (_valueTypeDeserializer == valueTypeDeser) && (_ignorableProperties == ignorable)) {
+                && (_valueTypeDeserializer == valueTypeDeser) && (_nullProvider == nuller)
+                && (_ignorableProperties == ignorable)) {
             return this;
         }
         return new MapDeserializer(this,
-                keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser, ignorable);
+                keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser,
+                nuller, ignorable);
     }
 
     /**
@@ -241,25 +245,25 @@ public class MapDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        KeyDeserializer kd = _keyDeserializer;
-        if (kd == null) {
-            kd = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
+        KeyDeserializer keyDeser = _keyDeserializer;
+        if (keyDeser == null) {
+            keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         } else {
-            if (kd instanceof ContextualKeyDeserializer) {
-                kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
+            if (keyDeser instanceof ContextualKeyDeserializer) {
+                keyDeser = ((ContextualKeyDeserializer) keyDeser).createContextual(ctxt, property);
             }
         }
         
-        JsonDeserializer<?> vd = _valueDeserializer;
+        JsonDeserializer<?> valueDeser = _valueDeserializer;
         // [databind#125]: May have a content converter
         if (property != null) {
-            vd = findConvertingContentDeserializer(ctxt, property, vd);
+            valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         }
         final JavaType vt = _containerType.getContentType();
-        if (vd == null) {
-            vd = ctxt.findContextualValueDeserializer(vt, property);
+        if (valueDeser == null) {
+            valueDeser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            vd = ctxt.handleSecondaryContextualization(vd, property, vt);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, vt);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {
@@ -282,7 +286,8 @@ public class MapDeserializer
                 }
             }
         }
-        return withResolved(kd, vtd, vd, ignored);
+        return withResolved(keyDeser, vtd, valueDeser,
+                findContentNullProvider(ctxt, property, valueDeser), ignored);
     }
 
     /*
@@ -453,7 +458,7 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue(ctxt);
+                    value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
@@ -512,7 +517,7 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue(ctxt);
+                    value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
@@ -580,7 +585,7 @@ public class MapDeserializer
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue(ctxt);
+                    value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {

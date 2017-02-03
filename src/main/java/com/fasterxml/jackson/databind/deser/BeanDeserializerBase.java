@@ -929,7 +929,35 @@ public abstract class BeanDeserializerBase
 
     /*
     /**********************************************************
-    /* Public accessors
+    /* Public accessors; null/empty value providers
+    /**********************************************************
+     */
+
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        // POJO types do not have custom `null` values
+        return AccessPattern.ALWAYS_NULL;
+    }
+
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        // Empty values can not be shared
+        return AccessPattern.DYNAMIC;
+    }
+    
+    @Override // since 2.9
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        // alas, need to promote exception, if any:
+        try {
+            return _valueInstantiator.createUsingDefault(ctxt);
+        } catch (IOException e) {
+            return ClassUtil.throwAsMappingException(ctxt, e);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Public accessors; other
     /**********************************************************
      */
 
@@ -948,7 +976,7 @@ public abstract class BeanDeserializerBase
     public Class<?> handledType() {
         return _beanType.getRawClass();
     }
-    
+
     /**
      * Overridden to return true for those instances that are
      * handling value for which Object Identity handling is enabled
@@ -1081,16 +1109,6 @@ public abstract class BeanDeserializerBase
     @Override // ValueInstantiator.Gettable
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
-    }
-
-    @Override // since 2.9
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
-        // alas, need to promote exception, if any:
-        try {
-            return _valueInstantiator.createUsingDefault(ctxt);
-        } catch (IOException e) {
-            return ClassUtil.throwAsMappingException(ctxt, e);
-        }
     }
 
     /*

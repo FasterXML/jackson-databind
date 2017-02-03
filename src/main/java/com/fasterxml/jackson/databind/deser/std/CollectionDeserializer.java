@@ -119,16 +119,6 @@ public class CollectionDeserializer
                 nuller, unwrapSingle);
     }
 
-    /**
-     * @deprecated Since 2.7 as it does not pass `unwrapSingle`
-     */
-    @Deprecated // since 2.7 -- will not retain "unwrapSingle" setting
-    protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
-            JsonDeserializer<?> vd, TypeDeserializer vtd)
-    {
-        return withResolved(dd, vd, vtd, vd, _unwrapSingle);
-    }
-
     // Important: do NOT cache if polymorphic values
     @Override // since 2.5
     public boolean isCachable() {

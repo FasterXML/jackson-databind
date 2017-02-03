@@ -1132,7 +1132,7 @@ public abstract class BasicDeserializerFactory
                 if (kt == null || !kt.isEnum()) {
                     throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
                 }
-                deser = new EnumMapDeserializer(type, null, contentDeser, contentTypeDeser);
+                deser = new EnumMapDeserializer(type, null, contentDeser, contentTypeDeser, null);
             }
 
             // Otherwise, generic handler works ok.

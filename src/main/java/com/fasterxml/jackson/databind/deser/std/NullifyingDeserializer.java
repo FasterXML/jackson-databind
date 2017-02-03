@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 /**
  * Bogus deserializer that will simply skip all content there is to map
  * and returns Java null reference.
- * 
+ *
  * @since 2.2
  */
 public class NullifyingDeserializer

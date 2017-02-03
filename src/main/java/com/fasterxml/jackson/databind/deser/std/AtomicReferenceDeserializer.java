@@ -25,7 +25,7 @@ public class AtomicReferenceDeserializer
     {
         super(fullType, inst, typeDeser, deser);
     }
-    
+
     /*
     /**********************************************************
     /* Abstract method implementations
@@ -37,7 +37,6 @@ public class AtomicReferenceDeserializer
         return new AtomicReferenceDeserializer(_fullType, _valueInstantiator,
                 typeDeser, valueDeser);
     }
-
     @Override
     public AtomicReference<Object> getNullValue(DeserializationContext ctxt) {
         return new AtomicReference<Object>();

@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  *<p>
  * In addition, to support per-property annotations (to configure aspects
  * of deserialization on per-property basis), deserializers may want
- * to implement 
+ * to implement
  * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer},
  * which allows specialization of deserializers: call to
  * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer#createContextual}
@@ -82,8 +82,8 @@ public abstract class JsonDeserializer<T>
      *  after the @class. Thus, if you want your method to work correctly
      *  both with and without polymorphism, you must begin your method with:
      *  <pre>
-     *       if (jp.getCurrentToken() == JsonToken.START_OBJECT) {
-     *         jp.nextToken();
+     *       if (p.getCurrentToken() == JsonToken.START_OBJECT) {
+     *         p.nextToken();
      *       }
      *  </pre>
      * This results in the stream pointing to the field name, so that
@@ -256,7 +256,7 @@ public abstract class JsonDeserializer<T>
 
     /*
     /**********************************************************
-    /* Other accessors
+    /* Default NullValueProvider implementation
     /**********************************************************
      */
 
@@ -275,12 +275,43 @@ public abstract class JsonDeserializer<T>
      * 
      * @since 2.6 Added to replace earlier no-arguments variant
      */
-    @Override
     public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
         // Change the direction in 2.7
         return getNullValue();
     }
 
+    /**
+     * Default implementation indicates that "null value" to use for input null
+     * is simply Java `null` for all deserializers, unless overridden by sub-classes.
+     * This information may be used as optimization.
+     */
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        // Default implementation assumes that the null value does not vary, which
+        // is usually the case for most implementations. But it is not necessarily
+        // `null`; so sub-classes may want to refine further.
+        return AccessPattern.CONSTANT;
+    }
+
+    /**
+     * This method may be called in conjunction with calls to
+     * {@link #getEmptyValue(DeserializationContext)}, to check whether it needs
+     * to be called just once (static values), or each time empty value is
+     * needed.
+     *
+     * @since 2.9
+     */
+//    public abstract AccessPattern getEmptyAccessPattern();
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
+    }
+
+    /*
+    /**********************************************************
+    /* Other accessors
+    /**********************************************************
+     */
+    
     /**
      * Method called to determine value to be used for "empty" values
      * (most commonly when deserializing from empty JSON Strings).

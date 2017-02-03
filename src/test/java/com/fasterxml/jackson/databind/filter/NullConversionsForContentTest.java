@@ -22,7 +22,7 @@ public class NullConversionsForContentTest extends BaseMapTest
         @JsonSetter(contentNulls=JsonSetter.Nulls.AS_EMPTY)
         public T values;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -78,7 +78,22 @@ public class NullConversionsForContentTest extends BaseMapTest
         }
 
         // Then: Map<String,String>
+        try {
+            final String MAP_JSON = aposToQuotes("{'noNulls':{'a':null}}");
+            MAPPER.readValue(MAP_JSON, new TypeReference<NullContentFail<Map<String,String>>>() { });
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
+
         // Then: EnumMap<Enum,String>
+        try {
+            final String MAP_JSON = aposToQuotes("{'noNulls':{'A':null}}");
+            MAPPER.readValue(MAP_JSON, new TypeReference<NullContentFail<EnumMap<ABC,String>>>() { });
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
     }
 
     public void testNullsAsEmpty() throws Exception
@@ -101,9 +116,33 @@ public class NullConversionsForContentTest extends BaseMapTest
             assertEquals("", result.values.get(0));
         }
 
-        // Then: Object[]
+        // Note: skip `Object[]`, no default empty value at this point
+
         // Then: String[]
+        {
+            NullContentAsEmpty<String[]> result = MAPPER.readValue(JSON,
+                    new TypeReference<NullContentAsEmpty<String[]>>() { });
+            assertEquals(1, result.values.length);
+            assertEquals("", result.values[0]);
+        }
 
         // Then: Map<String,String>
+        final String MAP_JSON = aposToQuotes("{'values':{'A':null}}");
+        {
+            NullContentAsEmpty<Map<String,String>> result 
+                = MAPPER.readValue(MAP_JSON, new TypeReference<NullContentAsEmpty<Map<String,String>>>() { });
+            assertEquals(1, result.values.size());
+            assertEquals("A", result.values.entrySet().iterator().next().getKey());
+            assertEquals("", result.values.entrySet().iterator().next().getValue());
+        }
+
+        // Then: EnumMap<Enum,String>
+        {
+            NullContentAsEmpty<EnumMap<ABC,String>> result 
+                = MAPPER.readValue(MAP_JSON, new TypeReference<NullContentAsEmpty<EnumMap<ABC,String>>>() { });
+            assertEquals(1, result.values.size());
+            assertEquals(ABC.A, result.values.entrySet().iterator().next().getKey());
+            assertEquals("", result.values.entrySet().iterator().next().getValue());
+        }
     }
 }

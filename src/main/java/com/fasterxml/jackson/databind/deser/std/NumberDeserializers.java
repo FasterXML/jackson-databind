@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
  * Container class for deserializers that handle core JDK primitive
@@ -131,6 +132,19 @@ public class NumberDeserializers
             _nullValue = nvl;
             _emptyValue = empty;
             _primitive = vc.isPrimitive();
+        }
+
+        @Override
+        public AccessPattern getNullAccessPattern() {
+            // 02-Feb-2017, tatu: For primitives we must dynamically check (and possibly throw
+            //     exception); for wrappers not.
+            if (_primitive) {
+                return AccessPattern.DYNAMIC;
+            }
+            if (_nullValue == null) {
+                return AccessPattern.ALWAYS_NULL;
+            }
+            return AccessPattern.CONSTANT;
         }
 
         @Override
@@ -501,7 +515,7 @@ public class NumberDeserializers
          */
         @Override
         public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-                                          TypeDeserializer typeDeserializer)
+                TypeDeserializer typeDeserializer)
             throws IOException
         {
             switch (p.getCurrentTokenId()) {

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
  * Base deserializer implementation for properties {@link ReferenceType} values.
@@ -82,10 +83,30 @@ public abstract class ReferenceTypeDeserializer<T>
 
     /*
     /**********************************************************
-    /* Abstract methods for sub-classes to implement
+    /* Partial NullValueProvider impl
     /**********************************************************
      */
 
+    /**
+     * Null value varies dynamically (unlike with scalar types),
+     * so let's indicate this.
+     */
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        return AccessPattern.DYNAMIC;
+    }
+
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
+    }
+
+    /*
+    /**********************************************************
+    /* Abstract methods for sub-classes to implement
+    /**********************************************************
+     */
+    
     /**
      * Mutant factory method called when changes are needed; should construct
      * newly configured instance with new values as indicated.
@@ -98,6 +119,11 @@ public abstract class ReferenceTypeDeserializer<T>
 
     @Override
     public abstract T getNullValue(DeserializationContext ctxt);
+
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
+        return getNullValue(ctxt);
+    }
 
     public abstract T referenceValue(Object contents);
 

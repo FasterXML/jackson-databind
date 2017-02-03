@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -45,6 +46,10 @@ public abstract class ContainerDeserializerBase<T>
         _nullProvider = nuller;
     }
 
+    protected ContainerDeserializerBase(JavaType selfType) {
+        this(selfType, null, null);
+    }
+
     /**
      * @since 2.9
      */
@@ -61,11 +66,6 @@ public abstract class ContainerDeserializerBase<T>
         _containerType = base._containerType;
         _nullProvider = nuller;
         _unwrapSingle = unwrapSingle;
-    }
-    
-    @Deprecated // since 2.9
-    protected ContainerDeserializerBase(JavaType selfType) {
-        this(selfType, null, null);
     }
 
     /*
@@ -123,6 +123,13 @@ public abstract class ContainerDeserializerBase<T>
         return null;
     }
 
+    @Override // since 2.9
+    public AccessPattern getEmptyAccessPattern() {
+        // 02-Feb-2017, tatu: Empty containers are usually constructed as needed
+        //   and may not be shared; for some deserializers this may be further refined.
+        return AccessPattern.DYNAMIC;
+    }
+    
     @Override // since 2.9
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         ValueInstantiator vi = getValueInstantiator();

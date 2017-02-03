@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 /**
@@ -82,6 +83,12 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         return Boolean.TRUE;
     }
 
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        // Empty values shareable freely
+        return AccessPattern.CONSTANT;
+    }
+    
     @Override // since 2.9
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         Object empty = _emptyValue;

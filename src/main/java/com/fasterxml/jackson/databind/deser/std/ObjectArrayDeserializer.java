@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
@@ -145,6 +146,12 @@ public class ObjectArrayDeserializer
     @Override
     public JsonDeserializer<Object> getContentDeserializer() {
         return _elementDeserializer;
+    }
+
+    @Override // since 2.9
+    public AccessPattern getEmptyAccessPattern() {
+        // immutable, shareable so:
+        return AccessPattern.CONSTANT;
     }
 
     // need to override as we can't expose ValueInstantiator

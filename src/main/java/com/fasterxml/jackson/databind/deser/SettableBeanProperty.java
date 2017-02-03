@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -34,6 +35,11 @@ public abstract class SettableBeanProperty
      */
     protected static final JsonDeserializer<Object> MISSING_VALUE_DESERIALIZER = new FailingDeserializer(
             "No _valueDeserializer assigned");
+
+    /**
+     * @since 2.9
+     */
+    protected static final NullValueProvider MISSING_NULL_PROVIDER = NullsConstantProvider.nuller();
 
     /**
      * Logical name of the property (often but not always derived
@@ -163,7 +169,7 @@ public abstract class SettableBeanProperty
         }
         _valueTypeDeserializer = typeDeser;
         _valueDeserializer = MISSING_VALUE_DESERIALIZER;
-        _nullProvider = MISSING_VALUE_DESERIALIZER;
+        _nullProvider = MISSING_NULL_PROVIDER;
     }
 
     /**
@@ -188,9 +194,9 @@ public abstract class SettableBeanProperty
         _valueTypeDeserializer = null;
         _valueDeserializer = valueDeser;
         // 29-Jan-2017, tatu: Presumed to be irrelevant for ObjectId values...
-        _nullProvider = valueDeser;
+        _nullProvider = MISSING_NULL_PROVIDER;
     }
-    
+
     /**
      * Basic copy-constructor for sub-classes to use.
      */
@@ -207,17 +213,6 @@ public abstract class SettableBeanProperty
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
         _nullProvider = src._nullProvider;
-    }
-
-    /**
-     * @deprecated Since 2.9 use {@link #SettableBeanProperty(SettableBeanProperty, JsonDeserializer, NullValueProvider)}
-     *    instead
-     */
-    @Deprecated // since 2.9
-    protected SettableBeanProperty(SettableBeanProperty src,
-            JsonDeserializer<?> deser)
-    {
-        this(src, deser, deser);
     }
 
     /**
@@ -244,7 +239,7 @@ public abstract class SettableBeanProperty
         _viewMatcher = src._viewMatcher;
         // 29-Jan-2017, tatu: Bit messy, but for now has to do...
         if (nullAccessor == MISSING_VALUE_DESERIALIZER) {
-            nullAccessor = deser;
+            nullAccessor = MISSING_NULL_PROVIDER;
         }
         _nullProvider = nullAccessor;
     }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
  * Simple {@link NullValueProvider} that will always throw a
@@ -14,6 +15,11 @@ public class NullsAsEmptyProvider implements NullValueProvider
 
     public NullsAsEmptyProvider(JsonDeserializer<?> deser) {
         _deserializer = deser;
+    }
+
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        return AccessPattern.DYNAMIC;
     }
 
     @Override

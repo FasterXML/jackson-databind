@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
@@ -41,7 +42,7 @@ public final class StringArrayDeserializer
      * @since 2.9
      */
     protected final NullValueProvider _nullProvider;
-    
+
     /**
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
@@ -67,6 +68,12 @@ public final class StringArrayDeserializer
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
+    }
+
+    @Override // since 2.9
+    public AccessPattern getEmptyAccessPattern() {
+        // immutable, shareable so:
+        return AccessPattern.CONSTANT;
     }
 
     @Override // since 2.9

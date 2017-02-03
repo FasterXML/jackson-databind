@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -39,21 +40,37 @@ public class EnumMapDeserializer
     /**********************************************************
      */
 
-    public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeserializer, JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
+    /**
+     * @since 2.9
+     */
+    public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeser,
+            JsonDeserializer<?> valueDeser, TypeDeserializer vtd,
+            NullValueProvider nuller)
     {
-        super(mapType);
+        super(mapType, nuller, null);
         _enumClass = mapType.getKeyType().getRawClass();
-        _keyDeserializer = keyDeserializer;
+        _keyDeserializer = keyDeser;
         _valueDeserializer = (JsonDeserializer<Object>) valueDeser;
-        _valueTypeDeserializer = valueTypeDeser;
+        _valueTypeDeserializer = vtd;
     }
 
-    public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer, JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser)
+    @Deprecated // since 2.9
+    public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeser,
+            JsonDeserializer<?> valueDeser, TypeDeserializer vtd)
     {
-        if ((keyDeserializer == _keyDeserializer) && (valueDeserializer == _valueDeserializer) && (valueTypeDeser == _valueTypeDeserializer)) {
+        this(mapType, keyDeser, valueDeser, vtd, null);
+    }
+    
+    public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
+            JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
+            NullValueProvider nuller)
+    {
+        if ((keyDeserializer == _keyDeserializer) && (nuller == _nullProvider)
+                && (valueDeserializer == _valueDeserializer) && (valueTypeDeser == _valueTypeDeserializer)) {
             return this;
         }
-        return new EnumMapDeserializer(_containerType, keyDeserializer, valueDeserializer, _valueTypeDeserializer);
+        return new EnumMapDeserializer(_containerType, keyDeserializer,
+                valueDeserializer, _valueTypeDeserializer, nuller);
     }
     
     /**
@@ -66,24 +83,24 @@ public class EnumMapDeserializer
         // note: instead of finding key deserializer, with enums we actually
         // work with regular deserializers (less code duplication; but not
         // quite as clean as it ought to be)
-        KeyDeserializer kd = _keyDeserializer;
-        if (kd == null) {
-            kd = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
+        KeyDeserializer keyDeser = _keyDeserializer;
+        if (keyDeser == null) {
+            keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         }
-        JsonDeserializer<?> vd = _valueDeserializer;
+        JsonDeserializer<?> valueDeser = _valueDeserializer;
         final JavaType vt = _containerType.getContentType();
-        if (vd == null) {
-            vd = ctxt.findContextualValueDeserializer(vt, property);
+        if (valueDeser == null) {
+            valueDeser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            vd = ctxt.handleSecondaryContextualization(vd, property, vt);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, vt);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return withResolved(kd, vd, vtd);
+        return withResolved(keyDeser, valueDeser, vtd, findContentNullProvider(ctxt, property, valueDeser));
     }
-    
+
     /**
      * Because of costs associated with constructing Enum resolvers,
      * let's cache instances by default.
@@ -157,7 +174,7 @@ public class EnumMapDeserializer
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
-                    value = valueDes.getNullValue(ctxt);
+                    value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value =  valueDes.deserialize(p, ctxt);
                 } else {

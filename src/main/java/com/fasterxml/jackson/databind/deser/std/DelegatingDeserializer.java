@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
  * Base class that simplifies implementations of {@link JsonDeserializer}s
@@ -134,6 +135,11 @@ public abstract class DelegatingDeserializer
     public SettableBeanProperty findBackReference(String logicalName) {
         // [databind#253]: Hope this works....
         return _delegatee.findBackReference(logicalName);
+    }
+
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        return _delegatee.getNullAccessPattern();
     }
 
     @Override

@@ -22,7 +22,7 @@ public class NullsConstantProvider
 
     protected final AccessPattern _access;
 
-    public NullsConstantProvider(Object nvl) {
+    protected NullsConstantProvider(Object nvl) {
         _nullValue = nvl;
         _access = (_nullValue == null) ? AccessPattern.ALWAYS_NULL
                 : AccessPattern.CONSTANT;
@@ -39,6 +39,13 @@ public class NullsConstantProvider
 
     public static NullsConstantProvider nuller() {
         return NULLER;
+    }
+
+    public static NullsConstantProvider forValue(Object nvl) {
+        if (nvl == null) {
+            return NULLER;
+        }
+        return new NullsConstantProvider(nvl);
     }
 
     @Override

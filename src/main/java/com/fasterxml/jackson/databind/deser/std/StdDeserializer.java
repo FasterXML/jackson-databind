@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -1143,6 +1144,16 @@ public abstract class StdDeserializer<T>
                         final JavaType type = prop.getType();
                         ctxt.reportBadDefinition(type,
                                 String.format("Can not create empty instance of %s, no default Creator", type));
+                    }
+                }
+                // Second: can with pre-fetch value?
+                {
+                    AccessPattern access = valueDeser.getEmptyAccessPattern();
+                    if (access == AccessPattern.ALWAYS_NULL) {
+                        return NullsConstantProvider.nuller();
+                    }
+                    if (access == AccessPattern.CONSTANT) {
+                        return NullsConstantProvider.forValue(valueDeser.getEmptyValue(ctxt));
                     }
                 }
                 return new NullsAsEmptyProvider(valueDeser);

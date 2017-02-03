@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.filter;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.BaseMapTest;

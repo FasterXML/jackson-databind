@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.filter;
+package com.fasterxml.jackson.databind.ser.filter;
 
 import java.io.IOException;
 

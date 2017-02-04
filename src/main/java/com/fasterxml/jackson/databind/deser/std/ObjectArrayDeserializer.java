@@ -187,6 +187,9 @@ public class ObjectArrayDeserializer
                 Object value;
                 
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = _elementDeserializer.deserialize(p, ctxt);
@@ -219,9 +222,8 @@ public class ObjectArrayDeserializer
             TypeDeserializer typeDeserializer)
         throws IOException
     {
-        /* Should there be separate handling for base64 stuff?
-         * for now this should be enough:
-         */
+        // Should there be separate handling for base64 stuff?
+        // for now this should be enough:
         return (Object[]) typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
@@ -252,6 +254,9 @@ public class ObjectArrayDeserializer
                 Object value;
                 
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = _elementDeserializer.deserialize(p, ctxt);
@@ -328,6 +333,10 @@ public class ObjectArrayDeserializer
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
+            // 03-Feb-2017, tatu: Should this be skipped or not?
+            if (_skipNullValues) {
+                return NO_OBJECTS;
+            }
             value = _nullProvider.getNullValue(ctxt);
         } else if (_elementTypeDeserializer == null) {
             value = _elementDeserializer.deserialize(p, ctxt);

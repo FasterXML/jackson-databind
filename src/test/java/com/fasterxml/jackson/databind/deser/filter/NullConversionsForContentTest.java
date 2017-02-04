@@ -228,7 +228,6 @@ public class NullConversionsForContentTest extends BaseMapTest
     /**********************************************************
      */
 
-    /*
     public void testNullsSkip() throws Exception
     {
         // List<Integer>
@@ -292,7 +291,7 @@ public class NullConversionsForContentTest extends BaseMapTest
                     new TypeReference<NullContentSkip<long[]>>() { });
             assertEquals(2, result.values.length);
             assertEquals(-13L, result.values[0]);
-            assertEquals(-999L, result.values[0]);
+            assertEquals(999L, result.values[1]);
         }
 
         // boolean[]
@@ -304,7 +303,7 @@ public class NullConversionsForContentTest extends BaseMapTest
             assertEquals(true, result.values[0]);
             assertEquals(true, result.values[1]);
         }
-}
+    }
     
     public void testNullsSkipWithMaps() throws Exception
     {
@@ -327,5 +326,4 @@ public class NullConversionsForContentTest extends BaseMapTest
             assertEquals("bar", result.values.get(ABC.C));
         }
     }
-*/
 }

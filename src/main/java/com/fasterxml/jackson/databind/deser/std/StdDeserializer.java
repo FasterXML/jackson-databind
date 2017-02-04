@@ -1104,7 +1104,7 @@ public abstract class StdDeserializer<T>
      * Method called to find {@link NullValueProvider} for a contents of a structured
      * primary property (Collection, Map, array), using
      * "content nulls" setting. If no provider found (not defined),
-     * will return given value deserializer (which is a null value provider).
+     * will return given value deserializer (which is a null value provider itself).
      *
      * @since 2.9
      */
@@ -1112,17 +1112,24 @@ public abstract class StdDeserializer<T>
             BeanProperty prop, JsonDeserializer<?> valueDeser)
         throws JsonMappingException
     {
-        if (prop != null) {
-            final Nulls nulls = prop.getMetadata().getContentNulls();
-            if (nulls == Nulls.SKIP) {
-                return NullsConstantProvider.skipper();
-            }
-            NullValueProvider prov = _findNullProvider(ctxt, prop, nulls, valueDeser);
-            if (prov != null) {
-                return prov;
-            }
+        final Nulls nulls = findContentNullStyle(ctxt, prop);
+        if (nulls == Nulls.SKIP) {
+            return NullsConstantProvider.skipper();
+        }
+        NullValueProvider prov = _findNullProvider(ctxt, prop, nulls, valueDeser);
+        if (prov != null) {
+            return prov;
         }
         return valueDeser;
+    }
+
+    protected Nulls findContentNullStyle(DeserializationContext ctxt, BeanProperty prop)
+        throws JsonMappingException
+    {
+        if (prop != null) {
+            return prop.getMetadata().getContentNulls();
+        }
+        return null;
     }
 
     // @since 2.9
@@ -1135,6 +1142,12 @@ public abstract class StdDeserializer<T>
             case FAIL:
                 return new NullsFailProvider(prop.getFullName(), prop.getType());
             case AS_EMPTY:
+                // can not deal with empty values if there is no value deserializer that
+                // can indicate what "empty value" is:
+                if (valueDeser == null) {
+                    break;
+                }
+
                 // Let's first do some sanity checking...
                 // NOTE: although we could use `ValueInstantiator.Gettable` in general,
                 // let's not since that would prevent being able to use custom impls:
@@ -1158,7 +1171,7 @@ public abstract class StdDeserializer<T>
                 }
                 return new NullsAsEmptyProvider(valueDeser);
             case SKIP: // not handled here
-            default: // SET/DEFAULT, nothing to do; S
+            default: // SET/DEFAULT, nothing to do;
             }
         }
         return null;

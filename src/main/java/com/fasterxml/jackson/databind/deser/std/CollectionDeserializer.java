@@ -188,14 +188,15 @@ _containerType,
         if (valueTypeDeser != null) {
             valueTypeDeser = valueTypeDeser.forProperty(property);
         }
+        NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
         if ( (unwrapSingle != _unwrapSingle)
+                || (nuller != _nullProvider)
                 || (delegateDeser != _delegateDeserializer)
                 || (valueDeser != _valueDeserializer)
                 || (valueTypeDeser != _valueTypeDeserializer)
         ) {
             return withResolved(delegateDeser, valueDeser, valueTypeDeser,
-                    findContentNullProvider(ctxt, property, valueDeser),
-                    unwrapSingle);
+                    nuller, unwrapSingle);
         }
         return this;
     }
@@ -276,6 +277,9 @@ _containerType,
             try {
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
@@ -339,6 +343,10 @@ _containerType,
 
         try {
             if (t == JsonToken.VALUE_NULL) {
+                // 03-Feb-2017, tatu: Hmmh. I wonder... let's try skipping here, too
+                if (_skipNullValues) {
+                    return result;
+                }
                 value = _nullProvider.getNullValue(ctxt);
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);

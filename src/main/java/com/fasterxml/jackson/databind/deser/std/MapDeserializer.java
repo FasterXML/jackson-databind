@@ -66,8 +66,6 @@ public class MapDeserializer
 
     protected final ValueInstantiator _valueInstantiator;
 
-    protected final boolean _hasDefaultCreator;
-
     /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
@@ -82,6 +80,8 @@ public class MapDeserializer
      */
     protected PropertyBasedCreator _propertyBasedCreator;    
 
+    protected final boolean _hasDefaultCreator;
+    
     // // Any properties to ignore if seen?
     
     protected Set<String> _ignorableProperties;
@@ -458,6 +458,9 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
@@ -517,6 +520,9 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
@@ -585,6 +591,9 @@ public class MapDeserializer
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);

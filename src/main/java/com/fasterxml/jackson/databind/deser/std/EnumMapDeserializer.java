@@ -167,13 +167,15 @@ public class EnumMapDeserializer
             }
             // And then the value...
             JsonToken t = p.nextToken();
-            /* note: MUST check for nulls separately: deserializers will
-             * not handle them (and maybe fail or return bogus data)
-             */
+            // note: MUST check for nulls separately: deserializers will
+            // not handle them (and maybe fail or return bogus data)
             Object value;
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = _nullProvider.getNullValue(ctxt);
                 } else if (typeDeser == null) {
                     value =  valueDes.deserialize(p, ctxt);
@@ -190,7 +192,7 @@ public class EnumMapDeserializer
 
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);

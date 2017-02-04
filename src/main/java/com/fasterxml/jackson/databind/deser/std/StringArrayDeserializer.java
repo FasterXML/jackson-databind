@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
@@ -52,6 +53,14 @@ public final class StringArrayDeserializer
      */
     protected final Boolean _unwrapSingle;
 
+    /**
+     * Marker flag set if the <code>_nullProvider</code> indicates that all null
+     * content values should be skipped (instead of being possibly converted).
+     *
+     * @since 2.9
+     */
+    protected final boolean _skipNullValues;
+    
     public StringArrayDeserializer() {
         this(null, null, null);
     }
@@ -63,6 +72,7 @@ public final class StringArrayDeserializer
         _elementDeserializer = (JsonDeserializer<String>) deser;
         _nullProvider = nuller;
         _unwrapSingle = unwrapSingle;
+        _skipNullValues = NullsConstantProvider.isSkipper(nuller);
     }
 
     @Override // since 2.9
@@ -139,6 +149,9 @@ public final class StringArrayDeserializer
                         break;
                     }
                     if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
                         value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
                         value = _parseString(p, ctxt);
@@ -193,6 +206,9 @@ public final class StringArrayDeserializer
                     }
                     // Ok: no need to convert Strings, but must recognize nulls
                     if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
                         value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
                         value = deser.deserialize(p, ctxt);
@@ -253,6 +269,10 @@ public final class StringArrayDeserializer
                         break;
                     }
                     if (t == JsonToken.VALUE_NULL) {
+                        // 03-Feb-2017, tatu: Should we skip null here or not?
+                        if (_skipNullValues) {
+                            return NO_STRINGS;
+                        }
                         value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
                         value = _parseString(p, ctxt);

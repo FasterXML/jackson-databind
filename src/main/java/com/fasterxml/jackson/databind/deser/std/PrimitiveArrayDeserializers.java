@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -32,19 +33,23 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
 
     // since 2.9
     private transient Object _emptyValue;
+
+    protected final boolean _skipNullValues;
     
     protected PrimitiveArrayDeserializers(Class<T> cls) {
         super(cls);
         _unwrapSingle = null;
+        _skipNullValues = false;
     }
 
     /**
      * @since 2.7
      */
     protected PrimitiveArrayDeserializers(PrimitiveArrayDeserializers<?> base,
-            Boolean unwrapSingle) {
+            Nulls nullStyle, Boolean unwrapSingle) {
         super(base._valueClass);
         _unwrapSingle = unwrapSingle;
+        _skipNullValues = (nullStyle == Nulls.SKIP);
     }
     
     public static JsonDeserializer<?> forType(Class<?> rawType)
@@ -99,9 +104,10 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     }
     
     /**
-     * @since 2.7
+     * @since 2.9
      */
-    protected abstract PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle);
+    protected abstract PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+            Boolean unwrapSingle);
 
     // since 2.9
     protected abstract T _constructEmpty();
@@ -112,10 +118,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     {
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _valueClass,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        if (unwrapSingle == _unwrapSingle) {
+        Nulls nullStyle = findContentNullStyle(ctxt, property);
+        if (nullStyle == Nulls.SET) {
+            nullStyle = null;
+        }
+        if ((unwrapSingle == _unwrapSingle) && (nullStyle == null)) {
             return this;
         }
-        return withResolved(unwrapSingle);
+        return withResolved(nullStyle, unwrapSingle);
     }
 
     @Override
@@ -203,12 +213,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public CharDeser() { super(char[].class); }
-        protected CharDeser(CharDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected CharDeser(CharDeser base, Nulls nullStyle,Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
             // 11-Dec-2015, tatu: Not sure how re-wrapping would work; omit
             return this;
         }
@@ -243,6 +254,8 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                     String str;
                     if (t == JsonToken.VALUE_STRING) {
                         str = p.getText();
+                    } else if (_skipNullValues && (t == JsonToken.VALUE_NULL)) {
+                        continue;
                     } else {
                         CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
                         str = cs.toString();
@@ -304,13 +317,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public BooleanDeser() { super(boolean[].class); }
-        protected BooleanDeser(BooleanDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected BooleanDeser(BooleanDeser base, Nulls nullStyle, Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new BooleanDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
+            return new BooleanDeser(this, nullStyle, unwrapSingle);
         }
 
         @Override
@@ -330,9 +344,18 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             int ix = 0;
 
             try {
-                while (p.nextToken() != JsonToken.END_ARRAY) {
-                    // whether we should allow truncating conversions?
-                    boolean value = _parseBooleanPrimitive(p, ctxt);
+                JsonToken t;
+                while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                    boolean value;
+                    if (t == JsonToken.VALUE_TRUE) {
+                        value = true;
+                    } else if (t == JsonToken.VALUE_FALSE) {
+                        value = false;
+                    } else if ((t == JsonToken.VALUE_NULL) && _skipNullValues) {
+                        continue;
+                    } else {
+                        value = _parseBooleanPrimitive(p, ctxt);
+                    }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -372,13 +395,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public ByteDeser() { super(byte[].class); }
-        protected ByteDeser(ByteDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected ByteDeser(ByteDeser base, Nulls nullStyle,Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new ByteDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
+            return new ByteDeser(this, nullStyle, unwrapSingle);
         }
 
         @Override
@@ -432,6 +456,9 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                     } else {
                         // should probably accept nulls as 0
                         if (t == JsonToken.VALUE_NULL) {
+                            if (_skipNullValues) {
+                                continue;
+                            }
                             value = (byte) 0;
                         } else {
                             Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
@@ -462,6 +489,9 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             } else {
                 // should probably accept nulls as 'false'
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        return (byte[]) getEmptyValue(ctxt);
+                    }
                     return null;
                 }
                 Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
@@ -487,13 +517,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public ShortDeser() { super(short[].class); }
-        protected ShortDeser(ShortDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected ShortDeser(ShortDeser base, Nulls nullStyle, Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new ShortDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
+            return new ShortDeser(this, nullStyle, unwrapSingle);
         }
 
         @Override
@@ -512,8 +543,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             int ix = 0;
 
             try {
-                while (p.nextToken() != JsonToken.END_ARRAY) {
+                JsonToken t;
+                while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     short value = _parseShortPrimitive(p, ctxt);
+                    if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                    }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -551,13 +588,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public final static IntDeser instance = new IntDeser();
         
         public IntDeser() { super(int[].class); }
-        protected IntDeser(IntDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected IntDeser(IntDeser base, Nulls nullStyle, Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new IntDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
+            return new IntDeser(this, nullStyle, unwrapSingle);
         }
 
         @Override
@@ -576,9 +614,19 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             int ix = 0;
 
             try {
-                while (p.nextToken() != JsonToken.END_ARRAY) {
-                    // whether we should allow truncating conversions?
-                    int value = _parseIntPrimitive(p, ctxt);
+                JsonToken t;
+                while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                    int value;
+                    if (t == JsonToken.VALUE_NUMBER_INT) {
+                        value = p.getIntValue();
+                    } else if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        value = 0;
+                    } else {
+                        value = _parseIntPrimitive(p, ctxt);
+                    }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -616,13 +664,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public final static LongDeser instance = new LongDeser();
 
         public LongDeser() { super(long[].class); }
-        protected LongDeser(LongDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected LongDeser(LongDeser base, Nulls nullStyle, Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new LongDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
+            return new LongDeser(this, nullStyle, unwrapSingle);
         }
 
         @Override
@@ -641,8 +690,19 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             int ix = 0;
 
             try {
-                while (p.nextToken() != JsonToken.END_ARRAY) {
-                    long value = _parseLongPrimitive(p, ctxt);
+                JsonToken t;
+                while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                    long value;
+                    if (t == JsonToken.VALUE_NUMBER_INT) {
+                        value = p.getLongValue();
+                    } else if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                        value = 0L;
+                    } else {
+                        value = _parseLongPrimitive(p, ctxt);
+                    }
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
                         ix = 0;
@@ -678,13 +738,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
 
         public FloatDeser() { super(float[].class); }
-        protected FloatDeser(FloatDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected FloatDeser(FloatDeser base, Nulls nullStyle, Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new FloatDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
+            return new FloatDeser(this, nullStyle, unwrapSingle);
         }
 
         @Override
@@ -703,8 +764,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             int ix = 0;
 
             try {
-                while (p.nextToken() != JsonToken.END_ARRAY) {
+                JsonToken t;
+                while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     // whether we should allow truncating conversions?
+                    if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                    }
                     float value = _parseFloatPrimitive(p, ctxt);
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);
@@ -741,13 +808,14 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         private static final long serialVersionUID = 1L;
         
         public DoubleDeser() { super(double[].class); }
-        protected DoubleDeser(DoubleDeser base, Boolean unwrapSingle) {
-            super(base, unwrapSingle);
+        protected DoubleDeser(DoubleDeser base, Nulls nullStyle, Boolean unwrapSingle) {
+            super(base, nullStyle, unwrapSingle);
         }
 
         @Override
-        protected PrimitiveArrayDeserializers<?> withResolved(Boolean unwrapSingle) {
-            return new DoubleDeser(this, unwrapSingle);
+        protected PrimitiveArrayDeserializers<?> withResolved(Nulls nullStyle,
+                Boolean unwrapSingle) {
+            return new DoubleDeser(this, nullStyle, unwrapSingle);
         }
 
         @Override
@@ -766,7 +834,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             int ix = 0;
 
             try {
-                while (p.nextToken() != JsonToken.END_ARRAY) {
+                JsonToken t;
+                while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                    if (t == JsonToken.VALUE_NULL) {
+                        if (_skipNullValues) {
+                            continue;
+                        }
+                    }
                     double value = _parseDoublePrimitive(p, ctxt);
                     if (ix >= chunk.length) {
                         chunk = builder.appendCompletedChunk(chunk, ix);

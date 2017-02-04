@@ -195,6 +195,9 @@ public final class StringCollectionDeserializer
                     break;
                 }
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = (String) _nullProvider.getNullValue(ctxt);
                 } else {
                     value = _parseString(p, ctxt);
@@ -224,6 +227,9 @@ public final class StringCollectionDeserializer
                 }
                 // Ok: no need to convert Strings, but must recognize nulls
                 if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
                     value = (String) _nullProvider.getNullValue(ctxt);
                 } else {
                     value = deser.deserialize(p, ctxt);
@@ -237,8 +243,8 @@ public final class StringCollectionDeserializer
     }
     
     @Override
-    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-            throws IOException {
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer) throws IOException {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
@@ -249,7 +255,8 @@ public final class StringCollectionDeserializer
      * array, depending on configuration.
      */
     @SuppressWarnings("unchecked")
-    private final Collection<String> handleNonArray(JsonParser p, DeserializationContext ctxt, Collection<String> result) throws IOException
+    private final Collection<String> handleNonArray(JsonParser p, DeserializationContext ctxt,
+            Collection<String> result) throws IOException
     {
         // implicit arrays from single values?
         boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
@@ -265,6 +272,10 @@ public final class StringCollectionDeserializer
         String value;
         
         if (t == JsonToken.VALUE_NULL) {
+            // 03-Feb-2017, tatu: Does this work?
+            if (_skipNullValues) {
+                return result;
+            }
             value = (String) _nullProvider.getNullValue(ctxt);
         } else {
             value = (valueDes == null) ? _parseString(p, ctxt) : valueDes.deserialize(p, ctxt);

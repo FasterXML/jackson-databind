@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -37,13 +38,22 @@ public abstract class ContainerDeserializerBase<T>
      * @since 2.9 (demoted from sub-classes where added in 2.7)
      */
     protected final Boolean _unwrapSingle;
-    
+
+    /**
+     * Marker flag set if the <code>_nullProvider</code> indicates that all null
+     * content values should be skipped (instead of being possibly converted).
+     *
+     * @since 2.9
+     */
+    protected final boolean _skipNullValues;
+
     protected ContainerDeserializerBase(JavaType selfType,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(selfType);
         _containerType = selfType;
         _unwrapSingle = unwrapSingle;
         _nullProvider = nuller;
+        _skipNullValues = NullsConstantProvider.isSkipper(nuller);
     }
 
     protected ContainerDeserializerBase(JavaType selfType) {
@@ -66,6 +76,7 @@ public abstract class ContainerDeserializerBase<T>
         _containerType = base._containerType;
         _nullProvider = nuller;
         _unwrapSingle = unwrapSingle;
+        _skipNullValues = NullsConstantProvider.isSkipper(nuller);
     }
 
     /*

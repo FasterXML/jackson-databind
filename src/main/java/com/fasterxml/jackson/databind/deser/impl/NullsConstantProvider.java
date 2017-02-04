@@ -14,7 +14,7 @@ public class NullsConstantProvider
 {
     private static final long serialVersionUID = 1L;
 
-    private final static NullsConstantProvider SKIPPER = new NullsConstantProvider(NullValueProvider.SKIP_MARKER);
+    private final static NullsConstantProvider SKIPPER = new NullsConstantProvider(null);
 
     private final static NullsConstantProvider NULLER = new NullsConstantProvider(null);
     
@@ -29,9 +29,10 @@ public class NullsConstantProvider
     }
 
     /**
-     * Static accessor for a stateless instance that always returns
-     * {@link NullValueProvider#SKIP_MARKER} marker instance, used to indicate
-     * that null value is to be skipped instead of replacing it.
+     * Static accessor for a stateless instance used as marker, to indicate
+     * that all input `null` values should be skipped (ignored), so that
+     * no corresponding property value is set (with POJOs), and no content
+     * values (array/Collection elements, Map entries) are added.
      */
     public static NullsConstantProvider skipper() {
         return SKIPPER;
@@ -48,6 +49,24 @@ public class NullsConstantProvider
         return new NullsConstantProvider(nvl);
     }
 
+    /**
+     * Utility method that can be used to check if given null value provider
+     * is "skipper", marker provider that means that all input `null`s should
+     * be skipped (ignored), instead of converted
+     */
+    public static boolean isSkipper(NullValueProvider p) {
+        return (p == SKIPPER);
+    }
+
+    /**
+     * Utility method that can be used to check if given null value provider
+     * is "nuller", no-operation provider that will always simply return
+     * Java `null` for any and all input `null`s.
+     */
+    public static boolean isNuller(NullValueProvider p) {
+        return (p == NULLER);
+    }
+    
     @Override
     public AccessPattern getNullAccessPattern() {
         return _access;

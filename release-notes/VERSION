@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.7.9 (not yet released)
 
+#1367: No Object Id found for an instance when using `@ConstructorProperties`
+ (reported by kajo-bellabeat@github; fix by diegode@github)
 #1392: Custom UnmodifiableSetMixin Fails in Jackson 2.7+ but works in Jackson 2.6
  (reported by Rob W)
 #1411: MapSerializer._orderEntries should check for null keys

@@ -373,6 +373,10 @@ public class BeanDeserializer
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
+                continue;
+            }
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
@@ -403,10 +407,6 @@ public class BeanDeserializer
                     // or just clean?
                     return deserialize(p, ctxt, bean);
                 }
-                continue;
-            }
-            // Object Id property?
-            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering

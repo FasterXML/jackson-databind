@@ -1,10 +1,11 @@
-package com.fasterxml.jackson.failing;
-
-import java.beans.ConstructorProperties;
+package com.fasterxml.jackson.databind.objectid;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.beans.ConstructorProperties;
 
 public class ObjectIdWithCreator1367Test
     extends BaseMapTest

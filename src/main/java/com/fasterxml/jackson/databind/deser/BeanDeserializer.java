@@ -1,14 +1,29 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
-import java.util.*;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.impl.*;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.JsonTokenId;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.impl.BeanAsArrayDeserializer;
+import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.impl.ExternalTypeHandler;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
+import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
+import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -389,6 +404,10 @@ public class BeanDeserializer
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken(); // to point to value
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
+                continue;
+            }
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
@@ -419,10 +438,6 @@ public class BeanDeserializer
                     // or just clean?
                     return deserialize(p, ctxt, bean);
                 }
-                continue;
-            }
-            // Object Id property?
-            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering

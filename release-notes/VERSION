@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.9 (not yet released)
+2.7.9 (04-Feb-2017)
 
 #1367: No Object Id found for an instance when using `@ConstructorProperties`
  (reported by kajo-bellabeat@github; fix by diegode@github)

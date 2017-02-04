@@ -148,6 +148,8 @@ Project: jackson-databind
 
 2.7.9 (not released yet)
 
+#1367: No Object Id found for an instance when using `@ConstructorProperties`
+ (reported by kajo-bellabeat@github; fix by diegode@github)
 #1432: Off by 1 bug in PropertyValueBuffer
  (reported by Kevin D)
 #1439: NPE when using with filter id, serializing `java.util.Map` types

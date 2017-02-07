@@ -106,6 +106,14 @@ public enum DeserializationFeature implements ConfigFeature
      */
     READ_ENUMS_USING_TO_STRING(false),
     
+    /**
+     * Feature that determines if Enum deserialization should be case sensitive or not.
+     * If enabled, Enum deserialization will ignore case.
+     * <p>
+     * Feature is disabled by default.
+     */
+    READ_ENUMS_IGNORING_CASE(false),
+    
     /*
     /******************************************************
      *  Error handling features

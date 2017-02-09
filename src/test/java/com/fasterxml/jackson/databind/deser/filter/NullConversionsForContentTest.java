@@ -27,6 +27,11 @@ public class NullConversionsForContentTest extends BaseMapTest
         @JsonSetter(contentNulls=JsonSetter.Nulls.SKIP)
         public T values;
     }
+
+    static class NullContentUndefined<T> {
+        @JsonSetter // leave with defaults
+        public T values;
+    }
     
     private final ObjectMapper MAPPER = new ObjectMapper();
     
@@ -36,7 +41,20 @@ public class NullConversionsForContentTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testFailOnNull() throws Exception
+    // Tests to verify that we can set default settings
+    public void testFailOnNullFromDefaults() throws Exception
+    {
+        final String JSON = aposToQuotes("{'values':[null]}");
+        TypeReference<?> listType = new TypeReference<NullContentUndefined<List<String>>>() { };
+
+        // by default fine to get nulls
+        NullContentUndefined<List<String>> result = MAPPER.readValue(JSON, listType);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.size());
+        assertNull(result.values.get(0));
+    }
+    
+    public void testFailOnNullWithCollections() throws Exception
     {
         TypeReference<?> typeRef = new TypeReference<NullContentFail<List<Integer>>>() { };
 
@@ -87,10 +105,10 @@ public class NullConversionsForContentTest extends BaseMapTest
         }
     }
 
-    /*
     public void testFailOnNullWithPrimitiveArrays() throws Exception
     {
         final String JSON = aposToQuotes("{'noNulls':[null]}");
+
         // boolean[]
         try {
             MAPPER.readValue(JSON, new TypeReference<NullContentFail<boolean[]>>() { });
@@ -98,7 +116,6 @@ public class NullConversionsForContentTest extends BaseMapTest
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
         }
-
         // int[]
         try {
             MAPPER.readValue(JSON, new TypeReference<NullContentFail<int[]>>() { });
@@ -106,8 +123,14 @@ public class NullConversionsForContentTest extends BaseMapTest
         } catch (InvalidNullException e) {
             verifyException(e, "property \"noNulls\"");
         }
+        // double[]
+        try {
+            MAPPER.readValue(JSON, new TypeReference<NullContentFail<double[]>>() { });
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"noNulls\"");
+        }
     }
-    */
 
     public void testFailOnNullWithMaps() throws Exception
     {

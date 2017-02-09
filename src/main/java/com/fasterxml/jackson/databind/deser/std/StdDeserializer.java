@@ -1140,7 +1140,7 @@ public abstract class StdDeserializer<T>
         if (nulls != null) {
             switch (nulls) {
             case FAIL:
-                return new NullsFailProvider(prop.getFullName(), prop.getType());
+                return NullsFailProvider.constructForProperty(prop);
             case AS_EMPTY:
                 // can not deal with empty values if there is no value deserializer that
                 // can indicate what "empty value" is:

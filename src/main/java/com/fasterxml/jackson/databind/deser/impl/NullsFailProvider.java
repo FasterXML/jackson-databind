@@ -17,9 +17,17 @@ public class NullsFailProvider
     protected final PropertyName _name;
     protected final JavaType _type;
 
-    public NullsFailProvider(PropertyName name, JavaType type) {
+    protected NullsFailProvider(PropertyName name, JavaType type) {
         _name = name;
         _type = type;
+    }
+
+    public static NullsFailProvider constructForProperty(BeanProperty prop) {
+        return new NullsFailProvider(prop.getFullName(), prop.getType());
+    }
+
+    public static NullsFailProvider constructForRootValue(JavaType t) {
+        return new NullsFailProvider(null, t);
     }
 
     @Override

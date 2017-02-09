@@ -1140,6 +1140,9 @@ public abstract class StdDeserializer<T>
         if (nulls != null) {
             switch (nulls) {
             case FAIL:
+                if (prop == null) {
+                    return NullsFailProvider.constructForRootValue(ctxt.constructType(valueDeser.handledType()));
+                }
                 return NullsFailProvider.constructForProperty(prop);
             case AS_EMPTY:
                 // can not deal with empty values if there is no value deserializer that
@@ -1197,7 +1200,8 @@ public abstract class StdDeserializer<T>
      *   If null, will assume type is what {@link #getValueClass} returns.
      * @param propName Name of the property that can not be mapped
      */
-    protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt, Object instanceOrClass, String propName)
+    protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt,
+            Object instanceOrClass, String propName)
         throws IOException
     {
         if (instanceOrClass == null) {

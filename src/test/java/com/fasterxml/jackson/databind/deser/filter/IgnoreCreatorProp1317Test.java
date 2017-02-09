@@ -44,7 +44,7 @@ public class IgnoreCreatorProp1317Test extends BaseMapTest
         Testing testing = new Testing("shouldBeIgnored", "notIgnore");
         ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(testing);
-        System.out.println(json);
+//        System.out.println(json);
         assertFalse(json.contains("shouldBeIgnored"));
     }
 }

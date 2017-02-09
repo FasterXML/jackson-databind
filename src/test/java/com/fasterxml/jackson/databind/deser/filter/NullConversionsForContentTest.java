@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.filter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
@@ -41,7 +42,7 @@ public class NullConversionsForContentTest extends BaseMapTest
     /**********************************************************
      */
 
-    // Tests to verify that we can set default settings
+    // Tests to verify that we can set default settings for failure
     public void testFailOnNullFromDefaults() throws Exception
     {
         final String JSON = aposToQuotes("{'values':[null]}");
@@ -52,6 +53,27 @@ public class NullConversionsForContentTest extends BaseMapTest
         assertNotNull(result.values);
         assertEquals(1, result.values.size());
         assertNull(result.values.get(0));
+
+        // but not when overridden globally:
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        try {
+            mapper.readValue(JSON, listType);
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"values\"");
+        }
+
+        // or configured for type:
+        mapper = new ObjectMapper();
+        mapper.configOverride(List.class)
+                .setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        try {
+            mapper.readValue(JSON, listType);
+            fail("Should not pass");
+        } catch (InvalidNullException e) {
+            verifyException(e, "property \"values\"");
+        }
     }
     
     public void testFailOnNullWithCollections() throws Exception
@@ -159,7 +181,7 @@ public class NullConversionsForContentTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testNullsAsEmpty() throws Exception
+    public void testNullsAsEmptyWithCollections() throws Exception
     {
         final String JSON = aposToQuotes("{'values':[null]}");
 
@@ -180,6 +202,27 @@ public class NullConversionsForContentTest extends BaseMapTest
         }
     }
 
+    public void testNullsAsEmptyUsingDefaults() throws Exception
+    {
+        final String JSON = aposToQuotes("{'values':[null]}");
+        TypeReference<?> listType = new TypeReference<NullContentUndefined<List<Integer>>>() { };
+
+        // Let's see defaulting in action
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.AS_EMPTY));
+        NullContentUndefined<List<Integer>> result = mapper.readValue(JSON, listType);
+        assertEquals(1, result.values.size());
+        assertEquals(Integer.valueOf(0), result.values.get(0));
+
+        // or configured for type:
+        mapper = new ObjectMapper();
+        mapper.configOverride(List.class)
+                .setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.AS_EMPTY));
+        result = mapper.readValue(JSON, listType);
+        assertEquals(1, result.values.size());
+        assertEquals(Integer.valueOf(0), result.values.get(0));
+    }        
+    
     public void testNullsAsEmptyWithArrays() throws Exception
     {
         // Note: skip `Object[]`, no default empty value at this point
@@ -251,7 +294,46 @@ public class NullConversionsForContentTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testNullsSkip() throws Exception
+    public void testNullsSkipUsingDefaults() throws Exception
+    {
+        final String JSON = aposToQuotes("{'values':[null]}");
+        TypeReference<?> listType = new TypeReference<NullContentUndefined<List<Long>>>() { };
+
+        // Let's see defaulting in action
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
+        NullContentUndefined<List<Long>> result = mapper.readValue(JSON, listType);
+        assertEquals(0, result.values.size());
+
+        // or configured for type:
+        mapper = new ObjectMapper();
+        mapper.configOverride(List.class)
+                .setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
+        result = mapper.readValue(JSON, listType);
+        assertEquals(0, result.values.size());
+    }        
+
+    // Test to verify that per-property setting overrides defaults:
+    public void testNullsSkipWithOverrides() throws Exception
+    {
+        final String JSON = aposToQuotes("{'values':[null]}");
+        TypeReference<?> listType = new TypeReference<NullContentSkip<List<Long>>>() { };
+
+        ObjectMapper mapper = new ObjectMapper();
+        // defaults call for fail; but POJO specifies "skip"; latter should win
+        mapper.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        NullContentSkip<List<Long>> result = mapper.readValue(JSON, listType);
+        assertEquals(0, result.values.size());
+
+        // ditto for per-type defaults
+        mapper = new ObjectMapper();
+        mapper.configOverride(List.class)
+                .setSetterInfo(JsonSetter.Value.forContentNulls(Nulls.FAIL));
+        result = mapper.readValue(JSON, listType);
+        assertEquals(0, result.values.size());
+    }        
+
+    public void testNullsSkipWithCollections() throws Exception
     {
         // List<Integer>
         {

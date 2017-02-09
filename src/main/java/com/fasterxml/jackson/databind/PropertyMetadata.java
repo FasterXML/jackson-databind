@@ -171,7 +171,8 @@ public class PropertyMetadata
     /**
      * @since 2.9
      */
-    public PropertyMetadata withNulls(JsonSetter.Nulls valueNulls,  JsonSetter.Nulls contentNulls) {
+    public PropertyMetadata withNulls(JsonSetter.Nulls valueNulls,
+            JsonSetter.Nulls contentNulls) {
         return new PropertyMetadata(_required, _description, _index, _defaultValue,
                 _mergeInfo, valueNulls, contentNulls);
     }

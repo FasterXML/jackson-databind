@@ -226,34 +226,34 @@ public class POJOPropertyBuilder
         boolean needMerge = true;
         JsonSetter.Nulls valueNulls = null;
         JsonSetter.Nulls contentNulls = null;
-
+        
         // Slightly confusing: first, annotations should be accessed via primary member
         // (mutator); but accessor is needed for actual merge operation. So:
         AnnotatedMember prim = getPrimaryMember();
         AnnotatedMember acc = getAccessor();
+
         if (prim != null) {
             // Ok, first: does property itself have something to say?
             if (_annotationIntrospector != null) {
                 if (acc != null) {
-                    Boolean b = _annotationIntrospector.findMergeInfo(acc);
+                    Boolean b = _annotationIntrospector.findMergeInfo(prim);
                     if (b != null) {
                         needMerge = false;
                         if (b.booleanValue()) {
                             metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForPropertyOverride(acc));
                         }
                     }
-                    JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(prim);
-                    if (setterInfo != null) {
-                        valueNulls = setterInfo.nonDefaultValueNulls();
-                        contentNulls = setterInfo.nonDefaultContentNulls();
-                    }
+                }
+                JsonSetter.Value setterInfo = _annotationIntrospector.findSetterInfo(prim);
+                if (setterInfo != null) {
+                    valueNulls = setterInfo.nonDefaultValueNulls();
+                    contentNulls = setterInfo.nonDefaultContentNulls();
                 }
             }
             // If not, config override?
             // 25-Oct-2016, tatu: Either this, or type of accessor...
             if (needMerge || (valueNulls == null) || (contentNulls == null)) {
-                // NOTE: "acc.getRawClass()" does NOT work as well, prone to type erasure
-                Class<?> rawType = (acc == null) ? getRawPrimaryType() : acc.getType().getRawClass();
+                Class<?> rawType = getRawPrimaryType();
                 ConfigOverride co = _config.getConfigOverride(rawType);
                 JsonSetter.Value setterInfo = co.getSetterInfo();
                 if (setterInfo != null) {
@@ -298,22 +298,48 @@ public class POJOPropertyBuilder
         return metadata;
     }
 
+    /**
+     * Type determined from the primary member for the property being built,
+     * considering precedence according to whether we are processing serialization
+     * or deserialization.
+     */
     @Override
     public JavaType getPrimaryType() {
-        AnnotatedMember m = getPrimaryMember();
+        if (_forSerialization) {
+            AnnotatedMember m = getGetter();
+            if (m == null) {
+                m = getField();
+                if (m == null) {
+                    // 09-Feb-2017, tatu: Not sure if this or `null` but...
+                    return TypeFactory.unknownType();
+                }
+                return m.getType();
+            }
+            return m.getType();
+        }
+        AnnotatedMember m = getConstructorParameter();
         if (m == null) {
-            return TypeFactory.unknownType();
+            m = getSetter();
+            // Important: can't try direct type access for setter; what we need is
+            // type of the first parameter
+            if (m != null) {
+                return ((AnnotatedMethod) m).getParameterType(0);
+            }
+            m = getField();
+        }
+        // for setterless properties, however, can further try getter
+        if (m == null) {
+            m = getGetter();
+            if (m == null) {
+                return TypeFactory.unknownType();
+            }
         }
         return m.getType();
     }
 
     @Override
     public Class<?> getRawPrimaryType() {
-        AnnotatedMember m = getPrimaryMember();
-        if (m == null) {
-            return Object.class;
-        }
-        return m.getRawType();
+        return getPrimaryType().getRawClass();
     }
 
     /*

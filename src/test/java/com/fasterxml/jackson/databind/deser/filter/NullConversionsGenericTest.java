@@ -13,7 +13,8 @@ import com.fasterxml.jackson.databind.*;
 public class NullConversionsGenericTest extends BaseMapTest
 {
     static class GeneralEmpty<T> {
-        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
+        // 09-Feb-2017, tatu: Should only need annotation either for field OR setter, not both:
+//        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
         T value;
 
         @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)

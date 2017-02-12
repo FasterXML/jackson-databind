@@ -1,14 +1,26 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.util.RawValue;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Node that maps to JSON Object structures in JSON content.
@@ -283,10 +295,8 @@ public class ObjectNode
     public void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
-        @SuppressWarnings("deprecation")
-        boolean trimEmptyArray = (provider != null) &&
-                !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
         g.writeStartObject(this);
+    	boolean ignoreNull = (provider != null ? provider.getConfig().getDefaultPropertyInclusion().getValueInclusion().equals(Include.NON_EMPTY) : false);
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
             /* 17-Feb-2009, tatu: Can we trust that all nodes will always
              *   extend BaseJsonNode? Or if not, at least implement
@@ -294,13 +304,21 @@ public class ObjectNode
              *   we must.
              */
             BaseJsonNode value = (BaseJsonNode) en.getValue();
-
-            // as per [databind#867], see if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
-            // if the feature is disabled, then should not write an empty array
-            // to the output, so continue to the next element in the iteration
-            if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
-            	continue;
-            }
+            // #1267 ignore empty objects or arrays if expected
+            if (ignoreNull) {
+        		if (value.getNodeType() == JsonNodeType.NULL || value.getNodeType() == JsonNodeType.MISSING) {
+            		continue; // if the node is null replacement: skip it
+        		} else if (value.isObject()) {
+        			if (value.size() == 0) {
+        				continue; // if the ObjectNode has no attributes: skip it
+        			}
+        		} else if (value.isArray()) {
+        			ArrayNode arrayNode = (ArrayNode) value;
+        			if (arrayNode.size() == 0) {
+        				continue; // if the array has no elements: skip it
+        			}
+        		}
+        	}
             g.writeFieldName(en.getKey());
             value.serialize(g, provider);
         }

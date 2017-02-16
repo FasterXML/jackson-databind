@@ -1,14 +1,8 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.filter.NullConversionsForContentTest.NullContentSkip;
-import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
 // for [databind#1402]; configurable null handling, specifically with SKIP
 public class NullConversionsSkipTest extends BaseMapTest
@@ -37,9 +31,9 @@ public class NullConversionsSkipTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    /*
     public void testSkipNull() throws Exception
     {
+        /*
         // first, ok if assigning non-null to not-nullable, null for nullable
         NullSkip result = MAPPER.readValue(aposToQuotes("{'noNulls':'foo', 'nullsOk':null}"),
                 NullSkip.class);
@@ -52,15 +46,13 @@ public class NullConversionsSkipTest extends BaseMapTest
         assertEquals("foo", result.noNulls);
         assertNull(result.nullsOk);
     }
-    */
 
-    public void testFailOnNullWithDefaults() throws Exception
+    public void testSkipNullWithDefaults() throws Exception
     {
         String json = aposToQuotes("{'value':null}");
         StringValue result = MAPPER.readValue(json, StringValue.class);
         assertNull(result.value);
 
-        /*
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(String.class)
             .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.SKIP));

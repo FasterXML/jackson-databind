@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.io.*;
 import java.util.*;
@@ -6,9 +6,10 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class TestCollectionSerialization
+public class CollectionSerializationTest
     extends BaseMapTest
 {
     enum Key { A, B, C };
@@ -64,6 +65,18 @@ public class TestCollectionSerialization
 
     static class EmptyArrayBean {
         public String[] empty = new String[0];
+    }
+
+    static class StaticListWrapper {
+        protected List<String> list;
+
+        public StaticListWrapper(String ... v) {
+            list = new ArrayList<String>(Arrays.asList(v));
+        }
+        protected StaticListWrapper() { }
+        
+        public List<String> getList( ) { return list; }
+        public void setList(List<String> l) { list = l; }
     }
 
     /*
@@ -250,5 +263,20 @@ public class TestCollectionSerialization
         m.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         assertEquals("{}", m.writeValueAsString(list));
         assertEquals("{}", m.writeValueAsString(array));
+    }
+
+    public void testStaticList() throws IOException
+    {
+        // First: au naturel
+        StaticListWrapper w = new StaticListWrapper("a", "b", "c");
+        String json = MAPPER.writeValueAsString(w);
+        assertEquals(aposToQuotes("{'list':['a','b','c']}"), json);
+
+        // but then with default typing
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        json = mapper.writeValueAsString(w);
+        assertEquals(aposToQuotes(String.format("['%s',{'list':['%s',['a','b','c']]}]",
+                w.getClass().getName(), w.list.getClass().getName())), json);
     }
 }

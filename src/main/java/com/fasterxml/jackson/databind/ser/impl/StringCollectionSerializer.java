@@ -71,19 +71,13 @@ public class StringCollectionSerializer
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                _serializeUnwrapped(value, gen, provider);
+                serializeContents(value, gen, provider);
                 return;
             }
         }
         gen.writeStartArray(len);
         serializeContents(value, gen, provider);
         gen.writeEndArray();
-    }
-
-    private final void _serializeUnwrapped(Collection<String> value, JsonGenerator gen,
-            SerializerProvider provider) throws IOException
-    {
-        serializeContents(value, gen, provider);
     }
 
     @Override
@@ -99,6 +93,8 @@ public class StringCollectionSerializer
     private final void serializeContents(Collection<String> value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
+        g.setCurrentValue(value);
+
         int i = 0;
 
         try {

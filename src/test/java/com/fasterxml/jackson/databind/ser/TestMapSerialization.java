@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -283,5 +284,17 @@ public class TestMapSerialization extends BaseMapTest
         mapper.addMixIn(Object.class, Mixin691.class);
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
+    }
+
+    // [databind#1513]
+    public void testConcurrentSkipListMap() throws Exception
+    {
+        Map<String,String> input = new ConcurrentSkipListMap<String,String>();
+        input.put("a", "b");
+        input.put("x", "y");
+        String json = MAPPER
+                .writer().with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                .writeValueAsString(input);
+        assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
     }
 }

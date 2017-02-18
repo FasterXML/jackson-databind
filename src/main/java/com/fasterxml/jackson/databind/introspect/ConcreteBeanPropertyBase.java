@@ -24,7 +24,7 @@ public abstract class ConcreteBeanPropertyBase
      * @since 2.3
      */
     protected final PropertyMetadata _metadata;
-    
+
     /**
      * Lazily accessed value for per-property format override definition.
      * 

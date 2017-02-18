@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
+import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -408,6 +409,11 @@ public abstract class SettableBeanProperty
 
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
 
+    /**
+     * @since 2.9
+     */
+    public NullValueProvider getNullValueProvider() { return _nullProvider; }
+
     public boolean visibleInView(Class<?> activeView) {
         return (_viewMatcher == null) || _viewMatcher.isVisibleForView(activeView);
     }
@@ -505,8 +511,7 @@ public abstract class SettableBeanProperty
      */
     public final Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
-        if (t == JsonToken.VALUE_NULL) {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
             return _nullProvider.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
@@ -524,8 +529,12 @@ public abstract class SettableBeanProperty
         JsonToken t = p.getCurrentToken();
 
         // 20-Oct-2016, tatu: Not 100% sure what to do; probably best to simply return
-        //   null value and let caller decide what to do
+        //   null value and let caller decide what to do.
         if (t == JsonToken.VALUE_NULL) {
+            // ... except for "skip nulls" case which should just do that:
+            if (NullsConstantProvider.isSkipper(_nullProvider)) {
+                return toUpdate;
+            }
             return _nullProvider.getNullValue(ctxt);
         }
         // 20-Oct-2016, tatu: Also tricky -- for now, report an error

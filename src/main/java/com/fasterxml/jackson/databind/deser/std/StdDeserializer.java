@@ -1173,7 +1173,8 @@ public abstract class StdDeserializer<T>
                     }
                 }
                 return new NullsAsEmptyProvider(valueDeser);
-            case SKIP: // not handled here
+            case SKIP:
+                return NullsConstantProvider.skipper();
             default: // SET/DEFAULT, nothing to do;
             }
         }

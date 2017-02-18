@@ -5,6 +5,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -33,12 +35,18 @@ public final class FieldProperty
      */
     final protected transient Field _field;
 
+    /**
+     * @since 2.9
+     */
+    final protected boolean _skipNulls;
+
     public FieldProperty(BeanPropertyDefinition propDef, JavaType type,
             TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedField field)
     {
         super(propDef, type, typeDeser, contextAnnotations);
         _annotated = field;
         _field = field.getAnnotated();
+        _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
     protected FieldProperty(FieldProperty src, JsonDeserializer<?> deser,
@@ -46,12 +54,14 @@ public final class FieldProperty
         super(src, deser, nva);
         _annotated = src._annotated;
         _field = src._field;
+        _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
 
     protected FieldProperty(FieldProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
         _field = src._field;
+        _skipNulls = src._skipNulls;
     }
 
     /**
@@ -66,6 +76,7 @@ public final class FieldProperty
             throw new IllegalArgumentException("Missing field (broken JDK (de)serialization?)");
         }
         _field = f;
+        _skipNulls = src._skipNulls;
     }
 
     @Override
@@ -112,7 +123,17 @@ public final class FieldProperty
     public void deserializeAndSet(JsonParser p,
     		DeserializationContext ctxt, Object instance) throws IOException
     {
-        Object value = deserialize(p, ctxt);
+        Object value;
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            if (_skipNulls) {
+                return;
+            }
+            value = _nullProvider.getNullValue(ctxt);
+        } else if (_valueTypeDeserializer == null) {
+            value = _valueDeserializer.deserialize(p, ctxt);
+        } else {
+            value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        }
         try {
             _field.set(instance, value);
         } catch (Exception e) {
@@ -124,7 +145,17 @@ public final class FieldProperty
     public Object deserializeSetAndReturn(JsonParser p,
     		DeserializationContext ctxt, Object instance) throws IOException
     {
-        Object value = deserialize(p, ctxt);
+        Object value;
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
+            if (_skipNulls) {
+                return instance;
+            }
+            value = _nullProvider.getNullValue(ctxt);
+        } else if (_valueTypeDeserializer == null) {
+            value = _valueDeserializer.deserialize(p, ctxt);
+        } else {
+            value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        }
         try {
             _field.set(instance, value);
         } catch (Exception e) {
@@ -132,9 +163,9 @@ public final class FieldProperty
         }
         return instance;
     }
-    
+
     @Override
-    public final void set(Object instance, Object value) throws IOException
+    public void set(Object instance, Object value) throws IOException
     {
         try {
             _field.set(instance, value);

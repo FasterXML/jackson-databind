@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -283,5 +284,30 @@ public class TestMapSerialization extends BaseMapTest
         mapper.addMixIn(Object.class, Mixin691.class);
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
+    }
+
+    // [databind#1513]
+    public void testConcurrentMaps() throws Exception
+    {
+        final ObjectWriter w = MAPPER.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+
+        Map<String,String> input = new ConcurrentSkipListMap<String,String>();
+        input.put("x", "y");
+        input.put("a", "b");
+        String json = w.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
+
+        input = new ConcurrentHashMap<String,String>();
+        input.put("x", "y");
+        input.put("a", "b");
+        json = w.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
+
+        // One more: while not technically concurrent map at all, exhibits same issue
+        input = new Hashtable<String,String>();
+        input.put("x", "y");
+        input.put("a", "b");
+        json = w.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
     }
 }

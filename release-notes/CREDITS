@@ -496,6 +496,10 @@ Josh Caplan (jecaplan@github)
     of non-ignored `processor` property (added in 2.7)
    (2.7.8)
 
+Diego de Estrada (diegode@github)
+  * Contributed fix for #1367: No Object Id found for an instance when using `@ConstructorProperties`
+   (2.7.9)
+
 Kevin Hogeland (khogeland@github)
   * Reported #1501: `ArrayIndexOutOfBoundsException` on non-static inner class constructor
    (2.7.9)

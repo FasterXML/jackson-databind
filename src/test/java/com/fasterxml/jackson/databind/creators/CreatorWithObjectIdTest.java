@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.creators;
 
 import java.beans.ConstructorProperties;
 
@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
 
-public class ObjectIdWithCreator1367Test
+// for [databind#1367]
+public class CreatorWithObjectIdTest
     extends BaseMapTest
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -37,7 +38,7 @@ public class ObjectIdWithCreator1367Test
         }
     }
 
-    public void testObjectIdWithCreator1367() throws Exception
+    public void testObjectIdWithCreator() throws Exception
     {
         A a = new A("123", "A");
 

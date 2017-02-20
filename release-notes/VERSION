@@ -7,8 +7,12 @@ Project: jackson-databind
 
 #935: `@JsonProperty(access = Access.READ_ONLY)` - unexpected behaviour
 #1317: '@JsonIgnore' annotation not working with creator properties, serialization
+#1367: No Object Id found for an instance when using `@ConstructorProperties`
 #1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
  (suggested by Stephan S)
+#1506: Missing `KeyDeserializer` for `CharSequence`
+#1513: `MapSerializer._orderEntries()` throws NPE when operating on `ConcurrentHashMap`
+ (reported by Sovietaced@github)
 - Simplified processing of class annotations (for `AnnotatedClass`) to try to
   solve rare concurrency problems with "root name" annotations.
 

@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.7 (not yet released)
+2.8.7 (21-Feb-2017)
 
 #935: `@JsonProperty(access = Access.READ_ONLY)` - unexpected behaviour
 #1317: '@JsonIgnore' annotation not working with creator properties, serialization

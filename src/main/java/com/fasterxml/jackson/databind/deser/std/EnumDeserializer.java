@@ -167,6 +167,13 @@ public class EnumDeserializer
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return null;
             }
+        } else if (ctxt.isEnabled(DeserializationFeature.READ_ENUMS_IGNORING_CASE)) {
+            // [databind#1313]: Case insensitive enum deserialization
+            for (String key : lookup.keys()) {
+                if (key.equalsIgnoreCase(name)) {
+                    return lookup.find(key);
+                }
+            }
         } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
             // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
             char c = name.charAt(0);

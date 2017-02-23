@@ -129,10 +129,10 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         public BaseClass value;
     }
 
+    // [databind#1533]
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
             property = "type")
     static class AsProperty {
-
     }
 
     static class AsPropertyWrapper {
@@ -259,19 +259,23 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     public void testWithoutEmptyStringAsNullObject1533() throws Exception
     {
-    	ObjectMapper mapper = new ObjectMapper().disable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        ObjectReader r = MAPPER.readerFor(AsPropertyWrapper.class)
+                .without(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         try {
-            mapper.readValue("{ \"value\": \"\" }", AsPropertyWrapper.class);
+            r.readValue("{ \"value\": \"\" }");
             fail("Expected " + JsonMappingException.class);
         } catch (JsonMappingException e) {
-            // expected
+            verifyException(e, "missing property 'type'");
+            verifyException(e, "contain type id");
         }
     }
 
+    // [databind#1533]
     public void testWithEmptyStringAsNullObject1533() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper().enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-        AsPropertyWrapper wrapper = mapper.readValue("{ \"value\": \"\" }", AsPropertyWrapper.class);
+        ObjectReader r = MAPPER.readerFor(AsPropertyWrapper.class)
+                .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        AsPropertyWrapper wrapper = r.readValue("{ \"value\": \"\" }");
         assertNull(wrapper.value);
     }
 

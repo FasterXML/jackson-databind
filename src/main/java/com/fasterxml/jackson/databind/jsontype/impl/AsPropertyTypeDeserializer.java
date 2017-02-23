@@ -151,9 +151,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             return result;
         }
         // or, something for which "as-property" won't work, changed into "wrapper-array" type:
-        if (p.getCurrentToken() == JsonToken.START_ARRAY) {
+        if (p.isExpectedStartArrayToken()) {
             return super.deserializeTypedFromAny(p, ctxt);
-        } else if (p.getCurrentToken() == JsonToken.VALUE_STRING) {
+        }
+        if (p.hasToken(JsonToken.VALUE_STRING)) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 String str = p.getText().trim();
                 if (str.isEmpty()) {

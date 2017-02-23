@@ -3,6 +3,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.8 (not yet released)
+
+#1533: `AsPropertyTypeDeserializer` ignores `DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+
 2.8.7 (21-Feb-2017)
 
 #935: `@JsonProperty(access = Access.READ_ONLY)` - unexpected behaviour

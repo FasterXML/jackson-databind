@@ -129,6 +129,16 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         public BaseClass value;
     }
 
+    // [databind#1533]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+            property = "type")
+    static class AsProperty {
+    }
+
+    static class AsPropertyWrapper {
+        public AsProperty value;
+    }
+
     /*
     /**********************************************************
     /* Unit tests, deserialization
@@ -245,6 +255,28 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
                 BaseWrapper.class);
         assertNotNull(w);
         assertNull(w.value);
+    }
+
+    public void testWithoutEmptyStringAsNullObject1533() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(AsPropertyWrapper.class)
+                .without(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        try {
+            r.readValue("{ \"value\": \"\" }");
+            fail("Expected " + JsonMappingException.class);
+        } catch (JsonMappingException e) {
+            verifyException(e, "missing property 'type'");
+            verifyException(e, "contain type id");
+        }
+    }
+
+    // [databind#1533]
+    public void testWithEmptyStringAsNullObject1533() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(AsPropertyWrapper.class)
+                .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        AsPropertyWrapper wrapper = r.readValue("{ \"value\": \"\" }");
+        assertNull(wrapper.value);
     }
 
     /*

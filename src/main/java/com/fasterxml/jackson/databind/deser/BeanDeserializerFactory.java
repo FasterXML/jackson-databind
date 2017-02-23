@@ -594,18 +594,13 @@ public class BeanDeserializerFactory
                 continue;
             }
             if (!property.hasConstructorParameter()) { // never skip constructor params
-                AnnotatedMember primary = property.getPrimaryMember();
-                // 22-Oct-2016, tatu: Looks like there are properties defined for single-arg
-                //   delegating creator (... or something)
-                if (primary != null) {
-                    Class<?> rawPropertyType = primary.getRawType();
-                    // Some types are declared as ignorable as well
-                    if ((rawPropertyType != null)
-                            && isIgnorableType(ctxt.getConfig(), property, rawPropertyType, ignoredTypes)) {
-                        // important: make ignorable, to avoid errors if value is actually seen
-                        builder.addIgnorable(name);
-                        continue;
-                    }
+                Class<?> rawPropertyType = property.getRawPrimaryType();
+                // Some types are declared as ignorable as well
+                if ((rawPropertyType != null)
+                        && isIgnorableType(ctxt.getConfig(), property, rawPropertyType, ignoredTypes)) {
+                    // important: make ignorable, to avoid errors if value is actually seen
+                    builder.addIgnorable(name);
+                    continue;
                 }
             }
             result.add(property);

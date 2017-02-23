@@ -92,28 +92,7 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link java.util.List}s.
      */
     USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
-    
-    /**
-     * Feature that determines standard deserialization mechanism used for
-     * Enum values: if enabled, Enums are assumed to have been serialized  using
-     * return value of <code>Enum.toString()</code>;
-     * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
-     *<p>
-     * Note: this feature should usually have same value
-     * as {@link SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.
-     *<p>
-     * Feature is disabled by default.
-     */
-    READ_ENUMS_USING_TO_STRING(false),
-    
-    /**
-     * Feature that determines if Enum deserialization should be case sensitive or not.
-     * If enabled, Enum deserialization will ignore case.
-     * <p>
-     * Feature is disabled by default.
-     */
-    READ_ENUMS_IGNORING_CASE(false),
-    
+
     /*
     /******************************************************
      *  Error handling features
@@ -372,6 +351,31 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.6
      */
     ACCEPT_FLOAT_AS_INT(true),
+    
+    /**
+     * Feature that determines standard deserialization mechanism used for
+     * Enum values: if enabled, Enums are assumed to have been serialized  using
+     * return value of <code>Enum.toString()</code>;
+     * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
+     *<p>
+     * Note: this feature should usually have same value
+     * as {@link SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.
+     *<p>
+     * Feature is disabled by default.
+     */
+    READ_ENUMS_USING_TO_STRING(false),
+
+    /**
+     * Feature that determines if Enum deserialization should be case sensitive or not.
+     * If enabled, Enum deserialization will ignore case, that is, case of incoming String
+     * value and enum id (dependant on other settings, either `name()`, `toString()`, or
+     * explicit override) do not need to match.
+     * <p>
+     * Feature is disabled by default.
+     *
+     * @since 2.9
+     */
+    READ_ENUMS_IGNORING_CASE(false),
     
     /**
      * Feature that allows unknown Enum values to be parsed as null values. 

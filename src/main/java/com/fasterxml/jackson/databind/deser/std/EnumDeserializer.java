@@ -2,9 +2,13 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -19,6 +23,7 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 @JacksonStdImpl // was missing until 2.6
 public class EnumDeserializer
     extends StdScalarDeserializer<Object>
+    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -41,13 +46,28 @@ public class EnumDeserializer
      * @since 2.7.3
      */
     protected CompactStringObjectMap _lookupByToString;
-    
+
+    protected final Boolean _caseInsensitive;
+
     public EnumDeserializer(EnumResolver byNameResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
+        _caseInsensitive = false;
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive)
+    {
+        super(base);
+        _lookupByName = base._lookupByName;
+        _enumsByIndex = base._enumsByIndex;
+        _enumDefaultValue = base._enumDefaultValue;
+        _caseInsensitive = caseInsensitive;
     }
 
     /**
@@ -96,6 +116,25 @@ public class EnumDeserializer
                     config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         return new FactoryBasedEnumDeserializer(enumClass, factory);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public EnumDeserializer withResolved(Boolean caseInsensitive) {
+        if (_caseInsensitive == caseInsensitive) {
+            return this;
+        }
+        return new EnumDeserializer(this, caseInsensitive);
+    }
+    
+    @Override // since 2.9
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
+    {
+        Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
+                JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        return withResolved(caseInsensitive);
     }
 
     /*
@@ -167,24 +206,28 @@ public class EnumDeserializer
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 return null;
             }
-        } else if (ctxt.isEnabled(DeserializationFeature.READ_ENUMS_IGNORING_CASE)) {
+        } else {
             // [databind#1313]: Case insensitive enum deserialization
-            for (String key : lookup.keys()) {
-                if (key.equalsIgnoreCase(name)) {
-                    return lookup.find(key);
-                }
-            }
-        } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-            // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
-            char c = name.charAt(0);
-            if (c >= '0' && c <= '9') {
-                try {
-                    int index = Integer.parseInt(name);
-                    if (index >= 0 && index < _enumsByIndex.length) {
-                        return _enumsByIndex[index];
+            if ((_caseInsensitive == Boolean.TRUE) ||
+                    ((_caseInsensitive == null) &&
+                            ctxt.isEnabled(DeserializationFeature.READ_ENUMS_IGNORING_CASE))) {
+                for (String key : lookup.keys()) {
+                    if (key.equalsIgnoreCase(name)) {
+                        return lookup.find(key);
                     }
-                } catch (NumberFormatException e) {
-                    // fine, ignore, was not an integer
+                }
+            } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+                // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
+                char c = name.charAt(0);
+                if (c >= '0' && c <= '9') {
+                    try {
+                        int index = Integer.parseInt(name);
+                        if (index >= 0 && index < _enumsByIndex.length) {
+                            return _enumsByIndex[index];
+                        }
+                    } catch (NumberFormatException e) {
+                        // fine, ignore, was not an integer
+                    }
                 }
             }
         }

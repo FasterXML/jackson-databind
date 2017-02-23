@@ -610,3 +610,7 @@ Fabrizio Cucci (fabriziocucci@github)
 Emiliano Clariá (emilianogc@github)
   * Contributed #1434: Explicitly pass null on invoke calls with no arguments
    (2.9.0)
+
+Ana Eliza Barbosa (AnaEliza@github)
+  * Contributed #1520: Case insensitive enum deserialization feature.
+   (2.9.0)

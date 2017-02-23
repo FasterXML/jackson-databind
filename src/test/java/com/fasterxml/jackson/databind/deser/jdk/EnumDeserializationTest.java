@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.IOException;
 import java.util.*;
@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -47,7 +46,7 @@ public class EnumDeserializationTest
             return TestEnum.valueOf(jp.getText().toUpperCase());
         }
     }
-    
+
     protected enum LowerCaseEnum {
         A, B, C;
         private LowerCaseEnum() { }
@@ -510,57 +509,5 @@ public class EnumDeserializationTest
         } catch (IOException e) {
             assertTrue(e.getMessage().contains("Undefined AnEnum"));
         }
-    }
-    
-    public void testFailWhenCaseSensitiveAndNameIsNotUpperCase() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        
-        try {
-            objectMapper.readValue("\"Jackson\"", TestEnum.class);
-            fail("InvalidFormatException expected");
-        } catch (InvalidFormatException e) {
-            assertTrue(e.getMessage().contains("value not one of declared Enum instance names: [JACKSON, OK, RULES]"));
-        }
-    }
-    
-    public void testFailWhenCaseSensitiveAndToStringIsUpperCase() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-        
-        try {
-            objectMapper.readValue("\"A\"", LowerCaseEnum.class);
-            fail("InvalidFormatException expected");
-        } catch (InvalidFormatException e) {
-            assertTrue(e.getMessage().contains("value not one of declared Enum instance names: [a, b, c]"));
-        }
-    }
-    
-    public void testEnumDesIgnoringCaseWithLowerCaseContent() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(DeserializationFeature.READ_ENUMS_IGNORING_CASE);
-        
-        TestEnum testEnum = objectMapper.readValue("\"jackson\"", TestEnum.class);
-        
-        assertEquals(TestEnum.JACKSON, testEnum);
-    }
-    
-    public void testEnumDesIgnoringCaseWithUpperCaseToString() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
-        objectMapper.enable(DeserializationFeature.READ_ENUMS_IGNORING_CASE);
-        
-        LowerCaseEnum lowerCaseEnum = objectMapper.readValue("\"A\"", LowerCaseEnum.class);
-        
-        assertEquals(LowerCaseEnum.A, lowerCaseEnum);
-    }
-    
-    public void testIgnoreCaseInEnumList() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(DeserializationFeature.READ_ENUMS_IGNORING_CASE);
-        
-        TestEnum[] testEnum = objectMapper.readValue("[\"jackson\", \"rules\"]", TestEnum[].class);
-        
-        assertEquals(TestEnum.JACKSON, testEnum[0]);
-        assertEquals(TestEnum.RULES, testEnum[1]);
     }
 }

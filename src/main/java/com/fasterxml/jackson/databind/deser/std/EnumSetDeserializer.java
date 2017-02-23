@@ -63,7 +63,7 @@ public class EnumSetDeserializer
     @SuppressWarnings("unchecked" )
     protected EnumSetDeserializer(EnumSetDeserializer base,
             JsonDeserializer<?> deser, Boolean unwrapSingle) {
-        super(EnumSet.class);
+        super(base);
         _enumType = base._enumType;
         _enumClass = base._enumClass;
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;

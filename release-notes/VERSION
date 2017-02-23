@@ -52,6 +52,8 @@ Project: jackson-databind
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`
 #1474: Replace use of `Class.newInstance()` (deprecated in Java 9) with call via Constructor
+#1520: Case insensitive enum deserialization feature.
+ (contributed by Ana-Eliza B)
 
 2.8.8 (not yet released)
 

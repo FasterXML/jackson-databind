@@ -433,7 +433,7 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.9
      */
     IGNORE_MERGE_FOR_UNMERGEABLE(true)
-    
+
     ;
 
     private final boolean _defaultState;

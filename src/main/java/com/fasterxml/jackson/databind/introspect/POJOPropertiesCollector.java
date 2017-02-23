@@ -502,10 +502,8 @@ public class POJOPropertiesCollector
         boolean expl = (pn != null && !pn.isEmpty());
         if (!expl) {
             if (impl.isEmpty()) {
-                /* Important: if neither implicit nor explicit name, can not make use
-                 * of this creator parameter -- may or may not be a problem, verified
-                 * at a later point.
-                 */
+                // Important: if neither implicit nor explicit name, can not make use of
+                // this creator parameter -- may or may not be a problem, verified at a later point.
                 return;
             }
             // Also: if this occurs, there MUST be explicit annotation on creator itself
@@ -529,14 +527,13 @@ public class POJOPropertiesCollector
         prop.addCtor(param, pn, expl, true, false);
         _creatorProperties.add(prop);
     }
-    
+
     /**
      * Method for collecting basic information on all fields found
      */
     protected void _addMethods(Map<String, POJOPropertyBuilder> props)
     {
         final AnnotationIntrospector ai = _annotationIntrospector;
-        
         for (AnnotatedMethod m : _classDef.memberMethods()) {
             /* For methods, handling differs between getters and setters; and
              * we will also only consider entries that either follow the bean

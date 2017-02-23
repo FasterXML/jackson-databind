@@ -335,7 +335,25 @@ public class JacksonAnnotationIntrospector
         PropertyName n = _findConstructorName(m);
         return (n == null) ? null : n.getSimpleName();
     }
-    
+
+    @Override
+    public List<PropertyName> findPropertyAliases(Annotated m) {
+        JsonAlias ann = _findAnnotation(m, JsonAlias.class);
+        if (ann == null) {
+            return null;
+        }
+        String[] strs = ann.value();
+        final int len = strs.length;
+        if (len == 0) {
+            return Collections.emptyList();
+        }
+        List<PropertyName> result = new ArrayList<>(len);
+        for (int i = 0; i < len; ++i) {
+            result.add(PropertyName.construct(strs[i]));
+        }
+        return result;
+    }
+
     @Override
     public boolean hasIgnoreMarker(AnnotatedMember m) {
         return _isIgnorable(m);

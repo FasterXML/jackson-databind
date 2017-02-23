@@ -62,7 +62,7 @@ public abstract class AnnotationIntrospector
              * {@link com.fasterxml.jackson.annotation.JsonManagedReference}
              */
             MANAGED_REFERENCE
-    
+
             /**
              * Reference property that Jackson manages by suppressing it during serialization,
              * and reconstructing during deserialization.
@@ -569,6 +569,16 @@ public abstract class AnnotationIntrospector
      * @since 2.4
      */
     public String findImplicitPropertyName(AnnotatedMember member) { return null; }
+
+    /**
+     * Method called to find if given property has alias(es) defined.
+     * 
+     * @return `null` if member has no information; otherwise a `List` (possibly
+     *   empty) of aliases to use.
+     *
+     * @since 2.9
+     */
+    public List<PropertyName> findPropertyAliases(Annotated ann) { return null; }
 
     /**
      * Method for finding optional access definition for a property, annotated

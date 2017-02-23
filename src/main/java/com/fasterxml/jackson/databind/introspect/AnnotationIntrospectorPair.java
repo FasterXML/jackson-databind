@@ -465,9 +465,15 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public String findImplicitPropertyName(AnnotatedMember param) {
-        String r = _primary.findImplicitPropertyName(param);
-        return (r == null) ? _secondary.findImplicitPropertyName(param) : r;
+    public String findImplicitPropertyName(AnnotatedMember ann) {
+        String r = _primary.findImplicitPropertyName(ann);
+        return (r == null) ? _secondary.findImplicitPropertyName(ann) : r;
+    }
+
+    @Override
+    public List<PropertyName> findPropertyAliases(Annotated ann) {
+        List<PropertyName> r = _primary.findPropertyAliases(ann);
+        return (r == null) ? _secondary.findPropertyAliases(ann) : r;
     }
 
     @Override

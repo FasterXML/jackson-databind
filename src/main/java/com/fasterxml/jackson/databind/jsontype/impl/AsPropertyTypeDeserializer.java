@@ -153,6 +153,13 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // or, something for which "as-property" won't work, changed into "wrapper-array" type:
         if (p.getCurrentToken() == JsonToken.START_ARRAY) {
             return super.deserializeTypedFromAny(p, ctxt);
+        } else if (p.getCurrentToken() == JsonToken.VALUE_STRING) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                String str = p.getText().trim();
+                if (str.isEmpty()) {
+                    return null;
+                }
+            }
         }
         ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,
                 "missing property '"+_typePropertyName+"' that is to contain type id  (for class "+baseTypeName()+")");

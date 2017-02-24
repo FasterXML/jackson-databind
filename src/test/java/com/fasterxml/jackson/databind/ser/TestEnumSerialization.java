@@ -412,7 +412,7 @@ public class TestEnumSerialization
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", w.writeValueAsString(m));
     }
-    
+
     public void testEnumMapSerEnableToString() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         ObjectWriter w = mapper.writer().with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -424,6 +424,13 @@ public class TestEnumSerialization
     // [databind#1322]
     public void testEnumsWithJsonProperty() throws Exception {
         assertEquals(quote("aleph"), MAPPER.writeValueAsString(EnumWithJsonProperty.A));
+    }
+
+    // [databind#1535]
+    public void testEnumKeysWithJsonProperty() throws Exception {
+        Map<EnumWithJsonProperty,Integer> input = new HashMap<EnumWithJsonProperty,Integer>();
+        input.put(EnumWithJsonProperty.A, 13);
+        assertEquals(aposToQuotes("{'aleph':13}"), MAPPER.writeValueAsString(input));
     }
 
     // [databind#1322]

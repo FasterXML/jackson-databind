@@ -1510,7 +1510,7 @@ public class ObjectMapper
         typer = typer.typeProperty(propertyName);
         return setDefaultTyping(typer);
     }
-    
+
     /**
      * Method for disabling automatic inclusion of type information; if so, only
      * explicitly annotated types (ones with
@@ -1611,7 +1611,7 @@ public class ObjectMapper
         _serializationConfig = _serializationConfig.with(f);
         return this;
     }
-    
+
     /**
      * Convenience method for constructing {@link JavaType} out of given
      * type (typically <code>java.lang.Class</code>), but without explicit
@@ -1620,7 +1620,7 @@ public class ObjectMapper
     public JavaType constructType(Type t) {
         return _typeFactory.constructType(t);
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, deserialization
@@ -1640,7 +1640,7 @@ public class ObjectMapper
     public JsonNodeFactory getNodeFactory() {
         return _deserializationConfig.getNodeFactory();
     }
-    
+
     /**
      * Method for specifying {@link JsonNodeFactory} to use for
      * constructing root level tree nodes (via method

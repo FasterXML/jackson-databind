@@ -1346,8 +1346,8 @@ public class POJOPropertyBuilder
         
         @Override
         public String toString() {
-            String msg = value.toString()+"[visible="+isVisible+",ignore="+isMarkedIgnored
-                    +",explicitName="+isNameExplicit+"]";
+            String msg = String.format("%s[visible=%b,ignore=%b,explicitName=%b]",
+                    value.toString(), isVisible, isMarkedIgnored, isNameExplicit);
             if (next != null) {
                 msg = msg + ", "+next.toString();
             }

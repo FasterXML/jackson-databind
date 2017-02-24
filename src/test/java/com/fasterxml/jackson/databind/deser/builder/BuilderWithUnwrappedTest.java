@@ -132,7 +132,7 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
     }
 
     // Alas: can't pass, until [databind#265] fixed:
-    /*
+    // 23-Feb-2017, tatu: or its follow-up: error message is now more descriptive...
     public void testWithCreatorUnwrapping() throws Exception
     {
         final String json = aposToQuotes("{'loc.x':4,'name':'Foobar','loc.y': 7}}");
@@ -141,13 +141,22 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
         mapper.setInjectableValues(new InjectableValues.Std()
                 .addValue(String.class, "stuffValue")
                 );
-        
-        UnwrappingCreatorValue result = mapper.readValue(json, UnwrappingCreatorValue.class);
+
+        @SuppressWarnings("unused")
+        UnwrappingCreatorValue result;
+        try {
+            result = mapper.readValue(json, UnwrappingCreatorValue.class);
+            fail("Did not expect to really pass -- should maybe update the test");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "combination not yet supported");
+        }
+
+        /*
         assertNotNull(result);
         assertNotNull(result.location);
         assertEquals("Foobar", result.name);
         assertEquals(4, result.location.x);
         assertEquals(7, result.location.y);
+        */
     }
-    */
 }

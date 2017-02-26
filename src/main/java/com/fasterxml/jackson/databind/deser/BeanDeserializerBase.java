@@ -48,7 +48,7 @@ public abstract class BeanDeserializerBase
      * Requested shape from bean class annotations.
      */
     final protected JsonFormat.Shape _serializationShape;
-    
+
     /*
     /**********************************************************
     /* Configuration for creating value instance

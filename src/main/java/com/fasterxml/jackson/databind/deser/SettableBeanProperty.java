@@ -91,9 +91,8 @@ public abstract class SettableBeanProperty
      */
 
     /**
-     * If property represents a managed (forward) reference
-     * (see [JACKSON-235]), we will need name of reference for
-     * later linking.
+     * If property represents a managed (forward) reference, we will need
+     * the name of reference for later linking.
      *<p>
      * TODO: should try to make immutable.
      */

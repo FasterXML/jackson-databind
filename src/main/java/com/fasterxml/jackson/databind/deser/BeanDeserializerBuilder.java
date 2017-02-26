@@ -215,8 +215,7 @@ public class BeanDeserializerBuilder
         if (fixAccess) {
             member.fixAccess(forceAccess);
         }
-        _injectables.add(new ValueInjector(propName, propType,
-                contextAnnotations, member, valueId));
+        _injectables.add(new ValueInjector(propName, propType, member, valueId));
     }
 
     /**

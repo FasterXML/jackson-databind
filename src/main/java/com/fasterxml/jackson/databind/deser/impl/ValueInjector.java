@@ -2,14 +2,8 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
  * Class that encapsulates details of value injection that occurs before
@@ -28,11 +22,9 @@ public class ValueInjector
     protected final Object _valueId;
 
     public ValueInjector(PropertyName propName, JavaType type,
-            Annotations contextAnnotations, AnnotatedMember mutator,
-            Object valueId)
+            AnnotatedMember mutator, Object valueId)
     {
-        super(propName, type, null, contextAnnotations, mutator,
-                PropertyMetadata.STD_OPTIONAL);
+        super(propName, type, null, mutator, PropertyMetadata.STD_OPTIONAL);
         _valueId = valueId;
     }
 

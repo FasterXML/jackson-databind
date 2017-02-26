@@ -841,8 +841,7 @@ public abstract class BasicDeserializerFactory
         }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, param, param.getType());
         BeanProperty.Std property = new BeanProperty.Std(name, type,
-                intr.findWrapperName(param),
-                beanDesc.getClassAnnotations(), param, metadata);
+                intr.findWrapperName(param), param, metadata);
         // Type deserializer: either comes from property (and already resolved)
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
         // or if not, based on type being referenced:

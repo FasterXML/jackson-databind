@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Value;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -216,29 +217,32 @@ public interface BeanProperty extends Named
          */
         protected final AnnotatedMember _member;
 
-        /**
-         * Annotations defined in the context class (if any); may be null
-         * if no annotations were found
-         */
-        protected final transient Annotations _contextAnnotations;
-
         public Std(PropertyName name, JavaType type, PropertyName wrapperName,
-                Annotations contextAnnotations, AnnotatedMember member,
-                PropertyMetadata metadata)
+                AnnotatedMember member, PropertyMetadata metadata)
         {
             _name = name;
             _type = type;
             _wrapperName = wrapperName;
             _metadata = metadata;
             _member = member;
-            _contextAnnotations = contextAnnotations;
+        }
+
+        /**
+         * @deprecated Since 2.9
+         */
+        @Deprecated
+        public Std(PropertyName name, JavaType type, PropertyName wrapperName,
+                Annotations contextAnnotations,
+                AnnotatedMember member, PropertyMetadata metadata)
+        {
+            this(name, type, wrapperName, member, metadata);
         }
 
         /**
          * @since 2.6
          */
         public Std(Std base, JavaType newType) {
-            this(base._name, newType, base._wrapperName, base._contextAnnotations, base._member, base._metadata);
+            this(base._name, newType, base._wrapperName, base._member, base._metadata);
         }
 
         public Std withType(JavaType type) {
@@ -252,7 +256,7 @@ public interface BeanProperty extends Named
 
         @Override
         public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
-            return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
+            return null;
         }
 
         @Override

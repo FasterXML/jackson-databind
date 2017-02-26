@@ -88,9 +88,8 @@ public class BeanDeserializer
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
-        /* bit kludgy but we don't want to accidentally change type; sub-classes
-         * MUST override this method to support unwrapped properties...
-         */
+        // bit kludgy but we don't want to accidentally change type; sub-classes
+        // MUST override this method to support unwrapped properties...
         if (getClass() != BeanDeserializer.class) {
             return this;
         }

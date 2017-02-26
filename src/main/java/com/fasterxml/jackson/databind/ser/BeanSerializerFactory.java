@@ -560,7 +560,7 @@ public class BeanSerializerFactory
             // TODO: can we find full PropertyName?
             PropertyName name = PropertyName.construct(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
-                    beanDesc.getClassAnnotations(), anyGetter, PropertyMetadata.STD_OPTIONAL);
+                    anyGetter, PropertyMetadata.STD_OPTIONAL);
             builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, anySer));
         }
         // Next: need to gather view information, if any:
@@ -905,7 +905,7 @@ public class BeanSerializerFactory
         final PropertyName name = propDef.getFullName();
         JavaType type = accessor.getType();
         BeanProperty.Std property = new BeanProperty.Std(name, type, propDef.getWrapperName(),
-                pb.getClassAnnotations(), accessor, propDef.getMetadata());
+                accessor, propDef.getMetadata());
 
         // Does member specify a serializer? If so, let's use it.
         JsonSerializer<?> annotatedSerializer = findSerializerFromAnnotation(prov,

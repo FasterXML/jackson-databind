@@ -7,7 +7,6 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
  * Wrapper property that is used to handle managed (forward) properties
@@ -31,7 +30,7 @@ public final class ManagedReferenceProperty
     protected final SettableBeanProperty _backProperty;
 
     public ManagedReferenceProperty(SettableBeanProperty forward, String refName,
-            SettableBeanProperty backward, Annotations contextAnnotations, boolean isContainer)
+            SettableBeanProperty backward, boolean isContainer)
     {
         super(forward);
         _referenceName = refName;

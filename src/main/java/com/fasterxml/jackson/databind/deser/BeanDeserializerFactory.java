@@ -680,7 +680,7 @@ public class BeanDeserializerFactory
             valueType = am.getParameterType(1);
             valueType = resolveMemberAndTypeAnnotations(ctxt, mutator, valueType);
             prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    valueType, null, beanDesc.getClassAnnotations(), mutator,
+                    valueType, null, mutator,
                     PropertyMetadata.STD_OPTIONAL);
 
         } else if (mutator instanceof AnnotatedField) {
@@ -691,8 +691,7 @@ public class BeanDeserializerFactory
             keyType = mapType.getKeyType();
             valueType = mapType.getContentType();
             prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    mapType, null, beanDesc.getClassAnnotations(), mutator,
-                    PropertyMetadata.STD_OPTIONAL);
+                    mapType, null, mutator, PropertyMetadata.STD_OPTIONAL);
         } else {
             return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
                     "Unrecognized mutator type for any setter: %s", mutator.getClass()));

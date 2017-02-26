@@ -40,16 +40,6 @@ public abstract class BeanDeserializerBase
      */
 
     /**
-     * Annotations from the bean class: used for accessing
-     * annotations during resolution
-     * (see {@link #resolve}) and
-     * contextualization (see {@link #createContextual})
-     *<p> 
-     * Transient since annotations only used during construction.
-     */
-    final private transient Annotations _classAnnotations;
-
-    /**
      * Declared type of the bean this deserializer handles.
      */
     final protected JavaType _beanType;
@@ -209,9 +199,6 @@ public abstract class BeanDeserializerBase
             boolean hasViews)
     {
         super(beanDesc.getType());
-
-        AnnotatedClass ac = beanDesc.getClassInfo();
-        _classAnnotations = ac.getAnnotations();       
         _beanType = beanDesc.getType();
         _valueInstantiator = builder.getValueInstantiator();
         
@@ -253,7 +240,6 @@ public abstract class BeanDeserializerBase
     {
         super(src._beanType);
         
-        _classAnnotations = src._classAnnotations;
         _beanType = src._beanType;
         
         _valueInstantiator = src._valueInstantiator;
@@ -280,7 +266,6 @@ public abstract class BeanDeserializerBase
     {
         super(src._beanType);
 
-        _classAnnotations = src._classAnnotations;
         _beanType = src._beanType;
         
         _valueInstantiator = src._valueInstantiator;
@@ -318,8 +303,6 @@ public abstract class BeanDeserializerBase
     public BeanDeserializerBase(BeanDeserializerBase src, ObjectIdReader oir)
     {
         super(src._beanType);
-        
-        _classAnnotations = src._classAnnotations;
         _beanType = src._beanType;
         
         _valueInstantiator = src._valueInstantiator;
@@ -357,20 +340,18 @@ public abstract class BeanDeserializerBase
     public BeanDeserializerBase(BeanDeserializerBase src, Set<String> ignorableProps)
     {
         super(src._beanType);
-        
-        _classAnnotations = src._classAnnotations;
         _beanType = src._beanType;
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
-        
+
         _backRefs = src._backRefs;
         _ignorableProps = ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
-        
+
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
@@ -390,14 +371,12 @@ public abstract class BeanDeserializerBase
     protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)
     {
         super(src._beanType);
-        
-        _classAnnotations = src._classAnnotations;
         _beanType = src._beanType;
-        
+
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
-        
+
         _beanProperties = beanProps;
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
@@ -631,7 +610,7 @@ public abstract class BeanDeserializerBase
             AnnotatedWithParams delegateCreator) throws JsonMappingException {
         // Need to create a temporary property to allow contextual deserializers:
         BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
-                delegateType, null, _classAnnotations, delegateCreator,
+                delegateType, null, delegateCreator,
                 PropertyMetadata.STD_OPTIONAL);
 
         TypeDeserializer td = delegateType.getTypeHandler();
@@ -798,8 +777,7 @@ public abstract class BeanDeserializerBase
                     refName, backRefType.getRawClass().getName(),
                     referredType.getRawClass().getName()));
         }
-        return new ManagedReferenceProperty(prop, refName, backProp,
-                _classAnnotations, isContainer);
+        return new ManagedReferenceProperty(prop, refName, backProp, isContainer);
     }
 
     /**

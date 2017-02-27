@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -119,7 +120,8 @@ class FactoryBasedEnumDeserializer
                 value = p.getText();
             } else if ((_creatorProps != null) && p.isExpectedStartObjectToken()) {
                 if (_propCreator == null) {
-                    _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps);
+                    _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
+                            ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
                 }
                 p.nextToken();
                 return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);

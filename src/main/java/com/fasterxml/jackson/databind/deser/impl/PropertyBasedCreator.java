@@ -1,14 +1,11 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 
@@ -53,9 +50,11 @@ public final class PropertyBasedCreator
     /**********************************************************
      */
 
-    protected PropertyBasedCreator(ValueInstantiator valueInstantiator,
+    protected PropertyBasedCreator(DeserializationContext ctxt,
+            ValueInstantiator valueInstantiator,
             SettableBeanProperty[] creatorProps,
-            boolean caseInsensitive)
+            boolean caseInsensitive,
+            boolean addAliases)
     {
         _valueInstantiator = valueInstantiator;
         if (caseInsensitive) {
@@ -66,6 +65,20 @@ public final class PropertyBasedCreator
         final int len = creatorProps.length;
         _propertyCount = len;
         _allProperties = new SettableBeanProperty[len];
+
+        // 26-Feb-2017, tatu: Let's start by aliases, so that there is no
+        //    possibility of accidental override of primary names
+        if (addAliases) {
+            final DeserializationConfig config = ctxt.getConfig();
+            for (SettableBeanProperty prop : creatorProps) {
+                List<PropertyName> aliases = prop.findAliases(config);
+                if (!aliases.isEmpty()) {
+                    for (PropertyName pn : aliases) {
+                        _propertyLookup.put(pn.getSimpleName(), prop);
+                    }
+                }
+            }
+        }
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
             _allProperties[i] = prop;
@@ -74,23 +87,61 @@ public final class PropertyBasedCreator
     }
 
     /**
-     * Factory method used for building actual instances: resolves deserializers
-     * and checks for "null values".
+     * Factory method used for building actual instances to be used with POJOS:
+     * resolves deserializers, checks for "null values".
+     *
+     * @since 2.9
      */
     public static PropertyBasedCreator construct(DeserializationContext ctxt,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcProps)
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps,
+            BeanPropertyMap allProperties)
         throws JsonMappingException
     {
-        final int len = srcProps.length;
+        final int len = srcCreatorProps.length;
         SettableBeanProperty[] creatorProps = new SettableBeanProperty[len];
         for (int i = 0; i < len; ++i) {
-            SettableBeanProperty prop = srcProps[i];
+            SettableBeanProperty prop = srcCreatorProps[i];
             if (!prop.hasValueDeserializer()) {
                 prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
             }
             creatorProps[i] = prop;
         }
-        return new PropertyBasedCreator(valueInstantiator, creatorProps,
+        return new PropertyBasedCreator(ctxt, valueInstantiator, creatorProps,
+                allProperties.isCaseInsensitive(),
+                allProperties.hasAliases());
+    }
+
+    /**
+     * Factory method used for building actual instances to be used with types
+     * OTHER than POJOs.
+     * resolves deserializers and checks for "null values".
+     *
+     * @since 2.9
+     */
+    public static PropertyBasedCreator construct(DeserializationContext ctxt,
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps,
+            boolean caseInsensitive)
+        throws JsonMappingException
+    {
+        final int len = srcCreatorProps.length;
+        SettableBeanProperty[] creatorProps = new SettableBeanProperty[len];
+        for (int i = 0; i < len; ++i) {
+            SettableBeanProperty prop = srcCreatorProps[i];
+            if (!prop.hasValueDeserializer()) {
+                prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
+            }
+            creatorProps[i] = prop;
+        }
+        return new PropertyBasedCreator(ctxt, valueInstantiator, creatorProps, 
+                caseInsensitive, false);
+    }
+
+    @Deprecated // since 2.9
+    public static PropertyBasedCreator construct(DeserializationContext ctxt,
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps)
+        throws JsonMappingException
+    {
+        return construct(ctxt, valueInstantiator, srcCreatorProps,
                 ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
     }
 
@@ -158,7 +209,7 @@ public final class PropertyBasedCreator
 
     /**
      * Simple override of standard {@link java.util.HashMap} to support
-     * case-insensitive access to creator properties.
+     * case-insensitive access to creator properties
      *
      * @since 2.8.5
      */
@@ -168,8 +219,7 @@ public final class PropertyBasedCreator
 
         @Override
         public SettableBeanProperty get(Object key0) {
-            String key = (String) key0;
-            return super.get(key.toLowerCase());
+            return super.get(((String) key0).toLowerCase());
         }
 
         @Override

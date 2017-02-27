@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -56,11 +57,42 @@ public class BeanPropertyMap
      */
     private SettableBeanProperty[] _propsInOrder;
 
-    public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props)
+    /**
+     * Configuration of alias mappings, indexed by unmodified property name
+     * to unmodified aliases, if any; entries only included for properties
+     * that do have aliases.
+     * This is is used for constructing actual reverse lookup mapping, if
+     * needed, taking into account possible case-insensitivity, as well
+     * as possibility of name prefixes.
+     *
+     * @since 2.9
+     */
+    private final Map<String,List<PropertyName>> _aliasDefs;
+
+    /**
+     * Mapping from secondary names (aliases) to primary names.
+     *
+     * @since 2.9
+     */
+    private final Map<String,String> _aliasMapping;
+    
+    /**
+     * @since 2.9
+     */
+    public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
+            Map<String,List<PropertyName>> aliasDefs)
     {
         _caseInsensitive = caseInsensitive;
         _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
+        _aliasDefs = aliasDefs;
+        _aliasMapping = _buildAliasMapping(aliasDefs);
         init(props);
+    }
+
+    @Deprecated // since 2.8
+    public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props)
+    {
+        this(caseInsensitive, props, Collections.<String,List<PropertyName>>emptyMap());
     }
 
     /**
@@ -69,9 +101,10 @@ public class BeanPropertyMap
     protected BeanPropertyMap(BeanPropertyMap base, boolean caseInsensitive)
     {
         _caseInsensitive = caseInsensitive;
+        _aliasDefs = base._aliasDefs;
+        _aliasMapping = base._aliasMapping;
 
-        // 16-May-2016, tatu: Alas, not enough to just change flag, need to re-init
-        //    as well.
+        // 16-May-2016, tatu: Alas, not enough to just change flag, need to re-init as well.
         _propsInOrder = Arrays.copyOf(base._propsInOrder, base._propsInOrder.length);
         init(Arrays.asList(_propsInOrder));
     }
@@ -108,7 +141,7 @@ public class BeanPropertyMap
             if (prop == null) {
                 continue;
             }
-            
+
             String key = getPropertyName(prop);
             int slot = _hashCode(key);
             int ix = (slot<<1);
@@ -129,6 +162,8 @@ public class BeanPropertyMap
 //System.err.println(" add '"+key+" at #"+(ix>>1)+"/"+size+" (hashed at "+slot+")");             
             hashed[ix] = key;
             hashed[ix+1] = prop;
+
+            // and aliases
         }
 /*
 for (int i = 0; i < hashed.length; i += 2) {
@@ -138,7 +173,7 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
         _hashArea = hashed;
         _spillCount = spillCount;
     }
-    
+
     private final static int findSize(int size)
     {
         if (size <= 5) {
@@ -158,10 +193,17 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
     /**
      * @since 2.6
      */
-    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props, boolean caseInsensitive) {
-        return new BeanPropertyMap(caseInsensitive, props);
+    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
+            boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping) {
+        return new BeanPropertyMap(caseInsensitive, props, aliasMapping);
     }
-    
+
+    @Deprecated // since 2.9
+    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props, boolean caseInsensitive) {
+        return construct(props, caseInsensitive,
+                Collections.<String,List<PropertyName>>emptyMap());
+    }
+
     /**
      * Fluent copy method that creates a new instance that is a copy
      * of this instance except for one additional property that is
@@ -259,9 +301,16 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
             newProps.add(_rename(prop, transformer));
         }
         // should we try to re-index? Ordering probably changed but caller probably doesn't want changes...
-        return new BeanPropertyMap(_caseInsensitive, newProps);
+        // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs);
     }
 
+    /*
+    /**********************************************************
+    /* Public API, mutators
+    /**********************************************************
+     */
+    
     /**
      * Mutant factory method that will use this instance as the base, and
      * construct an instance that is otherwise same except for excluding
@@ -289,9 +338,9 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
             }
         }
         // should we try to re-index? Apparently no need
-        return new BeanPropertyMap(_caseInsensitive, newProps);
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs);
     }
-    
+
     /**
      * Specialized method that can be used to replace an existing entry
      * (note: entry MUST exist; otherwise exception is thrown) with
@@ -309,113 +358,6 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         // also, replace in in-order
         _propsInOrder[_findFromOrdered(prop)] = newProp;
     }
-
-    private List<SettableBeanProperty> properties() {
-        ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_size);
-        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
-            if (prop != null) {
-                p.add(prop);
-            }
-        }
-        return p;
-    }
-
-    /**
-     * Accessor for traversing over all contained properties.
-     */
-    @Override
-    public Iterator<SettableBeanProperty> iterator() {
-        return properties().iterator();
-    }
-
-    /**
-     * Method that will re-create initial insertion-ordering of
-     * properties contained in this map. Note that if properties
-     * have been removed, array may contain nulls; otherwise
-     * it should be consecutive.
-     * 
-     * @since 2.1
-     */
-    public SettableBeanProperty[] getPropertiesInInsertionOrder() {
-        return _propsInOrder;
-    }
-
-    // Confining this case insensitivity to this function (and the find method) in case we want to
-    // apply a particular locale to the lower case function.  For now, using the default.
-    protected final String getPropertyName(SettableBeanProperty prop) {
-        return _caseInsensitive ? prop.getName().toLowerCase() : prop.getName();
-    }
-
-    /**
-     * @since 2.3
-     */
-    public SettableBeanProperty find(int index)
-    {
-        // note: will scan the whole area, including primary, secondary and
-        // possible spill-area
-        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
-            if ((prop != null) && (index == prop.getPropertyIndex())) {
-                return prop;
-            }
-        }
-        return null;
-    }
-
-    public SettableBeanProperty find(String key)
-    {
-        if (key == null) {
-            throw new IllegalArgumentException("Can not pass null property name");
-        }
-        if (_caseInsensitive) {
-            key = key.toLowerCase();
-        }
-            
-        // inlined `_hashCode(key)`
-        int slot = key.hashCode() & _hashMask;
-//        int h = key.hashCode();
-//        int slot = (h + (h >> 13)) & _hashMask;
-
-        int ix = (slot<<1);
-        Object match = _hashArea[ix];
-        if ((match == key) || key.equals(match)) {
-            return (SettableBeanProperty) _hashArea[ix+1];
-        }
-        return _find2(key, slot, match);
-    }
-
-    private final SettableBeanProperty _find2(String key, int slot, Object match)
-    {
-        if (match == null) {
-            return null;
-        }
-        // no? secondary?
-        int hashSize = _hashMask+1;
-        int ix = hashSize + (slot>>1) << 1;
-        match = _hashArea[ix];
-        if (key.equals(match)) {
-            return (SettableBeanProperty) _hashArea[ix+1];
-        }
-        if (match != null) { // _findFromSpill(...)
-            int i = (hashSize + (hashSize>>1)) << 1;
-            for (int end = i + _spillCount; i < end; i += 2) {
-                match = _hashArea[i];
-                if ((match == key) || key.equals(match)) {
-                    return (SettableBeanProperty) _hashArea[i+1];
-                }
-            }
-        }
-        return null;
-    }
-    
-    /*
-    /**********************************************************
-    /* Public API
-    /**********************************************************
-     */
-
-    public int size() { return _size; }
 
     /**
      * Specialized method for removing specified existing entry.
@@ -450,6 +392,181 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         init(props);
     }
 
+    /*
+    /**********************************************************
+    /* Public API, simple accessors
+    /**********************************************************
+     */
+
+    public int size() { return _size; }
+
+    /**
+     * @since 2.9
+     */
+    public boolean isCaseInsensitive() {
+        return _caseInsensitive;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public boolean hasAliases() {
+        return !_aliasDefs.isEmpty();
+    }
+
+    /**
+     * Accessor for traversing over all contained properties.
+     */
+    @Override
+    public Iterator<SettableBeanProperty> iterator() {
+        return _properties().iterator();
+    }
+
+    private List<SettableBeanProperty> _properties() {
+        ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_size);
+        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
+            if (prop != null) {
+                p.add(prop);
+            }
+        }
+        return p;
+    }
+    
+    /**
+     * Method that will re-create initial insertion-ordering of
+     * properties contained in this map. Note that if properties
+     * have been removed, array may contain nulls; otherwise
+     * it should be consecutive.
+     * 
+     * @since 2.1
+     */
+    public SettableBeanProperty[] getPropertiesInInsertionOrder() {
+        return _propsInOrder;
+    }
+
+    // Confining this case insensitivity to this function (and the find method) in case we want to
+    // apply a particular locale to the lower case function.  For now, using the default.
+    protected final String getPropertyName(SettableBeanProperty prop) {
+        return _caseInsensitive ? prop.getName().toLowerCase() : prop.getName();
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, property lookup
+    /**********************************************************
+     */
+    
+    /**
+     * @since 2.3
+     */
+    public SettableBeanProperty find(int index)
+    {
+        // note: will scan the whole area, including primary, secondary and
+        // possible spill-area
+        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
+            if ((prop != null) && (index == prop.getPropertyIndex())) {
+                return prop;
+            }
+        }
+        return null;
+    }
+
+    public SettableBeanProperty find(String key)
+    {
+        if (key == null) {
+            throw new IllegalArgumentException("Can not pass null property name");
+        }
+        if (_caseInsensitive) {
+            key = key.toLowerCase();
+        }
+
+        // inlined `_hashCode(key)`
+        int slot = key.hashCode() & _hashMask;
+//        int h = key.hashCode();
+//        int slot = (h + (h >> 13)) & _hashMask;
+
+        int ix = (slot<<1);
+        Object match = _hashArea[ix];
+        if ((match == key) || key.equals(match)) {
+            return (SettableBeanProperty) _hashArea[ix+1];
+        }
+        return _find2(key, slot, match);
+    }
+
+    private final SettableBeanProperty _find2(String key, int slot, Object match)
+    {
+        if (match == null) {
+            // 26-Feb-2017, tatu: Need to consider aliases
+            return _findWithAlias(_aliasMapping.get(key));
+        }
+        // no? secondary?
+        int hashSize = _hashMask+1;
+        int ix = hashSize + (slot>>1) << 1;
+        match = _hashArea[ix];
+        if (key.equals(match)) {
+            return (SettableBeanProperty) _hashArea[ix+1];
+        }
+        if (match != null) { // _findFromSpill(...)
+            int i = (hashSize + (hashSize>>1)) << 1;
+            for (int end = i + _spillCount; i < end; i += 2) {
+                match = _hashArea[i];
+                if ((match == key) || key.equals(match)) {
+                    return (SettableBeanProperty) _hashArea[i+1];
+                }
+            }
+        }
+        // 26-Feb-2017, tatu: Need to consider aliases
+        return _findWithAlias(_aliasMapping.get(key));
+    }
+
+    private SettableBeanProperty _findWithAlias(String keyFromAlias)
+    {
+        if (keyFromAlias == null) {
+            return null;
+        }
+        // NOTE: need to inline much of handling do avoid cyclic calls via alias
+        // first, inlined main `find(String)`
+        int slot = _hashCode(keyFromAlias);
+        int ix = (slot<<1);
+        Object match = _hashArea[ix];
+        if (keyFromAlias.equals(match)) {
+            return (SettableBeanProperty) _hashArea[ix+1];
+        }
+        if (match == null) {
+            return null;
+        }
+        return _find2ViaAlias(keyFromAlias, slot, match);
+    }
+
+    private SettableBeanProperty _find2ViaAlias(String key, int slot, Object match)
+    {
+        // no? secondary?
+        int hashSize = _hashMask+1;
+        int ix = hashSize + (slot>>1) << 1;
+        match = _hashArea[ix];
+        if (key.equals(match)) {
+            return (SettableBeanProperty) _hashArea[ix+1];
+        }
+        if (match != null) { // _findFromSpill(...)
+            int i = (hashSize + (hashSize>>1)) << 1;
+            for (int end = i + _spillCount; i < end; i += 2) {
+                match = _hashArea[i];
+                if ((match == key) || key.equals(match)) {
+                    return (SettableBeanProperty) _hashArea[i+1];
+                }
+            }
+        }
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, deserialization support
+    /**********************************************************
+     */
+
     /**
      * Convenience method that tries to find property with given name, and
      * if it is found, call {@link SettableBeanProperty#deserializeAndSet}
@@ -474,6 +591,12 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         return true;
     }
 
+    /*
+    /**********************************************************
+    /* Std method overrides
+    /**********************************************************
+     */
+    
     @Override
     public String toString()
     {
@@ -493,6 +616,11 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
             sb.append(')');
         }
         sb.append(']');
+        if (!_aliasDefs.isEmpty()) {
+            sb.append("(aliases: ");
+            sb.append(_aliasDefs);
+            sb.append(")");
+        }
         return sb.toString();
     }
     
@@ -597,5 +725,28 @@ System.err.println("And new propr #"+slot+" '"+key+"'");
         return (h + (h >> 13)) & _hashMask;
         */
         return key.hashCode() & _hashMask;
+    }
+
+    // @since 2.9
+    private Map<String,String> _buildAliasMapping(Map<String,List<PropertyName>> defs)
+    {
+        if ((defs == null) || defs.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<String,String> aliases = new HashMap<>();
+        for (Map.Entry<String,List<PropertyName>> entry : defs.entrySet()) {
+            String key = entry.getKey();
+            if (_caseInsensitive) {
+                key = key.toLowerCase();
+            }
+            for (PropertyName pn : entry.getValue()) {
+                String mapped = pn.getSimpleName();
+                if (_caseInsensitive) {
+                    mapped = mapped.toLowerCase();
+                }
+                aliases.put(mapped, key);
+            }
+        }
+        return aliases;
     }
 }

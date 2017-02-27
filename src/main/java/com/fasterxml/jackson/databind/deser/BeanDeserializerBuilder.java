@@ -340,7 +340,8 @@ public class BeanDeserializerBuilder
         _fixAccess(props);
 
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
-                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+                _collectAliases(props));
         propertyMap.assignIndexes();
 
         // view processing must be enabled if:
@@ -416,7 +417,8 @@ public class BeanDeserializerBuilder
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
-                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+                _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
+                _collectAliases(props));
         propertyMap.assignIndexes();
 
         boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
@@ -449,7 +451,7 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
 
-    private void _fixAccess(Collection<SettableBeanProperty> mainProps)
+    protected void _fixAccess(Collection<SettableBeanProperty> mainProps)
     {
         /* 07-Sep-2016, tatu: Ideally we should be able to avoid forcing
          *   access to properties that are likely ignored, but due to
@@ -487,5 +489,27 @@ public class BeanDeserializerBuilder
         if (_buildMethod != null) {
             _buildMethod.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
+    }
+
+    protected Map<String,List<PropertyName>> _collectAliases(Collection<SettableBeanProperty> props)
+    {
+        Map<String,List<PropertyName>> mapping = null;
+        AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+        if (intr != null) {
+            for (SettableBeanProperty prop : props) {
+                List<PropertyName> aliases = intr.findPropertyAliases(prop.getMember());
+                if ((aliases == null) || aliases.isEmpty()) {
+                    continue;
+                }
+                if (mapping == null) {
+                    mapping = new HashMap<>();
+                }
+                mapping.put(prop.getName(), aliases);
+            }
+        }
+        if (mapping == null) {
+            return Collections.emptyMap();
+        }
+        return mapping;
     }
 }

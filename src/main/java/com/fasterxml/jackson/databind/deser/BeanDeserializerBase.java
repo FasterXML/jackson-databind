@@ -586,7 +586,8 @@ public abstract class BeanDeserializerBase
 
         // And now that we know CreatorProperty instances are also resolved can finally create the creator:
         if (creatorProps != null) {
-            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
+            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator,
+                    creatorProps, _beanProperties);
         }
 
         if (extTypes != null) {

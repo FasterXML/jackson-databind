@@ -31,7 +31,8 @@ public class BeanPropertyMapTest extends BaseMapTest
         PropertyMetadata md = PropertyMetadata.STD_REQUIRED;
         props.add(new ObjectIdValueProperty(new MyObjectIdReader("pk"), md));
         props.add(new ObjectIdValueProperty(new MyObjectIdReader("firstName"), md));
-        BeanPropertyMap propMap = new BeanPropertyMap(false, props);
+        BeanPropertyMap propMap = new BeanPropertyMap(false, props,
+                new HashMap<String,List<PropertyName>>());
         propMap = propMap.withProperty(new ObjectIdValueProperty(new MyObjectIdReader("@id"), md));
         assertNotNull(propMap);
     }

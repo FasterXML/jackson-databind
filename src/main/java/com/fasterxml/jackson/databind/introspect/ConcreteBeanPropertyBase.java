@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.PropertyMetadata;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -31,6 +35,11 @@ public abstract class ConcreteBeanPropertyBase
      * @since 2.8
      */
     protected transient JsonFormat.Value _propertyFormat;
+
+    /**
+     * @since 2.9
+     */
+    protected transient List<PropertyName> _aliases;
 
     protected ConcreteBeanPropertyBase(PropertyMetadata md) {
         _metadata = (md == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL : md;
@@ -106,5 +115,22 @@ public abstract class ConcreteBeanPropertyBase
             return v;
         }
         return v0.withOverrides(v);
+    }
+
+    @Override
+    public List<PropertyName> findAliases(MapperConfig<?> config)
+    {
+        List<PropertyName> aliases = _aliases;
+        if (aliases == null) {
+            AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            if (intr != null) {
+                aliases = intr.findPropertyAliases(getMember());
+            }
+            if (aliases == null) {
+                aliases = Collections.emptyList();
+            }
+            _aliases = aliases;
+        }
+        return aliases;
     }
 }

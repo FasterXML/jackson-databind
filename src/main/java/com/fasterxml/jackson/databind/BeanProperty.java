@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Value;
@@ -164,6 +166,16 @@ public interface BeanProperty extends Named
      */
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
 
+    /**
+     * Method for accessing set of possible alternate names that are accepted
+     * during deserialization.
+     *
+     * @return List (possibly empty) of alternate names; never null
+     *
+     * @since 2.9
+     */
+    public List<PropertyName> findAliases(MapperConfig<?> config);
+
     /*
     /**********************************************************
     /* Schema/introspection support
@@ -300,6 +312,13 @@ public interface BeanProperty extends Named
             return v0.withOverrides(v);
         }
 
+        @Override
+        public List<PropertyName> findAliases(MapperConfig<?> config) {
+            // 26-Feb-2017, tatu: Do we really need to allow actual definition?
+            //    For now, let's not.
+            return Collections.emptyList();
+        }
+
         @Override public String getName() { return _name.getSimpleName(); }
         @Override public PropertyName getFullName() { return _name; }
         @Override public JavaType getType() { return _type; }
@@ -398,6 +417,11 @@ public interface BeanProperty extends Named
                 MapperConfig<?> config, Class<?> baseType)
         {
             return null;
+        }
+
+        @Override
+        public List<PropertyName> findAliases(MapperConfig<?> config) {
+            return Collections.emptyList();
         }
 
         @Override

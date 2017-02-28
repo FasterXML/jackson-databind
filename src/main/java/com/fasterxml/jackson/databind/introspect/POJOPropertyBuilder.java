@@ -500,7 +500,7 @@ public class POJOPropertyBuilder
             return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
                     : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
         }
-        return PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
+        return PropertyMetadata.construct(b, desc, idx, def);
     }
 
     protected Boolean _findRequired() {

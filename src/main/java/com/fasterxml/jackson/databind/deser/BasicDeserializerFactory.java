@@ -844,11 +844,10 @@ public abstract class BasicDeserializerFactory
                 metadata = PropertyMetadata.STD_REQUIRED_OR_OPTIONAL;
             } else {
                 Boolean b = intr.hasRequiredMarker(param);
-                boolean req = (b != null && b.booleanValue());
                 String desc = intr.findPropertyDescription(param);
                 Integer idx = intr.findPropertyIndex(param);
                 String def = intr.findPropertyDefaultValue(param);
-                metadata = PropertyMetadata.construct(req, desc, idx, def);
+                metadata = PropertyMetadata.construct(b, desc, idx, def);
             }
         }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, param, param.getType());

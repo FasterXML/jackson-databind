@@ -6,6 +6,7 @@ Project: jackson-databind
 2.8.8 (not yet released)
 
 #1533: `AsPropertyTypeDeserializer` ignores `DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+- Minor fix to creation of `PropertyMetadata`, had one path that could lead to NPE
 
 2.8.7 (21-Feb-2017)
 

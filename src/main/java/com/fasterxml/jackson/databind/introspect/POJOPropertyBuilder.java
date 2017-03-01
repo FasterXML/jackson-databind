@@ -207,7 +207,7 @@ public class POJOPropertyBuilder
                 _metadata = (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
                         : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
             } else {
-                _metadata = PropertyMetadata.construct(b.booleanValue(), desc, idx, def);
+                _metadata = PropertyMetadata.construct(b, desc, idx, def);
             }
             if (!_forSerialization) {
                 _metadata = _getSetterInfo(_metadata);

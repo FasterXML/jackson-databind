@@ -129,6 +129,22 @@ public class PropertyMetadata
         _contentNulls = contentNulls;
     }
 
+    /**
+     * @since 2.8.8
+     */
+    public static PropertyMetadata construct(Boolean req, String desc, Integer index,
+            String defaultValue) {
+        if ((desc != null) || (index != null) || (defaultValue != null)) {
+            return new PropertyMetadata(req, desc, index, defaultValue,
+                    null, null, null);
+        }
+        if (req == null) {
+            return STD_REQUIRED_OR_OPTIONAL;
+        }
+        return req ? STD_REQUIRED : STD_OPTIONAL;
+    }
+
+    @Deprecated // since 2.8.8
     public static PropertyMetadata construct(boolean req, String desc, Integer index,
             String defaultValue) {
         if (desc != null || index != null || defaultValue != null) {
@@ -137,7 +153,7 @@ public class PropertyMetadata
         }
         return req ? STD_REQUIRED : STD_OPTIONAL;
     }
-    
+
     /**
      * Minor optimization: let's canonicalize back to placeholders in cases
      * where there is no real data to consider

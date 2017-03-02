@@ -81,15 +81,17 @@ public class JDKNumberDeserTest extends BaseMapTest
         assertEquals(Double.valueOf(Double.NEGATIVE_INFINITY), result);
     }
 
+    // 01-Mar-2017, tatu: This is bit tricky... in some ways, mapping to "empty value"
+    //    would be best; but due to legacy reasons becomes `null` at this point
     public void testEmptyAsNumber() throws Exception
     {
-        assertEquals(Integer.valueOf(0), MAPPER.readValue(quote(""), Integer.class));
-        assertEquals(Long.valueOf(0L), MAPPER.readValue(quote(""), Long.class));
-        assertEquals(Float.valueOf(.0f), MAPPER.readValue(quote(""), Float.class));
-        assertEquals(Double.valueOf(.0d), MAPPER.readValue(quote(""), Double.class));
+        assertNull(MAPPER.readValue(quote(""), Integer.class));
+        assertNull(MAPPER.readValue(quote(""), Long.class));
+        assertNull(MAPPER.readValue(quote(""), Float.class));
+        assertNull(MAPPER.readValue(quote(""), Double.class));
 
-        assertEquals(BigInteger.ZERO, MAPPER.readValue(quote(""), BigInteger.class));
-        assertEquals(BigDecimal.ZERO, MAPPER.readValue(quote(""), BigDecimal.class));
+        assertNull(MAPPER.readValue(quote(""), BigInteger.class));
+        assertNull(MAPPER.readValue(quote(""), BigDecimal.class));
     }
 
     public void testDeserializeDecimalHappyPath() throws Exception {

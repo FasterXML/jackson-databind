@@ -255,7 +255,8 @@ public class JDKScalarsTest
         try {
             mapper.readValue("{\"v\":null}", CharacterBean.class);
             fail("Attempting to deserialize a 'null' JSON reference into a 'char' property did not throw an exception");
-        } catch (JsonMappingException exp) {
+        } catch (JsonMappingException e) {
+            verifyException(e, "can not map `null`");
             //Exception thrown as required
         }
 
@@ -570,7 +571,7 @@ public class JDKScalarsTest
                 .readValue("\"\"");
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map Empty String");
+            verifyException(e, "Can not map empty String");
         }
     }
 
@@ -1019,26 +1020,25 @@ public class JDKScalarsTest
     {
         WrappersBean bean;
 
-        // by default, ok to rely on defaults
         bean = MAPPER.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
-        assertEquals(Boolean.FALSE, bean.booleanValue);
+        assertNull(bean.booleanValue);
         bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
-        assertEquals(Byte.valueOf((byte) 0), bean.byteValue);
+        assertNull(bean.byteValue);
 
         // char/Character is different... not sure if this should work or not:
         bean = MAPPER.readValue("{\"charValue\":\"\"}", WrappersBean.class);
-        assertEquals(Character.valueOf((char) 0), bean.charValue);
+        assertNull(bean.charValue);
 
         bean = MAPPER.readValue("{\"shortValue\":\"\"}", WrappersBean.class);
-        assertEquals(Short.valueOf((short)0), bean.shortValue);
+        assertNull(bean.shortValue);
         bean = MAPPER.readValue("{\"intValue\":\"\"}", WrappersBean.class);
-        assertEquals(Integer.valueOf(0), bean.intValue);
+        assertNull(bean.intValue);
         bean = MAPPER.readValue("{\"longValue\":\"\"}", WrappersBean.class);
-        assertEquals(Long.valueOf(0L), bean.longValue);
+        assertNull(bean.longValue);
         bean = MAPPER.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
-        assertEquals(Float.valueOf(.0f), bean.floatValue);
+        assertNull(bean.floatValue);
         bean = MAPPER.readValue("{\"doubleValue\":\"\"}", WrappersBean.class);
-        assertEquals(Double.valueOf(.0d), bean.doubleValue);
+        assertNull(bean.doubleValue);
     }
 
     public void testEmptyStringForPrimitives() throws IOException
@@ -1095,38 +1095,38 @@ public class JDKScalarsTest
             reader.readValue("{\"booleanValue\":null}");
             fail("Expected failure for boolean + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type boolean");
+            verifyException(e, "Can not map `null` into type boolean");
         }
         // byte/char/short/int/long
         try {
             reader.readValue("{\"byteValue\":null}");
             fail("Expected failure for byte + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type byte");
+            verifyException(e, "Can not map `null` into type byte");
         }
         try {
             reader.readValue("{\"charValue\":null}");
             fail("Expected failure for char + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type char");
+            verifyException(e, "Can not map `null` into type char");
         }
         try {
             reader.readValue("{\"shortValue\":null}");
             fail("Expected failure for short + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type short");
+            verifyException(e, "Can not map `null` into type short");
         }
         try {
             reader.readValue("{\"intValue\":null}");
             fail("Expected failure for int + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type int");
+            verifyException(e, "Can not map `null` into type int");
         }
         try {
             reader.readValue("{\"longValue\":null}");
             fail("Expected failure for long + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type long");
+            verifyException(e, "Can not map `null` into type long");
         }
 
         // float/double
@@ -1134,13 +1134,13 @@ public class JDKScalarsTest
             reader.readValue("{\"floatValue\":null}");
             fail("Expected failure for float + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type float");
+            verifyException(e, "Can not map `null` into type float");
         }
         try {
             reader.readValue("{\"doubleValue\":null}");
             fail("Expected failure for double + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map JSON null into type double");
+            verifyException(e, "Can not map `null` into type double");
         }
     }
 }

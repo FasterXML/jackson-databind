@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.HashSet;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -148,11 +149,12 @@ public class NumberDeserializers
         }
 
         @Override
-        public final T getNullValue(DeserializationContext ctxt) throws JsonMappingException
-        {
+        public final T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+            // 01-Mar-2017, tatu: Alas, not all paths lead to `_coerceNull()`, as `SettableBeanProperty`
+            //    short-circuits `null` handling. Hence need this check as well.
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 ctxt.reportInputMismatch(this,
-                        "Can not map JSON null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        "Can not map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
             }
             return _nullValue;
@@ -160,14 +162,53 @@ public class NumberDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
-            // [databind#1095]: Should not allow coercion from into null from Empty String
-            // either, if `null` not allowed
+            return _emptyValue;
+        }
+
+        /**
+         * Method to call when JSON `null` token is encountered. Note: only called when
+         * this deserializer encounters it but NOT when reached via property
+         *
+         * @since 2.9
+         */
+        protected Object _coerceNull(DeserializationContext ctxt) throws JsonMappingException
+        {
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 ctxt.reportInputMismatch(this,
-                        "Can not map Empty String as null into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        "Can not map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
             }
-            return _emptyValue;
+            return _nullValue;
+        }
+
+        /**
+         * Method called when JSON String with value "null" is encountered.
+         *
+         * @since 2.9
+         */
+        protected Object _coerceTextualNull(DeserializationContext ctxt) throws JsonMappingException
+        {
+            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+                ctxt.reportInputMismatch(this,
+                        "Can not map String `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        handledType().toString());
+            }
+            return _nullValue;
+        }
+
+        /**
+         * Method called when JSON String with value "" (that is, zero length) is encountered.
+         *
+         * @since 2.9
+         */
+        protected Object _coerceEmptyString(DeserializationContext ctxt) throws JsonMappingException
+        {
+            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+                ctxt.reportInputMismatch(this,
+                        "Can not map empty String (\"\") into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        handledType().toString());
+            }
+            return _nullValue;
         }
     }
 
@@ -206,6 +247,56 @@ public class NumberDeserializers
         {
             return _parseBoolean(p, ctxt);
         }
+
+        protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+        {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.VALUE_TRUE) {
+                return Boolean.TRUE;
+            }
+            if (t == JsonToken.VALUE_FALSE) {
+                return Boolean.FALSE;
+            }
+            // should accept ints too, (0 == false, otherwise true)
+            if (t == JsonToken.VALUE_NUMBER_INT) {
+                return Boolean.valueOf(_parseBooleanFromInt(p, ctxt));
+            }
+            if (t == JsonToken.VALUE_NULL) {
+                return (Boolean) _coerceNull(ctxt);
+            }
+            // And finally, let's allow Strings to be converted too
+            if (t == JsonToken.VALUE_STRING) {
+                String text = p.getText().trim();
+                // [databind#422]: Allow aliases
+                if ("true".equals(text) || "True".equals(text)) {
+                    return Boolean.TRUE;
+                }
+                if ("false".equals(text) || "False".equals(text)) {
+                    return Boolean.FALSE;
+                }
+                if (text.length() == 0) {
+                    return (Boolean) _coerceEmptyString(ctxt);
+                }
+                if (_hasTextualNull(text)) {
+                    return  (Boolean) _coerceTextualNull(ctxt);
+                }
+                return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "only \"true\" or \"false\" recognized");
+            }
+            // [databind#381]
+            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final Boolean parsed = _parseBoolean(p, ctxt);
+                t = p.nextToken();
+                if (t != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }            
+                return parsed;            
+            }
+            // Otherwise, no can do:
+            return (Boolean) ctxt.handleUnexpectedToken(_valueClass, p);
+        }
     }
 
     @JacksonStdImpl
@@ -226,6 +317,59 @@ public class NumberDeserializers
         public Byte deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             return _parseByte(p, ctxt);
+        }
+
+        protected Byte _parseByte(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.VALUE_NUMBER_INT) {
+                return p.getByteValue();
+            }
+            if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
+                String text = p.getText().trim();
+                if (_hasTextualNull(text)) {
+                    return (Byte) _coerceTextualNull(ctxt);
+                }
+                int value;
+                try {
+                    int len = text.length();
+                    if (len == 0) {
+                        return (Byte) _coerceEmptyString(ctxt);
+                    }
+                    value = NumberInput.parseInt(text);
+                } catch (IllegalArgumentException iae) {
+                    return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
+                            "not a valid Byte value");
+                }
+                // So far so good: but does it fit?
+                // as per [JACKSON-804], allow range up to 255, inclusive
+                if (_byteOverflow(value)) {
+                    return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
+                            "overflow, value can not be represented as 8-bit value");
+                    // fall-through for deferred fails
+                }
+                return Byte.valueOf((byte) value);
+            }
+            if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
+                    _failDoubleToIntCoercion(p, ctxt, "Byte");
+                }
+                return p.getByteValue();
+            }
+            if (t == JsonToken.VALUE_NULL) {
+                return (Byte) _coerceNull(ctxt);
+            }
+            // [databind#381]
+            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final Byte parsed = _parseByte(p, ctxt);
+                t = p.nextToken();
+                if (t != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }            
+                return parsed;            
+            }
+            return (Byte) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
 
@@ -248,6 +392,57 @@ public class NumberDeserializers
             throws IOException
         {
             return _parseShort(p, ctxt);
+        }
+
+        protected Short _parseShort(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.VALUE_NUMBER_INT) {
+                return p.getShortValue();
+            }
+            if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
+                String text = p.getText().trim();
+                int value;
+                try {
+                    int len = text.length();
+                    if (len == 0) {
+                        return (Short) _coerceEmptyString(ctxt);
+                    }
+                    if (_hasTextualNull(text)) {
+                        return (Short) _coerceTextualNull(ctxt);
+                    }
+                    value = NumberInput.parseInt(text);
+                } catch (IllegalArgumentException iae) {
+                    return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
+                            "not a valid Short value");
+                }
+                // So far so good: but does it fit?
+                if (_shortOverflow(value)) {
+                    return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
+                            "overflow, value can not be represented as 16-bit value");
+                }
+                return Short.valueOf((short) value);
+            }
+            if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
+                    _failDoubleToIntCoercion(p, ctxt, "Short");
+                }
+                return p.getShortValue();
+            }
+            if (t == JsonToken.VALUE_NULL) {
+                return (Short) _coerceNull(ctxt);
+            }
+            // [databind#381]
+            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final Short parsed = _parseShort(p, ctxt);
+                t = p.nextToken();
+                if (t != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }
+                return parsed;
+            }
+            return (Short) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
 
@@ -284,9 +479,11 @@ public class NumberDeserializers
                 }
                 // actually, empty should become null?
                 if (text.length() == 0) {
-                    return (Character) getEmptyValue(ctxt);
-                }               
+                    return (Character) _coerceEmptyString(ctxt);
+                }
                 break;
+            case JsonTokenId.ID_NULL:
+                return (Character) _coerceNull(ctxt);
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                     p.nextToken();
@@ -338,6 +535,58 @@ public class NumberDeserializers
             }
             return _parseInteger(p, ctxt);
         }
+
+        protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            switch (p.getCurrentTokenId()) {
+            // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
+            case JsonTokenId.ID_NUMBER_INT:
+                return Integer.valueOf(p.getIntValue());
+            case JsonTokenId.ID_NUMBER_FLOAT: // coercing may work too
+                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
+                    _failDoubleToIntCoercion(p, ctxt, "Integer");
+                }
+                return Integer.valueOf(p.getValueAsInt());
+            case JsonTokenId.ID_STRING: // let's do implicit re-parse
+                String text = p.getText().trim();
+                try {
+                    int len = text.length();
+                    if (_hasTextualNull(text)) {
+                        return (Integer) _coerceTextualNull(ctxt);
+                    }
+                    if (len > 9) {
+                        long l = Long.parseLong(text);
+                        if (_intOverflow(l)) {
+                            return (Integer) ctxt.handleWeirdStringValue(_valueClass, text, String.format(
+                                "Overflow: numeric value (%s) out of range of Integer (%d - %d)",
+                                text, Integer.MIN_VALUE, Integer.MAX_VALUE));
+                        }
+                        return Integer.valueOf((int) l);
+                    }
+                    if (len == 0) {
+                        return (Integer) _coerceEmptyString(ctxt);
+                    }
+                    return Integer.valueOf(NumberInput.parseInt(text));
+                } catch (IllegalArgumentException iae) {
+                    return (Integer) ctxt.handleWeirdStringValue(_valueClass, text,
+                            "not a valid Integer value");
+                }
+            case JsonTokenId.ID_NULL:
+                return (Integer) _coerceNull(ctxt);
+            case JsonTokenId.ID_START_ARRAY:
+                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    p.nextToken();
+                    final Integer parsed = _parseInteger(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        handleMissingEndArrayForSingle(p, ctxt);
+                    }            
+                    return parsed;            
+                }
+                break;
+            }
+            // Otherwise, no can do:
+            return (Integer) ctxt.handleUnexpectedToken(_valueClass, p);
+        }
     }
 
     @JacksonStdImpl
@@ -364,6 +613,51 @@ public class NumberDeserializers
             }
             return _parseLong(p, ctxt);
         }
+
+        protected final Long _parseLong(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            switch (p.getCurrentTokenId()) {
+            // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
+            case JsonTokenId.ID_NUMBER_INT:
+                return p.getLongValue();
+            case JsonTokenId.ID_NUMBER_FLOAT:
+                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
+                    _failDoubleToIntCoercion(p, ctxt, "Long");
+                }
+                return p.getValueAsLong();
+            case JsonTokenId.ID_STRING:
+                // let's allow Strings to be converted too
+                // !!! 05-Jan-2009, tatu: Should we try to limit value space, JDK is too lenient?
+                String text = p.getText().trim();
+                if (text.length() == 0) {
+                    return (Long) _coerceEmptyString(ctxt);
+                }
+                if (_hasTextualNull(text)) {
+                    return (Long) _coerceTextualNull(ctxt);
+                }
+                try {
+                    return Long.valueOf(NumberInput.parseLong(text));
+                } catch (IllegalArgumentException iae) { }
+                return (Long) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "not a valid Long value");
+                // fall-through
+            case JsonTokenId.ID_NULL:
+                return (Long) _coerceNull(ctxt);
+            case JsonTokenId.ID_START_ARRAY:
+                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    p.nextToken();
+                    final Long parsed = _parseLong(p, ctxt);
+                    JsonToken t = p.nextToken();
+                    if (t != JsonToken.END_ARRAY) {
+                        handleMissingEndArrayForSingle(p, ctxt);
+                    }            
+                    return parsed;            
+                }
+                break;
+            }
+            // Otherwise, no can do:
+            return (Long) ctxt.handleUnexpectedToken(_valueClass, p);
+        }
     }
 
     @JacksonStdImpl
@@ -384,6 +678,63 @@ public class NumberDeserializers
         {
             return _parseFloat(p, ctxt);
         }
+
+        protected final Float _parseFloat(JsonParser p, DeserializationContext ctxt)
+                throws IOException
+            {
+                // We accept couple of different types; obvious ones first:
+                JsonToken t = p.getCurrentToken();
+                
+                if (t == JsonToken.VALUE_NUMBER_FLOAT || t == JsonToken.VALUE_NUMBER_INT) { // coercing should work too
+                    return p.getFloatValue();
+                }
+                // And finally, let's allow Strings to be converted too
+                if (t == JsonToken.VALUE_STRING) {
+                    String text = p.getText().trim();
+                    if ((text.length() == 0)) {
+                        return (Float) _coerceEmptyString(ctxt);
+                    }
+                    if (_hasTextualNull(text)) {
+                        return (Float) _coerceTextualNull(ctxt);
+                    }
+                    switch (text.charAt(0)) {
+                    case 'I':
+                        if (_isPosInf(text)) {
+                            return Float.POSITIVE_INFINITY;
+                        }
+                        break;
+                    case 'N':
+                        if (_isNaN(text)) {
+                            return Float.NaN;
+                        }
+                        break;
+                    case '-':
+                        if (_isNegInf(text)) {
+                            return Float.NEGATIVE_INFINITY;
+                        }
+                        break;
+                    }
+                    try {
+                        return Float.parseFloat(text);
+                    } catch (IllegalArgumentException iae) { }
+                    return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
+                            "not a valid Float value");
+                }
+                if (t == JsonToken.VALUE_NULL) {
+                    return (Float) _coerceNull(ctxt);
+                }
+                if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    p.nextToken();
+                    final Float parsed = _parseFloat(p, ctxt);
+                    t = p.nextToken();
+                    if (t != JsonToken.END_ARRAY) {
+                        handleMissingEndArrayForSingle(p, ctxt);
+                    }            
+                    return parsed;            
+                }
+                // Otherwise, no can do:
+                return (Float) ctxt.handleUnexpectedToken(_valueClass, p);
+            }
     }
 
     @JacksonStdImpl
@@ -411,6 +762,60 @@ public class NumberDeserializers
                 TypeDeserializer typeDeserializer) throws IOException
         {
             return _parseDouble(p, ctxt);
+        }
+
+        protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            JsonToken t = p.getCurrentToken();
+            
+            if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
+                return p.getDoubleValue();
+            }
+            if (t == JsonToken.VALUE_STRING) {
+                String text = p.getText().trim();
+                if ((text.length() == 0)) {
+                    return (Double) _coerceEmptyString(ctxt);
+                }
+                if (_hasTextualNull(text)) {
+                    return (Double) _coerceTextualNull(ctxt);
+                }
+                switch (text.charAt(0)) {
+                case 'I':
+                    if (_isPosInf(text)) {
+                        return Double.POSITIVE_INFINITY;
+                    }
+                    break;
+                case 'N':
+                    if (_isNaN(text)) {
+                        return Double.NaN;
+                    }
+                    break;
+                case '-':
+                    if (_isNegInf(text)) {
+                        return Double.NEGATIVE_INFINITY;
+                    }
+                    break;
+                }
+                try {
+                    return parseDouble(text);
+                } catch (IllegalArgumentException iae) { }
+                return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "not a valid Double value");
+            }
+            if (t == JsonToken.VALUE_NULL) {
+                return (Double) _coerceNull(ctxt);
+            }
+            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final Double parsed = _parseDouble(p, ctxt);
+                t = p.nextToken();
+                if (t != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }            
+                return parsed;            
+            }
+            // Otherwise, no can do:
+            return (Double) ctxt.handleUnexpectedToken(_valueClass, p);
         }
     }
 
@@ -456,10 +861,12 @@ public class NumberDeserializers
                  * out 'minimal' type to use 
                  */
                 String text = p.getText().trim();
-                if (text.length() == 0) {
-                    return getEmptyValue(ctxt);
+                if ((text.length() == 0)) {
+                    // note: no need to call `coerce` as this is never primitive
+                    return getNullValue(ctxt);
                 }
                 if (_hasTextualNull(text)) {
+                    // note: no need to call `coerce` as this is never primitive
                     return getNullValue(ctxt);
                 }
                 if (_isPosInf(text)) {
@@ -584,8 +991,13 @@ public class NumberDeserializers
                 break;
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 String text = p.getText().trim();
+                // note: no need to call `coerce` as this is never primitive
                 if (text.length() == 0) {
-                    return (BigInteger) getEmptyValue(ctxt);
+                    return getNullValue(ctxt);
+                }
+                // note: no need to call `coerce` as this is never primitive
+                if (_hasTextualNull(text)) {
+                    return getNullValue(ctxt);
                 }
                 try {
                     return new BigInteger(text);
@@ -623,8 +1035,12 @@ public class NumberDeserializers
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:
                 String text = p.getText().trim();
+                // note: no need to call `coerce` as this is never primitive
                 if (text.length() == 0) {
-                    return (BigDecimal) getEmptyValue(ctxt);
+                    return getNullValue(ctxt);
+                }
+                if (_hasTextualNull(text)) {
+                    return getNullValue(ctxt);
                 }
                 try {
                     return new BigDecimal(text);

@@ -31,8 +31,7 @@
          (small number of types); this allows use on JDK 6 platforms still (including
          Android)
       -->
-    <javac.src.version>1.7</javac.src.version>
-    <javac.target.version>1.7</javac.target.version>
+    <maven.compiler.release>9</maven.compiler.release>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
@@ -48,10 +47,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+      <version>2.9.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+      <version>2.7.10-SNAPSHOT</version>
     </dependency>
 
     <!-- and for testing we need a few libraries
@@ -92,6 +93,15 @@
 
   <build>
      <plugins>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-compiler-plugin</artifactId>
+         <version>3.6.1</version>
+         <configuration>
+           <source>1.9</source>
+           <target>1.9</target>
+         </configuration>
+       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <version>${version.plugin.surefire}</version>
@@ -105,7 +115,19 @@
           </excludes>
         </configuration>
       </plugin>
-
+       <plugin>
+         <groupId>org.apache.felix</groupId>
+         <artifactId>maven-bundle-plugin</artifactId>
+         <extensions>true</extensions>
+         <version>3.2.0</version>
+         <configuration>
+           <instructions>
+             <_noee>true</_noee>
+             <_failok>true</_failok>
+             <Include-Resource>module-info.class=target/classes/module-info.class</Include-Resource>
+           </instructions>
+         </configuration>
+       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>

@@ -48,10 +48,16 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+      <!-- 06-Mar-2017, tatu: Although bom provides for dependencies, some legacy
+             usage seems to benefit from actually specifying version here in case
+             it is dependent on transitively
+        -->
+      <version>${jackson.version.annotations}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+      <version>${jackson.version.core}</version>
     </dependency>
 
     <!-- and for testing we need a few libraries

@@ -237,22 +237,21 @@ public abstract class BasicDeserializerFactory
         final DeserializationConfig config = ctxt.getConfig();
 
         ValueInstantiator instantiator = null;
-        // [JACKSON-633] Check @JsonValueInstantiator before anything else
+        // Check @JsonValueInstantiator before anything else
         AnnotatedClass ac = beanDesc.getClassInfo();
         Object instDef = ctxt.getAnnotationIntrospector().findValueInstantiator(ac);
         if (instDef != null) {
             instantiator = _valueInstantiatorInstance(config, ac, instDef);
         }
         if (instantiator == null) {
-            /* Second: see if some of standard Jackson/JDK types might provide value
-             * instantiators.
-             */
+            // Second: see if some of standard Jackson/JDK types might provide value
+            // instantiators.
             instantiator = _findStdValueInstantiator(config, beanDesc);
             if (instantiator == null) {
                 instantiator = _constructDefaultValueInstantiator(ctxt, beanDesc);
             }
         }
-        
+
         // finally: anyone want to modify ValueInstantiator?
         if (_factoryConfig.hasValueInstantiators()) {
             for (ValueInstantiators insts : _factoryConfig.valueInstantiators()) {
@@ -1126,11 +1125,21 @@ public abstract class BasicDeserializerFactory
             // Value handling is identical for all, but EnumMap requires special handling for keys
             Class<?> mapClass = type.getRawClass();
             if (EnumMap.class.isAssignableFrom(mapClass)) {
+                ValueInstantiator inst;
+
+                // 06-Mar-2017, tatu: Should only need to check ValueInstantiator for
+                //    custom sub-classes, see [databind#1544]
+                if (mapClass == EnumMap.class) {
+                    inst = null;
+                } else {
+                    inst = findValueInstantiator(ctxt, beanDesc);
+                }
                 Class<?> kt = keyType.getRawClass();
                 if (kt == null || !kt.isEnum()) {
                     throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
                 }
-                deser = new EnumMapDeserializer(type, null, contentDeser, contentTypeDeser, null);
+                deser = new EnumMapDeserializer(type, inst, null,
+                        contentDeser, contentTypeDeser, null);
             }
 
             // Otherwise, generic handler works ok.

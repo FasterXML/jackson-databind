@@ -233,13 +233,6 @@ public class EnumDeserializationTest
         assertEquals(AnnotatedTestEnum.OK, e);
     }
 
-    public void testEnumMaps() throws Exception
-    {
-        EnumMap<TestEnum,String> value = MAPPER.readValue("{\"OK\":\"value\"}",
-                new TypeReference<EnumMap<TestEnum,String>>() { });
-        assertEquals("value", value.get(TestEnum.OK));
-    }
-
     public void testSubclassedEnums() throws Exception
     {
         EnumWithSubClass value = MAPPER.readValue("\"A\"", EnumWithSubClass.class);
@@ -253,16 +246,6 @@ public class EnumDeserializationTest
         m.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
         LowerCaseEnum value = m.readValue("\"c\"", LowerCaseEnum.class);
         assertEquals(LowerCaseEnum.C, value);
-    }
-
-    public void testToStringEnumMaps() throws Exception
-    {
-        // can't reuse global one due to reconfig
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
-        EnumMap<LowerCaseEnum,String> value = m.readValue("{\"a\":\"value\"}",
-                new TypeReference<EnumMap<LowerCaseEnum,String>>() { });
-        assertEquals("value", value.get(LowerCaseEnum.A));
     }
 
     public void testNumbersToEnums() throws Exception

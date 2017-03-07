@@ -55,6 +55,8 @@ Project: jackson-databind
 #1474: Replace use of `Class.newInstance()` (deprecated in Java 9) with call via Constructor
 #1520: Case insensitive enum deserialization feature.
  (contributed by Ana-Eliza B)
+#1544: EnumMapDeserializer assumes a pure EnumMap and does not support EnumMap derived classes
+ (reported by Lyor G)
 
 2.8.8 (not yet released)
 

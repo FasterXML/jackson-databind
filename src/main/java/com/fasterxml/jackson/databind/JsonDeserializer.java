@@ -302,7 +302,6 @@ public abstract class JsonDeserializer<T>
      *
      * @since 2.9
      */
-//    public abstract AccessPattern getEmptyAccessPattern();
     public AccessPattern getEmptyAccessPattern() {
         return AccessPattern.DYNAMIC;
     }

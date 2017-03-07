@@ -614,3 +614,8 @@ Emiliano Clariá (emilianogc@github)
 Ana Eliza Barbosa (AnaEliza@github)
   * Contributed #1520: Case insensitive enum deserialization feature.
    (2.9.0)
+
+Lyor Goldstein (lgoldstein@github)
+  * Reported #1544: `EnumMapDeserializer` assumes a pure `EnumMap` and does not support
+    derived classes
+   (2.9.0)

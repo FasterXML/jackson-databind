@@ -61,7 +61,7 @@ public class MapDeserializer
      * is the type deserializer that can handle it
      */
     protected final TypeDeserializer _valueTypeDeserializer;
-    
+
     // // Instance construction settings:
 
     protected final ValueInstantiator _valueInstantiator;
@@ -81,9 +81,9 @@ public class MapDeserializer
     protected PropertyBasedCreator _propertyBasedCreator;    
 
     protected final boolean _hasDefaultCreator;
-    
+
     // // Any properties to ignore if seen?
-    
+
     protected Set<String> _ignorableProperties;
 
     /*
@@ -356,11 +356,11 @@ public class MapDeserializer
         // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
         JsonToken t = p.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            // (empty) String may be ok however:
+            // (empty) String may be ok however; or single-String-arg ctor
             if (t == JsonToken.VALUE_STRING) {
                 return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, p.getText());
             }
-            // slightly redundant (since String was passed above), but
+            // slightly redundant (since String was passed above), but also handles empty array case:
             return _deserializeFromEmpty(p, ctxt);
         }
         final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
@@ -378,7 +378,7 @@ public class MapDeserializer
             Map<Object,Object> result)
         throws IOException
     {
-        // [databind#631]: Assign current value, to be accessible by custom serializers
+        // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.setCurrentValue(result);
         
         // Ok: must point to START_OBJECT or FIELD_NAME
@@ -430,7 +430,8 @@ public class MapDeserializer
         MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
-            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
+            referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
+                    result);
         }
 
         String keyStr;

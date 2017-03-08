@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -1062,12 +1063,73 @@ public class JDKScalarsTest
         assertEquals(0.0, bean.doubleValue);
     }
 
+    // for [databind#403]
+    public void testEmptyStringFailForPrimitives() throws IOException
+    {
+        final ObjectReader reader = MAPPER
+                .readerFor(PrimitivesBean.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+
+        // boolean
+        try {
+            reader.readValue("{\"booleanValue\":\"\"}");
+            fail("Expected failure for boolean + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type boolean");
+        }
+        // byte/char/short/int/long
+        try {
+            reader.readValue("{\"byteValue\":\"\"}");
+            fail("Expected failure for byte + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type byte");
+        }
+        try {
+            reader.readValue("{\"charValue\":\"\"}");
+            fail("Expected failure for char + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type char");
+        }
+        try {
+            reader.readValue("{\"shortValue\":\"\"}");
+            fail("Expected failure for short + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type short");
+        }
+        try {
+            reader.readValue("{\"intValue\":\"\"}");
+            fail("Expected failure for int + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type int");
+        }
+        try {
+            reader.readValue("{\"longValue\":\"\"}");
+            fail("Expected failure for long + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type long");
+        }
+
+        // float/double
+        try {
+            reader.readValue("{\"floatValue\":\"\"}");
+            fail("Expected failure for float + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type float");
+        }
+        try {
+            reader.readValue("{\"doubleValue\":\"\"}");
+            fail("Expected failure for double + empty String");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map empty String (\"\") into type double");
+        }
+    }
+
     /*
     /**********************************************************
     /* Null handling for scalars in POJO
     /**********************************************************
      */
-    
+
     public void testNullForPrimitives() throws IOException
     {
         // by default, ok to rely on defaults
@@ -1085,7 +1147,7 @@ public class JDKScalarsTest
         assertEquals((byte) 0, bean.byteValue);
         assertEquals(0L, bean.longValue);
         assertEquals(0.0f, bean.floatValue);
-        
+
         // but not when enabled
         final ObjectReader reader = MAPPER
                 .readerFor(PrimitivesBean.class)
@@ -1141,6 +1203,56 @@ public class JDKScalarsTest
             fail("Expected failure for double + null");
         } catch (JsonMappingException e) {
             verifyException(e, "Can not map `null` into type double");
+        }
+    }
+
+    public void testNullForPrimitiveArrays() throws IOException
+    {
+        _testNullForPrimitiveArrays(boolean[].class, Boolean.FALSE);
+        _testNullForPrimitiveArrays(byte[].class, Byte.valueOf((byte) 0));
+        _testNullForPrimitiveArrays(char[].class, Character.valueOf((char) 0), false);
+        _testNullForPrimitiveArrays(short[].class, Short.valueOf((short)0));
+        _testNullForPrimitiveArrays(int[].class, Integer.valueOf(0));
+        _testNullForPrimitiveArrays(long[].class, Long.valueOf(0L));
+        _testNullForPrimitiveArrays(float[].class, Float.valueOf(0f));
+        _testNullForPrimitiveArrays(double[].class, Double.valueOf(0d));
+    }
+
+    private void _testNullForPrimitiveArrays(Class<?> cls, Object defValue) throws IOException {
+        _testNullForPrimitiveArrays(cls, defValue, true);
+    }
+
+    private void _testNullForPrimitiveArrays(Class<?> cls, Object defValue,
+            boolean testEmptyString) throws IOException
+    {
+        final String EMPTY_STRING_JSON = "[ \"\" ]";
+        final String JSON_WITH_NULL = "[ null ]";
+        final String SIMPLE_NAME = cls.getSimpleName();
+        final ObjectReader readerCoerceOk = MAPPER.readerFor(cls);
+        final ObjectReader readerNoCoerce = readerCoerceOk
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+
+        Object ob = readerCoerceOk.forType(cls).readValue(JSON_WITH_NULL);
+        assertEquals(1, Array.getLength(ob));
+        assertEquals(defValue, Array.get(ob, 0));
+        try {
+            readerNoCoerce.readValue(JSON_WITH_NULL);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not map `null` into primitive contents of type "+SIMPLE_NAME);
+        }
+        
+        if (testEmptyString) {
+            ob = readerCoerceOk.forType(cls).readValue(EMPTY_STRING_JSON);
+            assertEquals(1, Array.getLength(ob));
+            assertEquals(defValue, Array.get(ob, 0));
+
+            try {
+                readerNoCoerce.readValue(EMPTY_STRING_JSON);
+                fail("Should not pass");
+            } catch (JsonMappingException e) {
+                verifyException(e, "Can not map String \"\" into primitive contents of type "+SIMPLE_NAME);
+            }
         }
     }
 }

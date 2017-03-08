@@ -299,9 +299,13 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                     String str;
                     if (t == JsonToken.VALUE_STRING) {
                         str = p.getText();
-                    } else if ((t == JsonToken.VALUE_NULL) && (_nuller != null)) {
-                        _nuller.getNullValue(ctxt);
-                        continue;
+                    } else if (t == JsonToken.VALUE_NULL) {
+                        if (_nuller != null) {
+                            _nuller.getNullValue(ctxt);
+                            continue;
+                        }
+                        _verifyPrimitiveNull(ctxt);
+                        str = "\0";
                     } else {
                         CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
                         str = cs.toString();
@@ -380,7 +384,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
 
         @Override
         public boolean[] deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             if (!p.isExpectedStartArrayToken()) {
                 return handleNonArray(p, ctxt);
@@ -402,6 +406,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
+                        _verifyPrimitiveNull(ctxt);
                         value = false;
                     } else {
                         value = _parseBooleanPrimitive(p, ctxt);
@@ -510,10 +515,10 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                                 _nuller.getNullValue(ctxt);
                                 continue;
                             }
+                            _verifyPrimitiveNull(ctxt);
                             value = (byte) 0;
                         } else {
-                            Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
-                            value = n.byteValue();
+                            value = _parseBytePrimitive(p, ctxt);
                         }
                     }
                     if (ix >= chunk.length) {
@@ -544,6 +549,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                         _nuller.getNullValue(ctxt);
                         return (byte[]) getEmptyValue(ctxt);
                     }
+                    _verifyPrimitiveNull(ctxt);
                     return null;
                 }
                 Number n = (Number) ctxt.handleUnexpectedToken(_valueClass.getComponentType(), p);
@@ -603,6 +609,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
+                        _verifyPrimitiveNull(ctxt);
                         value = (short) 0;
                     } else {
                         value = _parseShortPrimitive(p, ctxt);
@@ -680,6 +687,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
+                        _verifyPrimitiveNull(ctxt);
                         value = 0;
                     } else {
                         value = _parseIntPrimitive(p, ctxt);
@@ -757,6 +765,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                             _nuller.getNullValue(ctxt);
                             continue;
                         }
+                        _verifyPrimitiveNull(ctxt);
                         value = 0L;
                     } else {
                         value = _parseLongPrimitive(p, ctxt);

@@ -190,7 +190,7 @@ public class NumberDeserializers
         {
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 ctxt.reportInputMismatch(this,
-                        "Can not map String `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        "Can not map String \"null\" into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
             }
             return _nullValue;

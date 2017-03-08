@@ -623,3 +623,8 @@ Lyor Goldstein (lgoldstein@github)
   * Reported #1544: `EnumMapDeserializer` assumes a pure `EnumMap` and does not support
     derived classes
    (2.9.0)
+
+Harleen Sahni (harleensahni@github)
+  * Reported #403: Make FAIL_ON_NULL_FOR_PRIMITIVES apply to primitive arrays and other
+    types that wrap primitives
+   (2.9.0)

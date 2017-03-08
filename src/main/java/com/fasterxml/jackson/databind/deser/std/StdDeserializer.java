@@ -142,7 +142,10 @@ public abstract class StdDeserializer<T>
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
-        if (t == JsonToken.VALUE_NULL) return false;
+        if (t == JsonToken.VALUE_NULL) {
+            _verifyPrimitiveNull(ctxt);
+            return false;
+        }
 
         // should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
@@ -155,10 +158,11 @@ public abstract class StdDeserializer<T>
             if ("true".equals(text) || "True".equals(text)) {
                 return true;
             }
-            if ("false".equals(text) || "False".equals(text) || text.length() == 0) {
+            if ("false".equals(text) || "False".equals(text)) {
                 return false;
             }
-            if (_hasTextualNull(text)) {
+            if ((text.length() == 0) || _hasTextualNull(text)) {
+                _verifyPrimitiveNullCoercion(ctxt, text);
                 return false;
             }
             Boolean b = (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
@@ -192,6 +196,19 @@ public abstract class StdDeserializer<T>
         return !"0".equals(p.getText());
     }
 
+    protected final byte _parseBytePrimitive(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        int value = _parseIntPrimitive(p, ctxt);
+        // So far so good: but does it fit?
+        if (_byteOverflow(value)) {
+            Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, String.valueOf(value),
+                    "overflow, value can not be represented as 8-bit value");
+            return (v == null) ? (byte) 0 : v.byteValue();
+        }
+        return (byte) value;
+    }
+
     protected final short _parseShortPrimitive(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
@@ -214,7 +231,8 @@ public abstract class StdDeserializer<T>
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
             String text = p.getText().trim();
-            if (_hasTextualNull(text)) {
+            if ((text.length() == 0) || _hasTextualNull(text)) {
+                _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0;
             }
             try {
@@ -246,6 +264,7 @@ public abstract class StdDeserializer<T>
             return p.getValueAsInt();
         }
         if (t == JsonToken.VALUE_NULL) {
+            _verifyPrimitiveNull(ctxt);
             return 0;
         }
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -275,6 +294,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (text.length() == 0 || _hasTextualNull(text)) {
+                _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0L;
             }
             try {
@@ -286,6 +306,7 @@ public abstract class StdDeserializer<T>
                 return (v == null) ? 0 : v.longValue();
             }
         case JsonTokenId.ID_NULL:
+            _verifyPrimitiveNull(ctxt);
             return 0L;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -313,6 +334,7 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) {
             String text = p.getText().trim();
             if (text.length() == 0 || _hasTextualNull(text)) {
+                _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0.0f;
             }
             switch (text.charAt(0)) {
@@ -338,6 +360,7 @@ public abstract class StdDeserializer<T>
             return (v == null) ? 0 : v.floatValue();
         }
         if (t == JsonToken.VALUE_NULL) {
+            _verifyPrimitiveNull(ctxt);
             return 0.0f;
         }
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -366,6 +389,7 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_STRING) {
             String text = p.getText().trim();
             if (text.length() == 0 || _hasTextualNull(text)) {
+                _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0.0;
             }
             switch (text.charAt(0)) {
@@ -393,6 +417,7 @@ public abstract class StdDeserializer<T>
             return (v == null) ? 0 : v.doubleValue();
         }
         if (t == JsonToken.VALUE_NULL) {
+            _verifyPrimitiveNull(ctxt);
             return 0.0;
         }
         // [databind#381]
@@ -859,6 +884,25 @@ handledType().getName());
                 p.getValueAsString(), type);
     }
 
+    protected final void _verifyPrimitiveNull(DeserializationContext ctxt) throws IOException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not map `null` into primitive contents of type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    handledType().getSimpleName());
+        }
+    }
+
+    protected final void _verifyPrimitiveNullCoercion(DeserializationContext ctxt, String str) throws IOException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not map String \"%s\" into primitive contents of type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    str,
+                    handledType().getSimpleName());
+        }
+    }
+    
     /*
     /**********************************************************
     /* Helper methods, other

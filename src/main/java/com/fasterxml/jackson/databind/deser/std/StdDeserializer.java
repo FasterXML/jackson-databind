@@ -161,22 +161,19 @@ public abstract class StdDeserializer<T>
             if ("false".equals(text) || "False".equals(text)) {
                 return false;
             }
-            if ((text.length() == 0) || _hasTextualNull(text)) {
+            if (_isEmptyOrTextualNull(text)) {
                 _verifyPrimitiveNullCoercion(ctxt, text);
                 return false;
             }
             Boolean b = (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
                     "only \"true\" or \"false\" recognized");
-            return (b == null) ? false : b.booleanValue();
+            return Boolean.TRUE.equals(b);
         }
         // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final boolean parsed = _parseBooleanPrimitive(p, ctxt);
-            t = p.nextToken();
-            if (t != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
+            _verifyEndArrayForSingle(p, ctxt);
             return parsed;            
         }
         // Otherwise, no can do:
@@ -204,7 +201,7 @@ public abstract class StdDeserializer<T>
         if (_byteOverflow(value)) {
             Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, String.valueOf(value),
                     "overflow, value can not be represented as 8-bit value");
-            return (v == null) ? (byte) 0 : v.byteValue();
+            return _nonNullNumber(v).byteValue();
         }
         return (byte) value;
     }
@@ -217,7 +214,7 @@ public abstract class StdDeserializer<T>
         if (_shortOverflow(value)) {
             Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, String.valueOf(value),
                     "overflow, value can not be represented as 16-bit value");
-            return (v == null) ? (short) 0 : v.shortValue();
+            return _nonNullNumber(v).shortValue();
         }
         return (short) value;
     }
@@ -231,7 +228,7 @@ public abstract class StdDeserializer<T>
         JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
             String text = p.getText().trim();
-            if ((text.length() == 0) || _hasTextualNull(text)) {
+            if (_isEmptyOrTextualNull(text)) {
                 _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0;
             }
@@ -243,7 +240,7 @@ public abstract class StdDeserializer<T>
                         Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
                             "Overflow: numeric value (%s) out of range of int (%d -%d)",
                             text, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                        return (v == null) ? 0 : v.intValue();
+                        return _nonNullNumber(v).intValue();
                     }
                     return (int) l;
                 }
@@ -254,7 +251,7 @@ public abstract class StdDeserializer<T>
             } catch (IllegalArgumentException iae) {
                 Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
                         "not a valid int value");
-                return (v == null) ? 0 : v.intValue();
+                return _nonNullNumber(v).intValue();
             }
         }
         if (t == JsonToken.VALUE_NUMBER_FLOAT) {
@@ -270,10 +267,7 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final int parsed = _parseIntPrimitive(p, ctxt);
-            t = p.nextToken();
-            if (t != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
+            _verifyEndArrayForSingle(p, ctxt);
             return parsed;            
         }
         // Otherwise, no can do:
@@ -293,7 +287,7 @@ public abstract class StdDeserializer<T>
             return p.getValueAsLong();
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
-            if (text.length() == 0 || _hasTextualNull(text)) {
+            if (_isEmptyOrTextualNull(text)) {
                 _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0L;
             }
@@ -303,7 +297,7 @@ public abstract class StdDeserializer<T>
             {
                 Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
                         "not a valid long value");
-                return (v == null) ? 0 : v.longValue();
+                return _nonNullNumber(v).longValue();
             }
         case JsonTokenId.ID_NULL:
             _verifyPrimitiveNull(ctxt);
@@ -312,10 +306,7 @@ public abstract class StdDeserializer<T>
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
                 final long parsed = _parseLongPrimitive(p, ctxt);
-                JsonToken t = p.nextToken();
-                if (t != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }
+                _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
             }
             break;
@@ -333,7 +324,7 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_STRING) {
             String text = p.getText().trim();
-            if (text.length() == 0 || _hasTextualNull(text)) {
+            if (_isEmptyOrTextualNull(text)) {
                 _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0.0f;
             }
@@ -357,7 +348,7 @@ public abstract class StdDeserializer<T>
             } catch (IllegalArgumentException iae) { }
             Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid float value");
-            return (v == null) ? 0 : v.floatValue();
+            return _nonNullNumber(v).floatValue();
         }
         if (t == JsonToken.VALUE_NULL) {
             _verifyPrimitiveNull(ctxt);
@@ -366,10 +357,7 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final float parsed = _parseFloatPrimitive(p, ctxt);
-            t = p.nextToken();
-            if (t != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
+            _verifyEndArrayForSingle(p, ctxt);
             return parsed;            
         }
         // Otherwise, no can do:
@@ -388,7 +376,7 @@ public abstract class StdDeserializer<T>
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
             String text = p.getText().trim();
-            if (text.length() == 0 || _hasTextualNull(text)) {
+            if (_isEmptyOrTextualNull(text)) {
                 _verifyPrimitiveNullCoercion(ctxt, text);
                 return 0.0;
             }
@@ -414,7 +402,7 @@ public abstract class StdDeserializer<T>
             } catch (IllegalArgumentException iae) { }
             Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text, 
                     "not a valid double value");
-            return (v == null) ? 0 : v.doubleValue();
+            return _nonNullNumber(v).doubleValue();
         }
         if (t == JsonToken.VALUE_NULL) {
             _verifyPrimitiveNull(ctxt);
@@ -424,10 +412,7 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final double parsed = _parseDoublePrimitive(p, ctxt);
-            t = p.nextToken();
-            if (t != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
+            _verifyEndArrayForSingle(p, ctxt);
             return parsed;            
         }
         // Otherwise, no can do:
@@ -451,10 +436,7 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final Date parsed = _parseDate(p, ctxt);
-            t = p.nextToken();
-            if (t != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
+            _verifyEndArrayForSingle(p, ctxt);
             return parsed;            
         }
         return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -468,7 +450,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             // Take empty Strings to mean 'empty' Value, usually 'null':
-            if ((value.length() == 0) || _hasTextualNull(value)) {
+            if (_isEmptyOrTextualNull(value)) {
                 return (java.util.Date) getNullValue(ctxt);
             }
             return ctxt.parseDate(value);
@@ -510,9 +492,7 @@ public abstract class StdDeserializer<T>
         if ((t == JsonToken.START_ARRAY) && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final String parsed = _parseString(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
+            _verifyEndArrayForSingle(p, ctxt);
             return parsed;            
         }
         */
@@ -564,6 +544,13 @@ public abstract class StdDeserializer<T>
         return "null".equals(value);
     }
 
+    /**
+     * @since 2.9
+     */
+    protected boolean _isEmptyOrTextualNull(String value) {
+        return value.isEmpty() || "null".equals(value);
+    }
+    
     protected final boolean _isNegInf(String text) {
         return "-Infinity".equals(text) || "-INF".equals(text);
     }
@@ -785,46 +772,44 @@ public abstract class StdDeserializer<T>
             BeanProperty prop, Nulls nulls, JsonDeserializer<?> valueDeser)
         throws JsonMappingException
     {
-        if (nulls != null) {
-            switch (nulls) {
-            case FAIL:
-                if (prop == null) {
-                    return NullsFailProvider.constructForRootValue(ctxt.constructType(valueDeser.handledType()));
-                }
-                return NullsFailProvider.constructForProperty(prop);
-            case AS_EMPTY:
-                // can not deal with empty values if there is no value deserializer that
-                // can indicate what "empty value" is:
-                if (valueDeser == null) {
-                    break;
-                }
-
-                // Let's first do some sanity checking...
-                // NOTE: although we could use `ValueInstantiator.Gettable` in general,
-                // let's not since that would prevent being able to use custom impls:
-                if (valueDeser instanceof BeanDeserializerBase) {
-                    ValueInstantiator vi = ((BeanDeserializerBase) valueDeser).getValueInstantiator();
-                    if (!vi.canCreateUsingDefault()) {
-                        final JavaType type = prop.getType();
-                        ctxt.reportBadDefinition(type,
-                                String.format("Can not create empty instance of %s, no default Creator", type));
-                    }
-                }
-                // Second: can with pre-fetch value?
-                {
-                    AccessPattern access = valueDeser.getEmptyAccessPattern();
-                    if (access == AccessPattern.ALWAYS_NULL) {
-                        return NullsConstantProvider.nuller();
-                    }
-                    if (access == AccessPattern.CONSTANT) {
-                        return NullsConstantProvider.forValue(valueDeser.getEmptyValue(ctxt));
-                    }
-                }
-                return new NullsAsEmptyProvider(valueDeser);
-            case SKIP:
-                return NullsConstantProvider.skipper();
-            default: // SET/DEFAULT, nothing to do;
+        if (nulls == Nulls.FAIL) {
+            if (prop == null) {
+                return NullsFailProvider.constructForRootValue(ctxt.constructType(valueDeser.handledType()));
             }
+            return NullsFailProvider.constructForProperty(prop);
+        }
+        if (nulls == Nulls.AS_EMPTY) {
+            // can not deal with empty values if there is no value deserializer that
+            // can indicate what "empty value" is:
+            if (valueDeser == null) {
+                return null;
+            }
+
+            // Let's first do some sanity checking...
+            // NOTE: although we could use `ValueInstantiator.Gettable` in general,
+            // let's not since that would prevent being able to use custom impls:
+            if (valueDeser instanceof BeanDeserializerBase) {
+                ValueInstantiator vi = ((BeanDeserializerBase) valueDeser).getValueInstantiator();
+                if (!vi.canCreateUsingDefault()) {
+                    final JavaType type = prop.getType();
+                    ctxt.reportBadDefinition(type,
+                            String.format("Can not create empty instance of %s, no default Creator", type));
+                }
+            }
+            // Second: can with pre-fetch value?
+            {
+                AccessPattern access = valueDeser.getEmptyAccessPattern();
+                if (access == AccessPattern.ALWAYS_NULL) {
+                    return NullsConstantProvider.nuller();
+                }
+                if (access == AccessPattern.CONSTANT) {
+                    return NullsConstantProvider.forValue(valueDeser.getEmptyValue(ctxt));
+                }
+            }
+            return new NullsAsEmptyProvider(valueDeser);
+        }
+        if (nulls == Nulls.SKIP) {
+            return NullsConstantProvider.skipper();
         }
         return null;
     }
@@ -902,7 +887,15 @@ handledType().getName());
                     handledType().getSimpleName());
         }
     }
-    
+
+    protected void _verifyEndArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        JsonToken t = p.nextToken();
+        if (t != JsonToken.END_ARRAY) {
+            handleMissingEndArrayForSingle(p, ctxt);
+        }            
+    }
+
     /*
     /**********************************************************
     /* Helper methods, other
@@ -930,5 +923,15 @@ handledType().getName());
      */
     protected final boolean _intOverflow(long value) {
         return (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected Number _nonNullNumber(Number n) {
+        if (n == null) {
+            n = Integer.valueOf(0);
+        }
+        return n;
     }
 }

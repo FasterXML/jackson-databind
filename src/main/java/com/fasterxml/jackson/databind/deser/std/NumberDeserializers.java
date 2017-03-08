@@ -992,11 +992,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 String text = p.getText().trim();
                 // note: no need to call `coerce` as this is never primitive
-                if (text.length() == 0) {
-                    return getNullValue(ctxt);
-                }
-                // note: no need to call `coerce` as this is never primitive
-                if (_hasTextualNull(text)) {
+                if (_isEmptyOrTextualNull(text)) {
                     return getNullValue(ctxt);
                 }
                 try {
@@ -1036,10 +1032,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_STRING:
                 String text = p.getText().trim();
                 // note: no need to call `coerce` as this is never primitive
-                if (text.length() == 0) {
-                    return getNullValue(ctxt);
-                }
-                if (_hasTextualNull(text)) {
+                if (_isEmptyOrTextualNull(text)) {
                     return getNullValue(ctxt);
                 }
                 try {

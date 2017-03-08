@@ -125,10 +125,11 @@ public class JDKScalarsTest
         assertTrue(result._v);
 
         // should work with arrays too..
-        boolean[] array = MAPPER.readValue("[ null ]", boolean[].class);
+        boolean[] array = MAPPER.readValue("[ null, false ]", boolean[].class);
         assertNotNull(array);
-        assertEquals(1, array.length);
+        assertEquals(2, array.length);
         assertFalse(array[0]);
+        assertFalse(array[1]);
     }
         
     public void testBooleanPrimitiveArrayUnwrap() throws Exception
@@ -1253,6 +1254,39 @@ public class JDKScalarsTest
             } catch (JsonMappingException e) {
                 verifyException(e, "Can not map String \"\" into primitive contents of type "+SIMPLE_NAME);
             }
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Test for invalid String values
+    /**********************************************************
+     */
+
+    public void testInvalidStringCoercionFail() throws IOException
+    {
+        _testInvalidStringCoercionFail(boolean[].class);
+        _testInvalidStringCoercionFail(byte[].class);
+
+        // char[] is special, can not use generalized test here
+//        _testInvalidStringCoercionFail(char[].class);
+        _testInvalidStringCoercionFail(short[].class);
+        _testInvalidStringCoercionFail(int[].class);
+        _testInvalidStringCoercionFail(long[].class);
+        _testInvalidStringCoercionFail(float[].class);
+        _testInvalidStringCoercionFail(double[].class);
+    }
+
+    private void _testInvalidStringCoercionFail(Class<?> cls) throws IOException
+    {
+        final String JSON = "[ \"foobar\" ]";
+        final String SIMPLE_NAME = cls.getSimpleName();
+
+        try {
+            MAPPER.readerFor(cls).readValue(JSON);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not deserialize value of type "+SIMPLE_NAME+" from String \"foobar\"");
         }
     }
 }

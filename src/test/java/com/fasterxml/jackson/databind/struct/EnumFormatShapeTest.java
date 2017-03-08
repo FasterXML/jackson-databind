@@ -104,10 +104,13 @@ public class EnumFormatShapeTest
     }
 
     // for [databind#1543]
-    public void testEnumAsNumber() throws Exception {
+    public void testEnumValueAsNumber() throws Exception {
         assertEquals(String.valueOf(Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(Color.GREEN));
-        assertEquals(String.format(aposToQuotes("{'color':'%s'}"), Color.GREEN.ordinal()),
+    }
+
+    public void testEnumPropertyAsNumber() throws Exception {
+        assertEquals(String.format(aposToQuotes("{'color':%s}"), Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(new ColorWrapper(Color.GREEN)));
     }
 }

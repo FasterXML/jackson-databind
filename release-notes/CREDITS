@@ -587,6 +587,10 @@ Stephan Schroevers (Stephan202@github)
   * Reported #1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
    (2.8.7)
 
+Alex Panchenko (panchenko@github)
+  * Reported #1543: JsonFormat.Shape.NUMBER_INT does not work when defined on enum type in 2.8
+   (2.8.8)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

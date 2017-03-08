@@ -67,7 +67,7 @@ public class EnumSerializer
         _values = v;
         _serializeAsIndex = serializeAsIndex;
     }
-    
+
     /**
      * Factory method used by {@link com.fasterxml.jackson.databind.ser.BasicSerializerFactory}
      * for constructing serializer instance of Enum types.
@@ -83,7 +83,7 @@ public class EnumSerializer
          *   handle toString() case dynamically (for example)
          */
         EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
-        Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true);
+        Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true, null);
         return new EnumSerializer(v, serializeAsIndex);
     }
 
@@ -100,7 +100,8 @@ public class EnumSerializer
             JsonFormat.Value format = findFormatOverrides(serializers,
                     property, handledType());
             if (format != null) {
-                Boolean serializeAsIndex = _isShapeWrittenUsingIndex(property.getType().getRawClass(), format, false);
+                Boolean serializeAsIndex = _isShapeWrittenUsingIndex(property.getType().getRawClass(),
+                        format, false, _serializeAsIndex);
                 if (serializeAsIndex != _serializeAsIndex) {
                     return new EnumSerializer(_values, serializeAsIndex);
                 }
@@ -209,18 +210,20 @@ public class EnumSerializer
     }
 
     /**
-     * Helper method called to check whether 
+     * Helper method called to check whether serialization should be done using
+     * index (number) or not.
      */
     protected static Boolean _isShapeWrittenUsingIndex(Class<?> enumClass,
-            JsonFormat.Value format, boolean fromClass)
+            JsonFormat.Value format, boolean fromClass,
+            Boolean defaultValue)
     {
         JsonFormat.Shape shape = (format == null) ? null : format.getShape();
         if (shape == null) {
-            return null;
+            return defaultValue;
         }
         // i.e. "default", check dynamically
         if (shape == Shape.ANY || shape == Shape.SCALAR) {
-            return null;
+            return defaultValue;
         }
         // 19-May-2016, tatu: also consider "natural" shape
         if (shape == Shape.STRING || shape == Shape.NATURAL) {
@@ -230,9 +233,9 @@ public class EnumSerializer
         if (shape.isNumeric() || (shape == Shape.ARRAY)) {
             return Boolean.TRUE;
         }
-        throw new IllegalArgumentException("Unsupported serialization shape ("+shape+") for Enum "+enumClass.getName()
-                    +", not supported as "
-                    + (fromClass? "class" : "property")
-                    +" annotation");
+        // 07-Mar-2017, tatu: Also means `OBJECT` not available as property annotation...
+        throw new IllegalArgumentException(String.format(
+                "Unsupported serialization shape (%s) for Enum %s, not supported as %s annotation",
+                    shape, enumClass.getName(), (fromClass? "class" : "property")));
     }
 }

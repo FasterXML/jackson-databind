@@ -6,6 +6,8 @@ Project: jackson-databind
 2.8.8 (not yet released)
 
 #1533: `AsPropertyTypeDeserializer` ignores `DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+#1543: JsonFormat.Shape.NUMBER_INT does not work when defined on enum type in 2.8
+ (reported by Alex P)
 - Minor fix to creation of `PropertyMetadata`, had one path that could lead to NPE
 
 2.8.7 (21-Feb-2017)

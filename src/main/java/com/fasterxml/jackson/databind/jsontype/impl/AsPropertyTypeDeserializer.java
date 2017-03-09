@@ -106,7 +106,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
 
     @SuppressWarnings("resource")
-    protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt, TokenBuffer tb) throws IOException
+    protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
+            TokenBuffer tb) throws IOException
     {
         String typeId = p.getText();
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
@@ -136,36 +137,41 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     {
         // May have default implementation to use
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
-        if (deser != null) {
-            if (tb != null) {
-                tb.writeEndObject();
-                p = tb.asParser(p);
-                // must move to point to the first token:
-                p.nextToken();
+        if (deser == null) {
+            // or, perhaps we just bumped into a "natural" value (boolean/int/double/String)?
+            Object result = TypeDeserializer.deserializeIfNatural(p, ctxt, _baseType);
+            if (result != null) {
+                return result;
             }
-            return deser.deserialize(p, ctxt);
-        }
-        // or, perhaps we just bumped into a "natural" value (boolean/int/double/String)?
-        Object result = TypeDeserializer.deserializeIfNatural(p, ctxt, _baseType);
-        if (result != null) {
-            return result;
-        }
-        // or, something for which "as-property" won't work, changed into "wrapper-array" type:
-        if (p.isExpectedStartArrayToken()) {
-            return super.deserializeTypedFromAny(p, ctxt);
-        }
-        if (p.hasToken(JsonToken.VALUE_STRING)) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                String str = p.getText().trim();
-                if (str.isEmpty()) {
-                    return null;
+            // or, something for which "as-property" won't work, changed into "wrapper-array" type:
+            if (p.isExpectedStartArrayToken()) {
+                return super.deserializeTypedFromAny(p, ctxt);
+            }
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    String str = p.getText().trim();
+                    if (str.isEmpty()) {
+                        return null;
+                    }
                 }
             }
+            JavaType t = _handleMissingTypeId(ctxt,
+                    String.format("missing property '%s' that is to contain type id",
+                            _typePropertyName));
+            if (t == null) {
+                // 09-Mar-2017, tatu: Is this the right thing to do?
+                return null;
+            }
+            // ... would this actually work?
+            deser = ctxt.findContextualValueDeserializer(t, _property);
         }
-        ctxt.reportWrongTokenException(baseType(), JsonToken.FIELD_NAME,
-                String.format("missing property '%s' that is to contain type id  (for class %s)",
-                _typePropertyName, baseTypeName()));
-        return null;
+        if (tb != null) {
+            tb.writeEndObject();
+            p = tb.asParser(p);
+            // must move to point to the first token:
+            p.nextToken();
+        }
+        return deser.deserialize(p, ctxt);
     }
 
     /* Also need to re-route "unknown" version. Need to think

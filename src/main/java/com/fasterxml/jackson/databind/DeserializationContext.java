@@ -1164,6 +1164,37 @@ public abstract class DeserializationContext
         throw unknownTypeIdException(baseType, id, extraDesc);
     }
 
+    /**
+     * @since 2.9
+     */
+    public JavaType handleMissingTypeId(JavaType baseType,
+            TypeIdResolver idResolver, String extraDesc) throws IOException
+    {
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        while (h != null) {
+            // Can bail out if it's handled
+            JavaType type = h.value().handleMissingTypeId(this, baseType, idResolver, extraDesc);
+            if (type != null) {
+                if (type.hasRawClass(Void.class)) {
+                    return null;
+                }
+                // But ensure there's type compatibility
+                if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
+                    return type;
+                }
+                throw unknownTypeIdException(baseType, null,
+                        "problem handler tried to resolve into non-subtype: "+type);
+            }
+            h = h.next();
+        }
+        // 09-Mar-2017, tatu: We may want to consider yet another feature at some
+        //    point to allow returning `null`... but that seems bit risky for now
+//        if (!isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)) {
+//            return null;
+//        }
+        throw missingTypeIdException(baseType, extraDesc);
+    }
+
     /*
     /**********************************************************
     /* Methods for problem reporting, in cases where recovery
@@ -1544,6 +1575,17 @@ public abstract class DeserializationContext
                 typeId, baseType);
         msg = _colonConcat(msg, extraDesc);
         return InvalidTypeIdException.from(_parser, msg, baseType, typeId);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public JsonMappingException missingTypeIdException(JavaType baseType,
+            String extraDesc) {
+        String msg = String.format("Missing type id when trying to resolve subtype of %s",
+                baseType);
+        msg = _colonConcat(msg, extraDesc);
+        return InvalidTypeIdException.from(_parser, msg, baseType, null);
     }
 
     /*

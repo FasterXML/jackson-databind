@@ -317,6 +317,42 @@ public abstract class DeserializationProblemHandler
         return null;
     }
 
+    /**
+     * Handler method called if an expected type id for a polymorphic value is
+     * not found and no "default type" is specified or allowed.
+     * Handler may choose to do one of following things:
+     *<ul>
+     * <li>Indicate it does not know what to do by returning `null`
+     *  </li>
+     * <li>Indicate that nothing should be deserialized, by return `Void.class`
+     *  </li>
+     * <li>Throw a {@link IOException} to indicate specific fail message (instead of
+     *    standard exception caller would throw
+     *  </li>
+     * <li>Return actual resolved type to use for this particular case.
+     *  </li>
+     * </ul>
+     *
+     * @param ctxt Deserialization context to use for accessing information or
+     *    constructing exception to throw
+     * @param baseType Base type to use for resolving subtype id
+     * @param failureMsg Informational message that would be thrown as part of
+     *    exception, if resolution still fails
+     *
+     * @return Actual type to use, if resolved; `null` if handler does not know what
+     *     to do; or `Void.class` to indicate that nothing should be deserialized for
+     *     type with the id (which caller may choose to do... or not)
+     *
+     * @since 2.9
+     */
+    public JavaType handleMissingTypeId(DeserializationContext ctxt,
+            JavaType baseType, TypeIdResolver idResolver,
+            String failureMsg)
+        throws IOException
+    {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Deprecated

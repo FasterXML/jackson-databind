@@ -23,7 +23,7 @@ public class TestDefaultForEnums
     protected static class TimeUnitBean {
         public TimeUnit timeUnit;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

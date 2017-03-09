@@ -19,7 +19,8 @@ public class InvalidTypeIdException
     protected final JavaType _baseType;
 
     /**
-     * Type id that failed to be resolved to a subtype
+     * Type id that failed to be resolved to a subtype; `null` in cases
+     * where no type id was located (since 2.9).
      */
     protected final String _typeId;
 

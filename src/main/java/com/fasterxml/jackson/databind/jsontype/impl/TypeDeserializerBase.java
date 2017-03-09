@@ -159,7 +159,7 @@ public abstract class TypeDeserializerBase
                 deser = _findDefaultImplDeserializer(ctxt);
                 if (deser == null) {
                     // 10-May-2016, tatu: We may get some help...
-                    JavaType actual = _handleUnknownTypeId(ctxt, typeId, _idResolver, _baseType);
+                    JavaType actual = _handleUnknownTypeId(ctxt, typeId);
                     if (actual == null) { // what should this be taken to mean?
                         // TODO: try to figure out something better
                         return null;
@@ -275,16 +275,24 @@ public abstract class TypeDeserializerBase
      *
      * @since 2.8
      */
-    protected JavaType _handleUnknownTypeId(DeserializationContext ctxt, String typeId,
-            TypeIdResolver idResolver, JavaType baseType)
+    protected JavaType _handleUnknownTypeId(DeserializationContext ctxt, String typeId)
         throws IOException
     {
-        String extraDesc = idResolver.getDescForKnownTypeIds();
+        String extraDesc = _idResolver.getDescForKnownTypeIds();
         if (extraDesc == null) {
-            extraDesc = "known type ids are not statically known";
+            extraDesc = "type ids are not statically known";
         } else {
             extraDesc = "known type ids = " + extraDesc;
         }
-        return ctxt.handleUnknownTypeId(_baseType, typeId, idResolver, extraDesc);
+        return ctxt.handleUnknownTypeId(_baseType, typeId, _idResolver, extraDesc);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected JavaType _handleMissingTypeId(DeserializationContext ctxt, String extraDesc)
+        throws IOException
+    {
+        return ctxt.handleMissingTypeId(_baseType, _idResolver, extraDesc);
     }
 }

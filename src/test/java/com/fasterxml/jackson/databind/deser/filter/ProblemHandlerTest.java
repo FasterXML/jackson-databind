@@ -138,16 +138,33 @@ public class ProblemHandlerTest extends BaseMapTest
         }
     }
 
-    static class TypeIdHandler
+    static class UnknownTypeIdHandler
         extends DeserializationProblemHandler
     {
         protected final Class<?> raw;
 
-        public TypeIdHandler(Class<?> r) { raw = r; }
+        public UnknownTypeIdHandler(Class<?> r) { raw = r; }
         
         @Override
         public JavaType handleUnknownTypeId(DeserializationContext ctxt,
                 JavaType baseType, String subTypeId, TypeIdResolver idResolver,
+                String failureMsg)
+            throws IOException
+        {
+            return ctxt.constructType(raw);
+        }
+    }
+
+    static class MissingTypeIdHandler
+        extends DeserializationProblemHandler
+    {
+        protected final Class<?> raw;
+    
+        public MissingTypeIdHandler(Class<?> r) { raw = r; }
+        
+        @Override
+        public JavaType handleMissingTypeId(DeserializationContext ctxt,
+                JavaType baseType, TypeIdResolver idResolver,
                 String failureMsg)
             throws IOException
         {
@@ -245,24 +262,45 @@ public class ProblemHandlerTest extends BaseMapTest
     public void testInvalidTypeId() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
-            .addHandler(new TypeIdHandler(BaseImpl.class));
+            .addHandler(new UnknownTypeIdHandler(BaseImpl.class));
         BaseWrapper w = mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
                 BaseWrapper.class);
         assertNotNull(w);
         assertEquals(BaseImpl.class, w.value.getClass());
     }
 
-
     public void testInvalidClassAsId() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
-            .addHandler(new TypeIdHandler(Base2Impl.class));
+            .addHandler(new UnknownTypeIdHandler(Base2Impl.class));
         Base2Wrapper w = mapper.readValue("{\"value\":{\"clazz\":\"com.fizz\",\"a\":4}}",
                 Base2Wrapper.class);
         assertNotNull(w);
         assertEquals(Base2Impl.class, w.value.getClass());
     }
 
+    // 2.9: missing type id, distinct from unknown
+
+    public void testMissingTypeId() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new MissingTypeIdHandler(BaseImpl.class));
+        BaseWrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
+                BaseWrapper.class);
+        assertNotNull(w);
+        assertEquals(BaseImpl.class, w.value.getClass());
+    }
+
+    public void testMissingClassAsId() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+            .addHandler(new MissingTypeIdHandler(Base2Impl.class));
+        Base2Wrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
+                Base2Wrapper.class);
+        assertNotNull(w);
+        assertEquals(Base2Impl.class, w.value.getClass());
+    }
+    
     // verify that by default we get special exception type
     public void testInvalidTypeIdFail() throws Exception
     {

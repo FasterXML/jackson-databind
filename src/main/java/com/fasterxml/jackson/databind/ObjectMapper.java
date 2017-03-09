@@ -1763,6 +1763,14 @@ public class ObjectMapper
      * Method that can be used to get hold of {@link JsonFactory} that this
      * mapper uses if it needs to construct {@link JsonParser}s
      * and/or {@link JsonGenerator}s.
+     *<p>
+     * WARNING: note that all {@link ObjectReader} and {@link ObjectWriter}
+     * instances created by this mapper usually share the same configured
+     * {@link JsonFactory}, so changes to its configuration will "leak".
+     * To avoid such observed changes you should always use "with()" and
+     * "without()" method of {@link ObjectReader} and {@link ObjectWriter}
+     * for changing {@link JsonParser#Feature} and {@link JsonGenerator#Feature}
+     * settings to use on per-call basis.
      *
      * @return {@link JsonFactory} that this mapper uses when it needs to
      *   construct Json parser and generators
@@ -1851,7 +1859,7 @@ public class ObjectMapper
         _serializationConfig = _serializationConfig.with(tz);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, simple features: MapperFeature
@@ -2038,6 +2046,10 @@ public class ObjectMapper
      *<p>
      * Note that this is equivalent to directly calling same method
      * on {@link #getFactory}.
+     *<p>
+     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
+     * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
      */
     public ObjectMapper configure(JsonParser.Feature f, boolean state) {
         _jsonFactory.configure(f, state);
@@ -2049,6 +2061,10 @@ public class ObjectMapper
      * for parser instances this object mapper creates.
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *<p>
+     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
+     * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
      *
      * @since 2.5
      */
@@ -2064,6 +2080,10 @@ public class ObjectMapper
      * for parser instances this object mapper creates.
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *<p>
+     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
+     * this, use {@link ObjectReader#without(JsonParser.Feature)} instead.
      *
      * @since 2.5
      */
@@ -2090,6 +2110,10 @@ public class ObjectMapper
      *<p>
      * Note that this is equivalent to directly calling same method
      * on {@link #getFactory}.
+     *<p>
+     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
+     * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
      */
     public ObjectMapper configure(JsonGenerator.Feature f, boolean state) {
         _jsonFactory.configure(f,  state);
@@ -2101,6 +2125,10 @@ public class ObjectMapper
      * for parser instances this object mapper creates.
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *<p>
+     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
+     * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
      *
      * @since 2.5
      */
@@ -2116,6 +2144,10 @@ public class ObjectMapper
      * for parser instances this object mapper creates.
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *<p>
+     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
+     * this, use {@link ObjectWriter#without(JsonGenerator.Feature)} instead.
      *
      * @since 2.5
      */

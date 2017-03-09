@@ -121,6 +121,34 @@ public class JsonIncludeTest
         public NonEmptyDouble(double v) { value = v; }
     }
 
+    static class NonEmpty<T> {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public T value;
+
+        public NonEmpty(T v) { value = v; }
+    }
+
+    static class NonEmptyDate extends NonEmpty<Date> {
+        public NonEmptyDate(Date v) { super(v); }
+    }
+    static class NonEmptyCalendar extends NonEmpty<Calendar> {
+        public NonEmptyCalendar(Calendar v) { super(v); }
+    }
+
+    static class NonDefault<T> {
+        @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+        public T value;
+
+        public NonDefault(T v) { value = v; }
+    }
+
+    static class NonDefaultDate extends NonDefault<Date> {
+        public NonDefaultDate(Date v) { super(v); }
+    }
+    static class NonDefaultCalendar extends NonDefault<Calendar> {
+        public NonDefaultCalendar(Calendar v) { super(v); }
+    }
+
     @JsonPropertyOrder({"list", "map"})
     static class EmptyListMapBean
     {
@@ -318,5 +346,28 @@ public class JsonIncludeTest
         // [databind#1417]
         assertEquals(aposToQuotes("{}"),
                 mapper.writeValueAsString(new Issue1351NonBean(0)));
+    }
+
+    // [databind#1550]
+    public void testInclusionOfDate() throws Exception
+    {
+        final Date input = new Date(0L);
+        assertEquals(aposToQuotes("{'value':0}"), 
+                MAPPER.writeValueAsString(new NonEmptyDate(input)));
+        assertEquals("{}", 
+                MAPPER.writeValueAsString(new NonDefaultDate(input)));
+
+    
+    }
+
+    // [databind#1550]
+    public void testInclusionOfCalendar() throws Exception
+    {
+        final Calendar input = new GregorianCalendar();
+        input.setTimeInMillis(0L);
+        assertEquals(aposToQuotes("{'value':0}"), 
+                MAPPER.writeValueAsString(new NonEmptyCalendar(input)));
+        assertEquals("{}", 
+                MAPPER.writeValueAsString(new NonDefaultCalendar(input)));
     }
 }

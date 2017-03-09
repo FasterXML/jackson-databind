@@ -86,8 +86,10 @@ public abstract class DateTimeSerializerBase<T>
 
     @Override
     public boolean isEmpty(SerializerProvider serializers, T value) {
-        // let's assume "null date" (timestamp 0) qualifies for empty
-        return _timestamp(value) == 0L;
+        // 09-Mar-2017, tatu: as per [databind#1550] timestamp 0 is NOT "empty"; but
+        //   with versions up to 2.8.x this was the case. Fixed for 2.9.
+//        return _timestamp(value) == 0L;
+        return false;
     }
 
     protected abstract long _timestamp(T value);

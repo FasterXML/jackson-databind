@@ -60,6 +60,8 @@ Project: jackson-databind
  (contributed by Ana-Eliza B)
 #1544: EnumMapDeserializer assumes a pure EnumMap and does not support EnumMap derived classes
  (reported by Lyor G)
+#1550: Unexpected behavior with `@JsonInclude(JsonInclude.Include.NON_EMPTY)` and
+ `java.util.Date` serialization
 
 2.8.8 (not yet released)
 

@@ -1,5 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -140,6 +144,16 @@ public class BeanUtil
         }
         if (cls == String.class) {
             return "";
+        }
+        // 09-Mar-2016, tatu: Not sure how far this path we want to go but for now
+        //   let's add `java.util.Date` and `java.util.Calendar`, as per [databind#1550]
+        if (type.isTypeOrSubTypeOf(Date.class)) {
+            return new Date(0L);
+        }
+        if (type.isTypeOrSubTypeOf(Calendar.class)) {
+            Calendar c = new GregorianCalendar();
+            c.setTimeInMillis(0L);
+            return c;
         }
         return null;
     }

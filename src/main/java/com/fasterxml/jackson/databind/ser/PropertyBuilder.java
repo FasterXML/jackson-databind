@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public class PropertyBuilder
 {
-    
     // @since 2.7
     private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
 

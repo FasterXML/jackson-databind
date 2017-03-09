@@ -155,9 +155,13 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
                     }
                 }
             }
-            JavaType t = _handleMissingTypeId(ctxt,
-                    String.format("missing property '%s' that is to contain type id",
-                            _typePropertyName));
+            String msg = String.format("missing type id property '%s'",
+                    _typePropertyName);
+            // even better, may know POJO property polymorphic value would be assigned to
+            if (_property != null) {
+                msg = String.format("%s (for POJO property '%s')", msg, _property.getName());
+            }
+            JavaType t = _handleMissingTypeId(ctxt, msg);
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?
                 return null;

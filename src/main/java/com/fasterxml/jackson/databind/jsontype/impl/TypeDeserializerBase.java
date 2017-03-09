@@ -284,6 +284,10 @@ public abstract class TypeDeserializerBase
         } else {
             extraDesc = "known type ids = " + extraDesc;
         }
+        if (_property != null) {
+            extraDesc = String.format("%s (for POJO property '%s')", extraDesc,
+                    _property.getName());
+        }
         return ctxt.handleUnknownTypeId(_baseType, typeId, _idResolver, extraDesc);
     }
 

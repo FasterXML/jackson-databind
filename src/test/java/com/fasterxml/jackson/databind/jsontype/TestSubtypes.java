@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -268,8 +269,8 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         try {
             MAPPER.readValue(JSON, SuperTypeWithoutDefault.class);
             fail("Expected an exception");
-        } catch (JsonMappingException e) {
-            verifyException(e, "missing property");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "missing type id property '#type'");
         }
 
         // but then succeed when we register default impl

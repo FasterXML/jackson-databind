@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 /**
  * Unit tests related to specialized handling of "default implementation"
@@ -264,9 +265,8 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         try {
             r.readValue("{ \"value\": \"\" }");
             fail("Expected " + JsonMappingException.class);
-        } catch (JsonMappingException e) {
-            verifyException(e, "missing property 'type'");
-            verifyException(e, "contain type id");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "missing type id property 'type'");
         }
     }
 

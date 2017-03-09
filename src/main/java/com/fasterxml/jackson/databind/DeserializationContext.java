@@ -1573,8 +1573,7 @@ public abstract class DeserializationContext
             String extraDesc) {
         String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
                 typeId, baseType);
-        msg = _colonConcat(msg, extraDesc);
-        return InvalidTypeIdException.from(_parser, msg, baseType, typeId);
+        return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
     /**
@@ -1584,8 +1583,7 @@ public abstract class DeserializationContext
             String extraDesc) {
         String msg = String.format("Missing type id when trying to resolve subtype of %s",
                 baseType);
-        msg = _colonConcat(msg, extraDesc);
-        return InvalidTypeIdException.from(_parser, msg, baseType, null);
+        return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, null);
     }
 
     /*

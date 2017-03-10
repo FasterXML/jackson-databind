@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
@@ -74,7 +75,7 @@ public class FloatNode extends NumericNode
 
     @Override
     public float floatValue() { return _value; }
-    
+
     @Override
     public double doubleValue() { return _value; }
 
@@ -88,16 +89,17 @@ public class FloatNode extends NumericNode
 
     @Override
     public String asText() {
-        // As per [jackson-databind#707]
-//        return NumberOutput.toString(_value);
-        // TODO: in 2.7, call `NumberOutput.toString (added in 2.6); not yet for backwards compat
-        return Float.toString(_value);
+        return NumberOutput.toString(_value);
+    }
+
+    // @since 2.9
+    public boolean isNaN() {
+        return Float.isNaN(_value) || Float.isInfinite(_value);
     }
 
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider) throws IOException
-    {
-        jg.writeNumber(_value);
+    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+        g.writeNumber(_value);
     }
 
     @Override

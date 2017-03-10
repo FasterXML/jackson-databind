@@ -334,6 +334,17 @@ public class TreeTraversingParser extends ParserMinimalBase
         return null;
     }
 
+    @Override
+    public boolean isNaN() {
+        if (!_closed) {
+            JsonNode n = currentNode();
+            if (n instanceof NumericNode) {
+                return ((NumericNode) n).isNaN();
+            }
+        }
+        return false;
+    }
+
     /*
     /**********************************************************
     /* Public API, typed binary (base64) access

@@ -33,13 +33,13 @@ public abstract class NumericNode
 
     @Override public abstract boolean canConvertToInt();
     @Override public abstract boolean canConvertToLong();
-    
+
     /* 
     /**********************************************************
     /* General type coercions
     /**********************************************************
      */
-    
+
     @Override
     public abstract String asText();
 
@@ -47,6 +47,7 @@ public abstract class NumericNode
     public final int asInt() {
         return intValue();
     }
+
     @Override
     public final int asInt(int defaultValue) {
         return intValue();
@@ -56,17 +57,37 @@ public abstract class NumericNode
     public final long asLong() {
         return longValue();
     }
+
     @Override
     public final long asLong(long defaultValue) {
         return longValue();
     }
-    
+
     @Override
     public final double asDouble() {
         return doubleValue();
     }
+
     @Override
     public final double asDouble(double defaultValue) {
         return doubleValue();
     }
+
+    /* 
+    /**********************************************************
+    /* Other
+    /**********************************************************
+     */
+
+    /**
+     * Convenience method for checking whether this node is a
+     * {@link FloatNode} or {@link DoubleNode} that contains
+     * "not-a-number" (NaN) value.
+     *
+     * @since 2.9
+     */
+    public boolean isNaN() {
+        return false;
+    }
+
 }

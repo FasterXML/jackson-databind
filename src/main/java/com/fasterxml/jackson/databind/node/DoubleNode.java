@@ -74,7 +74,7 @@ public class DoubleNode
 
     @Override
     public float floatValue() { return (float) _value; }
-    
+
     @Override
     public double doubleValue() { return _value; }
 
@@ -91,11 +91,14 @@ public class DoubleNode
         return NumberOutput.toString(_value);
     }
 
+    // @since 2.9
+    public boolean isNaN() {
+        return Double.isNaN(_value) || Double.isInfinite(_value);
+    }
+
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
-    {
-        jg.writeNumber(_value);
+    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+        g.writeNumber(_value);
     }
 
     @Override

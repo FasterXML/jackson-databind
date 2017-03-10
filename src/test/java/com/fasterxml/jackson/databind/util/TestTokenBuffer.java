@@ -60,7 +60,6 @@ public class TestTokenBuffer extends BaseMapTest
         // Then with simple text
         buf.writeString("abc");
 
-        // First, simple text
         p = buf.asParser();
         assertNull(p.getCurrentToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -80,6 +79,48 @@ public class TestTokenBuffer extends BaseMapTest
         buf.close();
     }
 
+    // For 2.9, explicit "isNaN" check
+    public void testSimpleNumberWrites() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(null, false);
+
+        double[] values1 = new double[] {
+                0.25, Double.NaN, -2.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY
+        };
+        float[] values2 = new float[] {
+                Float.NEGATIVE_INFINITY,
+                0.25f,
+                Float.POSITIVE_INFINITY
+        };
+
+        for (double v : values1) {
+            buf.writeNumber(v);
+        }
+        for (float v : values2) {
+            buf.writeNumber(v);
+        }
+
+        JsonParser p = buf.asParser();
+        assertNull(p.getCurrentToken());
+
+        for (double v : values1) {
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            double actual = p.getDoubleValue();
+            boolean expNan = Double.isNaN(v) || Double.isInfinite(v);
+            assertEquals(expNan, p.isNaN());
+            assertEquals(0, Double.compare(v, actual));
+        }
+        for (float v : values2) {
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            float actual = p.getFloatValue();
+            boolean expNan = Float.isNaN(v) || Float.isInfinite(v);
+            assertEquals(expNan, p.isNaN());
+            assertEquals(0, Float.compare(v, actual));
+        }
+        p.close();
+        buf.close();
+    }
+    
     public void testParentContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec

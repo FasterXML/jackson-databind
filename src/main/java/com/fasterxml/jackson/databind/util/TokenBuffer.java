@@ -1486,12 +1486,29 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // We never have raw buffer available, so:
             return false;
         }
-        
+
         /*
         /**********************************************************
         /* Public API, access to token information, numeric
         /**********************************************************
          */
+
+        @Override
+        public boolean isNaN() {
+            // can only occur for floating-point numbers
+            if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
+                Object value = _currentObject();
+                if (value instanceof Double) {
+                    Double v = (Double) value;
+                    return v.isNaN() || v.isInfinite();
+                }
+                if (value instanceof Float) {
+                    Float v = (Float) value;
+                    return v.isNaN() || v.isInfinite();
+                }
+            }
+            return false;
+        }
 
         @Override
         public BigInteger getBigIntegerValue() throws IOException

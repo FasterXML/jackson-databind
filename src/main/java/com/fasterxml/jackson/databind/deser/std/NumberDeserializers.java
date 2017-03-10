@@ -680,61 +680,61 @@ public class NumberDeserializers
         }
 
         protected final Float _parseFloat(JsonParser p, DeserializationContext ctxt)
-                throws IOException
-            {
-                // We accept couple of different types; obvious ones first:
-                JsonToken t = p.getCurrentToken();
-                
-                if (t == JsonToken.VALUE_NUMBER_FLOAT || t == JsonToken.VALUE_NUMBER_INT) { // coercing should work too
-                    return p.getFloatValue();
-                }
-                // And finally, let's allow Strings to be converted too
-                if (t == JsonToken.VALUE_STRING) {
-                    String text = p.getText().trim();
-                    if ((text.length() == 0)) {
-                        return (Float) _coerceEmptyString(ctxt);
-                    }
-                    if (_hasTextualNull(text)) {
-                        return (Float) _coerceTextualNull(ctxt);
-                    }
-                    switch (text.charAt(0)) {
-                    case 'I':
-                        if (_isPosInf(text)) {
-                            return Float.POSITIVE_INFINITY;
-                        }
-                        break;
-                    case 'N':
-                        if (_isNaN(text)) {
-                            return Float.NaN;
-                        }
-                        break;
-                    case '-':
-                        if (_isNegInf(text)) {
-                            return Float.NEGATIVE_INFINITY;
-                        }
-                        break;
-                    }
-                    try {
-                        return Float.parseFloat(text);
-                    } catch (IllegalArgumentException iae) { }
-                    return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "not a valid Float value");
-                }
-                if (t == JsonToken.VALUE_NULL) {
-                    return (Float) _coerceNull(ctxt);
-                }
-                if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final Float parsed = _parseFloat(p, ctxt);
-                    t = p.nextToken();
-                    if (t != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }            
-                    return parsed;            
-                }
-                // Otherwise, no can do:
-                return (Float) ctxt.handleUnexpectedToken(_valueClass, p);
+            throws IOException
+        {
+            // We accept couple of different types; obvious ones first:
+            JsonToken t = p.getCurrentToken();
+            
+            if (t == JsonToken.VALUE_NUMBER_FLOAT || t == JsonToken.VALUE_NUMBER_INT) { // coercing should work too
+                return p.getFloatValue();
             }
+            // And finally, let's allow Strings to be converted too
+            if (t == JsonToken.VALUE_STRING) {
+                String text = p.getText().trim();
+                if ((text.length() == 0)) {
+                    return (Float) _coerceEmptyString(ctxt);
+                }
+                if (_hasTextualNull(text)) {
+                    return (Float) _coerceTextualNull(ctxt);
+                }
+                switch (text.charAt(0)) {
+                case 'I':
+                    if (_isPosInf(text)) {
+                        return Float.POSITIVE_INFINITY;
+                    }
+                    break;
+                case 'N':
+                    if (_isNaN(text)) {
+                        return Float.NaN;
+                    }
+                    break;
+                case '-':
+                    if (_isNegInf(text)) {
+                        return Float.NEGATIVE_INFINITY;
+                    }
+                    break;
+                }
+                try {
+                    return Float.parseFloat(text);
+                } catch (IllegalArgumentException iae) { }
+                return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "not a valid Float value");
+            }
+            if (t == JsonToken.VALUE_NULL) {
+                return (Float) _coerceNull(ctxt);
+            }
+            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                p.nextToken();
+                final Float parsed = _parseFloat(p, ctxt);
+                t = p.nextToken();
+                if (t != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }            
+                return parsed;            
+            }
+            // Otherwise, no can do:
+            return (Float) ctxt.handleUnexpectedToken(_valueClass, p);
+        }
     }
 
     @JacksonStdImpl
@@ -852,7 +852,10 @@ public class NumberDeserializers
 
             case JsonTokenId.ID_NUMBER_FLOAT:
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                    return p.getDecimalValue();
+                    // 10-Mar-2017, tatu: NaN and BigDecimal won't mix...
+                    if (!p.isNaN()) {
+                        return p.getDecimalValue();
+                    }
                 }
                 return p.getNumberValue();
 

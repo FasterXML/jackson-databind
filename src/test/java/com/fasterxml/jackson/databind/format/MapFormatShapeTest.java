@@ -1,8 +1,13 @@
 package com.fasterxml.jackson.databind.format;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
@@ -54,6 +59,84 @@ public class MapFormatShapeTest extends BaseMapTest
         }
     }
 
+    // from [databind#1540]
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    @JsonPropertyOrder({ "property", "map" })
+    static class Map1540Implementation implements Map<Integer, Integer> {
+        public int property;
+        public Map<Integer, Integer> map = new HashMap<>();
+ 
+        public Map<Integer, Integer> getMap() {
+            return map;
+       }
+
+       public void setMap(Map<Integer, Integer> map) {
+            this.map = map;
+       }        
+
+       @Override
+       public Integer put(Integer key, Integer value) {
+            return map.put(key, value);
+       }
+
+        @Override
+        public int size() {
+            return map.size();
+        }
+
+        @JsonIgnore
+        @Override
+        public boolean isEmpty() {
+            return map.isEmpty();
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            return map.containsKey(key);
+        }
+
+        @Override
+        public boolean containsValue(Object value) {
+            return map.containsValue(value);
+        }
+    
+        @Override
+        public Integer get(Object key) {
+            return map.get(key);
+        }
+    
+        @Override
+        public Integer remove(Object key) {
+            return map.remove(key);
+        }
+    
+        @Override
+        public void putAll(Map<? extends Integer, ? extends Integer> m) {
+            map.putAll(m);
+        }
+
+        @Override
+        public void clear() {
+            map.clear();
+        }
+
+        @Override
+        public Set<Integer> keySet() {
+            return map.keySet();
+        }
+
+        @Override
+        public Collection<Integer> values() {
+            return map.values();
+        }
+    
+        @Override
+        public Set<java.util.Map.Entry<Integer, Integer>> entrySet() {
+            return map.entrySet();
+        }
+    }
+
+    
     /*
     /**********************************************************
     /* Test methods, serialization
@@ -94,6 +177,23 @@ public class MapFormatShapeTest extends BaseMapTest
     /**********************************************************
      */
 
+    // [databind#1540]
+    public void testRoundTrip() throws Exception
+    {
+        Map1540Implementation input = new Map1540Implementation();
+        input.property = 55;
+        input.put(12, 45);
+        input.put(6, 88);
+
+        String json = MAPPER.writeValueAsString(input);
+
+        assertEquals(aposToQuotes("{'property':55,'map':{'6':88,'12':45}}"), json);
+
+        Map1540Implementation result = MAPPER.readValue(json, Map1540Implementation.class);
+        assertEquals(result.property, input.property);
+        assertEquals(input.getMap(), input.getMap());
+   }
+    
     // [databind#1554]
     public void testDeserializeAsPOJOViaClass() throws Exception
     {

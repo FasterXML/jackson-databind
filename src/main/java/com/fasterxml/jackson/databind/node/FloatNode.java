@@ -93,6 +93,7 @@ public class FloatNode extends NumericNode
     }
 
     // @since 2.9
+    @Override
     public boolean isNaN() {
         return Float.isNaN(_value) || Float.isInfinite(_value);
     }

@@ -92,6 +92,7 @@ public class DoubleNode
     }
 
     // @since 2.9
+    @Override
     public boolean isNaN() {
         return Double.isNaN(_value) || Double.isInfinite(_value);
     }

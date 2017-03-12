@@ -61,8 +61,8 @@ public class MapFormatShapeTest extends BaseMapTest
      */
 
     final private ObjectMapper MAPPER = objectMapper();
-    // for [databind#476]: Maps as POJOs
 
+    // for [databind#476]: Maps as POJOs
     public void testSerializeAsPOJOViaClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,2,0));

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.struct;
+package com.fasterxml.jackson.databind.format;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestFormatForCollections extends BaseMapTest
+public class ColletionFormatShapeTest extends BaseMapTest
 {
     // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object) 
     @JsonPropertyOrder({ "size", "value" })
@@ -42,9 +42,7 @@ public class TestFormatForCollections extends BaseMapTest
 
     private final static ObjectMapper MAPPER = new ObjectMapper();    
 
-
-    // [Issue#40]
-    public void testListAsObject() throws Exception
+    public void testListAsObjectRoundtrip() throws Exception
     {
         // First, serialize a "POJO-List"
         CollectionAsPOJO list = new CollectionAsPOJO();

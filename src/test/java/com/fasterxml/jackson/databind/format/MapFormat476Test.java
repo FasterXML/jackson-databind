@@ -70,9 +70,9 @@ public class MapFormat476Test extends BaseMapTest
                 result);
     }
 
-    // Can't yet use per-property overrides at all
-    /*
+    // Can't yet use per-property overrides at all, see [databind#1419]
     
+    /*
     public void testAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
@@ -87,4 +87,5 @@ public class MapFormat476Test extends BaseMapTest
                 result);
     }
     */
+
 }

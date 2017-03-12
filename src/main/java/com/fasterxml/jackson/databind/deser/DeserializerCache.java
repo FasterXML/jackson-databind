@@ -372,11 +372,19 @@ public final class DeserializerCache
                 return factory.createArrayDeserializer(ctxt, (ArrayType) type, beanDesc);
             }
             if (type.isMapLikeType()) {
-                MapLikeType mlt = (MapLikeType) type;
-                if (mlt.isTrueMapType()) {
-                    return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDesc);
+                // 11-Mar-2017, tatu: As per [databind#1554], also need to block
+                //    handling as Map if overriden with "as POJO" option.
+                // Ideally we'd determine it bit later on (to allow custom handler checks)
+                // but that won't work for other reasons. So do it here.
+                // (read: rewrite for 3.0)
+                JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+                if ((format == null) || format.getShape() != JsonFormat.Shape.OBJECT) {
+                    MapLikeType mlt = (MapLikeType) type;
+                    if (mlt.isTrueMapType()) {
+                        return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDesc);
+                    }
+                    return factory.createMapLikeDeserializer(ctxt, mlt, beanDesc);
                 }
-                return factory.createMapLikeDeserializer(ctxt, mlt, beanDesc);
             }
             if (type.isCollectionLikeType()) {
                 /* 03-Aug-2012, tatu: As per [databind#40], one exception is if shape

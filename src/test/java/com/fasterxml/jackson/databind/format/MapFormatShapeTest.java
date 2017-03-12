@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 
 @SuppressWarnings("serial")
-public class MapFormat476Test extends BaseMapTest
+public class MapFormatShapeTest extends BaseMapTest
 {
     @JsonPropertyOrder({ "extra" })
     static class Map476Base extends LinkedHashMap<String,Integer> {
@@ -56,14 +56,14 @@ public class MapFormat476Test extends BaseMapTest
 
     /*
     /**********************************************************
-    /* Test methods
+    /* Test methods, serialization
     /**********************************************************
      */
 
     final private ObjectMapper MAPPER = objectMapper();
     // for [databind#476]: Maps as POJOs
 
-    public void testAsPOJOViaClass() throws Exception
+    public void testSerializeAsPOJOViaClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,2,0));
         assertEquals(aposToQuotes("{'a':{'extra':13,'empty':false},'b':{'value':2}}"),
@@ -73,14 +73,14 @@ public class MapFormat476Test extends BaseMapTest
     // Can't yet use per-property overrides at all, see [databind#1419]
     
     /*
-    public void testAsPOJOViaProperty() throws Exception
+    public void testSerializeAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
         assertEquals(aposToQuotes("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
                 result);
     }
 
-    public void testNaturalViaOverride() throws Exception
+    public void testSerializeNaturalViaOverride() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Override(123));
         assertEquals(aposToQuotes("{'stuff':{'value':123}}"),
@@ -88,4 +88,18 @@ public class MapFormat476Test extends BaseMapTest
     }
     */
 
+    /*
+    /**********************************************************
+    /* Test methods, deserialization/roundtrip
+    /**********************************************************
+     */
+
+    // [databind#1554]
+    public void testDeserializeAsPOJOViaClass() throws Exception
+    {
+        Map476AsPOJO result = MAPPER.readValue(aposToQuotes("{'extra':42}"),
+                Map476AsPOJO.class);
+        assertEquals(0, result.size());
+        assertEquals(42, result.extra);
+    }
 }

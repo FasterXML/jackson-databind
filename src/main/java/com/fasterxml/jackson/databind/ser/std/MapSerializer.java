@@ -324,6 +324,13 @@ public class MapSerializer
     }
 
     /**
+     * @since 2.9
+     */
+    protected void _ensureOverride(String method) {
+        ClassUtil.verifyMustOverride(MapSerializer.class, this, method);
+    }
+
+    /**
      * @since 2.5
      */
     @Deprecated // since 2.9
@@ -331,13 +338,6 @@ public class MapSerializer
         _ensureOverride("N/A");
     }
 
-    /**
-     * @since 2.9
-     */
-    protected void _ensureOverride(String method) {
-        ClassUtil.verifyMustOverride(MapSerializer.class, this, method);
-    }
-    
     /*
     /**********************************************************
     /* Deprecated creators
@@ -360,10 +360,6 @@ public class MapSerializer
      */
     @Deprecated // since 2.9
     public MapSerializer withContentInclusion(Object suppressableValue) {
-        if (suppressableValue == _suppressableValue) {
-            return this;
-        }
-        _ensureOverride("withContentInclusion");
         return new MapSerializer(this, _valueTypeSerializer, suppressableValue, _suppressNulls);
     }                
 
@@ -378,8 +374,7 @@ public class MapSerializer
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
             Object filterId)
     {
-        Set<String> ignoredEntries = (ignoredList == null || ignoredList.length == 0)
-                ? null : ArrayBuilders.arrayToSet(ignoredList);
+        Set<String> ignoredEntries = ArrayBuilders.arrayToSet(ignoredList);
         return construct(ignoredEntries, mapType, staticValueType, vts,
                 keySerializer, valueSerializer, filterId);
     }
@@ -401,7 +396,7 @@ public class MapSerializer
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
 
         // First: if we have a property, may have property-annotation overrides
-        if ((propertyAcc != null) && (intr != null)) {
+        if (_neitherNull(propertyAcc, intr)) {
             Object serDef = intr.findKeySerializer(propertyAcc);
             if (serDef != null) {
                 keySer = provider.serializerInstance(propertyAcc, serDef);
@@ -434,11 +429,11 @@ public class MapSerializer
         }
         Set<String> ignored = _ignoredEntries;
         boolean sortKeys = false;
-        if ((intr != null) && (propertyAcc != null)) {
+        if (_neitherNull(propertyAcc, intr)) {
             JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
             if (ignorals != null){
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
-                if ((newIgnored != null) && !newIgnored.isEmpty()) {
+                if (_nonEmpty(newIgnored)) {
                     ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
                     for (String str : newIgnored) {
                         ignored.add(str);
@@ -446,7 +441,7 @@ public class MapSerializer
                 }
             }
             Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
-            sortKeys = (b != null) && b.booleanValue();
+            sortKeys = Boolean.TRUE.equals(b);
         }
         JsonFormat.Value format = findFormatOverrides(provider, property, Map.class);
         if (format != null) {

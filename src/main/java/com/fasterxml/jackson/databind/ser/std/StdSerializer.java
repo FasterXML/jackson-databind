@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -202,10 +203,8 @@ public abstract class StdSerializer<T>
         throws JsonMappingException
     {
         JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-        if (v2 != null) {
-            if (numberType != null) {
-                v2.numberType(numberType);
-            }
+        if (_neitherNull(v2, numberType)) {
+            v2.numberType(numberType);
         }
     }
 
@@ -255,10 +254,8 @@ public abstract class StdSerializer<T>
         throws JsonMappingException
     {
         JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-        if (v2 != null) {
-            if (itemSerializer != null) {
-                v2.itemsFormat(itemSerializer, itemType);
-            }
+        if (_neitherNull(v2, itemSerializer)) {
+            v2.itemsFormat(itemSerializer, itemType);
         }
     }
 
@@ -395,7 +392,7 @@ public abstract class StdSerializer<T>
         throws JsonMappingException
     {
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-        if (intr != null && prop != null) {
+        if (_neitherNull(intr, prop)) {
             AnnotatedMember m = prop.getMember();
             if (m != null) {
                 Object convDef = intr.findSerializationContentConverter(m);
@@ -521,5 +518,19 @@ public abstract class StdSerializer<T>
      */
     protected boolean isDefaultSerializer(JsonSerializer<?> serializer) {
         return ClassUtil.isJacksonStdImpl(serializer);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected final static boolean _neitherNull(Object a, Object b) {
+        return (a != null) && (b != null);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected final static boolean _nonEmpty(Collection<?> c) {
+        return (c != null) && !c.isEmpty();
     }
 }

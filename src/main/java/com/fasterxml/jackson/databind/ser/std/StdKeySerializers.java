@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
 @SuppressWarnings("serial")
@@ -40,10 +41,13 @@ public abstract class StdKeySerializers
         if (rawKeyType == String.class) {
             return DEFAULT_STRING_SERIALIZER;
         }
-        if ((rawKeyType == Integer.class) || (rawKeyType == Integer.TYPE)) {
+        if (rawKeyType.isPrimitive()) {
+            rawKeyType = ClassUtil.wrapperType(rawKeyType);
+        }
+        if (rawKeyType == Integer.class) {
             return new Default(Default.TYPE_INTEGER, rawKeyType);
         }
-        if ((rawKeyType == Long.class) || (rawKeyType == Long.TYPE)) {
+        if (rawKeyType == Long.class) {
             return new Default(Default.TYPE_LONG, rawKeyType);
         }
         if (rawKeyType.isPrimitive() || Number.class.isAssignableFrom(rawKeyType)) {

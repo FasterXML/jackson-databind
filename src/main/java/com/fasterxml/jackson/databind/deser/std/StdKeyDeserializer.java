@@ -47,7 +47,7 @@ public class StdKeyDeserializer extends KeyDeserializer
     public final static int TYPE_URL = 14;
     public final static int TYPE_CLASS = 15;
     public final static int TYPE_CURRENCY = 16;
-    public final static int TYPE_BYTE_ARRAY = 17;
+    public final static int TYPE_BYTE_ARRAY = 17; // since 2.9
 
     final protected int _kind;
     final protected Class<?> _keyClass;
@@ -190,19 +190,18 @@ public class StdKeyDeserializer extends KeyDeserializer
             try {
                 return _deser._deserialize(key, ctxt);
             } catch (IOException e) {
-                return ctxt.handleWeirdKey(_keyClass, key, "unable to parse key as locale");
+                return _weirdKey(ctxt, key, e);
             }
         case TYPE_CURRENCY:
             try {
                 return _deser._deserialize(key, ctxt);
             } catch (IOException e) {
-                return ctxt.handleWeirdKey(_keyClass, key, "unable to parse key as currency");
+                return _weirdKey(ctxt, key, e);
             }
         case TYPE_DATE:
             return ctxt.parseDate(key);
         case TYPE_CALENDAR:
-            java.util.Date date = ctxt.parseDate(key);
-            return (date == null)  ? null : ctxt.constructCalendar(date);
+            return ctxt.constructCalendar(ctxt.parseDate(key));
         case TYPE_UUID:
             try {
                 return UUID.fromString(key);

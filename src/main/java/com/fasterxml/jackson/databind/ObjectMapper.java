@@ -4,15 +4,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,12 +15,7 @@ import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
-import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
-import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
+import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -1769,7 +1756,8 @@ public class ObjectMapper
      * {@link JsonFactory}, so changes to its configuration will "leak".
      * To avoid such observed changes you should always use "with()" and
      * "without()" method of {@link ObjectReader} and {@link ObjectWriter}
-     * for changing {@link JsonParser#Feature} and {@link JsonGenerator#Feature}
+     * for changing {@link com.fasterxml.jackson.core.JsonParser.Feature}
+     * and {@link com.fasterxml.jackson.core.JsonGenerator.Feature}
      * settings to use on per-call basis.
      *
      * @return {@link JsonFactory} that this mapper uses when it needs to

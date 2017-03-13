@@ -64,6 +64,9 @@ public abstract class StdKeySerializers
         if (rawKeyType == java.util.UUID.class) {
             return new Default(Default.TYPE_TO_STRING, rawKeyType);
         }
+        if (rawKeyType == byte[].class) {
+            return new Default(Default.TYPE_BYTE_ARRAY, rawKeyType);
+        }
         if (useDefault) {
             // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
             return new Default(Default.TYPE_TO_STRING, rawKeyType);
@@ -129,7 +132,8 @@ public abstract class StdKeySerializers
         final static int TYPE_ENUM = 4;
         final static int TYPE_INTEGER = 5; // since 2.9
         final static int TYPE_LONG = 6; // since 2.9
-        final static int TYPE_TO_STRING = 7;
+        final static int TYPE_BYTE_ARRAY = 7; // since 2.9
+        final static int TYPE_TO_STRING = 8;
 
         protected final int _typeId;
         
@@ -160,6 +164,12 @@ public abstract class StdKeySerializers
             case TYPE_INTEGER:
             case TYPE_LONG:
                 g.writeFieldId(((Number) value).longValue());
+                break;
+            case TYPE_BYTE_ARRAY:
+                {
+                    String encoded = provider.getConfig().getBase64Variant().encode((byte[]) value);
+                    g.writeFieldName(encoded);
+                }
                 break;
             case TYPE_TO_STRING:
             default:

@@ -47,6 +47,7 @@ public class StdKeyDeserializer extends KeyDeserializer
     public final static int TYPE_URL = 14;
     public final static int TYPE_CLASS = 15;
     public final static int TYPE_CURRENCY = 16;
+    public final static int TYPE_BYTE_ARRAY = 17;
 
     final protected int _kind;
     final protected Class<?> _keyClass;
@@ -108,6 +109,8 @@ public class StdKeyDeserializer extends KeyDeserializer
         } else if (raw == Currency.class) {
             FromStringDeserializer<?> deser = FromStringDeserializer.findDeserializer(Currency.class);
             return new StdKeyDeserializer(TYPE_CURRENCY, raw, deser);
+        } else if (raw == byte[].class) {
+            kind = TYPE_BYTE_ARRAY;
         } else {
             return null;
         }
@@ -204,25 +207,31 @@ public class StdKeyDeserializer extends KeyDeserializer
             try {
                 return UUID.fromString(key);
             } catch (Exception e) {
-                return ctxt.handleWeirdKey(_keyClass, key, "problem: %s", e.getMessage());
+                return _weirdKey(ctxt, key, e);
             }
         case TYPE_URI:
             try {
                 return URI.create(key);
             } catch (Exception e) {
-                return ctxt.handleWeirdKey(_keyClass, key, "problem: %s", e.getMessage());
+                return _weirdKey(ctxt, key, e);
             }
         case TYPE_URL:
             try {
                 return new URL(key);
             } catch (MalformedURLException e) {
-                return ctxt.handleWeirdKey(_keyClass, key, "problem: %s", e.getMessage());
+                return _weirdKey(ctxt, key, e);
             }
         case TYPE_CLASS:
             try {
                 return ctxt.findClass(key);
             } catch (Exception e) {
                 return ctxt.handleWeirdKey(_keyClass, key, "unable to parse key as Class");
+            }
+        case TYPE_BYTE_ARRAY:
+            try {
+                return ctxt.getConfig().getBase64Variant().decode(key);
+            } catch (Exception e) {
+                return _weirdKey(ctxt, key, e);
             }
         default:
             throw new IllegalStateException("Internal error: unknown key type "+_keyClass);
@@ -245,6 +254,11 @@ public class StdKeyDeserializer extends KeyDeserializer
 
     protected double _parseDouble(String key) throws IllegalArgumentException {
         return NumberInput.parseDouble(key);
+    }
+
+    // @since 2.9
+    protected Object _weirdKey(DeserializationContext ctxt, String key, Exception e) throws IOException {
+        return ctxt.handleWeirdKey(_keyClass, key, "problem: %s", e.getMessage());
     }
 
     /*

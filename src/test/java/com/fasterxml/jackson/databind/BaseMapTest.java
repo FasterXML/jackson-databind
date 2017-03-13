@@ -109,8 +109,13 @@ public abstract class BaseMapTest
     {
         public Map<K,V> map;
 
+        public MapWrapper() { }
         public MapWrapper(Map<K,V> m) {
             map = m;
+        }
+        public MapWrapper(K key, V value) {
+            map = new LinkedHashMap<>();
+            map.put(key, value);
         }
     }
     

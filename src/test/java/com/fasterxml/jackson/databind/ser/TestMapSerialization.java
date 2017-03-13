@@ -310,4 +310,23 @@ public class TestMapSerialization extends BaseMapTest
         json = w.writeValueAsString(input);
         assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
     }
+
+    // [databind#1552]
+    public void testMapsWithBinaryKeys() throws Exception
+    {
+        byte[] binary = new byte[] { 1, 2, 3, 4, 5 };
+
+        // First, using wrapper
+        MapWrapper<byte[], String> input = new MapWrapper<>(binary, "stuff");
+        String expBase64 = Base64Variants.MIME.encode(binary);
+        
+        assertEquals(aposToQuotes("{'map':{'"+expBase64+"':'stuff'}}"),
+                MAPPER.writeValueAsString(input));
+
+        // and then dynamically..
+        Map<byte[],String> map = new LinkedHashMap<>();
+        map.put(binary, "xyz");
+        assertEquals(aposToQuotes("{'"+expBase64+"':'xyz'}"),
+                MAPPER.writeValueAsString(map));
+    }
 }

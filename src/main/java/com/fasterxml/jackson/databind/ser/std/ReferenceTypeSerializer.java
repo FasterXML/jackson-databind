@@ -337,13 +337,18 @@ public abstract class ReferenceTypeSerializer<T>
     private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
             Class<?> type, BeanProperty prop) throws JsonMappingException
     {
-        return provider.findTypedValueSerializer(type, true, prop);
+        // 13-Mar-2017, tatu: Used to call `findTypeValueSerializer()`, but contextualization
+        //   not working for that case for some reason
+ //        return provider.findTypedValueSerializer(type, true, prop);
+        return provider.findValueSerializer(type, prop);
     }
 
     private final JsonSerializer<Object> _findSerializer(SerializerProvider provider,
         JavaType type, BeanProperty prop) throws JsonMappingException
     {
-        return provider.findTypedValueSerializer(type, true, prop);
+        // 13-Mar-2017, tatu: Used to call `findTypeValueSerializer()`, but contextualization
+        //   not working for that case for some reason
+//        return provider.findTypedValueSerializer(type, true, prop);
+        return provider.findValueSerializer(type, prop);
     }
-
 }

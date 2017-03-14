@@ -164,52 +164,6 @@ public class NumberDeserializers
         public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
             return _emptyValue;
         }
-
-        /**
-         * Method to call when JSON `null` token is encountered. Note: only called when
-         * this deserializer encounters it but NOT when reached via property
-         *
-         * @since 2.9
-         */
-        protected Object _coerceNull(DeserializationContext ctxt) throws JsonMappingException
-        {
-            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                ctxt.reportInputMismatch(this,
-                        "Can not map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                        handledType().toString());
-            }
-            return _nullValue;
-        }
-
-        /**
-         * Method called when JSON String with value "null" is encountered.
-         *
-         * @since 2.9
-         */
-        protected Object _coerceTextualNull(DeserializationContext ctxt) throws JsonMappingException
-        {
-            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                ctxt.reportInputMismatch(this,
-                        "Can not map String \"null\" into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                        handledType().toString());
-            }
-            return _nullValue;
-        }
-
-        /**
-         * Method called when JSON String with value "" (that is, zero length) is encountered.
-         *
-         * @since 2.9
-         */
-        protected Object _coerceEmptyString(DeserializationContext ctxt) throws JsonMappingException
-        {
-            if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                ctxt.reportInputMismatch(this,
-                        "Can not map empty String (\"\") into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                        handledType().toString());
-            }
-            return _nullValue;
-        }
     }
 
     /*
@@ -263,7 +217,7 @@ public class NumberDeserializers
                 return Boolean.valueOf(_parseBooleanFromInt(p, ctxt));
             }
             if (t == JsonToken.VALUE_NULL) {
-                return (Boolean) _coerceNull(ctxt);
+                return (Boolean) _coerceNullToken(ctxt, _primitive);
             }
             // And finally, let's allow Strings to be converted too
             if (t == JsonToken.VALUE_STRING) {
@@ -276,10 +230,10 @@ public class NumberDeserializers
                     return Boolean.FALSE;
                 }
                 if (text.length() == 0) {
-                    return (Boolean) _coerceEmptyString(ctxt);
+                    return (Boolean) _coerceEmptyString(ctxt, _primitive);
                 }
                 if (_hasTextualNull(text)) {
-                    return  (Boolean) _coerceTextualNull(ctxt);
+                    return  (Boolean) _coerceTextualNull(ctxt, _primitive);
                 }
                 return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
                         "only \"true\" or \"false\" recognized");
@@ -328,13 +282,13 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
                 String text = p.getText().trim();
                 if (_hasTextualNull(text)) {
-                    return (Byte) _coerceTextualNull(ctxt);
+                    return (Byte) _coerceTextualNull(ctxt, _primitive);
                 }
                 int value;
                 try {
                     int len = text.length();
                     if (len == 0) {
-                        return (Byte) _coerceEmptyString(ctxt);
+                        return (Byte) _coerceEmptyString(ctxt, _primitive);
                     }
                     value = NumberInput.parseInt(text);
                 } catch (IllegalArgumentException iae) {
@@ -357,7 +311,7 @@ public class NumberDeserializers
                 return p.getByteValue();
             }
             if (t == JsonToken.VALUE_NULL) {
-                return (Byte) _coerceNull(ctxt);
+                return (Byte) _coerceNullToken(ctxt, _primitive);
             }
             // [databind#381]
             if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -406,10 +360,10 @@ public class NumberDeserializers
                 try {
                     int len = text.length();
                     if (len == 0) {
-                        return (Short) _coerceEmptyString(ctxt);
+                        return (Short) _coerceEmptyString(ctxt, _primitive);
                     }
                     if (_hasTextualNull(text)) {
-                        return (Short) _coerceTextualNull(ctxt);
+                        return (Short) _coerceTextualNull(ctxt, _primitive);
                     }
                     value = NumberInput.parseInt(text);
                 } catch (IllegalArgumentException iae) {
@@ -430,7 +384,7 @@ public class NumberDeserializers
                 return p.getShortValue();
             }
             if (t == JsonToken.VALUE_NULL) {
-                return (Short) _coerceNull(ctxt);
+                return (Short) _coerceNullToken(ctxt, _primitive);
             }
             // [databind#381]
             if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -479,11 +433,11 @@ public class NumberDeserializers
                 }
                 // actually, empty should become null?
                 if (text.length() == 0) {
-                    return (Character) _coerceEmptyString(ctxt);
+                    return (Character) _coerceEmptyString(ctxt, _primitive);
                 }
                 break;
             case JsonTokenId.ID_NULL:
-                return (Character) _coerceNull(ctxt);
+                return (Character) _coerceNullToken(ctxt, _primitive);
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                     p.nextToken();
@@ -552,7 +506,7 @@ public class NumberDeserializers
                 try {
                     int len = text.length();
                     if (_hasTextualNull(text)) {
-                        return (Integer) _coerceTextualNull(ctxt);
+                        return (Integer) _coerceTextualNull(ctxt, _primitive);
                     }
                     if (len > 9) {
                         long l = Long.parseLong(text);
@@ -564,7 +518,7 @@ public class NumberDeserializers
                         return Integer.valueOf((int) l);
                     }
                     if (len == 0) {
-                        return (Integer) _coerceEmptyString(ctxt);
+                        return (Integer) _coerceEmptyString(ctxt, _primitive);
                     }
                     return Integer.valueOf(NumberInput.parseInt(text));
                 } catch (IllegalArgumentException iae) {
@@ -572,7 +526,7 @@ public class NumberDeserializers
                             "not a valid Integer value");
                 }
             case JsonTokenId.ID_NULL:
-                return (Integer) _coerceNull(ctxt);
+                return (Integer) _coerceNullToken(ctxt, _primitive);
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                     p.nextToken();
@@ -630,10 +584,10 @@ public class NumberDeserializers
                 // !!! 05-Jan-2009, tatu: Should we try to limit value space, JDK is too lenient?
                 String text = p.getText().trim();
                 if (text.length() == 0) {
-                    return (Long) _coerceEmptyString(ctxt);
+                    return (Long) _coerceEmptyString(ctxt, _primitive);
                 }
                 if (_hasTextualNull(text)) {
-                    return (Long) _coerceTextualNull(ctxt);
+                    return (Long) _coerceTextualNull(ctxt, _primitive);
                 }
                 try {
                     return Long.valueOf(NumberInput.parseLong(text));
@@ -642,7 +596,7 @@ public class NumberDeserializers
                         "not a valid Long value");
                 // fall-through
             case JsonTokenId.ID_NULL:
-                return (Long) _coerceNull(ctxt);
+                return (Long) _coerceNullToken(ctxt, _primitive);
             case JsonTokenId.ID_START_ARRAY:
                 if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                     p.nextToken();
@@ -692,10 +646,10 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_STRING) {
                 String text = p.getText().trim();
                 if ((text.length() == 0)) {
-                    return (Float) _coerceEmptyString(ctxt);
+                    return (Float) _coerceEmptyString(ctxt, _primitive);
                 }
                 if (_hasTextualNull(text)) {
-                    return (Float) _coerceTextualNull(ctxt);
+                    return (Float) _coerceTextualNull(ctxt, _primitive);
                 }
                 switch (text.charAt(0)) {
                 case 'I':
@@ -721,7 +675,7 @@ public class NumberDeserializers
                         "not a valid Float value");
             }
             if (t == JsonToken.VALUE_NULL) {
-                return (Float) _coerceNull(ctxt);
+                return (Float) _coerceNullToken(ctxt, _primitive);
             }
             if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();
@@ -774,10 +728,10 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_STRING) {
                 String text = p.getText().trim();
                 if ((text.length() == 0)) {
-                    return (Double) _coerceEmptyString(ctxt);
+                    return (Double) _coerceEmptyString(ctxt, _primitive);
                 }
                 if (_hasTextualNull(text)) {
-                    return (Double) _coerceTextualNull(ctxt);
+                    return (Double) _coerceTextualNull(ctxt, _primitive);
                 }
                 switch (text.charAt(0)) {
                 case 'I':
@@ -803,7 +757,7 @@ public class NumberDeserializers
                         "not a valid Double value");
             }
             if (t == JsonToken.VALUE_NULL) {
-                return (Double) _coerceNull(ctxt);
+                return (Double) _coerceNullToken(ctxt, _primitive);
             }
             if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
                 p.nextToken();

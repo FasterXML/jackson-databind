@@ -567,6 +567,32 @@ public abstract class StdDeserializer<T>
     /****************************************************
      */
 
+    protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
+            String type) throws IOException
+    {
+        ctxt.reportInputMismatch(handledType(),
+                "Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
+                p.getValueAsString(), type);
+    }
+
+    protected final void _verifyPrimitiveNull(DeserializationContext ctxt) throws IOException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not map `null` as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    _coercedTypeDesc());
+        }
+    }
+
+    protected final void _verifyPrimitiveNullCoercion(DeserializationContext ctxt, String str) throws IOException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not map String \"%s\" as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    str, _coercedTypeDesc());
+        }
+    }
+
     /**
      * Helper method called in case where an integral number is encountered, but
      * config settings suggest that a coercion may be needed to "upgrade"
@@ -588,6 +614,79 @@ public abstract class StdDeserializer<T>
             return p.getLongValue();
         }
         return p.getBigIntegerValue(); // should be optimal, whatever it is
+    }
+
+    /**
+     * Method to call when JSON `null` token is encountered. Note: only called when
+     * this deserializer encounters it but NOT when reached via property
+     *
+     * @since 2.9
+     */
+    protected Object _coerceNullToken(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
+    {
+        if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not map `null` as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    _coercedTypeDesc());
+        }
+        return getNullValue(ctxt);
+    }
+
+    /**
+     * Method called when JSON String with value "null" is encountered.
+     *
+     * @since 2.9
+     */
+    protected Object _coerceTextualNull(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
+    {
+        if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not map String \"null\" as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    _coercedTypeDesc());
+        }
+        return getNullValue(ctxt);
+    }
+
+    /**
+     * Method called when JSON String with value "" (that is, zero length) is encountered.
+     *
+     * @since 2.9
+     */
+    protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
+    {
+        if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not map empty String (\"\") as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    _coercedTypeDesc());
+        }
+        return getNullValue(ctxt);
+    }
+
+    /**
+     * Helper method called to get a description of type into which a scalar value coercion
+     * is (most likely) being applied, to be used for constructing exception messages
+     * on coerce failure.
+     *
+     * @since 2.9
+     */
+    protected String _coercedTypeDesc() {
+        boolean structured;
+        String typeDesc;
+
+        JavaType t = getValueType();
+        if (t != null) {
+            structured = (t.isContainerType() || t.isReferenceType());
+            typeDesc = t.toString();
+        } else {
+            Class<?> cls = handledType();
+            structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
+                || Map.class.isAssignableFrom(cls);
+            typeDesc = cls.getSimpleName();
+        }
+        if (structured) {
+            return "contents of type "+typeDesc;
+        }
+        return "value of type "+typeDesc;
     }
 
     /*
@@ -859,33 +958,6 @@ public abstract class StdDeserializer<T>
 handledType().getName());
         // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);
         //     but for now just fall through
-    }
-
-    protected void _failDoubleToIntCoercion(JsonParser p, DeserializationContext ctxt,
-            String type) throws IOException
-    {
-        ctxt.reportInputMismatch(handledType(),
-                "Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
-                p.getValueAsString(), type);
-    }
-
-    protected final void _verifyPrimitiveNull(DeserializationContext ctxt) throws IOException
-    {
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-                    "Can not map `null` into primitive contents of type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    handledType().getSimpleName());
-        }
-    }
-
-    protected final void _verifyPrimitiveNullCoercion(DeserializationContext ctxt, String str) throws IOException
-    {
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-                    "Can not map String \"%s\" into primitive contents of type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    str,
-                    handledType().getSimpleName());
-        }
     }
 
     protected void _verifyEndArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException

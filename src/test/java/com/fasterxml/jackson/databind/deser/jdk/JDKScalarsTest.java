@@ -1076,38 +1076,38 @@ public class JDKScalarsTest
             reader.readValue("{\"booleanValue\":\"\"}");
             fail("Expected failure for boolean + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type boolean");
+            verifyException(e, "Can not map empty String (\"\") as value of type boolean");
         }
         // byte/char/short/int/long
         try {
             reader.readValue("{\"byteValue\":\"\"}");
             fail("Expected failure for byte + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type byte");
+            verifyException(e, "Can not map empty String (\"\") as value of type byte");
         }
         try {
             reader.readValue("{\"charValue\":\"\"}");
             fail("Expected failure for char + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type char");
+            verifyException(e, "Can not map empty String (\"\") as value of type char");
         }
         try {
             reader.readValue("{\"shortValue\":\"\"}");
             fail("Expected failure for short + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type short");
+            verifyException(e, "Can not map empty String (\"\") as value of type short");
         }
         try {
             reader.readValue("{\"intValue\":\"\"}");
             fail("Expected failure for int + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type int");
+            verifyException(e, "Can not map empty String (\"\") as value of type int");
         }
         try {
             reader.readValue("{\"longValue\":\"\"}");
             fail("Expected failure for long + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type long");
+            verifyException(e, "Can not map empty String (\"\") as value of type long");
         }
 
         // float/double
@@ -1115,13 +1115,13 @@ public class JDKScalarsTest
             reader.readValue("{\"floatValue\":\"\"}");
             fail("Expected failure for float + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type float");
+            verifyException(e, "Can not map empty String (\"\") as value of type float");
         }
         try {
             reader.readValue("{\"doubleValue\":\"\"}");
             fail("Expected failure for double + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map empty String (\"\") into type double");
+            verifyException(e, "Can not map empty String (\"\") as value of type double");
         }
     }
 
@@ -1240,7 +1240,7 @@ public class JDKScalarsTest
             readerNoCoerce.readValue(JSON_WITH_NULL);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into primitive contents of type "+SIMPLE_NAME);
+            verifyException(e, "Can not map `null` as contents of type "+SIMPLE_NAME);
         }
         
         if (testEmptyString) {
@@ -1252,7 +1252,7 @@ public class JDKScalarsTest
                 readerNoCoerce.readValue(EMPTY_STRING_JSON);
                 fail("Should not pass");
             } catch (JsonMappingException e) {
-                verifyException(e, "Can not map String \"\" into primitive contents of type "+SIMPLE_NAME);
+                verifyException(e, "Can not map String \"\" as contents of type "+SIMPLE_NAME);
             }
         }
     }

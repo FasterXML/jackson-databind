@@ -4,10 +4,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
+import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 
 public class BuilderSimpleTest extends BaseMapTest
 {

@@ -256,7 +256,7 @@ public class BeanDeserializerFactory
     		DeserializationContext ctxt, JavaType valueType, BeanDescription builderDesc)
         throws JsonMappingException
     {
-    	// Creators, anyone? (to create builder itself)
+        // Creators, anyone? (to create builder itself)
         ValueInstantiator valueInstantiator = findValueInstantiator(ctxt, builderDesc);
         final DeserializationConfig config = ctxt.getConfig();
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, builderDesc);
@@ -271,7 +271,7 @@ public class BeanDeserializerFactory
 
         JsonPOJOBuilder.Value builderConfig = builderDesc.findPOJOBuilderConfig();
         final String buildMethodName = (builderConfig == null) ?
-                "build" : builderConfig.buildMethodName;
+                JsonPOJOBuilder.DEFAULT_BUILD_METHOD : builderConfig.buildMethodName;
         
         // and lastly, find build method to use:
         AnnotatedMethod buildMethod = builderDesc.findMethod(buildMethodName, null);

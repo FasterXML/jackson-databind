@@ -707,7 +707,7 @@ public class AnnotationIntrospectorPair
         JsonPOJOBuilder.Value result = _primary.findPOJOBuilderConfig(ac);
         return (result == null) ? _secondary.findPOJOBuilderConfig(ac) : result;
     }
-    
+
     // // // Deserialization: method annotations
 
     @Override

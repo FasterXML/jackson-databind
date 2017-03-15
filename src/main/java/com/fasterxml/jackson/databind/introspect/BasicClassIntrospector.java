@@ -190,7 +190,7 @@ public class BasicClassIntrospector
         AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }
-    
+
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
@@ -198,7 +198,7 @@ public class BasicClassIntrospector
         AnnotationIntrospector ai = useAnnotations ? config.getAnnotationIntrospector() : null;
         AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
         JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
-        String mutatorPrefix = (builderConfig == null) ? "with" : builderConfig.withPrefix;
+        String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
     }
 
@@ -211,7 +211,7 @@ public class BasicClassIntrospector
     {
         return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
     }
-    
+
     /**
      * Method called to see if type is one of core JDK types
      * that we have cached for efficiency.

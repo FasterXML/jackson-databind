@@ -587,9 +587,10 @@ public abstract class StdDeserializer<T>
     protected final void _verifyPrimitiveNullCoercion(DeserializationContext ctxt, String str) throws IOException
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
             ctxt.reportInputMismatch(this,
-                    "Can not map String \"%s\" as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    str, _coercedTypeDesc());
+                    "Can not map %s as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                    strDesc, _coercedTypeDesc());
         }
     }
 

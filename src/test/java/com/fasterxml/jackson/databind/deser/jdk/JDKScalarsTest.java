@@ -1252,7 +1252,7 @@ public class JDKScalarsTest
                 readerNoCoerce.readValue(EMPTY_STRING_JSON);
                 fail("Should not pass");
             } catch (JsonMappingException e) {
-                verifyException(e, "Can not map String \"\" as contents of type "+SIMPLE_NAME);
+                verifyException(e, "Can not map empty String (\"\") as contents of type "+SIMPLE_NAME);
             }
         }
     }

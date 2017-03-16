@@ -4,10 +4,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
+import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 
 public class BuilderSimpleTest extends BaseMapTest
 {
@@ -240,6 +243,31 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
+    protected static class NopModule1557 extends Module
+    {
+        @Override
+        public String getModuleName() {
+            return "NopModule";
+        }
+
+        @Override
+        public Version version() {
+            return Version.unknownVersion();
+        }
+
+        @Override
+        public void setupModule(SetupContext setupContext) {
+            // This annotation introspector has no opinion about builders, make sure it doesn't interfere
+            setupContext.insertAnnotationIntrospector(new NopAnnotationIntrospector() {
+                private static final long serialVersionUID = 1L;
+                @Override
+                public Version version() {
+                    return Version.unknownVersion();
+                }
+            });
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -358,5 +386,13 @@ public class BuilderSimpleTest extends BaseMapTest
         assertNotNull(ob);
         assertTrue(ob instanceof List);
         assertTrue(((List<?>) ob).isEmpty());
+    }
+
+    public void testPOJOConfigResolution1557() throws Exception
+    {
+        final String json = "{\"value\":1}";
+        MAPPER.registerModule(new NopModule1557());
+        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
+        assertEquals(1, value.value);
     }
 }

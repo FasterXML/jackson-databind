@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.objectid;
 
 import java.io.IOException;
 import java.util.*;
@@ -6,8 +6,9 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
-public class TestObjectId687 extends BaseMapTest
+public class ObjectId687Test extends BaseMapTest
 {
+    // for [databind#687]
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
     static class ReferredWithCreator {
         public String label;
@@ -63,7 +64,8 @@ public class TestObjectId687 extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
+    // for [databind#687]
     public void testSerializeDeserializeWithCreator() throws IOException {
         ReferredWithCreator base = new ReferredWithCreator("label1");
         ReferringToObjWithCreator r = new ReferringToObjWithCreator();
@@ -72,10 +74,15 @@ public class TestObjectId687 extends BaseMapTest
         e.baseRef = base;
         e.nextRef = r;
 
-        String jsonStr = MAPPER.writeValueAsString(e);
+        String json = MAPPER.writeValueAsString(e);
 
-        EnclosingForRefsWithCreator deserialized = MAPPER.readValue(jsonStr, EnclosingForRefsWithCreator.class);
-        assertNotNull(deserialized);
+        EnclosingForRefsWithCreator result = MAPPER.readValue(json,
+                EnclosingForRefsWithCreator.class);
+        assertNotNull(result);
+        assertEquals(result.label, e.label);
+
+        // also, compare by re-serializing:
+        assertEquals(json, MAPPER.writeValueAsString(result));
     }
 
     public void testSerializeDeserializeNoCreator() throws IOException {
@@ -86,9 +93,14 @@ public class TestObjectId687 extends BaseMapTest
         e.baseRef = base;
         e.nextRef = r;
 
-        String jsonStr = MAPPER.writeValueAsString(e);
+        String json = MAPPER.writeValueAsString(e);
 
-        EnclosingForRefWithNoCreator deserialized = MAPPER.readValue(jsonStr, EnclosingForRefWithNoCreator.class);
-        assertNotNull(deserialized);
+        EnclosingForRefWithNoCreator result = MAPPER.readValue(json,
+                EnclosingForRefWithNoCreator.class);
+        assertNotNull(result);
+        assertEquals(result.label, e.label);
+
+        // also, compare by re-serializing:
+        assertEquals(json, MAPPER.writeValueAsString(result));
     }    
 }

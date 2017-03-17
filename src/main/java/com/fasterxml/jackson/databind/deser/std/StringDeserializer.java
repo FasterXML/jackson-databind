@@ -16,7 +16,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
      * @since 2.2
      */
     public final static StringDeserializer instance = new StringDeserializer();
-    
+
     public StringDeserializer() { super(String.class); }
 
     // since 2.6, slightly faster lookups for this very common type

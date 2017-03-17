@@ -1777,7 +1777,7 @@ public class ObjectReader
      * of given input
      */
     protected void _reportUnkownFormat(DataFormatReaders detector, DataFormatReaders.Match match)
-            throws JsonProcessingException
+        throws JsonProcessingException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
         throw new JsonParseException(null, "Can not detect format from input, does not look like any of detectable formats "

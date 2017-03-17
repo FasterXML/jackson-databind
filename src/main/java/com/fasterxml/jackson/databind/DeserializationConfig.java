@@ -798,6 +798,26 @@ public final class DeserializationConfig
 
     @Override
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
+            Class<?> propertyType) {
+        ConfigOverride propertyTypeOverrides = findConfigOverride(propertyType);
+        if (propertyTypeOverrides != null) {
+            JsonInclude.Value v0 = propertyTypeOverrides.getIncludeAsProperty();
+            if (v0 != null) {
+                return v0;
+            }
+		}
+        ConfigOverride baseTypeOverrides = findConfigOverride(baseType);
+        if (baseTypeOverrides != null) {
+            JsonInclude.Value v1 = baseTypeOverrides.getInclude();
+            if (v1 != null) {
+                return v1;
+            }
+        }
+        return EMPTY_INCLUDE;
+    }
+
+    @Override
+    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
             JsonInclude.Value defaultIncl)
     {
         ConfigOverride overrides = findConfigOverride(baseType);
@@ -805,6 +825,26 @@ public final class DeserializationConfig
             JsonInclude.Value v = overrides.getInclude();
             if (v != null) {
                 return v;
+            }
+        }
+        return defaultIncl;
+    }
+
+    @Override
+    public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
+            Class<?> propertyType, JsonInclude.Value defaultIncl) {
+        ConfigOverride propertyTypeOverrides = findConfigOverride(propertyType);
+        if (propertyTypeOverrides != null) {
+            JsonInclude.Value v0 = propertyTypeOverrides.getIncludeAsProperty();
+            if (v0 != null) {
+                return v0;
+            }
+		}
+        ConfigOverride baseTypeOverrides = findConfigOverride(baseType);
+        if (baseTypeOverrides != null) {
+            JsonInclude.Value v1 = baseTypeOverrides.getInclude();
+            if (v1 != null) {
+                return v1;
             }
         }
         return defaultIncl;

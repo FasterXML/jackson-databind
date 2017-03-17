@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -389,8 +390,10 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
     public void assignSerializer(JsonSerializer<Object> ser) {
         // may need to disable check in future?
-        if (_serializer != null && _serializer != ser) {
-            throw new IllegalStateException("Can not override serializer");
+        if ((_serializer != null) && (_serializer != ser)) {
+            throw new IllegalStateException(String.format(
+                    "Can not override _serializer: had a %s, trying to set to %s",
+                    ClassUtil.classNameOf(_serializer), ClassUtil.classNameOf(ser)));
         }
         _serializer = ser;
     }
@@ -401,7 +404,9 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
     public void assignNullSerializer(JsonSerializer<Object> nullSer) {
         // may need to disable check in future?
         if ((_nullSerializer != null) && (_nullSerializer != nullSer)) {
-            throw new IllegalStateException("Can not override null serializer");
+            throw new IllegalStateException(String.format(
+                    "Can not override _nullSerializer: had a %s, trying to set to %s",
+                    ClassUtil.classNameOf(_nullSerializer), ClassUtil.classNameOf(nullSer)));
         }
         _nullSerializer = nullSer;
     }

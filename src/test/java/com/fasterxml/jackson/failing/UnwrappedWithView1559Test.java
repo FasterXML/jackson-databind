@@ -8,7 +8,7 @@ public class UnwrappedWithView1559Test extends BaseMapTest
 {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     static final class Health {
-        @JsonUnwrapped
+        @JsonUnwrapped(prefix="xxx.")
         public Status status;
     }
 
@@ -27,6 +27,10 @@ public class UnwrappedWithView1559Test extends BaseMapTest
     public void testCanSerializeSimpleWithDefaultView() throws Exception {
         String json = new ObjectMapper().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
                 .writeValueAsString(new Health());
-        assertEquals(aposToQuotes("{'status':null}"), json);
+        assertEquals(aposToQuotes("{}"), json);
+        // and just in case this, although won't matter wrt output
+        json = new ObjectMapper().configure(MapperFeature.DEFAULT_VIEW_INCLUSION, true)
+                .writeValueAsString(new Health());
+        assertEquals(aposToQuotes("{}"), json);
     }
 }

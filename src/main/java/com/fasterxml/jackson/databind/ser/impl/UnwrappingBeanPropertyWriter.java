@@ -134,14 +134,14 @@ public class UnwrappingBeanPropertyWriter
     @Override
     public void assignSerializer(JsonSerializer<Object> ser)
     {
-        super.assignSerializer(ser);
-        if (_serializer != null) {
+        if (ser != null) {
             NameTransformer t = _nameTransformer;
-            if (_serializer.isUnwrappingSerializer()) {
-                t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) _serializer)._nameTransformer);
+            if (ser.isUnwrappingSerializer()) {
+                t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) ser)._nameTransformer);
             }
-            _serializer = _serializer.unwrappingSerializer(t);
+            ser = ser.unwrappingSerializer(t);
         }
+        super.assignSerializer(ser);
     }
 
     /*

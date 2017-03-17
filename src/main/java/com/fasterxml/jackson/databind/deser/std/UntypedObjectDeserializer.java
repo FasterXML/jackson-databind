@@ -556,6 +556,9 @@ public class UntypedObjectDeserializer
                 return p.getText();
 
             case JsonTokenId.ID_NUMBER_INT:
+                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS)) {
+                    return p.getDecimalValue();
+                }
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                     return p.getBigIntegerValue();
                 }

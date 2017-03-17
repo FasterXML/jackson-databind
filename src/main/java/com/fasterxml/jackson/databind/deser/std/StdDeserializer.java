@@ -34,14 +34,16 @@ public abstract class StdDeserializer<T>
     private static final long serialVersionUID = 1L;
 
     /**
-     * Bitmask that covers {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}
+     * Bitmask that covers {@link DeserializationFeature#USE_BIG_DECIMAL_FOR_INTS},
+     * {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS},
      * and {@link DeserializationFeature#USE_LONG_FOR_INTS}, used for more efficient
      * cheks when coercing integral values for untyped deserialization.
      *
      * @since 2.6
      */
     protected final static int F_MASK_INT_COERCIONS = 
-            DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
+            DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS.getMask()
+            | DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
             | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
     
     /**
@@ -641,6 +643,9 @@ public abstract class StdDeserializer<T>
     protected Object _coerceIntegral(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         int feats = ctxt.getDeserializationFeatures();
+        if (DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS.enabledIn(feats)) {
+            return p.getDecimalValue();
+        }
         if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(feats)) {
             return p.getBigIntegerValue();
         }

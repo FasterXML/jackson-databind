@@ -2711,7 +2711,10 @@ public class ObjectMapper
         if (fromValue == null) return null;
         TokenBuffer buf = new TokenBuffer(this, false);
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            buf = buf.forceUseOfBigDecimal(true);
+            buf = buf.forceUseOfBigDecimalFloats(true);
+        }
+        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS)) {
+            buf = buf.forceUseOfBigDecimalInts(true);
         }
         JsonNode result;
         try {
@@ -3640,7 +3643,10 @@ public class ObjectMapper
         // Then use TokenBuffer, which is a JsonGenerator:
         TokenBuffer buf = new TokenBuffer(this, false);
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            buf = buf.forceUseOfBigDecimal(true);
+            buf = buf.forceUseOfBigDecimalFloats(true);
+        }
+        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS)) {
+            buf = buf.forceUseOfBigDecimalInts(true);
         }
         try {
             // inlined 'writeValue' with minor changes:

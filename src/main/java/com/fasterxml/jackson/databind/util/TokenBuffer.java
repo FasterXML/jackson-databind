@@ -77,7 +77,15 @@ public class TokenBuffer
      *
      * @since 2.7
      */
-    protected boolean _forceBigDecimal;
+    protected boolean _forceBigDecimalFloats;
+
+    /**
+     * Flag set during construction, if use of {@link BigDecimal} is to be forced
+     * on all integral values.
+     *
+     * @since 2.9
+     */
+    protected boolean _forceBigDecimalInts;
     
     /*
     /**********************************************************
@@ -186,8 +194,10 @@ public class TokenBuffer
         _hasNativeTypeIds = p.canReadTypeId();
         _hasNativeObjectIds = p.canReadObjectId();
         _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
-        _forceBigDecimal = (ctxt == null) ? false
+        _forceBigDecimalFloats = (ctxt == null) ? false
                 : ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        _forceBigDecimalInts = (ctxt == null) ? false
+                : ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS);
     }
 
     /**
@@ -208,9 +218,26 @@ public class TokenBuffer
 
     /**
      * @since 2.7
+     * @deprecated since 2.9 use {@link #forceUseOfBigDecimalFloats(boolean)}
      */
+    @Deprecated
     public TokenBuffer forceUseOfBigDecimal(boolean b) {
-        _forceBigDecimal = b;
+       return forceUseOfBigDecimalFloats(b);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public TokenBuffer forceUseOfBigDecimalFloats(boolean b) {
+        _forceBigDecimalFloats = b;
+        return this;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public TokenBuffer forceUseOfBigDecimalInts(boolean b) {
+        _forceBigDecimalInts = b;
         return this;
     }
 
@@ -1016,19 +1043,23 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             break;
         case VALUE_NUMBER_INT:
-            switch (p.getNumberType()) {
-            case INT:
-                writeNumber(p.getIntValue());
-                break;
-            case BIG_INTEGER:
-                writeNumber(p.getBigIntegerValue());
-                break;
-            default:
-                writeNumber(p.getLongValue());
+            if (_forceBigDecimalInts) {
+                writeNumber(p.getDecimalValue());
+            } else {
+                switch (p.getNumberType()) {
+                    case INT:
+                        writeNumber(p.getIntValue());
+                        break;
+                    case BIG_INTEGER:
+                        writeNumber(p.getBigIntegerValue());
+                        break;
+                    default:
+                        writeNumber(p.getLongValue());
+                }
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
+            if (_forceBigDecimalFloats) {
                 /* 10-Oct-2015, tatu: Ideally we would first determine whether underlying
                  *   number is already decoded into a number (in which case might as well
                  *   access as number); or is still retained as text (in which case we

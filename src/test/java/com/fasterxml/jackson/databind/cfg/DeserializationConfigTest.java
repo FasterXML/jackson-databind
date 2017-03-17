@@ -24,6 +24,7 @@ public class DeserializationConfigTest extends BaseMapTest
         assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
 
         assertFalse(cfg.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+        assertFalse(cfg.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS));
         assertFalse(cfg.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS));
 
         assertTrue(cfg.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));

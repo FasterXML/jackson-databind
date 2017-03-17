@@ -554,7 +554,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         JsonParser.NumberType nt;
         int feats = ctxt.getDeserializationFeatures();
         if ((feats & F_MASK_INT_COERCIONS) != 0) {
-            if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(feats)) {
+            if (DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS.enabledIn(feats)) {
+                nt = JsonParser.NumberType.BIG_DECIMAL;
+            } else if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(feats)) {
                 nt = JsonParser.NumberType.BIG_INTEGER;
             } else if (DeserializationFeature.USE_LONG_FOR_INTS.enabledIn(feats)) {
                 nt = JsonParser.NumberType.LONG;
@@ -570,7 +572,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (nt == JsonParser.NumberType.LONG) {
             return nodeFactory.numberNode(p.getLongValue());
         }
-        return nodeFactory.numberNode(p.getBigIntegerValue());
+        if (nt == JsonParser.NumberType.BIG_INTEGER) {
+            return nodeFactory.numberNode(p.getBigIntegerValue());
+        }
+        return nodeFactory.numberNode(p.getDecimalValue());
     }
 
     protected final JsonNode _fromFloat(JsonParser p, DeserializationContext ctxt,

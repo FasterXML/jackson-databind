@@ -408,6 +408,42 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /**
+     * Accessor for default property inclusion to use for serialization,
+     * considering possible per-type override for given base type and
+	 * possible per-type override for given property type.<br>
+     * NOTE: if no override found, defaults to value returned by
+     * {@link #getDefaultPropertyInclusion()}.
+     *
+     * @since 2.9
+     */
+    public abstract JsonInclude.Value getDefaultInclusion(Class<?> baseType,
+            Class<?> propertyType);
+
+    /**
+     * Accessor for default property inclusion to use for serialization,
+     * considering possible per-type override for given base type and
+	 * possible per-type override for given property type; but
+     * if none found, returning given <code>defaultIncl</code>
+     *
+     * @param defaultIncl Inclusion setting to return if no overrides found.
+     *
+     * @since 2.9
+     */
+    public JsonInclude.Value getDefaultInclusion(Class<?> baseType,
+            Class<?> propertyType, JsonInclude.Value defaultIncl)
+    {
+        JsonInclude.Value v0 = getConfigOverride(propertyType).getIncludeAsProperty();
+        if (v0 != null) {
+            return v0;
+        }
+        JsonInclude.Value v1 = getConfigOverride(baseType).getInclude();
+        if (v1 != null) {
+            return v1;
+        }
+        return defaultIncl;
+    }
+
+    /**
      * Accessor for default format settings to use for serialization (and, to a degree
      * deserialization), considering baseline settings and per-type defaults
      * for given base type (if any).

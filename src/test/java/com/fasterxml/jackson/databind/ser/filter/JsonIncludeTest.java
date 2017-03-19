@@ -157,6 +157,32 @@ public class JsonIncludeTest
         public Map<String,String> map = Collections.emptyMap();
     }
 
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    @JsonPropertyOrder({"num", "annotated", "plain"})
+    static class MixedTypeBean
+    {
+        @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
+        public Integer num = null;
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        public String annotated = null;
+
+        public String plain = null;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonPropertyOrder({"num", "annotated", "plain"})
+    static class MixedTypeNonNullBean
+    {
+        @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
+        public Integer num = null;
+
+        @JsonInclude(JsonInclude.Include.ALWAYS)
+        public String annotated = null;
+
+        public String plain = null;
+    }
+
     // [databind#1351]
 
     static class Issue1351Bean
@@ -334,6 +360,54 @@ public class JsonIncludeTest
             .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
         assertEquals(aposToQuotes("{'map':{}}"),
                 mapper.writeValueAsString(empty));
+    }
+
+    public void testPropConfigOverrideForIncludeAsPropertyNonNull() throws Exception
+    {
+        // First, with defaults, all but NON_NULL annotated included
+        MixedTypeBean nullValues = new MixedTypeBean();
+        assertEquals(aposToQuotes("{'num':null,'plain':null}"),
+                MAPPER.writeValueAsString(nullValues));
+        ObjectMapper mapper;
+
+        // and then change inclusion as property criteria for either
+        mapper = new ObjectMapper();
+        mapper.configOverride(String.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.NON_NULL, null));
+        assertEquals("{\"num\":null}",
+                mapper.writeValueAsString(nullValues));
+
+        mapper = new ObjectMapper();
+        mapper.configOverride(Integer.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.NON_NULL, null));
+        assertEquals("{\"plain\":null}",
+                mapper.writeValueAsString(nullValues));
+    }
+
+    public void testPropConfigOverrideForIncludeAsPropertyAlways() throws Exception
+    {
+        // First, with defaults, only ALWAYS annotated included
+        MixedTypeNonNullBean nullValues = new MixedTypeNonNullBean();
+        assertEquals("{\"annotated\":null}",
+                MAPPER.writeValueAsString(nullValues));
+        ObjectMapper mapper;
+
+        // and then change inclusion as property criteria for either
+        mapper = new ObjectMapper();
+        mapper.configOverride(String.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.ALWAYS, null));
+        assertEquals(aposToQuotes("{'annotated':null,'plain':null}"),
+                mapper.writeValueAsString(nullValues));
+
+        mapper = new ObjectMapper();
+        mapper.configOverride(Integer.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.ALWAYS, null));
+        assertEquals(aposToQuotes("{'num':null,'annotated':null}"),
+                mapper.writeValueAsString(nullValues));
     }
 
     // [databind#1351], [databind#1417]

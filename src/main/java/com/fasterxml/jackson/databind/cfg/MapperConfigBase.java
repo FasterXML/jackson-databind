@@ -620,6 +620,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
+    public final JsonInclude.Value getDefaultInclusion(Class<?> baseType,
+            Class<?> propertyType) {
+        JsonInclude.Value v = getConfigOverride(propertyType).getIncludeAsProperty();
+        JsonInclude.Value def = getDefaultPropertyInclusion(baseType);
+        if (def == null) {
+            return v;
+        }
+        return def.withOverrides(v);
+    }
+
+    @Override
     public final JsonFormat.Value getDefaultPropertyFormat(Class<?> type) {
         ConfigOverride overrides = _configOverrides.findOverride(type);
         if (overrides != null) {

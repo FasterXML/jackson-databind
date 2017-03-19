@@ -410,6 +410,72 @@ public class JsonIncludeTest
                 mapper.writeValueAsString(nullValues));
     }
 
+    public void testConfigOverridesForIncludeAsPropertyNonNull() throws Exception
+    {
+        // First, with ALWAYS override on containing bean, all included
+        MixedTypeNonNullBean nullValues = new MixedTypeNonNullBean();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(MixedTypeNonNullBean.class)
+                .setInclude(JsonInclude.Value
+                        .construct(JsonInclude.Include.ALWAYS, null));
+        assertEquals(aposToQuotes("{'num':null,'annotated':null,'plain':null}"),
+                mapper.writeValueAsString(nullValues));
+
+        // and then change inclusion as property criteria for either
+        mapper = new ObjectMapper();
+        mapper.configOverride(MixedTypeNonNullBean.class)
+                .setInclude(JsonInclude.Value
+                        .construct(JsonInclude.Include.ALWAYS, null));
+        mapper.configOverride(String.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.NON_NULL, null));
+        assertEquals(aposToQuotes("{'num':null,'annotated':null}"),
+                mapper.writeValueAsString(nullValues));
+
+        mapper = new ObjectMapper();
+        mapper.configOverride(MixedTypeNonNullBean.class)
+                .setInclude(JsonInclude.Value
+                        .construct(JsonInclude.Include.ALWAYS, null));
+        mapper.configOverride(Integer.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.NON_NULL, null));
+        assertEquals(aposToQuotes("{'annotated':null,'plain':null}"),
+                mapper.writeValueAsString(nullValues));
+    }
+
+    public void testConfigOverridesForIncludeAsPropertyAlways() throws Exception
+    {
+        // First, with NON_NULL override on containing bean, empty
+        MixedTypeBean nullValues = new MixedTypeBean();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(MixedTypeBean.class)
+                .setInclude(JsonInclude.Value
+                        .construct(JsonInclude.Include.NON_NULL, null));
+        assertEquals("{}",
+                mapper.writeValueAsString(nullValues));
+
+        // and then change inclusion as property criteria for either
+        mapper = new ObjectMapper();
+        mapper.configOverride(MixedTypeBean.class)
+                .setInclude(JsonInclude.Value
+                        .construct(JsonInclude.Include.NON_NULL, null));
+        mapper.configOverride(String.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.ALWAYS, null));
+        assertEquals("{\"plain\":null}",
+                mapper.writeValueAsString(nullValues));
+
+        mapper = new ObjectMapper();
+        mapper.configOverride(MixedTypeBean.class)
+                .setInclude(JsonInclude.Value
+                        .construct(JsonInclude.Include.NON_NULL, null));
+        mapper.configOverride(Integer.class)
+                .setIncludeAsProperty(JsonInclude.Value
+                        .construct(JsonInclude.Include.ALWAYS, null));
+        assertEquals("{\"num\":null}",
+                mapper.writeValueAsString(nullValues));
+    }
+
     // [databind#1351], [databind#1417]
     public void testIssue1351() throws Exception
     {

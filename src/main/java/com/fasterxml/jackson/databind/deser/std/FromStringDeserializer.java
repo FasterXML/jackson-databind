@@ -13,16 +13,41 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
- * Base class for simple deserializers that only accept JSON String
- * values as the source.
+ * Base class for simple deserializers that serialize values from String
+ * representation: this includes JSON Strings and other Scalar values that
+ * can be coerced into text, like Numbers and Booleans).
+ * Simple JSON String values are trimmed using {@link java.lang.String#trim}.
+ * Partial deserializer implementation will try to first access current token as
+ * a String, calls {@link #_deserialize(String,DeserializationContext)} and
+ * returns return value.
+ * If this does not work (current token not a simple scalar type), attempts
+ * are made so that:
+ *<ul>
+ * <li>Embedded values ({@link JsonToken#VALUE_EMBEDDED_OBJECT}) are returned as-is
+ *    if they are of compatible type
+ *  </li>
+ * <li>Arrays may be "unwrapped" if (and only if) {@link DeserializationFeature#UNWRAP_SINGLE_VALUE_ARRAYS}
+ *    is enabled, and array contains just a single scalar value that can be deserialized
+ *    (for example, JSON Array with single JSON String element).
+ *  </li>
+ * </ul>
+ *<p>
+ * Special handling includes:
+ * <ul>
+ * <li>Null values ({@link JsonToken#VALUE_NULL}) are handled by returning value
+ *   returned by {@link JsonDeserializer#getNullValue(DeserializationContext)}: default
+ *   implementation simply returns Java `null` but this may be overridden.
+ *  </li>
+ * <li>Empty String (after trimming) will result in {@link #_deserializeFromEmptyString}
+ *   getting called, and return value being returned as deserialization: default implementation
+ *   simply returns `null`.
+ *  </li>
+ * </ul>
  */
 @SuppressWarnings("serial")
 public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
@@ -99,12 +124,12 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     /* Deserializer implementations
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
+        // Let's get textual value, possibly via coercion from other scalar types
         String text = p.getValueAsString();
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
@@ -165,9 +190,9 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 
     protected T _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException {
         // default impl: error out
-        ctxt.reportInputMismatch(this, String.format(
+        ctxt.reportInputMismatch(this,
                 "Don't know how to convert embedded Object of type %s into %s",
-                ob.getClass().getName(), _valueClass.getName()));
+                ob.getClass().getName(), _valueClass.getName());
         return null;
     }
 

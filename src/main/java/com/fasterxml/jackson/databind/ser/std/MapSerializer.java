@@ -970,7 +970,7 @@ public class MapSerializer
     /* Internal helper methods
     /**********************************************************
      */
-    
+
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {

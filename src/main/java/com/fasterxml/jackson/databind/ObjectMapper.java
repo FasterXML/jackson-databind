@@ -3674,8 +3674,7 @@ public class ObjectMapper
 
     /**
      * Convenience method similar to {@link #convertValue(Object, JavaType)} but one
-     * in which an existing value (`valueToUpdate`) is modified based on contents
-     * of serialization of another object (`updateWithValue`).
+     * in which 
      *<p>
      * Implementation is approximately as follows:
      *<ol>
@@ -3697,41 +3696,43 @@ public class ObjectMapper
      * {@link #configOverride(Class)} and {@link #setDefaultMergeable(Boolean)}).
      *
      * @param valueToUpdate Object to update
-     * @param updateWithValue Object to conceptually serialize and merge into value to
+     * @param overrides Object to conceptually serialize and merge into value to
      *     update; can be thought of as a provider for overrides to apply.
      * 
-     * @return First argument, that is, `valueToUpdate`
+     * @return Either the first argument (`valueToUpdate`), if it is mutable; or a result of
+     *     creating new instance that is result of "merging" values (for example, "updating" a
+     *     Java array will create a new array)
      *
-     * @throws JsonMappingException if there are structural incompatibilities that prevent update
+     * @throws JsonMappingException if there are structural incompatibilities that prevent update.
      * 
      * @since 2.9
      */
-    public <T> T updateValue(T valueToUpdate, Object updateWithValue)
+    @SuppressWarnings("resource")
+    public <T> T updateValue(T valueToUpdate, Object overrides)
         throws JsonMappingException
     {
-        if ((valueToUpdate == null) || (updateWithValue == null)) {
-            return valueToUpdate;
-        }
-        @SuppressWarnings("resource")
-        TokenBuffer buf = new TokenBuffer(this, false);
-        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            buf = buf.forceUseOfBigDecimal(true);
-        }
-        try {
-            SerializationConfig config = getSerializationConfig().
-                    without(SerializationFeature.WRAP_ROOT_VALUE);
-            _serializerProvider(config).serializeValue(buf, updateWithValue);
-            JsonParser p = buf.asParser();
-            readerForUpdating(valueToUpdate).readValue(p);
-            p.close();
-        } catch (IOException e) { // should not occur, no real i/o...
-            if (e instanceof JsonMappingException) {
-                throw (JsonMappingException) e;
+        T result = valueToUpdate;
+        if ((valueToUpdate != null) && (overrides != null)) {
+            TokenBuffer buf = new TokenBuffer(this, false);
+            if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                buf = buf.forceUseOfBigDecimal(true);
             }
-            // 17-Mar-2017, tatu: Really ought not happen...
-            throw JsonMappingException.fromUnexpectedIOE(e);
+            try {
+                SerializationConfig config = getSerializationConfig().
+                        without(SerializationFeature.WRAP_ROOT_VALUE);
+                _serializerProvider(config).serializeValue(buf, overrides);
+                JsonParser p = buf.asParser();
+                result = readerForUpdating(valueToUpdate).readValue(p);
+                p.close();
+            } catch (IOException e) { // should not occur, no real i/o...
+                if (e instanceof JsonMappingException) {
+                    throw (JsonMappingException) e;
+                }
+                // 17-Mar-2017, tatu: Really ought not happen...
+                throw JsonMappingException.fromUnexpectedIOE(e);
+            }
         }
-        return valueToUpdate;
+        return result;
     }
 
     /*

@@ -66,6 +66,8 @@ Project: jackson-databind
 #1552: Map key converted to byte array is not serialized as base64 string
  (reported by nmatt@github)
 #1554: Support deserialization of `Shape.OBJECT` ("as POJO") for `Map`s (and map-like types)
+#1556: Add `ObjectMapper.updateValue()` method to update instance with given overrides
+ (suggested by syncer@github)
 
 2.8.8 (not yet released)
 

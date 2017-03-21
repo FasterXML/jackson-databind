@@ -53,8 +53,6 @@ public class UpdateValueTest extends BaseMapTest
         assertEquals(overrides[1], ob.get(3));
     }
 
-    // What are expected array semantics?
-    /*
     public void testArrayUpdate() throws Exception
     {
         // Since Arrays are immutable, not sure what "right answer" ought to be
@@ -62,8 +60,12 @@ public class UpdateValueTest extends BaseMapTest
         Object[] overrides = new Object[] { Boolean.TRUE, "zoink!" };
 
         Object[] ob = MAPPER.updateValue(base, overrides);
+        assertEquals(4, ob.length);
+        assertEquals(base[0], ob[0]);
+        assertEquals(base[1], ob[1]);
+        assertEquals(overrides[0], ob[2]);
+        assertEquals(overrides[1], ob[3]);
     }
-    */
 
     /*
     /********************************************************

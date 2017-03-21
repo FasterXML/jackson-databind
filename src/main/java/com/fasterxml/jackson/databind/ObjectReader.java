@@ -1568,8 +1568,9 @@ public class ObjectReader
                 if (valueToUpdate == null) {
                     result = deser.deserialize(p, ctxt);
                 } else {
-                    deser.deserialize(p, ctxt, valueToUpdate);
-                    result = valueToUpdate;
+                    // 20-Mar-2017, tatu: Important! May be different from `valueToUpdate`
+                    //   for immutable Objects like Java arrays; logical result
+                    result = deser.deserialize(p, ctxt, valueToUpdate);
                 }
             }
         }

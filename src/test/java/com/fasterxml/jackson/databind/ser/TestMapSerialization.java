@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @SuppressWarnings("serial")
 public class TestMapSerialization extends BaseMapTest
 {
-    @JsonSerialize(using=MapSerializer.class)    
+    @JsonSerialize(using=PseudoMapSerializer.class)    
     static class PseudoMap extends LinkedHashMap<String,String>
     {
         public PseudoMap(String... values) {
@@ -25,7 +25,7 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
-    static class MapSerializer extends JsonSerializer<Map<String,String>>
+    static class PseudoMapSerializer extends JsonSerializer<Map<String,String>>
     {
         @Override
         public void serialize(Map<String,String> value,

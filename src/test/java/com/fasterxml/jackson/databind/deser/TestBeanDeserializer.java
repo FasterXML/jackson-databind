@@ -292,28 +292,6 @@ public class TestBeanDeserializer extends BaseMapTest
         assertNull(result);
     }
 
-    // [Databind#540]
-    public void testPOJOFromEmptyArray() throws Exception
-    {
-        final String JSON = "  [\n]";
-        assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
-        // first, verify default settings which do not accept empty Array
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.readValue(JSON, Bean.class);
-            fail("Should not accept Empty Array for POJO by default");
-        } catch (JsonProcessingException e) {
-            verifyException(e, "START_ARRAY token");
-            assertValidLocation(e.getLocation());
-        }
-
-        // should be ok to enable dynamically:
-        ObjectReader r = MAPPER.readerFor(Bean.class)
-                .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
-        Bean result = r.readValue(JSON);
-        assertNull(result);
-    }
-
     // [databind#120]
     public void testModifyArrayDeserializer() throws Exception
     {

@@ -298,31 +298,6 @@ public class TestMapDeserialization
         assertNull(result.get(""));
     }
 
-    // [Databind#540]
-    public void testMapFromEmptyArray() throws Exception
-    {
-        final String JSON = "  [\n]";
-        assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
-        // first, verify default settings which do not accept empty Array
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.readValue(JSON, Map.class);
-            fail("Should not accept Empty Array for Map by default");
-        } catch (JsonProcessingException e) {
-            verifyException(e, "START_ARRAY token");
-        }
-        // should be ok to enable dynamically:
-        ObjectReader r = MAPPER.readerFor(Map.class)
-                .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
-
-        Map<?,?> result = r.readValue(JSON);
-        assertNull(result);
-
-        EnumMap<?,?> result2 = r.forType(new TypeReference<EnumMap<Key,String>>() { })
-                .readValue(JSON);
-        assertNull(result2);
-    }
-
     /*
     /**********************************************************
     /* Test methods, maps with enums

@@ -139,13 +139,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         }
         JsonToken t = p.getCurrentToken();
         // [databind#381]
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final T value = deserialize(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return value;
+        if (t == JsonToken.START_ARRAY) {
+            return _deserializeFromArray(p, ctxt);
         }
         if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
             // Trivial cases; null to null, instance of type itself returned as is

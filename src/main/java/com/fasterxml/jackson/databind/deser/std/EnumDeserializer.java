@@ -165,7 +165,7 @@ public class EnumDeserializer
         name = name.trim();
         if (name.length() == 0) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return null;
+                return getEmptyValue(ctxt);
             }
         } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
             // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
@@ -195,15 +195,8 @@ public class EnumDeserializer
     protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // [databind#381]
-        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                && p.isExpectedStartArrayToken()) {
-            p.nextToken();
-            final Object parsed = deserialize(p, ctxt);
-            JsonToken curr = p.nextToken();
-            if (curr != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return parsed;
+        if (p.hasToken(JsonToken.START_ARRAY)) {
+            return _deserializeFromArray(p, ctxt);
         }
         return ctxt.handleUnexpectedToken(_enumClass(), p);
     }

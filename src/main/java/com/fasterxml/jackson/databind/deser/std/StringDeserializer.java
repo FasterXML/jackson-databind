@@ -12,6 +12,11 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
 {
     private static final long serialVersionUID = 1L;
 
+    // @since 2.8.8
+    protected final static int FEATURES_ACCEPT_ARRAYS =
+            DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
+            DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
+    
     /**
      * @since 2.2
      */
@@ -36,13 +41,8 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
         }
         JsonToken t = p.getCurrentToken();
         // [databind#381]
-        if ((t == JsonToken.START_ARRAY) && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final String parsed = _parseString(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+        if (t == JsonToken.START_ARRAY) {
+            return _deserializeFromArray(p, ctxt);
         }
         // need to gracefully handle byte[] data, as base64
         if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
@@ -69,5 +69,29 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     @Override
     public String deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         return deserialize(p, ctxt);
+    }
+
+    // @since 2.8.8
+    protected String _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        JsonToken t;
+        if (ctxt.hasSomeOfFeatures(FEATURES_ACCEPT_ARRAYS)) {
+            t = p.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                    return getNullValue(ctxt);
+                }
+            }
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                final String parsed = _parseString(p, ctxt);
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }
+                return parsed;            
+            }
+        } else {
+            t = p.getCurrentToken();
+        }
+        return (String) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
     }
 }

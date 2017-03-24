@@ -133,7 +133,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         String text = p.getValueAsString();
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
-                // 04-Feb-2013, tatu: Usually should become null; but not always
+                // Usually should become null; but not always
                 return _deserializeFromEmptyString();
             }
             Exception cause = null;
@@ -142,10 +142,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 if (result != null) {
                     return result;
                 }
-            } catch (IllegalArgumentException iae) {
-                cause = iae;
-            } catch (MalformedURLException me) {
-                cause = me;
+            } catch (IllegalArgumentException | MalformedURLException e) {
+                cause = e;
             }
             String msg = "not a valid textual representation";
             if (cause != null) {
@@ -164,13 +162,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         }
         JsonToken t = p.getCurrentToken();
         // [databind#381]
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final T value = deserialize(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return value;
+        if (t == JsonToken.START_ARRAY) {
+            return _deserializeFromArray(p, ctxt);
         }
         if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
             // Trivial cases; null to null, instance of type itself returned as is

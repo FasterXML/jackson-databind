@@ -185,7 +185,7 @@ public class NumberDeserializers
         {
             super(cls, nvl, Boolean.FALSE);
         }
-        
+
         @Override
         public Boolean deserialize(JsonParser j, DeserializationContext ctxt) throws IOException
         {
@@ -439,14 +439,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_NULL:
                 return (Character) _coerceNullToken(ctxt, _primitive);
             case JsonTokenId.ID_START_ARRAY:
-                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final Character C = deserialize(p, ctxt);
-                    if (p.nextToken() != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }
-                    return C;
-                }
+                return _deserializeFromArray(p, ctxt);
             default:
             }
             return (Character) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -857,15 +850,7 @@ public class NumberDeserializers
                             "not a valid number");
                 }
             case JsonTokenId.ID_START_ARRAY:
-                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final Object value = deserialize(p, ctxt);
-                    if (p.nextToken() != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }
-                    return value;
-                }
-                break;
+                return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
             return ctxt.handleUnexpectedToken(_valueClass, p);
@@ -937,15 +922,7 @@ public class NumberDeserializers
                 }
                 return p.getDecimalValue().toBigInteger();
             case JsonTokenId.ID_START_ARRAY:
-                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final BigInteger value = deserialize(p, ctxt);
-                    if (p.nextToken() != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }
-                    return value;
-                }
-                break;
+                return _deserializeFromArray(p, ctxt);
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 String text = p.getText().trim();
                 // note: no need to call `coerce` as this is never primitive
@@ -999,15 +976,7 @@ public class NumberDeserializers
                             "not a valid representation");
                 }
             case JsonTokenId.ID_START_ARRAY:
-                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final BigDecimal value = deserialize(p, ctxt);
-                    if (p.nextToken() != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }
-                    return value;
-                }
-                break;
+                return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
             return (BigDecimal) ctxt.handleUnexpectedToken(_valueClass, p);

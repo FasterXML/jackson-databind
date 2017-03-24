@@ -125,6 +125,10 @@ public class EmptyArrayAsNullTest extends BaseMapTest
         _testNullWrapper(String.class);
     }
 
+    public void testNullEnumFromEmptyArray() throws Exception {
+        _testNullWrapper(ABC.class);
+    }
+
     public void testStdJdkTypesFromEmptyArray() throws Exception
     {
         _testNullWrapper(BigInteger.class);

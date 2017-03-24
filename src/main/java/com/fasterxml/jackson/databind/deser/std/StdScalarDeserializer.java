@@ -3,10 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
@@ -16,11 +13,6 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
  */
 public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
 {
-    // @since 2.8.8
-    protected final static int FEATURES_ACCEPT_ARRAYS =
-            DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
-            DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
-
     private static final long serialVersionUID = 1L;
 
     protected StdScalarDeserializer(Class<?> vc) { super(vc); }
@@ -66,30 +58,5 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
     @Override // since 2.9
     public AccessPattern getEmptyAccessPattern() {
         return AccessPattern.CONSTANT;
-    }
-
-    protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
-        JsonToken t;
-        if (ctxt.hasSomeOfFeatures(FEATURES_ACCEPT_ARRAYS)) {
-            t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
-                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-                    return getNullValue(ctxt);
-                }
-            }
-            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                final T parsed = deserialize(p, ctxt);
-                if (p.nextToken() != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }
-                return parsed;            
-            }
-        } else {
-            t = p.getCurrentToken();
-        }
-        @SuppressWarnings("unchecked")
-        T result = (T) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
-        return result;
     }
 }

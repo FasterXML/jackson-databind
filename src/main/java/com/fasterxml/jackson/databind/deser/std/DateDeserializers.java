@@ -7,13 +7,11 @@ import java.text.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -179,8 +177,7 @@ public class DateDeserializers
             throws IOException
         {
             if (_customFormat != null) {
-                JsonToken t = p.getCurrentToken();
-                if (t == JsonToken.VALUE_STRING) {
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
                     String str = p.getText().trim();
                     if (str.length() == 0) {
                         return (Date) getEmptyValue(ctxt);
@@ -193,16 +190,6 @@ public class DateDeserializers
                                     "expected format \"%s\"", _formatString);
                         }
                     }
-                }
-                // [databind#381]
-                if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final Date parsed = _parseDate(p, ctxt);
-                    t = p.nextToken();
-                    if (t != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }            
-                    return parsed;            
                 }
             }
             return super._parseDate(p, ctxt);

@@ -43,6 +43,12 @@ public abstract class StdDeserializer<T>
     protected final static int F_MASK_INT_COERCIONS = 
             DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
             | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
+
+    // @since 2.9
+    protected final static int F_MASK_ACCEPT_ARRAYS =
+            DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
+            DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
+
     
     /**
      * Type of values this deserializer handles: sometimes
@@ -128,7 +134,7 @@ public abstract class StdDeserializer<T>
             TypeDeserializer typeDeserializer) throws IOException {
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for sub-classes, parsing: while mostly
@@ -455,24 +461,40 @@ public abstract class StdDeserializer<T>
     protected java.util.Date _parseDate(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        JsonToken t = p.getCurrentToken();
-        if (t == JsonToken.VALUE_NUMBER_INT) {
-            return new java.util.Date(p.getLongValue());
-        }
-        if (t == JsonToken.VALUE_NULL) {
-            return (java.util.Date) getNullValue(ctxt);
-        }
-        if (t == JsonToken.VALUE_STRING) {
+        switch (p.getCurrentTokenId()) {
+        case JsonTokenId.ID_STRING:
             return _parseDate(p.getText().trim(), ctxt);
-        }
-        // [databind#381]
-        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final Date parsed = _parseDate(p, ctxt);
-            _verifyEndArrayForSingle(p, ctxt);
-            return parsed;            
+        case JsonTokenId.ID_NUMBER_INT:
+            return new java.util.Date(p.getLongValue());
+        case JsonTokenId.ID_NULL:
+            return (java.util.Date) getNullValue(ctxt);
+        case JsonTokenId.ID_START_ARRAY:
+            return _parseDateFromArray(p, ctxt);
         }
         return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, p);
+    }
+
+    // @since 2.9
+    protected java.util.Date _parseDateFromArray(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        JsonToken t;
+        if (ctxt.hasSomeOfFeatures(F_MASK_ACCEPT_ARRAYS)) {
+            t = p.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                    return (java.util.Date) getNullValue(ctxt);
+                }
+            }
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                final Date parsed = _parseDate(p, ctxt);
+                _verifyEndArrayForSingle(p, ctxt);
+                return parsed;            
+            }
+        } else {
+            t = p.getCurrentToken();
+        }
+        return (java.util.Date) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
     }
 
     /**
@@ -593,6 +615,78 @@ public abstract class StdDeserializer<T>
     }
 
     protected final boolean _isNaN(String text) { return "NaN".equals(text); }
+
+    /*
+    /**********************************************************
+    /* Helper methods for sub-classes regarding decoding from
+    /* alternate representations
+    /**********************************************************
+     */
+
+    /**
+     * Helper method that allows easy support for array-related {@link DeserializationFeature}s
+     * `ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT` and `UNWRAP_SINGLE_VALUE_ARRAYS`: checks for either
+     * empty array, or single-value array-wrapped value (respectively), and either reports
+     * an exception (if no match, or feature(s) not enabled), or returns appropriate
+     * result value.
+     *<p>
+     * This method should NOT be called if Array representation is explicitly supported
+     * for type: it should only be called in case it is otherwise unrecognized.
+     *<p>
+     * NOTE: in case of unwrapped single element, will handle actual decoding
+     * by calling {@link #_deserializeWrappedValue}, which by default calls
+     * {@link #deserialize(JsonParser, DeserializationContext)}.
+     *
+     * @since 2.9
+     */
+    protected T _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        JsonToken t;
+        if (ctxt.hasSomeOfFeatures(F_MASK_ACCEPT_ARRAYS)) {
+            t = p.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                    return getNullValue(ctxt);
+                }
+            }
+            if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                final T parsed = deserialize(p, ctxt);
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }
+                return parsed;            
+            }
+        } else {
+            t = p.getCurrentToken();
+        }
+        @SuppressWarnings("unchecked")
+        T result = (T) ctxt.handleUnexpectedToken(_valueClass, t, p, null);
+        return result;
+    }
+
+    /**
+     * Helper called to support {@link DeserializationFeature#UNWRAP_SINGLE_VALUE_ARRAYS}:
+     * default implementation simply calls
+     * {@link #deserialize(JsonParser, DeserializationContext)},
+     * but handling may be overridden.
+     *
+     * @since 2.9
+     */
+    protected T _deserializeWrappedValue(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        // 23-Mar-2017, tatu: Let's specifically block recursive resolution to avoid
+        //   either supporting nested arrays, or to cause infinite looping.
+        if (p.hasToken(JsonToken.START_ARRAY)) {
+            String msg = String.format(
+"Can not deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
+                    ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
+                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+            @SuppressWarnings("unchecked")
+            T result = (T) ctxt.handleUnexpectedToken(_valueClass, p.getCurrentToken(), p, msg);
+            return result;
+        }
+        return (T) deserialize(p, ctxt);
+    }
 
     /*
     /****************************************************

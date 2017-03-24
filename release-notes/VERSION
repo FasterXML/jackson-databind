@@ -22,6 +22,7 @@ Project: jackson-databind
 #865: `JsonFormat.Shape.OBJECT` ignored when class implements `Map.Entry`
 #888: Allow specifying custom exclusion comparator via `@JsonInclude`,
   using `JsonInclude.Include.CUSTOM`
+#994: `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS` only works for POJOs, Maps
 #1029: Add a way to define property name aliases
 #1035: `@JsonAnySetter` assumes key of `String`, does not consider declared type.
  (reported by Michael F)

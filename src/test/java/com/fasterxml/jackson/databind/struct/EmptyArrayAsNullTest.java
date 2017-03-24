@@ -2,11 +2,8 @@ package com.fasterxml.jackson.databind.struct;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -105,14 +102,14 @@ public class EmptyArrayAsNullTest extends BaseMapTest
 
     public void testWrapperFromEmptyArray() throws Exception
     {
-//        _testNullWrapper(Boolean.class);
-//        _testNullWrapper(Byte.class);
+        _testNullWrapper(Boolean.class);
+        _testNullWrapper(Byte.class);
         _testNullWrapper(Character.class);
-//        _testNullWrapper(Short.class);
-//        _testNullWrapper(Integer.class);
-//        _testNullWrapper(Long.class);
-//        _testNullWrapper(Float.class);
-//        _testNullWrapper(Double.class);
+        _testNullWrapper(Short.class);
+        _testNullWrapper(Integer.class);
+        _testNullWrapper(Long.class);
+        _testNullWrapper(Float.class);
+        _testNullWrapper(Double.class);
     }
 
     /*
@@ -136,10 +133,8 @@ public class EmptyArrayAsNullTest extends BaseMapTest
 
         _testNullWrapper(UUID.class);
 
-        /*
         _testNullWrapper(Date.class);
         _testNullWrapper(Calendar.class);
-        */
     }
 
     /*

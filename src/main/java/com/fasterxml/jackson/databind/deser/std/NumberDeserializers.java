@@ -239,14 +239,8 @@ public class NumberDeserializers
                         "only \"true\" or \"false\" recognized");
             }
             // [databind#381]
-            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
-                final Boolean parsed = _parseBoolean(p, ctxt);
-                t = p.nextToken();
-                if (t != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }            
-                return parsed;            
+            if (t == JsonToken.START_ARRAY) {
+                return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
             return (Boolean) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -314,14 +308,8 @@ public class NumberDeserializers
                 return (Byte) _coerceNullToken(ctxt, _primitive);
             }
             // [databind#381]
-            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
-                final Byte parsed = _parseByte(p, ctxt);
-                t = p.nextToken();
-                if (t != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }            
-                return parsed;            
+            if (t == JsonToken.START_ARRAY) {
+                return _deserializeFromArray(p, ctxt);
             }
             return (Byte) ctxt.handleUnexpectedToken(_valueClass, p);
         }
@@ -386,15 +374,8 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_NULL) {
                 return (Short) _coerceNullToken(ctxt, _primitive);
             }
-            // [databind#381]
-            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
-                final Short parsed = _parseShort(p, ctxt);
-                t = p.nextToken();
-                if (t != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }
-                return parsed;
+            if (t == JsonToken.START_ARRAY) {
+                return _deserializeFromArray(p, ctxt);
             }
             return (Short) ctxt.handleUnexpectedToken(_valueClass, p);
         }
@@ -521,15 +502,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_NULL:
                 return (Integer) _coerceNullToken(ctxt, _primitive);
             case JsonTokenId.ID_START_ARRAY:
-                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final Integer parsed = _parseInteger(p, ctxt);
-                    if (p.nextToken() != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }            
-                    return parsed;            
-                }
-                break;
+                return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
             return (Integer) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -591,16 +564,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_NULL:
                 return (Long) _coerceNullToken(ctxt, _primitive);
             case JsonTokenId.ID_START_ARRAY:
-                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                    p.nextToken();
-                    final Long parsed = _parseLong(p, ctxt);
-                    JsonToken t = p.nextToken();
-                    if (t != JsonToken.END_ARRAY) {
-                        handleMissingEndArrayForSingle(p, ctxt);
-                    }            
-                    return parsed;            
-                }
-                break;
+                return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
             return (Long) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -670,14 +634,8 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_NULL) {
                 return (Float) _coerceNullToken(ctxt, _primitive);
             }
-            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
-                final Float parsed = _parseFloat(p, ctxt);
-                t = p.nextToken();
-                if (t != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }            
-                return parsed;            
+            if (t == JsonToken.START_ARRAY) {
+                return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
             return (Float) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -714,7 +672,6 @@ public class NumberDeserializers
         protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             JsonToken t = p.getCurrentToken();
-            
             if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
                 return p.getDoubleValue();
             }
@@ -752,14 +709,8 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_NULL) {
                 return (Double) _coerceNullToken(ctxt, _primitive);
             }
-            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
-                final Double parsed = _parseDouble(p, ctxt);
-                t = p.nextToken();
-                if (t != JsonToken.END_ARRAY) {
-                    handleMissingEndArrayForSingle(p, ctxt);
-                }            
-                return parsed;            
+            if (t == JsonToken.START_ARRAY) {
+                return _deserializeFromArray(p, ctxt);
             }
             // Otherwise, no can do:
             return (Double) ctxt.handleUnexpectedToken(_valueClass, p);

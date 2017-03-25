@@ -73,6 +73,9 @@ public final class FieldProperty
     
     @Override
     public FieldProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        if (_valueDeserializer == deser) {
+            return this;
+        }
         return new FieldProperty(this, deser);
     }
 

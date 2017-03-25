@@ -69,6 +69,9 @@ public final class ManagedReferenceProperty
 
     @Override
     public ManagedReferenceProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        if (_valueDeserializer == deser) {
+            return this;
+        }
         return new ManagedReferenceProperty(this, deser);
     }
  

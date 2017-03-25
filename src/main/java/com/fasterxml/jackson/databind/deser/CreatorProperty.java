@@ -111,6 +111,9 @@ public class CreatorProperty
     
     @Override
     public CreatorProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        if (_valueDeserializer == deser) {
+            return this;
+        }
         return new CreatorProperty(this, deser);
     }
 

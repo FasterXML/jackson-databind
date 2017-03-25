@@ -66,6 +66,9 @@ public final class MethodProperty
     
     @Override
     public MethodProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        if (_valueDeserializer == deser) {
+            return this;
+        }
         return new MethodProperty(this, deser);
     }
 

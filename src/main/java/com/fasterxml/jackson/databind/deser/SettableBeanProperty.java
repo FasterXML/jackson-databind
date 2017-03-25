@@ -503,7 +503,7 @@ public abstract class SettableBeanProperty
         }
         return _valueDeserializer.deserialize(p, ctxt);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods

@@ -81,6 +81,9 @@ public final class InnerClassProperty
 
     @Override
     public InnerClassProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        if (_valueDeserializer == deser) {
+            return this;
+        }
         return new InnerClassProperty(this, deser);
     }
 

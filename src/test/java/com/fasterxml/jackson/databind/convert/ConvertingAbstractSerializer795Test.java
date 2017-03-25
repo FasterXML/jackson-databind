@@ -65,6 +65,12 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
         }
     }
 
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     public void testAbstractTypeDeserialization() throws Exception {

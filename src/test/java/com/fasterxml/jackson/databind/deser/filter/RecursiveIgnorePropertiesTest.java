@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.databind.filter;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 
-public class IgnorePropertiesDeser1575Test extends BaseMapTest
+public class RecursiveIgnorePropertiesTest extends BaseMapTest
 {
     static class Person {
         public String name;
@@ -16,7 +16,7 @@ public class IgnorePropertiesDeser1575Test extends BaseMapTest
         public Person personZ;
     }
 
-    public void testIgnorePropDeser1575() throws Exception
+    public void testRecursiveForDeser() throws Exception
     {
         String st = aposToQuotes("{ 'name': 'admin',\n"
 //                + "    'person_z': [ { 'name': 'admin' } ]"
@@ -28,18 +28,17 @@ public class IgnorePropertiesDeser1575Test extends BaseMapTest
         assertEquals("admin", result.name);
     }
 
-    /*
-    public void testIgnorePropSer1575() throws Exception
+    public void testRecursiveForSer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         Person input = new Person();
         input.name = "Bob";
+        Person p2 = new Person();
+        p2.name = "Bill";
+        input.personZ = p2;
+        p2.personZ = input;
 
-        // 24-Mar-2017, tatu: This shouldn't cause issues... but does as of now:
-        
-//        input.personZ = input;
         String json = mapper.writeValueAsString(input);
         assertNotNull(json);
     }
-    */
 }

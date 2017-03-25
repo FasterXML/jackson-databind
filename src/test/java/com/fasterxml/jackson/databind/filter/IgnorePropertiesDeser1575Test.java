@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.filter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 
-public class JsonIgnoreProperties1575Test extends BaseMapTest
+public class IgnorePropertiesDeser1575Test extends BaseMapTest
 {
     static class Person {
         public String name;

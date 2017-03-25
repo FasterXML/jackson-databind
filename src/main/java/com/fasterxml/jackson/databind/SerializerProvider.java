@@ -875,11 +875,6 @@ public abstract class SerializerProvider
      * @param unknownType Type for which no serializer is found
      */
     public JsonSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType) {
-        // 23-Apr-2015, tatu: Only return shared instance if nominal type is Object.class
-        if (unknownType == Object.class) {
-            return _unknownTypeSerializer;
-        }
-        // otherwise construct explicit instance with property handled type
         return new UnknownSerializer(unknownType);
     }
 

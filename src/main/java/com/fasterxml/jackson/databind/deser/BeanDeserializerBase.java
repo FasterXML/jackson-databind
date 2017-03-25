@@ -441,55 +441,35 @@ public abstract class BeanDeserializerBase
 
         if (_valueInstantiator.canCreateFromObjectWith()) {
             creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-
-            // 21-Jun-2015, tatu: This resolution was duplicated later on and seems like
-            //    it really should be only done at a later point. So commented out in 2.8.
-            //   However, just in case there was a reason for it, leaving commented out
-            //   here instead of immediately removing.
-
-            /*
-            // also: need to try to resolve 'external' type ids...
-            for (SettableBeanProperty prop : creatorProps) {
-                if (prop.hasValueTypeDeserializer()) {
-                    TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
-                    if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
-                        if (extTypes == null) {
-                            extTypes = new ExternalTypeHandler.Builder();
-                        }
-                        extTypes.addExternal(prop, typeDeser);
-                    }
-                }
-            }
-            */
         } else {
             creatorProps = null;
         }
-
         UnwrappedPropertyHandler unwrapped = null;
 
-        for (SettableBeanProperty origProp : _beanProperties) {
-            SettableBeanProperty prop = origProp;
+        // 24-Mar-2017, tatu: Looks like we may have to iterate over
+        //   properties twice, to handle potential issues with recursive
+        //   types (see [databind#1575] f.ex).
 
-            // May already have deserializer from annotations, if so, skip:
+        // First loop: find deserializer if not yet known, but do not yet
+        // contextualize (since that can lead to problems with self-references)
+        for (SettableBeanProperty prop : _beanProperties) {
             if (!prop.hasValueDeserializer()) {
                 // [databind#125]: allow use of converters
                 JsonDeserializer<?> deser = findConvertingDeserializer(ctxt, prop);
                 if (deser == null) {
-                    deser = findDeserializer(ctxt, prop.getType(), prop);
+                    deser = ctxt.findNonContextualValueDeserializer(prop.getType());
                 }
-                prop = prop.withValueDeserializer(deser);
-            } else { // may need contextual version
-                JsonDeserializer<Object> deser = prop.getValueDeserializer();
-                /* Important! This is the only place where we actually handle "primary"
-                 * property deserializers -- call is different from other places.
-                 */
-                JsonDeserializer<?> cd = ctxt.handlePrimaryContextualization(deser, prop,
-                        prop.getType());
-                if (cd != deser) {
-                    prop = prop.withValueDeserializer(cd);
-                }
+                SettableBeanProperty newProp = prop.withValueDeserializer(deser);
+                _replaceProperty(_beanProperties, creatorProps, prop, newProp);
             }
+        }
 
+        // Second loop: contextualize, find other pieces
+        for (SettableBeanProperty origProp : _beanProperties) {
+            SettableBeanProperty prop = origProp;
+            JsonDeserializer<?> deser = prop.getValueDeserializer();
+            deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
+            prop = prop.withValueDeserializer(deser);
             // Need to link managed references with matching back references
             prop = _resolveManagedReferenceProperty(ctxt, prop);
 
@@ -507,6 +487,7 @@ public abstract class BeanDeserializerBase
                 unwrapped.addProperty(prop);
                 // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
                 //    the original property is left in place. So let's remove it now.
+                // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
                 _beanProperties.remove(prop);
                 continue;
             }
@@ -519,27 +500,9 @@ public abstract class BeanDeserializerBase
             // non-static inner classes too:
             prop = _resolveInnerClassValuedProperty(ctxt, prop);
             if (prop != origProp) {
-                _beanProperties.replace(prop);
-                // [databind#795]: Make sure PropertyBasedCreator's properties stay in sync
-                if (creatorProps != null) {
-                    // 18-May-2015, tatu: _Should_ start with consistent set. But can we really
-                    //   fully count on this? May need to revisit in future; seems to hold for now.
-                    for (int i = 0, len = creatorProps.length; i < len; ++i) {
-                        if (creatorProps[i] == origProp) {
-                            creatorProps[i] = prop;
-                            break;
-                        }
-                        // ... as per above, it is possible we'd need to add this as fallback
-                        // if (but only if) identity check fails?
-                        /*
-                        if (creatorProps[i].getName().equals(prop.getName())) {
-                            creatorProps[i] = prop;
-                            break;
-                        }
-                        */
-                    }
-                }
+                _replaceProperty(_beanProperties, creatorProps, origProp, prop);
             }
+
             // one more thing: if this property uses "external property" type inclusion,
             // it needs different handling altogether
             if (prop.hasValueTypeDeserializer()) {
@@ -602,9 +565,36 @@ public abstract class BeanDeserializerBase
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
         }
-
         // may need to disable vanilla processing, if unwrapped handling was enabled...
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
+    }
+
+    /**
+     * @since 2.8.8
+     */
+    protected void _replaceProperty(BeanPropertyMap props, SettableBeanProperty[] creatorProps,
+            SettableBeanProperty origProp, SettableBeanProperty newProp)
+    {
+        props.replace(newProp);
+        // [databind#795]: Make sure PropertyBasedCreator's properties stay in sync
+        if (creatorProps != null) {
+            // 18-May-2015, tatu: _Should_ start with consistent set. But can we really
+            //   fully count on this? May need to revisit in future; seems to hold for now.
+            for (int i = 0, len = creatorProps.length; i < len; ++i) {
+                if (creatorProps[i] == origProp) {
+                    creatorProps[i] = newProp;
+                    return;
+                }
+            }
+            // ... as per above, it is possible we'd need to add this as fallback
+            // if (but only if) identity check fails?
+            /*
+            if (creatorProps[i].getName().equals(prop.getName())) {
+                creatorProps[i] = prop;
+                break;
+            }
+            */
+        }
     }
 
     private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt, JavaType delegateType,
@@ -631,6 +621,9 @@ public abstract class BeanDeserializerBase
      * Helper method that can be used to see if specified property is annotated
      * to indicate use of a converter for property value (in case of container types,
      * it is container type itself, not key or content type).
+     *<p>
+     * NOTE: returned deserializer is NOT yet contextualized, caller needs to take
+     * care to do that.
      * 
      * @since 2.2
      */
@@ -644,8 +637,10 @@ public abstract class BeanDeserializerBase
             if (convDef != null) {
                 Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                 JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
-                JsonDeserializer<?> ser = ctxt.findContextualValueDeserializer(delegateType, prop);
-                return new StdDelegatingDeserializer<Object>(conv, delegateType, ser);
+                // 25-Mar-2017, tatu: should not yet contextualize
+//                JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(delegateType, prop);
+                JsonDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(delegateType);
+                return new StdDelegatingDeserializer<Object>(conv, delegateType, deser);
             }
         }
         return null;
@@ -663,7 +658,7 @@ public abstract class BeanDeserializerBase
             BeanProperty property) throws JsonMappingException
     {
         ObjectIdReader oir = _objectIdReader;
-        
+
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final AnnotatedMember accessor = (property == null || intr == null)

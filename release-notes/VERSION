@@ -76,6 +76,8 @@ Project: jackson-databind
 #1533: `AsPropertyTypeDeserializer` ignores `DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
 #1543: JsonFormat.Shape.NUMBER_INT does not work when defined on enum type in 2.8
  (reported by Alex P)
+#1575: Problem with `@JsonIgnoreProperties` on recursive property (regression in 2.8)
+ (reported by anujkumar04@github)
 - Minor fix to creation of `PropertyMetadata`, had one path that could lead to NPE
 
 2.8.7 (21-Feb-2017)

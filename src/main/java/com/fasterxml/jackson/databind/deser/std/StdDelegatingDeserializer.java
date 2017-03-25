@@ -106,6 +106,8 @@ public class StdDelegatingDeserializer<T>
     /**********************************************************
      */
 
+    // Note: unlikely to get called since most likely instances explicitly constructed;
+    // if so, caller must ensure delegating deserializer is properly resolve()d.
     @Override
     public void resolve(DeserializationContext ctxt)
         throws JsonMappingException

@@ -281,11 +281,17 @@ public class TestEnumSerialization
         String json = MAPPER.writeValueAsString(bean);
         assertEquals("{\"map\":{\"B\":3}}", json);
 
-        ObjectMapper m2 = new ObjectMapper();
         // but can change
-        m2.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        json = m2.writeValueAsString(bean);
+        json = MAPPER.writer()
+                .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .writeValueAsString(bean);
         assertEquals("{\"map\":{\"b\":3}}", json);
+
+        // [databind#1570]
+        json = MAPPER.writer()
+                .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
+                .writeValueAsString(bean);
+        assertEquals(aposToQuotes("{'map':{'"+TestEnum.B.ordinal()+"':3}}"), json);
     }
 
     public void testAsIndex() throws Exception

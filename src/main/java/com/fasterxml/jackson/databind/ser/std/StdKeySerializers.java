@@ -144,9 +144,19 @@ public class StdKeySerializers
                 break;
             case TYPE_ENUM:
                 {
-                    String str = provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-                            ? value.toString() : ((Enum<?>) value).name();
-                    g.writeFieldName(str);
+                    String key;
+
+                    if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                        key = value.toString();
+                    } else {
+                        Enum<?> e = (Enum<?>) value;
+                        if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+                            key = String.valueOf(e.ordinal());
+                        } else {
+                            key = e.name();
+                        }
+                    }
+                    g.writeFieldName(key);
                 }
                 break;
             case TYPE_TO_STRING:
@@ -250,6 +260,10 @@ public class StdKeySerializers
                 return;
             }
             Enum<?> en = (Enum<?>) value;
+            if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+                g.writeFieldName(String.valueOf(en.ordinal()));
+                return;
+            }
             g.writeFieldName(_values.serializedValueFor(en));
         }
     }

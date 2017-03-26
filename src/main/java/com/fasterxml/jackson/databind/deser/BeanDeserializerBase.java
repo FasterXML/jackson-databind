@@ -478,18 +478,23 @@ public abstract class BeanDeserializerBase
                 prop = _resolvedObjectIdProperty(ctxt, prop);
             }
             // Support unwrapped values (via @JsonUnwrapped)
-            SettableBeanProperty u = _resolveUnwrappedProperty(ctxt, prop);
-            if (u != null) {
-                prop = u;
-                if (unwrapped == null) {
-                    unwrapped = new UnwrappedPropertyHandler();
+            NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
+            if (xform != null) {
+                JsonDeserializer<Object> orig = prop.getValueDeserializer();
+                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(xform);
+                if (unwrapping != orig && unwrapping != null) {
+                    prop = prop.withValueDeserializer(unwrapping);
+                    if (unwrapped == null) {
+                        unwrapped = new UnwrappedPropertyHandler();
+                    }
+                    unwrapped.addProperty(prop);
+                    // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
+                    //    the original property is left in place. So let's remove it now.
+                    // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
+                    //    (that is, should be remove it from creator too)
+                    _beanProperties.remove(prop);
+                    continue;
                 }
-                unwrapped.addProperty(prop);
-                // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
-                //    the original property is left in place. So let's remove it now.
-                // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
-                _beanProperties.remove(prop);
-                continue;
             }
 
             // 26-Oct-2016, tatu: Need to have access to value deserializer to know if
@@ -796,7 +801,7 @@ public abstract class BeanDeserializerBase
      * Helper method called to see if given property might be so-called unwrapped
      * property: these require special handling.
      */
-    protected SettableBeanProperty _resolveUnwrappedProperty(DeserializationContext ctxt,
+    protected NameTransformer _findPropertyUnwrapper(DeserializationContext ctxt,
             SettableBeanProperty prop)
         throws JsonMappingException
     {
@@ -811,13 +816,7 @@ public abstract class BeanDeserializerBase
                             "Can not define Creator property \"%s\" as `@JsonUnwrapped`: combination not yet supported",
                             prop.getName()));
                 }
-                
-                JsonDeserializer<Object> orig = prop.getValueDeserializer();
-                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(unwrapper);
-                if (unwrapping != orig && unwrapping != null) {
-                    // might be cleaner to create new instance; but difficult to do reliably, so:
-                    return prop.withValueDeserializer(unwrapping);
-                }
+                return unwrapper;
             }
         }
         return null;

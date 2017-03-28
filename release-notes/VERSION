@@ -60,6 +60,8 @@ Project: jackson-databind
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`
 #1474: Replace use of `Class.newInstance()` (deprecated in Java 9) with call via Constructor
+#1480: Add support for serializing `boolean`/`Boolean` as number (0 or 1)
+ (suggested by jwilmoth@github)
 #1520: Case insensitive enum deserialization feature.
  (contributed by Ana-Eliza B)
 #1544: EnumMapDeserializer assumes a pure EnumMap and does not support EnumMap derived classes

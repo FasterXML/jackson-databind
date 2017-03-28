@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -9,12 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class TestGenericCollectionDeser
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Test classes, enums
-    /**********************************************************
-     */
-
     static class ListSubClass extends ArrayList<StringWrapper> { }
 
     /**
@@ -24,15 +20,18 @@ public class TestGenericCollectionDeser
     @JsonDeserialize(contentAs=StringWrapper.class)
     static class AnnotatedStringList extends ArrayList<Object> { }
 
-    @JsonDeserialize(contentAs=BooleanWrapper.class)
+    @JsonDeserialize(contentAs=BooleanElement.class)
     static class AnnotatedBooleanList extends ArrayList<Object> { }
 
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
+    protected static class BooleanElement {
+        public Boolean b;
 
+        @JsonCreator
+        public BooleanElement(Boolean value) { b = value; }
+
+        @JsonValue public Boolean value() { return b; }
+    }
+    
     /*
     /**********************************************************
     /* Tests for sub-classing
@@ -76,7 +75,7 @@ public class TestGenericCollectionDeser
         AnnotatedBooleanList result = mapper.readValue("[ false ]", AnnotatedBooleanList.class);
         assertEquals(1, result.size());
         Object ob = result.get(0);
-        assertEquals(BooleanWrapper.class, ob.getClass());
-        assertFalse(((BooleanWrapper) ob).b);
+        assertEquals(BooleanElement.class, ob.getClass());
+        assertFalse(((BooleanElement) ob).b);
     }
 }

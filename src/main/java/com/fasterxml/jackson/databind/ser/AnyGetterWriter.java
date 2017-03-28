@@ -38,7 +38,7 @@ public class AnyGetterWriter
     }
 
     /**
-     * @since 0.8.3
+     * @since 2.8.3
      */
     public void fixAccess(SerializationConfig config) {
         _accessor.fixAccess(

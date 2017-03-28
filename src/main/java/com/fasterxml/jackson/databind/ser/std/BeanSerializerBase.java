@@ -489,7 +489,7 @@ public abstract class BeanSerializerBase
                     String propName = objectIdInfo.getPropertyName().getSimpleName();
                     BeanPropertyWriter idProp = null;
 
-                    for (int i = 0, len = _props.length ;; ++i) {
+                    for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
                             throw new IllegalArgumentException("Invalid Object Id definition for "+_handledType.getName()
                                     +": can not find property with name '"+propName+"'");

@@ -26,7 +26,7 @@ public class BuilderBasedDeserializer
     private static final long serialVersionUID = 1L;
 
     protected final AnnotatedMethod _buildMethod;
-	
+
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization
@@ -66,7 +66,7 @@ public class BuilderBasedDeserializer
         super(src, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
     }
-    
+
     protected BuilderBasedDeserializer(BuilderBasedDeserializer src, NameTransformer unwrapper) {
         super(src, unwrapper);
         _buildMethod = src._buildMethod;
@@ -86,7 +86,7 @@ public class BuilderBasedDeserializer
         super(src, props);
         _buildMethod = src._buildMethod;
     }
-    
+
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
@@ -117,13 +117,13 @@ public class BuilderBasedDeserializer
         SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
         return new BeanAsArrayBuilderDeserializer(this, props, _buildMethod);
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializer implementation
     /**********************************************************
      */
-    
+
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
             throws IOException
     {
@@ -137,7 +137,7 @@ public class BuilderBasedDeserializer
             return wrapInstantiationProblem(e, ctxt);
         }
     }
-    
+
     /**
      * Main deserialization method for bean-based objects (POJOs).
      */
@@ -146,7 +146,7 @@ public class BuilderBasedDeserializer
         throws IOException
     {
         JsonToken t = p.getCurrentToken();
-        
+
         // common case first:
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
@@ -197,7 +197,7 @@ public class BuilderBasedDeserializer
          */
         return finishBuild(ctxt, _deserialize(p, ctxt, builder));
     }
-    
+
     /*
     /**********************************************************
     /* Concrete deserialization methods
@@ -207,7 +207,7 @@ public class BuilderBasedDeserializer
     protected final Object _deserialize(JsonParser p,
             DeserializationContext ctxt, Object builder)
         throws IOException, JsonProcessingException
-    {        
+    {
         if (_injectables != null) {
             injectValues(ctxt, builder);
         }
@@ -233,7 +233,7 @@ public class BuilderBasedDeserializer
             // Skip field name:
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
-            
+
             if (prop != null) { // normal case
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
@@ -246,7 +246,7 @@ public class BuilderBasedDeserializer
         }
         return builder;
     }
-    
+
     /**
      * Streamlined version that is only used when no "special"
      * features are enabled.
@@ -323,7 +323,7 @@ public class BuilderBasedDeserializer
      * Method called to deserialize bean using "property-based creator":
      * this means that a non-default constructor or factory method is
      * called, and then possibly other setters. The trick is that
-     * values for creator method need to be buffered, first; and 
+     * values for creator method need to be buffered, first; and
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
@@ -332,7 +332,7 @@ public class BuilderBasedDeserializer
     protected final Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
         throws IOException, JsonProcessingException
-    { 
+    {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
@@ -414,13 +414,13 @@ public class BuilderBasedDeserializer
         }
         return bean;
     }
-    
+
     /*
     /**********************************************************
     /* Deserializing when we have to consider an active View
     /**********************************************************
      */
-    
+
     protected final Object deserializeWithView(JsonParser p, DeserializationContext ctxt,
             Object bean, Class<?> activeView)
         throws IOException, JsonProcessingException
@@ -447,7 +447,7 @@ public class BuilderBasedDeserializer
         }
         return bean;
     }
-    
+
     /*
     /**********************************************************
     /* Handling for cases where we have "unwrapped" values
@@ -477,7 +477,7 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        
+
         for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
@@ -515,7 +515,7 @@ public class BuilderBasedDeserializer
         tokens.writeEndObject();
         _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
         return bean;
-    }    
+    }
 
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser p,
@@ -580,31 +580,7 @@ public class BuilderBasedDeserializer
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
-                // Last creator property to set?
-                if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
-                    t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
-                    Object bean;
-                    try {
-                        bean = creator.build(ctxt, buffer);
-                    } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
-                    }
-                    // if so, need to copy all remaining tokens into buffer
-                    while (t == JsonToken.FIELD_NAME) {
-                        p.nextToken(); // to skip name
-                        tokens.copyCurrentStructure(p);
-                        t = p.nextToken();
-                    }
-                    tokens.writeEndObject();
-                    if (bean.getClass() != _beanType.getRawClass()) {
-                        // !!! 08-Jul-2011, tatu: Could probably support; but for now
-                        //   it's too complicated, so bail out
-                        ctxt.reportMappingException("Can not create polymorphic instances with unwrapped values");
-                        return null;
-                    }
-                    return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
-                }
+                buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt));
                 continue;
             }
             // Object Id property?
@@ -646,7 +622,7 @@ public class BuilderBasedDeserializer
     /* external type id
     /**********************************************************
      */
-    
+
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -699,15 +675,14 @@ public class BuilderBasedDeserializer
                 } catch (Exception e) {
                     wrapAndThrow(e, bean, propName, ctxt);
                 }
-                continue;
             } else {
                 // Unknown: let's call handler method
-                handleUnknownProperty(p, ctxt, bean, propName);         
+                handleUnknownProperty(p, ctxt, bean, propName);
             }
         }
         // and when we get this far, let's try finalizing the deal:
         return ext.complete(p, ctxt, bean);
-    }        
+    }
 
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p,
     		DeserializationContext ctxt)

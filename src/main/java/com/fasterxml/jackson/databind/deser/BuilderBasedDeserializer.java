@@ -34,7 +34,7 @@ public class BuilderBasedDeserializer
      * @since 2.9
      */
     protected final JavaType _targetType;
-	
+
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization
@@ -91,7 +91,7 @@ public class BuilderBasedDeserializer
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
     }
-    
+
     protected BuilderBasedDeserializer(BuilderBasedDeserializer src, NameTransformer unwrapper) {
         super(src, unwrapper);
         _buildMethod = src._buildMethod;
@@ -115,7 +115,7 @@ public class BuilderBasedDeserializer
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
     }
-    
+
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
@@ -326,7 +326,7 @@ public class BuilderBasedDeserializer
      * Method called to deserialize bean using "property-based creator":
      * this means that a non-default constructor or factory method is
      * called, and then possibly other setters. The trick is that
-     * values for creator method need to be buffered, first; and 
+     * values for creator method need to be buffered, first; and
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
@@ -470,7 +470,7 @@ public class BuilderBasedDeserializer
     /* Deserializing when we have to consider an active View
     /**********************************************************
      */
-    
+
     protected final Object deserializeWithView(JsonParser p, DeserializationContext ctxt,
             Object bean, Class<?> activeView)
         throws IOException
@@ -497,7 +497,7 @@ public class BuilderBasedDeserializer
         }
         return bean;
     }
-    
+
     /*
     /**********************************************************
     /* Handling for cases where we have "unwrapped" values
@@ -527,7 +527,7 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        
+
         for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
@@ -565,7 +565,7 @@ public class BuilderBasedDeserializer
         tokens.writeEndObject();
         _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
         return bean;
-    }    
+    }
 
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser p,
@@ -630,6 +630,11 @@ public class BuilderBasedDeserializer
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
+                // 27-Mar-2017, tatu: As per [databind#1573], can not short-circuit
+                //   here because assignments are to be done via Builder, and
+                //   not value object.
+                buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt));
+                /*
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp, creatorProp.deserialize(p, ctxt))) {
                     t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
@@ -656,6 +661,7 @@ public class BuilderBasedDeserializer
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
                 }
+                */
                 continue;
             }
             // Object Id property?
@@ -682,7 +688,6 @@ public class BuilderBasedDeserializer
 
         // We hit END_OBJECT, so:
         Object bean;
-        // !!! 15-Feb-2012, tatu: Need to modify creator to use Builder!
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
@@ -697,7 +702,7 @@ public class BuilderBasedDeserializer
     /* external type id
     /**********************************************************
      */
-    
+
     protected Object deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
@@ -753,12 +758,12 @@ public class BuilderBasedDeserializer
                 continue;
             } else {
                 // Unknown: let's call handler method
-                handleUnknownProperty(p, ctxt, bean, propName);         
+                handleUnknownProperty(p, ctxt, bean, propName);
             }
         }
         // and when we get this far, let's try finalizing the deal:
         return ext.complete(p, ctxt, bean);
-    }        
+    }
 
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p,
     		DeserializationContext ctxt)

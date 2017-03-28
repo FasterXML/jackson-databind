@@ -1,97 +1,157 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
-import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 public class BuilderWithUnwrappedTest extends BaseMapTest
 {
-    // // // Builder with unwrapped stuff
+    final static class Name {
+        private final String first;
+        private final String last;
 
-    final static class Location {
-        public int x;
-        public int y;
+        @JsonCreator
+        Name(
+                @JsonProperty("first_name") String first,
+                @JsonProperty("last_name") String last
+        ) {
+            this.first = first;
+            this.last = last;
+        }
 
-        public Location() { }
-        public Location(int x, int y) {
-            this.x = x;
-            this.y = y;
+        String getFirst() {
+            return first;
+        }
+
+        String getLast() {
+            return last;
         }
     }
 
-    @JsonDeserialize(builder=UnwrappingBuilder.class)
-    static class UnwrappingValue
-    {
-        final String name;
-        final Location location;
-        final String stuff;
+    @JsonDeserialize(builder = Person.Builder.class)
+    final static class Person {
+        private final long id;
+        private final Name name;
+        private final int age;
+        private final boolean alive;
 
-        public UnwrappingValue(String n, Location l, String st) {
-            name = n;
-            location = l;
-            stuff = st;
+        private Person(Builder builder) {
+            id = builder.id;
+            name = builder.name;
+            age = builder.age;
+            alive = builder.alive;
+        }
+
+        long getId() {
+            return id;
+        }
+
+        Name getName() {
+            return name;
+        }
+
+        int getAge() {
+            return age;
+        }
+
+        boolean isAlive() {
+            return alive;
+        }
+
+        @JsonPOJOBuilder(withPrefix = "set")
+        final static class Builder {
+            private final long id;
+            private Name name;
+            private int age;
+            private boolean alive;
+
+            Builder(@JsonProperty("person_id") long id) {
+                this.id = id;
+            }
+
+            @JsonUnwrapped
+            void setName(Name name) {
+                this.name = name;
+            }
+
+            @JsonProperty("years_old")
+            void setAge(int age) {
+                this.age = age;
+            }
+
+            @JsonProperty("living")
+            void setAlive(boolean alive) {
+                this.alive = alive;
+            }
+
+            Person build() {
+                return new Person(this);
+            }
         }
     }
 
-    static class UnwrappingBuilder
-    {
-        private String name;
+    @JsonDeserialize(builder = Animal.Builder.class)
+    final static class Animal {
+        private final long id;
+        private final Name name;
+        private final int age;
+        private final boolean alive;
 
-        Location loc;
-
-        @JacksonInject
-        protected String stuff;
-        
-        @JsonUnwrapped(prefix="loc.")
-        public UnwrappingBuilder withLocation(Location l) {
-            loc = l;
-            return this;
+        private Animal(Builder builder) {
+            id = builder.id;
+            name = builder.name;
+            age = builder.age;
+            alive = builder.alive;
         }
 
-        public UnwrappingBuilder withName(String n) {
-            name = n;
-            return this;
-        }
-        
-        public UnwrappingValue build() {
-            return new UnwrappingValue(name, loc, stuff);
-        }
-    }
-
-    @JsonDeserialize(builder=UnwrappingCreatorBuilder.class)
-    static class UnwrappingCreatorValue
-    {
-        final String name;
-        final Location location;
-        final String stuff;
-
-        public UnwrappingCreatorValue(String n, Location l, String st) {
-            name = n;
-            location = l;
-            stuff = st;
-        }
-    }
-
-    static class UnwrappingCreatorBuilder
-    {
-        private String name;
-
-        Location loc;
-
-        @JacksonInject
-        protected String stuff;
-        
-        
-        public UnwrappingCreatorBuilder(@JsonProperty("name") String name,
-                @JsonUnwrapped(prefix="loc.") Location l
-                ) {
-            loc = l;
+        long getId() {
+            return id;
         }
 
-        public UnwrappingCreatorValue build() {
-            return new UnwrappingCreatorValue(name, loc, stuff);
+        Name getName() {
+            return name;
+        }
+
+        int getAge() {
+            return age;
+        }
+
+        boolean isAlive() {
+            return alive;
+        }
+
+        @JsonPOJOBuilder(withPrefix = "set")
+        final static class Builder {
+            private final long id;
+            private Name name;
+            private int age;
+            private final boolean alive;
+
+            Builder(
+                    @JsonProperty("animal_id") long id,
+                    @JsonProperty("living") boolean alive
+            ) {
+                this.id = id;
+                this.alive = alive;
+            }
+
+            @JsonUnwrapped
+            void setName(Name name) {
+                this.name = name;
+            }
+
+            @JsonProperty("years_old")
+            void setAge(int age) {
+                this.age = age;
+            }
+
+            Animal build() {
+                return new Animal(this);
+            }
         }
     }
 
@@ -101,62 +161,81 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    public void testWithUnwrappedAndCreatorSingleParameterAtBeginning() throws Exception {
+        final String json = aposToQuotes("{'person_id':1234,'first_name':'John','last_name':'Doe','years_old':30,'living':true}");
 
-    public void testWithUnwrapping() throws Exception
-    {
-        final String json = aposToQuotes("{'loc.x':3,'name':'Foobar','loc.y':5}}");
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-                .addValue(String.class, "stuffValue")
-                );
-        
-        UnwrappingValue result = mapper.readValue(json, UnwrappingValue.class);
-        assertNotNull(result);
-        assertNotNull(result.location);
-        assertEquals("Foobar", result.name);
-        assertEquals(3, result.location.x);
-        assertEquals(5, result.location.y);
-        assertEquals("stuffValue", result.stuff);
-
-        ObjectReader r = MAPPER.readerFor(UnwrappingValue.class)
-                .withValueToUpdate(new UnwrappingValue("foo", new Location(1, 2), null));
-        // 30-Nov-2016, tatu: Actually, updateValue() NOT supported, verify:
-        try {
-            result = r.readValue(json);
-            fail("Should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "existing instance");
-        }
+        final ObjectMapper mapper = new ObjectMapper();
+        Person person = mapper.readValue(json, Person.class);
+        assertEquals(1234, person.getId());
+        assertNotNull(person.getName());
+        assertEquals("John", person.getName().getFirst());
+        assertEquals("Doe", person.getName().getLast());
+        assertEquals(30, person.getAge());
+        assertEquals(true, person.isAlive());
     }
 
-    // Alas: can't pass, until [databind#265] fixed:
-    // 23-Feb-2017, tatu: or its follow-up: error message is now more descriptive...
-    public void testWithCreatorUnwrapping() throws Exception
-    {
-        final String json = aposToQuotes("{'loc.x':4,'name':'Foobar','loc.y': 7}}");
+    public void testWithUnwrappedAndCreatorSingleParameterInMiddle() throws Exception {
+        final String json = aposToQuotes("{'first_name':'John','last_name':'Doe','person_id':1234,'years_old':30,'living':true}");
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setInjectableValues(new InjectableValues.Std()
-                .addValue(String.class, "stuffValue")
-                );
+        final ObjectMapper mapper = new ObjectMapper();
+        Person person = mapper.readValue(json, Person.class);
+        assertEquals(1234, person.getId());
+        assertNotNull(person.getName());
+        assertEquals("John", person.getName().getFirst());
+        assertEquals("Doe", person.getName().getLast());
+        assertEquals(30, person.getAge());
+        assertEquals(true, person.isAlive());
+    }
 
-        @SuppressWarnings("unused")
-        UnwrappingCreatorValue result;
-        try {
-            result = mapper.readValue(json, UnwrappingCreatorValue.class);
-            fail("Did not expect to really pass -- should maybe update the test");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "combination not yet supported");
-        }
+    public void testWithUnwrappedAndCreatorSingleParameterAtEnd() throws Exception {
+        final String json = aposToQuotes("{'first_name':'John','last_name':'Doe','years_old':30,'living':true,'person_id':1234}");
 
-        /*
-        assertNotNull(result);
-        assertNotNull(result.location);
-        assertEquals("Foobar", result.name);
-        assertEquals(4, result.location.x);
-        assertEquals(7, result.location.y);
-        */
+        final ObjectMapper mapper = new ObjectMapper();
+        Person person = mapper.readValue(json, Person.class);
+        assertEquals(1234, person.getId());
+        assertNotNull(person.getName());
+        assertEquals("John", person.getName().getFirst());
+        assertEquals("Doe", person.getName().getLast());
+        assertEquals(30, person.getAge());
+        assertEquals(true, person.isAlive());
+    }
+
+    public void testWithUnwrappedAndCreatorMultipleParametersAtBeginning() throws Exception {
+        final String json = aposToQuotes("{'animal_id':1234,'living':true,'first_name':'John','last_name':'Doe','years_old':30}");
+
+        final ObjectMapper mapper = new ObjectMapper();
+        Animal animal = mapper.readValue(json, Animal.class);
+        assertEquals(1234, animal.getId());
+        assertNotNull(animal.getName());
+        assertEquals("John", animal.getName().getFirst());
+        assertEquals("Doe", animal.getName().getLast());
+        assertEquals(30, animal.getAge());
+        assertEquals(true, animal.isAlive());
+    }
+
+    public void testWithUnwrappedAndCreatorMultipleParametersInMiddle() throws Exception {
+        final String json = aposToQuotes("{'first_name':'John','animal_id':1234,'last_name':'Doe','living':true,'years_old':30}");
+
+        final ObjectMapper mapper = new ObjectMapper();
+        Animal animal = mapper.readValue(json, Animal.class);
+        assertEquals(1234, animal.getId());
+        assertNotNull(animal.getName());
+        assertEquals("John", animal.getName().getFirst());
+        assertEquals("Doe", animal.getName().getLast());
+        assertEquals(30, animal.getAge());
+        assertEquals(true, animal.isAlive());
+    }
+
+    public void testWithUnwrappedAndCreatorMultipleParametersAtEnd() throws Exception {
+        final String json = aposToQuotes("{'first_name':'John','last_name':'Doe','years_old':30,'living':true,'animal_id':1234}");
+
+        final ObjectMapper mapper = new ObjectMapper();
+        Animal animal = mapper.readValue(json, Animal.class);
+        assertEquals(1234, animal.getId());
+        assertNotNull(animal.getName());
+        assertEquals("John", animal.getName().getFirst());
+        assertEquals("Doe", animal.getName().getLast());
+        assertEquals(30, animal.getAge());
+        assertEquals(true, animal.isAlive());
     }
 }

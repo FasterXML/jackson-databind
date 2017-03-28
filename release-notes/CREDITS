@@ -591,6 +591,11 @@ Alex Panchenko (panchenko@github)
   * Reported #1543: JsonFormat.Shape.NUMBER_INT does not work when defined on enum type in 2.8
    (2.8.8)
 
+Joshua Jones
+  * Reported #1573, contributed fix: Missing properties when deserializing using a builder class
+   with a non-default constructor and a mutator annotated with `@JsonUnwrapped`
+   (2.8.8)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

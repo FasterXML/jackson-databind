@@ -3,13 +3,17 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
+
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.node.*;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class ObjectMapperTest extends BaseMapTest
 {
@@ -83,35 +87,120 @@ public class ObjectMapperTest extends BaseMapTest
 
     /*
     /**********************************************************
-    /* Test methods, simple reads
+    /* Test methods, mapper.copy()
     /**********************************************************
      */
 
-    public void testReadMethods() throws Exception
+    // [databind#28]: ObjectMapper.copy()
+    public void testCopy() throws Exception
     {
-        List<String> list = MAPPER.readValue(aposToQuotes("['b']"),
-                new TypeReference<List<String>>() { });
-        assertEquals(1, list.size());
-        assertEquals("b", list.get(0));
+        ObjectMapper m = new ObjectMapper();
+        assertTrue(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        InjectableValues inj = new InjectableValues.Std();
+        m.setInjectableValues(inj);
+        assertFalse(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        m.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+
+        // // First: verify that handling of features is decoupled:
+        
+        ObjectMapper m2 = m.copy();
+        assertFalse(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        m2.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        assertTrue(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        assertSame(inj, m2.getInjectableValues());
+
+        // but should NOT change the original
+        assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+
+        // nor vice versa:
+        assertFalse(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+        assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+        m.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
+        assertTrue(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+        assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+
+        // // Also, underlying JsonFactory instances should be distinct
+        
+        assertNotSame(m.getFactory(), m2.getFactory());
+
+        // [databind#122]: Need to ensure mix-ins are not shared
+        assertEquals(0, m.getSerializationConfig().mixInCount());
+        assertEquals(0, m2.getSerializationConfig().mixInCount());
+        assertEquals(0, m.getDeserializationConfig().mixInCount());
+        assertEquals(0, m2.getDeserializationConfig().mixInCount());
+
+        m.addMixIn(String.class, Integer.class);
+        assertEquals(1, m.getSerializationConfig().mixInCount());
+        assertEquals(0, m2.getSerializationConfig().mixInCount());
+        assertEquals(1, m.getDeserializationConfig().mixInCount());
+        assertEquals(0, m2.getDeserializationConfig().mixInCount());
+
+        // [databind#913]: Ensure JsonFactory Features copied
+        assertTrue(m2.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+    }
+
+    // [databind#1580]
+    public void testCopyOfConfigOverrides() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        SerializationConfig config = m.getSerializationConfig();
+        assertEquals(JsonInclude.Value.empty(), config.getDefaultPropertyInclusion());
+        assertEquals(JsonSetter.Value.empty(), config.getDefaultSetterInfo());
+        assertNull(config.getDefaultMergeable());
+        VisibilityChecker<?> defaultVis = config.getDefaultVisibilityChecker();
+        assertEquals(VisibilityChecker.Std.class, defaultVis.getClass());
+
+        // change
+        JsonInclude.Value customIncl = JsonInclude.Value.empty().withValueInclusion(JsonInclude.Include.NON_DEFAULT);
+        m.setDefaultPropertyInclusion(customIncl);
+        JsonSetter.Value customSetter = JsonSetter.Value.forValueNulls(Nulls.SKIP);
+        m.setDefaultSetterInfo(customSetter);
+        m.setDefaultMergeable(Boolean.TRUE);
+        VisibilityChecker<?> customVis = VisibilityChecker.Std.defaultInstance()
+                .withFieldVisibility(Visibility.ANY);
+        m.setVisibility(customVis);
+        assertSame(customVis, m.getVisibilityChecker());
+
+        // and verify that copy retains these settings
+        ObjectMapper m2 = m.copy();
+        SerializationConfig config2 = m2.getSerializationConfig();
+        assertSame(customIncl, config2.getDefaultPropertyInclusion());
+        assertSame(customSetter, config2.getDefaultSetterInfo());
+        assertEquals(Boolean.TRUE, config2.getDefaultMergeable());
+        assertSame(customVis, config2.getDefaultVisibilityChecker());
+    }
+
+    public void testFailedCopy() throws Exception
+    {
+        NoCopyMapper src = new NoCopyMapper();
+        try {
+            src.copy();
+            fail("Should not pass");
+        } catch (IllegalStateException e) {
+            verifyException(e, "does not override copy()");
+        }
+    }
+
+    public void testAnnotationIntrospectorCopyin() 
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.setAnnotationIntrospector(new MyAnnotationIntrospector());
+        assertEquals(MyAnnotationIntrospector.class,
+                m.getDeserializationConfig().getAnnotationIntrospector().getClass());
+        ObjectMapper m2 = m.copy();
+
+        assertEquals(MyAnnotationIntrospector.class,
+                m2.getDeserializationConfig().getAnnotationIntrospector().getClass());
+        assertEquals(MyAnnotationIntrospector.class,
+                m2.getSerializationConfig().getAnnotationIntrospector().getClass());
     }
 
     /*
     /**********************************************************
-    /* Test methods, simple writes
-    /**********************************************************
-     */
-
-    public void testIndentedWrite() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        String json = mapper.writeValueAsString(new IntWrapper(3));
-        assertEquals("{\n  \"i\" : 3\n}", json);
-    }
-
-    /*
-    /**********************************************************
-    /* Test methods
+    /* Test methods, other
     /**********************************************************
      */
 
@@ -124,25 +213,6 @@ public class ObjectMapperTest extends BaseMapTest
         m.setNodeFactory(nf);
         assertNull(m.getInjectableValues());
         assertSame(nf, m.getNodeFactory());
-    }
-
-    public void testSupport()
-    {
-        assertTrue(MAPPER.canSerialize(String.class));
-        assertTrue(MAPPER.canDeserialize(TypeFactory.defaultInstance().constructType(String.class)));
-    }
-
-    public void testTreeRead() throws Exception
-    {
-        String JSON = "{ }";
-        JsonNode n = MAPPER.readTree(JSON);
-        assertTrue(n instanceof ObjectNode);
-
-        n = MAPPER.readTree(new StringReader(JSON));
-        assertTrue(n instanceof ObjectNode);
-
-        n = MAPPER.readTree(new ByteArrayInputStream(JSON.getBytes("UTF-8")));
-        assertTrue(n instanceof ObjectNode);
     }
 
     // Test to ensure that we can check property ordering defaults...
@@ -203,82 +273,6 @@ public class ObjectMapperTest extends BaseMapTest
         // may look odd, but due to "Untyped" deserializer thing, we actually have
         // 4 deserializers (int, List<?>, Map<?,?>, Object)
         assertEquals(4, m._deserializationContext._cache.cachedDeserializersCount());
-    }
-    
-    // [databind#28]: ObjectMapper.copy()
-    public void testCopy() throws Exception
-    {
-        ObjectMapper m = new ObjectMapper();
-        assertTrue(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
-        m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
-        InjectableValues inj = new InjectableValues.Std();
-        m.setInjectableValues(inj);
-        assertFalse(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        m.enable(JsonParser.Feature.ALLOW_COMMENTS);
-        assertTrue(m.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-
-        // // First: verify that handling of features is decoupled:
-        
-        ObjectMapper m2 = m.copy();
-        assertFalse(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
-        m2.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        assertTrue(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
-        assertSame(inj, m2.getInjectableValues());
-
-        // but should NOT change the original
-        assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
-
-        // nor vice versa:
-        assertFalse(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
-        assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
-        m.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        assertTrue(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
-        assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
-
-        // // Also, underlying JsonFactory instances should be distinct
-        
-        assertNotSame(m.getFactory(), m2.getFactory());
-
-        // [databind#122]: Need to ensure mix-ins are not shared
-        assertEquals(0, m.getSerializationConfig().mixInCount());
-        assertEquals(0, m2.getSerializationConfig().mixInCount());
-        assertEquals(0, m.getDeserializationConfig().mixInCount());
-        assertEquals(0, m2.getDeserializationConfig().mixInCount());
-
-        m.addMixIn(String.class, Integer.class);
-        assertEquals(1, m.getSerializationConfig().mixInCount());
-        assertEquals(0, m2.getSerializationConfig().mixInCount());
-        assertEquals(1, m.getDeserializationConfig().mixInCount());
-        assertEquals(0, m2.getDeserializationConfig().mixInCount());
-
-        // [databind#913]: Ensure JsonFactory Features copied
-        assertTrue(m2.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-    }
-
-    public void testFailedCopy() throws Exception
-    {
-        NoCopyMapper src = new NoCopyMapper();
-        try {
-            src.copy();
-            fail("Should not pass");
-        } catch (IllegalStateException e) {
-            verifyException(e, "does not override copy()");
-        }
-    }
-
-    public void testAnnotationIntrospectorCopyin() 
-    {
-        ObjectMapper m = new ObjectMapper();
-        m.setAnnotationIntrospector(new MyAnnotationIntrospector());
-        assertEquals(MyAnnotationIntrospector.class,
-                m.getDeserializationConfig().getAnnotationIntrospector().getClass());
-        ObjectMapper m2 = m.copy();
-
-        assertEquals(MyAnnotationIntrospector.class,
-                m2.getDeserializationConfig().getAnnotationIntrospector().getClass());
-        assertEquals(MyAnnotationIntrospector.class,
-                m2.getSerializationConfig().getAnnotationIntrospector().getClass());
     }
 
     // For [databind#689]

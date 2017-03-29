@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestParserUsingMapper  extends BaseMapTest
+public class MapperViaParserTest  extends BaseMapTest
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;
@@ -72,27 +72,6 @@ public class TestParserUsingMapper  extends BaseMapTest
     /********************************************************
      */
 
-    public void testReadingArrayAsTree() throws IOException
-    {
-        JsonFactory jf = new MappingJsonFactory();
-        final String JSON = "[ 1, 2, false ]";
-
-        for (int i = 0; i < 2; ++i) {
-            JsonParser jp = jf.createParser(new StringReader(JSON));
-            // whether to try advancing first or not? Try both
-            if (i == 0) {
-                assertToken(JsonToken.START_ARRAY, jp.nextToken());
-            }
-            JsonNode root = (JsonNode) jp.readValueAsTree();
-            jp.close();
-            assertTrue(root.isArray());
-            assertEquals(3, root.size());
-            assertEquals(1, root.get(0).intValue());
-            assertEquals(2, root.get(1).intValue());
-            assertFalse(root.get(2).booleanValue());
-        }
-    }
-    
     public void testPojoReading() throws IOException
     {
         JsonFactory jf = new MappingJsonFactory();

@@ -54,31 +54,36 @@ public class ConfigOverrides
                 // !!! TODO: change to (ALWAYS, ALWAYS)?
                 JsonInclude.Value.empty(),
                 JsonSetter.Value.empty(),
-                VisibilityChecker.Std.defaultInstance()
+                VisibilityChecker.Std.defaultInstance(),
+                null
         );
     }
 
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl,
             JsonSetter.Value defSetter,
-            VisibilityChecker<?> defVisibility) {
+            VisibilityChecker<?> defVisibility,
+            Boolean defMergeable) {
         _overrides = overrides;
         _defaultInclusion = defIncl;
         _defaultSetterInfo = defSetter;
         _visibilityChecker = defVisibility;
+        _defaultMergeable = defMergeable;
     }
 
     public ConfigOverrides copy()
     {
+        Map<Class<?>, MutableConfigOverride> newOverrides;
         if (_overrides == null) {
-            return new ConfigOverrides();
-        }
-        Map<Class<?>, MutableConfigOverride> newOverrides = _newMap();
-        for (Map.Entry<Class<?>, MutableConfigOverride> entry : _overrides.entrySet()) {
-            newOverrides.put(entry.getKey(), entry.getValue().copy());
+            newOverrides = null;
+        } else {
+            newOverrides = _newMap();
+            for (Map.Entry<Class<?>, MutableConfigOverride> entry : _overrides.entrySet()) {
+                newOverrides.put(entry.getKey(), entry.getValue().copy());
+            }
         }
         return new ConfigOverrides(newOverrides,
-                _defaultInclusion, _defaultSetterInfo, _visibilityChecker);
+                _defaultInclusion, _defaultSetterInfo, _visibilityChecker, _defaultMergeable);
     }
 
     /*
@@ -131,12 +136,25 @@ public class ConfigOverrides
         return _visibilityChecker;
     }
 
+    /**
+     * @since 2.9
+     */
     public void setDefaultInclusion(JsonInclude.Value v) {
         _defaultInclusion = v;
     }
 
+    /**
+     * @since 2.9
+     */
     public void setDefaultSetterInfo(JsonSetter.Value v) {
         _defaultSetterInfo = v;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public void setDefaultMergeable(Boolean v) {
+        _defaultMergeable = v;
     }
 
     /**
@@ -146,13 +164,6 @@ public class ConfigOverrides
         _visibilityChecker = v;
     }
 
-    /**
-     * @since 2.9
-     */
-    public void setDefaultMergeable(Boolean v) {
-        _defaultMergeable = v;
-    }
-    
     /*
     /**********************************************************
     /* Helper methods

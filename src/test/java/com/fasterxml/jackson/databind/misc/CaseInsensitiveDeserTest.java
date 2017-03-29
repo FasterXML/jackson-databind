@@ -36,6 +36,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     /* Test methods
     /********************************************************
      */
+
     private final ObjectMapper INSENSITIVE_MAPPER = new ObjectMapper();
     {
         INSENSITIVE_MAPPER.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);

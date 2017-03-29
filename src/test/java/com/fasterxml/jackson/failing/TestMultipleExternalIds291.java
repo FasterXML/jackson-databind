@@ -50,7 +50,7 @@ public class TestMultipleExternalIds291 extends BaseMapTest
     /**********************************************************
      */
 
-    // [Issue#291]
+    // [databind#291]
     public void testMultiple() throws Exception
     {
         final ObjectMapper mapper = objectMapper();

@@ -219,7 +219,7 @@ public class BeanDeserializerFactory
         addObjectIdReader(ctxt, beanDesc, builder);
 
         // managed/back reference fields/setters need special handling... first part
-        addReferenceProperties(ctxt, beanDesc, builder);
+        addBackReferenceProperties(ctxt, beanDesc, builder);
         addInjectables(ctxt, beanDesc, builder);
         
         final DeserializationConfig config = ctxt.getConfig();
@@ -266,7 +266,7 @@ public class BeanDeserializerFactory
         addObjectIdReader(ctxt, builderDesc, builder);
         
         // managed/back reference fields/setters need special handling... first part
-        addReferenceProperties(ctxt, builderDesc, builder);
+        addBackReferenceProperties(ctxt, builderDesc, builder);
         addInjectables(ctxt, builderDesc, builder);
 
         JsonPOJOBuilder.Value builderConfig = builderDesc.findPOJOBuilderConfig();
@@ -611,17 +611,19 @@ public class BeanDeserializerFactory
     /**
      * Method that will find if bean has any managed- or back-reference properties,
      * and if so add them to bean, to be linked during resolution phase.
+     *
+     * @since 2.9
      */
-    protected void addReferenceProperties(DeserializationContext ctxt,
+    protected void addBackReferenceProperties(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
         // and then back references, not necessarily found as regular properties
-        Map<String,AnnotatedMember> refs = beanDesc.findBackReferenceProperties();
-        if (refs != null) {
-            for (Map.Entry<String, AnnotatedMember> en : refs.entrySet()) {
-                String name = en.getKey();
-                AnnotatedMember m = en.getValue();
+        List<BeanPropertyDefinition> refProps = beanDesc.findBackReferences();
+        if (refProps != null) {
+            for (BeanPropertyDefinition refProp : refProps) {
+                /*
+                AnnotatedMember m = refProp.getMutator();
                 JavaType type;
                 if (m instanceof AnnotatedMethod) {
                     type = ((AnnotatedMethod) m).getParameterType(0);
@@ -631,16 +633,24 @@ public class BeanDeserializerFactory
                     //    work through constructors; but let's at least indicate the issue for now
                     if (m instanceof AnnotatedParameter) {
                         ctxt.reportBadTypeDefinition(beanDesc,
-"Can not bind back references as Creator parameters: type %s (reference '%s', parameter index #%d)",
-beanDesc.getBeanClass().getName(), name, ((AnnotatedParameter) m).getIndex());
+"Can not bind back reference using Creator parameter (reference '%s', parameter index #%d)",
+name, ((AnnotatedParameter) m).getIndex());
                     }
                 }
-                SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(
-                        ctxt.getConfig(), m, PropertyName.construct(name));
-                builder.addBackReferenceProperty(name, constructSettableProperty(ctxt,
-                        beanDesc, propDef, type));
+                */
+                String refName = refProp.findReferenceName();
+                builder.addBackReferenceProperty(refName, constructSettableProperty(ctxt,
+                        beanDesc, refProp, refProp.getPrimaryType()));
             }
         }
+    }
+
+    @Deprecated // since 2.9 (rename)
+    protected void addReferenceProperties(DeserializationContext ctxt,
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+        throws JsonMappingException
+    {
+        addBackReferenceProperties(ctxt, beanDesc, builder);
     }
 
     /**

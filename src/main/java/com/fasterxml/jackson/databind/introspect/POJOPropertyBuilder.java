@@ -20,6 +20,15 @@ public class POJOPropertyBuilder
     implements Comparable<POJOPropertyBuilder>
 {
     /**
+     * Marker value used to denote that no reference-property information found for
+     * this property
+     *
+     * @since 2.9
+     */
+    private final static AnnotationIntrospector.ReferenceProperty NOT_REFEFERENCE_PROP =
+            AnnotationIntrospector.ReferenceProperty.managed("");
+
+    /**
      * Whether property is being composed for serialization
      * (true) or deserialization (false)
      */
@@ -51,6 +60,14 @@ public class POJOPropertyBuilder
     protected Linked<AnnotatedMethod> _setters;
 
     protected transient PropertyMetadata _metadata;
+
+    /**
+     * Lazily accessed information about this property iff it is a forward or
+     * back reference.
+     *
+     * @since 2.9
+     */
+    protected transient AnnotationIntrospector.ReferenceProperty _referenceInfo;
 
     public POJOPropertyBuilder(MapperConfig<?> config, AnnotationIntrospector ai,
             boolean forSerialization, PropertyName internalName) {
@@ -602,12 +619,23 @@ public class POJOPropertyBuilder
 
     @Override
     public AnnotationIntrospector.ReferenceProperty findReferenceType() {
-        return fromMemberAnnotations(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
+        // 30-Mar-2017, tatu: Access lazily but retain information since it needs
+        //   to be accessed multiple times during processing.
+        AnnotationIntrospector.ReferenceProperty result = _referenceInfo;
+        if (result != null) {
+            if (result == NOT_REFEFERENCE_PROP) {
+                return null;
+            }
+            return result;
+        }
+        result = fromMemberAnnotations(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
             @Override
             public AnnotationIntrospector.ReferenceProperty withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findReferenceType(member);
             }
         });
+        _referenceInfo = (result == null) ? NOT_REFEFERENCE_PROP : result;
+        return result;
     }
 
     @Override

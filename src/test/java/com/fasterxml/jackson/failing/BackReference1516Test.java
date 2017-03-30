@@ -74,7 +74,7 @@ public class BackReference1516Test extends BaseMapTest
     private final String PARENT_CHILD_JSON = aposToQuotes(
 "{ 'id': 'abc',\n"+
 "  'name': 'Bob',\n"+
-"  'child': { 'id': 'def', 'title':'Bert' }\n"+
+"  'child': { 'id': 'def', 'name':'Bert' }\n"+
 "}");
     
     public void testWithParentCreator() throws Exception
@@ -82,6 +82,8 @@ public class BackReference1516Test extends BaseMapTest
         ParentWithCreator result = MAPPER.readValue(PARENT_CHILD_JSON,
                 ParentWithCreator.class);
         assertNotNull(result);
+        assertNotNull(result.child);
+        assertSame(result, result.child.parent);
     }
 
     public void testWithParentNoCreator() throws Exception
@@ -89,5 +91,7 @@ public class BackReference1516Test extends BaseMapTest
         ParentWithoutCreator result = MAPPER.readValue(PARENT_CHILD_JSON,
                 ParentWithoutCreator.class);
         assertNotNull(result);
+        assertNotNull(result.child);
+        assertSame(result, result.child.parent);
     }
 }

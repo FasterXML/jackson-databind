@@ -87,7 +87,7 @@ public class EnumAltIdTest extends BaseMapTest
 
     public void testIgnoreCaseInEnumList() throws Exception {
         TestEnum[] enums = READER_IGNORE_CASE.forType(TestEnum[].class)
-            .readValue("[\"jackson\", \"rules\"]");
+            .readValue("[\"jacksON\", \"ruLes\"]");
 
         assertEquals(2, enums.length);
         assertEquals(TestEnum.JACKSON, enums[0]);

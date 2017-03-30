@@ -211,10 +211,9 @@ public class EnumDeserializer
             if ((_caseInsensitive == Boolean.TRUE) ||
                     ((_caseInsensitive == null) &&
                             ctxt.isEnabled(DeserializationFeature.READ_ENUMS_IGNORING_CASE))) {
-                for (String key : lookup.keys()) {
-                    if (key.equalsIgnoreCase(name)) {
-                        return lookup.find(key);
-                    }
+                Object match = lookup.findCaseInsensitive(name);
+                if (match != null) {
+                    return match;
                 }
             } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                 // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)

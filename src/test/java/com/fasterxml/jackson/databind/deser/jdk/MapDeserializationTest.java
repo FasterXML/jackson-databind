@@ -28,18 +28,18 @@ public class MapDeserializationTest
         public BrokenMap(boolean dummy) { super(); }
     }
 
-    @JsonDeserialize(using=MapDeserializer.class)
+    @JsonDeserialize(using=CustomMapDeserializer.class)
     static class CustomMap extends LinkedHashMap<String,String> { }
 
-    static class MapDeserializer extends StdDeserializer<CustomMap>
+    static class CustomMapDeserializer extends StdDeserializer<CustomMap>
     {
-        public MapDeserializer() { super(CustomMap.class); }
+        public CustomMapDeserializer() { super(CustomMap.class); }
         @Override
-        public CustomMap deserialize(JsonParser jp, DeserializationContext ctxt)
+        public CustomMap deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
             CustomMap result = new CustomMap();
-            result.put("x", jp.getText());
+            result.put("x", p.getText());
             return result;
         }
     }

@@ -366,18 +366,6 @@ public enum DeserializationFeature implements ConfigFeature
     READ_ENUMS_USING_TO_STRING(false),
 
     /**
-     * Feature that determines if Enum deserialization should be case sensitive or not.
-     * If enabled, Enum deserialization will ignore case, that is, case of incoming String
-     * value and enum id (dependant on other settings, either `name()`, `toString()`, or
-     * explicit override) do not need to match.
-     * <p>
-     * Feature is disabled by default.
-     *
-     * @since 2.9
-     */
-    READ_ENUMS_IGNORING_CASE(false),
-    
-    /**
      * Feature that allows unknown Enum values to be parsed as null values. 
      * If disabled, unknown Enum values will throw exceptions.
      *<p>

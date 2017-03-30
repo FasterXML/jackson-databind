@@ -1,19 +1,12 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -197,14 +190,11 @@ class FactoryBasedEnumDeserializer
 
     private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) throws IOException
     {
-        while (t instanceof InvocationTargetException && t.getCause() != null) {
-            t = t.getCause();
-        }
+        t = ClassUtil.getRootCause(t);
         // Errors to be passed as is
         ClassUtil.throwIfError(t);
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        // Ditto for IOExceptions; except we may want to wrap JSON
-        // exceptions
+        // Ditto for IOExceptions; except we may want to wrap JSON exceptions
         if (t instanceof IOException) {
             if (!wrap || !(t instanceof JsonProcessingException)) {
                 throw (IOException) t;

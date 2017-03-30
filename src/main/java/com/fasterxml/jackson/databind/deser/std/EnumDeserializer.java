@@ -49,13 +49,16 @@ public class EnumDeserializer
 
     protected final Boolean _caseInsensitive;
 
-    public EnumDeserializer(EnumResolver byNameResolver)
+    /**
+     * @since 2.9
+     */
+    public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
-        _caseInsensitive = false;
+        _caseInsensitive = caseInsensitive;
     }
 
     /**
@@ -70,6 +73,14 @@ public class EnumDeserializer
         _caseInsensitive = caseInsensitive;
     }
 
+    /**
+     * @deprecated Since 2.9
+     */
+    @Deprecated
+    public EnumDeserializer(EnumResolver byNameResolver) {
+        this(byNameResolver, null);
+    }
+    
     /**
      * @deprecated Since 2.8
      */
@@ -134,6 +145,9 @@ public class EnumDeserializer
     {
         Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
                 JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        if (caseInsensitive == null) {
+            caseInsensitive = _caseInsensitive;
+        }
         return withResolved(caseInsensitive);
     }
 
@@ -208,9 +222,7 @@ public class EnumDeserializer
             }
         } else {
             // [databind#1313]: Case insensitive enum deserialization
-            if ((_caseInsensitive == Boolean.TRUE) ||
-                    ((_caseInsensitive == null) &&
-                            ctxt.isEnabled(DeserializationFeature.READ_ENUMS_IGNORING_CASE))) {
+            if (Boolean.TRUE.equals(_caseInsensitive)) {
                 Object match = lookup.findCaseInsensitive(name);
                 if (match != null) {
                     return match;

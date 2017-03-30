@@ -1276,7 +1276,8 @@ public abstract class BasicDeserializerFactory
             // Need to consider @JsonValue if one found
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass,
-                        config, beanDesc.findJsonValueAccessor()));
+                        config, beanDesc.findJsonValueAccessor()),
+                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
             }
         }
 

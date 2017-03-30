@@ -6,6 +6,9 @@ Project: jackson-databind
 2.8.8 (not yet released)
 
 (partial) #994: `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS` only works for POJOs, Maps
+#1345: `@JsonProperty(access = READ_ONLY)` together with generated constructor (Lombok) causes
+ exception: "Could not find creator property with name ..."
+ (reported by Raniz85@github)
 #1533: `AsPropertyTypeDeserializer` ignores `DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
 #1543: JsonFormat.Shape.NUMBER_INT does not work when defined on enum type in 2.8
  (reported by Alex P)

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.beans.ConstructorProperties;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
@@ -47,7 +49,22 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
         public void setLastName(String n) {
             lastName = n;
         }
-    }    
+    }
+
+    // for [databind#1345], emulate way Lombok embellishes classes
+    static class Foo1345 {
+        @JsonProperty(access=JsonProperty.Access.READ_ONLY)
+        public String id;
+        public String name;
+
+        @ConstructorProperties({ "id", "name" })
+        public Foo1345(String id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        protected Foo1345() { }
+    }
 
     /*
     /**********************************************************
@@ -74,5 +91,13 @@ public class ReadOrWriteOnlyTest extends BaseMapTest
         String json = MAPPER.writeValueAsString(new Pojo935());
         Pojo935 result = MAPPER.readValue(json, Pojo935.class);
         assertNotNull(result);
+    }
+
+    public void testReadOnly1345() throws Exception
+    {
+        Foo1345 result = MAPPER.readValue("{\"name\":\"test\"}", Foo1345.class);
+        assertNotNull(result);
+        assertEquals("test", result.name);
+        assertNull(result.id);
     }
 }

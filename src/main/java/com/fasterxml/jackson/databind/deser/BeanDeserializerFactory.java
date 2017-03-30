@@ -441,9 +441,11 @@ public class BeanDeserializerFactory
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
-        final SettableBeanProperty[] creatorProps =
-                builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
         final boolean isConcrete = !beanDesc.getType().isAbstract();
+        final SettableBeanProperty[] creatorProps = isConcrete
+                ? builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig())
+                : null;
+        final boolean hasCreatorProps = (creatorProps != null);
         
         // 01-May-2016, tatu: Which base type to use here gets tricky, since
         //   it may often make most sense to use general type for overrides,
@@ -490,8 +492,8 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        final boolean useGettersAsSetters = (ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
-                && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
+        final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
+                && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS);
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
@@ -531,7 +533,7 @@ public class BeanDeserializerFactory
             }
             // 25-Sep-2014, tatu: No point in finding constructor parameters for abstract types
             //   (since they are never used anyway)
-            if (isConcrete && propDef.hasConstructorParameter()) {
+            if (hasCreatorProps && propDef.hasConstructorParameter()) {
                 /* If property is passed via constructor parameter, we must
                  * handle things in special way. Not sure what is the most optimal way...
                  * for now, let's just call a (new) method in builder, which does nothing.
@@ -548,8 +550,13 @@ public class BeanDeserializerFactory
                     }
                 }
                 if (cprop == null) {
-                    ctxt.reportMappingException("Could not find creator property with name '%s' (in class %s)",
-                            name, beanDesc.getBeanClass().getName());
+                    List<String> n = new ArrayList<>();
+                    for (SettableBeanProperty cp : creatorProps) {
+                        n.add(cp.getName());
+                    }
+                    ctxt.reportBadPropertyDefinition(beanDesc, propDef,
+                            "Could not find creator property with name '%s' (known Creator properties: %s)",
+                            name, n);
                     continue;
                 }
                 if (prop != null) {

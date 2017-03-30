@@ -636,9 +636,16 @@ public class BeanDeserializerFactory
                     type = ((AnnotatedMethod) m).getParameterType(0);
                 } else {
                     type = m.getType();
+                    // 30-Mar-2017, tatu: Unfortunately it is not yet possible to make back-refs
+                    //    work through constructors; but let's at least indicate the issue for now
+                    if (m instanceof AnnotatedParameter) {
+                        ctxt.reportBadTypeDefinition(beanDesc,
+"Can not bind back references as Creator parameters: type %s (reference '%s', parameter index #%d)",
+beanDesc.getBeanClass().getName(), name, ((AnnotatedParameter) m).getIndex());
+                    }
                 }
                 SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(
-                		ctxt.getConfig(), m);
+                        ctxt.getConfig(), m, PropertyName.construct(name));
                 builder.addBackReferenceProperty(name, constructSettableProperty(ctxt,
                         beanDesc, propDef, type));
             }

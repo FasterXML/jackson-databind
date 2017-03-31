@@ -226,9 +226,6 @@ public class NumberDeserializers
             if (t == JsonToken.START_ARRAY) { // unwrapping?
                 return _deserializeFromArray(p, ctxt);
             }
-
-//            final boolean canCoerce = ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_FOR_SCALARS);
-            
             // should accept ints too, (0 == false, otherwise true)
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return Boolean.valueOf(_parseBooleanFromInt(p, ctxt));
@@ -238,9 +235,11 @@ public class NumberDeserializers
                 String text = p.getText().trim();
                 // [databind#422]: Allow aliases
                 if ("true".equals(text) || "True".equals(text)) {
+                    _verifyStringCoercion(ctxt, text);
                     return Boolean.TRUE;
                 }
                 if ("false".equals(text) || "False".equals(text)) {
+                    _verifyStringCoercion(ctxt, text);
                     return Boolean.FALSE;
                 }
                 if (text.length() == 0) {
@@ -295,12 +294,12 @@ public class NumberDeserializers
                 if (_hasTextualNull(text)) {
                     return (Byte) _coerceTextualNull(ctxt, _primitive);
                 }
+                int len = text.length();
+                if (len == 0) {
+                    return (Byte) _coerceEmptyString(ctxt, _primitive);
+                }
                 int value;
                 try {
-                    int len = text.length();
-                    if (len == 0) {
-                        return (Byte) _coerceEmptyString(ctxt, _primitive);
-                    }
                     value = NumberInput.parseInt(text);
                 } catch (IllegalArgumentException iae) {
                     return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
@@ -364,15 +363,15 @@ public class NumberDeserializers
             }
             if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
                 String text = p.getText().trim();
+                int len = text.length();
+                if (len == 0) {
+                    return (Short) _coerceEmptyString(ctxt, _primitive);
+                }
+                if (_hasTextualNull(text)) {
+                    return (Short) _coerceTextualNull(ctxt, _primitive);
+                }
                 int value;
                 try {
-                    int len = text.length();
-                    if (len == 0) {
-                        return (Short) _coerceEmptyString(ctxt, _primitive);
-                    }
-                    if (_hasTextualNull(text)) {
-                        return (Short) _coerceTextualNull(ctxt, _primitive);
-                    }
                     value = NumberInput.parseInt(text);
                 } catch (IllegalArgumentException iae) {
                     return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
@@ -497,11 +496,14 @@ public class NumberDeserializers
                 return Integer.valueOf(p.getValueAsInt());
             case JsonTokenId.ID_STRING: // let's do implicit re-parse
                 String text = p.getText().trim();
+                int len = text.length();
+                if (len == 0) {
+                    return (Integer) _coerceEmptyString(ctxt, _primitive);
+                }
+                if (_hasTextualNull(text)) {
+                    return (Integer) _coerceTextualNull(ctxt, _primitive);
+                }
                 try {
-                    int len = text.length();
-                    if (_hasTextualNull(text)) {
-                        return (Integer) _coerceTextualNull(ctxt, _primitive);
-                    }
                     if (len > 9) {
                         long l = Long.parseLong(text);
                         if (_intOverflow(l)) {
@@ -510,9 +512,6 @@ public class NumberDeserializers
                                 text, Integer.MIN_VALUE, Integer.MAX_VALUE));
                         }
                         return Integer.valueOf((int) l);
-                    }
-                    if (len == 0) {
-                        return (Integer) _coerceEmptyString(ctxt, _primitive);
                     }
                     return Integer.valueOf(NumberInput.parseInt(text));
                 } catch (IllegalArgumentException iae) {
@@ -566,8 +565,6 @@ public class NumberDeserializers
                 }
                 return p.getValueAsLong();
             case JsonTokenId.ID_STRING:
-                // let's allow Strings to be converted too
-                // !!! 05-Jan-2009, tatu: Should we try to limit value space, JDK is too lenient?
                 String text = p.getText().trim();
                 if (text.length() == 0) {
                     return (Long) _coerceEmptyString(ctxt, _primitive);
@@ -575,6 +572,7 @@ public class NumberDeserializers
                 if (_hasTextualNull(text)) {
                     return (Long) _coerceTextualNull(ctxt, _primitive);
                 }
+                // let's allow Strings to be converted too
                 try {
                     return Long.valueOf(NumberInput.parseLong(text));
                 } catch (IllegalArgumentException iae) { }
@@ -898,14 +896,14 @@ public class NumberDeserializers
                 String text = p.getText().trim();
                 // note: no need to call `coerce` as this is never primitive
                 if (_isEmptyOrTextualNull(text)) {
+                    _verifyNullForScalarCoercion(ctxt, text);
                     return getNullValue(ctxt);
                 }
                 try {
                     return new BigInteger(text);
-                } catch (IllegalArgumentException iae) {
-                    return (BigInteger) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "not a valid representation");
-                }
+                } catch (IllegalArgumentException iae) { }
+                return (BigInteger) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "not a valid representation");
             }
             // String is ok too, can easily convert; otherwise, no can do:
             return (BigInteger) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -938,14 +936,14 @@ public class NumberDeserializers
                 String text = p.getText().trim();
                 // note: no need to call `coerce` as this is never primitive
                 if (_isEmptyOrTextualNull(text)) {
+                    _verifyNullForScalarCoercion(ctxt, text);
                     return getNullValue(ctxt);
                 }
                 try {
                     return new BigDecimal(text);
-                } catch (IllegalArgumentException iae) {
-                    return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "not a valid representation");
-                }
+                } catch (IllegalArgumentException iae) { }
+                return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,
+                        "not a valid representation");
             case JsonTokenId.ID_START_ARRAY:
                 return _deserializeFromArray(p, ctxt);
             }

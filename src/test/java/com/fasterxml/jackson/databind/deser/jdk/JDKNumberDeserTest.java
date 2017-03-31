@@ -85,6 +85,9 @@ public class JDKNumberDeserTest extends BaseMapTest
     //    would be best; but due to legacy reasons becomes `null` at this point
     public void testEmptyAsNumber() throws Exception
     {
+        assertNull(MAPPER.readValue(quote(""), Byte.class));
+        assertNull(MAPPER.readValue(quote(""), Short.class));
+        assertNull(MAPPER.readValue(quote(""), Integer.class));
         assertNull(MAPPER.readValue(quote(""), Integer.class));
         assertNull(MAPPER.readValue(quote(""), Long.class));
         assertNull(MAPPER.readValue(quote(""), Float.class));

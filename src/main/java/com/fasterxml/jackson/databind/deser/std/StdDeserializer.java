@@ -149,7 +149,7 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         if (t == JsonToken.VALUE_NULL) {
-            _verifyPrimitiveNull(ctxt);
+            _verifyNullForPrimitive(ctxt);
             return false;
         }
 
@@ -168,7 +168,7 @@ public abstract class StdDeserializer<T>
                 return false;
             }
             if (_isEmptyOrTextualNull(text)) {
-                _verifyPrimitiveNullCoercion(ctxt, text);
+                _verifyNullForPrimitiveCoercion(ctxt, text);
                 return false;
             }
             Boolean b = (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
@@ -194,6 +194,12 @@ public abstract class StdDeserializer<T>
         //  ... this is, on the other hand, probably wrong/sub-optimal for non-JSON
         //  input. For now, no rea
 
+        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(feat)) {
+            ctxt.reportInputMismatch(this,
+    "Can not coerce Number %s (enable `%s.%s` to allow)",
+                _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
+        }
         // Anyway, note that since we know it's valid (JSON) integer, it can't have
         // extra whitespace to trim.
         return !"0".equals(p.getText());
@@ -235,7 +241,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
-                _verifyPrimitiveNullCoercion(ctxt, text);
+                _verifyNullForPrimitiveCoercion(ctxt, text);
                 return 0;
             }
             return _parseIntPrimitive(ctxt, text);
@@ -245,7 +251,7 @@ public abstract class StdDeserializer<T>
             }
             return p.getValueAsInt();
         case JsonTokenId.ID_NULL:
-            _verifyPrimitiveNull(ctxt);
+            _verifyNullForPrimitive(ctxt);
             return 0;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -295,7 +301,7 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
-                _verifyPrimitiveNullCoercion(ctxt, text);
+                _verifyNullForPrimitiveCoercion(ctxt, text);
                 return 0L;
             }
             return _parseLongPrimitive(ctxt, text);
@@ -305,7 +311,7 @@ public abstract class StdDeserializer<T>
             }
             return p.getValueAsLong();
         case JsonTokenId.ID_NULL:
-            _verifyPrimitiveNull(ctxt);
+            _verifyNullForPrimitive(ctxt);
             return 0L;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -344,14 +350,14 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
-                _verifyPrimitiveNullCoercion(ctxt, text);
+                _verifyNullForPrimitiveCoercion(ctxt, text);
                 return 0.0f;
             }
             return _parseFloatPrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_INT:
             return p.getFloatValue();
         case JsonTokenId.ID_NULL:
-            _verifyPrimitiveNull(ctxt);
+            _verifyNullForPrimitive(ctxt);
             return 0.0f;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -405,14 +411,14 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_STRING:
             String text = p.getText().trim();
             if (_isEmptyOrTextualNull(text)) {
-                _verifyPrimitiveNullCoercion(ctxt, text);
+                _verifyNullForPrimitiveCoercion(ctxt, text);
                 return 0.0;
             }
             return _parseDoublePrimitive(ctxt, text);
         case JsonTokenId.ID_NUMBER_INT:
             return p.getDoubleValue();
         case JsonTokenId.ID_NULL:
-            _verifyPrimitiveNull(ctxt);
+            _verifyNullForPrimitive(ctxt);
             return 0.0;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
@@ -698,27 +704,8 @@ public abstract class StdDeserializer<T>
             String type) throws IOException
     {
         ctxt.reportInputMismatch(handledType(),
-                "Can not coerce a floating-point value ('%s') into %s; enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow",
+                "Can not coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
                 p.getValueAsString(), type);
-    }
-
-    protected final void _verifyPrimitiveNull(DeserializationContext ctxt) throws IOException
-    {
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-                    "Can not map `null` as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    _coercedTypeDesc());
-        }
-    }
-
-    protected final void _verifyPrimitiveNullCoercion(DeserializationContext ctxt, String str) throws IOException
-    {
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
-            ctxt.reportInputMismatch(this,
-                    "Can not map %s as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    strDesc, _coercedTypeDesc());
-        }
     }
 
     /**
@@ -752,10 +739,8 @@ public abstract class StdDeserializer<T>
      */
     protected Object _coerceNullToken(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
     {
-        if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-                    "Can not map `null` as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    _coercedTypeDesc());
+        if (isPrimitive) {
+            _verifyNullForPrimitive(ctxt);
         }
         return getNullValue(ctxt);
     }
@@ -767,12 +752,20 @@ public abstract class StdDeserializer<T>
      */
     protected Object _coerceTextualNull(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
     {
-        if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-                    "Can not map String \"null\" as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    _coercedTypeDesc());
+        Enum<?> feat;
+        boolean enable;
+
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+            enable = true;
+        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
+            enable = false;
+        } else {
+            return getNullValue(ctxt);
         }
-        return getNullValue(ctxt);
+        _reportFailedNullCoerce(ctxt, enable, feat, "String \"null\"");
+        return null;
     }
 
     /**
@@ -782,14 +775,82 @@ public abstract class StdDeserializer<T>
      */
     protected Object _coerceEmptyString(DeserializationContext ctxt, boolean isPrimitive) throws JsonMappingException
     {
-        if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-            ctxt.reportInputMismatch(this,
-                    "Can not map empty String (\"\") as %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
-                    _coercedTypeDesc());
+        Enum<?> feat;
+        boolean enable;
+
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+            enable = true;
+        } else if (isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
+            enable = false;
+        } else {
+            return getNullValue(ctxt);
         }
-        return getNullValue(ctxt);
+        _reportFailedNullCoerce(ctxt, enable, feat, "empty String (\"\")");
+        return null;
     }
 
+    // @since 2.9
+    protected final void _verifyNullForPrimitive(DeserializationContext ctxt) throws JsonMappingException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            ctxt.reportInputMismatch(this,
+                    "Can not coerce `null` %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+                    _coercedTypeDesc());
+        }
+    }
+
+    // NOTE: only for primitive Scalars
+    // @since 2.9
+    protected final void _verifyNullForPrimitiveCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
+    {
+        Enum<?> feat;
+        boolean enable;
+
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+            enable = true;
+        } else if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            feat = DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES;
+            enable = false;
+        } else {
+            return;
+        }
+        String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
+        _reportFailedNullCoerce(ctxt, enable, feat, strDesc);
+    }
+
+    // NOTE: for non-primitive Scalars
+    // @since 2.9
+    protected final void _verifyNullForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
+    {
+        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+            String strDesc = str.isEmpty() ? "empty String (\"\")" : String.format("String \"%s\"", str);
+            _reportFailedNullCoerce(ctxt, true, MapperFeature.ALLOW_COERCION_OF_SCALARS, strDesc);
+        }
+    }
+
+    // @since 2.9
+    protected void _verifyStringCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
+    {
+        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(feat)) {
+            ctxt.reportInputMismatch(this,
+    "Can not coerce String \"%s\" %s (enable `%s.%s` to allow)",
+                str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
+        }
+    }
+
+    protected void _reportFailedNullCoerce(DeserializationContext ctxt, boolean state, Enum<?> feature,
+            String inputDesc) throws JsonMappingException
+    {
+        String enableDesc = state ? "enable" : "disable";
+        ctxt.reportInputMismatch(this,
+"Can not coerce %s to Null value %s (%s `%s.%s` to allow)",
+            inputDesc, _coercedTypeDesc(), enableDesc, feature.getClass().getSimpleName(), feature.name());
+    }
+    
     /**
      * Helper method called to get a description of type into which a scalar value coercion
      * is (most likely) being applied, to be used for constructing exception messages
@@ -809,12 +870,12 @@ public abstract class StdDeserializer<T>
             Class<?> cls = handledType();
             structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
                 || Map.class.isAssignableFrom(cls);
-            typeDesc = cls.getSimpleName();
+            typeDesc = ClassUtil.nameOf(cls);
         }
         if (structured) {
-            return "contents of type "+typeDesc;
+            return String.format("as content of type `%s`", typeDesc);
         }
-        return "value of type "+typeDesc;
+        return String.format("for type `%s`", typeDesc);
     }
 
     /*

@@ -312,12 +312,17 @@ public enum DeserializationFeature implements ConfigFeature
     
     /**
      * Feature that can be enabled to allow JSON empty String
-     * value ("") to be bound to POJOs as null.
+     * value ("") to be bound as `null` for POJOs and other structured
+     * values ({@link java.util.Map}s, {@link java.util.Collection}s).
      * If disabled, standard POJOs can only be bound from JSON null or
      * JSON Object (standard meaning that no custom deserializers or
      * constructors are defined; both of which can add support for other
      * kinds of JSON values); if enabled, empty JSON String can be taken
      * to be equivalent of JSON null.
+     *<p>
+     * NOTE: this does NOT apply to scalar values such as booleans and numbers;
+     * whether they can be coerced depends on
+     * {@link MapperFeature#ALLOW_COERCION_OF_SCALARS}.
      *<p>
      * Feature is disabled by default.
      */
@@ -351,24 +356,6 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.6
      */
     ACCEPT_FLOAT_AS_INT(true),
-
-    /**
-     * Feature that determines whether coercions from secondary representations are allowed
-     * for simple non-textual scalar types: numbers and booleans. This includes `primitive`
-     * types and their wrappers, but excludes `java.lang.String` and date/time types.
-     *<p>
-     * When feature is disabled, only strictly compatible input may be bound: numbers for
-     * numbers, boolean values for booleans. When feature is enabled, conversions from
-     * JSON String are allowed, as long as textual value matches (for example, String
-     * "true" is allowed as equivalent of JSON boolean token `true`; or String "1.0"
-     * for `double`).
-     *<p>
-     * Feature is enabled by default (for backwards compatibility since this was the
-     * default behavior)
-     *
-     * @since 2.9
-     */
-    ALLOW_COERCION_FOR_SCALARS(true),
 
     /**
      * Feature that determines standard deserialization mechanism used for

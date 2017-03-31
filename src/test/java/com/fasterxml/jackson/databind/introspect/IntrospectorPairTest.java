@@ -50,11 +50,10 @@ public class IntrospectorPairTest extends BaseMapTest
     }
 
     static class IntrospectorWithHandlers extends AnnotationIntrospector {
-        final JsonDeserializer<?> _deserializer;
-        final JsonSerializer<?> _serializer;
+        final Object _deserializer;
+        final Object _serializer;
 
-        public IntrospectorWithHandlers(JsonDeserializer<?> deser,
-                JsonSerializer<?> ser) {
+        public IntrospectorWithHandlers(Object deser, Object ser) {
             _deserializer = deser;
             _serializer = ser;
         }
@@ -349,14 +348,22 @@ public class IntrospectorPairTest extends BaseMapTest
         AnnotationIntrospector intr1 = new IntrospectorWithHandlers(null, serString);
         AnnotationIntrospector intr2 = new IntrospectorWithHandlers(null, serToString);
         AnnotationIntrospector nop = AnnotationIntrospector.nopInstance();
-        
+        AnnotationIntrospector nop2 = new IntrospectorWithHandlers(null, JsonSerializer.None.class);
+
         assertSame(serString,
                 new AnnotationIntrospectorPair(intr1, intr2).findSerializer(null));
         assertSame(serToString,
                 new AnnotationIntrospectorPair(intr2, intr1).findSerializer(null));
+
         // also: no-op instance should not block real one, regardless
         assertSame(serString,
                 new AnnotationIntrospectorPair(nop, intr1).findSerializer(null));
+        assertSame(serString,
+                new AnnotationIntrospectorPair(nop2, intr1).findSerializer(null));
+
+        // nor should no-op result in non-null result
+        assertNull(new AnnotationIntrospectorPair(nop, nop2).findSerializer(null));
+        assertNull(new AnnotationIntrospectorPair(nop2, nop).findSerializer(null));
     }
 
     public void testFindDeserializer() throws Exception
@@ -367,6 +374,7 @@ public class IntrospectorPairTest extends BaseMapTest
         AnnotationIntrospector intr1 = new IntrospectorWithHandlers(deserString, null);
         AnnotationIntrospector intr2 = new IntrospectorWithHandlers(deserObject, null);
         AnnotationIntrospector nop = AnnotationIntrospector.nopInstance();
+        AnnotationIntrospector nop2 = new IntrospectorWithHandlers(JsonDeserializer.None.class, null);
 
         assertSame(deserString,
                 new AnnotationIntrospectorPair(intr1, intr2).findDeserializer(null));
@@ -375,6 +383,12 @@ public class IntrospectorPairTest extends BaseMapTest
         // also: no-op instance should not block real one, regardless
         assertSame(deserString,
                 new AnnotationIntrospectorPair(nop, intr1).findDeserializer(null));
+        assertSame(deserString,
+                new AnnotationIntrospectorPair(nop2, intr1).findDeserializer(null));
+
+        // nor should no-op result in non-null result
+        assertNull(new AnnotationIntrospectorPair(nop, nop2).findDeserializer(null));
+        assertNull(new AnnotationIntrospectorPair(nop2, nop).findDeserializer(null));
     }
 
     /*

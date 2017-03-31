@@ -312,29 +312,41 @@ public class AnnotationIntrospectorPair
     @Override
     public Object findSerializer(Annotated am) {
         Object r = _primary.findSerializer(am);
-        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
-                ? r : _secondary.findSerializer(am);
+        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+            return r;
+        }
+        return _explicitClassOrOb(_secondary.findSerializer(am),
+                JsonSerializer.None.class);
     }
     
     @Override
     public Object findKeySerializer(Annotated a) {
         Object r = _primary.findKeySerializer(a);
-        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
-        		? r : _secondary.findKeySerializer(a);
+        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+            return r;
+        }
+        return _explicitClassOrOb(_secondary.findKeySerializer(a),
+                JsonSerializer.None.class);
     }
 
     @Override
     public Object findContentSerializer(Annotated a) {
         Object r = _primary.findContentSerializer(a);
-        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
-        		? r : _secondary.findContentSerializer(a);
+        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+            return r;
+        }
+        return _explicitClassOrOb(_secondary.findContentSerializer(a),
+                JsonSerializer.None.class);
     }
     
     @Override
     public Object findNullSerializer(Annotated a) {
         Object r = _primary.findNullSerializer(a);
-        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
-                ? r : _secondary.findNullSerializer(a);
+        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+            return r;
+        }
+        return _explicitClassOrOb(_secondary.findNullSerializer(a),
+                JsonSerializer.None.class);
     }
     
     @Deprecated
@@ -624,24 +636,34 @@ public class AnnotationIntrospectorPair
     // // // Deserialization: general annotations
 
     @Override
-    public Object findDeserializer(Annotated am) {
-        Object r = _primary.findDeserializer(am);
-        return _isExplicitClassOrOb(r, JsonDeserializer.None.class)
-                ? r : _secondary.findDeserializer(am);
+    public Object findDeserializer(Annotated a) {
+        Object r = _primary.findDeserializer(a);
+        if (_isExplicitClassOrOb(r, JsonDeserializer.None.class)) {
+            return r;
+        }
+        return _explicitClassOrOb(_secondary.findDeserializer(a),
+                JsonDeserializer.None.class);
     }
 
     @Override
-    public Object findKeyDeserializer(Annotated am) {
-        Object r = _primary.findKeyDeserializer(am);
-        return _isExplicitClassOrOb(r, KeyDeserializer.None.class)
-                ? r : _secondary.findKeyDeserializer(am);
+    public Object findKeyDeserializer(Annotated a) {
+        Object r = _primary.findKeyDeserializer(a);
+        if (_isExplicitClassOrOb(r, KeyDeserializer.None.class)) {
+            return r;
+        }
+        return _explicitClassOrOb(_secondary.findKeyDeserializer(a),
+                KeyDeserializer.None.class);
     }
 
     @Override
     public Object findContentDeserializer(Annotated am) {
         Object r = _primary.findContentDeserializer(am);
-        return _isExplicitClassOrOb(r, JsonDeserializer.None.class)
-                ? r : _secondary.findContentDeserializer(am);
+        if (_isExplicitClassOrOb(r, JsonDeserializer.None.class)) {
+            return r;
+        }
+        return _explicitClassOrOb(_secondary.findContentDeserializer(am),
+                JsonDeserializer.None.class);
+                
     }
 
     @Override
@@ -788,5 +810,16 @@ public class AnnotationIntrospectorPair
             return !ClassUtil.isBogusClass((Class<?>) maybeCls);
         }
         return true;
+    }
+
+    // @since 2.9
+    protected Object _explicitClassOrOb(Object maybeCls, Class<?> implicit) {
+        if ((maybeCls == null) || (maybeCls == implicit)) {
+            return null;
+        }
+        if ((maybeCls instanceof Class<?>) && ClassUtil.isBogusClass((Class<?>) maybeCls)) {
+            return null;
+        }
+        return maybeCls;
     }
 }

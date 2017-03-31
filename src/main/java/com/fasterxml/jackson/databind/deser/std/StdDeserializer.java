@@ -1082,7 +1082,7 @@ public abstract class StdDeserializer<T>
         throws IOException
     {
         ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY, 
-"Attempted to unwrap single value array for single '%s' value but there was more than a single value in the array",
+"Attempted to unwrap '%s' value from an array (with `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`) but it contains more than one value",
 handledType().getName());
         // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);
         //     but for now just fall through

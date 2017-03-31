@@ -137,16 +137,14 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     static class SubChild {
         public String value;
     }
-    
-    // // // Reuse mapper to keep tests bit faster
-
-    private final ObjectMapper MAPPER = new ObjectMapper();
 
     /*
     /**********************************************************
     /* Tests, serialization
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testPrefixedUnwrappingSerialize() throws Exception
     {

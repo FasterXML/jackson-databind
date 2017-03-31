@@ -480,37 +480,41 @@ anyField.getName()));
     }
 
     @Override
-    public Map<String,AnnotatedMember> findBackReferenceProperties()
+    public List<BeanPropertyDefinition> findBackReferences()
     {
-        HashMap<String,AnnotatedMember> result = null;
-//        boolean hasIgnored = (_ignoredPropertyNames != null);
-
+        List<BeanPropertyDefinition> result = null;
+        HashSet<String> names = null;
         for (BeanPropertyDefinition property : _properties()) {
-            /* 23-Sep-2014, tatu: As per [Databind#426], we _should_ try to avoid
-             *   calling accessor, as it triggers exception from seeming conflict.
-             *   But the problem is that _ignoredPropertyNames here only contains
-             *   ones ignored on per-property annotations, but NOT class annotations...
-             *   so commented out part does not work, alas
-             */
-            /*
-            if (hasIgnored && _ignoredPropertyNames.contains(property.getName())) {
+            AnnotationIntrospector.ReferenceProperty refDef = property.findReferenceType();
+            if ((refDef == null) || !refDef.isBackReference()) {
                 continue;
             }
-            */
-            AnnotatedMember am = property.getMutator();
-            if (am == null) {
-                continue;
-            }
-            AnnotationIntrospector.ReferenceProperty refDef = _annotationIntrospector.findReferenceType(am);
-            if (refDef != null && refDef.isBackReference()) {
-                if (result == null) {
-                    result = new HashMap<String,AnnotatedMember>();
-                }
-                String refName = refDef.getName();
-                if (result.put(refName, am) != null) {
+            final String refName = refDef.getName();
+            if (result == null) {
+                result = new ArrayList<BeanPropertyDefinition>();
+                names = new HashSet<>();
+                names.add(refName);
+            } else {
+                if (!names.add(refName)) {
                     throw new IllegalArgumentException("Multiple back-reference properties with name '"+refName+"'");
                 }
             }
+            result.add(property);
+        }
+        return result;
+    }
+
+    @Deprecated // since 2.9
+    @Override
+    public Map<String,AnnotatedMember> findBackReferenceProperties()
+    {
+        List<BeanPropertyDefinition> props = findBackReferences();
+        if (props == null) {
+            return null;
+        }
+        Map<String,AnnotatedMember> result = new HashMap<>();
+        for (BeanPropertyDefinition prop : props) {
+            result.put(prop.getName(), prop.getMutator());
         }
         return result;
     }

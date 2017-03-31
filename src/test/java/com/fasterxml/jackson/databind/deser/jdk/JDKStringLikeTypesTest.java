@@ -112,41 +112,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertSame(String.class, result.clazz);
     }
 
-    public void testClassAsArray() throws Exception
-    {
-        final ObjectMapper mapper = new ObjectMapper();        
-        Class<?> result = mapper
-                    .readerFor(Class.class)
-                    .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                    .readValue(quote(String.class.getName()));
-        assertEquals(String.class, result);
-
-        try {
-            mapper
-                .readerFor(Class.class)
-                .without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[" + quote(String.class.getName()) + "]");
-            fail("Did not throw exception when UNWRAP_SINGLE_VALUE_ARRAYS feature was disabled and attempted to read a Class array containing one element");
-        } catch (JsonMappingException e) {
-            verifyException(e, "out of START_ARRAY token");
-        }
-
-        try {
-           mapper
-               .readerFor(Class.class)
-               .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-               .readValue("[" + quote(Object.class.getName()) + "," + quote(Object.class.getName()) +"]"); 
-           fail("Did not throw exception when UNWRAP_SINGLE_VALUE_ARRAYS feature was enabled and attempted to read a Class array containing two elements");
-        } catch (JsonMappingException e) {
-            verifyException(e, "more than a single value in");
-        }               
-        result = mapper
-                .readerFor(Class.class)
-                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[" + quote(String.class.getName()) + "]");
-        assertEquals(String.class, result);
-    }
-
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
@@ -310,30 +275,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         }
     }
 
-    public void testURIAsArray() throws Exception
-    {
-        final ObjectReader reader = MAPPER.readerFor(URI.class);
-        final URI value = new URI("http://foo.com");
-        try {
-            reader.without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[\""+value.toString()+"\"]");
-            fail("Did not throw exception for single value array when UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException e) {
-            verifyException(e, "out of START_ARRAY token");
-        }
-        
-        try {
-            reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                    .readValue("[\""+value.toString()+"\",\""+value.toString()+"\"]");
-            fail("Did not throw exception for single value array when there were multiple values");
-        } catch (JsonMappingException e) {
-            verifyException(e, "more than a single value in the array");
-        }
-        assertEquals(value,
-                reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[\""+value.toString()+"\"]"));
-    }
-
     public void testURL() throws Exception
     {
         URL exp = new URL("http://foo.com");
@@ -380,25 +321,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
             UUID uuid = UUID.fromString(value);
             assertEquals(uuid,
                     mapper.readValue(quote(value), UUID.class));
-            
-            try {
-                mapper.readValue("[" + quote(value) + "]", UUID.class);
-                fail("Exception was not thrown when UNWRAP_SINGLE_VALUE_ARRAYS is disabled and attempted to read a single value array as a single element");
-            } catch (JsonMappingException exp) {
-                //Exception thrown successfully
-            }
-            
-            mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-            
-            assertEquals(uuid,
-                    mapper.readValue("[" + quote(value) + "]", UUID.class));
-            
-            try {
-                mapper.readValue("[" + quote(value) + "," + quote(value) + "]", UUID.class);
-                fail("Exception was not thrown when UNWRAP_SINGLE_VALUE_ARRAYS is enabled and attempted to read a multi value array as a single element");
-            } catch (JsonMappingException exp) {
-                //Exception thrown successfully
-            }
         }
         // then use templating; note that these are not exactly valid UUIDs
         // wrt spec (type bits etc), but JDK UUID should deal ok

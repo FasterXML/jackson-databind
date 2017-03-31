@@ -251,6 +251,14 @@ public abstract class BeanPropertyDefinition
     public AnnotationIntrospector.ReferenceProperty findReferenceType() { return null; }
 
     /**
+     * @since 2.9
+     */
+    public String findReferenceName() {
+        AnnotationIntrospector.ReferenceProperty ref = findReferenceType();
+        return (ref == null) ? null : ref.getName();
+    }
+
+    /**
      * Method used to check whether this logical property has a marker
      * to indicate it should be used as the type id for polymorphic type
      * handling.

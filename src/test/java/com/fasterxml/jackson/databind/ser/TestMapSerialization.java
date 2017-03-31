@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @SuppressWarnings("serial")
 public class TestMapSerialization extends BaseMapTest
 {
-    @JsonSerialize(using=MapSerializer.class)    
+    @JsonSerialize(using=PseudoMapSerializer.class)    
     static class PseudoMap extends LinkedHashMap<String,String>
     {
         public PseudoMap(String... values) {
@@ -25,7 +25,7 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
-    static class MapSerializer extends JsonSerializer<Map<String,String>>
+    static class PseudoMapSerializer extends JsonSerializer<Map<String,String>>
     {
         @Override
         public void serialize(Map<String,String> value,
@@ -36,16 +36,6 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
-    // For [JACKSON-574]
-    static class DefaultKeySerializer extends JsonSerializer<Object>
-    {
-        @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException
-        {
-            jgen.writeFieldName("DEFAULT:"+value);
-        }
-    }
-    
     // [databind#335]
     static class MapOrderingBean {
         @JsonPropertyOrder(alphabetic=true)
@@ -93,29 +83,6 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
-    // for [databind#47]
-    public static class Wat
-    {
-        private final String wat;
-
-        @JsonCreator
-        Wat(String wat) {
-            this.wat = wat;
-        }
-
-        @JsonValue
-        public String getWat() {
-            return wat;
-        }
-
-        @Override
-        public String toString() {
-            return "(String)[Wat: " + wat + "]";
-        }
-    }
-
-    static class WatMap extends HashMap<Wat,Boolean> { }
-
     // for [databind#691]
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     @JsonTypeName("mymap")
@@ -147,7 +114,7 @@ public class TestMapSerialization extends BaseMapTest
     }
 
     // problems with map entries, values
-    public void testMapKeyValueSerialization() throws IOException
+    public void testMapKeySetValuesSerialization() throws IOException
     {
         Map<String,String> map = new HashMap<String,String>();
         map.put("a", "b");
@@ -165,16 +132,6 @@ public class TestMapSerialization extends BaseMapTest
         map.put("e", "f");
         assertEquals("[\"e\"]", MAPPER.writeValueAsString(map.keySet()));
         assertEquals("[\"f\"]", MAPPER.writeValueAsString(map.values()));
-    }
-
-    // For [JACKSON-574]
-    public void testDefaultKeySerializer() throws IOException
-    {
-        ObjectMapper m = new ObjectMapper();
-        m.getSerializerProvider().setDefaultKeySerializer(new DefaultKeySerializer());
-        Map<String,String> map = new HashMap<String,String>();
-        map.put("a", "b");
-        assertEquals("{\"DEFAULT:a\":\"b\"}", m.writeValueAsString(map));
     }
 
     // sort Map entries by key
@@ -240,26 +197,6 @@ public class TestMapSerialization extends BaseMapTest
         StringIntMapEntryWrapper input = new StringIntMapEntryWrapper("answer", 42);
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'value':{'answer':42}}"), json);
-    }
-
-    // [databind#47]
-    public void testMapJsonValueKey47() throws Exception
-    {
-        WatMap input = new WatMap();
-        input.put(new Wat("3"), true);
-
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'3':true}"), json);
-    }    
-
-    // [databind#682]
-    public void testClassKey() throws IOException
-    {
-        Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
-        map.put(String.class, 2);
-        String json = MAPPER.writeValueAsString(map);
-        assertEquals(aposToQuotes("{'java.lang.String':2}"), json);
     }
 
     // [databind#691]

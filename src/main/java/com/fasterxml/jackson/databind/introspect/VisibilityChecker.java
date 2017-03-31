@@ -427,13 +427,8 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
     
         @Override
         public String toString() {
-            return new StringBuilder("[Visibility:")
-            .append(" getter: ").append(_getterMinLevel)
-            .append(", isGetter: ").append(_isGetterMinLevel)
-            .append(", setter: ").append(_setterMinLevel)
-            .append(", creator: ").append(_creatorMinLevel)
-            .append(", field: ").append(_fieldMinLevel)
-            .append("]").toString();
+            return String.format("[Visibility: getter=%s,isGetter=%s,setter=%s,creator=%s,field=%s]",
+                    _getterMinLevel, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
         }
     }
 }

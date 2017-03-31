@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -28,18 +28,18 @@ public class MapDeserializationTest
         public BrokenMap(boolean dummy) { super(); }
     }
 
-    @JsonDeserialize(using=MapDeserializer.class)
+    @JsonDeserialize(using=CustomMapDeserializer.class)
     static class CustomMap extends LinkedHashMap<String,String> { }
 
-    static class MapDeserializer extends StdDeserializer<CustomMap>
+    static class CustomMapDeserializer extends StdDeserializer<CustomMap>
     {
-        public MapDeserializer() { super(CustomMap.class); }
+        public CustomMapDeserializer() { super(CustomMap.class); }
         @Override
-        public CustomMap deserialize(JsonParser jp, DeserializationContext ctxt)
+        public CustomMap deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
             CustomMap result = new CustomMap();
-            result.put("x", jp.getText());
+            result.put("x", p.getText());
             return result;
         }
     }
@@ -273,31 +273,6 @@ public class MapDeserializationTest
         assertEquals(Integer.valueOf(1), result.get("a"));
 
         assertNull(result.get(""));
-    }
-
-    // [Databind#540]
-    public void testMapFromEmptyArray() throws Exception
-    {
-        final String JSON = "  [\n]";
-        assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
-        // first, verify default settings which do not accept empty Array
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.readValue(JSON, Map.class);
-            fail("Should not accept Empty Array for Map by default");
-        } catch (JsonProcessingException e) {
-            verifyException(e, "START_ARRAY token");
-        }
-        // should be ok to enable dynamically:
-        ObjectReader r = MAPPER.readerFor(Map.class)
-                .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
-
-        Map<?,?> result = r.readValue(JSON);
-        assertNull(result);
-
-        EnumMap<?,?> result2 = r.forType(new TypeReference<EnumMap<Key,String>>() { })
-                .readValue(JSON);
-        assertNull(result2);
     }
 
     /*

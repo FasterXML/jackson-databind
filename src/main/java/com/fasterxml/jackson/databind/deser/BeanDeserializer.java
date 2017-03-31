@@ -39,6 +39,14 @@ public class BeanDeserializer
      */
     protected transient Exception _nullFromCreator;
 
+    /**
+     * State marker we need in order to avoid infinite recursion for some cases
+     * (not very clean, alas, but has to do for now)
+     *
+     * @since 2.9
+     */
+    private volatile transient NameTransformer _currentlyTransforming;
+
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization
@@ -86,18 +94,22 @@ public class BeanDeserializer
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
+    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer transformer)
     {
         // bit kludgy but we don't want to accidentally change type; sub-classes
         // MUST override this method to support unwrapped properties...
         if (getClass() != BeanDeserializer.class) {
             return this;
         }
-        /* main thing really is to just enforce ignoring of unknown
-         * properties; since there may be multiple unwrapped values
-         * and properties for all may be interleaved...
-         */
-        return new BeanDeserializer(this, unwrapper);
+        // 25-Mar-2017, tatu: Not clean at all, but for [databind#383] we do need
+        //   to keep track of accidental recursion...
+        if (_currentlyTransforming == transformer) {
+            return this;
+        }
+        _currentlyTransforming = transformer;
+        try {
+            return new BeanDeserializer(this, transformer);
+        } finally { _currentlyTransforming = null; }
     }
 
     @Override

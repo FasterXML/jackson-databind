@@ -219,7 +219,7 @@ public class BeanDeserializerFactory
         addObjectIdReader(ctxt, beanDesc, builder);
 
         // managed/back reference fields/setters need special handling... first part
-        addReferenceProperties(ctxt, beanDesc, builder);
+        addBackReferenceProperties(ctxt, beanDesc, builder);
         addInjectables(ctxt, beanDesc, builder);
         
         final DeserializationConfig config = ctxt.getConfig();
@@ -256,7 +256,7 @@ public class BeanDeserializerFactory
     		DeserializationContext ctxt, JavaType valueType, BeanDescription builderDesc)
         throws JsonMappingException
     {
-    	// Creators, anyone? (to create builder itself)
+        // Creators, anyone? (to create builder itself)
         ValueInstantiator valueInstantiator = findValueInstantiator(ctxt, builderDesc);
         final DeserializationConfig config = ctxt.getConfig();
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, builderDesc);
@@ -266,12 +266,12 @@ public class BeanDeserializerFactory
         addObjectIdReader(ctxt, builderDesc, builder);
         
         // managed/back reference fields/setters need special handling... first part
-        addReferenceProperties(ctxt, builderDesc, builder);
+        addBackReferenceProperties(ctxt, builderDesc, builder);
         addInjectables(ctxt, builderDesc, builder);
 
         JsonPOJOBuilder.Value builderConfig = builderDesc.findPOJOBuilderConfig();
         final String buildMethodName = (builderConfig == null) ?
-                "build" : builderConfig.buildMethodName;
+                JsonPOJOBuilder.DEFAULT_BUILD_METHOD : builderConfig.buildMethodName;
         
         // and lastly, find build method to use:
         AnnotatedMethod buildMethod = builderDesc.findMethod(buildMethodName, null);
@@ -429,9 +429,11 @@ public class BeanDeserializerFactory
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
-        final SettableBeanProperty[] creatorProps =
-                builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
         final boolean isConcrete = !beanDesc.getType().isAbstract();
+        final SettableBeanProperty[] creatorProps = isConcrete
+                ? builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig())
+                : null;
+        final boolean hasCreatorProps = (creatorProps != null);
 
         // 01-May-2016, tatu: Which base type to use here gets tricky, since
         //   it may often make most sense to use general type for overrides,
@@ -468,8 +470,8 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        final boolean useGettersAsSetters = (ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
-                && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
+        final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
+                && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS);
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
@@ -519,7 +521,7 @@ public class BeanDeserializerFactory
 
             // 25-Sep-2014, tatu: No point in finding constructor parameters for abstract types
             //   (since they are never used anyway)
-            if (isConcrete && propDef.hasConstructorParameter()) {
+            if (hasCreatorProps && propDef.hasConstructorParameter()) {
                 /* If property is passed via constructor parameter, we must
                  * handle things in special way. Not sure what is the most optimal way...
                  * for now, let's just call a (new) method in builder, which does nothing.
@@ -536,9 +538,13 @@ public class BeanDeserializerFactory
                     }
                 }
                 if (cprop == null) {
-                    ctxt.reportBadTypeDefinition(beanDesc,
-                            "Could not find creator property with name '%s' (in class %s)",
-                            name, ClassUtil.classNameOf(beanDesc.getBeanClass()));
+                    List<String> n = new ArrayList<>();
+                    for (SettableBeanProperty cp : creatorProps) {
+                        n.add(cp.getName());
+                    }
+                    ctxt.reportBadPropertyDefinition(beanDesc, propDef,
+                            "Could not find creator property with name '%s' (known Creator properties: %s)",
+                            name, n);
                     continue;
                 }
                 if (prop != null) {
@@ -611,29 +617,46 @@ public class BeanDeserializerFactory
     /**
      * Method that will find if bean has any managed- or back-reference properties,
      * and if so add them to bean, to be linked during resolution phase.
+     *
+     * @since 2.9
      */
-    protected void addReferenceProperties(DeserializationContext ctxt,
+    protected void addBackReferenceProperties(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
         // and then back references, not necessarily found as regular properties
-        Map<String,AnnotatedMember> refs = beanDesc.findBackReferenceProperties();
-        if (refs != null) {
-            for (Map.Entry<String, AnnotatedMember> en : refs.entrySet()) {
-                String name = en.getKey();
-                AnnotatedMember m = en.getValue();
+        List<BeanPropertyDefinition> refProps = beanDesc.findBackReferences();
+        if (refProps != null) {
+            for (BeanPropertyDefinition refProp : refProps) {
+                /*
+                AnnotatedMember m = refProp.getMutator();
                 JavaType type;
                 if (m instanceof AnnotatedMethod) {
                     type = ((AnnotatedMethod) m).getParameterType(0);
                 } else {
                     type = m.getType();
+                    // 30-Mar-2017, tatu: Unfortunately it is not yet possible to make back-refs
+                    //    work through constructors; but let's at least indicate the issue for now
+                    if (m instanceof AnnotatedParameter) {
+                        ctxt.reportBadTypeDefinition(beanDesc,
+"Can not bind back reference using Creator parameter (reference '%s', parameter index #%d)",
+name, ((AnnotatedParameter) m).getIndex());
+                    }
                 }
-                SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(
-                		ctxt.getConfig(), m);
-                builder.addBackReferenceProperty(name, constructSettableProperty(ctxt,
-                        beanDesc, propDef, type));
+                */
+                String refName = refProp.findReferenceName();
+                builder.addBackReferenceProperty(refName, constructSettableProperty(ctxt,
+                        beanDesc, refProp, refProp.getPrimaryType()));
             }
         }
+    }
+
+    @Deprecated // since 2.9 (rename)
+    protected void addReferenceProperties(DeserializationContext ctxt,
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+        throws JsonMappingException
+    {
+        addBackReferenceProperties(ctxt, beanDesc, builder);
     }
 
     /**

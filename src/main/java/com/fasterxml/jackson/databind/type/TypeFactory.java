@@ -714,7 +714,8 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
-    public CollectionType constructCollectionType(Class<? extends Collection> collectionClass, Class<?> elementClass) {
+    public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
+            Class<?> elementClass) {
         return constructCollectionType(collectionClass,
                 _fromClass(null, elementClass, EMPTY_BINDINGS));
     }
@@ -725,7 +726,8 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on Collection type itself; but are called
      * for contained types.
      */
-    public CollectionType constructCollectionType(Class<? extends Collection> collectionClass, JavaType elementType) {
+    public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
+            JavaType elementType) {
         // 19-Oct-2015, tatu: Allow case of no-type-variables, since it seems likely to be
         //    a valid use case here
         return (CollectionType) _fromClass(null, collectionClass,
@@ -764,7 +766,8 @@ public final class TypeFactory
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
      */
-    public MapType constructMapType(Class<? extends Map> mapClass, Class<?> keyClass, Class<?> valueClass) {
+    public MapType constructMapType(Class<? extends Map> mapClass,
+            Class<?> keyClass, Class<?> valueClass) {
         JavaType kt, vt;
         if (mapClass == Properties.class) {
             kt = vt = CORE_TYPE_STRING;
@@ -783,9 +786,7 @@ public final class TypeFactory
      */
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
         return (MapType) _fromClass(null, mapClass,
-                TypeBindings.create(mapClass, new JavaType[] {
-                        keyType, valueType
-                }));
+                TypeBindings.create(mapClass, keyType, valueType));
     }
 
     /**

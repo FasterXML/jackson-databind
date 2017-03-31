@@ -70,13 +70,14 @@ public class TestTypedArraySerialization
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testListWithPolymorphic() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         BeanListWrapper beans = new BeanListWrapper();
-        assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", mapper.writeValueAsString(beans));
+        assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", MAPPER.writeValueAsString(beans));
         // Related to [JACKSON-364]
-        ObjectWriter w = mapper.writerWithView(Object.class);
+        ObjectWriter w = MAPPER.writerWithView(Object.class);
         assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", w.writeValueAsString(beans));
     }
     
@@ -86,7 +87,8 @@ public class TestTypedArraySerialization
         input.add(5);
         input.add(13);
         // uses WRAPPER_ARRAY inclusion:
-        assertEquals("[\""+TypedList.class.getName()+"\",[5,13]]", serializeAsString(input));
+        assertEquals("[\""+TypedList.class.getName()+"\",[5,13]]",
+                MAPPER.writeValueAsString(input));
     }
     
     // Similar to above, but this time let's request adding type info
@@ -99,7 +101,7 @@ public class TestTypedArraySerialization
         input.add("a");
         input.add("b");
         assertEquals("[\""+TypedListAsProp.class.getName()+"\",[\"a\",\"b\"]]",
-                serializeAsString(input));
+                MAPPER.writeValueAsString(input));
     }
 
     public void testStringListAsObjectWrapper() throws Exception
@@ -113,7 +115,7 @@ public class TestTypedArraySerialization
         // annotations
         String expName = "TestTypedArraySerialization$TypedListAsWrapper";
         assertEquals("{\""+expName+"\":[true,null,false]}",
-                serializeAsString(input));
+                MAPPER.writeValueAsString(input));
     }
 
     /*
@@ -128,7 +130,7 @@ public class TestTypedArraySerialization
         m.addMixIn(int[].class, WrapperMixIn.class);
         int[] input = new int[] { 1, 2, 3 };
         String clsName = int[].class.getName();
-        assertEquals("{\""+clsName+"\":[1,2,3]}", serializeAsString(m, input));
+        assertEquals("{\""+clsName+"\":[1,2,3]}", m.writeValueAsString(input));
     }
 
     /*
@@ -139,16 +141,14 @@ public class TestTypedArraySerialization
 
     public void testGenericArray() throws Exception
     {
-        ObjectMapper m;
         final A[] input = new A[] { new B() };
         final String EXP = "[{\"BB\":{\"value\":2}}]";
 
         // first, with defaults
-        m = new ObjectMapper();
-        assertEquals(EXP, m.writeValueAsString(input));
+        assertEquals(EXP, MAPPER.writeValueAsString(input));
 
         // then with static typing enabled:
-        m = new ObjectMapper();
+        ObjectMapper m = new ObjectMapper();
         m.configure(MapperFeature.USE_STATIC_TYPING, true);
         assertEquals(EXP, m.writeValueAsString(input));
     }

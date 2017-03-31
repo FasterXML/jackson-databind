@@ -114,12 +114,22 @@ public abstract class BeanDescription
      */
     public abstract List<BeanPropertyDefinition> findProperties();
 
+    public abstract Set<String> getIgnoredPropertyNames();
+
     /**
      * Method for locating all back-reference properties (setters, fields) bean has
+     *
+     * @since 2.9
      */
-    public abstract Map<String,AnnotatedMember> findBackReferenceProperties();
+    public abstract List<BeanPropertyDefinition> findBackReferences();
 
-    public abstract Set<String> getIgnoredPropertyNames();
+    /**
+     * Method for locating all back-reference properties (setters, fields) bean has
+     *
+     * @deprecated Since 2.9 use {@link #findBackReferences()} instead
+     */
+    @Deprecated
+    public abstract Map<String,AnnotatedMember> findBackReferenceProperties();
 
     /*
     /**********************************************************

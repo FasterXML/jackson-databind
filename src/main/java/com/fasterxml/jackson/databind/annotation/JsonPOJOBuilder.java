@@ -31,60 +31,66 @@ import java.lang.annotation.*;
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonPOJOBuilder
 {
-	/**
-	 * Property to use for re-defining which zero-argument method
-	 * is considered the actual "build-method": method called after
-	 * all data has been bound, and the actual instance needs to
-	 * be instantiated.
-	 *<p>
-	 * Default value is "build".
-	 */
-	public String buildMethodName() default "build";
+    /**
+     * @since 2.9
+     */
+    public final static String DEFAULT_BUILD_METHOD = "build";
 
-	/**
-	 * Property used for (re)defining name prefix to use for
-	 * auto-detecting "with-methods": methods that are similar to
-	 * "set-methods" (in that they take an argument), but that
-	 * may also return the new builder instance to use
-	 * (which may be 'this', or a new modified builder instance).
-	 * Note that in addition to this prefix, it is also possible
-	 * to use {@link com.fasterxml.jackson.annotation.JsonProperty}
-	 * annotation to indicate "with-methods" (as well as
-	 * {@link com.fasterxml.jackson.annotation.JsonSetter}).
-	 *<p>
-	 * Default value is "with", so that method named "withValue()"
-	 * would be used for binding JSON property "value" (using type
-	 * indicated by the argument; or one defined with annotations.
-	 */
-	public String withPrefix() default "with";
+    /**
+     * @since 2.9
+     */
+    public final static String DEFAULT_WITH_PREFIX = "with";
+
+    /**
+     * Property to use for re-defining which zero-argument method
+     * is considered the actual "build-method": method called after
+     * all data has been bound, and the actual instance needs to
+     * be instantiated.
+     *<p>
+     * Default value is "build".
+     */
+    public String buildMethodName() default DEFAULT_BUILD_METHOD;
+
+    /**
+     * Property used for (re)defining name prefix to use for
+     * auto-detecting "with-methods": methods that are similar to
+     * "set-methods" (in that they take an argument), but that
+     * may also return the new builder instance to use
+     * (which may be 'this', or a new modified builder instance).
+     * Note that in addition to this prefix, it is also possible
+     * to use {@link com.fasterxml.jackson.annotation.JsonProperty}
+     * annotation to indicate "with-methods" (as well as
+     * {@link com.fasterxml.jackson.annotation.JsonSetter}).
+     *<p>
+     * Default value is "with", so that method named "withValue()"
+     * would be used for binding JSON property "value" (using type
+     * indicated by the argument; or one defined with annotations.
+     */
+    public String withPrefix() default DEFAULT_WITH_PREFIX;
 
     /*
     /**********************************************************
     /* Helper classes
     /**********************************************************
      */
-	
-	/**
-	 * Simple value container for containing values read from
-	 * {@link JsonPOJOBuilder} annotation instance.
-	 */
-	public class Value
-	{
-	    private final static Value EMPTY = new Value(null, null);
 
-	    public final String buildMethodName;
-	    public final String withPrefix;
+    /**
+     * Simple value container for containing values read from
+     * {@link JsonPOJOBuilder} annotation instance.
+     */
+    public class Value
+    {
+        public final String buildMethodName;
+        public final String withPrefix;
 
-	    public Value(JsonPOJOBuilder ann) {
-	        this(ann.buildMethodName(), ann.withPrefix());
-	    }
+        public Value(JsonPOJOBuilder ann) {
+            this(ann.buildMethodName(), ann.withPrefix());
+        }
 
-	    public Value(String buildMethodName, String withPrefix)
-	    {
-	        this.buildMethodName = buildMethodName;
-	        this.withPrefix = withPrefix;
-	    }
-
-	    public static Value empty() { return EMPTY; }
-	}
+        public Value(String buildMethodName, String withPrefix)
+        {
+            this.buildMethodName = buildMethodName;
+            this.withPrefix = withPrefix;
+        }
+    }
 }

@@ -1164,7 +1164,7 @@ public abstract class AnnotationIntrospector
      * @since 2.0
      */
     public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
-        return JsonPOJOBuilder.Value.empty();
+        return null;
     }
 
     /*

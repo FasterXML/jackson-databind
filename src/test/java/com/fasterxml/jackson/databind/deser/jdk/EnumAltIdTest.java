@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -40,11 +41,15 @@ public class EnumAltIdTest extends BaseMapTest
      */
 
     protected final ObjectMapper MAPPER = new ObjectMapper();
+    protected final ObjectMapper MAPPER_IGNORE_CASE;
+    {
+        MAPPER_IGNORE_CASE = new ObjectMapper();
+        MAPPER_IGNORE_CASE.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+    }
 
     protected final ObjectReader READER_DEFAULT = MAPPER.reader();
-    protected final ObjectReader READER_IGNORE_CASE = MAPPER
-            .reader(DeserializationFeature.READ_ENUMS_IGNORING_CASE);
-            
+    protected final ObjectReader READER_IGNORE_CASE = MAPPER_IGNORE_CASE.reader();
+
     // Tests for [databind#1313], case-insensitive
 
     public void testFailWhenCaseSensitiveAndNameIsNotUpperCase() throws IOException {
@@ -73,9 +78,8 @@ public class EnumAltIdTest extends BaseMapTest
     }
 
     public void testEnumDesIgnoringCaseWithUpperCaseToString() throws IOException {
-        ObjectReader r = MAPPER.readerFor(LowerCaseEnum.class)
-                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING,
-                        DeserializationFeature.READ_ENUMS_IGNORING_CASE);
+        ObjectReader r = MAPPER_IGNORE_CASE.readerFor(LowerCaseEnum.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
         assertEquals(LowerCaseEnum.A, r.readValue("\"A\""));
     }
 
@@ -87,7 +91,7 @@ public class EnumAltIdTest extends BaseMapTest
 
     public void testIgnoreCaseInEnumList() throws Exception {
         TestEnum[] enums = READER_IGNORE_CASE.forType(TestEnum[].class)
-            .readValue("[\"jackson\", \"rules\"]");
+            .readValue("[\"jacksON\", \"ruLes\"]");
 
         assertEquals(2, enums.length);
         assertEquals(TestEnum.JACKSON, enums[0]);

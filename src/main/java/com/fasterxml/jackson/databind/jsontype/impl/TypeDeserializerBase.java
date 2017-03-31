@@ -148,14 +148,14 @@ public abstract class TypeDeserializerBase
     {
         JsonDeserializer<Object> deser = _deserializers.get(typeId);
         if (deser == null) {
-            /* As per [Databind#305], need to provide contextual info. But for
+            /* As per [databind#305], need to provide contextual info. But for
              * backwards compatibility, let's start by only supporting this
              * for base class, not via interface. Later on we can add this
              * to the interface, assuming deprecation at base class helps.
              */
             JavaType type = _idResolver.typeFromId(ctxt, typeId);
             if (type == null) {
-                // As per [JACKSON-614], use the default impl if no type id available:
+                // use the default impl if no type id available:
                 deser = _findDefaultImplDeserializer(ctxt);
                 if (deser == null) {
                     // 10-May-2016, tatu: We may get some help...

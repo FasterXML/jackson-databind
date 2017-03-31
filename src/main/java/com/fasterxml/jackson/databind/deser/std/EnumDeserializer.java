@@ -49,13 +49,16 @@ public class EnumDeserializer
 
     protected final Boolean _caseInsensitive;
 
-    public EnumDeserializer(EnumResolver byNameResolver)
+    /**
+     * @since 2.9
+     */
+    public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
-        _caseInsensitive = false;
+        _caseInsensitive = caseInsensitive;
     }
 
     /**
@@ -70,6 +73,14 @@ public class EnumDeserializer
         _caseInsensitive = caseInsensitive;
     }
 
+    /**
+     * @deprecated Since 2.9
+     */
+    @Deprecated
+    public EnumDeserializer(EnumResolver byNameResolver) {
+        this(byNameResolver, null);
+    }
+    
     /**
      * @deprecated Since 2.8
      */
@@ -134,6 +145,9 @@ public class EnumDeserializer
     {
         Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
                 JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        if (caseInsensitive == null) {
+            caseInsensitive = _caseInsensitive;
+        }
         return withResolved(caseInsensitive);
     }
 
@@ -204,17 +218,14 @@ public class EnumDeserializer
         name = name.trim();
         if (name.length() == 0) {
             if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return null;
+                return getEmptyValue(ctxt);
             }
         } else {
             // [databind#1313]: Case insensitive enum deserialization
-            if ((_caseInsensitive == Boolean.TRUE) ||
-                    ((_caseInsensitive == null) &&
-                            ctxt.isEnabled(DeserializationFeature.READ_ENUMS_IGNORING_CASE))) {
-                for (String key : lookup.keys()) {
-                    if (key.equalsIgnoreCase(name)) {
-                        return lookup.find(key);
-                    }
+            if (Boolean.TRUE.equals(_caseInsensitive)) {
+                Object match = lookup.findCaseInsensitive(name);
+                if (match != null) {
+                    return match;
                 }
             } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                 // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
@@ -245,15 +256,8 @@ public class EnumDeserializer
     protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // [databind#381]
-        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                && p.isExpectedStartArrayToken()) {
-            p.nextToken();
-            final Object parsed = deserialize(p, ctxt);
-            JsonToken curr = p.nextToken();
-            if (curr != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }
-            return parsed;
+        if (p.hasToken(JsonToken.START_ARRAY)) {
+            return _deserializeFromArray(p, ctxt);
         }
         return ctxt.handleUnexpectedToken(_enumClass(), p);
     }

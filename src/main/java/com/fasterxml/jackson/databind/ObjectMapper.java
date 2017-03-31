@@ -4,15 +4,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,12 +15,7 @@ import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
-import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
-import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
+import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -1769,7 +1756,8 @@ public class ObjectMapper
      * {@link JsonFactory}, so changes to its configuration will "leak".
      * To avoid such observed changes you should always use "with()" and
      * "without()" method of {@link ObjectReader} and {@link ObjectWriter}
-     * for changing {@link JsonParser#Feature} and {@link JsonGenerator#Feature}
+     * for changing {@link com.fasterxml.jackson.core.JsonParser.Feature}
+     * and {@link com.fasterxml.jackson.core.JsonGenerator.Feature}
      * settings to use on per-call basis.
      *
      * @return {@link JsonFactory} that this mapper uses when it needs to
@@ -3608,7 +3596,7 @@ public class ObjectMapper
     public <T> T convertValue(Object fromValue, TypeReference<?> toValueTypeRef)
         throws IllegalArgumentException
     {
-        return (T) convertValue(fromValue, _typeFactory.constructType(toValueTypeRef));
+        return (T) _convert(fromValue, _typeFactory.constructType(toValueTypeRef));
     } 
 
     /**
@@ -3637,10 +3625,9 @@ public class ObjectMapper
         // This defaults primitives and fires deserializer getNullValue hooks.
         if (fromValue != null) {
             // also, as per [databind#11], consider case for simple cast
-            /* But with caveats: one is that while everything is Object.class, we don't
-             * want to "optimize" that out; and the other is that we also do not want
-             * to lose conversions of generic types.
-             */
+            // But with caveats: one is that while everything is Object.class, we don't
+            // want to "optimize" that out; and the other is that we also do not want
+            // to lose conversions of generic types.
             Class<?> targetType = toValueType.getRawClass();
             if (targetType != Object.class
                     && !toValueType.hasGenericTypes()
@@ -3683,6 +3670,69 @@ public class ObjectMapper
         } catch (IOException e) { // should not occur, no real i/o...
             throw new IllegalArgumentException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Convenience method similar to {@link #convertValue(Object, JavaType)} but one
+     * in which 
+     *<p>
+     * Implementation is approximately as follows:
+     *<ol>
+     * <li>Serialize `updateWithValue` into {@link TokenBuffer}</li>
+     * <li>Construct {@link ObjectReader} with `valueToUpdate` (using {@link #readerForUpdating(Object)})
+     *   </li>
+     * <li>Construct {@link JsonParser} (using {@link TokenBuffer#asParser()})
+     *   </li>
+     * <li>Update using {@link ObjectReader#readValue(JsonParser)}.
+     *   </li>
+     * <li>Return `valueToUpdate`
+     *   </li>
+     *</ol>
+     *<p>
+     * Note that update is "shallow" in that only first level of properties (or, immediate contents
+     * of container to update) are modified, unless properties themselves indicate that
+     * merging should be applied for contents. Such merging can be specified using
+     * annotations (see <code>JsonMerge</code>) as well as using "config overrides" (see
+     * {@link #configOverride(Class)} and {@link #setDefaultMergeable(Boolean)}).
+     *
+     * @param valueToUpdate Object to update
+     * @param overrides Object to conceptually serialize and merge into value to
+     *     update; can be thought of as a provider for overrides to apply.
+     * 
+     * @return Either the first argument (`valueToUpdate`), if it is mutable; or a result of
+     *     creating new instance that is result of "merging" values (for example, "updating" a
+     *     Java array will create a new array)
+     *
+     * @throws JsonMappingException if there are structural incompatibilities that prevent update.
+     * 
+     * @since 2.9
+     */
+    @SuppressWarnings("resource")
+    public <T> T updateValue(T valueToUpdate, Object overrides)
+        throws JsonMappingException
+    {
+        T result = valueToUpdate;
+        if ((valueToUpdate != null) && (overrides != null)) {
+            TokenBuffer buf = new TokenBuffer(this, false);
+            if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                buf = buf.forceUseOfBigDecimal(true);
+            }
+            try {
+                SerializationConfig config = getSerializationConfig().
+                        without(SerializationFeature.WRAP_ROOT_VALUE);
+                _serializerProvider(config).serializeValue(buf, overrides);
+                JsonParser p = buf.asParser();
+                result = readerForUpdating(valueToUpdate).readValue(p);
+                p.close();
+            } catch (IOException e) { // should not occur, no real i/o...
+                if (e instanceof JsonMappingException) {
+                    throw (JsonMappingException) e;
+                }
+                // 17-Mar-2017, tatu: Really ought not happen...
+                throw JsonMappingException.fromUnexpectedIOE(e);
+            }
+        }
+        return result;
     }
 
     /*

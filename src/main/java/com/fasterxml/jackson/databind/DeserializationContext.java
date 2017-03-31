@@ -1380,7 +1380,7 @@ public abstract class DeserializationContext
     public <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs) throws JsonMappingException {
         msg = _format(msg, msgArgs);
-        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         msg = String.format("Invalid type definition for type %s: %s", beanDesc, msg);
         throw InvalidDefinitionException.from(_parser, msg, bean, null);
     }
@@ -1396,7 +1396,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException {
         msg = _format(msg, msgArgs);
         String propName = ClassUtil.nameOf(prop);
-        String beanDesc = (bean == null) ? "N/A" : _desc(bean.getType().getGenericSignature());
+        String beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         msg = String.format("Invalid definition for property %s (of type %s): %s",
                 propName, beanDesc, msg);
         throw InvalidDefinitionException.from(_parser, msg, bean, prop);

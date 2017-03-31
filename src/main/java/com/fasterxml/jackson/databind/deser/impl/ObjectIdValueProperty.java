@@ -48,6 +48,9 @@ public final class ObjectIdValueProperty
 
     @Override
     public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        if (_valueDeserializer == deser) {
+            return this;
+        }
         return new ObjectIdValueProperty(this, deser, _nullProvider);
     }
 
@@ -55,7 +58,7 @@ public final class ObjectIdValueProperty
     public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new ObjectIdValueProperty(this, _valueDeserializer, nva);
     }
-    
+
     // // // BeanProperty impl
     
     @Override

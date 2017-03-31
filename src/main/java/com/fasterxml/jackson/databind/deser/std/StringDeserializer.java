@@ -16,7 +16,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
      * @since 2.2
      */
     public final static StringDeserializer instance = new StringDeserializer();
-    
+
     public StringDeserializer() { super(String.class); }
 
     // since 2.6, slightly faster lookups for this very common type
@@ -36,13 +36,8 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
         }
         JsonToken t = p.getCurrentToken();
         // [databind#381]
-        if ((t == JsonToken.START_ARRAY) && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            p.nextToken();
-            final String parsed = _parseString(p, ctxt);
-            if (p.nextToken() != JsonToken.END_ARRAY) {
-                handleMissingEndArrayForSingle(p, ctxt);
-            }            
-            return parsed;            
+        if (t == JsonToken.START_ARRAY) {
+            return _deserializeFromArray(p, ctxt);
         }
         // need to gracefully handle byte[] data, as base64
         if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {

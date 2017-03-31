@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
 @SuppressWarnings("serial")
@@ -40,10 +41,13 @@ public abstract class StdKeySerializers
         if (rawKeyType == String.class) {
             return DEFAULT_STRING_SERIALIZER;
         }
-        if ((rawKeyType == Integer.class) || (rawKeyType == Integer.TYPE)) {
+        if (rawKeyType.isPrimitive()) {
+            rawKeyType = ClassUtil.wrapperType(rawKeyType);
+        }
+        if (rawKeyType == Integer.class) {
             return new Default(Default.TYPE_INTEGER, rawKeyType);
         }
-        if ((rawKeyType == Long.class) || (rawKeyType == Long.TYPE)) {
+        if (rawKeyType == Long.class) {
             return new Default(Default.TYPE_LONG, rawKeyType);
         }
         if (rawKeyType.isPrimitive() || Number.class.isAssignableFrom(rawKeyType)) {
@@ -63,6 +67,9 @@ public abstract class StdKeySerializers
         // other JDK types we know convert properly with 'toString()'?
         if (rawKeyType == java.util.UUID.class) {
             return new Default(Default.TYPE_TO_STRING, rawKeyType);
+        }
+        if (rawKeyType == byte[].class) {
+            return new Default(Default.TYPE_BYTE_ARRAY, rawKeyType);
         }
         if (useDefault) {
             // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
@@ -129,7 +136,8 @@ public abstract class StdKeySerializers
         final static int TYPE_ENUM = 4;
         final static int TYPE_INTEGER = 5; // since 2.9
         final static int TYPE_LONG = 6; // since 2.9
-        final static int TYPE_TO_STRING = 7;
+        final static int TYPE_BYTE_ARRAY = 7; // since 2.9
+        final static int TYPE_TO_STRING = 8;
 
         protected final int _typeId;
         
@@ -152,14 +160,30 @@ public abstract class StdKeySerializers
                 break;
             case TYPE_ENUM:
                 {
-                    String str = provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-                            ? value.toString() : ((Enum<?>) value).name();
-                    g.writeFieldName(str);
+                    String key;
+
+                    if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                        key = value.toString();
+                    } else {
+                        Enum<?> e = (Enum<?>) value;
+                        if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+                            key = String.valueOf(e.ordinal());
+                        } else {
+                            key = e.name();
+                        }
+                    }
+                    g.writeFieldName(key);
                 }
                 break;
             case TYPE_INTEGER:
             case TYPE_LONG:
                 g.writeFieldId(((Number) value).longValue());
+                break;
+            case TYPE_BYTE_ARRAY:
+                {
+                    String encoded = provider.getConfig().getBase64Variant().encode((byte[]) value);
+                    g.writeFieldName(encoded);
+                }
                 break;
             case TYPE_TO_STRING:
             default:
@@ -262,6 +286,10 @@ public abstract class StdKeySerializers
                 return;
             }
             Enum<?> en = (Enum<?>) value;
+            if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+                g.writeFieldName(String.valueOf(en.ordinal()));
+                return;
+            }
             g.writeFieldName(_values.serializedValueFor(en));
         }
     }

@@ -528,6 +528,8 @@ public abstract class SerializerProvider
      * full generics-aware type instead of raw class.
      * This is necessary for accurate handling of external type information,
      * to handle polymorphic types.
+     *<p>
+     * Note: this call will also contextualize serializer before returning it.
      * 
      * @param property When creating secondary serializers, property for which
      *   serializer is needed: annotations of the property (or bean that contains it)

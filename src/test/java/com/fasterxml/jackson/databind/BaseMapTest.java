@@ -6,11 +6,9 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.FormatSchema;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
+import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -41,10 +39,8 @@ public abstract class BaseMapTest
     protected static class BooleanWrapper {
         public Boolean b;
 
-        @JsonCreator
+        public BooleanWrapper() { }
         public BooleanWrapper(Boolean value) { b = value; }
-
-        @JsonValue public Boolean value() { return b; }
     }
 
     protected static class IntWrapper {
@@ -109,8 +105,13 @@ public abstract class BaseMapTest
     {
         public Map<K,V> map;
 
+        public MapWrapper() { }
         public MapWrapper(Map<K,V> m) {
             map = m;
+        }
+        public MapWrapper(K key, V value) {
+            map = new LinkedHashMap<>();
+            map.put(key, value);
         }
     }
     

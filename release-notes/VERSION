@@ -13,14 +13,18 @@ Project: jackson-databind
  (reported by Starkom@github)
 #357: StackOverflowError with contentConverter that returns array type
  (reported by Florian S)
+#383: Recursive `@JsonUnwrapped` (`child` with same type) fail: "No _valueDeserializer assigned"
+ (reported by tdavis@github)
 #403: Make FAIL_ON_NULL_FOR_PRIMITIVES apply to primitive arrays and other types that wrap primitives
  (reported by Harleen S)
 #476: Allow "Serialize as POJO" using `@JsonFormat(shape=Shape.OBJECT)` class annotation
 #507: Support for default `@JsonView` for a class
  (suggested by Mark W)
+#687: Exception deserializing a collection @JsonIdentityInfo and a property based creator
 #865: `JsonFormat.Shape.OBJECT` ignored when class implements `Map.Entry`
 #888: Allow specifying custom exclusion comparator via `@JsonInclude`,
   using `JsonInclude.Include.CUSTOM`
+#994: `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS` only works for POJOs, Maps
 #1029: Add a way to define property name aliases
 #1035: `@JsonAnySetter` assumes key of `String`, does not consider declared type.
  (reported by Michael F)
@@ -56,19 +60,36 @@ Project: jackson-databind
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`
 #1474: Replace use of `Class.newInstance()` (deprecated in Java 9) with call via Constructor
-#1520: Case insensitive enum deserialization feature.
+#1480: Add support for serializing `boolean`/`Boolean` as number (0 or 1)
+ (suggested by jwilmoth@github)
+#1520: Case insensitive enum deserialization with `MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS`
  (contributed by Ana-Eliza B)
 #1544: EnumMapDeserializer assumes a pure EnumMap and does not support EnumMap derived classes
  (reported by Lyor G)
 #1550: Unexpected behavior with `@JsonInclude(JsonInclude.Include.NON_EMPTY)` and
  `java.util.Date` serialization
+#1552: Map key converted to byte array is not serialized as base64 string
+ (reported by nmatt@github)
 #1554: Support deserialization of `Shape.OBJECT` ("as POJO") for `Map`s (and map-like types)
+#1556: Add `ObjectMapper.updateValue()` method to update instance with given overrides
+ (suggested by syncer@github)
 
 2.8.8 (not yet released)
 
+(partial) #994: `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS` only works for POJOs, Maps
+#1345: `@JsonProperty(access = READ_ONLY)` together with generated constructor (Lombok) causes
+ exception: "Could not find creator property with name ..."
+ (reported by Raniz85@github)
 #1533: `AsPropertyTypeDeserializer` ignores `DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
 #1543: JsonFormat.Shape.NUMBER_INT does not work when defined on enum type in 2.8
  (reported by Alex P)
+#1570: `Enum` key for `Map` ignores `SerializationFeature.WRITE_ENUMS_USING_INDEX`
+ (reported by SolaKun@github)
+#1573: Missing properties when deserializing using a builder class with a non-default
+  constructor and a mutator annotated with `@JsonUnwrapped`
+ (reported by Joshua J)
+#1575: Problem with `@JsonIgnoreProperties` on recursive property (regression in 2.8)
+ (reported by anujkumar04@github)
 - Minor fix to creation of `PropertyMetadata`, had one path that could lead to NPE
 
 2.8.7 (21-Feb-2017)

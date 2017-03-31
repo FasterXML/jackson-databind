@@ -71,16 +71,33 @@ public class SingleValueAsArrayTest extends BaseMapTest
 
     public void testSuccessfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
     {
-        MAPPER.readValue(JSON, Bean1421A.class);
+        Bean1421A result = MAPPER.readValue(JSON, Bean1421A.class);
+        assertNotNull(result);
     }
 
     public void testWithSingleString() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        Bean1421B<List<String>> a = objectMapper.readValue(quote("test2"),
+        Bean1421B<List<String>> a = MAPPER.readValue(quote("test2"),
                 new TypeReference<Bean1421B<List<String>>>() {});
         List<String> expected = new ArrayList<>();
         expected.add("test2");
         assertEquals(expected, a.value);
+    }
+
+    public void testPrimitives() throws Exception {
+        int[] i = MAPPER.readValue("16", int[].class);
+        assertEquals(1, i.length);
+        assertEquals(16, i[0]);
+
+        long[] l = MAPPER.readValue("1234", long[].class);
+        assertEquals(1, l.length);
+        assertEquals(1234L, l[0]);
+
+        double[] d = MAPPER.readValue("12.5", double[].class);
+        assertEquals(1, d.length);
+        assertEquals(12.5, d[0]);
+
+        boolean[] b = MAPPER.readValue("true", boolean[].class);
+        assertEquals(1, d.length);
+        assertEquals(true, b[0]);
     }
 }

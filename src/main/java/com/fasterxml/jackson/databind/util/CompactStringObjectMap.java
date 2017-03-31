@@ -124,6 +124,22 @@ public final class CompactStringObjectMap
         return null;
     }
 
+    /**
+     * @since 2.9
+     */
+    public Object findCaseInsensitive(String key) {
+        for (int i = 0, end = _hashArea.length; i < end; i += 2) {
+            Object k2 = _hashArea[i];
+            if (k2 != null) {
+                String s = (String) k2;
+                if (s.equalsIgnoreCase(key)) {
+                    return _hashArea[i+1];
+                }
+            }
+        }
+        return null;
+    }
+    
     public List<String> keys() {
         final int end = _hashArea.length;
         List<String> keys = new ArrayList<String>(end >> 2);

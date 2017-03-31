@@ -200,18 +200,4 @@ public class ClassUtilTest extends BaseMapTest
         assertEquals(exp, ClassUtil.getClassDescription("foo"));
         assertEquals(exp, ClassUtil.getClassDescription(String.class));
     }
-
-    @SuppressWarnings("deprecation")
-    public void testFindClass() throws Exception
-    {
-        assertEquals(Integer.TYPE, ClassUtil.findClass("int"));
-        assertEquals(Long.TYPE, ClassUtil.findClass("long"));
-        assertEquals(Byte.TYPE, ClassUtil.findClass("byte"));
-        assertEquals(Short.TYPE, ClassUtil.findClass("short"));
-        assertEquals(Character.TYPE, ClassUtil.findClass("char"));
-        assertEquals(Float.TYPE, ClassUtil.findClass("float"));
-        assertEquals(Double.TYPE, ClassUtil.findClass("double"));
-        assertEquals(Boolean.TYPE, ClassUtil.findClass("boolean"));
-        assertEquals(Void.TYPE, ClassUtil.findClass("void"));
-    }
 }

@@ -15,14 +15,8 @@ import static org.junit.Assert.assertArrayEquals;
  * Unit tests for verifying that "updating reader" works as
  * expected.
  */
-public class TestUpdateValue extends BaseMapTest
+public class TestUpdateViaObjectReader extends BaseMapTest
 {
-    /*
-    /********************************************************
-    /* Helper types
-    /********************************************************
-     */
-
     static class Bean {
         public String a = "a";
         public String b = "b";
@@ -36,7 +30,6 @@ public class TestUpdateValue extends BaseMapTest
         public int x, y;
     }
 
-    // [JACKSON-824]
     public class TextView {}
     public class NumView {}
 
@@ -85,7 +78,7 @@ public class TestUpdateValue extends BaseMapTest
     
     /*
     /********************************************************
-    /* Unit tests
+    /* Test methods
     /********************************************************
      */
 

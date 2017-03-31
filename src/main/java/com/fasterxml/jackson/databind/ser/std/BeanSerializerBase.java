@@ -353,14 +353,18 @@ public abstract class BeanSerializerBase
                     }
                 }
             }
-            prop.assignSerializer(ser);
-            // and maybe replace filtered property too? (see [JACKSON-364])
+            // and maybe replace filtered property too?
             if (i < filteredCount) {
                 BeanPropertyWriter w2 = _filteredProps[i];
                 if (w2 != null) {
                     w2.assignSerializer(ser);
+                    // 17-Mar-2017, tatu: Typically will lead to chained call to original property,
+                    //    which would lead to double set. Not a problem itself, except... unwrapping
+                    //    may require work to be done, which does lead to an actual issue.
+                    continue;
                 }
             }
+            prop.assignSerializer(ser);
         }
 
         // also, any-getter may need to be resolved
@@ -485,7 +489,7 @@ public abstract class BeanSerializerBase
                     String propName = objectIdInfo.getPropertyName().getSimpleName();
                     BeanPropertyWriter idProp = null;
 
-                    for (int i = 0, len = _props.length ;; ++i) {
+                    for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
                             throw new IllegalArgumentException("Invalid Object Id definition for "+_handledType.getName()
                                     +": can not find property with name '"+propName+"'");

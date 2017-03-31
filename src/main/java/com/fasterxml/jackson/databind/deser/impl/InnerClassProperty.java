@@ -56,6 +56,9 @@ public final class InnerClassProperty
 
     @Override
     protected SettableBeanProperty withDelegate(SettableBeanProperty d) {
+        if (d == this.delegate) {
+            return this;
+        }
         return new InnerClassProperty(d, _creator);
     }
 

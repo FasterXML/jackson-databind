@@ -80,9 +80,9 @@ public class UntypedDeserializationTest
         }
     }
 
-    static class MapDeserializer extends StdDeserializer<Map<String,Object>>
+    static class YMapDeserializer extends StdDeserializer<Map<String,Object>>
     {
-        public MapDeserializer() { super(Map.class); }
+        public YMapDeserializer() { super(Map.class); }
 
         @Override
         public Map<String,Object> deserialize(JsonParser p, DeserializationContext ctxt)
@@ -330,7 +330,7 @@ public class UntypedDeserializationTest
     public void testUntypedWithMapDeser() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
-        m.addDeserializer(Map.class, new MapDeserializer());
+        m.addDeserializer(Map.class, new YMapDeserializer());
         final ObjectMapper mapper = new ObjectMapper()
             .registerModule(m);
 

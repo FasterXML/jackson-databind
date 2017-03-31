@@ -18,24 +18,8 @@ public final class ClassUtil
 
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     private final static Ctor[] NO_CTORS = new Ctor[0];
-    
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
 
-    /* 21-Feb-2016, tatu: Unfortunately `Collections.emptyIterator()` only
-     *   comes with JDK7, so we'll still have to include our bogus implementation
-     *   for as long as we want JDK6 runtime compatibility
-     */
-    private final static class EmptyIterator<T> implements Iterator<T> {
-        @Override public boolean hasNext() { return false; }
-        @Override public T next() { throw new NoSuchElementException(); }
-        @Override public void remove() { throw new UnsupportedOperationException(); }
-    }
-    
-    private final static EmptyIterator<?> EMPTY_ITERATOR = new EmptyIterator<Object>();
+    private final static Iterator<?> EMPTY_ITERATOR = Collections.emptyIterator();
 
     /*
     /**********************************************************
@@ -48,8 +32,6 @@ public final class ClassUtil
      */
     @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
-// 21-Feb-2016, tatu: As per above, use a locally defined empty iterator
-//        return Collections.emptyIterator();
         return (Iterator<T>) EMPTY_ITERATOR;
     }
 
@@ -327,52 +309,6 @@ public final class ClassUtil
                     "Sub-class %s (of class %s) must override method '%s'",
                 instance.getClass().getName(), expType.getName(), method));
         }
-    }
-    
-    /*
-    /**********************************************************
-    /* Class loading
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 2.6, use method in {@link com.fasterxml.jackson.databind.type.TypeFactory}.
-     */
-    @Deprecated
-    public static Class<?> findClass(String className) throws ClassNotFoundException
-    {
-        // [JACKSON-597]: support primitive types (and void)
-        if (className.indexOf('.') < 0) {
-            if ("int".equals(className)) return Integer.TYPE;
-            if ("long".equals(className)) return Long.TYPE;
-            if ("float".equals(className)) return Float.TYPE;
-            if ("double".equals(className)) return Double.TYPE;
-            if ("boolean".equals(className)) return Boolean.TYPE;
-            if ("byte".equals(className)) return Byte.TYPE;
-            if ("char".equals(className)) return Character.TYPE;
-            if ("short".equals(className)) return Short.TYPE;
-            if ("void".equals(className)) return Void.TYPE;
-        }
-        // Two-phase lookup: first using context ClassLoader; then default
-        Throwable prob = null;
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        
-        if (loader != null) {
-            try {
-                return Class.forName(className, true, loader);
-            } catch (Exception e) {
-                prob = getRootCause(e);
-            }
-        }
-        try {
-            return Class.forName(className);
-        } catch (Exception e) {
-            if (prob == null) {
-                prob = getRootCause(e);
-            }
-        }
-        throwIfRTE(prob);
-        throw new ClassNotFoundException(prob.getMessage(), prob);
     }
 
     /*

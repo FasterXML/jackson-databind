@@ -1568,8 +1568,9 @@ public class ObjectReader
                 if (valueToUpdate == null) {
                     result = deser.deserialize(p, ctxt);
                 } else {
-                    deser.deserialize(p, ctxt, valueToUpdate);
-                    result = valueToUpdate;
+                    // 20-Mar-2017, tatu: Important! May be different from `valueToUpdate`
+                    //   for immutable Objects like Java arrays; logical result
+                    result = deser.deserialize(p, ctxt, valueToUpdate);
                 }
             }
         }
@@ -1777,7 +1778,7 @@ public class ObjectReader
      * of given input
      */
     protected void _reportUnkownFormat(DataFormatReaders detector, DataFormatReaders.Match match)
-            throws JsonProcessingException
+        throws JsonProcessingException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
         throw new JsonParseException(null, "Can not detect format from input, does not look like any of detectable formats "

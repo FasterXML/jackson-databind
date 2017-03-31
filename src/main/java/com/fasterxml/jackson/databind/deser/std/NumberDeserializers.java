@@ -187,9 +187,16 @@ public class NumberDeserializers
         }
 
         @Override
-        public Boolean deserialize(JsonParser j, DeserializationContext ctxt) throws IOException
+        public Boolean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            return _parseBoolean(j, ctxt);
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.VALUE_TRUE) {
+                return Boolean.TRUE;
+            }
+            if (t == JsonToken.VALUE_FALSE) {
+                return Boolean.FALSE;
+            }
+            return _parseBoolean(p, ctxt);
         }
 
         // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
@@ -199,12 +206,6 @@ public class NumberDeserializers
                 TypeDeserializer typeDeserializer)
             throws IOException
         {
-            return _parseBoolean(p, ctxt);
-        }
-
-        protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt)
-            throws IOException
-        {
             JsonToken t = p.getCurrentToken();
             if (t == JsonToken.VALUE_TRUE) {
                 return Boolean.TRUE;
@@ -212,12 +213,25 @@ public class NumberDeserializers
             if (t == JsonToken.VALUE_FALSE) {
                 return Boolean.FALSE;
             }
+            return _parseBoolean(p, ctxt);
+        }
+
+        protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+        {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.VALUE_NULL) {
+                return (Boolean) _coerceNullToken(ctxt, _primitive);
+            }
+            if (t == JsonToken.START_ARRAY) { // unwrapping?
+                return _deserializeFromArray(p, ctxt);
+            }
+
+//            final boolean canCoerce = ctxt.isEnabled(DeserializationFeature.ALLOW_COERCION_FOR_SCALARS);
+            
             // should accept ints too, (0 == false, otherwise true)
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return Boolean.valueOf(_parseBooleanFromInt(p, ctxt));
-            }
-            if (t == JsonToken.VALUE_NULL) {
-                return (Boolean) _coerceNullToken(ctxt, _primitive);
             }
             // And finally, let's allow Strings to be converted too
             if (t == JsonToken.VALUE_STRING) {
@@ -233,14 +247,17 @@ public class NumberDeserializers
                     return (Boolean) _coerceEmptyString(ctxt, _primitive);
                 }
                 if (_hasTextualNull(text)) {
-                    return  (Boolean) _coerceTextualNull(ctxt, _primitive);
+                    return (Boolean) _coerceTextualNull(ctxt, _primitive);
                 }
                 return (Boolean) ctxt.handleWeirdStringValue(_valueClass, text,
                         "only \"true\" or \"false\" recognized");
             }
-            // [databind#381]
-            if (t == JsonToken.START_ARRAY) {
-                return _deserializeFromArray(p, ctxt);
+            // usually caller should have handled but:
+            if (t == JsonToken.VALUE_TRUE) {
+                return Boolean.TRUE;
+            }
+            if (t == JsonToken.VALUE_FALSE) {
+                return Boolean.FALSE;
             }
             // Otherwise, no can do:
             return (Boolean) ctxt.handleUnexpectedToken(_valueClass, p);
@@ -264,15 +281,15 @@ public class NumberDeserializers
         @Override
         public Byte deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
+            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                return p.getByteValue();
+            }
             return _parseByte(p, ctxt);
         }
 
         protected Byte _parseByte(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             JsonToken t = p.getCurrentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT) {
-                return p.getByteValue();
-            }
             if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
                 String text = p.getText().trim();
                 if (_hasTextualNull(text)) {
@@ -310,6 +327,9 @@ public class NumberDeserializers
             // [databind#381]
             if (t == JsonToken.START_ARRAY) {
                 return _deserializeFromArray(p, ctxt);
+            }
+            if (t == JsonToken.VALUE_NUMBER_INT) { // shouldn't usually be called with it but
+                return p.getByteValue();
             }
             return (Byte) ctxt.handleUnexpectedToken(_valueClass, p);
         }

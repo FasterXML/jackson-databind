@@ -25,13 +25,23 @@ public class ScalarCoercionTest extends BaseMapTest
         // first successful coercions
         _verifyCoerceSuccess("1", Boolean.TYPE, Boolean.TRUE);
         _verifyCoerceSuccess("1", Boolean.class, Boolean.TRUE);
+        _verifyCoerceSuccess(quote("true"), Boolean.TYPE, Boolean.TRUE);
+        _verifyCoerceSuccess(quote("true"), Boolean.class, Boolean.TRUE);
+        _verifyCoerceSuccess(quote("True"), Boolean.TYPE, Boolean.TRUE);
+        _verifyCoerceSuccess(quote("True"), Boolean.class, Boolean.TRUE);
         _verifyCoerceSuccess("0", Boolean.TYPE, Boolean.FALSE);
         _verifyCoerceSuccess("0", Boolean.class, Boolean.FALSE);
+        _verifyCoerceSuccess(quote("false"), Boolean.TYPE, Boolean.FALSE);
+        _verifyCoerceSuccess(quote("false"), Boolean.class, Boolean.FALSE);
+        _verifyCoerceSuccess(quote("False"), Boolean.TYPE, Boolean.FALSE);
+        _verifyCoerceSuccess(quote("False"), Boolean.class, Boolean.FALSE);
 
         // and then expected fails
         /*
         _verifyCoerceFail("1", Boolean.TYPE);
         _verifyCoerceFail("1", Boolean.class);
+        _verifyCoerceFail(quote("true"), Boolean.TYPE);
+        _verifyCoerceFail(quote("true"), Boolean.class);
         */
     }
 

@@ -209,7 +209,7 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default.
      *
-     * @since 2.7
+     * @since 2.9
      */
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 

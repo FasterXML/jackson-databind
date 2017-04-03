@@ -410,7 +410,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Accessor for default property inclusion to use for serialization,
      * considering possible per-type override for given base type and
-	 * possible per-type override for given property type.<br>
+     * possible per-type override for given property type.<br>
      * NOTE: if no override found, defaults to value returned by
      * {@link #getDefaultPropertyInclusion()}.
      *
@@ -422,7 +422,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Accessor for default property inclusion to use for serialization,
      * considering possible per-type override for given base type and
-	 * possible per-type override for given property type; but
+     * possible per-type override for given property type; but
      * if none found, returning given <code>defaultIncl</code>
      *
      * @param defaultIncl Inclusion setting to return if no overrides found.

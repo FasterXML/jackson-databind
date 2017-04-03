@@ -106,11 +106,15 @@ public abstract class ConcreteBeanPropertyBase
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedMember member = getMember();
-        if ((intr == null) || (member == null)) {
-            JsonInclude.Value def = config.getDefaultPropertyInclusion(baseType);
-            return def;
+        JsonInclude.Value v0;
+        if (member == null) {
+            v0 = config.getDefaultPropertyInclusion(baseType);
+        } else {
+            v0 = config.getDefaultInclusion(baseType, member.getRawType());
         }
-        JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
+        if ((intr == null) || (member == null)) {
+            return v0;
+        }
         JsonInclude.Value v = intr.findPropertyInclusion(member);
         if (v0 == null) {
             return v;

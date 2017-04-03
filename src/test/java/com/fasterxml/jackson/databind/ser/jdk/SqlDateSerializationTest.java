@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -84,9 +85,13 @@ public class SqlDateSerializationTest extends BaseMapTest
     
     public void testPatternWithSqlDate() throws Exception
     {
+        ObjectMapper mapper = new ObjectMapper();
+        // `java.sql.Date` applies system default zone (and not UTC)
+        mapper.setTimeZone(TimeZone.getDefault());
+
         Person i = new Person();
         i.dateOfBirth = java.sql.Date.valueOf("1980-04-14");
         assertEquals(aposToQuotes("{'dateOfBirth':'1980.04.14'}"),
-                MAPPER.writeValueAsString(i));
+                mapper.writeValueAsString(i));
     }
 }

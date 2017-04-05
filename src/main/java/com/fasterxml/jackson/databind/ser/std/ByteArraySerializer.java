@@ -65,7 +65,7 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
         ObjectNode itemSchema = createSchemaNode("byte"); //binary values written as strings?
         return o.set("items", itemSchema);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

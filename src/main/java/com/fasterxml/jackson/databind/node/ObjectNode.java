@@ -103,6 +103,11 @@ public class ObjectNode
     }
 
     @Override
+    public Set<String> fieldNamesSet() {
+        return _children.keySet();
+    }
+
+    @Override
     public JsonNode path(int index) {
         return MissingNode.getInstance();
     }
@@ -124,6 +129,15 @@ public class ObjectNode
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
+    }
+
+    /**
+     * Method to use for accessing all fields (with both names
+     * and values) of this JSON Object.
+     */
+    @Override
+    public Set<Map.Entry<String, JsonNode>> fieldSet() {
+        return _children.entrySet();
     }
 
     @Override

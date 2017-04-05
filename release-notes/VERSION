@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.8 (not yet released)
+2.8.8 (05-Apr-2017)
 
 (partial) #994: `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS` only works for POJOs, Maps
 #1345: `@JsonProperty(access = READ_ONLY)` together with generated constructor (Lombok) causes

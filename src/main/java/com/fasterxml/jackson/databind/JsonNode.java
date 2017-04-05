@@ -183,6 +183,11 @@ public abstract class JsonNode
         return ClassUtil.emptyIterator();
     }
 
+    @Override
+    public Set<String> fieldNamesSet() {
+        return Collections.emptySet();
+    }
+
     /**
      * Method for locating node specified by given JSON pointer instances.
      * Method will never return null; if no matching node exists, 
@@ -768,6 +773,14 @@ public abstract class JsonNode
      */
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return ClassUtil.emptyIterator();
+    }
+
+    /**
+     * @return Set that can be used to traverse all key/value pairs for
+     *   object nodes; empty set (no contents) for other types
+     */
+    public Set<Map.Entry<String, JsonNode>> fields() {
+        return Collections.emptySet();
     }
 
     /*

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 public class TestInjectables extends BaseMapTest
 {
@@ -143,12 +144,12 @@ public class TestInjectables extends BaseMapTest
     {
         try {
             MAPPER.readValue("{}", BadBean1.class);
-        } catch (Exception e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Duplicate injectable value");
         }
         try {
             MAPPER.readValue("{}", BadBean2.class);
-        } catch (Exception e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "Duplicate injectable value");
         }
     }

@@ -87,7 +87,7 @@ public class POJOPropertiesCollector
      */
     protected LinkedHashMap<String, POJOPropertyBuilder> _properties;
 
-    protected LinkedList<POJOPropertyBuilder> _creatorProperties ;
+    protected LinkedList<POJOPropertyBuilder> _creatorProperties;
     
     protected LinkedList<AnnotatedMember> _anyGetters;
 

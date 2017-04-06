@@ -3,12 +3,13 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -211,6 +212,12 @@ public class BeanDeserializerFactory
             valueInstantiator = findValueInstantiator(ctxt, beanDesc);
         } catch (NoClassDefFoundError error) {
             return new ErrorThrowingDeserializer(error);
+        } catch (IllegalArgumentException e) {
+            // 05-Apr-2017, tatu: Although it might appear cleaner to require collector
+            //   to throw proper exception, it doesn't actually have reference to this
+            //   instance so...
+            throw InvalidDefinitionException.from(ctxt.getParser(), e.getMessage(),
+                    beanDesc, null);
         }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(valueInstantiator);
@@ -257,7 +264,18 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         // Creators, anyone? (to create builder itself)
-        ValueInstantiator valueInstantiator = findValueInstantiator(ctxt, builderDesc);
+        ValueInstantiator valueInstantiator;
+        try {
+            valueInstantiator = findValueInstantiator(ctxt, builderDesc);
+        } catch (NoClassDefFoundError error) {
+            return new ErrorThrowingDeserializer(error);
+        } catch (IllegalArgumentException e) {
+            // 05-Apr-2017, tatu: Although it might appear cleaner to require collector
+            //   to throw proper exception, it doesn't actually have reference to this
+            //   instance so...
+            throw InvalidDefinitionException.from(ctxt.getParser(), e.getMessage(),
+                    builderDesc, null);
+        }
         final DeserializationConfig config = ctxt.getConfig();
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, builderDesc);
         builder.setValueInstantiator(valueInstantiator);

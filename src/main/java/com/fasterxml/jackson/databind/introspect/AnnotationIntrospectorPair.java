@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -291,22 +292,29 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Object findInjectableValueId(AnnotatedMember m) {
-        Object r = _primary.findInjectableValueId(m);
-        return (r == null) ? _secondary.findInjectableValueId(m) : r;
+    public JacksonInject.Value findInjectableValue(AnnotatedMember m) {
+        JacksonInject.Value r = _primary.findInjectableValue(m);
+        return (r == null) ? _secondary.findInjectableValue(m) : r;
     }
 
     @Override
     public boolean hasIgnoreMarker(AnnotatedMember m) {
         return _primary.hasIgnoreMarker(m) || _secondary.hasIgnoreMarker(m);
     }
-    
+
     @Override
     public Boolean hasRequiredMarker(AnnotatedMember m) {
         Boolean r = _primary.hasRequiredMarker(m);
         return (r == null) ? _secondary.hasRequiredMarker(m) : r;
     }
-    
+
+    @Override
+    @Deprecated // since 2.9
+    public Object findInjectableValueId(AnnotatedMember m) {
+        Object r = _primary.findInjectableValueId(m);
+        return (r == null) ? _secondary.findInjectableValueId(m) : r;
+    }
+
     // // // Serialization: general annotations
 
     @Override

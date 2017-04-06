@@ -467,8 +467,18 @@ public abstract class AnnotationIntrospector
      * 
      * @return Identifier of value to inject, if any; null if no injection
      *   indicator is found
+     *
+     * @since 2.9
      */
-    public Object findInjectableValueId(AnnotatedMember m) { return null; }
+    public JacksonInject.Value findInjectableValue(AnnotatedMember m) {
+        // 05-Apr-2017, tatu: Just for 2.9, call deprecated method to help
+        //    with some cases of overrides for legacy code
+        Object id = findInjectableValue(m);
+        if (id != null) {
+            return JacksonInject.Value.forId(id);
+        }
+        return null;
+    }
 
     /**
      * Method that can be called to check whether this member has
@@ -476,7 +486,7 @@ public abstract class AnnotationIntrospector
      * is required or not.
      */
     public Boolean hasRequiredMarker(AnnotatedMember m) { return null; }
-    
+
     /**
      * Method for checking if annotated property (represented by a field or
      * getter/setter method) has definitions for views it is to be included in.
@@ -601,6 +611,14 @@ public abstract class AnnotationIntrospector
      */
     public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
             AnnotatedMethod setter1, AnnotatedMethod setter2) {
+        return null;
+    }
+
+    /**
+     * @deprecated Since 2.9 Use {@link #findInjectableValue} instead
+     */
+    @Deprecated // since 2.9
+    public Object findInjectableValueId(AnnotatedMember m) {
         return null;
     }
 
@@ -751,9 +769,9 @@ public abstract class AnnotationIntrospector
      * Method for checking whether content (entries) of a {@link java.util.Map} property
      * are to be included during serialization or not.
      * NOTE: this is NOT called for POJO properties, or array/Collection elements.
-     * 
+     *
      * @since 2.5
-     * 
+     *
      * @deprecated Since 2.7 Use {@link #findPropertyInclusion} instead
      */
     @Deprecated // since 2.7

@@ -441,29 +441,37 @@ public class JacksonAnnotationIntrospector
         return NameTransformer.simpleTransformer(prefix, suffix);
     }
 
-    @Override
-    public Object findInjectableValueId(AnnotatedMember m)
-    {
+    @Override // since 2.9
+    public JacksonInject.Value findInjectableValue(AnnotatedMember m) {
         JacksonInject ann = _findAnnotation(m, JacksonInject.class);
         if (ann == null) {
             return null;
         }
-        /* Empty String means that we should use name of declared
-         * value class.
-         */
-        String id = ann.value();
-        if (id.length() == 0) {
+        // Empty String means that we should use name of declared value class.
+        JacksonInject.Value v = JacksonInject.Value.from(ann);
+        if (!v.hasId()) {
+            Object id;
             // slight complication; for setters, type 
             if (!(m instanceof AnnotatedMethod)) {
-                return m.getRawType().getName();
+                id = m.getRawType().getName();
+            } else {
+                AnnotatedMethod am = (AnnotatedMethod) m;
+                if (am.getParameterCount() == 0) { // getter
+                    id = m.getRawType().getName();
+                } else { // setter
+                    id = am.getRawParameterType(0).getName();
+                }
             }
-            AnnotatedMethod am = (AnnotatedMethod) m;
-            if (am.getParameterCount() == 0) {
-                return m.getRawType().getName();
-            }
-            return am.getRawParameterType(0).getName();
+            v = v.withId(id);
         }
-        return id;
+        return v;
+    }
+
+    @Override
+    @Deprecated // since 2.9
+    public Object findInjectableValueId(AnnotatedMember m) {
+        JacksonInject.Value v = findInjectableValue(m);
+        return (v == null) ? null : v.getId();
     }
 
     @Override

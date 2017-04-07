@@ -18,6 +18,16 @@ public interface Annotations
     public <A extends Annotation> A get(Class<A> cls);
 
     /**
+     * @since 2.9
+     */
+    public boolean has(Class<?> cls);
+
+    /**
+     * @since 2.9
+     */
+    public boolean hasOneOf(Class<? extends Annotation>[] annoClasses);
+
+    /**
      * Returns number of annotation entries in this collection.
      */
     public int size();

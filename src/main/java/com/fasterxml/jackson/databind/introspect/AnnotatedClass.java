@@ -48,8 +48,6 @@ public final class AnnotatedClass
     /**
      * Ordered set of super classes and interfaces of the
      * class itself: included in order of precedence
-     *<p>
-     * NOTE: changed in 2.7 from List of <code>Class</code>es to List of {@link JavaType}s.
      */
     final protected List<JavaType> _superTypes;
 
@@ -88,7 +86,8 @@ public final class AnnotatedClass
      * Combined list of Jackson annotations that the class has,
      * including inheritable ones from super classes and interfaces
      */
-    final protected AnnotationMap _classAnnotations;
+    final protected Annotations _classAnnotations;
+//    final protected AnnotationMap _classAnnotations;
 
     /**
      * Flag to indicate whether creator information has been resolved
@@ -158,23 +157,6 @@ public final class AnnotatedClass
         _classAnnotations = _resolveClassAnnotations();
     }
 
-    private AnnotatedClass(AnnotatedClass base, AnnotationMap clsAnn) {
-        _type = base._type;
-        _class = base._class;
-        _bindings = base._bindings;
-        _superTypes = base._superTypes;
-        _annotationIntrospector = base._annotationIntrospector;
-        _typeFactory = base._typeFactory;
-        _mixInResolver = base._mixInResolver;
-        _primaryMixIn = base._primaryMixIn;
-        _classAnnotations = clsAnn;
-    }
-
-    @Override
-    public AnnotatedClass withAnnotations(AnnotationMap ann) {
-        return new AnnotatedClass(this, ann);
-    }
-
     /**
      * Factory method that instantiates an instance. Returned instance
      * will only be initialized with class annotations, but not with
@@ -237,6 +219,86 @@ public final class AnnotatedClass
 
     /*
     /**********************************************************
+    /* Class annotation resolution
+    /**********************************************************
+     */
+    
+    /**
+     * Initialization method that will recursively collect Jackson
+     * annotations for this class and all super classes and
+     * interfaces.
+     */
+    private AnnotationMap _resolveClassAnnotations()
+    {
+        AnnotationMap ca = new AnnotationMap();
+        // Should skip processing if annotation processing disabled
+        if (_annotationIntrospector != null) {
+            // add mix-in annotations first (overrides)
+            if (_primaryMixIn != null) {
+                _addClassMixIns(ca, _class, _primaryMixIn);
+            }
+            // first, annotations from the class itself:
+            _addAnnotationsIfNotPresent(ca,
+                    ClassUtil.findClassAnnotations(_class));
+    
+            // and then from super types
+            for (JavaType type : _superTypes) {
+                // and mix mix-in annotations in-between
+                _addClassMixIns(ca, type);
+                _addAnnotationsIfNotPresent(ca,
+                        ClassUtil.findClassAnnotations(type.getRawClass()));
+            }
+            /* and finally... any annotations there might be for plain
+             * old Object.class: separate because for all other purposes
+             * it is just ignored (not included in super types)
+             */
+            // 12-Jul-2009, tatu: Should this be done for interfaces too?
+            //  For now, yes, seems useful for some cases, and not harmful for any?
+            _addClassMixIns(ca, Object.class);
+        }
+        return ca;
+    }
+    /**
+     * Helper method for adding any mix-in annotations specified
+     * class might have.
+     */
+    protected void _addClassMixIns(AnnotationMap annotations, JavaType target)
+    {
+        if (_mixInResolver != null) {
+            final Class<?> toMask = target.getRawClass();
+            _addClassMixIns(annotations, toMask, _mixInResolver.findMixInClassFor(toMask));
+        }
+    }
+
+    protected void _addClassMixIns(AnnotationMap annotations, Class<?> target)
+    {
+        if (_mixInResolver != null) {
+            _addClassMixIns(annotations, target, _mixInResolver.findMixInClassFor(target));
+        }
+    }
+    protected void _addClassMixIns(AnnotationMap annotations, Class<?> toMask,
+            Class<?> mixin)
+    {
+        if (mixin == null) {
+            return;
+        }
+        // Ok, first: annotations from mix-in class itself:
+        _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(mixin));
+
+        /* And then from its supertypes, if any. But note that we will
+         * only consider super-types up until reaching the masked
+         * class (if found); this because often mix-in class
+         * is a sub-class (for convenience reasons). And if so, we
+         * absolutely must NOT include super types of masked class,
+         * as that would inverse precedence of annotations.
+         */
+        for (Class<?> parent : ClassUtil.findSuperClasses(mixin, toMask, false)) {
+            _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(parent));
+        }
+    }
+
+    /*
+    /**********************************************************
     /* TypeResolutionContext implementation
     /**********************************************************
      */
@@ -279,16 +341,6 @@ public final class AnnotatedClass
     @Override
     public Class<?> getRawType() {
         return _class;
-    }
-
-    @Override
-    public Iterable<Annotation> annotations() {
-        return _classAnnotations.annotations();
-    }
-    
-    @Override
-    protected AnnotationMap getAllAnnotations() {
-        return _classAnnotations;
     }
 
     @Override
@@ -390,43 +442,6 @@ public final class AnnotatedClass
     /* Public API, main-level resolution methods
     /**********************************************************
      */
-
-    /**
-     * Initialization method that will recursively collect Jackson
-     * annotations for this class and all super classes and
-     * interfaces.
-     */
-    private AnnotationMap _resolveClassAnnotations()
-    {
-        AnnotationMap ca = new AnnotationMap();
-        // Should skip processing if annotation processing disabled
-        if (_annotationIntrospector != null) {
-            // add mix-in annotations first (overrides)
-            if (_primaryMixIn != null) {
-                _addClassMixIns(ca, _class, _primaryMixIn);
-            }
-            // first, annotations from the class itself:
-            _addAnnotationsIfNotPresent(ca,
-                    ClassUtil.findClassAnnotations(_class));
-    
-            // and then from super types
-            for (JavaType type : _superTypes) {
-                // and mix mix-in annotations in-between
-                _addClassMixIns(ca, type);
-                _addAnnotationsIfNotPresent(ca,
-                        ClassUtil.findClassAnnotations(type.getRawClass()));
-            }
-            /* and finally... any annotations there might be for plain
-             * old Object.class: separate because for all other purposes
-             * it is just ignored (not included in super types)
-             */
-            /* 12-Jul-2009, tatu: Should this be done for interfaces too?
-             *   For now, yes, seems useful for some cases, and not harmful for any?
-             */
-            _addClassMixIns(ca, Object.class);
-        }
-        return ca;
-    }
 
     /**
      * Initialization method that will find out all constructors
@@ -596,54 +611,6 @@ public final class AnnotatedClass
         } else {
             _fields = new ArrayList<AnnotatedField>(foundFields.size());
             _fields.addAll(foundFields.values());
-        }
-    }
-    
-    /*
-    /**********************************************************
-    /* Helper methods for resolving class annotations
-    /* (resolution consisting of inheritance, overrides,
-    /* and injection of mix-ins as necessary)
-    /**********************************************************
-     */
-    
-    /**
-     * Helper method for adding any mix-in annotations specified
-     * class might have.
-     */
-    protected void _addClassMixIns(AnnotationMap annotations, JavaType target)
-    {
-        if (_mixInResolver != null) {
-            final Class<?> toMask = target.getRawClass();
-            _addClassMixIns(annotations, toMask, _mixInResolver.findMixInClassFor(toMask));
-        }
-    }
-
-    protected void _addClassMixIns(AnnotationMap annotations, Class<?> target)
-    {
-        if (_mixInResolver != null) {
-            _addClassMixIns(annotations, target, _mixInResolver.findMixInClassFor(target));
-        }
-    }
-
-    protected void _addClassMixIns(AnnotationMap annotations, Class<?> toMask,
-            Class<?> mixin)
-    {
-        if (mixin == null) {
-            return;
-        }
-        // Ok, first: annotations from mix-in class itself:
-        _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(mixin));
-
-        /* And then from its supertypes, if any. But note that we will
-         * only consider super-types up until reaching the masked
-         * class (if found); this because often mix-in class
-         * is a sub-class (for convenience reasons). And if so, we
-         * absolutely must NOT include super types of masked class,
-         * as that would inverse precedence of annotations.
-         */
-        for (Class<?> parent : ClassUtil.findSuperClasses(mixin, toMask, false)) {
-            _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(parent));
         }
     }
 

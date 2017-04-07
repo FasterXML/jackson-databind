@@ -24,20 +24,6 @@ public abstract class Annotated
      * @since 2.7
      */
     public abstract boolean hasOneOf(Class<? extends Annotation>[] annoClasses);
-    
-    /**
-     * Fluent factory method that will construct a new instance that uses specified
-     * instance annotations instead of currently configured ones.
-     */
-    public abstract Annotated withAnnotations(AnnotationMap fallback);
-
-    /**
-     * Fluent factory method that will construct a new instance that uses
-     * annotations from specified {@link Annotated} as fallback annotations
-     */
-    public final Annotated withFallBackAnnotationsFrom(Annotated annotated) {
-        return withAnnotations(AnnotationMap.merge(getAllAnnotations(), annotated.getAllAnnotations()));
-    }
 
     /**
      * Method that can be used to find actual JDK element that this instance
@@ -89,20 +75,6 @@ public abstract class Annotated
      * of what exactly this means depends on sub-class.
      */
     public abstract Class<?> getRawType();
-
-    /**
-     * Accessor that can be used to iterate over all the annotations
-     * associated with annotated component.
-     * 
-     * @since 2.3
-     */
-    public abstract Iterable<Annotation> annotations();
-
-    /**
-     * Internal helper method used to access annotation information;
-     * not exposed to developers since instances are mutable.
-     */
-    protected abstract AnnotationMap getAllAnnotations();
 
     // Also: ensure we can use #equals, #hashCode
     

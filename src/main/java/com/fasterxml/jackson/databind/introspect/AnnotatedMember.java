@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
-import java.util.Collections;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -47,7 +46,15 @@ public abstract class AnnotatedMember
         _typeContext = base._typeContext;
         _annotations = base._annotations;
     }
-    
+
+    /**
+     * Fluent factory method that will construct a new instance that uses specified
+     * instance annotations instead of currently configured ones.
+     *
+     * @since 2.9 (promoted from `Annotated`)
+     */
+    public abstract Annotated withAnnotations(AnnotationMap fallback);
+
     /**
      * Actual physical class in which this memmber was declared.
      */
@@ -92,16 +99,11 @@ public abstract class AnnotatedMember
         }
         return _annotations.hasOneOf(annoClasses);
     }
-    
-    @Override
-    public Iterable<Annotation> annotations() {
-        if (_annotations == null) {
-            return Collections.emptyList();
-        }
-        return _annotations.annotations();
-    }
-    
-    @Override
+
+    /**
+     *<p>
+     * NOTE: promoted in 2.9 from `Annotated` up
+     */
     protected AnnotationMap getAllAnnotations() {
         return _annotations;
     }

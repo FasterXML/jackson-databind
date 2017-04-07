@@ -21,6 +21,12 @@ public final class AnnotationMap implements Annotations
         _annotations = a;
     }
 
+    /*
+    /**********************************************************
+    /* Annotations impl
+    /**********************************************************
+     */
+    
     @SuppressWarnings("unchecked")
     @Override
     public <A extends Annotation> A get(Class<A> cls)
@@ -31,6 +37,7 @@ public final class AnnotationMap implements Annotations
         return (A) _annotations.get(cls);
     }
 
+    @Override
     public boolean has(Class<?> cls)
     {
         if (_annotations == null) {
@@ -45,6 +52,7 @@ public final class AnnotationMap implements Annotations
      *
      * @since 2.7
      */
+    @Override
     public boolean hasOneOf(Class<? extends Annotation>[] annoClasses) {
         if (_annotations != null) {
             for (int i = 0, end = annoClasses.length; i < end; ++i) {
@@ -56,6 +64,12 @@ public final class AnnotationMap implements Annotations
         return false;
     }
 
+    /*
+    /**********************************************************
+    /* Other API
+    /**********************************************************
+     */
+    
     /**
      * @since 2.3
      */

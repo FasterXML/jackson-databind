@@ -10,6 +10,10 @@ public class JSONPObjectTest extends BaseMapTest {
   private final String CALLBACK = "callback";
   private final ObjectMapper MAPPER = new ObjectMapper();
 
+  /**
+   * Unit tests for checking that JSONP breaking characters U+2028 and U+2029 are escaped when creating a {@link JSONPObject}.
+   */
+
   public void testU2028Escaped() throws IOException {
     String containsU2028 = String.format("This string contains %c char", '\u2028');
     JSONPObject jsonpObject = new JSONPObject(CALLBACK, containsU2028);

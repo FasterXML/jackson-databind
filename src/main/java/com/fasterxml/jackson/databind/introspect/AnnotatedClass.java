@@ -87,7 +87,6 @@ public final class AnnotatedClass
      * including inheritable ones from super classes and interfaces
      */
     final protected Annotations _classAnnotations;
-//    final protected AnnotationMap _classAnnotations;
 
     /**
      * Flag to indicate whether creator information has been resolved
@@ -141,20 +140,19 @@ public final class AnnotatedClass
      * Constructor will not do any initializations, to allow for
      * configuring instances differently depending on use cases
      */
-    private AnnotatedClass(JavaType type, Class<?> rawType, TypeBindings bindings,
-            List<JavaType> superTypes,
+    private AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
+            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
             AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
     {
         _type = type;
         _class = rawType;
+        _classAnnotations = classAnnotations;
         _bindings = bindings;
         _superTypes = superTypes;
         _annotationIntrospector = aintr;
         _typeFactory = tf;
         _mixInResolver = mir;
-        _primaryMixIn = (_mixInResolver == null) ? null
-            : _mixInResolver.findMixInClassFor(_class);
-        _classAnnotations = _resolveClassAnnotations();
+        _primaryMixIn = primaryMixIn;
     }
 
     /**
@@ -164,13 +162,16 @@ public final class AnnotatedClass
      * 
      * @since 2.7
      */
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
+    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config)
+    {
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         Class<?> raw = type.getRawClass();
-        return new AnnotatedClass(type, raw, type.getBindings(),
-                ClassUtil.findSuperTypes(type, null, false), intr,
-                (MixInResolver) config, config.getTypeFactory());
+        List<JavaType> superTypes = ClassUtil.findSuperTypes(type, null, false);
+        Class<?> mixin = config.findMixInClassFor(raw);
+        Annotations classAnn = _resolveClassAnnotations(config, intr, raw, superTypes, mixin);
+        return new AnnotatedClass(type, raw, superTypes, mixin, classAnn, type.getBindings(),
+                intr, (MixInResolver) config, config.getTypeFactory());
     }
 
     /**
@@ -182,9 +183,11 @@ public final class AnnotatedClass
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
         Class<?> raw = type.getRawClass();
-        return new AnnotatedClass(type, raw, type.getBindings(),
-                ClassUtil.findSuperTypes(type, null, false),
-                intr, mir, config.getTypeFactory());
+        List<JavaType> superTypes = ClassUtil.findSuperTypes(type, null, false);
+        Class<?> mixin = config.findMixInClassFor(raw);
+        Annotations classAnn = _resolveClassAnnotations(config, intr, raw, superTypes, mixin);
+        return new AnnotatedClass(type, raw, superTypes, mixin, classAnn, type.getBindings(),
+                intr, (MixInResolver) config, config.getTypeFactory());
     }
     
     /**
@@ -192,29 +195,25 @@ public final class AnnotatedClass
      * information from supertypes; only class itself and any direct
      * mix-ins it may have.
      */
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls, MapperConfig<?> config)
-    {
-        if (config == null) {
-            return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                    Collections.<JavaType>emptyList(), null, null, null);
-        }
-        AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
-                ? config.getAnnotationIntrospector() : null;
-        return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                Collections.<JavaType>emptyList(), intr, (MixInResolver) config, config.getTypeFactory());
+    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config) {
+        return constructWithoutSuperTypes(raw, config, config);
     }
 
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls, MapperConfig<?> config,
+    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config,
             MixInResolver mir)
     {
+        List<JavaType> superTypes = Collections.<JavaType>emptyList();
         if (config == null) {
-            return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                    Collections.<JavaType>emptyList(), null, null, null);
+            Annotations noClassAnn = new AnnotationMap();
+            return new AnnotatedClass(null, raw, superTypes, null, noClassAnn,
+                    TypeBindings.emptyBindings(), null, null, null);
         }
         AnnotationIntrospector intr = config.isAnnotationProcessingEnabled()
                 ? config.getAnnotationIntrospector() : null;
-        return new AnnotatedClass(null, cls, TypeBindings.emptyBindings(),
-                Collections.<JavaType>emptyList(), intr, mir, config.getTypeFactory());
+        Class<?> mixin = config.findMixInClassFor(raw);
+        Annotations classAnn = _resolveClassAnnotations(config, intr, raw, superTypes, mixin);
+        return new AnnotatedClass(null, raw, superTypes, mixin, classAnn,
+                TypeBindings.emptyBindings(), intr, config, config.getTypeFactory());
     }
 
     /*
@@ -228,72 +227,65 @@ public final class AnnotatedClass
      * annotations for this class and all super classes and
      * interfaces.
      */
-    private AnnotationMap _resolveClassAnnotations()
+    private static AnnotationMap _resolveClassAnnotations(MapperConfig<?> config,
+            AnnotationIntrospector intr,
+            Class<?> cls, List<JavaType> superTypes, Class<?> primaryMixIn)
     {
-        AnnotationMap ca = new AnnotationMap();
         // Should skip processing if annotation processing disabled
-        if (_annotationIntrospector != null) {
-            // add mix-in annotations first (overrides)
-            if (_primaryMixIn != null) {
-                _addClassMixIns(ca, _class, _primaryMixIn);
-            }
-            // first, annotations from the class itself:
-            _addAnnotationsIfNotPresent(ca,
-                    ClassUtil.findClassAnnotations(_class));
-    
-            // and then from super types
-            for (JavaType type : _superTypes) {
-                // and mix mix-in annotations in-between
-                _addClassMixIns(ca, type);
-                _addAnnotationsIfNotPresent(ca,
-                        ClassUtil.findClassAnnotations(type.getRawClass()));
-            }
-            /* and finally... any annotations there might be for plain
-             * old Object.class: separate because for all other purposes
-             * it is just ignored (not included in super types)
-             */
-            // 12-Jul-2009, tatu: Should this be done for interfaces too?
-            //  For now, yes, seems useful for some cases, and not harmful for any?
-            _addClassMixIns(ca, Object.class);
+        if (intr == null) {
+            return new AnnotationMap();
         }
-        return ca;
-    }
-    /**
-     * Helper method for adding any mix-in annotations specified
-     * class might have.
-     */
-    protected void _addClassMixIns(AnnotationMap annotations, JavaType target)
-    {
-        if (_mixInResolver != null) {
-            final Class<?> toMask = target.getRawClass();
-            _addClassMixIns(annotations, toMask, _mixInResolver.findMixInClassFor(toMask));
-        }
-    }
+        MixInResolver mir = config;
 
-    protected void _addClassMixIns(AnnotationMap annotations, Class<?> target)
-    {
-        if (_mixInResolver != null) {
-            _addClassMixIns(annotations, target, _mixInResolver.findMixInClassFor(target));
+        AnnotationMap resolvedCA = new AnnotationMap();
+        // add mix-in annotations first (overrides)
+        if (primaryMixIn != null) {
+            _addClassMixIns(intr, resolvedCA, cls, primaryMixIn);
         }
-    }
-    protected void _addClassMixIns(AnnotationMap annotations, Class<?> toMask,
-            Class<?> mixin)
-    {
-        if (mixin == null) {
-            return;
-        }
-        // Ok, first: annotations from mix-in class itself:
-        _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(mixin));
+        // first, annotations from the class itself:
+        _addAnnotationsIfNotPresent(intr, resolvedCA,
+                ClassUtil.findClassAnnotations(cls));
 
-        /* And then from its supertypes, if any. But note that we will
-         * only consider super-types up until reaching the masked
-         * class (if found); this because often mix-in class
-         * is a sub-class (for convenience reasons). And if so, we
-         * absolutely must NOT include super types of masked class,
-         * as that would inverse precedence of annotations.
+        // and then from super types
+        for (JavaType type : superTypes) {
+            // and mix mix-in annotations in-between
+            if (mir != null) {
+                _addClassMixIns(intr, resolvedCA, type.getRawClass(),
+                        mir.findMixInClassFor(type.getRawClass()));
+            }
+            _addAnnotationsIfNotPresent(intr, resolvedCA,
+                    ClassUtil.findClassAnnotations(type.getRawClass()));
+        }
+        /* and finally... any annotations there might be for plain
+         * old Object.class: separate because for all other purposes
+         * it is just ignored (not included in super types)
          */
-        for (Class<?> parent : ClassUtil.findSuperClasses(mixin, toMask, false)) {
-            _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(parent));
+        // 12-Jul-2009, tatu: Should this be done for interfaces too?
+        //  For now, yes, seems useful for some cases, and not harmful for any?
+        if (mir != null) {
+            _addClassMixIns(intr, resolvedCA, Object.class,
+                    mir.findMixInClassFor(Object.class));
+        }
+        return resolvedCA;
+    }
+
+    private static void _addClassMixIns(AnnotationIntrospector intr, 
+            AnnotationMap annotations, Class<?> target, Class<?> mixin)
+    {
+        if (mixin != null) {
+            // Ok, first: annotations from mix-in class itself:
+            _addAnnotationsIfNotPresent(intr,
+                    annotations, ClassUtil.findClassAnnotations(mixin));
+    
+            // And then from its supertypes, if any. But note that we will only consider
+            // super-types up until reaching the masked class (if found); this because
+            // often mix-in class is a sub-class (for convenience reasons).
+            // And if so, we absolutely must NOT include super types of masked class,
+            // as that would inverse precedence of annotations.
+            for (Class<?> parent : ClassUtil.findSuperClasses(mixin, target, false)) {
+                _addAnnotationsIfNotPresent(intr,
+                        annotations, ClassUtil.findClassAnnotations(parent));
+            }
         }
     }
 
@@ -1020,96 +1012,8 @@ public final class AnnotatedClass
         return result;
     }
 
-    protected AnnotationMap _collectRelevantAnnotations(Annotation[] anns)
-    {
-        return _addAnnotationsIfNotPresent(new AnnotationMap(), anns);
-    }
-    
-    /* Helper method used to add all applicable annotations from given set.
-     * Takes into account possible "annotation bundles" (meta-annotations to
-     * include instead of main-level annotation)
-     */
-    private AnnotationMap _addAnnotationsIfNotPresent(AnnotationMap result, Annotation[] anns)
-    {
-        if (anns != null) {
-            List<Annotation> fromBundles = null;
-            for (Annotation ann : anns) { // first: direct annotations
-                // note: we will NOT filter out non-Jackson anns any more
-                boolean wasNotPresent = result.addIfNotPresent(ann);
-                if (wasNotPresent && _isAnnotationBundle(ann)) {
-                    fromBundles = _addFromBundle(ann, fromBundles);
-                }
-            }
-            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
-                _addAnnotationsIfNotPresent(result, fromBundles.toArray(new Annotation[fromBundles.size()]));
-            }
-        }
-        return result;
-    }
-
-    private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
-    {
-        for (Annotation a : ClassUtil.findClassAnnotations(bundle.annotationType())) {
-            // minor optimization: by-pass 2 common JDK meta-annotations
-            if ((a instanceof Target) || (a instanceof Retention)) {
-                continue;
-            }
-            if (result == null) {
-                result = new ArrayList<Annotation>();
-            }
-            result.add(a);
-        }
-        return result;
-    }
-    
-    private void _addAnnotationsIfNotPresent(AnnotatedMember target, Annotation[] anns)
-    {
-        if (anns != null) {
-            List<Annotation> fromBundles = null;
-            for (Annotation ann : anns) { // first: direct annotations
-                boolean wasNotPresent = target.addIfNotPresent(ann);
-                if (wasNotPresent && _isAnnotationBundle(ann)) {
-                    fromBundles = _addFromBundle(ann, fromBundles);
-                }
-            }
-            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
-                _addAnnotationsIfNotPresent(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
-            }
-        }
-    }
-    
-    private void _addOrOverrideAnnotations(AnnotatedMember target, Annotation[] anns)
-    {
-        if (anns != null) {
-            List<Annotation> fromBundles = null;
-            for (Annotation ann : anns) { // first: direct annotations
-                boolean wasModified = target.addOrOverride(ann);
-                if (wasModified && _isAnnotationBundle(ann)) {
-                    fromBundles = _addFromBundle(ann, fromBundles);
-                }
-            }
-            if (fromBundles != null) { // and then bundles, if any: important for precedence
-                _addOrOverrideAnnotations(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
-            }
-        }
-    }
-    
-    /**
-     * @param addParamAnnotations Whether parameter annotations are to be
-     *   added as well
-     */
-    protected void _addMixOvers(Constructor<?> mixin, AnnotatedConstructor target,
-            boolean addParamAnnotations)
-    {
-        _addOrOverrideAnnotations(target, mixin.getDeclaredAnnotations());
-        if (addParamAnnotations) {
-            Annotation[][] pa = mixin.getParameterAnnotations();
-            for (int i = 0, len = pa.length; i < len; ++i) {
-                for (Annotation a : pa[i]) {
-                    target.addOrOverrideParam(i, a);
-                }
-            }
-        }
+    protected AnnotationMap _collectRelevantAnnotations(Annotation[] anns) {
+        return _addAnnotationsIfNotPresent(_annotationIntrospector, new AnnotationMap(), anns);
     }
 
     /**
@@ -1131,15 +1035,109 @@ public final class AnnotatedClass
     }
 
     /**
+     * @param addParamAnnotations Whether parameter annotations are to be
+     *   added as well
+     */
+    protected void _addMixOvers(Constructor<?> mixin, AnnotatedConstructor target,
+            boolean addParamAnnotations)
+    {
+        _addOrOverrideAnnotations(target, mixin.getDeclaredAnnotations());
+        if (addParamAnnotations) {
+            Annotation[][] pa = mixin.getParameterAnnotations();
+            for (int i = 0, len = pa.length; i < len; ++i) {
+                for (Annotation a : pa[i]) {
+                    target.addOrOverrideParam(i, a);
+                }
+            }
+        }
+    }
+
+    /**
      * Method that will add annotations from specified source method to target method,
      * but only if target does not yet have them.
      */
     protected void _addMixUnders(Method src, AnnotatedMethod target) {
-        _addAnnotationsIfNotPresent(target, src.getDeclaredAnnotations());
+        _addAnnotationsIfNotPresent(_annotationIntrospector, target, src.getDeclaredAnnotations());
     }
 
-    private final boolean _isAnnotationBundle(Annotation ann) {
-        return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
+    private void _addOrOverrideAnnotations(AnnotatedMember target, Annotation[] anns)
+    {
+        if (anns == null) {
+            return;
+        }
+        List<Annotation> fromBundles = null;
+        for (Annotation ann : anns) { // first: direct annotations
+            boolean wasModified = target.addOrOverride(ann);
+            if (wasModified && _annotationIntrospector.isAnnotationBundle(ann)) {
+                fromBundles = _addFromBundle(ann, fromBundles);
+            }
+        }
+        if (fromBundles != null) { // and then bundles, if any: important for precedence
+            _addOrOverrideAnnotations(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Static helper methods, attaching annotations
+    /**********************************************************
+     */
+
+    // Helper method used to add all applicable annotations from given set.
+    // Takes into account possible "annotation bundles" (meta-annotations to
+    // include instead of main-level annotation)
+    private static AnnotationMap _addAnnotationsIfNotPresent(AnnotationIntrospector intr,
+            AnnotationMap result, Annotation[] anns)
+    {
+        if (anns != null) {
+            List<Annotation> fromBundles = null;
+            for (Annotation ann : anns) { // first: direct annotations
+                // note: we will NOT filter out non-Jackson anns any more
+                boolean wasNotPresent = result.addIfNotPresent(ann);
+                if (wasNotPresent && intr.isAnnotationBundle(ann)) {
+                    fromBundles = _addFromBundle(ann, fromBundles);
+                }
+            }
+            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
+                _addAnnotationsIfNotPresent(intr,
+                        result, fromBundles.toArray(new Annotation[fromBundles.size()]));
+            }
+        }
+        return result;
+    }
+
+    private static List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
+    {
+        for (Annotation a : ClassUtil.findClassAnnotations(bundle.annotationType())) {
+            // minor optimization: by-pass 2 common JDK meta-annotations
+            if ((a instanceof Target) || (a instanceof Retention)) {
+                continue;
+            }
+            if (result == null) {
+                result = new ArrayList<Annotation>();
+            }
+            result.add(a);
+        }
+        return result;
+    }
+    
+    private static void _addAnnotationsIfNotPresent(AnnotationIntrospector intr,
+            AnnotatedMember target, Annotation[] anns)
+    {
+        if (anns == null) {
+            return;
+        }
+        List<Annotation> fromBundles = null;
+        for (Annotation ann : anns) { // first: direct annotations
+            boolean wasNotPresent = target.addIfNotPresent(ann);
+            if (wasNotPresent && intr.isAnnotationBundle(ann)) {
+                fromBundles = _addFromBundle(ann, fromBundles);
+            }
+        }
+        if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
+            _addAnnotationsIfNotPresent(intr,
+                    target, fromBundles.toArray(new Annotation[fromBundles.size()]));
+        }
     }
 
     /**
@@ -1147,9 +1145,9 @@ public final class AnnotatedClass
      * but sometimes (as per [databind#785]) more complicated, depending on classloader
      * setup.
      *
-     * @since 2.4.7
+     * @since 2.5
      */
-    protected Method[] _findClassMethods(Class<?> cls)
+    protected static Method[] _findClassMethods(Class<?> cls)
     {
         try {
             return ClassUtil.getDeclaredMethods(cls);

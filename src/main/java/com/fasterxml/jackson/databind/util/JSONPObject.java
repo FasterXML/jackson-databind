@@ -66,6 +66,8 @@ public class JSONPObject
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {
+        // Escape line-separator characters that break JSONP
+        jgen.setCharacterEscapes(JsonpCharacterEscapes.instance());
         // First, wrapping:
         jgen.writeRaw(_function);
         jgen.writeRaw('(');

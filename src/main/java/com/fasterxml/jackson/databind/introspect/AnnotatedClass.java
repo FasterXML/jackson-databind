@@ -114,7 +114,7 @@ public final class AnnotatedClass
      * Member methods of interest; for now ones with 0 or 1 arguments
      * (just optimization, since others won't be used now)
      */
-    protected AnnotatedMethodMap  _memberMethods;
+    protected AnnotatedMethodMap _memberMethods;
 
     /**
      * Member fields of interest: ones that are either public,

@@ -25,14 +25,6 @@ Project: jackson-databind
 
 #935: `@JsonProperty(access = Access.READ_ONLY)` - unexpected behaviour
 #1317: '@JsonIgnore' annotation not working with creator properties, serialization
-#1367: No Object Id found for an instance when using `@ConstructorProperties`
-#1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
- (suggested by Stephan S)
-#1506: Missing `KeyDeserializer` for `CharSequence`
-#1513: `MapSerializer._orderEntries()` throws NPE when operating on `ConcurrentHashMap`
- (reported by Sovietaced@github)
-- Simplified processing of class annotations (for `AnnotatedClass`) to try to
-  solve rare concurrency problems with "root name" annotations.
 
 2.8.6 (12-Jan-2017)
 
@@ -168,23 +160,17 @@ Project: jackson-databind
 #1277: Add caching of resolved generic types for `TypeFactory`
  (requested by Andriy P)
 
-2.7.9 (not released yet)
+
+2.7.9 (04-Feb-2017)
 
 #1367: No Object Id found for an instance when using `@ConstructorProperties`
- (reported by kajo-bellabeat@github; fix by diegode@github)
-#1432: Off by 1 bug in PropertyValueBuffer
- (reported by Kevin D)
-#1439: NPE when using with filter id, serializing `java.util.Map` types
-#1451: Type parameter not passed by `ObjectWriter` if serializer pre-fetch disabled
- (reported by Frédéric C)
-#1456: `TypeFactory` type resolution broken in 2.7 for generic types
-   when using `constructType` with context
- (reported by Dmitry S)
-#1476: Wrong constructor picked up when deserializing object
- (reported by laurentgo@github)
-#1501: `ArrayIndexOutOfBoundsException` on non-static inner class constructor
- (reported by Kevin H)
+#1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
+ (suggested by Stephan S)
 #1506: Missing `KeyDeserializer` for `CharSequence`
+#1513: `MapSerializer._orderEntries()` throws NPE when operating on `ConcurrentHashMap`
+ (reported by Sovietaced@github)
+- Simplified processing of class annotations (for `AnnotatedClass`) to try to
+  solve rare concurrency problems with "root name" annotations.
 
 2.7.8 (26-Sep-2016)
 

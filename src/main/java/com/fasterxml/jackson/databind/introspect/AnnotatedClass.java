@@ -116,7 +116,7 @@ public final class AnnotatedClass
      * Member methods of interest; for now ones with 0 or 1 arguments
      * (just optimization, since others won't be used now)
      */
-    protected AnnotatedMethodMap  _memberMethods;
+    protected AnnotatedMethodMap _memberMethods;
 
     /**
      * Member fields of interest: ones that are either public,
@@ -520,23 +520,28 @@ public final class AnnotatedClass
      */
     private void resolveMemberMethods()
     {
-        _memberMethods = new AnnotatedMethodMap();
+        _memberMethods = _resolveMemberMethods();
+    }
+
+    private AnnotatedMethodMap _resolveMemberMethods()
+    {
+        AnnotatedMethodMap memberMethods = new AnnotatedMethodMap();
         AnnotatedMethodMap mixins = new AnnotatedMethodMap();
         // first: methods from the class itself
-        _addMemberMethods(_class, this, _memberMethods, _primaryMixIn, mixins);
+        _addMemberMethods(_class, this, memberMethods, _primaryMixIn, mixins);
 
         // and then augment these with annotations from super-types:
         for (JavaType type : _superTypes) {
             Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(type.getRawClass());
             _addMemberMethods(type.getRawClass(),
                     new TypeResolutionContext.Basic(_typeFactory, type.getBindings()),
-                    _memberMethods, mixin, mixins);
+                    memberMethods, mixin, mixins);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)
         if (_mixInResolver != null) {
             Class<?> mixin = _mixInResolver.findMixInClassFor(Object.class);
             if (mixin != null) {
-                _addMethodMixIns(_class, _memberMethods, mixin, mixins);
+                _addMethodMixIns(_class, memberMethods, mixin, mixins);
             }
         }
 
@@ -557,14 +562,15 @@ public final class AnnotatedClass
                             // Since it's from java.lang.Object, no generics, no need for real type context:
                             AnnotatedMethod am = _constructMethod(m, this);
                             _addMixOvers(mixIn.getAnnotated(), am, false);
-                            _memberMethods.add(am);
+                            memberMethods.add(am);
                         }
                     } catch (Exception e) { }
                 }
             }
         }
+        return memberMethods;
     }
-    
+
     /**
      * Method that will collect all member (non-static) fields
      * that are either public, or have at least a single annotation
@@ -573,14 +579,16 @@ public final class AnnotatedClass
     private void resolveFields()
     {
         Map<String,AnnotatedField> foundFields = _findFields(_type, this, null);
+        List<AnnotatedField> f;
         if (foundFields == null || foundFields.size() == 0) {
-            _fields = Collections.emptyList();
+            f = Collections.emptyList();
         } else {
-            _fields = new ArrayList<AnnotatedField>(foundFields.size());
-            _fields.addAll(foundFields.values());
+            f = new ArrayList<AnnotatedField>(foundFields.size());
+            f.addAll(foundFields.values());
         }
+        _fields = f;
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for resolving class annotations

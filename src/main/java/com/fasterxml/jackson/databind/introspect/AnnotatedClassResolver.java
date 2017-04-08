@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class AnnotatedClassResolver
 {
+    private final static Annotations NO_ANNOTATIONS = AnnotationCollector.emptyAnnotations();
+
     private final MapperConfig<?> _config;
     private final AnnotationIntrospector _intr;
     private final MixInResolver _mixInResolver;
@@ -55,7 +57,7 @@ public class AnnotatedClassResolver
         } else {
             _intr = config.isAnnotationProcessingEnabled()
                     ? config.getAnnotationIntrospector() : null;
-                _primaryMixin = _config.findMixInClassFor(_class);
+            _primaryMixin = _config.findMixInClassFor(_class);
         }
     }
 
@@ -116,19 +118,19 @@ public class AnnotatedClassResolver
     /* Class annotation resolution
     /**********************************************************
      */
-    
+
     /**
      * Initialization method that will recursively collect Jackson
      * annotations for this class and all super classes and
      * interfaces.
      */
-    private AnnotationMap resolveClassAnnotations(List<JavaType> superTypes)
+    private Annotations resolveClassAnnotations(List<JavaType> superTypes)
     {
         // Should skip processing if annotation processing disabled
         if (_intr == null) {
-            return new AnnotationMap();
+            return NO_ANNOTATIONS;
         }
-        AnnotationMap resolvedCA = new AnnotationMap();
+        AnnotationCollector resolvedCA = new AnnotationCollector();        
         // add mix-in annotations first (overrides)
         if (_primaryMixin != null) {
             _addClassMixIns(resolvedCA, _class, _primaryMixin);
@@ -158,10 +160,10 @@ public class AnnotatedClassResolver
             _addClassMixIns(resolvedCA, Object.class,
                     _mixInResolver.findMixInClassFor(Object.class));
         }
-        return resolvedCA;
+        return resolvedCA.asAnnotations();
     }
 
-    private void _addClassMixIns(AnnotationMap annotations,
+    private void _addClassMixIns(AnnotationCollector annotations,
             Class<?> target, Class<?> mixin)
     {
         if (mixin != null) {
@@ -179,7 +181,7 @@ public class AnnotatedClassResolver
         }
     }
 
-    private AnnotationMap _addAnnotationsIfNotPresent(AnnotationMap result, Annotation[] anns)
+    private void _addAnnotationsIfNotPresent(AnnotationCollector result, Annotation[] anns)
     {
         if (anns != null) {
             List<Annotation> fromBundles = null;
@@ -191,11 +193,23 @@ public class AnnotatedClassResolver
                 }
             }
             if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
-                _addAnnotationsIfNotPresent(result,
-                        fromBundles.toArray(new Annotation[fromBundles.size()]));
+                _addAnnotationsIfNotPresent(result, fromBundles);
             }
         }
-        return result;
+    }
+
+    private void _addAnnotationsIfNotPresent(AnnotationCollector result, List<Annotation> anns)
+    {
+        List<Annotation> fromBundles = null;
+        for (Annotation ann : anns) {
+            boolean wasNotPresent = result.addIfNotPresent(ann);
+            if (wasNotPresent && _intr.isAnnotationBundle(ann)) {
+                fromBundles = _addFromBundle(ann, fromBundles);
+            }
+        }
+        if (fromBundles != null) {
+            _addAnnotationsIfNotPresent(result, fromBundles);
+        }
     }
 
     private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)

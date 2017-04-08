@@ -17,7 +17,7 @@ public final class AnnotationMap implements Annotations
 
     public AnnotationMap() { }
     
-    private AnnotationMap(HashMap<Class<?>,Annotation> a) {
+    AnnotationMap(HashMap<Class<?>,Annotation> a) {
         _annotations = a;
     }
 

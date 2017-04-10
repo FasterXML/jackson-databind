@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -66,8 +67,15 @@ public class JSONPObject
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {
-        // Escape line-separator characters that break JSONP
-        jgen.setCharacterEscapes(JsonpCharacterEscapes.instance());
+        CharacterEscapes currentCharacterEscapes = jgen.getCharacterEscapes();
+
+        // NOTE: Escape line-separator characters that break JSONP only if no custom character escapes are set.
+        // If custom escapes are in place JSONP-breaking characters will not be escaped and it is recommended to
+        // add escaping for those (see JsonpCharacterEscapes class).
+        if (currentCharacterEscapes == null) {
+            jgen.setCharacterEscapes(JsonpCharacterEscapes.instance());
+        }
+
         // First, wrapping:
         jgen.writeRaw(_function);
         jgen.writeRaw('(');
@@ -80,6 +88,7 @@ public class JSONPObject
             provider.findTypedValueSerializer(cls, true, null).serialize(_value, jgen, provider);
         }
         jgen.writeRaw(')');
+        jgen.setCharacterEscapes(currentCharacterEscapes);
     }
 
     /*

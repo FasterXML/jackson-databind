@@ -504,9 +504,6 @@ public final class AnnotatedClass
         if (parent != null) {
             final Class<?> cls = type.getRawClass();
             // Let's add super-class' fields first, then ours.
-            /* 21-Feb-2010, tatu: Need to handle masking: as per [JACKSON-226]
-             *    we otherwise get into trouble...
-             */
             fields = _findFields(parent,
                     new TypeResolutionContext.Basic(_typeFactory, parent.getBindings()),
                     fields);
@@ -587,6 +584,10 @@ public final class AnnotatedClass
         return new AnnotatedField(typeContext, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
  
+    private AnnotationMap _collectRelevantAnnotations(Annotation[] anns) {
+        return _addAnnotationsIfNotPresent(_annotationIntrospector, new AnnotationMap(), anns);
+    }
+
     static AnnotationMap _emptyAnnotationMap() {
         return new AnnotationMap();
     }
@@ -645,10 +646,6 @@ public final class AnnotatedClass
     /* Helper methods, attaching annotations
     /**********************************************************
      */
-
-    private AnnotationMap _collectRelevantAnnotations(Annotation[] anns) {
-        return _addAnnotationsIfNotPresent(_annotationIntrospector, new AnnotationMap(), anns);
-    }
 
     /**
      * @param addParamAnnotations Whether parameter annotations are to be
@@ -738,7 +735,7 @@ public final class AnnotatedClass
     }
     
     private static void _addAnnotationsIfNotPresent(AnnotationIntrospector intr,
-            AnnotatedMember target, Annotation[] anns)
+            AnnotatedMethod target, Annotation[] anns)
     {
         if (anns == null) {
             return;

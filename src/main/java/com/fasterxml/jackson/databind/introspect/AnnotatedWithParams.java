@@ -84,7 +84,7 @@ public abstract class AnnotatedWithParams
 
     public final AnnotatedParameter getParameter(int index) {
         return new AnnotatedParameter(this, getParameterType(index),
-                getParameterAnnotations(index), index);
+                _typeContext, getParameterAnnotations(index), index);
     }
 
     public abstract int getParameterCount();

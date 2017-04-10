@@ -185,7 +185,8 @@ public class TestJacksonAnnotationIntrospector
     {
         ObjectMapper mapper = new ObjectMapper();
         JacksonAnnotationIntrospector ai = new JacksonAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(TypeResolverBean.class, mapper.getSerializationConfig());
+        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(mapper.getSerializationConfig(),
+                TypeResolverBean.class);
         JavaType baseType = TypeFactory.defaultInstance().constructType(TypeResolverBean.class);
         TypeResolverBuilder<?> rb = ai.findTypeResolver(mapper.getDeserializationConfig(), ac, baseType);
         assertNotNull(rb);

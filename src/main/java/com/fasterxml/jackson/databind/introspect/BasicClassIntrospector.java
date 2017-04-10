@@ -24,29 +24,28 @@ public class BasicClassIntrospector
      * This is strictly performance optimization to reduce what is
      * usually one-time cost, but seems useful for some cases considering
      * simplicity.
-     * 
+     *
      * @since 2.4
      */
-    
     protected final static BasicBeanDescription STRING_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(String.class, null);
-        STRING_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(String.class), ac);
+        STRING_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(String.class),
+                AnnotatedClassResolver.createPrimordial(String.class));
     }
     protected final static BasicBeanDescription BOOLEAN_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Boolean.TYPE, null);
-        BOOLEAN_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Boolean.TYPE), ac);
+        BOOLEAN_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Boolean.TYPE),
+                AnnotatedClassResolver.createPrimordial(Boolean.TYPE));
     }
     protected final static BasicBeanDescription INT_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Integer.TYPE, null);
-        INT_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Integer.TYPE), ac);
+        INT_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Integer.TYPE),
+                AnnotatedClassResolver.createPrimordial(Integer.TYPE));
     }
     protected final static BasicBeanDescription LONG_DESC;
     static {
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Long.TYPE, null);
-        LONG_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Long.TYPE), ac);
+        LONG_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Long.TYPE),
+                AnnotatedClassResolver.createPrimordial(Long.TYPE));
     }
 
     /*
@@ -54,9 +53,6 @@ public class BasicClassIntrospector
     /* Life cycle
     /**********************************************************
      */
-
-    @Deprecated // since 2.5: construct instance directly
-    public final static BasicClassIntrospector instance = new BasicClassIntrospector();
 
     /**
      * Looks like 'forClassAnnotations()' gets called so frequently that we
@@ -84,7 +80,7 @@ public class BasicClassIntrospector
         // minor optimization: for some JDK types do minimal introspection
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
-            // As per [Databind#550], skip full introspection for some of standard
+            // As per [databind#550], skip full introspection for some of standard
             // structured types as well
             desc = _findStdJdkCollectionDesc(cfg, type);
             if (desc == null) {
@@ -157,8 +153,8 @@ public class BasicClassIntrospector
         if (desc == null) {
             desc = _cachedFCA.get(type);
             if (desc == null) {
-                AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
-                desc = BasicBeanDescription.forOtherUse(config, type, ac);
+                desc = BasicBeanDescription.forOtherUse(config, type,
+                        _resolveAnnotatedClass(config, type, r));
                 _cachedFCA.put(type, desc);
             }
         }
@@ -171,12 +167,12 @@ public class BasicClassIntrospector
     {
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
-            AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(type.getRawClass(), config, r);
-            desc = BasicBeanDescription.forOtherUse(config, type, ac);
+            desc = BasicBeanDescription.forOtherUse(config, type,
+                    _resolveAnnotatedWithoutSuperTypes(config, type, r));
         }
         return desc;
     }
-    
+
     /*
     /**********************************************************
     /* Overridable helper methods
@@ -187,16 +183,16 @@ public class BasicClassIntrospector
             JavaType type, MixInResolver r, boolean forSerialization,
             String mutatorPrefix)
     {
-        AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
-        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
+        return constructPropertyCollector(config,
+                _resolveAnnotatedClass(config, type, r),
+                type, forSerialization, mutatorPrefix);
     }
 
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
-        boolean useAnnotations = config.isAnnotationProcessingEnabled();
-        AnnotationIntrospector ai = useAnnotations ? config.getAnnotationIntrospector() : null;
-        AnnotatedClass ac = AnnotatedClass.construct(type, config, r);
+        AnnotatedClass ac = _resolveAnnotatedClass(config, type, r);
+        AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
         JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
         String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
         return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix);
@@ -267,9 +263,25 @@ public class BasicClassIntrospector
     protected BasicBeanDescription _findStdJdkCollectionDesc(MapperConfig<?> cfg, JavaType type)
     {
         if (_isStdJDKCollection(type)) {
-            AnnotatedClass ac = AnnotatedClass.construct(type, cfg);
-            return BasicBeanDescription.forOtherUse(cfg, type, ac);
+            return BasicBeanDescription.forOtherUse(cfg, type,
+                    _resolveAnnotatedClass(cfg, type, cfg));
         }
         return null;
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected AnnotatedClass _resolveAnnotatedClass(MapperConfig<?> config,
+            JavaType type, MixInResolver r) {
+        return AnnotatedClassResolver.resolve(config, type, r);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected AnnotatedClass _resolveAnnotatedWithoutSuperTypes(MapperConfig<?> config,
+            JavaType type, MixInResolver r) {
+        return AnnotatedClassResolver.resolveWithoutSuperTypes(config, type, r);
     }
 }

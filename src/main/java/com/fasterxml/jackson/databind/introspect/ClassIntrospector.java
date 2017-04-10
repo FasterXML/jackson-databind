@@ -46,13 +46,13 @@ public abstract class ClassIntrospector
     }
 
     protected ClassIntrospector() { }
-	
+
     /*
     /**********************************************************
     /* Public API: factory methods
     /**********************************************************
      */
-    
+
     /**
      * Factory method that constructs an introspector that has all
      * information needed for serialization purposes.
@@ -100,4 +100,3 @@ public abstract class ClassIntrospector
     public abstract BeanDescription forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
             MixInResolver r);
 }
-

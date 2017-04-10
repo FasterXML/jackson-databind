@@ -31,7 +31,7 @@ public final class AnnotatedParameter
      * Index of the parameter within argument list
      */
     protected final int _index;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -39,9 +39,10 @@ public final class AnnotatedParameter
      */
 
     public AnnotatedParameter(AnnotatedWithParams owner, JavaType type,
+            TypeResolutionContext typeContext,
             AnnotationMap annotations, int index)
     {
-        super((owner == null) ? null : owner.getTypeContext(), annotations);
+        super(typeContext, annotations);
         _owner = owner;
         _type = type;
         _index = index;

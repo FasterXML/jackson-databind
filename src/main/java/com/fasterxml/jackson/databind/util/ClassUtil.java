@@ -1217,7 +1217,6 @@ public final class ClassUtil
             return _ctor.getDeclaringClass();
         }
 
-        // Modest boost: maybe 1%?
         public Annotation[] getDeclaredAnnotations() {
             Annotation[] result = _annotations;
             if (result == null) {
@@ -1227,7 +1226,6 @@ public final class ClassUtil
             return result;
         }
 
-        // Modest boost: maybe 1%?
         public  Annotation[][] getParameterAnnotations() {
             Annotation[][] result = _paramAnnotations;
             if (result == null) {

@@ -71,7 +71,10 @@ public abstract class AnnotatedMember
      * full generic type of this member.
      * 
      * @since 2.7
+     *
+     * @deprecated Since 2.9
      */
+    @Deprecated
     public TypeResolutionContext getTypeContext() {
         return _typeContext;
     }

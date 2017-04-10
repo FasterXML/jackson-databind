@@ -61,10 +61,6 @@ public class AnnotatedClassResolver
         }
     }
 
-    public static AnnotatedClass resolve(MapperConfig<?> config, JavaType forType) {
-        return new AnnotatedClassResolver(config, forType, config).resolveFully();
-    }
-
     public static AnnotatedClass resolve(MapperConfig<?> config, JavaType forType,
             MixInResolver r)
     {

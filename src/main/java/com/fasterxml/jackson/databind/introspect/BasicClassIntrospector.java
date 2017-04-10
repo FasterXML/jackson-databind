@@ -154,7 +154,7 @@ public class BasicClassIntrospector
             desc = _cachedFCA.get(type);
             if (desc == null) {
                 desc = BasicBeanDescription.forOtherUse(config, type,
-                        AnnotatedClassResolver.resolve(config, type, r));
+                        _resolveAnnotatedClass(config, type, r));
                 _cachedFCA.put(type, desc);
             }
         }
@@ -168,7 +168,7 @@ public class BasicClassIntrospector
         BasicBeanDescription desc = _findStdTypeDesc(type);
         if (desc == null) {
             desc = BasicBeanDescription.forOtherUse(config, type,
-                    AnnotatedClassResolver.resolveWithoutSuperTypes(config, type, r));
+                    _resolveAnnotatedWithoutSuperTypes(config, type, r));
         }
         return desc;
     }
@@ -184,14 +184,14 @@ public class BasicClassIntrospector
             String mutatorPrefix)
     {
         return constructPropertyCollector(config,
-                AnnotatedClassResolver.resolve(config, type, r),
+                _resolveAnnotatedClass(config, type, r),
                 type, forSerialization, mutatorPrefix);
     }
 
     protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
-        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, type, r);
+        AnnotatedClass ac = _resolveAnnotatedClass(config, type, r);
         AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
         JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
         String mutatorPrefix = (builderConfig == null) ? JsonPOJOBuilder.DEFAULT_WITH_PREFIX : builderConfig.withPrefix;
@@ -264,8 +264,24 @@ public class BasicClassIntrospector
     {
         if (_isStdJDKCollection(type)) {
             return BasicBeanDescription.forOtherUse(cfg, type,
-                    AnnotatedClassResolver.resolve(cfg, type));
+                    _resolveAnnotatedClass(cfg, type, cfg));
         }
         return null;
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected AnnotatedClass _resolveAnnotatedClass(MapperConfig<?> config,
+            JavaType type, MixInResolver r) {
+        return AnnotatedClassResolver.resolve(config, type, r);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected AnnotatedClass _resolveAnnotatedWithoutSuperTypes(MapperConfig<?> config,
+            JavaType type, MixInResolver r) {
+        return AnnotatedClassResolver.resolveWithoutSuperTypes(config, type, r);
     }
 }

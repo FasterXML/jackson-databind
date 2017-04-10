@@ -83,7 +83,7 @@ public class TestAnnotatedClass
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
         JavaType t = MAPPER.constructType(FieldBean.class);
-        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, t);
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, t, config);
         // AnnotatedClass does not ignore non-visible fields, yet
         assertEquals(2, ac.getFieldCount());
         for (AnnotatedField f : ac.fields()) {
@@ -102,7 +102,7 @@ public class TestAnnotatedClass
         Bean1005 bean = new Bean1005(13);
         SerializationConfig config = MAPPER.getSerializationConfig();
         JavaType t = MAPPER.constructType(bean.getClass());
-        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, t);
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(config, t, config);
         assertEquals(1, ac.getConstructors().size());
     }
 }

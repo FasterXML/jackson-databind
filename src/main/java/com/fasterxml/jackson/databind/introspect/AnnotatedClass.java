@@ -19,7 +19,7 @@ public final class AnnotatedClass
     extends Annotated
     implements TypeResolutionContext
 {
-    private final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
+    final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
 
     /*
     /**********************************************************
@@ -88,27 +88,7 @@ public final class AnnotatedClass
      */
     final protected Annotations _classAnnotations;
 
-    /**
-     * Flag to indicate whether creator information has been resolved
-     * or not.
-     */
-    protected boolean _creatorsResolved = false;
-    
-    /**
-     * Default constructor of the annotated class, if it has one.
-     */
-    protected AnnotatedConstructor _defaultConstructor;
-
-    /**
-     * Single argument constructors the class has, if any.
-     */
-    protected List<AnnotatedConstructor> _constructors;
-
-    /**
-     * Single argument static methods that might be usable
-     * as factory methods
-     */
-    protected List<AnnotatedMethod> _creatorMethods;
+    protected Creators _creators;
 
     /**
      * Member methods of interest; for now ones with 0 or 1 arguments
@@ -263,26 +243,26 @@ public final class AnnotatedClass
 
     public AnnotatedConstructor getDefaultConstructor()
     {
-        if (!_creatorsResolved) {
-            resolveCreators();
+        if (_creators == null) {
+            _creators = AnnotatedCreatorResolver.resolve(this, _type);
         }
-        return _defaultConstructor;
+        return _creators.defaultConstructor;
     }
 
     public List<AnnotatedConstructor> getConstructors()
     {
-        if (!_creatorsResolved) {
-            resolveCreators();
+        if (_creators == null) {
+            _creators = AnnotatedCreatorResolver.resolve(this, _type);
         }
-        return _constructors;
+        return _creators.constructors;
     }
 
     public List<AnnotatedMethod> getStaticMethods()
     {
-        if (!_creatorsResolved) {
-            resolveCreators();
+        if (_creators == null) {
+            _creators = AnnotatedCreatorResolver.resolve(this, _type);
         }
-        return _creatorMethods;
+        return _creators.creatorMethods;
     }
 
     public Iterable<AnnotatedMethod> memberMethods()
@@ -341,108 +321,6 @@ public final class AnnotatedClass
     /* Public API, main-level resolution methods
     /**********************************************************
      */
-
-    /**
-     * Initialization method that will find out all constructors
-     * and potential static factory methods the class has.
-     */
-    private void resolveCreators()
-    {
-        // Constructor also always members of this class
-        TypeResolutionContext typeContext = this; 
-
-    // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
-    //   NOT apply to context since sub-class may have type bindings
-//    TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
-
-        // Then see which constructors we have
-        List<AnnotatedConstructor> constructors = null;
-
-        // 18-Jun-2016, tatu: Enum constructors will never be useful (unlike
-        //    possibly static factory methods); but they can be royal PITA
-        //    due to some oddities by JVM; see:
-        //    [https://github.com/FasterXML/jackson-module-parameter-names/issues/35]
-        //    for more. So, let's just skip them.
-        if (!_type.isEnumType()) {
-            ClassUtil.Ctor[] declaredCtors = ClassUtil.getConstructors(_class);
-            for (ClassUtil.Ctor ctor : declaredCtors) {
-                if (_isIncludableConstructor(ctor.getConstructor())) {
-                    if (ctor.getParamCount() == 0) {
-                        _defaultConstructor = _constructDefaultConstructor(ctor, typeContext);
-                    } else {
-                        if (constructors == null) {
-                            constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
-                        }
-                        constructors.add(_constructNonDefaultConstructor(ctor, typeContext));
-                    }
-                }
-            }
-        }
-        if (constructors == null) {
-            _constructors = Collections.emptyList();
-        } else {
-            _constructors = constructors;
-        }
-        // and if need be, augment with mix-ins
-        if (_primaryMixIn != null) {
-            if (_defaultConstructor != null || !_constructors.isEmpty()) {
-                _addConstructorMixIns(_primaryMixIn);
-            }
-        }
-
-        /* And then... let's remove all constructors that are deemed
-         * ignorable after all annotations have been properly collapsed.
-         */
-        // AnnotationIntrospector is null if annotations not enabled; if so, can skip:
-        if (_annotationIntrospector != null) {
-            if (_defaultConstructor != null) {
-                if (_annotationIntrospector.hasIgnoreMarker(_defaultConstructor)) {
-                    _defaultConstructor = null;
-                }
-            }
-            if (_constructors != null) {
-                // count down to allow safe removal
-                for (int i = _constructors.size(); --i >= 0; ) {
-                    if (_annotationIntrospector.hasIgnoreMarker(_constructors.get(i))) {
-                        _constructors.remove(i);
-                    }
-                }
-            }
-        }
-        List<AnnotatedMethod> creatorMethods = null;
-        
-        // Then static methods which are potential factory methods
-        for (Method m : _findClassMethods(_class)) {
-            if (!Modifier.isStatic(m.getModifiers())) {
-                continue;
-            }
-            // all factory methods are fine:
-            //int argCount = m.getParameterTypes().length;
-            if (creatorMethods == null) {
-                creatorMethods = new ArrayList<AnnotatedMethod>(8);
-            }
-            creatorMethods.add(_constructCreatorMethod(m, typeContext));
-        }
-        if (creatorMethods == null) {
-            _creatorMethods = Collections.emptyList();
-        } else {
-            _creatorMethods = creatorMethods;
-            // mix-ins to mix in?
-            if (_primaryMixIn != null) {
-                _addFactoryMixIns(_primaryMixIn);
-            }
-            // anything to ignore at this point?
-            if (_annotationIntrospector != null) {
-                // count down to allow safe removal
-                for (int i = _creatorMethods.size(); --i >= 0; ) {
-                    if (_annotationIntrospector.hasIgnoreMarker(_creatorMethods.get(i))) {
-                        _creatorMethods.remove(i);
-                    }
-                }
-            }
-        }
-        _creatorsResolved = true;
-    }
 
     /**
      * Method for resolving member method information: aggregating all non-static methods
@@ -518,71 +396,6 @@ public final class AnnotatedClass
             f.addAll(foundFields.values());
         }
         _fields = f;
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods for populating creator (ctor, factory) information
-    /**********************************************************
-     */
-
-    protected void _addConstructorMixIns(Class<?> mixin)
-    {
-        MemberKey[] ctorKeys = null;
-        int ctorCount = (_constructors == null) ? 0 : _constructors.size();
-        for (ClassUtil.Ctor ctor0 : ClassUtil.getConstructors(mixin)) {
-            Constructor<?> ctor = ctor0.getConstructor();
-            if (ctor.getParameterTypes().length == 0) {
-                if (_defaultConstructor != null) {
-                    _addMixOvers(ctor, _defaultConstructor, false);
-                }
-            } else {
-                if (ctorKeys == null) {
-                    ctorKeys = new MemberKey[ctorCount];
-                    for (int i = 0; i < ctorCount; ++i) {
-                        ctorKeys[i] = new MemberKey(_constructors.get(i).getAnnotated());
-                    }
-                }
-                MemberKey key = new MemberKey(ctor);
-
-                for (int i = 0; i < ctorCount; ++i) {
-                    if (!key.equals(ctorKeys[i])) {
-                        continue;
-                    }
-                    _addMixOvers(ctor, _constructors.get(i), true);
-                    break;
-                }
-            }
-        }
-    }
-
-    protected void _addFactoryMixIns(Class<?> mixin)
-    {
-        MemberKey[] methodKeys = null;
-        int methodCount = _creatorMethods.size();
-
-        for (Method m : ClassUtil.getDeclaredMethods(mixin)) {
-            if (!Modifier.isStatic(m.getModifiers())) {
-                continue;
-            }
-            if (m.getParameterTypes().length == 0) {
-                continue;
-            }
-            if (methodKeys == null) {
-                methodKeys = new MemberKey[methodCount];
-                for (int i = 0; i < methodCount; ++i) {
-                    methodKeys[i] = new MemberKey(_creatorMethods.get(i).getAnnotated());
-                }
-            }
-            MemberKey key = new MemberKey(m);
-            for (int i = 0; i < methodCount; ++i) {
-                if (!key.equals(methodKeys[i])) {
-                    continue;
-                }
-                _addMixOvers(m, _creatorMethods.get(i), true);
-                break;
-            }
-        }
     }
 
     /*
@@ -766,83 +579,6 @@ public final class AnnotatedClass
         return new AnnotatedMethod(typeContext, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()), null);
     }
 
-    protected AnnotatedConstructor _constructDefaultConstructor(ClassUtil.Ctor ctor,
-            TypeResolutionContext typeContext)
-    {
-        if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedConstructor(typeContext, ctor.getConstructor(), _emptyAnnotationMap(), NO_ANNOTATION_MAPS);
-        }
-        return new AnnotatedConstructor(typeContext, ctor.getConstructor(),
-                _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), NO_ANNOTATION_MAPS);
-    }
-
-    protected AnnotatedConstructor _constructNonDefaultConstructor(ClassUtil.Ctor ctor,
-            TypeResolutionContext typeContext)
-    {
-        final int paramCount = ctor.getParamCount();
-        if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedConstructor(typeContext, ctor.getConstructor(),
-                    _emptyAnnotationMap(), _emptyAnnotationMaps(paramCount));
-        }
-
-        /* Looks like JDK has discrepancy, whereas annotations for implicit 'this'
-         * (for non-static inner classes) are NOT included, but type is?
-         * Strange, sounds like a bug. Alas, we can't really fix that...
-         */
-        if (paramCount == 0) { // no-arg default constructors, can simplify slightly
-            return new AnnotatedConstructor(typeContext, ctor.getConstructor(),
-                    _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), NO_ANNOTATION_MAPS);
-        }
-        // Also: enum value constructors
-        AnnotationMap[] resolvedAnnotations;
-        Annotation[][] paramAnns = ctor.getParameterAnnotations();
-        if (paramCount != paramAnns.length) {
-            // Limits of the work-around (to avoid hiding real errors):
-            // first, only applicable for member classes and then either:
-
-            resolvedAnnotations = null;
-            Class<?> dc = ctor.getDeclaringClass();
-            // (a) is enum, which have two extra hidden params (name, index)
-            if (dc.isEnum() && (paramCount == paramAnns.length + 2)) {
-                Annotation[][] old = paramAnns;
-                paramAnns = new Annotation[old.length+2][];
-                System.arraycopy(old, 0, paramAnns, 2, old.length);
-                resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
-            } else if (dc.isMemberClass()) {
-                // (b) non-static inner classes, get implicit 'this' for parameter, not  annotation
-                if (paramCount == (paramAnns.length + 1)) {
-                    // hack attack: prepend a null entry to make things match
-                    Annotation[][] old = paramAnns;
-                    paramAnns = new Annotation[old.length+1][];
-                    System.arraycopy(old, 0, paramAnns, 1, old.length);
-                    resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
-                }
-            }
-            if (resolvedAnnotations == null) {
-                throw new IllegalStateException("Internal error: constructor for "+ctor.getDeclaringClass().getName()
-                        +" has mismatch: "+paramCount+" parameters; "+paramAnns.length+" sets of annotations");
-            }
-        } else {
-            resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
-        }
-        return new AnnotatedConstructor(typeContext, ctor.getConstructor(),
-                _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), resolvedAnnotations);
-    }
-
-    protected AnnotatedMethod _constructCreatorMethod(Method m, TypeResolutionContext typeContext)
-    {
-        final int paramCount = m.getParameterTypes().length;
-        if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(typeContext, m, _emptyAnnotationMap(), _emptyAnnotationMaps(paramCount));
-        }
-        if (paramCount == 0) { // common enough we can slightly optimize
-            return new AnnotatedMethod(typeContext, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
-                    NO_ANNOTATION_MAPS);
-        }
-        return new AnnotatedMethod(typeContext, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
-                                   _collectRelevantAnnotations(m.getParameterAnnotations()));
-    }
-
     protected AnnotatedField _constructField(Field f, TypeResolutionContext typeContext)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
@@ -851,11 +587,11 @@ public final class AnnotatedClass
         return new AnnotatedField(typeContext, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
  
-    private AnnotationMap _emptyAnnotationMap() {
+    static AnnotationMap _emptyAnnotationMap() {
         return new AnnotationMap();
     }
 
-    private AnnotationMap[] _emptyAnnotationMaps(int count) {
+    static AnnotationMap[] _emptyAnnotationMaps(int count) {
         if (count == 0) {
             return NO_ANNOTATION_MAPS;
         }
@@ -904,27 +640,11 @@ public final class AnnotatedClass
         return true;
     }
 
-    // for [databind#1005]: do not use or expose synthetic constructors
-    private boolean _isIncludableConstructor(Constructor<?> c)
-    {
-        return !c.isSynthetic();
-    }
-
     /*
     /**********************************************************
     /* Helper methods, attaching annotations
     /**********************************************************
      */
-
-    private AnnotationMap[] _collectRelevantAnnotations(Annotation[][] anns)
-    {
-        int len = anns.length;
-        AnnotationMap[] result = new AnnotationMap[len];
-        for (int i = 0; i < len; ++i) {
-            result[i] = _collectRelevantAnnotations(anns[i]);
-        }
-        return result;
-    }
 
     private AnnotationMap _collectRelevantAnnotations(Annotation[] anns) {
         return _addAnnotationsIfNotPresent(_annotationIntrospector, new AnnotationMap(), anns);
@@ -935,24 +655,6 @@ public final class AnnotatedClass
      *   added as well
      */
     private void _addMixOvers(Method mixin, AnnotatedMethod target,
-            boolean addParamAnnotations)
-    {
-        _addOrOverrideAnnotations(target, mixin.getDeclaredAnnotations());
-        if (addParamAnnotations) {
-            Annotation[][] pa = mixin.getParameterAnnotations();
-            for (int i = 0, len = pa.length; i < len; ++i) {
-                for (Annotation a : pa[i]) {
-                    target.addOrOverrideParam(i, a);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param addParamAnnotations Whether parameter annotations are to be
-     *   added as well
-     */
-    private void _addMixOvers(Constructor<?> mixin, AnnotatedConstructor target,
             boolean addParamAnnotations)
     {
         _addOrOverrideAnnotations(target, mixin.getDeclaredAnnotations());
@@ -1077,9 +779,8 @@ public final class AnnotatedClass
             try {
                 contextClass = loader.loadClass(cls.getName());
             } catch (ClassNotFoundException e) {
-                // !!! TODO: 08-May-2015, tatu: Chain appropriately once we have JDK 1.7/Java7 as baseline
-                //ex.addSuppressed(e); Not until Jackson 2.7
-               throw ex;
+                ex.addSuppressed(e);
+                throw ex;
             }
             return contextClass.getDeclaredMethods(); // Cross fingers
         }
@@ -1087,7 +788,7 @@ public final class AnnotatedClass
 
     /*
     /**********************************************************
-    /* Other methods
+    /* Standard method overrides
     /**********************************************************
      */
 
@@ -1108,5 +809,39 @@ public final class AnnotatedClass
             return false;
         }
         return ((AnnotatedClass) o)._class == _class;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
+     */
+
+    public static final class Creators
+    {
+        /**
+         * Default constructor of the annotated class, if it has one.
+         */
+        public final AnnotatedConstructor defaultConstructor;
+
+        /**
+         * Single argument constructors the class has, if any.
+         */
+        public final List<AnnotatedConstructor> constructors;
+
+        /**
+         * Single argument static methods that might be usable
+         * as factory methods
+         */
+        public final List<AnnotatedMethod> creatorMethods;
+
+        public Creators(AnnotatedConstructor defCtor,
+                List<AnnotatedConstructor> ctors,
+                List<AnnotatedMethod> ctorMethods)
+        {
+            defaultConstructor = defCtor;
+            constructors = ctors;
+            creatorMethods = ctorMethods;
+        }
     }
 }

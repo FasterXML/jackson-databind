@@ -138,13 +138,8 @@ public class ScalarCoercionTest extends BaseMapTest
 
     public void testStringCoercionFail() throws Exception
     {
-        // and then expected fails
         _verifyCoerceFail(quote("true"), Boolean.TYPE);
         _verifyCoerceFail(quote("true"), Boolean.class);
-        _verifyCoerceFail("1", Boolean.TYPE);
-        _verifyCoerceFail("1", Boolean.class);
-
-        /*
         _verifyCoerceFail(quote("123"), Byte.TYPE);
         _verifyCoerceFail(quote("123"), Byte.class);
         _verifyCoerceFail(quote("123"), Short.TYPE);
@@ -160,7 +155,16 @@ public class ScalarCoercionTest extends BaseMapTest
 
         _verifyCoerceFail(quote("123"), BigInteger.class);
         _verifyCoerceFail(quote("123.0"), BigDecimal.class);
-        */
+    }
+
+    public void testMiscCoercionFail() throws Exception
+    {
+        // And then we have coercions from more esoteric types too
+        _verifyCoerceFail("1", Boolean.TYPE);
+        _verifyCoerceFail("1", Boolean.class);
+
+        _verifyCoerceFail("65", Character.class);
+        _verifyCoerceFail("65", Character.TYPE);
     }
 
     /*

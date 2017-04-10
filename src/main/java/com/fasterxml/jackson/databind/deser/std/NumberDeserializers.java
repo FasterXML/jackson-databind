@@ -235,11 +235,11 @@ public class NumberDeserializers
                 String text = p.getText().trim();
                 // [databind#422]: Allow aliases
                 if ("true".equals(text) || "True".equals(text)) {
-                    _verifyStringCoercion(ctxt, text);
+                    _verifyStringForScalarCoercion(ctxt, text);
                     return Boolean.TRUE;
                 }
                 if ("false".equals(text) || "False".equals(text)) {
-                    _verifyStringCoercion(ctxt, text);
+                    _verifyStringForScalarCoercion(ctxt, text);
                     return Boolean.FALSE;
                 }
                 if (text.length() == 0) {
@@ -298,6 +298,7 @@ public class NumberDeserializers
                 if (len == 0) {
                     return (Byte) _coerceEmptyString(ctxt, _primitive);
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 int value;
                 try {
                     value = NumberInput.parseInt(text);
@@ -370,6 +371,7 @@ public class NumberDeserializers
                 if (_hasTextualNull(text)) {
                     return (Short) _coerceTextualNull(ctxt, _primitive);
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 int value;
                 try {
                     value = NumberInput.parseInt(text);
@@ -420,6 +422,7 @@ public class NumberDeserializers
         {
             switch (p.getCurrentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT: // ok iff ascii value
+                _verifyNumberForScalarCoercion(ctxt, p);
                 int value = p.getIntValue();
                 if (value >= 0 && value <= 0xFFFF) {
                     return Character.valueOf((char) value);
@@ -503,6 +506,7 @@ public class NumberDeserializers
                 if (_hasTextualNull(text)) {
                     return (Integer) _coerceTextualNull(ctxt, _primitive);
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 try {
                     if (len > 9) {
                         long l = Long.parseLong(text);
@@ -572,6 +576,7 @@ public class NumberDeserializers
                 if (_hasTextualNull(text)) {
                     return (Long) _coerceTextualNull(ctxt, _primitive);
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 // let's allow Strings to be converted too
                 try {
                     return Long.valueOf(NumberInput.parseLong(text));
@@ -643,6 +648,7 @@ public class NumberDeserializers
                     }
                     break;
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 try {
                     return Float.parseFloat(text);
                 } catch (IllegalArgumentException iae) { }
@@ -718,6 +724,7 @@ public class NumberDeserializers
                     }
                     break;
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 try {
                     return parseDouble(text);
                 } catch (IllegalArgumentException iae) { }
@@ -797,6 +804,7 @@ public class NumberDeserializers
                 if (_isNaN(text)) {
                     return Double.NaN;
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 try {
                     if (!_isIntNumber(text)) {
                         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -899,6 +907,7 @@ public class NumberDeserializers
                     _verifyNullForScalarCoercion(ctxt, text);
                     return getNullValue(ctxt);
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 try {
                     return new BigInteger(text);
                 } catch (IllegalArgumentException iae) { }
@@ -939,6 +948,7 @@ public class NumberDeserializers
                     _verifyNullForScalarCoercion(ctxt, text);
                     return getNullValue(ctxt);
                 }
+                _verifyStringForScalarCoercion(ctxt, text);
                 try {
                     return new BigDecimal(text);
                 } catch (IllegalArgumentException iae) { }

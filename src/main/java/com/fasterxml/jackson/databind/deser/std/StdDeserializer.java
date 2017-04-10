@@ -193,13 +193,7 @@ public abstract class StdDeserializer<T>
         //    degenerate case of huge integers, legal in JSON.
         //  ... this is, on the other hand, probably wrong/sub-optimal for non-JSON
         //  input. For now, no rea
-
-        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
-        if (!ctxt.isEnabled(feat)) {
-            ctxt.reportInputMismatch(this,
-    "Can not coerce Number %s (enable `%s.%s` to allow)",
-                _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
-        }
+        _verifyNumberForScalarCoercion(ctxt, p);
         // Anyway, note that since we know it's valid (JSON) integer, it can't have
         // extra whitespace to trim.
         return !"0".equals(p.getText());
@@ -832,22 +826,33 @@ public abstract class StdDeserializer<T>
     }
 
     // @since 2.9
-    protected void _verifyStringCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
+    protected void _verifyStringForScalarCoercion(DeserializationContext ctxt, String str) throws JsonMappingException
     {
         MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
         if (!ctxt.isEnabled(feat)) {
-            ctxt.reportInputMismatch(this,
-    "Can not coerce String \"%s\" %s (enable `%s.%s` to allow)",
+            ctxt.reportInputMismatch(this, "Can not coerce String \"%s\" %s (enable `%s.%s` to allow)",
                 str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
         }
     }
 
+    // @since 2.9
+    protected void _verifyNumberForScalarCoercion(DeserializationContext ctxt, JsonParser p) throws IOException
+    {
+        MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
+        if (!ctxt.isEnabled(feat)) {
+            // 31-Mar-2017, tatu: Since we don't know (or this deep, care) about exact type,
+            //   access as a String: may require re-encoding by parser which should be fine
+            String valueDesc = p.getText();
+            ctxt.reportInputMismatch(this, "Can not coerce Number (%s) %s (enable `%s.%s` to allow)",
+                valueDesc, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
+        }
+    }
+    
     protected void _reportFailedNullCoerce(DeserializationContext ctxt, boolean state, Enum<?> feature,
             String inputDesc) throws JsonMappingException
     {
         String enableDesc = state ? "enable" : "disable";
-        ctxt.reportInputMismatch(this,
-"Can not coerce %s to Null value %s (%s `%s.%s` to allow)",
+        ctxt.reportInputMismatch(this, "Can not coerce %s to Null value %s (%s `%s.%s` to allow)",
             inputDesc, _coercedTypeDesc(), enableDesc, feature.getClass().getSimpleName(), feature.name());
     }
     

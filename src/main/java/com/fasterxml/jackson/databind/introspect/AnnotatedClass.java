@@ -88,6 +88,9 @@ public final class AnnotatedClass
      */
     final protected Annotations _classAnnotations;
 
+    /**
+     * @since 2.9
+     */
     protected Creators _creators;
 
     /**
@@ -241,30 +244,38 @@ public final class AnnotatedClass
         return _classAnnotations.size() > 0;
     }
 
-    public AnnotatedConstructor getDefaultConstructor()
-    {
-        if (_creators == null) {
-            _creators = AnnotatedCreatorResolver.resolve(this, _type);
-        }
-        return _creators.defaultConstructor;
+    public AnnotatedConstructor getDefaultConstructor() {
+        return _creators().defaultConstructor;
     }
 
-    public List<AnnotatedConstructor> getConstructors()
-    {
-        if (_creators == null) {
-            _creators = AnnotatedCreatorResolver.resolve(this, _type);
-        }
-        return _creators.constructors;
+    public List<AnnotatedConstructor> getConstructors() {
+        return _creators().constructors;
     }
 
-    public List<AnnotatedMethod> getStaticMethods()
-    {
-        if (_creators == null) {
-            _creators = AnnotatedCreatorResolver.resolve(this, _type);
-        }
-        return _creators.creatorMethods;
+    /**
+     * @since 2.9
+     */
+    public List<AnnotatedMethod> getFactoryMethods() {
+        return _creators().creatorMethods;
     }
 
+    /**
+     * @deprecated Since 2.9; use {@link #getFactoryMethods} instead.
+     */
+    @Deprecated
+    public List<AnnotatedMethod> getStaticMethods() {
+        return getFactoryMethods();
+    }
+
+    private final Creators _creators() {
+        Creators c = _creators;
+        if (c == null) {
+            _creators = c = AnnotatedCreatorCollector.collectCreators(this, _annotationIntrospector,
+                    _type, _primaryMixIn);
+        }
+        return c;
+    }
+    
     public Iterable<AnnotatedMethod> memberMethods()
     {
         if (_memberMethods == null) {
@@ -609,7 +620,7 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    protected boolean _isIncludableMemberMethod(Method m)
+    private boolean _isIncludableMemberMethod(Method m)
     {
         if (Modifier.isStatic(m.getModifiers())) {
             return false;

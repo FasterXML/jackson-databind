@@ -22,15 +22,15 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  *
  * @since 2.9
  */
-final class AnnotatedCreatorResolver
+final class AnnotatedCreatorCollector
 {
     private final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     
     // // // Configuration
 
-    private final AnnotationIntrospector _intr;
     private final TypeResolutionContext _typeContext;
+    private final AnnotationIntrospector _intr;
     private final Class<?> _primaryMixIn;
 
     // // // Collected state
@@ -39,25 +39,26 @@ final class AnnotatedCreatorResolver
     private List<AnnotatedConstructor> _constructors;
     private List<AnnotatedMethod> _factories;
 
-    public AnnotatedCreatorResolver(AnnotatedClass parent)
+    AnnotatedCreatorCollector(TypeResolutionContext tc, AnnotationIntrospector intr,
+            Class<?> mixin)
     {
-        _intr = parent._annotationIntrospector;
-        _typeContext = parent;
+        _typeContext = tc;
+        _intr = intr;
         // No point in checking mix-ins if annotation handling disabled:
-        if (_intr == null) {
+        if (intr == null) {
             _primaryMixIn = null;
         } else {
-            _primaryMixIn = parent._primaryMixIn;
+            _primaryMixIn = mixin;
         }
     }
 
-    public static Creators resolve(AnnotatedClass parent, JavaType type) {
+    public static Creators collectCreators(TypeResolutionContext tc, AnnotationIntrospector intr,
+            JavaType type, Class<?> mixin) {
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorResolver(parent).resolve(type, parent);
+        return new AnnotatedCreatorCollector(tc, intr, mixin).collect(type);
     }
 
-
-    public Creators resolve(JavaType type, TypeResolutionContext typeContext)
+    Creators collect(JavaType type)
     {
     // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
     //   NOT apply to context since sub-class may have type bindings

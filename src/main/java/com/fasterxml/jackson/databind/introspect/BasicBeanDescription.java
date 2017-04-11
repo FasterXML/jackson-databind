@@ -529,7 +529,7 @@ anyField.getName()));
     public List<AnnotatedMethod> getFactoryMethods()
     {
         // must filter out anything that clearly is not a factory method
-        List<AnnotatedMethod> candidates = _classInfo.getStaticMethods();
+        List<AnnotatedMethod> candidates = _classInfo.getFactoryMethods();
         if (candidates.isEmpty()) {
             return candidates;
         }
@@ -566,7 +566,7 @@ anyField.getName()));
     public Method findFactoryMethod(Class<?>... expArgTypes)
     {
         // So, of all single-arg static methods:
-        for (AnnotatedMethod am : _classInfo.getStaticMethods()) {
+        for (AnnotatedMethod am : _classInfo.getFactoryMethods()) {
             // 24-Oct-2016, tatu: Better ensure it only takes 1 arg, no matter what
             if (isFactoryMethod(am) && am.getParameterCount() == 1) {
                 // And must take one of expected arg types (or supertype)

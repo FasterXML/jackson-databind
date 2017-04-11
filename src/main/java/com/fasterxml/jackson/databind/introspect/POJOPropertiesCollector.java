@@ -462,7 +462,7 @@ public class POJOPropertiesCollector
                 _addCreatorParam(props, ctor.getParameter(i));
             }
         }
-        for (AnnotatedMethod factory : _classDef.getStaticMethods()) {
+        for (AnnotatedMethod factory : _classDef.getFactoryMethods()) {
             if (_creatorProperties == null) {
                 _creatorProperties = new LinkedList<POJOPropertyBuilder>();
             }

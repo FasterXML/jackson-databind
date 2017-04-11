@@ -34,7 +34,7 @@ public abstract class Annotated
 
     protected abstract int getModifiers();
 
-    public final boolean isPublic() {
+    public boolean isPublic() {
         return Modifier.isPublic(getModifiers());
     }
 

@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -23,44 +20,40 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * @since 2.9
  */
 final class AnnotatedCreatorCollector
+    extends CollectorBase
 {
-    private final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
-    private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
-
     // // // Configuration
 
     private final TypeResolutionContext _typeContext;
-    private final AnnotationIntrospector _intr;
-    private final Class<?> _primaryMixIn;
 
     // // // Collected state
 
     private AnnotatedConstructor _defaultConstructor;
-    private List<AnnotatedConstructor> _constructors;
-    private List<AnnotatedMethod> _factories;
 
-    AnnotatedCreatorCollector(TypeResolutionContext tc, AnnotationIntrospector intr,
-            Class<?> mixin)
+    AnnotatedCreatorCollector(AnnotationIntrospector intr,
+            TypeResolutionContext tc)
     {
+        super(intr);
         _typeContext = tc;
-        _intr = intr;
-        _primaryMixIn = mixin;
     }
 
-    public static Creators collectCreators(TypeResolutionContext tc, AnnotationIntrospector intr,
-            JavaType type, Class<?> mixin) {
+    public static Creators collectCreators(AnnotationIntrospector intr,
+            TypeResolutionContext tc, 
+            JavaType type, Class<?> primaryMixIn)
+    {
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(tc, intr, mixin).collect(type);
+        return new AnnotatedCreatorCollector(intr, tc)
+                .collect(type, primaryMixIn);
     }
 
-    Creators collect(JavaType type)
+    Creators collect(JavaType type, Class<?> primaryMixIn)
     {
     // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
     //   NOT apply to context since sub-class may have type bindings
 //        TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
 
-        _findPotentialConstructors(type);
-        _findPotentialFactories(type);
+        List<AnnotatedConstructor> constructors = _findPotentialConstructors(type, primaryMixIn);
+        List<AnnotatedMethod> factories = _findPotentialFactories(type, primaryMixIn);
 
         /* And then... let's remove all constructors that are deemed
          * ignorable after all annotations have been properly collapsed.
@@ -73,18 +66,18 @@ final class AnnotatedCreatorCollector
                 }
             }
             // count down to allow safe removal
-            for (int i = _constructors.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(_constructors.get(i))) {
-                    _constructors.remove(i);
+            for (int i = constructors.size(); --i >= 0; ) {
+                if (_intr.hasIgnoreMarker(constructors.get(i))) {
+                    constructors.remove(i);
                 }
             }
-            for (int i = _factories.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(_factories.get(i))) {
-                    _factories.remove(i);
+            for (int i = factories.size(); --i >= 0; ) {
+                if (_intr.hasIgnoreMarker(factories.get(i))) {
+                    factories.remove(i);
                 }
             }
         }
-        return new AnnotatedClass.Creators(_defaultConstructor, _constructors, _factories);
+        return new AnnotatedClass.Creators(_defaultConstructor, constructors, factories);
     }
 
     /**
@@ -92,7 +85,8 @@ final class AnnotatedCreatorCollector
      * we might want to use; this is needed in order to mix information between
      * the two and construct resulting {@link AnnotatedConstructor}s
      */
-    private void _findPotentialConstructors(JavaType type)
+    private List<AnnotatedConstructor> _findPotentialConstructors(JavaType type,
+            Class<?> primaryMixIn)
     {
         ClassUtil.Ctor defaultCtor = null;
         List<ClassUtil.Ctor> ctors = null;
@@ -118,30 +112,30 @@ final class AnnotatedCreatorCollector
                 }
             }
         }
+        List<AnnotatedConstructor> result;
         int ctorCount;
         if (ctors == null) {
-            _constructors = Collections.emptyList();
+            result = Collections.emptyList();
             // Nothing found? Short-circuit
             if (defaultCtor == null) { 
-                return;
+                return result;
             }
             ctorCount = 0;
         } else {
             ctorCount = ctors.size();
-            _constructors = new ArrayList<>(ctorCount);
+            result = new ArrayList<>(ctorCount);
             for (int i = 0; i < ctorCount; ++i) {
-                _constructors.add(null);
+                result.add(null);
             }
         }
 
         // so far so good; but do we also need to find mix-ins overrides?
-        if (_primaryMixIn != null) {
+        if (primaryMixIn != null) {
             MemberKey[] ctorKeys = null;
-            for (ClassUtil.Ctor mixinCtor : ClassUtil.getConstructors(_primaryMixIn)) {
+            for (ClassUtil.Ctor mixinCtor : ClassUtil.getConstructors(primaryMixIn)) {
                 if (mixinCtor.getParamCount() == 0) {
                     if (defaultCtor != null) {
                         _defaultConstructor = constructDefaultConstructor(defaultCtor, mixinCtor);
-    //                    addMixOvers(ctor, defaultCtor, false);
                         defaultCtor = null;
                     }
                     continue;
@@ -157,9 +151,8 @@ final class AnnotatedCreatorCollector
     
                     for (int i = 0; i < ctorCount; ++i) {
                         if (key.equals(ctorKeys[i])) {
-                            _constructors.set(i,
+                            result.set(i,
                                     constructNonDefaultConstructor(ctors.get(i), mixinCtor));
-    //                    addMixOvers(ctor, constructors.get(i), true);
                             break;
                         }
                     }
@@ -171,17 +164,18 @@ final class AnnotatedCreatorCollector
             _defaultConstructor = constructDefaultConstructor(defaultCtor, null);
         }
         for (int i = 0; i < ctorCount; ++i) {
-            AnnotatedConstructor ctor = _constructors.get(i);
+            AnnotatedConstructor ctor = result.get(i);
             if (ctor == null) {
-                _constructors.set(i,
+                result.set(i,
                         constructNonDefaultConstructor(ctors.get(i), null));
             }
         }
+        return result;
     }
 
-    private void _findPotentialFactories(JavaType type)
+    private List<AnnotatedMethod> _findPotentialFactories(JavaType type, Class<?> primaryMixIn)
     {
-        List<Method> factories = null;
+        List<Method> candidates = null;
 
         // First find all potentially relevant static methods
         for (Method m : ClassUtil.getClassMethods(type.getRawClass())) {
@@ -190,40 +184,38 @@ final class AnnotatedCreatorCollector
             }
             // all factory methods are fine:
             //int argCount = m.getParameterTypes().length;
-            if (factories == null) {
-                factories = new ArrayList<>();
+            if (candidates == null) {
+                candidates = new ArrayList<>();
             }
-//            creatorMethods.add(constructCreatorMethod(m, typeContext));
-            factories.add(m);
+            candidates.add(m);
         }
         // and then locate mix-ins, if any
-        if (factories == null) {
-            _factories = Collections.emptyList();
-            return;
+        if (candidates == null) {
+            return Collections.emptyList();
         }
-        int factoryCount = factories.size();
-        _factories = new ArrayList<>(factoryCount);
+        int factoryCount = candidates.size();
+        List<AnnotatedMethod> result = new ArrayList<>(factoryCount);
         for (int i = 0; i < factoryCount; ++i) {
-            _factories.add(null);
+            result.add(null);
         }
         // so far so good; but do we also need to find mix-ins overrides?
-        if (_primaryMixIn != null) {
+        if (primaryMixIn != null) {
             MemberKey[] methodKeys = null;
-            for (Method mixinFactory : ClassUtil.getDeclaredMethods(_primaryMixIn)) {
+            for (Method mixinFactory : ClassUtil.getDeclaredMethods(primaryMixIn)) {
                 if (!Modifier.isStatic(mixinFactory.getModifiers())) {
                     continue;
                 }
                 if (methodKeys == null) {
                     methodKeys = new MemberKey[factoryCount];
                     for (int i = 0; i < factoryCount; ++i) {
-                        methodKeys[i] = new MemberKey(factories.get(i));
+                        methodKeys[i] = new MemberKey(candidates.get(i));
                     }
                 }
                 MemberKey key = new MemberKey(mixinFactory);
                 for (int i = 0; i < factoryCount; ++i) {
                     if (key.equals(methodKeys[i])) {
-                        _factories.set(i,
-                                constructFactoryCreator(factories.get(i), mixinFactory));
+                        result.set(i,
+                                constructFactoryCreator(candidates.get(i), mixinFactory));
                         break;
                     }
                 }
@@ -231,12 +223,13 @@ final class AnnotatedCreatorCollector
         }
         // Ok: anything within mix-ins has been resolved; anything remaining we must resolve
         for (int i = 0; i < factoryCount; ++i) {
-            AnnotatedMethod factory = _factories.get(i);
+            AnnotatedMethod factory = result.get(i);
             if (factory == null) {
-                _factories.set(i,
-                        constructFactoryCreator(factories.get(i), null));
+                result.set(i,
+                        constructFactoryCreator(candidates.get(i), null));
             }
         }
+        return result;
     }
 
     protected AnnotatedConstructor constructDefaultConstructor(ClassUtil.Ctor ctor,
@@ -344,59 +337,8 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
                 (mixin == null) ? null : mixin.getConstructor());
     }
 
-    private AnnotationMap collectAnnotations(AnnotatedElement main, AnnotatedElement mixin) {
-        AnnotationCollector c = collectAnnotations(AnnotationCollector.emptyCollector(),
-                main.getDeclaredAnnotations());
-        if (mixin != null) {
-            c = collectAnnotations(c, mixin.getDeclaredAnnotations());
-        }
-        return c.asAnnotationMap();
-    }
-
-    private AnnotationCollector collectAnnotations(AnnotationCollector c, Annotation[] anns) {
-        for (int i = 0, end = anns.length; i < end; ++i) {
-            Annotation ann = anns[i];
-            c = c.addOrOverride(ann);
-            if (_intr.isAnnotationBundle(ann)) {
-                c = collectFromBundle(c, ann);
-            }
-        }
-        return c;
-    }
-
-    private AnnotationCollector collectFromBundle(AnnotationCollector c, Annotation bundle) {
-        Annotation[] anns = ClassUtil.findClassAnnotations(bundle.annotationType());
-        for (int i = 0, end = anns.length; i < end; ++i) {
-            Annotation ann = anns[i];
-            // minor optimization: by-pass 2 common JDK meta-annotations
-            if ((ann instanceof Target) || (ann instanceof Retention)) {
-                continue;
-            }
-            c = c.addOrOverride(ann);
-            if (_intr.isAnnotationBundle(ann)) {
-                c = collectFromBundle(c, ann);
-            }
-        }
-        return c;
-    }
-
     // for [databind#1005]: do not use or expose synthetic constructors
     private static boolean isIncludableConstructor(Constructor<?> c) {
         return !c.isSynthetic();
-    }
-
-    private static AnnotationMap _emptyAnnotationMap() {
-        return new AnnotationMap();
-    }
-
-    static AnnotationMap[] _emptyAnnotationMaps(int count) {
-        if (count == 0) {
-            return NO_ANNOTATION_MAPS;
-        }
-        AnnotationMap[] maps = new AnnotationMap[count];
-        for (int i = 0; i < count; ++i) {
-            maps[i] = _emptyAnnotationMap();
-        }
-        return maps;
     }
 }

@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -14,12 +12,12 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class AnnotatedFieldCollector
+    extends CollectorBase
 {
 //    private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
     
     // // // Configuration
 
-    private final AnnotationIntrospector _intr;
     private final MixInResolver _mixInResolver;
     
     // // // Collected state
@@ -27,12 +25,13 @@ public class AnnotatedFieldCollector
     AnnotatedFieldCollector(AnnotationIntrospector intr,
             MixInResolver mixins)
     {
-        _intr = intr;
+        super(intr);
         _mixInResolver = mixins;
     }
 
-    public static List<AnnotatedField> collectFields(TypeResolutionContext tc,
-            AnnotationIntrospector intr, MixInResolver mixins, TypeFactory types,
+    public static List<AnnotatedField> collectFields(AnnotationIntrospector intr,
+            TypeResolutionContext tc,
+            MixInResolver mixins, TypeFactory types,
             JavaType type)
     {
         // Constructor also always members of resolved class, parent == resolution context
@@ -43,25 +42,19 @@ public class AnnotatedFieldCollector
             JavaType type)
     {
         Map<String,AnnotatedField> foundFields = _findFields(types, tc, type, null);
-        List<AnnotatedField> f;
         if (foundFields == null || foundFields.size() == 0) {
-            f = Collections.emptyList();
-        } else {
-            f = new ArrayList<AnnotatedField>(foundFields.size());
-            f.addAll(foundFields.values());
+            return Collections.emptyList();
         }
-        return f;
+        return new ArrayList<AnnotatedField>(foundFields.values());
     }
 
     private Map<String,AnnotatedField> _findFields(TypeFactory typeFactory,
             TypeResolutionContext tc,
             JavaType type, Map<String,AnnotatedField> fields)
     {
-        /* First, a quick test: we only care for regular classes (not
-         * interfaces, primitive types etc), except for Object.class.
-         * A simple check to rule out other cases is to see if there
-         * is a super class or not.
-         */
+        // First, a quick test: we only care for regular classes (not interfaces,
+        //primitive types etc), except for Object.class. A simple check to rule out
+        // other cases is to see if there is a super class or not.
         JavaType parent = type.getSuperClass();
         if (parent != null) {
             final Class<?> cls = type.getRawClass();
@@ -93,6 +86,14 @@ public class AnnotatedFieldCollector
             }
         }
         return fields;
+    }
+
+    private AnnotatedField _constructField(TypeResolutionContext tc, Field f)
+    {
+        if (_intr == null) { // when annotation processing is disabled
+            return new AnnotatedField(tc, f, _emptyAnnotationMap());
+        }
+        return new AnnotatedField(tc, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
 
     /**
@@ -137,27 +138,19 @@ public class AnnotatedFieldCollector
         }
     }
     
-    private static List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
+    private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
     {
-        for (Annotation a : ClassUtil.findClassAnnotations(bundle.annotationType())) {
+        for (Annotation ann : ClassUtil.findClassAnnotations(bundle.annotationType())) {
             // minor optimization: by-pass 2 common JDK meta-annotations
-            if ((a instanceof Target) || (a instanceof Retention)) {
+            if (_ignorableAnnotation(ann)) {
                 continue;
             }
             if (result == null) {
                 result = new ArrayList<Annotation>();
             }
-            result.add(a);
+            result.add(ann);
         }
         return result;
-    }
-    
-    private AnnotatedField _constructField(TypeResolutionContext tc, Field f)
-    {
-        if (_intr == null) { // when annotation processing is disabled
-            return new AnnotatedField(tc, f, _emptyAnnotationMap());
-        }
-        return new AnnotatedField(tc, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
 
     private AnnotationMap _collectRelevantAnnotations(Annotation[] anns) {
@@ -195,9 +188,5 @@ public class AnnotatedFieldCollector
             return false;
         }
         return true;
-    }
-
-    private static AnnotationMap _emptyAnnotationMap() {
-        return new AnnotationMap();
     }
 }

@@ -266,7 +266,8 @@ public final class AnnotatedClass
     private final Creators _creators() {
         Creators c = _creators;
         if (c == null) {
-            _creators = c = AnnotatedCreatorCollector.collectCreators(this, _annotationIntrospector,
+            _creators = c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
+                    this,
                     _type, _primaryMixIn);
         }
         return c;
@@ -287,8 +288,9 @@ public final class AnnotatedClass
     private final AnnotatedMethodMap _methods() {
         AnnotatedMethodMap m = _memberMethods;
         if (m == null) {
-            _memberMethods = m = AnnotatedMethodCollector.collectMethods(this,
-                    _annotationIntrospector, _mixInResolver, _typeFactory,
+            _memberMethods = m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
+                    this,
+                    _mixInResolver, _typeFactory,
                     _type, _superTypes, _primaryMixIn);
         }
         return m;
@@ -305,8 +307,9 @@ public final class AnnotatedClass
     private final List<AnnotatedField> _fields() {
         List<AnnotatedField> f = _fields;
         if (f == null) {
-            _fields = f = AnnotatedFieldCollector.collectFields(this,
-                    _annotationIntrospector, _mixInResolver, _typeFactory,
+            _fields = f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
+                    this,
+                    _mixInResolver, _typeFactory,
                     _type);
         }
         return f;

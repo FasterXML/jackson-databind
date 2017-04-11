@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -14,10 +12,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class AnnotatedMethodCollector
+    extends CollectorBase
 {
-    final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
-
-    private final AnnotationIntrospector _intr;
     private final MixInResolver _mixInResolver;
     
     // // // Collected state
@@ -25,12 +21,13 @@ public class AnnotatedMethodCollector
     AnnotatedMethodCollector(AnnotationIntrospector intr,
             MixInResolver mixins)
     {
-        _intr = intr;
+        super(intr);
         _mixInResolver = mixins;
     }
 
-    public static AnnotatedMethodMap collectMethods(TypeResolutionContext tc,
-            AnnotationIntrospector intr, MixInResolver mixins, TypeFactory types,
+    public static AnnotatedMethodMap collectMethods(AnnotationIntrospector intr,
+            TypeResolutionContext tc,
+            MixInResolver mixins, TypeFactory types,
             JavaType type, List<JavaType> superTypes, Class<?> primaryMixIn)
     {
         // Constructor also always members of resolved class, parent == resolution context
@@ -285,15 +282,15 @@ public class AnnotatedMethodCollector
 
     private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
     {
-        for (Annotation a : ClassUtil.findClassAnnotations(bundle.annotationType())) {
+        for (Annotation ann : ClassUtil.findClassAnnotations(bundle.annotationType())) {
             // minor optimization: by-pass 2 common JDK meta-annotations
-            if ((a instanceof Target) || (a instanceof Retention)) {
+            if (_ignorableAnnotation(ann)) {
                 continue;
             }
             if (result == null) {
                 result = new ArrayList<Annotation>();
             }
-            result.add(a);
+            result.add(ann);
         }
         return result;
     }

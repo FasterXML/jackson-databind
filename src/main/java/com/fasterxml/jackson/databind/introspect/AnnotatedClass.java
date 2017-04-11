@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -19,8 +17,6 @@ public final class AnnotatedClass
     extends Annotated
     implements TypeResolutionContext
 {
-    final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
-
     /*
     /**********************************************************
     /* Configuration
@@ -275,46 +271,47 @@ public final class AnnotatedClass
         }
         return c;
     }
-    
-    public Iterable<AnnotatedMethod> memberMethods()
-    {
-        if (_memberMethods == null) {
-            resolveMemberMethods();
-        }
-        return _memberMethods;
+
+    public Iterable<AnnotatedMethod> memberMethods() {
+        return _methods();
     }
 
-    public int getMemberMethodCount()
-    {
-        if (_memberMethods == null) {
-            resolveMemberMethods();
-        }
-        return _memberMethods.size();
+    public int getMemberMethodCount() {
+        return _methods().size();
     }
 
-    public AnnotatedMethod findMethod(String name, Class<?>[] paramTypes)
-    {
-        if (_memberMethods == null) {
-            resolveMemberMethods();
+    public AnnotatedMethod findMethod(String name, Class<?>[] paramTypes) {
+        return _methods().find(name, paramTypes);
+    }
+
+    private final AnnotatedMethodMap _methods() {
+        AnnotatedMethodMap m = _memberMethods;
+        if (m == null) {
+            _memberMethods = m = AnnotatedMethodCollector.collectMethods(this,
+                    _annotationIntrospector, _mixInResolver, _typeFactory,
+                    _type, _superTypes, _primaryMixIn);
         }
-        return _memberMethods.find(name, paramTypes);
+        return m;
     }
 
     public int getFieldCount() {
-        if (_fields == null) {
-            resolveFields();
-        }
-        return _fields.size();
+        return _fields().size();
     }
 
-    public Iterable<AnnotatedField> fields()
-    {
-        if (_fields == null) {
-            resolveFields();
-        }
-        return _fields;
+    public Iterable<AnnotatedField> fields() {
+        return _fields();
     }
 
+    private final List<AnnotatedField> _fields() {
+        List<AnnotatedField> f = _fields;
+        if (f == null) {
+            _fields = f = AnnotatedFieldCollector.collectFields(this,
+                    _annotationIntrospector, _mixInResolver, _typeFactory,
+                    _type);
+        }
+        return f;
+    }
+    
     /**
      * @since 2.9
      */
@@ -325,473 +322,6 @@ public final class AnnotatedClass
             _nonStaticInnerClass = B = ClassUtil.isNonStaticInnerClass(_class);
         }
         return B.booleanValue();
-    }
-
-    /*
-    /**********************************************************
-    /* Public API, main-level resolution methods
-    /**********************************************************
-     */
-
-    /**
-     * Method for resolving member method information: aggregating all non-static methods
-     * and combining annotations (to implement method-annotation inheritance)
-     * 
-     * @param methodFilter Filter used to determine which methods to include
-     */
-    private void resolveMemberMethods() {
-        _memberMethods = _resolveMemberMethods();
-    }
-
-    private AnnotatedMethodMap _resolveMemberMethods()
-    {
-        AnnotatedMethodMap memberMethods = new AnnotatedMethodMap();
-        AnnotatedMethodMap mixins = new AnnotatedMethodMap();
-        // first: methods from the class itself
-        _addMemberMethods(_class, this, memberMethods, _primaryMixIn, mixins);
-
-        // and then augment these with annotations from super-types:
-        for (JavaType type : _superTypes) {
-            Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(type.getRawClass());
-            _addMemberMethods(type.getRawClass(),
-                    new TypeResolutionContext.Basic(_typeFactory, type.getBindings()),
-                    memberMethods, mixin, mixins);
-        }
-        // Special case: mix-ins for Object.class? (to apply to ALL classes)
-        if (_mixInResolver != null) {
-            Class<?> mixin = _mixInResolver.findMixInClassFor(Object.class);
-            if (mixin != null) {
-                _addMethodMixIns(_class, memberMethods, mixin, mixins);
-            }
-        }
-
-        /* Any unmatched mix-ins? Most likely error cases (not matching
-         * any method); but there is one possible real use case:
-         * exposing Object#hashCode (alas, Object#getClass can NOT be
-         * exposed)
-         */
-        // 14-Feb-2011, tatu: AnnotationIntrospector is null if annotations not enabled; if so, can skip:
-        if (_annotationIntrospector != null) {
-            if (!mixins.isEmpty()) {
-                Iterator<AnnotatedMethod> it = mixins.iterator();
-                while (it.hasNext()) {
-                    AnnotatedMethod mixIn = it.next();
-                    try {
-                        Method m = Object.class.getDeclaredMethod(mixIn.getName(), mixIn.getRawParameterTypes());
-                        if (m != null) {
-                            // Since it's from java.lang.Object, no generics, no need for real type context:
-                            AnnotatedMethod am = _constructMethod(m, this);
-                            _addMixOvers(mixIn.getAnnotated(), am, false);
-                            memberMethods.add(am);
-                        }
-                    } catch (Exception e) { }
-                }
-            }
-        }
-        return memberMethods;
-    }
-
-    /**
-     * Method that will collect all member (non-static) fields
-     * that are either public, or have at least a single annotation
-     * associated with them.
-     */
-    private void resolveFields()
-    {
-        Map<String,AnnotatedField> foundFields = _findFields(_type, this, null);
-        List<AnnotatedField> f;
-        if (foundFields == null || foundFields.size() == 0) {
-            f = Collections.emptyList();
-        } else {
-            f = new ArrayList<AnnotatedField>(foundFields.size());
-            f.addAll(foundFields.values());
-        }
-        _fields = f;
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods for populating method information
-    /**********************************************************
-     */
-
-    protected void _addMemberMethods(Class<?> cls, TypeResolutionContext typeContext,
-            AnnotatedMethodMap methods,
-            Class<?> mixInCls, AnnotatedMethodMap mixIns)
-    {
-        // first, mixIns, since they have higher priority then class methods
-        if (mixInCls != null) {
-            _addMethodMixIns(cls, methods, mixInCls, mixIns);
-        }
-        if (cls == null) { // just so caller need not check when passing super-class
-            return;
-        }
-        // then methods from the class itself
-        for (Method m : _findClassMethods(cls)) {
-            if (!_isIncludableMemberMethod(m)) {
-                continue;
-            }
-            AnnotatedMethod old = methods.find(m);
-            if (old == null) {
-                AnnotatedMethod newM = _constructMethod(m, typeContext);
-                methods.add(newM);
-                // Ok, but is there a mix-in to connect now?
-                old = mixIns.remove(m);
-                if (old != null) {
-                    _addMixOvers(old.getAnnotated(), newM, false);
-                }
-            } else {
-                /* If sub-class already has the method, we only want to augment
-                 * annotations with entries that are not masked by sub-class.
-                 */
-                _addMixUnders(m, old);
-
-                /* 06-Jan-2010, tatu: [JACKSON-450] Except that if method we saw first is
-                 *   from an interface, and we now find a non-interface definition, we should
-                 *   use this method, but with combination of annotations.
-                 *   This helps (or rather, is essential) with JAXB annotations and
-                 *   may also result in faster method calls (interface calls are slightly
-                 *   costlier than regular method calls)
-                 */
-                if (old.getDeclaringClass().isInterface() && !m.getDeclaringClass().isInterface()) {
-                    methods.add(old.withMethod(m));
-                }
-            }
-        }
-    }
-
-    protected void _addMethodMixIns(Class<?> targetClass, AnnotatedMethodMap methods,
-            Class<?> mixInCls, AnnotatedMethodMap mixIns)
-    {
-//        List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
-
-        List<Class<?>> parents = ClassUtil.findRawSuperTypes(mixInCls, targetClass, true);
-        for (Class<?> mixin : parents) {
-            for (Method m : ClassUtil.getDeclaredMethods(mixin)) {
-                if (!_isIncludableMemberMethod(m)) {
-                    continue;
-                }
-                AnnotatedMethod am = methods.find(m);
-                /* Do we already have a method to augment (from sub-class
-                 * that will mask this mixIn)? If so, add if visible
-                 * without masking (no such annotation)
-                 */
-                if (am != null) {
-                    _addMixUnders(m, am);
-                    /* Otherwise will have precedence, but must wait
-                     * until we find the real method (mixIn methods are
-                     * just placeholder, can't be called)
-                     */
-                } else {
-                    // Well, or, as per [databind#515], multi-level merge within mixins...
-                    am = mixIns.find(m);
-                    if (am != null) {
-                        _addMixUnders(m, am);
-                    } else {
-                        // 03-Nov-2015, tatu: Mix-in method never called, should not need
-                        //    to resolve generic types, so this class is fine as context
-                        mixIns.add(_constructMethod(m, this));
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods for populating field information
-    /**********************************************************
-     */
-
-    protected Map<String,AnnotatedField> _findFields(JavaType type,
-            TypeResolutionContext typeContext, Map<String,AnnotatedField> fields)
-    {
-        /* First, a quick test: we only care for regular classes (not
-         * interfaces, primitive types etc), except for Object.class.
-         * A simple check to rule out other cases is to see if there
-         * is a super class or not.
-         */
-        JavaType parent = type.getSuperClass();
-        if (parent != null) {
-            final Class<?> cls = type.getRawClass();
-            // Let's add super-class' fields first, then ours.
-            fields = _findFields(parent,
-                    new TypeResolutionContext.Basic(_typeFactory, parent.getBindings()),
-                    fields);
-            for (Field f : ClassUtil.getDeclaredFields(cls)) {
-                // static fields not included (transients are at this point, filtered out later)
-                if (!_isIncludableField(f)) {
-                    continue;
-                }
-                /* Ok now: we can (and need) not filter out ignorable fields
-                 * at this point; partly because mix-ins haven't been
-                 * added, and partly because logic can be done when
-                 * determining get/settability of the field.
-                 */
-                if (fields == null) {
-                    fields = new LinkedHashMap<String,AnnotatedField>();
-                }
-                fields.put(f.getName(), _constructField(f, typeContext));
-            }
-            // And then... any mix-in overrides?
-            if (_mixInResolver != null) {
-                Class<?> mixin = _mixInResolver.findMixInClassFor(cls);
-                if (mixin != null) {
-                    _addFieldMixIns(mixin, cls, fields);
-                }
-            }
-        }
-        return fields;
-    }
-
-    /**
-     * Method called to add field mix-ins from given mix-in class (and its fields)
-     * into already collected actual fields (from introspected classes and their
-     * super-classes)
-     */
-    protected void _addFieldMixIns(Class<?> mixInCls, Class<?> targetClass,
-            Map<String,AnnotatedField> fields)
-    {
-        List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
-        for (Class<?> mixin : parents) {
-            for (Field mixinField : ClassUtil.getDeclaredFields(mixin)) {
-                // there are some dummy things (static, synthetic); better ignore
-                if (!_isIncludableField(mixinField)) {
-                    continue;
-                }
-                String name = mixinField.getName();
-                // anything to mask? (if not, quietly ignore)
-                AnnotatedField maskedField = fields.get(name);
-                if (maskedField != null) {
-                    _addOrOverrideAnnotations(maskedField, mixinField.getDeclaredAnnotations());
-                }
-            }
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods, constructing value types
-    /**********************************************************
-     */
-
-    protected AnnotatedMethod _constructMethod(Method m, TypeResolutionContext typeContext)
-    {
-        /* note: parameter annotations not used for regular (getter, setter)
-         * methods; only for creator methods (static factory methods)
-         * -- at least not yet!
-         */
-        if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(typeContext, m, _emptyAnnotationMap(), null);
-        }
-        return new AnnotatedMethod(typeContext, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()), null);
-    }
-
-    protected AnnotatedField _constructField(Field f, TypeResolutionContext typeContext)
-    {
-        if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedField(typeContext, f, _emptyAnnotationMap());
-        }
-        return new AnnotatedField(typeContext, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
-    }
- 
-    private AnnotationMap _collectRelevantAnnotations(Annotation[] anns) {
-        return _addAnnotationsIfNotPresent(_annotationIntrospector, new AnnotationMap(), anns);
-    }
-
-    static AnnotationMap _emptyAnnotationMap() {
-        return new AnnotationMap();
-    }
-
-    static AnnotationMap[] _emptyAnnotationMaps(int count) {
-        if (count == 0) {
-            return NO_ANNOTATION_MAPS;
-        }
-        AnnotationMap[] maps = new AnnotationMap[count];
-        for (int i = 0; i < count; ++i) {
-            maps[i] = _emptyAnnotationMap();
-        }
-        return maps;
-    }
-    
-    /*
-    /**********************************************************
-    /* Helper methods, inclusion filtering
-    /**********************************************************
-     */
-
-    private boolean _isIncludableMemberMethod(Method m)
-    {
-        if (Modifier.isStatic(m.getModifiers())) {
-            return false;
-        }
-        /* 07-Apr-2009, tatu: Looks like generics can introduce hidden
-         *   bridge and/or synthetic methods. I don't think we want to
-         *   consider those...
-         */
-        if (m.isSynthetic() || m.isBridge()) {
-            return false;
-        }
-        // also, for now we have no use for methods with 2 or more arguments:
-        int pcount = m.getParameterTypes().length;
-        return (pcount <= 2);
-    }
-
-    private boolean _isIncludableField(Field f)
-    {
-        // Most likely synthetic fields, if any, are to be skipped similar to methods
-        if (f.isSynthetic()) {
-            return false;
-        }
-        // Static fields are never included. Transient are (since 2.6), for
-        // purpose of propagating removal
-        int mods = f.getModifiers();
-        if (Modifier.isStatic(mods)) {
-            return false;
-        }
-        return true;
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods, attaching annotations
-    /**********************************************************
-     */
-
-    /**
-     * @param addParamAnnotations Whether parameter annotations are to be
-     *   added as well
-     */
-    private void _addMixOvers(Method mixin, AnnotatedMethod target,
-            boolean addParamAnnotations)
-    {
-        _addOrOverrideAnnotations(target, mixin.getDeclaredAnnotations());
-        if (addParamAnnotations) {
-            Annotation[][] pa = mixin.getParameterAnnotations();
-            for (int i = 0, len = pa.length; i < len; ++i) {
-                for (Annotation a : pa[i]) {
-                    target.addOrOverrideParam(i, a);
-                }
-            }
-        }
-    }
-
-    /**
-     * Method that will add annotations from specified source method to target method,
-     * but only if target does not yet have them.
-     */
-    private void _addMixUnders(Method src, AnnotatedMethod target) {
-        _addAnnotationsIfNotPresent(_annotationIntrospector, target, src.getDeclaredAnnotations());
-    }
-
-    private void _addOrOverrideAnnotations(AnnotatedMember target, Annotation[] anns)
-    {
-        if (anns == null) {
-            return;
-        }
-        List<Annotation> fromBundles = null;
-        for (Annotation ann : anns) { // first: direct annotations
-            boolean wasModified = target.addOrOverride(ann);
-            if (wasModified && _annotationIntrospector.isAnnotationBundle(ann)) {
-                fromBundles = _addFromBundle(ann, fromBundles);
-            }
-        }
-        if (fromBundles != null) { // and then bundles, if any: important for precedence
-            _addOrOverrideAnnotations(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Static helper methods, attaching annotations
-    /**********************************************************
-     */
-
-    // Helper method used to add all applicable annotations from given set.
-    // Takes into account possible "annotation bundles" (meta-annotations to
-    // include instead of main-level annotation)
-    private static AnnotationMap _addAnnotationsIfNotPresent(AnnotationIntrospector intr,
-            AnnotationMap result, Annotation[] anns)
-    {
-        if (anns != null) {
-            List<Annotation> fromBundles = null;
-            for (Annotation ann : anns) { // first: direct annotations
-                // note: we will NOT filter out non-Jackson anns any more
-                boolean wasNotPresent = result.addIfNotPresent(ann);
-                if (wasNotPresent && intr.isAnnotationBundle(ann)) {
-                    fromBundles = _addFromBundle(ann, fromBundles);
-                }
-            }
-            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
-                _addAnnotationsIfNotPresent(intr,
-                        result, fromBundles.toArray(new Annotation[fromBundles.size()]));
-            }
-        }
-        return result;
-    }
-
-    private static List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
-    {
-        for (Annotation a : ClassUtil.findClassAnnotations(bundle.annotationType())) {
-            // minor optimization: by-pass 2 common JDK meta-annotations
-            if ((a instanceof Target) || (a instanceof Retention)) {
-                continue;
-            }
-            if (result == null) {
-                result = new ArrayList<Annotation>();
-            }
-            result.add(a);
-        }
-        return result;
-    }
-    
-    private static void _addAnnotationsIfNotPresent(AnnotationIntrospector intr,
-            AnnotatedMethod target, Annotation[] anns)
-    {
-        if (anns == null) {
-            return;
-        }
-        List<Annotation> fromBundles = null;
-        for (Annotation ann : anns) { // first: direct annotations
-            boolean wasNotPresent = target.addIfNotPresent(ann);
-            if (wasNotPresent && intr.isAnnotationBundle(ann)) {
-                fromBundles = _addFromBundle(ann, fromBundles);
-            }
-        }
-        if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
-            _addAnnotationsIfNotPresent(intr,
-                    target, fromBundles.toArray(new Annotation[fromBundles.size()]));
-        }
-    }
-
-    /**
-     * Helper method that gets methods declared in given class; usually a simple thing,
-     * but sometimes (as per [databind#785]) more complicated, depending on classloader
-     * setup.
-     *
-     * @since 2.5
-     */
-    protected static Method[] _findClassMethods(Class<?> cls)
-    {
-        try {
-            return ClassUtil.getDeclaredMethods(cls);
-        } catch (final NoClassDefFoundError ex) {
-            // One of the methods had a class that was not found in the cls.getClassLoader.
-            // Maybe the developer was nice and has a different class loader for this context.
-            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            if (loader == null){
-                // Nope... this is going to end poorly
-                throw ex;
-            }
-            final Class<?> contextClass;
-            try {
-                contextClass = loader.loadClass(cls.getName());
-            } catch (ClassNotFoundException e) {
-                ex.addSuppressed(e);
-                throw ex;
-            }
-            return contextClass.getDeclaredMethods(); // Cross fingers
-        }
     }
 
     /*

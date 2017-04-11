@@ -26,7 +26,7 @@ final class AnnotatedCreatorCollector
 {
     private final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
     private final static Annotation[] NO_ANNOTATIONS = new Annotation[0];
-    
+
     // // // Configuration
 
     private final TypeResolutionContext _typeContext;
@@ -44,12 +44,7 @@ final class AnnotatedCreatorCollector
     {
         _typeContext = tc;
         _intr = intr;
-        // No point in checking mix-ins if annotation handling disabled:
-        if (intr == null) {
-            _primaryMixIn = null;
-        } else {
-            _primaryMixIn = mixin;
-        }
+        _primaryMixIn = mixin;
     }
 
     public static Creators collectCreators(TypeResolutionContext tc, AnnotationIntrospector intr,
@@ -189,7 +184,7 @@ final class AnnotatedCreatorCollector
         List<Method> factories = null;
 
         // First find all potentially relevant static methods
-        for (Method m : AnnotatedClass._findClassMethods(type.getRawClass())) {
+        for (Method m : ClassUtil.getClassMethods(type.getRawClass())) {
             if (!Modifier.isStatic(m.getModifiers())) {
                 continue;
             }
@@ -229,7 +224,6 @@ final class AnnotatedCreatorCollector
                     if (key.equals(methodKeys[i])) {
                         _factories.set(i,
                                 constructFactoryCreator(factories.get(i), mixinFactory));
-//                addMixOvers(m, creatorMethods.get(i));
                         break;
                     }
                 }
@@ -274,7 +268,7 @@ final class AnnotatedCreatorCollector
         if (paramCount == 0) { // no-arg default constructors, can simplify slightly
             return new AnnotatedConstructor(_typeContext, ctor.getConstructor(),
                     collectAnnotations(ctor, mixin),
-                    AnnotatedClass.NO_ANNOTATION_MAPS);
+                    NO_ANNOTATION_MAPS);
         }
         // Also: enum value constructors
         AnnotationMap[] resolvedAnnotations;
@@ -324,7 +318,7 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
         }
         if (paramCount == 0) { // common enough we can slightly optimize
             return new AnnotatedMethod(_typeContext, m, collectAnnotations(m, mixin),
-                    AnnotatedClass.NO_ANNOTATION_MAPS);
+                    NO_ANNOTATION_MAPS);
         }
         return new AnnotatedMethod(_typeContext, m, collectAnnotations(m, mixin),
                 collectAnnotations(m.getParameterAnnotations(),

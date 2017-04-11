@@ -1040,6 +1040,36 @@ public final class ClassUtil
     }
 
     /**
+     * Helper method that gets methods declared in given class; usually a simple thing,
+     * but sometimes (as per [databind#785]) more complicated, depending on classloader
+     * setup.
+     *
+     * @since 2.9
+     */
+    public static Method[] getClassMethods(Class<?> cls)
+    {
+        try {
+            return ClassUtil.getDeclaredMethods(cls);
+        } catch (final NoClassDefFoundError ex) {
+            // One of the methods had a class that was not found in the cls.getClassLoader.
+            // Maybe the developer was nice and has a different class loader for this context.
+            final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            if (loader == null){
+                // Nope... this is going to end poorly
+                throw ex;
+            }
+            final Class<?> contextClass;
+            try {
+                contextClass = loader.loadClass(cls.getName());
+            } catch (ClassNotFoundException e) {
+                ex.addSuppressed(e);
+                throw ex;
+            }
+            return contextClass.getDeclaredMethods(); // Cross fingers
+        }
+    }
+    
+    /**
      * @since 2.7
      */
     public static Ctor[] getConstructors(Class<?> cls) {

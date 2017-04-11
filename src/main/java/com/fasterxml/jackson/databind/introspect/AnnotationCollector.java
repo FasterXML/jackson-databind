@@ -13,36 +13,20 @@ import com.fasterxml.jackson.databind.util.Annotations;
  *
  * @since 2.9
  */
-public class AnnotationCollector
+public abstract class AnnotationCollector
 {
     protected final static Annotations NO_ANNOTATIONS = new NoAnnotations();
-
-    // // // For now, add support for small number of super compact impls
-    
-    protected Class<?> _firstType;
-    protected Annotation _firstValue;
-
-    protected HashMap<Class<?>,Annotation> _annotations;
 
     public AnnotationCollector() { }
 
     public static Annotations emptyAnnotations() { return NO_ANNOTATIONS; }
-    
-    public Annotations asAnnotations() {
-        if (_annotations == null) { // 0 or 1
-            if (_firstType == null) {
-                return NO_ANNOTATIONS;
-            }
-            return new OneAnnotation(_firstType, _firstValue);
-        }
-        if (_annotations.size() == 2) {
-            Iterator<Map.Entry<Class<?>,Annotation>> it = _annotations.entrySet().iterator();
-            Map.Entry<Class<?>,Annotation> en1 = it.next(), en2 = it.next();
-            return new TwoAnnotations(en1.getKey(), en1.getValue(),
-                    en2.getKey(), en2.getValue());
-        }
-        return new AnnotationMap(_annotations);
+
+    public static AnnotationCollector emptyCollector() {
+        return EmptyCollector.instance;
     }
+
+    public abstract Annotations asAnnotations();
+    public abstract AnnotationMap asAnnotationMap();
 
     /*
     /**********************************************************
@@ -50,25 +34,119 @@ public class AnnotationCollector
     /**********************************************************
      */
 
-    public boolean addIfNotPresent(Annotation ann) {
-        final Class<?> type = ann.annotationType();
-        if (_annotations == null) {
-            if (_firstType == null) {
-                _firstType = type;
-                _firstValue = ann;
-                return true;
-            }
-            if (_firstType == type) {
-                return false;
-            }
-            // Otherwise, "upgrade" to a Map
-            _annotations = new HashMap<>();
-            _annotations.put(_firstType, _firstValue);
-        } else if (_annotations.containsKey(type)) {
-            return false;
+    public abstract boolean isPresent(Annotation ann);
+
+    public abstract AnnotationCollector addOrOverride(Annotation ann);
+
+    /*
+    /**********************************************************
+    /* Collector implementations
+    /**********************************************************
+     */
+
+    static class EmptyCollector extends AnnotationCollector
+    {
+        public final static EmptyCollector instance = new EmptyCollector();
+
+        private EmptyCollector() { }
+
+        @Override
+        public Annotations asAnnotations() {
+            return NO_ANNOTATIONS;
         }
-        _annotations.put(type, ann);
-        return true;
+ 
+        @Override
+        public AnnotationMap asAnnotationMap() {
+            return new AnnotationMap();
+        }
+
+        @Override
+        public boolean isPresent(Annotation ann) { return false; }
+
+        @Override
+        public AnnotationCollector addOrOverride(Annotation ann) {
+            return new OneCollector(ann.annotationType(), ann);
+        }
+    }
+
+    static class OneCollector extends AnnotationCollector
+    {
+        protected Class<?> _type;
+        protected Annotation _value;
+
+        public OneCollector(Class<?> type, Annotation value) {
+            _type = type;
+            _value = value;
+        }
+
+        @Override
+        public Annotations asAnnotations() {
+            return new OneAnnotation(_type, _value);
+        }
+
+        @Override
+        public AnnotationMap asAnnotationMap() {
+            return AnnotationMap.of(_type, _value);
+        }
+
+        @Override
+        public boolean isPresent(Annotation ann) {
+            return ann.annotationType() == _type;
+        }
+        
+        @Override
+        public AnnotationCollector addOrOverride(Annotation ann) {
+            final Class<?> type = ann.annotationType();
+            // true override? Just replace in-place, return
+            if (_type == type) {
+                _value = ann;
+                return this;
+            }
+            return new NCollector(_type, _value, type, ann);
+        }
+    }
+
+    static class NCollector extends AnnotationCollector
+    {
+        protected final HashMap<Class<?>,Annotation> _annotations;
+
+        public NCollector(Class<?> type1, Annotation value1,
+                Class<?> type2, Annotation value2) {
+            _annotations = new HashMap<>();
+            _annotations.put(type1, value1);
+            _annotations.put(type2, value2);
+        }
+
+        @Override
+        public Annotations asAnnotations() {
+            if (_annotations.size() == 2) {
+                Iterator<Map.Entry<Class<?>,Annotation>> it = _annotations.entrySet().iterator();
+                Map.Entry<Class<?>,Annotation> en1 = it.next(), en2 = it.next();
+                return new TwoAnnotations(en1.getKey(), en1.getValue(),
+                        en2.getKey(), en2.getValue());
+            }
+            return new AnnotationMap(_annotations);
+        }
+
+        @Override
+        public AnnotationMap asAnnotationMap() {
+            AnnotationMap result = new AnnotationMap();
+            for (Annotation ann : _annotations.values()) {
+                result.add(ann);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean isPresent(Annotation ann) {
+            return _annotations.containsKey(ann.annotationType());
+        }
+
+        @Override
+        public AnnotationCollector addOrOverride(Annotation ann) {
+            _annotations.put(ann.annotationType(), ann);
+            return this;
+        }
     }
 
     /*

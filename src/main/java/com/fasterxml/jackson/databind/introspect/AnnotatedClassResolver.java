@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -126,13 +125,13 @@ public class AnnotatedClassResolver
         if (_intr == null) {
             return NO_ANNOTATIONS;
         }
-        AnnotationCollector resolvedCA = new AnnotationCollector();        
+        AnnotationCollector resolvedCA = AnnotationCollector.emptyCollector();
         // add mix-in annotations first (overrides)
         if (_primaryMixin != null) {
-            _addClassMixIns(resolvedCA, _class, _primaryMixin);
+            resolvedCA = _addClassMixIns(resolvedCA, _class, _primaryMixin);
         }
-        // first, annotations from the class itself:
-        _addAnnotationsIfNotPresent(resolvedCA,
+        // then annotations from the class itself:
+        resolvedCA = _addAnnotationsIfNotPresent(resolvedCA,
                 ClassUtil.findClassAnnotations(_class));
 
         // and then from super types
@@ -140,10 +139,10 @@ public class AnnotatedClassResolver
             // and mix mix-in annotations in-between
             if (_mixInResolver != null) {
                 Class<?> cls = type.getRawClass();
-                _addClassMixIns(resolvedCA, cls,
+                resolvedCA = _addClassMixIns(resolvedCA, cls,
                         _mixInResolver.findMixInClassFor(cls));
             }
-            _addAnnotationsIfNotPresent(resolvedCA,
+            resolvedCA = _addAnnotationsIfNotPresent(resolvedCA,
                     ClassUtil.findClassAnnotations(type.getRawClass()));
         }
         /* and finally... any annotations there might be for plain
@@ -153,18 +152,18 @@ public class AnnotatedClassResolver
         // 12-Jul-2009, tatu: Should this be done for interfaces too?
         //  For now, yes, seems useful for some cases, and not harmful for any?
         if (_mixInResolver != null) {
-            _addClassMixIns(resolvedCA, Object.class,
+            resolvedCA = _addClassMixIns(resolvedCA, Object.class,
                     _mixInResolver.findMixInClassFor(Object.class));
         }
         return resolvedCA.asAnnotations();
     }
 
-    private void _addClassMixIns(AnnotationCollector annotations,
+    private AnnotationCollector _addClassMixIns(AnnotationCollector annotations,
             Class<?> target, Class<?> mixin)
     {
         if (mixin != null) {
             // Ok, first: annotations from mix-in class itself:
-            _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(mixin));
+            annotations = _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(mixin));
     
             // And then from its supertypes, if any. But note that we will only consider
             // super-types up until reaching the masked class (if found); this because
@@ -172,54 +171,44 @@ public class AnnotatedClassResolver
             // And if so, we absolutely must NOT include super types of masked class,
             // as that would inverse precedence of annotations.
             for (Class<?> parent : ClassUtil.findSuperClasses(mixin, target, false)) {
-                _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(parent));
+                annotations = _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(parent));
             }
         }
+        return annotations;
     }
 
-    private void _addAnnotationsIfNotPresent(AnnotationCollector result, Annotation[] anns)
+    private AnnotationCollector _addAnnotationsIfNotPresent(AnnotationCollector c,
+            Annotation[] anns)
     {
         if (anns != null) {
-            List<Annotation> fromBundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                // note: we will NOT filter out non-Jackson anns any more
-                boolean wasNotPresent = result.addIfNotPresent(ann);
-                if (wasNotPresent && _intr.isAnnotationBundle(ann)) {
-                    fromBundles = _addFromBundle(ann, fromBundles);
+                // note: we will NOT filter out non-Jackson annotations any more
+                if (!c.isPresent(ann)) {
+                    c = c.addOrOverride(ann);
+                    if (_intr.isAnnotationBundle(ann)) {
+                        c = _addFromBundleIfNotPresent(c, ann);
+                    }
                 }
             }
-            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
-                _addAnnotationsIfNotPresent(result, fromBundles);
-            }
         }
+        return c;
     }
 
-    private void _addAnnotationsIfNotPresent(AnnotationCollector result, List<Annotation> anns)
+    private AnnotationCollector _addFromBundleIfNotPresent(AnnotationCollector c,
+            Annotation bundle)
     {
-        List<Annotation> fromBundles = null;
-        for (Annotation ann : anns) {
-            boolean wasNotPresent = result.addIfNotPresent(ann);
-            if (wasNotPresent && _intr.isAnnotationBundle(ann)) {
-                fromBundles = _addFromBundle(ann, fromBundles);
-            }
-        }
-        if (fromBundles != null) {
-            _addAnnotationsIfNotPresent(result, fromBundles);
-        }
-    }
-
-    private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
-    {
-        for (Annotation a : ClassUtil.findClassAnnotations(bundle.annotationType())) {
+        for (Annotation ann : ClassUtil.findClassAnnotations(bundle.annotationType())) {
             // minor optimization: by-pass 2 common JDK meta-annotations
-            if ((a instanceof Target) || (a instanceof Retention)) {
+            if ((ann instanceof Target) || (ann instanceof Retention)) {
                 continue;
             }
-            if (result == null) {
-                result = new ArrayList<Annotation>();
+            if (!c.isPresent(ann)) {
+                c = c.addOrOverride(ann);
+                if (_intr.isAnnotationBundle(ann)) {
+                    c = _addFromBundleIfNotPresent(c, ann);
+                }
             }
-            result.add(a);
         }
-        return result;
+        return c;
     }
 }

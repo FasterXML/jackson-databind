@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -961,12 +963,26 @@ public class ObjectMapper
     public static List<Module> findModules(ClassLoader classLoader)
     {
         ArrayList<Module> modules = new ArrayList<Module>();
-        ServiceLoader<Module> loader = (classLoader == null) ?
-                ServiceLoader.load(Module.class) : ServiceLoader.load(Module.class, classLoader);
+        ServiceLoader<Module> loader = secureGetServiceLoader(Module.class, classLoader);
         for (Module module : loader) {
             modules.add(module);
         }
         return modules;
+    }
+
+    private static <T> ServiceLoader<T> secureGetServiceLoader(final Class<T> clazz, final ClassLoader classLoader) {
+        final SecurityManager sm = System.getSecurityManager();
+        if (sm == null) {
+            return (classLoader == null) ?
+                    ServiceLoader.load(clazz) : ServiceLoader.load(clazz, classLoader);
+        }
+        return AccessController.doPrivileged(new PrivilegedAction<ServiceLoader<T>>() {
+            @Override
+            public ServiceLoader<T> run() {
+                return (classLoader == null) ?
+                        ServiceLoader.load(clazz) : ServiceLoader.load(clazz, classLoader);
+            }
+        });
     }
 
     /**

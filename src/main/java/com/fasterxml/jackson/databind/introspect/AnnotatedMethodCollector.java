@@ -15,8 +15,6 @@ public class AnnotatedMethodCollector
     extends CollectorBase
 {
     private final MixInResolver _mixInResolver;
-    
-    // // // Collected state
 
     AnnotatedMethodCollector(AnnotationIntrospector intr,
             MixInResolver mixins)
@@ -52,6 +50,7 @@ public class AnnotatedMethodCollector
                     memberMethods, mixin, mixins);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)
+        /*
         if (_mixInResolver != null) {
             Class<?> mixin = _mixInResolver.findMixInClassFor(Object.class);
             if (mixin != null) {
@@ -59,12 +58,9 @@ public class AnnotatedMethodCollector
             }
         }
 
-        /* Any unmatched mix-ins? Most likely error cases (not matching
-         * any method); but there is one possible real use case:
-         * exposing Object#hashCode (alas, Object#getClass can NOT be
-         * exposed)
-         */
-        // 14-Feb-2011, tatu: AnnotationIntrospector is null if annotations not enabled; if so, can skip:
+        // Any unmatched mix-ins? Most likely error cases (not matching any method);
+        // but there is one possible real use case: exposing Object#hashCode
+        // (alas, Object#getClass can NOT be exposed)
         if (_intr != null) {
             if (!mixins.isEmpty()) {
                 Iterator<AnnotatedMethod> it = mixins.iterator();
@@ -82,6 +78,7 @@ public class AnnotatedMethodCollector
                 }
             }
         }
+        */
         return memberMethods;
     }
 
@@ -111,12 +108,11 @@ public class AnnotatedMethodCollector
                     _addMixOvers(old.getAnnotated(), newM, false);
                 }
             } else {
-                /* If sub-class already has the method, we only want to augment
-                 * annotations with entries that are not masked by sub-class.
-                 */
+                // If sub-class already has the method, we only want to augment
+                // annotations with entries that are not masked by sub-class.
                 _addMixUnders(m, old);
 
-                /* 06-Jan-2010, tatu: [JACKSON-450] Except that if method we saw first is
+                /* 06-Jan-2010, tatu: Except that if method we saw first is
                  *   from an interface, and we now find a non-interface definition, we should
                  *   use this method, but with combination of annotations.
                  *   This helps (or rather, is essential) with JAXB annotations and
@@ -136,17 +132,14 @@ public class AnnotatedMethodCollector
     {
 //        List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
 
-        List<Class<?>> parents = ClassUtil.findRawSuperTypes(mixInCls, targetClass, true);
-        for (Class<?> mixin : parents) {
+        for (Class<?> mixin : ClassUtil.findRawSuperTypes(mixInCls, targetClass, true)) {
             for (Method m : ClassUtil.getDeclaredMethods(mixin)) {
                 if (!_isIncludableMemberMethod(m)) {
                     continue;
                 }
                 AnnotatedMethod am = methods.find(m);
-                /* Do we already have a method to augment (from sub-class
-                 * that will mask this mixIn)? If so, add if visible
-                 * without masking (no such annotation)
-                 */
+                // Do we already have a method to augment (from sub-class that will mask
+                // this mixIn)? If so, add if visible without masking (no such annotation)
                 if (am != null) {
                     _addMixUnders(m, am);
                     // Otherwise will have precedence, but must wait until we find
@@ -185,21 +178,6 @@ public class AnnotatedMethodCollector
  
     private AnnotationMap _collectRelevantAnnotations(Annotation[] anns) {
         return _addAnnotationsIfNotPresent(new AnnotationMap(), anns);
-    }
-
-    static AnnotationMap _emptyAnnotationMap() {
-        return new AnnotationMap();
-    }
-
-    static AnnotationMap[] _emptyAnnotationMaps(int count) {
-        if (count == 0) {
-            return NO_ANNOTATION_MAPS;
-        }
-        AnnotationMap[] maps = new AnnotationMap[count];
-        for (int i = 0; i < count; ++i) {
-            maps[i] = _emptyAnnotationMap();
-        }
-        return maps;
     }
 
     private boolean _isIncludableMemberMethod(Method m)
@@ -251,12 +229,6 @@ public class AnnotatedMethodCollector
             _addOrOverrideAnnotations(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
         }
     }
-
-    /*
-    /**********************************************************
-    /* Static helper methods, attaching annotations
-    /**********************************************************
-     */
 
     // Helper method used to add all applicable annotations from given set.
     // Takes into account possible "annotation bundles" (meta-annotations to

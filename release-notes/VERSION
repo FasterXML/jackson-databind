@@ -3,6 +3,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.9 (not yet released)
+
+#1585: Invoke ServiceLoader.load() inside of a privileged block when loading
+  modules using `ObjectMapper.findModules()`
+ (contributed by Ivo S)
+
 2.8.8 (05-Apr-2017)
 
 (partial) #994: `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS` only works for POJOs, Maps

@@ -48,9 +48,14 @@ class CollectorBase
             if (_ignorableAnnotation(ann)) {
                 continue;
             }
-            c = c.addOrOverride(ann);
             if (_intr.isAnnotationBundle(ann)) {
-                c = collectFromBundle(c, ann);
+                // 11-Apr-2017, tatu: Also must guard against recursive definitions...
+                if (!c.isPresent(ann)) {
+                    c = c.addOrOverride(ann);
+                    c = collectFromBundle(c, ann);
+                }
+            } else {
+                c = c.addOrOverride(ann);
             }
         }
         return c;

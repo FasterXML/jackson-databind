@@ -17,7 +17,14 @@ public abstract class AnnotationCollector
 {
     protected final static Annotations NO_ANNOTATIONS = new NoAnnotations();
 
-    public AnnotationCollector() { }
+    /**
+     * Optional data to carry along
+     */
+    protected final Object _data;
+
+    protected AnnotationCollector(Object d) {
+        _data = d;
+    }
 
     public static Annotations emptyAnnotations() { return NO_ANNOTATIONS; }
 
@@ -25,8 +32,16 @@ public abstract class AnnotationCollector
         return EmptyCollector.instance;
     }
 
+    public static AnnotationCollector emptyCollector(Object data) {
+        return new EmptyCollector(data);
+    }
+
     public abstract Annotations asAnnotations();
     public abstract AnnotationMap asAnnotationMap();
+
+    public Object getData() {
+        return _data;
+    }
 
     /*
     /**********************************************************
@@ -46,9 +61,9 @@ public abstract class AnnotationCollector
 
     static class EmptyCollector extends AnnotationCollector
     {
-        public final static EmptyCollector instance = new EmptyCollector();
+        public final static EmptyCollector instance = new EmptyCollector(null);
 
-        private EmptyCollector() { }
+        EmptyCollector(Object data) { super(data); }
 
         @Override
         public Annotations asAnnotations() {
@@ -65,16 +80,18 @@ public abstract class AnnotationCollector
 
         @Override
         public AnnotationCollector addOrOverride(Annotation ann) {
-            return new OneCollector(ann.annotationType(), ann);
+            return new OneCollector(_data, ann.annotationType(), ann);
         }
     }
 
     static class OneCollector extends AnnotationCollector
     {
-        protected Class<?> _type;
-        protected Annotation _value;
+        private Class<?> _type;
+        private Annotation _value;
 
-        public OneCollector(Class<?> type, Annotation value) {
+        public OneCollector(Object data,
+                Class<?> type, Annotation value) {
+            super(data);
             _type = type;
             _value = value;
         }
@@ -102,7 +119,7 @@ public abstract class AnnotationCollector
                 _value = ann;
                 return this;
             }
-            return new NCollector(_type, _value, type, ann);
+            return new NCollector(_data, _type, _value, type, ann);
         }
     }
 
@@ -110,8 +127,10 @@ public abstract class AnnotationCollector
     {
         protected final HashMap<Class<?>,Annotation> _annotations;
 
-        public NCollector(Class<?> type1, Annotation value1,
+        public NCollector(Object data,
+                Class<?> type1, Annotation value1,
                 Class<?> type2, Annotation value2) {
+            super(data);
             _annotations = new HashMap<>();
             _annotations.put(type1, value1);
             _annotations.put(type2, value2);

@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.databind.PropertyName;
 
 /* Tests mostly for [JACKSON-754]: ability to create "annotation bundles"
  */
-public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapTest
+public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMapTest
 {
     @Retention(RetentionPolicy.RUNTIME)
     @JacksonAnnotationsInside
@@ -71,6 +72,18 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
         @HolderA public int unimportant = 42;
     }
 
+    static class RecursiveHolder2 {
+        @HolderA public int getValue() { return 28; }
+    }
+
+    static class RecursiveHolder3 {
+        public int x;
+
+        @JsonCreator
+        @HolderA
+        public RecursiveHolder3(int x) { this.x = x; }
+    }
+    
     @JsonProperty
     @JacksonAnnotationsInside
     @Retention(RetentionPolicy.RUNTIME)
@@ -110,11 +123,20 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
         assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
     }
 
-    public void testRecursiveBundles() throws Exception
-    {
+    public void testRecursiveBundlesField() throws Exception {
         assertEquals("{\"unimportant\":42}", MAPPER.writeValueAsString(new RecursiveHolder()));
     }
 
+    public void testRecursiveBundlesMethod() throws Exception {
+        assertEquals("{\"value\":28}", MAPPER.writeValueAsString(new RecursiveHolder2()));
+    }
+
+    public void testRecursiveBundlesConstructor() throws Exception {
+        RecursiveHolder3 result = MAPPER.readValue("17", RecursiveHolder3.class);
+        assertNotNull(result);
+        assertEquals(17, result.x);
+    }
+    
     public void testBundledIgnore() throws Exception
     {
         assertEquals("{\"foobar\":13}", MAPPER.writeValueAsString(new Bean()));

@@ -112,24 +112,6 @@ public abstract class AnnotatedMember
     }
 
     /**
-     * Method called to override an annotation, usually due to a mix-in
-     * annotation masking or overriding an annotation 'real' constructor
-     * has.
-     */
-    public final boolean addOrOverride(Annotation a) {
-        return _annotations.add(a);
-    }
-
-    /**
-     * Method called to augment annotations, by adding specified
-     * annotation if and only if it is not yet present in the
-     * annotation map we have.
-     */
-    public final boolean addIfNotPresent(Annotation a) {
-        return _annotations.addIfNotPresent(a);
-    }
-
-    /**
      * Method that can be called to modify access rights, by calling
      * {@link java.lang.reflect.AccessibleObject#setAccessible} on
      * the underlying annotated element.

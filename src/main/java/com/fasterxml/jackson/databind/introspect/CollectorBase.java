@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.lang.reflect.AnnotatedElement;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -20,16 +19,10 @@ class CollectorBase
         _intr = intr;
     }
 
-    protected AnnotationMap collectAnnotations(AnnotatedElement main, AnnotatedElement mixin) {
-        AnnotationCollector c = collectAnnotations(AnnotationCollector.emptyCollector(),
-                main.getDeclaredAnnotations());
-        if (mixin != null) {
-            c = collectAnnotations(c, mixin.getDeclaredAnnotations());
-        }
-        return c.asAnnotationMap();
-    }
+    // // // Annotation overrides ("mix over")
 
-    protected AnnotationCollector collectAnnotations(AnnotationCollector c, Annotation[] anns) {
+    protected final AnnotationCollector collectAnnotations(Annotation[] anns) {
+        AnnotationCollector c = AnnotationCollector.emptyCollector();
         for (int i = 0, end = anns.length; i < end; ++i) {
             Annotation ann = anns[i];
             c = c.addOrOverride(ann);
@@ -40,7 +33,18 @@ class CollectorBase
         return c;
     }
 
-    protected AnnotationCollector collectFromBundle(AnnotationCollector c, Annotation bundle) {
+    protected final AnnotationCollector collectAnnotations(AnnotationCollector c, Annotation[] anns) {
+        for (int i = 0, end = anns.length; i < end; ++i) {
+            Annotation ann = anns[i];
+            c = c.addOrOverride(ann);
+            if (_intr.isAnnotationBundle(ann)) {
+                c = collectFromBundle(c, ann);
+            }
+        }
+        return c;
+    }
+
+    protected final AnnotationCollector collectFromBundle(AnnotationCollector c, Annotation bundle) {
         Annotation[] anns = ClassUtil.findClassAnnotations(bundle.annotationType());
         for (int i = 0, end = anns.length; i < end; ++i) {
             Annotation ann = anns[i];
@@ -61,6 +65,41 @@ class CollectorBase
         return c;
     }
 
+    // // // Defaulting ("mix under")
+
+    // Variant that only adds annotations that are missing
+    protected final AnnotationCollector collectDefaultAnnotations(AnnotationCollector c, Annotation[] anns) {
+        for (int i = 0, end = anns.length; i < end; ++i) {
+            Annotation ann = anns[i];
+            if (!c.isPresent(ann)) {
+                c = c.addOrOverride(ann);
+                if (_intr.isAnnotationBundle(ann)) {
+                    c = collectDefaultFromBundle(c, ann);
+                }
+            }
+        }
+        return c;
+    }
+
+    protected final AnnotationCollector collectDefaultFromBundle(AnnotationCollector c, Annotation bundle) {
+        Annotation[] anns = ClassUtil.findClassAnnotations(bundle.annotationType());
+        for (int i = 0, end = anns.length; i < end; ++i) {
+            Annotation ann = anns[i];
+            // minor optimization: by-pass 2 common JDK meta-annotations
+            if (_ignorableAnnotation(ann)) {
+                continue;
+            }
+            // also only defaulting, not overrides:
+            if (!c.isPresent(ann)) {
+                c = c.addOrOverride(ann);
+                if (_intr.isAnnotationBundle(ann)) {
+                    c = collectFromBundle(c, ann);
+                }
+            }
+        }
+        return c;
+    }
+    
     protected final static boolean _ignorableAnnotation(Annotation a) {
         return (a instanceof Target) || (a instanceof Retention);
     }

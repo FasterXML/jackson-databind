@@ -91,7 +91,7 @@ public class TestBasicAnnotations
         int value = 3;
         
         @JsonProperty("y")
-            public void setX(int v) { value = v; }
+        public void setX(int v) { value = v; }
     }
 
     enum Alpha { A, B, C; }

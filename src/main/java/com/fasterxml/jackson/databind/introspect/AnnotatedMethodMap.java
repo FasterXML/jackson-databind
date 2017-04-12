@@ -11,40 +11,15 @@ import java.util.*;
 public final class AnnotatedMethodMap
     implements Iterable<AnnotatedMethod>
 {
-    protected LinkedHashMap<MemberKey,AnnotatedMethod> _methods;
+    protected Map<MemberKey,AnnotatedMethod> _methods;
 
     public AnnotatedMethodMap() { }
 
     /**
-     * Method called to add specified annotated method in the Map.
+     * @since 2.9
      */
-    public void add(AnnotatedMethod am)
-    {
-        if (_methods == null) {
-            _methods = new LinkedHashMap<MemberKey,AnnotatedMethod>();
-        }
-        _methods.put(new MemberKey(am.getAnnotated()), am);
-    }
-
-    /**
-     * Method called to remove specified method, assuming
-     * it exists in the Map
-     */
-    public AnnotatedMethod remove(AnnotatedMethod am)
-    {
-        return remove(am.getAnnotated());
-    }
-
-    public AnnotatedMethod remove(Method m)
-    {
-        if (_methods != null) {
-            return _methods.remove(new MemberKey(m));
-        }
-        return null;
-    }
-
-    public boolean isEmpty() {
-        return (_methods == null || _methods.size() == 0);
+    public AnnotatedMethodMap(Map<MemberKey,AnnotatedMethod> m) {
+        _methods = m;
     }
 
     public int size() {
@@ -76,10 +51,9 @@ public final class AnnotatedMethodMap
     @Override
     public Iterator<AnnotatedMethod> iterator()
     {
-        if (_methods != null) {
-            return _methods.values().iterator();
+        if (_methods == null) {
+            return Collections.emptyIterator();
         }
-        List<AnnotatedMethod> empty = Collections.emptyList();
-        return empty.iterator();
+        return _methods.values().iterator();
     }
 }

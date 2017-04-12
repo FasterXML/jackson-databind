@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -331,10 +332,23 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
         }
         return result;
     }
+
+    // // NOTE: these are only called when we know we have AnnotationIntrospector
     
     private AnnotationMap collectAnnotations(ClassUtil.Ctor main, ClassUtil.Ctor mixin) {
-        return collectAnnotations(main.getConstructor(),
-                (mixin == null) ? null : mixin.getConstructor());
+        AnnotationCollector c = collectAnnotations(main.getConstructor().getDeclaredAnnotations());
+        if (mixin != null) {
+            c = collectAnnotations(c, mixin.getConstructor().getDeclaredAnnotations());
+        }
+        return c.asAnnotationMap();
+    }
+
+    private final AnnotationMap collectAnnotations(AnnotatedElement main, AnnotatedElement mixin) {
+        AnnotationCollector c = collectAnnotations(main.getDeclaredAnnotations());
+        if (mixin != null) {
+            c = collectAnnotations(c, mixin.getDeclaredAnnotations());
+        }
+        return c.asAnnotationMap();
     }
 
     // for [databind#1005]: do not use or expose synthetic constructors

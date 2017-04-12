@@ -25,7 +25,7 @@ public class AnnotatedFieldCollector
     {
         super(intr);
         _typeFactory = types;
-        _mixInResolver = mixins;
+        _mixInResolver = (intr == null) ? null : mixins;
     }
 
     public static List<AnnotatedField> collectFields(AnnotationIntrospector intr,
@@ -75,7 +75,9 @@ public class AnnotatedFieldCollector
                 fields = new LinkedHashMap<>();
             }
             FieldBuilder b = new FieldBuilder(tc, f);
-            b.annotations = collectAnnotations(b.annotations, f.getDeclaredAnnotations());
+            if (_intr != null) {
+                b.annotations = collectAnnotations(b.annotations, f.getDeclaredAnnotations());
+            }
             fields.put(f.getName(), b);
         }
         // And then... any mix-in overrides?

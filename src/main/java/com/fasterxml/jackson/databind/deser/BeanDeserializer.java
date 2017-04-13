@@ -1,13 +1,22 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
-import java.util.*;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.impl.*;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.impl.BeanAsArrayDeserializer;
+import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.impl.ExternalTypeHandler;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
+import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
+import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -131,29 +140,31 @@ public class BeanDeserializer
     {
         // and then others, generally requiring use of @JsonCreator
         switch (t) {
-        case VALUE_STRING:
-            return deserializeFromString(jp, ctxt);
-        case VALUE_NUMBER_INT:
-            return deserializeFromNumber(jp, ctxt);
-        case VALUE_NUMBER_FLOAT:
-	    return deserializeFromDouble(jp, ctxt);
-        case VALUE_EMBEDDED_OBJECT:
-            return deserializeFromEmbedded(jp, ctxt);
-        case VALUE_TRUE:
-        case VALUE_FALSE:
-            return deserializeFromBoolean(jp, ctxt);
-        case START_ARRAY:
-            // these only work if there's a (delegating) creator...
-            return deserializeFromArray(jp, ctxt);
-        case FIELD_NAME:
-        case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
-            if (_vanillaProcessing) {
-                return vanillaDeserialize(jp, ctxt, t);
-            }
-            if (_objectIdReader != null) {
-                return deserializeWithObjectId(jp, ctxt);
-            }
-            return deserializeFromObject(jp, ctxt);
+            case VALUE_STRING:
+                return deserializeFromString(jp, ctxt);
+            case VALUE_NUMBER_INT:
+                return deserializeFromNumber(jp, ctxt);
+            case VALUE_NUMBER_FLOAT:
+                return deserializeFromDouble(jp, ctxt);
+            case VALUE_EMBEDDED_OBJECT:
+                return deserializeFromEmbedded(jp, ctxt);
+            case VALUE_TRUE:
+            case VALUE_FALSE:
+                return deserializeFromBoolean(jp, ctxt);
+            case START_ARRAY:
+                // these only work if there's a (delegating) creator...
+                return deserializeFromArray(jp, ctxt);
+            case FIELD_NAME:
+            case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
+                if (_vanillaProcessing) {
+                    return vanillaDeserialize(jp, ctxt, t);
+                }
+                if (_objectIdReader != null) {
+                    return deserializeWithObjectId(jp, ctxt);
+                }
+                return deserializeFromObject(jp, ctxt);
+            case VALUE_NULL:
+                return null;
         default:
             throw ctxt.mappingException(handledType());
         }

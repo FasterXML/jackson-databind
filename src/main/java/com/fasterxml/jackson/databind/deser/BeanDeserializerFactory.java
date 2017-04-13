@@ -36,6 +36,35 @@ public class BeanDeserializerFactory
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
+    /**
+     * Set of well-known "nasty classes", deserialization of which is considered dangerous
+     * and should (and is) prevented by default.
+     *
+     * @since 2.8.9
+     */
+    protected final static Set<String> DEFAULT_NO_DESER_CLASS_NAMES;
+    static {
+        Set<String> s = new HashSet<>();
+        // Courtesy of [https://github.com/kantega/notsoserial]:
+        // (and wrt [databind#1599]
+        s.add("org.apache.commons.collections.functors.InvokerTransformer");
+        s.add("org.apache.commons.collections.functors.InstantiateTransformer");
+        s.add("org.apache.commons.collections4.functors.InvokerTransformer");
+        s.add("org.apache.commons.collections4.functors.InstantiateTransformer");
+        s.add("org.codehaus.groovy.runtime.ConvertedClosure");
+        s.add("org.codehaus.groovy.runtime.MethodClosure");
+        s.add("org.springframework.beans.factory.ObjectFactory");
+        s.add("com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl");
+        DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
+    }
+
+    /**
+     * Set of class names of types that are never to be deserialized.
+     *
+     * @since 2.8.9
+     */
+    protected Set<String> _cfgIllegalClassNames = DEFAULT_NO_DESER_CLASS_NAMES;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -130,6 +159,8 @@ public class BeanDeserializerFactory
         if (!isPotentialBeanType(type.getRawClass())) {
             return null;
         }
+        // For checks like [databind#1599]
+        checkIllegalTypes(ctxt, type, beanDesc);
         // Use generic bean introspection to build deserializer
         return buildBeanDeserializer(ctxt, type, beanDesc);
     }
@@ -900,5 +931,22 @@ name, ((AnnotatedParameter) m).getIndex());
         }
         ignoredTypes.put(type, status);
         return status.booleanValue();
+    }
+
+    /**
+     * @since 2.8.9
+     */
+    protected void checkIllegalTypes(DeserializationContext ctxt, JavaType type,
+            BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        // There are certain nasty classes that could cause problems, mostly
+        // via default typing -- catch them here.
+        String full = type.getRawClass().getName();
+
+        if (_cfgIllegalClassNames.contains(full)) {
+            ctxt.reportBadTypeDefinition(beanDesc,
+                    "Illegal type (%s) to deserialize: prevented for security reasons", full);
+        }
     }
 }

@@ -8,6 +8,8 @@ Project: jackson-databind
 #1585: Invoke ServiceLoader.load() inside of a privileged block when loading
   modules using `ObjectMapper.findModules()`
  (contributed by Ivo S)
+#1599: Jackson Deserializer security vulnerability
+ (reported by ayound@github)
 
 2.8.8 (05-Apr-2017)
 

@@ -295,6 +295,14 @@ Project: jackson-databind
  (reported by William H)
 #1225: `JsonMappingException` should override getProcessor()
  (reported by Nick B)
+
+2.6.8 (if ever released)
+
+#1383: Problem with `@JsonCreator` with 1-arg factory-method, implicit param names
+
+2.6.7 (05-Jun-2016)
+
+#1194: Incorrect signature for generic type via `JavaType.getGenericSignature
 #1228: @JsonAnySetter does not deserialize null to Deserializer's NullValue
  (contributed by Eric S)
 #1231: `@JsonSerialize(as=superType)` behavior disallowed in 2.7.4

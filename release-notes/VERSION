@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.7.10 (not yet released)
 
+#1599: Jackson Deserializer security vulnerability
+ (reported by ayound@github)
 - Minor robustification of method resolution in `AnnotatedClass`
 
 2.7.9 (04-Feb-2017)

@@ -139,6 +139,8 @@ public class BeanDeserializerFactory
         if (!isPotentialBeanType(type.getRawClass())) {
             return null;
         }
+        // For checks like [databind#1599]
+        checkIllegalTypes(ctxt, type, beanDesc);
         // Use generic bean introspection to build deserializer
         return buildBeanDeserializer(ctxt, type, beanDesc);
     }
@@ -833,5 +835,26 @@ public class BeanDeserializerFactory
         status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
         // We default to 'false', i.e. not ignorable
         return (status == null) ? false : status.booleanValue(); 
+    }
+
+    /**
+     * @since 2.8.9
+     */
+    protected void checkIllegalTypes(DeserializationContext ctxt, JavaType type,
+            BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        // There are certain nasty classes that could cause problems, mostly
+        // via default typing -- catch them here.
+        Class<?> raw = type.getRawClass();
+        String name = raw.getSimpleName();
+
+        if ("TemplatesImpl".equals(name)) { // [databind#1599] 
+            if (raw.getName().startsWith("com.sun.org.apache.xalan")) {
+                throw JsonMappingException.from(ctxt,
+                        String.format("Illegal type (%s) to deserialize: prevented for security reasons",
+                                name));
+            }
+        }
     }
 }

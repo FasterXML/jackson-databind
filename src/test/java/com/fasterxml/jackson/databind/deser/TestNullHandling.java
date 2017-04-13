@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -35,6 +38,43 @@ public class TestNullHandling extends BaseMapTest
 
         public Map<String,String> getAny(){
             return this.any;
+        }
+    }
+
+    // [databind#1601]
+    static class RootData {
+        public String name;
+        public String type;
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "type")
+        @JsonSubTypes({
+                @Type(value = TypeA.class, name = "TypeA"),
+                @Type(value = TypeB.class, name = "TypeB")})
+        public Proxy proxy;
+
+        public RootData() {}
+
+        public RootData(String name, String type, Proxy proxy) {
+            this.name = name;
+            this.type = type;
+            this.proxy = proxy;
+        }
+    }
+    static interface Proxy { }
+
+    static class TypeA implements Proxy {
+        public String aValue;
+        public TypeA() {}
+        public TypeA(String a) {
+            this.aValue = a;
+        }
+    }
+
+    static class TypeB implements Proxy {
+        public String bValue;
+        public TypeB() {}
+        public TypeB(String b) {
+            this.bValue = b;
         }
     }
 
@@ -135,5 +175,22 @@ public class TestNullHandling extends BaseMapTest
         assertNotNull(deser);
         assertEquals(1, deser.size());
         assertEquals("funny", deser.get("key"));
+    }
+
+    // [databind#1601]
+    public void testPolymorphicDataNull() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        String typeA =
+                "{\"name\":\"TypeAData\", \"type\":\"TypeA\", \"proxy\":{\"aValue\":\"This works!\"}}";
+        RootData typeAData = mapper.readValue(typeA, RootData.class);
+        assertEquals("No value for aValue!?", "This works!", ((TypeA) typeAData.proxy).aValue);
+        String typeB =
+                "{\"name\":\"TypeBData\", \"type\":\"TypeB\", \"proxy\":{\"bValue\":\"This works too!\"}}";
+        RootData typeBData = mapper.readValue(typeB, RootData.class);
+        assertEquals("No value for bValue!?", "This works too!", ((TypeB) typeBData.proxy).bValue);
+        String typeBNull =
+                "{\"name\":\"TypeBData\", \"type\":\"TypeB\", \"proxy\": null}";
+        RootData typeBNullData = mapper.readValue(typeBNull, RootData.class);
+        assertNull("Proxy should be null!", typeBNullData.proxy);
     }
 }

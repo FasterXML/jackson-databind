@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.4.6.2 (not released)
+
+#1601: Cannot deserialize null polymorphic type
+ (reported by cfogrady@github)
+
 2.4.6.1 (09-Jun-2015)
 
 #676: Deserialization of class with generic collection inside depends on

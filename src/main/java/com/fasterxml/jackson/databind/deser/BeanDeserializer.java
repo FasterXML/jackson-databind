@@ -160,6 +160,8 @@ public class BeanDeserializer
         case VALUE_TRUE:
         case VALUE_FALSE:
             return deserializeFromBoolean(p, ctxt);
+        case VALUE_NULL: // [databind#1461]: work-around, not real fix but...
+            return null;
         case START_ARRAY:
             // these only work if there's a (delegating) creator...
             return deserializeFromArray(p, ctxt);

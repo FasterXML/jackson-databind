@@ -176,12 +176,10 @@ public final class AnnotatedConstructor
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!ClassUtil.hasClass(o, getClass())) {
-            return false;
-        }
-        return ((AnnotatedConstructor) o)._constructor == _constructor;
+        return ClassUtil.hasClass(o, getClass())
+                && (((AnnotatedConstructor) o)._constructor == _constructor);
     }
-    
+
     /*
     /**********************************************************
     /* JDK serialization handling

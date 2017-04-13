@@ -51,15 +51,7 @@ public final class AnnotatedMethod
         _method = null;
         _serialization = ser;
     }
-    
-    /**
-     * Method that constructs a new instance with settings (annotations, parameter annotations)
-     * of this instance, but with different physical {@link Method}.
-     */
-    public AnnotatedMethod withMethod(Method m) {
-        return new AnnotatedMethod(_typeContext, m, _annotations, _paramAnnotations);
-    }
-    
+
     @Override
     public AnnotatedMethod withAnnotations(AnnotationMap ann) {
         return new AnnotatedMethod(_typeContext, _method, ann, _paramAnnotations);
@@ -178,10 +170,7 @@ public final class AnnotatedMethod
     {
         try {
             _method.invoke(pojo, value);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException("Failed to setValue() with method "
-                    +getFullName()+": "+e.getMessage(), e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalArgumentException("Failed to setValue() with method "
                     +getFullName()+": "+e.getMessage(), e);
         }
@@ -192,10 +181,7 @@ public final class AnnotatedMethod
     {
         try {
             return _method.invoke(pojo, (Object[]) null);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException("Failed to getValue() with method "
-                    +getFullName()+": "+e.getMessage(), e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalArgumentException("Failed to getValue() with method "
                     +getFullName()+": "+e.getMessage(), e);
         }
@@ -260,12 +246,10 @@ public final class AnnotatedMethod
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        if (!ClassUtil.hasClass(o, getClass())) {
-            return false;
-        }
-        return ((AnnotatedMethod) o)._method == _method;
+        return ClassUtil.hasClass(o, getClass())
+                && (((AnnotatedMethod) o)._method == _method);
     }
-    
+
     /*
     /**********************************************************
     /* JDK serialization handling

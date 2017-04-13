@@ -473,7 +473,7 @@ public abstract class AnnotationIntrospector
     public JacksonInject.Value findInjectableValue(AnnotatedMember m) {
         // 05-Apr-2017, tatu: Just for 2.9, call deprecated method to help
         //    with some cases of overrides for legacy code
-        Object id = findInjectableValue(m);
+        Object id = findInjectableValueId(m);
         if (id != null) {
             return JacksonInject.Value.forId(id);
         }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -645,13 +646,13 @@ public class POJOPropertiesCollector
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
         _property(props, implName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
-    
+
     protected void _addInjectables(Map<String, POJOPropertyBuilder> props)
     {
         final AnnotationIntrospector ai = _annotationIntrospector;
-        // first fields, then methods
+        // first fields, then methods, to allow overriding
         for (AnnotatedField f : _classDef.fields()) {
-            _doAddInjectable(ai.findInjectableValueId(f), f);
+            _doAddInjectable(ai.findInjectableValue(f), f);
         }
         
         for (AnnotatedMethod m : _classDef.memberMethods()) {
@@ -659,23 +660,27 @@ public class POJOPropertiesCollector
             if (m.getParameterCount() != 1) {
                 continue;
             }
-            _doAddInjectable(ai.findInjectableValueId(m), m);
+            _doAddInjectable(ai.findInjectableValue(m), m);
         }
     }
 
-    protected void _doAddInjectable(Object id, AnnotatedMember m)
+    protected void _doAddInjectable(JacksonInject.Value injectable, AnnotatedMember m)
     {
-        if (id == null) {
+        if (injectable == null) {
             return;
         }
+        Object id = injectable.getId();
         if (_injectables == null) {
             _injectables = new LinkedHashMap<Object, AnnotatedMember>();
         }
         AnnotatedMember prev = _injectables.put(id, m);
         if (prev != null) {
-            String type = id.getClass().getName();
-            throw new IllegalArgumentException("Duplicate injectable value with id '"
-                    +String.valueOf(id)+"' (of type "+type+")");
+            // 12-Apr-2017, tatu: Let's allow masking of Field by Method
+            if (prev.getClass() == m.getClass()) {
+                String type = id.getClass().getName();
+                throw new IllegalArgumentException("Duplicate injectable value with id '"
+                        +String.valueOf(id)+"' (of type "+type+")");
+            }
         }
     }
 

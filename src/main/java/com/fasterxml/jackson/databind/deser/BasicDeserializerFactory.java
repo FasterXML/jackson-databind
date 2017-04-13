@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonLocation;
@@ -431,7 +432,7 @@ public abstract class BasicDeserializerFactory
                     PropertyName name = (argDef == null) ? null : argDef.getFullName();
                     AnnotatedParameter arg = ctor.getParameter(0);
                     properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, arg,
-                            intr.findInjectableValueId(arg));
+                            intr.findInjectableValue(arg));
                     creators.addPropertyCreator(ctor, isCreator, properties);
                 } else {
                     /*boolean added = */ _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
@@ -460,7 +461,7 @@ public abstract class BasicDeserializerFactory
             for (int i = 0; i < argCount; ++i) {
                 final AnnotatedParameter param = ctor.getParameter(i);
                 BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[i];
-                Object injectId = intr.findInjectableValueId(param);
+                JacksonInject.Value injectId = intr.findInjectableValue(param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
 
                 if (propDef != null && propDef.isExplicitlyNamed()) {
@@ -692,17 +693,17 @@ public abstract class BasicDeserializerFactory
             for (int i = 0; i < argCount; ++i) {
                 final AnnotatedParameter param = factory.getParameter(i);
                 BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[i];
-                Object injectId = intr.findInjectableValueId(param);
+                JacksonInject.Value injectable = intr.findInjectableValue(param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
 
                 if (propDef != null && propDef.isExplicitlyNamed()) {
                     ++explicitNameCount;
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;
                 }
-                if (injectId != null) {
+                if (injectable != null) {
                     ++injectCount;
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
@@ -718,7 +719,7 @@ public abstract class BasicDeserializerFactory
                 if (isCreator) {
                     if (name != null && !name.isEmpty()) {
                         ++implicitNameCount;
-                        properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                        properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                         continue;
                     }
                 }
@@ -820,7 +821,7 @@ public abstract class BasicDeserializerFactory
     protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, PropertyName name, int index,
             AnnotatedParameter param,
-            Object injectableValueId)
+            JacksonInject.Value injectable)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -848,6 +849,9 @@ public abstract class BasicDeserializerFactory
         }
         // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
         // so it is not called directly here
+
+        Object injectableValueId = (injectable == null) ? null : injectable.getId();
+        
         SettableBeanProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
                 metadata);
@@ -902,7 +906,7 @@ public abstract class BasicDeserializerFactory
         }
         // If explicit name, or inject id, property-based
         if (((propDef != null) && propDef.isExplicitlyNamed())
-                || (intr.findInjectableValueId(creator.getParameter(0)) != null)) {
+                || (intr.findInjectableValue(creator.getParameter(0)) != null)) {
             return true;
         }
         if (propDef != null) {

@@ -1,8 +1,7 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.inject;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 public class TestInjectables extends BaseMapTest
 {
@@ -22,16 +21,6 @@ public class TestInjectables extends BaseMapTest
         public void injectThird(long v) {
             third = v;
         }
-    }    
-
-    static class BadBean1 {
-        @JacksonInject protected String prop1;
-        @JacksonInject protected String prop2;
-    }
-
-    static class BadBean2 {
-        @JacksonInject("x") protected String prop1;
-        @JacksonInject("x") protected String prop2;
     }
 
     static class CtorBean {
@@ -94,7 +83,7 @@ public class TestInjectables extends BaseMapTest
 
         public int value;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -128,7 +117,6 @@ public class TestInjectables extends BaseMapTest
         assertEquals("Bubba", bean.name);
     }
 
-    // [Issue-13]
     public void testTwoInjectablesViaCreator() throws Exception
     {
         CtorBean2 bean = MAPPER.readerFor(CtorBean2.class)
@@ -140,19 +128,6 @@ public class TestInjectables extends BaseMapTest
         assertEquals("Bob", bean.name);
     }
 
-    public void testInvalidDup() throws Exception
-    {
-        try {
-            MAPPER.readValue("{}", BadBean1.class);
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Duplicate injectable value");
-        }
-        try {
-            MAPPER.readValue("{}", BadBean2.class);
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Duplicate injectable value");
-        }
-    }
 
     public void testIssueGH471() throws Exception
     {

@@ -46,6 +46,16 @@ public class StdTypeResolverBuilder
 
     public StdTypeResolverBuilder() { }
 
+    /**
+     * @since 2.9
+     */
+    protected StdTypeResolverBuilder(JsonTypeInfo.Id idType,
+            JsonTypeInfo.As idAs, String propName) {
+        _idType = idType;
+        _includeAs = idAs;
+        _typeProperty = propName;
+    }
+
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
         return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
     }

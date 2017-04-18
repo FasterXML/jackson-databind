@@ -576,10 +576,13 @@ public class JacksonAnnotationIntrospector
     @Override
     public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
         JsonIdentityReference ref = _findAnnotation(ann, JsonIdentityReference.class);
-        if (ref != null) {
-            objectIdInfo = objectIdInfo.withAlwaysAsId(ref.alwaysAsId());
+        if (ref == null) {
+            return objectIdInfo;
         }
-        return objectIdInfo;
+        if (objectIdInfo == null) {
+            objectIdInfo = ObjectIdInfo.empty();
+        }
+        return objectIdInfo.withAlwaysAsId(ref.alwaysAsId());
     }
 
     /*

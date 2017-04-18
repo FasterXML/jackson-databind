@@ -429,15 +429,14 @@ public abstract class BeanSerializerBase
             if (objectIdInfo == null) {
                 // no ObjectId override, but maybe ObjectIdRef?
                 if (oiw != null) {
-                    objectIdInfo = intr.findObjectReferenceInfo(accessor,
-                            new ObjectIdInfo(NAME_FOR_OBJECT_REF, null, null, null));
-                    oiw = _objectIdWriter.withAlwaysAsId(objectIdInfo.getAlwaysAsId());
+                    objectIdInfo = intr.findObjectReferenceInfo(accessor, null);
+                    if (objectIdInfo != null) {
+                        oiw = _objectIdWriter.withAlwaysAsId(objectIdInfo.getAlwaysAsId());
+                    }
                 }
             } else {
-                /* Ugh: mostly copied from BeanSerializerBase: but can't easily
-                 * change it to be able to move to SerializerProvider (where it
-                 * really belongs)
-                 */
+                // Ugh: mostly copied from BeanDeserializerBase: but can't easily change it
+                // to be able to move to SerializerProvider (where it really belongs)
                 
                 // 2.1: allow modifications by "id ref" annotations as well:
                 objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);

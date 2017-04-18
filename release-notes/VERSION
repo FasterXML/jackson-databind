@@ -82,6 +82,8 @@ Project: jackson-databind
  (contributed by Ivo S)
 #1599: Jackson Deserializer security vulnerability
  (reported by ayound@github)
+#1607: @JsonIdentityReference not used when setup on class only
+ (reported by vboulaye@github)
 
 2.8.8 (05-Apr-2017)
 

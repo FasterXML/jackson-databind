@@ -20,6 +20,11 @@ public class ObjectIdInfo
     protected final Class<?> _scope;
     protected final boolean _alwaysAsId;
 
+    /**
+     * @since 2.8.9
+     */
+    private final static ObjectIdInfo EMPTY = new ObjectIdInfo(PropertyName.NO_NAME, Object.class, null, false, null);
+
     public ObjectIdInfo(PropertyName name, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen,
             Class<? extends ObjectIdResolver> resolver)
     {
@@ -44,6 +49,10 @@ public class ObjectIdInfo
             resolver = SimpleObjectIdResolver.class;
         }
         _resolver = resolver;
+    }
+
+    public static ObjectIdInfo empty() {
+        return EMPTY;
     }
 
     public ObjectIdInfo withAlwaysAsId(boolean state) {

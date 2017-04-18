@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -17,14 +18,14 @@ public class NullConversionsGenericTest extends BaseMapTest
 //        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
         T value;
 
-        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
+        @JsonSetter(nulls=Nulls.AS_EMPTY)
         public void setValue(T v) {
             value = v;
         }
     }
 
     static class NoCtorWrapper {
-        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
+        @JsonSetter(nulls=Nulls.AS_EMPTY)
         public NoCtorPOJO value;
     }
 

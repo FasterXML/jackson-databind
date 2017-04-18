@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -32,7 +32,7 @@ public class PropertyMetadata
      * @since 2.9
      */
     public final static class MergeInfo
-    // NOTE: need not be Serializable, not peristed
+    // NOTE: need not be Serializable, not persisted
     {
         public final AnnotatedMember getter;
 
@@ -106,7 +106,7 @@ public class PropertyMetadata
      * 
      * @since 2.9
      */
-    protected JsonSetter.Nulls _valueNulls, _contentNulls;
+    protected Nulls _valueNulls, _contentNulls;
 
     /*
     /**********************************************************
@@ -118,7 +118,7 @@ public class PropertyMetadata
      * @since 2.9
      */
     protected PropertyMetadata(Boolean req, String desc, Integer index, String def,
-            MergeInfo mergeInfo, JsonSetter.Nulls valueNulls, JsonSetter.Nulls contentNulls)
+            MergeInfo mergeInfo, Nulls valueNulls, Nulls contentNulls)
     {
         _required = req;
         _description = desc;
@@ -187,8 +187,8 @@ public class PropertyMetadata
     /**
      * @since 2.9
      */
-    public PropertyMetadata withNulls(JsonSetter.Nulls valueNulls,
-            JsonSetter.Nulls contentNulls) {
+    public PropertyMetadata withNulls(Nulls valueNulls,
+            Nulls contentNulls) {
         return new PropertyMetadata(_required, _description, _index, _defaultValue,
                 _mergeInfo, valueNulls, contentNulls);
     }
@@ -266,10 +266,10 @@ public class PropertyMetadata
     /**
      * @since 2.9
      */
-    public JsonSetter.Nulls getValueNulls() { return _valueNulls; }
+    public Nulls getValueNulls() { return _valueNulls; }
 
     /**
      * @since 2.9
      */
-    public JsonSetter.Nulls getContentNulls() { return _contentNulls; }
+    public Nulls getContentNulls() { return _contentNulls; }
 }

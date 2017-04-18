@@ -76,7 +76,7 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 //                .writerWithDefaultPrettyPrinter()
                 .writeValue(sw, parents);
         } catch (Exception e) {
-            fail("Failed output so far: " + sw);
+            fail("Failed with "+e.getClass().getName()+", output so far: " + sw);
         }
     }
 }

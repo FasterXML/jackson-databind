@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser.filter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
@@ -15,17 +15,17 @@ public class NullConversionsForContentTest extends BaseMapTest
     static class NullContentFail<T> {
         public T nullsOk;
 
-        @JsonSetter(contentNulls=JsonSetter.Nulls.FAIL)
+        @JsonSetter(contentNulls=Nulls.FAIL)
         public T noNulls;
     }
 
     static class NullContentAsEmpty<T> {
-        @JsonSetter(contentNulls=JsonSetter.Nulls.AS_EMPTY)
+        @JsonSetter(contentNulls=Nulls.AS_EMPTY)
         public T values;
     }
 
     static class NullContentSkip<T> {
-        @JsonSetter(contentNulls=JsonSetter.Nulls.SKIP)
+        @JsonSetter(contentNulls=Nulls.SKIP)
         public T values;
     }
 

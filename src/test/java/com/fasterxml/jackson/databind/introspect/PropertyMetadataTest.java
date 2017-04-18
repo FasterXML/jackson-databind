@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 
 public class PropertyMetadataTest extends BaseMapTest
@@ -49,10 +48,10 @@ public class PropertyMetadataTest extends BaseMapTest
         assertNull(md.getDefaultValue());
         assertEquals(Boolean.FALSE, md.getRequired());
 
-        md = md.withNulls(JsonSetter.Nulls.AS_EMPTY,
-                JsonSetter.Nulls.FAIL);
-        assertEquals(JsonSetter.Nulls.AS_EMPTY, md.getValueNulls());
-        assertEquals(JsonSetter.Nulls.FAIL, md.getContentNulls());
+        md = md.withNulls(Nulls.AS_EMPTY,
+                Nulls.FAIL);
+        assertEquals(Nulls.AS_EMPTY, md.getValueNulls());
+        assertEquals(Nulls.FAIL, md.getContentNulls());
 
         assertFalse(md.hasDefaultValue());
         assertSame(md, md.withDefaultValue(null));

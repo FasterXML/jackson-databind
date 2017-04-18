@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 
 // for [databind#1402]; configurable null handling, specifically with SKIP
@@ -10,7 +10,7 @@ public class NullConversionsSkipTest extends BaseMapTest
     static class NullSkipField {
         public String nullsOk = "a";
 
-        @JsonSetter(nulls=JsonSetter.Nulls.SKIP)
+        @JsonSetter(nulls=Nulls.SKIP)
         public String noNulls = "b";
     }
 
@@ -22,7 +22,7 @@ public class NullConversionsSkipTest extends BaseMapTest
             _nullsOk = v;
         }
 
-        @JsonSetter(nulls=JsonSetter.Nulls.SKIP)
+        @JsonSetter(nulls=Nulls.SKIP)
         public void setNoNulls(String v) {
             _noNulls = v;
         }

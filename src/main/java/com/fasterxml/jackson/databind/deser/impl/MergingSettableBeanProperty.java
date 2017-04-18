@@ -80,11 +80,9 @@ public class MergingSettableBeanProperty
             newValue = delegate.deserializeWith(p, ctxt, oldValue);
         }
         if (newValue != oldValue) {
-            // 31-Oct-2016, tatu: Basically should just ignore as null can't really
-            //    contribute to merging.
-            if (newValue != null) {
-                delegate.set(instance, newValue);
-            }
+            // 18-Apr-2017, tatu: Null handling should occur within delegate, which may
+            //     set/skip/transform it, or throw an exception.
+            delegate.set(instance, newValue);
         }
     }
 

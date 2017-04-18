@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -241,8 +242,8 @@ public class POJOPropertyBuilder
     protected PropertyMetadata _getSetterInfo(PropertyMetadata metadata)
     {
         boolean needMerge = true;
-        JsonSetter.Nulls valueNulls = null;
-        JsonSetter.Nulls contentNulls = null;
+        Nulls valueNulls = null;
+        Nulls contentNulls = null;
         
         // Slightly confusing: first, annotations should be accessed via primary member
         // (mutator); but accessor is needed for actual merge operation. So:

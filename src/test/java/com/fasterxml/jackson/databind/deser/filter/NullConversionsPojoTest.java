@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonSetter.Nulls;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
@@ -11,14 +11,14 @@ public class NullConversionsPojoTest extends BaseMapTest
     static class NullFail {
         public String nullsOk = "a";
 
-        @JsonSetter(nulls=JsonSetter.Nulls.FAIL)
+        @JsonSetter(nulls=Nulls.FAIL)
         public String noNulls = "b";
     }
 
     static class NullAsEmpty {
         public String nullsOk = "a";
 
-        @JsonSetter(nulls=JsonSetter.Nulls.AS_EMPTY)
+        @JsonSetter(nulls=Nulls.AS_EMPTY)
         public String nullAsEmpty = "b";
     }
 

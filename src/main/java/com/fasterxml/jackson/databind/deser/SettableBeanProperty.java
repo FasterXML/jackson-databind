@@ -525,11 +525,9 @@ public abstract class SettableBeanProperty
     public final Object deserializeWith(JsonParser p, DeserializationContext ctxt,
             Object toUpdate) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
-
         // 20-Oct-2016, tatu: Not 100% sure what to do; probably best to simply return
         //   null value and let caller decide what to do.
-        if (t == JsonToken.VALUE_NULL) {
+        if (p.hasToken(JsonToken.VALUE_NULL)) {
             // ... except for "skip nulls" case which should just do that:
             if (NullsConstantProvider.isSkipper(_nullProvider)) {
                 return toUpdate;

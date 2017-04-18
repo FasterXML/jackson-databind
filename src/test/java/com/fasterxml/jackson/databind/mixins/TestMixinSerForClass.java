@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 
 public class TestMixinSerForClass
     extends BaseMapTest
@@ -61,11 +62,31 @@ public class TestMixinSerForClass
         static final String FILTER_NAME = "PortletRenderExecutionEventFilter";
     }
 
+    static class WithAppended
+    {
+        public String a = "a";
+    }
+
+    @JsonAppend(attrs={ @JsonAppend.Attr(propName="version", value="1.0.0")})
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    static class WithAppendedMixin {
+        //
+    }
+
     /*
     /**********************************************************
     /( Unit tests
     /**********************************************************
      */
+
+    public void testClassMixInAppend() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String,Object> result;
+        mapper.addMixIn(WithAppended.class, WithAppendedMixin.class);
+        result = writeAndMap(mapper, new WithAppended());
+        assertTrue(result.containsKey("version"));
+    }
 
     public void testClassMixInsTopLevel() throws IOException
     {

@@ -39,7 +39,32 @@ public class BeanDeserializerFactory
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
     private final static Class<?>[] NO_VIEWS = new Class<?>[0];
-    
+
+    /**
+     * Set of well-known "nasty classes", deserialization of which is considered dangerous
+     * and should (and is) prevented by default.
+     */
+    protected final static Set<String> DEFAULT_NO_DESER_CLASS_NAMES;
+    static {
+        Set<String> s = new HashSet<String>();
+        // Courtesy of [https://github.com/kantega/notsoserial]:
+        // (and wrt [databind#1599]
+        s.add("org.apache.commons.collections.functors.InvokerTransformer");
+        s.add("org.apache.commons.collections.functors.InstantiateTransformer");
+        s.add("org.apache.commons.collections4.functors.InvokerTransformer");
+        s.add("org.apache.commons.collections4.functors.InstantiateTransformer");
+        s.add("org.codehaus.groovy.runtime.ConvertedClosure");
+        s.add("org.codehaus.groovy.runtime.MethodClosure");
+        s.add("org.springframework.beans.factory.ObjectFactory");
+        s.add("com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl");
+        DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
+    }
+
+    /**
+     * Set of class names of types that are never to be deserialized.
+     */
+    protected Set<String> _cfgIllegalClassNames = DEFAULT_NO_DESER_CLASS_NAMES;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -846,15 +871,11 @@ public class BeanDeserializerFactory
     {
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.
-        Class<?> raw = type.getRawClass();
-        String name = raw.getSimpleName();
+        String full = type.getRawClass().getName();
 
-        if ("TemplatesImpl".equals(name)) { // [databind#1599] 
-            if (raw.getName().startsWith("com.sun.org.apache.xalan")) {
-                throw JsonMappingException.from(ctxt,
-                        String.format("Illegal type (%s) to deserialize: prevented for security reasons",
-                                name));
-            }
+        if (_cfgIllegalClassNames.contains(full)) {
+            throw JsonMappingException.from(ctxt,
+                    String.format("Illegal type (%s) to deserialize: prevented for security reasons", full));
         }
     }
 }

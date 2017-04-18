@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.10 (not yet released)
+2.7.9.1 (18-Apr-2017)
 
 #1599: Jackson Deserializer security vulnerability
  (reported by ayound@github)

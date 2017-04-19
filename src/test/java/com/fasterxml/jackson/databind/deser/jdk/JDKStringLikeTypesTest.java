@@ -156,6 +156,9 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         InetAddress address = MAPPER.readValue(quote("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
+        InetAddress ip6 = MAPPER.readValue(quote("::1"), InetAddress.class);
+        assertEquals("0:0:0:0:0:0:0:1", ip6.getHostAddress());
+
         // should we try resolving host names? That requires connectivity... 
         final String HOST = "google.com";
         address = MAPPER.readValue(quote(HOST), InetAddress.class);

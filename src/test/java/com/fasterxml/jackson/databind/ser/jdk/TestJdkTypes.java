@@ -83,7 +83,12 @@ public class TestJdkTypes
     public void testInetAddress() throws IOException
     {
         assertEquals(quote("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
-        assertEquals(quote("google.com"), MAPPER.writeValueAsString(InetAddress.getByName("google.com")));
+        assertEquals(
+                quote("13.107.21.100"),
+                MAPPER.writeValueAsString(InetAddress.getByAddress("google.com", new byte[] {13, 107, 21, 100})));
+        assertEquals(
+                quote("0:0:0:0:0:0:1:203"),
+                MAPPER.writeValueAsString(InetAddress.getByAddress(null, new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3})));
     }
 
     public void testInetSocketAddress() throws IOException

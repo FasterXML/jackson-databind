@@ -23,14 +23,14 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
               + "    'person_z': { 'name': 'admin' }"
                 + "}");
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newObjectMapper();
         Person result = mapper.readValue(st, Person.class);
         assertEquals("admin", result.name);
     }
 
     public void testRecursiveForSer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newObjectMapper();
         Person input = new Person();
         input.name = "Bob";
         Person p2 = new Person();

@@ -93,7 +93,7 @@ public class PropertyMergeTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper()
+    private final ObjectMapper MAPPER = newObjectMapper()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
     ;
@@ -118,7 +118,7 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(0, config.loc.b); // not passed, nor merge from original
 
         // but with type-overrides
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newObjectMapper();
         mapper.configOverride(AB.class).setMergeable(true);
         config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
@@ -128,7 +128,7 @@ public class PropertyMergeTest extends BaseMapTest
     public void testBeanMergingViaGlobal() throws Exception
     {
         // but with type-overrides
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
                 .setDefaultMergeable(true);
         NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
@@ -216,7 +216,7 @@ public class PropertyMergeTest extends BaseMapTest
 
     public void testInvalidPropertyMerge() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
                 .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE);
         
         try {

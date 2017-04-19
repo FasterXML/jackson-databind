@@ -41,8 +41,8 @@ public class IgnoreCreatorProp1317Test extends BaseMapTest
     }
 
     public void testThatJsonIgnoreWorksWithConstructorProperties() throws Exception {
+        ObjectMapper om = objectMapper();
         Testing testing = new Testing("shouldBeIgnored", "notIgnore");
-        ObjectMapper om = new ObjectMapper();
         String json = om.writeValueAsString(testing);
 //        System.out.println(json);
         assertFalse(json.contains("shouldBeIgnored"));

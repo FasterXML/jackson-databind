@@ -210,11 +210,11 @@ public abstract class BaseMapTest
 
     protected ObjectMapper objectMapper() {
         if (SHARED_MAPPER == null) {
-            SHARED_MAPPER = new ObjectMapper();
+            SHARED_MAPPER = newObjectMapper();
         }
         return SHARED_MAPPER;
     }
-    
+
     protected ObjectWriter objectWriter() {
         return objectMapper().writer();
     }
@@ -225,6 +225,11 @@ public abstract class BaseMapTest
     
     protected ObjectReader objectReader(Class<?> cls) {
         return objectMapper().readerFor(cls);
+    }
+
+    // @since 2.9
+    protected static ObjectMapper newObjectMapper() {
+        return new ObjectMapper();
     }
 
     // @since 2.7

@@ -39,7 +39,7 @@ public class NullConversionsGenericTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newObjectMapper();
 
     public void testNullsToEmptyPojo() throws Exception
     {

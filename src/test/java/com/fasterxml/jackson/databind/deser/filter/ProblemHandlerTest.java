@@ -227,11 +227,11 @@ public class ProblemHandlerTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newObjectMapper();
 
     public void testWeirdKeyHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new WeirdKeyHandler(7));
         IntKeyMapWrapper w = mapper.readValue("{\"stuff\":{\"foo\":\"abc\"}}",
                 IntKeyMapWrapper.class);
@@ -243,7 +243,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testWeirdNumberHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new WeirdNumberHandler(SingleValuedEnum.A))
             ;
         SingleValuedEnum result = mapper.readValue("3", SingleValuedEnum.class);
@@ -252,7 +252,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testWeirdStringHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new WeirdStringHandler(SingleValuedEnum.A))
             ;
         SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
@@ -261,7 +261,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testInvalidTypeId() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new UnknownTypeIdHandler(BaseImpl.class));
         BaseWrapper w = mapper.readValue("{\"value\":{\"type\":\"foo\",\"a\":4}}",
                 BaseWrapper.class);
@@ -271,7 +271,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testInvalidClassAsId() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new UnknownTypeIdHandler(Base2Impl.class));
         Base2Wrapper w = mapper.readValue("{\"value\":{\"clazz\":\"com.fizz\",\"a\":4}}",
                 Base2Wrapper.class);
@@ -283,7 +283,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testMissingTypeId() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new MissingTypeIdHandler(BaseImpl.class));
         BaseWrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
                 BaseWrapper.class);
@@ -293,7 +293,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testMissingClassAsId() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new MissingTypeIdHandler(Base2Impl.class));
         Base2Wrapper w = mapper.readValue("{\"value\":{\"a\":4}}",
                 Base2Wrapper.class);
@@ -317,7 +317,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testInstantiationExceptionHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new InstantiationProblemHandler(BustedCtor.INST));
         BustedCtor w = mapper.readValue("{ }",
                 BustedCtor.class);
@@ -326,7 +326,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testMissingInstantiatorHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new MissingInstantiationHandler(new NoDefaultCtor(13)))
             ;
         NoDefaultCtor w = mapper.readValue("{ \"x\" : true }", NoDefaultCtor.class);
@@ -336,7 +336,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     public void testUnexpectedTokenHandling() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
+        ObjectMapper mapper = newObjectMapper()
             .addHandler(new WeirdTokenHandler(Integer.valueOf(13)))
         ;
         Integer v = mapper.readValue("true", Integer.class);

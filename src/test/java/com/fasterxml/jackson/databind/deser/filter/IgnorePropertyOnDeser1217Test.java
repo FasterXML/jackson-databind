@@ -24,9 +24,9 @@ public class IgnorePropertyOnDeser1217Test extends BaseMapTest
     /* Unit tests
     /****************************************************************
      */
-    
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
+    private final ObjectMapper MAPPER = newObjectMapper();
+
     public void testIgnoreOnProperty() throws Exception
     {
         TestIgnoreObject result = MAPPER.readValue(
@@ -50,7 +50,7 @@ public class IgnorePropertyOnDeser1217Test extends BaseMapTest
 
     public void testIgnoreViaConfigOverride() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newObjectMapper();
         mapper.configOverride(Point.class)
             .setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("y"));
         Point p = mapper.readValue(aposToQuotes("{'x':1,'y':2}"), Point.class);

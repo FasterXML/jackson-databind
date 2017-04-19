@@ -27,6 +27,17 @@ public class BooleanFormatTest extends BaseMapTest
         }
     }
 
+    /**
+     * Simple wrapper around boolean types, usually to test value
+     * conversions or wrapping
+     */
+    protected static class BooleanWrapper {
+        public Boolean b;
+
+        public BooleanWrapper() { }
+        public BooleanWrapper(Boolean value) { b = value; }
+    }
+
     static class AltBoolean extends BooleanWrapper
     {
         public AltBoolean() { }

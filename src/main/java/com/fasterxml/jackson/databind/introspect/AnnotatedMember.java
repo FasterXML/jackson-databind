@@ -107,7 +107,7 @@ public abstract class AnnotatedMember
      *<p>
      * NOTE: promoted in 2.9 from `Annotated` up
      */
-    protected AnnotationMap getAllAnnotations() {
+    public AnnotationMap getAllAnnotations() {
         return _annotations;
     }
 

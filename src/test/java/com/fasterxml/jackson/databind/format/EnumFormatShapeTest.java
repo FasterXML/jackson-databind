@@ -76,7 +76,7 @@ public class EnumFormatShapeTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newObjectMapper();
 
     // Tests for JsonFormat.shape
 

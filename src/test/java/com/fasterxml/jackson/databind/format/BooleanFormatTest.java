@@ -39,13 +39,13 @@ public class BooleanFormatTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newObjectMapper();
 
     public void testShapeViaDefaults() throws Exception
     {
         assertEquals(aposToQuotes("{'b':true}"),
                 MAPPER.writeValueAsString(new BooleanWrapper(true)));
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newObjectMapper();
         m.configOverride(Boolean.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
         assertEquals(aposToQuotes("{'b':1}"),

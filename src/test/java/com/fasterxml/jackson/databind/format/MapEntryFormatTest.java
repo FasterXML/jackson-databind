@@ -103,7 +103,7 @@ public class MapEntryFormatTest extends BaseMapTest
     /**********************************************************
      */
     
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newObjectMapper();
 
     public void testAsNaturalRoundtrip() throws Exception
     {

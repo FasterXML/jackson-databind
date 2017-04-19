@@ -40,7 +40,7 @@ public class ColletionFormatShapeTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();    
+    private final static ObjectMapper MAPPER = newObjectMapper();    
 
     public void testListAsObjectRoundtrip() throws Exception
     {

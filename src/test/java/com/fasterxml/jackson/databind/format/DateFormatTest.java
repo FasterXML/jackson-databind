@@ -18,7 +18,7 @@ public class DateFormatTest extends BaseMapTest
 
     public void testTypeDefaults() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newObjectMapper();
         mapper.configOverride(Date.class)
             .setFormat(JsonFormat.Value.forPattern("yyyy.dd.MM"));
         // First serialize, should result in this (in UTC):

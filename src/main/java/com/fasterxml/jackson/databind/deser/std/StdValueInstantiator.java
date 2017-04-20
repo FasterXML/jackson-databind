@@ -259,9 +259,8 @@ public class StdValueInstantiator
         }
         try {
             return _defaultCreator.call();
-        } catch (Throwable t) {
-            return ctxt.handleInstantiationProblem(_defaultCreator.getDeclaringClass(),
-                    null, rewrapCtorProblem(ctxt, t));
+        } catch (Exception e) { // 19-Apr-2017, tatu: Let's not catch Errors, just Exceptions
+            return ctxt.handleInstantiationProblem(_valueClass, null, rewrapCtorProblem(ctxt, e));
         }
     }
     
@@ -273,9 +272,8 @@ public class StdValueInstantiator
         }
         try {
             return _withArgsCreator.call(args);
-        } catch (Throwable t) {
-            return ctxt.handleInstantiationProblem(_withArgsCreator.getDeclaringClass(),
-                    args, rewrapCtorProblem(ctxt, t));
+        } catch (Exception e) { // 19-Apr-2017, tatu: Let's not catch Errors, just Exceptions
+            return ctxt.handleInstantiationProblem(_valueClass, args, rewrapCtorProblem(ctxt, e));
         }
     }
 

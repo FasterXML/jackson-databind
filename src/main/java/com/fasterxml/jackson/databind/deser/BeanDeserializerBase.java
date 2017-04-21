@@ -1479,7 +1479,7 @@ public abstract class BeanDeserializerBase
             injector.inject(ctxt, bean);
         }
     }
-    
+
     /**
      * Method called to handle set of one or more unknown properties,
      * stored in their entirety in given {@link TokenBuffer}
@@ -1563,7 +1563,7 @@ public abstract class BeanDeserializerBase
         }
         p.skipChildren();
     }
-    
+
     /**
      * Method called in cases where we may have polymorphic deserialization
      * case: that is, type of Creator-constructed bean is not the type
@@ -1606,7 +1606,7 @@ public abstract class BeanDeserializerBase
         }
         return bean;
     }
-    
+
     /**
      * Helper method called to (try to) locate deserializer for given sub-type of
      * type that this deserializer handles.
@@ -1644,7 +1644,7 @@ public abstract class BeanDeserializerBase
         }
         return subDeser;
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for error reporting
@@ -1666,7 +1666,7 @@ public abstract class BeanDeserializerBase
     public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws IOException
     {
-        // [JACKSON-55] Need to add reference information
+        // Need to add reference information
         throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
     }
 

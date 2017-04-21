@@ -107,7 +107,7 @@ public abstract class AnnotatedMember
      *<p>
      * NOTE: promoted in 2.9 from `Annotated` up
      */
-    public AnnotationMap getAllAnnotations() {
+    public AnnotationMap getAllAnnotations() { // alas, used by at least one module, hence public
         return _annotations;
     }
 

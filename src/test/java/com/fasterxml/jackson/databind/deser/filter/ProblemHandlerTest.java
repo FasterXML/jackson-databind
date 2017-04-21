@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
@@ -96,6 +97,9 @@ public class ProblemHandlerTest extends BaseMapTest
                 Class<?> instClass, Object argument, Throwable t)
             throws IOException
         {
+            if (!(t instanceof InvalidDefinitionException)) {
+                throw new IllegalArgumentException("Should have gotten `InvalidDefinitionException`, instead got: "+t);
+            }
             return value;
         }
     }
@@ -210,7 +214,7 @@ public class ProblemHandlerTest extends BaseMapTest
         public final static BustedCtor INST = new BustedCtor(true);
 
         public BustedCtor() {
-            throw new RuntimeException("Fail!");
+            throw new RuntimeException("Fail! (to be caught by handler)");
         }
         private BustedCtor(boolean b) { }
     }

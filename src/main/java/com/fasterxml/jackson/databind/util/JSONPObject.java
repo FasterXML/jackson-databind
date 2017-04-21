@@ -76,19 +76,22 @@ public class JSONPObject
             jgen.setCharacterEscapes(JsonpCharacterEscapes.instance());
         }
 
-        // First, wrapping:
-        jgen.writeRaw(_function);
-        jgen.writeRaw('(');
-        if (_value == null) {
-            provider.defaultSerializeNull(jgen);
-        } else if (_serializationType != null) {
-            provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, jgen, provider);
-        } else {
-            Class<?> cls = _value.getClass();
-            provider.findTypedValueSerializer(cls, true, null).serialize(_value, jgen, provider);
+        try {
+            // First, wrapping:
+            jgen.writeRaw(_function);
+            jgen.writeRaw('(');
+            if (_value == null) {
+                provider.defaultSerializeNull(jgen);
+            } else if (_serializationType != null) {
+                provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, jgen, provider);
+            } else {
+                Class<?> cls = _value.getClass();
+                provider.findTypedValueSerializer(cls, true, null).serialize(_value, jgen, provider);
+            }
+            jgen.writeRaw(')');
+        } finally {
+            jgen.setCharacterEscapes(currentCharacterEscapes);
         }
-        jgen.writeRaw(')');
-        jgen.setCharacterEscapes(currentCharacterEscapes);
     }
 
     /*

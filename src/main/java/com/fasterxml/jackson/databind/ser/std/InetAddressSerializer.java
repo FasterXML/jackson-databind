@@ -20,16 +20,8 @@ public class InetAddressSerializer
     @Override
     public void serialize(InetAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
-        // Ok: get textual description; choose "more specific" part
-        String str = value.toString().trim();
-        int ix = str.indexOf('/');
-        if (ix >= 0) {
-            if (ix == 0) { // missing host name; use address
-                str = str.substring(1);
-            } else { // otherwise use name
-                str = str.substring(0, ix);
-            }
-        }
+        // [databind#1605] ignoring hostname; address is required to avoid DNS lookup upon deserialization
+        String str = value.getHostAddress();
         jgen.writeString(str);
     }
 

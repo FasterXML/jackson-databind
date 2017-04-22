@@ -603,7 +603,11 @@ Joshua Jones
 Ivo Studens (istudens@redhat.com)
   * Contributed #1585: Invoke ServiceLoader.load() inside of a privileged block
     when loading modules using `ObjectMapper.findModules()`
-  (2.8.9)
+   (2.8.9)
+
+Marco Catania (catanm@github.com)
+  * Contributed #1597: Escape JSONP breaking characters
+   (2.8.9)
 
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY

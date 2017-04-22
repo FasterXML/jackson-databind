@@ -77,6 +77,11 @@ Project: jackson-databind
 
 2.8.9 (not yet released)
 
+#1597: Escape JSONP breaking characters
+ (contributed by Marco C)
+
+2.8.8.1 (19-Apr-2017)
+
 #1585: Invoke ServiceLoader.load() inside of a privileged block when loading
   modules using `ObjectMapper.findModules()`
  (contributed by Ivo S)

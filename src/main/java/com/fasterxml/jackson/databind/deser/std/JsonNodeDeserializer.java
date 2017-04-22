@@ -364,25 +364,27 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonToken t = p.nextToken();
 
             // First: see if we can merge things:
-            JsonNode value = node.get(key);
-            if (value != null) {
-                if (value instanceof ObjectNode) {
-                    JsonNode newValue = updateObject(p, ctxt, (ObjectNode) value);
-                    if (newValue != null) {
+            JsonNode old = node.get(key);
+            if (old != null) {
+                if (old instanceof ObjectNode) {
+                    JsonNode newValue = updateObject(p, ctxt, (ObjectNode) old);
+                    if (newValue != old) {
                         node.set(key, newValue);
-                        continue;
                     }
-                } else if (value instanceof ArrayNode) {
-                    JsonNode newValue = updateArray(p, ctxt, (ArrayNode) value);
-                    if (newValue != null) {
+                    continue;
+                }
+                if (old instanceof ArrayNode) {
+                    JsonNode newValue = updateArray(p, ctxt, (ArrayNode) old);
+                    if (newValue != old) {
                         node.set(key, newValue);
-                        continue;
                     }
+                    continue;
                 }
             }
             if (t == null) { // can this ever occur?
-                t = JsonToken.NOT_AVAILABLE; // can this ever occur?
+                t = JsonToken.NOT_AVAILABLE;
             }
+            JsonNode value;
             JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
@@ -412,11 +414,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             default:
                 value = deserializeAny(p, ctxt, nodeFactory);
             }
-            JsonNode old = node.replace(key, value);
             if (old != null) {
                 _handleDuplicateField(p, ctxt, nodeFactory,
                         key, node, old, value);
             }
+            node.set(key, value);
         }
         return node;
     }

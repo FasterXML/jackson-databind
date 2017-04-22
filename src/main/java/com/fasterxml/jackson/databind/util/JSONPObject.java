@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * <a href="http://en.wikipedia.org/wiki/JSONP">JSONP</a> wrapping.
  * 
  * @see com.fasterxml.jackson.databind.util.JSONWrappedObject
- * 
- * @author tatu
  */
 public class JSONPObject
     implements JsonSerializable
@@ -55,29 +53,45 @@ public class JSONPObject
      */
 
     @Override
-    public void serializeWithType(JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
-            throws IOException, JsonProcessingException
+    public void serializeWithType(JsonGenerator gen, SerializerProvider provider, TypeSerializer typeSer)
+            throws IOException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
-        serialize(jgen, provider);
+        serialize(gen, provider);
     }
 
     @Override
-    public void serialize(JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
+    public void serialize(JsonGenerator gen, SerializerProvider provider)
+            throws IOException
     {
         // First, wrapping:
-        jgen.writeRaw(_function);
-        jgen.writeRaw('(');
+        gen.writeRaw(_function);
+        gen.writeRaw('(');
+
         if (_value == null) {
-            provider.defaultSerializeNull(jgen);
-        } else if (_serializationType != null) {
-            provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, jgen, provider);
+            provider.defaultSerializeNull(gen);
         } else {
-            Class<?> cls = _value.getClass();
-            provider.findTypedValueSerializer(cls, true, null).serialize(_value, jgen, provider);
+            // NOTE: Escape line-separator characters that break JSONP only if no custom character escapes are set.
+            // If custom escapes are in place JSONP-breaking characters will not be escaped and it is recommended to
+            // add escaping for those (see JsonpCharacterEscapes class).
+            boolean override = (gen.getCharacterEscapes() == null);
+            if (override) {
+                gen.setCharacterEscapes(JsonpCharacterEscapes.instance());
+            }
+
+            try {
+                if (_serializationType != null) {
+                    provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, gen, provider);
+                } else {
+                    provider.findTypedValueSerializer(_value.getClass(), true, null).serialize(_value, gen, provider);
+                }
+            } finally {
+                if (override) {
+                    gen.setCharacterEscapes(null);
+                }
+            }
         }
-        jgen.writeRaw(')');
+        gen.writeRaw(')');
     }
 
     /*

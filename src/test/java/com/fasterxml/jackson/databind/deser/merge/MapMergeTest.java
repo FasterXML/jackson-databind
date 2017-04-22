@@ -58,16 +58,16 @@ public class MapMergeTest extends BaseMapTest
         props.put("x", "abc");
         base.values.put("props", props);
 
-//System.err.println("BASE: "+base.values);
-        
         // to be update
         MergedMap v = MAPPER.readerForUpdating(base)
                 .readValue(aposToQuotes("{'values':{'props':{'x':'xyz','y' : '...'}}}"));
         assertEquals(2, v.values.size());
-//System.err.println("PROPS: "+v.values);
-        assertEquals("yes", v.values.get("defaults"));
+        assertEquals("foobar", v.values.get("name"));
         assertNotNull(v.values.get("props"));
         props = (Map<String,Object>) v.values.get("props");
         assertEquals(3, props.size());
+        assertEquals("yes", props.get("default"));
+        assertEquals("xyz", props.get("x"));
+        assertEquals("...", props.get("y"));
     }
 }

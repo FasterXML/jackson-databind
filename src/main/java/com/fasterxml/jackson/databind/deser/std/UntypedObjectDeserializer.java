@@ -200,9 +200,8 @@ public class UntypedObjectDeserializer
 
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
-        // 23-Oct-2016, tatu: In theory, some values would be updateable (Maps, Collections),
-        //    but seems very error prone, so for now declare that we do not support it.
-        return Boolean.FALSE;
+        // 21-Apr-2017, tatu: Bit tricky... some values, yes. So let's say "dunno"
+        return null;
     }
 
     @Override
@@ -475,9 +474,8 @@ public class UntypedObjectDeserializer
 
         @Override // since 2.9
         public Boolean supportsUpdate(DeserializationConfig config) {
-            // 23-Oct-2016, tatu: In theory, some values would be updateable (Maps, Collections),
-            //    but seems very error prone, so for now declare that we do not support it.
-            return Boolean.FALSE;
+            // 21-Apr-2017, tatu: Bit tricky... some values, yes. So let's say "dunno"
+            return null;
         }
 
         @Override

@@ -62,7 +62,8 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):
     // (is it an error to even call this version?)
     @Override
-    public String deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+    public String deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer) throws IOException {
         return deserialize(p, ctxt);
     }
 }

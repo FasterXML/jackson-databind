@@ -1418,15 +1418,13 @@ public abstract class DeserializationContext
      *
      * @since 2.9
      */
-    public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException {
+    public <T> T reportBadMerge(JsonDeserializer<?> deser) throws JsonMappingException
+    {
         if (isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
             return null;
         }
-
-        Class<?> raw = deser.handledType();
-        JavaType type = constructType(raw);
-        String msg = String.format("Invalid configuration: values of type %s can not be merged",
-                type);
+        JavaType type = constructType(deser.handledType());
+        String msg = String.format("Invalid configuration: values of type %s can not be merged", type);
         throw InvalidDefinitionException.from(getParser(), msg, type);
     }
 

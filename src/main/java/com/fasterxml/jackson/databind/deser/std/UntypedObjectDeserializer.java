@@ -581,6 +581,43 @@ public class UntypedObjectDeserializer
             return ctxt.handleUnexpectedToken(Object.class, p);
         }
 
+        @SuppressWarnings("unchecked")
+        @Override // since 2.9 (to support deep merge)
+        public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
+            throws IOException
+        {
+            switch (p.getCurrentTokenId()) {
+            case JsonTokenId.ID_START_OBJECT:
+                {
+                    JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
+                    if (t == JsonToken.END_OBJECT) {
+                        return intoValue;
+                    }
+                }
+            case JsonTokenId.ID_FIELD_NAME:
+                if (intoValue instanceof Map<?,?>) {
+                    return mapObject(p, ctxt, (Map<Object,Object>) intoValue);
+                }
+                break;
+            case JsonTokenId.ID_START_ARRAY:
+                {
+                    JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
+                    if (t == JsonToken.END_ARRAY) {
+                        return intoValue;
+                    }
+                }
+
+                if (intoValue instanceof Collection<?>) {
+                    return mapArray(p, ctxt, (Collection<Object>) intoValue);
+                }
+                // 21-Apr-2017, tatu: Should we try to support merging of Object[] values too?
+                //    ... maybe future improvement
+                break;
+            }
+            // Easiest handling for the rest, delegate. Only (?) question: how about nulls?
+            return deserialize(p, ctxt);
+        }
+
         protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             Object value = deserialize(p, ctxt);
@@ -614,6 +651,33 @@ public class UntypedObjectDeserializer
             // let's create full array then
             ArrayList<Object> result = new ArrayList<Object>(totalSize);
             buffer.completeAndClearBuffer(values, ptr, result);
+            return result;
+        }
+
+        /**
+         * Method called to map a JSON Array into a Java Object array (Object[]).
+         */
+        protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
+            ObjectBuffer buffer = ctxt.leaseObjectBuffer();
+            Object[] values = buffer.resetAndStart();
+            int ptr = 0;
+            do {
+                Object value = deserialize(p, ctxt);
+                if (ptr >= values.length) {
+                    values = buffer.appendCompletedChunk(values);
+                    ptr = 0;
+                }
+                values[ptr++] = value;
+            } while (p.nextToken() != JsonToken.END_ARRAY);
+            return buffer.completeAndClearBuffer(values, ptr);
+        }
+        
+        protected Object mapArray(JsonParser p, DeserializationContext ctxt,
+                Collection<Object> result) throws IOException
+        {
+            do {
+                result.add(deserialize(p, ctxt));
+            } while (p.nextToken() != JsonToken.END_ARRAY);
             return result;
         }
 
@@ -654,22 +718,16 @@ public class UntypedObjectDeserializer
             return result;
         }
 
-        /**
-         * Method called to map a JSON Array into a Java Object array (Object[]).
-         */
-        protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
-            ObjectBuffer buffer = ctxt.leaseObjectBuffer();
-            Object[] values = buffer.resetAndStart();
-            int ptr = 0;
+        protected Object mapObject(JsonParser p, DeserializationContext ctxt,
+                Map<Object,Object> result) throws IOException
+        {
+            // NOTE: we are guaranteed to point to FIELD_NAME
+            String key = p.getCurrentName();
             do {
-                Object value = deserialize(p, ctxt);
-                if (ptr >= values.length) {
-                    values = buffer.appendCompletedChunk(values);
-                    ptr = 0;
-                }
-                values[ptr++] = value;
-            } while (p.nextToken() != JsonToken.END_ARRAY);
-            return buffer.completeAndClearBuffer(values, ptr);
+                p.nextToken();
+                result.put(key, deserialize(p, ctxt));
+            } while ((key = p.nextFieldName()) != null);
+            return result;
         }
     }
 }

@@ -12,9 +12,20 @@ public class MapMergeTest extends BaseMapTest
     static class MergedMap
     {
         @JsonMerge
-        public Map<String,String> values = new LinkedHashMap<>();
-        {
+        public Map<String,Object> values;
+
+        protected MergedMap() {
+            values = new LinkedHashMap<>();
             values.put("a", "x");
+        }
+
+        public MergedMap(String a, String b) {
+            values = new LinkedHashMap<>();
+            values.put(a, b);
+        }
+
+        public MergedMap(Map<String,Object> src) {
+            values = src;
         }
     }
 
@@ -29,7 +40,7 @@ public class MapMergeTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
     ;
 
-    public void testMapMerging() throws Exception
+    public void testShallowMapMerging() throws Exception
     {
         MergedMap v = MAPPER.readValue(aposToQuotes("{'values':{'c':'y'}}"), MergedMap.class);
         assertEquals(2, v.values.size());
@@ -37,4 +48,26 @@ public class MapMergeTest extends BaseMapTest
         assertEquals("x", v.values.get("a"));
     }
 
+    @SuppressWarnings("unchecked")
+    public void testDeepMapMerging() throws Exception
+    {
+        // first, create base Map
+        MergedMap base = new MergedMap("name", "foobar");
+        Map<String,Object> props = new LinkedHashMap<>();
+        props.put("default", "yes");
+        props.put("x", "abc");
+        base.values.put("props", props);
+
+//System.err.println("BASE: "+base.values);
+        
+        // to be update
+        MergedMap v = MAPPER.readerForUpdating(base)
+                .readValue(aposToQuotes("{'values':{'props':{'x':'xyz','y' : '...'}}}"));
+        assertEquals(2, v.values.size());
+//System.err.println("PROPS: "+v.values);
+        assertEquals("yes", v.values.get("defaults"));
+        assertNotNull(v.values.get("props"));
+        props = (Map<String,Object>) v.values.get("props");
+        assertEquals(3, props.size());
+    }
 }

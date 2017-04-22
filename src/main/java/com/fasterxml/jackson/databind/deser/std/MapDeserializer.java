@@ -386,23 +386,24 @@ public class MapDeserializer
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
             return (Map<Object,Object>) ctxt.handleUnexpectedToken(getMapClass(), p);
         }
+        // 21-Apr-2017, tatu: Need separate methods to do proper merging
         if (_standardStringKey) {
-            _readAndBindStringKeyMap(p, ctxt, result);
+            _readAndUpdateStringKeyMap(p, ctxt, result);
             return result;
         }
-        _readAndBind(p, ctxt, result);
+        _readAndUpdate(p, ctxt, result);
         return result;
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // In future could check current token... for now this should be enough:
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
-    
+
     /*
     /**********************************************************
     /* Other public accessors
@@ -416,7 +417,7 @@ public class MapDeserializer
 
     /*
     /**********************************************************
-    /* Internal methods
+    /* Internal methods, non-merging deserialization
     /**********************************************************
      */
 
@@ -544,7 +545,7 @@ public class MapDeserializer
         }
         // 23-Mar-2015, tatu: TODO: verify we got END_OBJECT?
     }
-
+    
     @SuppressWarnings("unchecked") 
     public Map<Object,Object> _deserializeUsingCreator(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -617,6 +618,141 @@ public class MapDeserializer
             return null;
         }
     }
+
+    /*
+    /**********************************************************
+    /* Internal methods, non-merging deserialization
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.9
+     */
+    protected final void _readAndUpdate(JsonParser p, DeserializationContext ctxt,
+            Map<Object,Object> result) throws IOException
+    {
+        final KeyDeserializer keyDes = _keyDeserializer;
+        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
+
+        // Note: assumption is that Object Id handling can't really work with merging
+        // and thereby we can (and should) just drop that part
+
+        String keyStr;
+        if (p.isExpectedStartObjectToken()) {
+            keyStr = p.nextFieldName();
+        } else {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.END_OBJECT) {
+                return;
+            }
+            if (t != JsonToken.FIELD_NAME) {
+                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+            }
+            keyStr = p.getCurrentName();
+        }
+        
+        for (; keyStr != null; keyStr = p.nextFieldName()) {
+            Object key = keyDes.deserializeKey(keyStr, ctxt);
+            // And then the value...
+            JsonToken t = p.nextToken();
+            if (_ignorableProperties != null && _ignorableProperties.contains(keyStr)) {
+                p.skipChildren();
+                continue;
+            }
+            try {
+                // Note: must handle null explicitly here, can't merge etc
+                if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
+                    result.put(key, _nullProvider.getNullValue(ctxt));
+                    continue;
+                }
+                Object value = result.get(key);
+                if (value != null) {
+                    valueDes.deserialize(p, ctxt, value);
+                    continue;
+                }
+                if (typeDeser == null) {
+                    value = valueDes.deserialize(p, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                }
+                result.put(key, value);
+            } catch (Exception e) {
+                wrapAndThrow(e, result, keyStr);
+            }
+        }
+    }
+
+    /**
+     * Optimized method used when keys can be deserialized as plain old
+     * {@link java.lang.String}s, and there is no custom deserialized
+     * specified.
+     *
+     * @since 2.9
+     */
+    protected final void _readAndUpdateStringKeyMap(JsonParser p, DeserializationContext ctxt,
+            Map<Object,Object> result) throws IOException
+    {
+        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
+
+        // Note: assumption is that Object Id handling can't really work with merging
+        // and thereby we can (and should) just drop that part
+
+        String key;
+        if (p.isExpectedStartObjectToken()) {
+            key = p.nextFieldName();
+        } else {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.END_OBJECT) {
+                return;
+            }
+            if (t != JsonToken.FIELD_NAME) {
+                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+            }
+            key = p.getCurrentName();
+        }
+
+        for (; key != null; key = p.nextFieldName()) {
+            JsonToken t = p.nextToken();
+            if (_ignorableProperties != null && _ignorableProperties.contains(key)) {
+                p.skipChildren();
+                continue;
+            }
+            try {
+                // Note: must handle null explicitly here, can't merge etc
+                if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
+                    result.put(key, _nullProvider.getNullValue(ctxt));
+                    continue;
+                }
+                Object value = result.get(key);
+                if (value != null) {
+                    valueDes.deserialize(p, ctxt, value);
+                    continue;
+                }
+                if (typeDeser == null) {
+                    value = valueDes.deserialize(p, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                }
+                result.put(key, value);
+            } catch (Exception e) {
+                wrapAndThrow(e, result, key);
+            }
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods, other
+    /**********************************************************
+     */
 
     private void handleUnresolvedReference(DeserializationContext ctxt,
             MapReferringAccumulator accumulator,

@@ -123,7 +123,7 @@ public abstract class JsonDeserializer<T>
      * update-existing-value operation (esp. immutable types)
      */
     public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (ctxt.isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
             return deserialize(p, ctxt);

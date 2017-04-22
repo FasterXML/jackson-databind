@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -66,18 +67,31 @@ public class JSONPObject
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {
-        // First, wrapping:
-        jgen.writeRaw(_function);
-        jgen.writeRaw('(');
-        if (_value == null) {
-            provider.defaultSerializeNull(jgen);
-        } else if (_serializationType != null) {
-            provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, jgen, provider);
-        } else {
-            Class<?> cls = _value.getClass();
-            provider.findTypedValueSerializer(cls, true, null).serialize(_value, jgen, provider);
+        CharacterEscapes currentCharacterEscapes = jgen.getCharacterEscapes();
+
+        // NOTE: Escape line-separator characters that break JSONP only if no custom character escapes are set.
+        // If custom escapes are in place JSONP-breaking characters will not be escaped and it is recommended to
+        // add escaping for those (see JsonpCharacterEscapes class).
+        if (currentCharacterEscapes == null) {
+            jgen.setCharacterEscapes(JsonpCharacterEscapes.instance());
         }
-        jgen.writeRaw(')');
+
+        try {
+            // First, wrapping:
+            jgen.writeRaw(_function);
+            jgen.writeRaw('(');
+            if (_value == null) {
+                provider.defaultSerializeNull(jgen);
+            } else if (_serializationType != null) {
+                provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, jgen, provider);
+            } else {
+                Class<?> cls = _value.getClass();
+                provider.findTypedValueSerializer(cls, true, null).serialize(_value, jgen, provider);
+            }
+            jgen.writeRaw(')');
+        } finally {
+            jgen.setCharacterEscapes(currentCharacterEscapes);
+        }
     }
 
     /*

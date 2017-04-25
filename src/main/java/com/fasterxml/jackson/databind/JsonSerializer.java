@@ -120,7 +120,7 @@ public abstract class JsonSerializer<T>
      *   serializing Objects value contains, if any.
      */
     public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
-        throws IOException, JsonProcessingException;
+        throws IOException;
 
     /**
      * Method that can be called to ask implementation to serialize

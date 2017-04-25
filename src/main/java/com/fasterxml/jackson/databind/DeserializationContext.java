@@ -1631,7 +1631,7 @@ public abstract class DeserializationContext
      *
      * @since 2.8
      * 
-     * @deprecate Since 2.9: use a more specific method, or {@link #reportBadDefinition(JavaType, String)},
+     * @deprecated Since 2.9: use a more specific method, or {@link #reportBadDefinition(JavaType, String)},
      *    or {@link #reportInputMismatch} instead
      */
     @Deprecated // since 2.9

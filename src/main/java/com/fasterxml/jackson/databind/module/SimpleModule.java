@@ -33,7 +33,7 @@ public class SimpleModule
 
     protected final String _name;
     protected final Version _version;
-    
+
     protected SimpleSerializers _serializers = null;
     protected SimpleDeserializers _deserializers = null;
 

@@ -642,3 +642,8 @@ Harleen Sahni (harleensahni@github)
   * Reported #403: Make FAIL_ON_NULL_FOR_PRIMITIVES apply to primitive arrays and other
     types that wrap primitives
    (2.9.0)
+
+Jared Jacobs (2is10@github)
+  * Requested #1605: Allow serialization of `InetAddress` as simple numeric host address
+   (2.9.0)
+

@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 
@@ -16,11 +17,17 @@ import com.fasterxml.jackson.databind.*;
  * Unit tests for JDK types not covered by other tests (i.e. things
  * that are not Enums, Collections, Maps, or standard Date/Time types)
  */
-public class TestJdkTypes
+public class JDKTypeSerializationTest
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 
+    static class InetAddressBean {
+        public InetAddress value;
+
+        public InetAddressBean(InetAddress i) { value = i; }
+    }
+    
     public void testBigDecimal() throws Exception
     {
         Map<String, Object> map = new HashMap<String, Object>();
@@ -83,19 +90,26 @@ public class TestJdkTypes
     public void testInetAddress() throws IOException
     {
         assertEquals(quote("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
-        assertEquals(quote("google.com"), MAPPER.writeValueAsString(InetAddress.getByName("google.com")));
+        InetAddress input = InetAddress.getByName("google.com");
+        assertEquals(quote("google.com"), MAPPER.writeValueAsString(input));
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configOverride(InetAddress.class)
+            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
+        String json = mapper.writeValueAsString(input);
+        assertEquals(quote(input.getHostAddress()), json);
+
+        assertEquals(String.format("{\"value\":\"%s\"}", input.getHostAddress()),
+                mapper.writeValueAsString(new InetAddressBean(input)));
     }
 
     public void testInetSocketAddress() throws IOException
     {
-        assertEquals(
-                quote("127.0.0.1:8080"),
+        assertEquals(quote("127.0.0.1:8080"),
                 MAPPER.writeValueAsString(new InetSocketAddress("127.0.0.1", 8080)));
-        assertEquals(
-                quote("google.com:6667"),
+        assertEquals(quote("google.com:6667"),
                 MAPPER.writeValueAsString(new InetSocketAddress("google.com", 6667)));
-        assertEquals(
-                quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
+        assertEquals(quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
                 MAPPER.writeValueAsString(new InetSocketAddress("2001:db8:85a3:8d3:1319:8a2e:370:7348", 443)));
     }
 

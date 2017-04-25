@@ -74,6 +74,8 @@ Project: jackson-databind
 #1554: Support deserialization of `Shape.OBJECT` ("as POJO") for `Map`s (and map-like types)
 #1556: Add `ObjectMapper.updateValue()` method to update instance with given overrides
  (suggested by syncer@github)
+#1605: Allow serialization of `InetAddress` as simple numeric host address
+ (requested by Jared J)
 
 2.8.9 (not yet released)
 

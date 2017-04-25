@@ -1,5 +1,6 @@
 # use glob syntax.
 syntax: glob
+
 *.class
 *~
 *.bak

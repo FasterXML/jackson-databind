@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.failing;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.*;

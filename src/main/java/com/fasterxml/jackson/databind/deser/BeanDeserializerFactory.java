@@ -57,6 +57,7 @@ public class BeanDeserializerFactory
         s.add("org.codehaus.groovy.runtime.MethodClosure");
         s.add("org.springframework.beans.factory.ObjectFactory");
         s.add("com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl");
+        s.add("org.apache.xalan.xsltc.trax.TemplatesImpl");
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

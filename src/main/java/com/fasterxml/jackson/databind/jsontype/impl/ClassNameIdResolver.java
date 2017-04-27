@@ -71,13 +71,13 @@ public class ClassNameIdResolver
         }
         return tf.constructSpecializedType(_baseType, cls);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods
     /**********************************************************
      */
-    
+
     protected final String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
         // Need to ensure that "enum subtypes" work too

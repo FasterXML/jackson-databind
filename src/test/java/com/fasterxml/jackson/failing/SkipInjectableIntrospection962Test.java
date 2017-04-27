@@ -3,6 +3,7 @@ package com.fasterxml.jackson.failing;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
 
 public class SkipInjectableIntrospection962Test extends BaseMapTest
@@ -30,8 +31,10 @@ public class SkipInjectableIntrospection962Test extends BaseMapTest
     {
         private String b;
 
+        // Important! Prevent binding from data
         @JsonCreator
-        public Injectee(@JacksonInject InjectMe injectMe, @JsonProperty("b") String b) {
+        public Injectee(@JacksonInject(useInput=OptBoolean.FALSE) InjectMe injectMe,
+                @JsonProperty("b") String b) {
             this.b = b;
         }
 

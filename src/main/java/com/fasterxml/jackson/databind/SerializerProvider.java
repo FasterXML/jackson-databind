@@ -1155,7 +1155,7 @@ public abstract class SerializerProvider
             String msg, Object... msgArgs) throws JsonMappingException {
         String beanDesc = "N/A";
         if (bean != null) {
-            beanDesc = _desc(bean.getType().getGenericSignature());
+            beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         }
         msg = String.format("Invalid type definition for type %s: %s",
                 beanDesc, _format(msg, msgArgs));
@@ -1178,7 +1178,7 @@ public abstract class SerializerProvider
         }
         String beanDesc = "N/A";
         if (bean != null) {
-            beanDesc = _desc(bean.getType().getGenericSignature());
+            beanDesc = ClassUtil.nameOf(bean.getBeanClass());
         }
         message = String.format("Invalid definition for property %s (of type %s): %s",
                 propName, beanDesc, message);

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.type.MapType;
  * construction of {@link BeanSerializer} instances.
  */
 @SuppressWarnings("serial")
-public class TestBeanSerializer extends BaseMapTest
+public class BeanSerializerModifierTest extends BaseMapTest
 {
     static class SerializerModifierModule extends SimpleModule
     {
@@ -142,8 +142,6 @@ public class TestBeanSerializer extends BaseMapTest
         }
     }
 
-    // for [JACKSON-670]
-    
     static class EmptyBean {
         @JsonIgnore
         public String name = "foo";
@@ -188,7 +186,7 @@ public class TestBeanSerializer extends BaseMapTest
             return new BogusBeanSerializer(42);
         }
     }
-    // [Issue#120], arrays, collections, maps
+    // [databind#120], arrays, collections, maps
     
     static class ArraySerializerModifier extends BeanSerializerModifier {
         @Override
@@ -249,9 +247,7 @@ public class TestBeanSerializer extends BaseMapTest
             };
         }
     }
-    
-    enum EnumABC { A, B, C };
-    
+
     /*
     /********************************************************
     /* Unit tests: success
@@ -305,7 +301,6 @@ public class TestBeanSerializer extends BaseMapTest
         assertEquals("{\"bogus\":\"foo\"}", json);
     }
 
-    // [Issue#539]
     public void testEmptyBean539() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -321,7 +316,7 @@ public class TestBeanSerializer extends BaseMapTest
         assertEquals("42", json);
     }
     
-    // [Issue#121]
+    // [databind#121]
 
     public void testModifyArraySerializer() throws Exception
     {
@@ -352,7 +347,7 @@ public class TestBeanSerializer extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
             .setSerializerModifier(new EnumSerializerModifier()));
-        assertEquals("123", mapper.writeValueAsString(EnumABC.C));
+        assertEquals("123", mapper.writeValueAsString(ABC.C));
     }
 
     public void testModifyKeySerializer() throws Exception

@@ -520,7 +520,13 @@ public class BeanSerializerFactory
             }
         }
 
-        JsonSerializer<Object> ser = (JsonSerializer<Object>) builder.build();
+        JsonSerializer<Object> ser = null;
+        try {
+            ser = (JsonSerializer<Object>) builder.build();
+        } catch (RuntimeException e) {
+            prov.reportBadTypeDefinition(beanDesc, "Failed to construct BeanSerializer for %s: (%s) %s",
+                    beanDesc.getType(), e.getClass().getName(), e.getMessage());
+        }
         if (ser == null) {
             // If we get this far, there were no properties found, so no regular BeanSerializer
             // would be constructed. But, couple of exceptions.

@@ -761,6 +761,9 @@ public class JacksonAnnotationIntrospector
                         type = tf.constructGeneralizedType(type, serClass);
                     } else if (currRaw.isAssignableFrom(serClass)) { // specialization, ok as well
                         type = tf.constructSpecializedType(type, serClass);
+                    } else if (_primitiveAndWrapper(currRaw, serClass)) {
+                        // 27-Apr-2017, tatu: [databind#1592] ignore primitive<->wrapper refinements
+                        type = type.withStaticTyping();
                     } else {
                         throw new JsonMappingException(null,
                                 String.format("Can not refine serialization type %s into %s; types not related",
@@ -793,6 +796,9 @@ public class JacksonAnnotationIntrospector
                             keyType = tf.constructGeneralizedType(keyType, keyClass);
                         } else if (currRaw.isAssignableFrom(keyClass)) { // specialization, ok as well
                             keyType = tf.constructSpecializedType(keyType, keyClass);
+                        } else if (_primitiveAndWrapper(currRaw, keyClass)) {
+                            // 27-Apr-2017, tatu: [databind#1592] ignore primitive<->wrapper refinements
+                            keyType = keyType.withStaticTyping();
                         } else {
                             throw new JsonMappingException(null,
                                     String.format("Can not refine serialization key type %s into %s; types not related",
@@ -826,6 +832,9 @@ public class JacksonAnnotationIntrospector
                            contentType = tf.constructGeneralizedType(contentType, contentClass);
                        } else if (currRaw.isAssignableFrom(contentClass)) { // specialization, ok as well
                            contentType = tf.constructSpecializedType(contentType, contentClass);
+                       } else if (_primitiveAndWrapper(currRaw, contentClass)) {
+                           // 27-Apr-2017, tatu: [databind#1592] ignore primitive<->wrapper refinements
+                           contentType = contentType.withStaticTyping();
                        } else {
                            throw new JsonMappingException(null,
                                    String.format("Can not refine serialization content type %s into %s; types not related",
@@ -1113,7 +1122,8 @@ public class JacksonAnnotationIntrospector
         
         // Ok: start by refining the main type itself; common to all types
         final Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
-        if ((valueClass != null) && !type.hasRawClass(valueClass)) {
+        if ((valueClass != null) && !type.hasRawClass(valueClass)
+                && !_primitiveAndWrapper(type, valueClass)) {
             try {
                 type = tf.constructSpecializedType(type, valueClass);
             } catch (IllegalArgumentException iae) {
@@ -1129,7 +1139,8 @@ public class JacksonAnnotationIntrospector
         if (type.isMapLikeType()) {
             JavaType keyType = type.getKeyType();
             final Class<?> keyClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.keyAs());
-            if (keyClass != null) {
+            if ((keyClass != null)
+                    && !_primitiveAndWrapper(keyType, keyClass)) {
                 try {
                     keyType = tf.constructSpecializedType(keyType, keyClass);
                     type = ((MapLikeType) type).withKeyType(keyType);
@@ -1145,7 +1156,8 @@ public class JacksonAnnotationIntrospector
         if (contentType != null) { // collection[like], map[like], array, reference
             // And then value types for all containers:
             final Class<?> contentClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.contentAs());
-            if (contentClass != null) {
+            if ((contentClass != null)
+                    && !_primitiveAndWrapper(contentType, contentClass)) {
                 try {
                     contentType = tf.constructSpecializedType(contentType, contentClass);
                     type = type.withContentType(contentType);
@@ -1451,9 +1463,25 @@ public class JacksonAnnotationIntrospector
         return StdTypeResolverBuilder.noTypeInfoBuilder();
     }
 
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
+    private boolean _primitiveAndWrapper(Class<?> baseType, Class<?> refinement)
+    {
+        if (baseType.isPrimitive()) {
+            return baseType == ClassUtil.primitiveType(refinement);
+        }
+        if (refinement.isPrimitive()) {
+            return refinement == ClassUtil.primitiveType(baseType);
+        }
+        return false;
+    }
+
+    private boolean _primitiveAndWrapper(JavaType baseType, Class<?> refinement)
+    {
+        if (baseType.isPrimitive()) {
+            return baseType.hasRawClass(ClassUtil.primitiveType(refinement));
+        }
+        if (refinement.isPrimitive()) {
+            return refinement == ClassUtil.primitiveType(baseType.getRawClass());
+        }
+        return false;
+    }
 }

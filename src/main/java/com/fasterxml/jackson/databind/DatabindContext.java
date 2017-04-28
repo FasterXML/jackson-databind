@@ -252,7 +252,6 @@ public abstract class DatabindContext
      */
     public abstract <T> T reportBadDefinition(JavaType type, String msg) throws JsonMappingException;
 
-
     /**
      * @since 2.9
      */

@@ -1152,7 +1152,7 @@ public abstract class DeserializationContext
                 if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
                     return type;
                 }
-                throw unknownTypeIdException(baseType, id,
+                throw invalidTypeIdException(baseType, id,
                         "problem handler tried to resolve into non-subtype: "+type);
             }
             h = h.next();
@@ -1161,7 +1161,7 @@ public abstract class DeserializationContext
         if (!isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)) {
             return null;
         }
-        throw unknownTypeIdException(baseType, id, extraDesc);
+        throw invalidTypeIdException(baseType, id, extraDesc);
     }
 
     /**
@@ -1182,7 +1182,7 @@ public abstract class DeserializationContext
                 if (type.isTypeOrSubTypeOf(baseType.getRawClass())) {
                     return type;
                 }
-                throw unknownTypeIdException(baseType, null,
+                throw invalidTypeIdException(baseType, null,
                         "problem handler tried to resolve into non-subtype: "+type);
             }
             h = h.next();
@@ -1566,10 +1566,12 @@ public abstract class DeserializationContext
      * Note that most of the time this method should NOT be called; instead,
      * {@link #handleUnknownTypeId} should be called which will call this method
      * if necessary.
+     *
+     * @since 2.9
      */
-    public JsonMappingException unknownTypeIdException(JavaType baseType, String typeId,
+    public JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc) {
-        String msg = String.format("Could not resolve type id '%s' into a subtype of %s",
+        String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
                 typeId, baseType);
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, typeId);
     }

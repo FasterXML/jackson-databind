@@ -39,7 +39,7 @@ public class ClassNameIdResolver
 
     @Override
     public JavaType typeFromId(DatabindContext context, String id) throws IOException {
-        return _typeFromId(id, context);
+        return _typeFromId(id, (DeserializationContext) context);
     }
 
     protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
@@ -67,9 +67,14 @@ public class ClassNameIdResolver
             // ... meaning that we really should never get here.
             return null;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): "+e.getMessage(), e);
+            throw ((DeserializationContext) ctxt).invalidTypeIdException(_baseType, id, String.format(
+                    "Invalid type id, problem: (%s) %s",
+                    e.getClass().getName(), e.getMessage()));
         }
-        return tf.constructSpecializedType(_baseType, cls);
+        if (_baseType.isTypeOrSuperTypeOf(cls)) {
+            return tf.constructSpecializedType(_baseType, cls);
+        }
+        throw ((DeserializationContext) ctxt).invalidTypeIdException(_baseType, id, "Not a subtype");
     }
 
     /*

@@ -331,9 +331,11 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
             MAPPER.readValue(aposToQuotes("{'value':['"
                     +TheBomb.class.getName()+"',{'a':13}] }"), DateWrapper.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "not subtype of");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "not a subtype");
             verifyException(e, TheBomb.class.getName());
+        } catch (Exception e) {
+            fail("Should have hit `InvalidTypeIdException`, not `"+e.getClass().getName()+"`: "+e);
         }
     }
 

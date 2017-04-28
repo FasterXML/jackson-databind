@@ -92,6 +92,20 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         public AtomicWrapper(int x) { value = new ImplX(x); }
     }
 
+    // Verifying limits on sub-class ids
+
+    static class DateWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+        public java.util.Date value;
+    }
+
+    static class TheBomb {
+        public int a;
+        public TheBomb() {
+            throw new Error("Ka-boom!");
+        }
+    }
+
     // [databind#1125]
 
     static class Issue1125Wrapper {
@@ -124,14 +138,14 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     static class Default1125 extends Interm1125 {
-    	public int def;
+        public int def;
 
-    	Default1125() { }
-    	public Default1125(int a0, int b0, int def0) {
-    		a = a0;
-    		b = b0;
-    		def = def0;
-    	}
+        Default1125() { }
+        public Default1125(int a0, int b0, int def0) {
+            a = a0;
+            b = b0;
+            def = def0;
+        }
     }
     
     /*
@@ -297,6 +311,20 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertNotNull(output);
         assertEquals(ImplX.class, output.value.getClass());
         assertEquals(3, ((ImplX) output.value).x);
+    }
+
+    // Test to verify that base/impl restriction is applied to polymorphic handling
+    // even if class name is used as the id
+    public void testSubclassLimits() throws Exception
+    {
+        try {
+            MAPPER.readValue(aposToQuotes("{'value':['"
+                    +TheBomb.class.getName()+"',{'a':13}] }"), DateWrapper.class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "not subtype of");
+            verifyException(e, TheBomb.class.getName());
+        }
     }
 
     // [databind#1125]: properties from base class too

@@ -76,6 +76,7 @@ Project: jackson-databind
  (suggested by syncer@github)
 #1605: Allow serialization of `InetAddress` as simple numeric host address
  (requested by Jared J)
+#1616: Extraneous type id mapping added for base type itself
 
 2.8.9 (not yet released)
 

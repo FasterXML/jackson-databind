@@ -7,19 +7,31 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Separate tests for verifying that "type name" type id mechanism
  * works.
- * 
- * @author tatu
  */
 public class TestTypeNames extends BaseMapTest
 {
     @SuppressWarnings("serial")
     static class AnimalMap extends LinkedHashMap<String,Animal> { }
+
+    @JsonTypeInfo(property = "type", include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({
+              @JsonSubTypes.Type(value = A1616.class,name = "A"),
+              @JsonSubTypes.Type(value = B1616.class)
+    })
+    static abstract class Base1616 { }
+
+    static class A1616 extends Base1616 { }
+
+    @JsonTypeName("B")
+    static class B1616 extends Base1616 { }
     
     /*
     /**********************************************************
@@ -27,31 +39,48 @@ public class TestTypeNames extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+
+    public void testBaseTypeId1616() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Collection<NamedType> subtypes = new StdSubtypeResolver().collectAndResolveSubtypesByTypeId(
+                mapper.getDeserializationConfig(),
+                // note: `null` is fine here as `AnnotatedMember`:
+                null,
+                mapper.constructType(Base1616.class));
+        assertEquals(2, subtypes.size());
+        Set<String> ok = new HashSet<>(Arrays.asList("A", "B"));
+        for (NamedType type : subtypes) {
+            String id = type.getName();
+            if (!ok.contains(id)) {
+                fail("Unexpected id '"+id+"' (mapping to: "+type.getType()+"), should be one of: "+ok);
+            }
+        }
+    }
+    
     public void testSerialization() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-
         // Note: need to use wrapper array just so that we can define
         // static type on serialization. If we had root static types,
         // could use those; but at the moment root type is dynamic
         
         assertEquals("[{\"doggy\":{\"name\":\"Spot\",\"ageInYears\":3}}]",
-                m.writeValueAsString(new Animal[] { new Dog("Spot", 3) }));
+                MAPPER.writeValueAsString(new Animal[] { new Dog("Spot", 3) }));
         assertEquals("[{\"MaineCoon\":{\"name\":\"Belzebub\",\"purrs\":true}}]",
-                m.writeValueAsString(new Animal[] { new MaineCoon("Belzebub", true)}));
+                MAPPER.writeValueAsString(new Animal[] { new MaineCoon("Belzebub", true)}));
     }
 
     public void testRoundTrip() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         Animal[] input = new Animal[] {
                 new Dog("Odie", 7),
                 null,
                 new MaineCoon("Piru", false),
                 new Persian("Khomeini", true)
         };
-        String json = m.writeValueAsString(input);
-        List<Animal> output = m.readValue(json,
+        String json = MAPPER.writeValueAsString(input);
+        List<Animal> output = MAPPER.readValue(json,
                 TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Animal.class));
         assertEquals(input.length, output.size());
         for (int i = 0, len = input.length; i < len; ++i) {
@@ -62,12 +91,11 @@ public class TestTypeNames extends BaseMapTest
 
     public void testRoundTripMap() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         AnimalMap input = new AnimalMap();
         input.put("venla", new MaineCoon("Venla", true));
         input.put("ama", new Dog("Amadeus", 13));
-        String json = m.writeValueAsString(input);
-        AnimalMap output = m.readValue(json, AnimalMap.class);
+        String json = MAPPER.writeValueAsString(input);
+        AnimalMap output = MAPPER.readValue(json, AnimalMap.class);
         assertNotNull(output);
         assertEquals(AnimalMap.class, output.getClass());
         assertEquals(input.size(), output.size());

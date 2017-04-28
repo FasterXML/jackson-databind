@@ -291,13 +291,13 @@ public abstract class BaseMapTest
     protected String serializeAsString(Object value)
         throws IOException
     {
-        return serializeAsString(SHARED_MAPPER, value);
+        return serializeAsString(objectMapper(), value);
     }
 
     protected String asJSONObjectValueString(Object... args)
         throws IOException
     {
-        return asJSONObjectValueString(SHARED_MAPPER, args);
+        return asJSONObjectValueString(objectMapper(), args);
     }
 
     protected String asJSONObjectValueString(ObjectMapper m, Object... args)
@@ -319,7 +319,7 @@ public abstract class BaseMapTest
     protected <T> T readAndMapFromString(String input, Class<T> cls)
         throws IOException
     {
-        return readAndMapFromString(SHARED_MAPPER, input, cls);
+        return readAndMapFromString(objectMapper(), input, cls);
     }
 
     protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls) throws IOException

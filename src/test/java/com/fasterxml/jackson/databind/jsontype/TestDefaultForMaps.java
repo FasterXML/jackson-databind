@@ -118,8 +118,6 @@ public class TestDefaultForMaps
                 TypeFactory.defaultInstance().constructType(Object.class), subtypes, forSerialization, !forSerialization);
     }
 
-    // // For #234:
-    
     public void testList() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();

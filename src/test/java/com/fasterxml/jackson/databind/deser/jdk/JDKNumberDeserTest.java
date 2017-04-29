@@ -10,6 +10,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class JDKNumberDeserTest extends BaseMapTest
 {
@@ -87,7 +88,7 @@ public class JDKNumberDeserTest extends BaseMapTest
     {
         assertNull(MAPPER.readValue(quote(""), Byte.class));
         assertNull(MAPPER.readValue(quote(""), Short.class));
-        assertNull(MAPPER.readValue(quote(""), Integer.class));
+        assertNull(MAPPER.readValue(quote(""), Character.class));
         assertNull(MAPPER.readValue(quote(""), Integer.class));
         assertNull(MAPPER.readValue(quote(""), Long.class));
         assertNull(MAPPER.readValue(quote(""), Float.class));
@@ -97,6 +98,49 @@ public class JDKNumberDeserTest extends BaseMapTest
         assertNull(MAPPER.readValue(quote(""), BigDecimal.class));
     }
 
+    public void testTextualNullAsNumber() throws Exception
+    {
+        final String NULL_JSON = quote("null");
+        assertNull(MAPPER.readValue(NULL_JSON, Byte.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Short.class));
+        // Character is bit special, can't do:
+//        assertNull(MAPPER.readValue(JSON, Character.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Integer.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Long.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Float.class));
+        assertNull(MAPPER.readValue(NULL_JSON, Double.class));
+
+        assertEquals(Byte.valueOf((byte) 0), MAPPER.readValue(NULL_JSON, Byte.TYPE));
+        assertEquals(Short.valueOf((short) 0), MAPPER.readValue(NULL_JSON, Short.TYPE));
+        // Character is bit special, can't do:
+//        assertEquals(Character.valueOf((char) 0), MAPPER.readValue(JSON, Character.TYPE));
+        assertEquals(Integer.valueOf(0), MAPPER.readValue(NULL_JSON, Integer.TYPE));
+        assertEquals(Long.valueOf(0L), MAPPER.readValue(NULL_JSON, Long.TYPE));
+        assertEquals(Float.valueOf(0f), MAPPER.readValue(NULL_JSON, Float.TYPE));
+        assertEquals(Double.valueOf(0d), MAPPER.readValue(NULL_JSON, Double.TYPE));
+        
+        assertNull(MAPPER.readValue(NULL_JSON, BigInteger.class));
+        assertNull(MAPPER.readValue(NULL_JSON, BigDecimal.class));
+
+        // Also: verify failure for at least some
+        try {
+            MAPPER.readerFor(Integer.TYPE).with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .readValue(NULL_JSON);
+            fail("Should not have passed");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Can not coerce String \"null\"");
+        }
+
+        ObjectMapper noCoerceMapper = new ObjectMapper();
+        noCoerceMapper.disable(MapperFeature.ALLOW_COERCION_OF_SCALARS);
+        try {
+            noCoerceMapper.readValue(NULL_JSON, Integer.TYPE);
+            fail("Should not have passed");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Can not coerce String \"null\"");
+        }
+    }
+    
     public void testDeserializeDecimalHappyPath() throws Exception {
         String json = "{\"defaultValue\": { \"value\": 123 } }";
         MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);

@@ -87,6 +87,10 @@ public abstract class ConfigOverride
 
     public JsonFormat.Value getFormat() { return _format; }
     public JsonInclude.Value getInclude() { return _include; }
+
+    /**
+     * @since 2.9
+     */
     public JsonInclude.Value getIncludeAsProperty() { return _includeAsProperty; }
 
     public JsonIgnoreProperties.Value getIgnorals() { return _ignorals; }

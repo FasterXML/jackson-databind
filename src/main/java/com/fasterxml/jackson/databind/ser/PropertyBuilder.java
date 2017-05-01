@@ -57,7 +57,8 @@ public class PropertyBuilder
         //  (a) global default inclusion
         //  (b) per-type default inclusion (from annotation or config overrides;
         //     config override having precedence)
-        //  (c) per-property override (from annotation or config overrides;
+        //  (c) per-property override (from annotation on specific property or
+        //     config overrides per type of property;
         //     annotation having precedence)
         //
         //  and not only requiring merging, but also considering special handling

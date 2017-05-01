@@ -414,6 +414,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * NOTE: if no override found, defaults to value returned by
      * {@link #getDefaultPropertyInclusion()}.
      *
+     * @param baseType Type of the instance containing the targeted property.
+     * @param propertyType Type of the property to look up inclusion setting for.
+     *
      * @since 2.9
      */
     public abstract JsonInclude.Value getDefaultInclusion(Class<?> baseType,
@@ -425,6 +428,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * possible per-type override for given property type; but
      * if none found, returning given <code>defaultIncl</code>
      *
+     * @param baseType Type of the instance containing the targeted property.
+     * @param propertyType Type of the property to look up inclusion setting for.
      * @param defaultIncl Inclusion setting to return if no overrides found.
      *
      * @since 2.9

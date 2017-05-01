@@ -149,14 +149,6 @@ public class JsonIncludeTest
         public NonDefaultCalendar(Calendar v) { super(v); }
     }
 
-    @JsonPropertyOrder({"list", "map"})
-    static class EmptyListMapBean
-    {
-        public List<String> list = Collections.emptyList();
-
-        public Map<String,String> map = Collections.emptyMap();
-    }
-
     // [databind#1351]
 
     static class Issue1351Bean
@@ -312,28 +304,6 @@ public class JsonIncludeTest
         IntWrapper zero = new IntWrapper(0);
         assertEquals("{\"i\":0}", defMapper.writeValueAsString(zero));
         assertEquals("{\"i\":0}", inclMapper.writeValueAsString(zero));
-    }
-
-    public void testPropConfigOverridesForInclude() throws IOException
-    {
-        // First, with defaults, both included:
-        EmptyListMapBean empty = new EmptyListMapBean();
-        assertEquals(aposToQuotes("{'list':[],'map':{}}"),
-                MAPPER.writeValueAsString(empty));
-        ObjectMapper mapper;
-
-        // and then change inclusion criteria for either
-        mapper = new ObjectMapper();
-        mapper.configOverride(Map.class)
-            .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
-        assertEquals(aposToQuotes("{'list':[]}"),
-                mapper.writeValueAsString(empty));
-
-        mapper = new ObjectMapper();
-        mapper.configOverride(List.class)
-            .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
-        assertEquals(aposToQuotes("{'map':{}}"),
-                mapper.writeValueAsString(empty));
     }
 
     // [databind#1351], [databind#1417]

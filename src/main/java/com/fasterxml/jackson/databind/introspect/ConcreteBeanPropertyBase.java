@@ -104,10 +104,14 @@ public abstract class ConcreteBeanPropertyBase
     @Override
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
     {
-        JsonInclude.Value v0 = config.getDefaultPropertyInclusion(baseType);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedMember member = getMember();
-        if ((intr == null) || (member == null)) {
+        if (member == null) {
+            JsonInclude.Value def = config.getDefaultPropertyInclusion(baseType);
+            return def;
+        }
+        JsonInclude.Value v0 = config.getDefaultInclusion(baseType, member.getRawType());
+        if (intr == null) {
             return v0;
         }
         JsonInclude.Value v = intr.findPropertyInclusion(member);

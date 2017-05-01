@@ -36,8 +36,27 @@ public class MutableConfigOverride
         return this;
     }
 
+    /**
+     * Override inclusion setting for all properties contained in POJOs of the
+     * associated type.
+     *
+     * @param v Inclusion setting to apply contained properties.
+     */
     public MutableConfigOverride setInclude(JsonInclude.Value v) {
         _include = v;
+        return this;
+    }
+
+    /**
+     * Override inclusion setting for properties of the associated type
+     * regardless of the type of the POJO containing it.
+     *
+     * @param v Inclusion setting to apply for properties of associated type.
+     *
+     * @since 2.9
+     */
+    public MutableConfigOverride setIncludeAsProperty(JsonInclude.Value v) {
+        _includeAsProperty = v;
         return this;
     }
 

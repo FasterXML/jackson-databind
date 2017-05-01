@@ -28,6 +28,11 @@ public abstract class ConfigOverride
     protected JsonInclude.Value _include;
 
     /**
+     * Definitions of inclusion overrides for properties of configured type, if any.
+     */
+    protected JsonInclude.Value _includeAsProperty;
+
+    /**
      * Definitions of property ignoral (whether to serialize, deserialize
      * given logical property) overrides, if any.
      */
@@ -65,6 +70,7 @@ public abstract class ConfigOverride
     protected ConfigOverride(ConfigOverride src) {
         _format = src._format;
         _include = src._include;
+        _includeAsProperty = src._includeAsProperty;
         _ignorals = src._ignorals;
         _isIgnoredType = src._isIgnoredType;
         _mergeable = src._mergeable;
@@ -81,6 +87,11 @@ public abstract class ConfigOverride
 
     public JsonFormat.Value getFormat() { return _format; }
     public JsonInclude.Value getInclude() { return _include; }
+
+    /**
+     * @since 2.9
+     */
+    public JsonInclude.Value getIncludeAsProperty() { return _includeAsProperty; }
 
     public JsonIgnoreProperties.Value getIgnorals() { return _ignorals; }
 

@@ -56,8 +56,10 @@ public class PropertyBuilder
         // 08-Sep-2016, tatu: This gets tricky, with 3 levels of definitions:
         //  (a) global default inclusion
         //  (b) per-type default inclusion (from annotation or config overrides;
-        //     latter having precedence)
-        //  Cc) per-property override
+        //     config override having precedence)
+        //  (c) per-property override (from annotation on specific property or
+        //     config overrides per type of property;
+        //     annotation having precedence)
         //
         //  and not only requiring merging, but also considering special handling
         //  for NON_DEFAULT in case of (b) (vs (a) or (c))
@@ -129,11 +131,20 @@ public class PropertyBuilder
         // 12-Jul-2016, tatu: [databind#1256] Need to make sure we consider type refinement
         JavaType actualType = (serializationType == null) ? declaredType : serializationType;
         
+        // 17-Mar-2017: [databind#1522] Allow config override per property type
+        AnnotatedMember accessor = propDef.getAccessor();
+        if (accessor == null) {
+            // neither Setter nor ConstructorParameter are expected here
+            return prov.reportBadPropertyDefinition(_beanDesc, propDef,
+                    "could not determine property type");
+        }
+        Class<?> rawPropertyType = accessor.getRawType();
+
         // 17-Aug-2016, tatu: Default inclusion covers global default (for all types), as well
         //   as type-default for enclosing POJO. What we need, then, is per-type default (if any)
         //   for declared property type... and finally property annotation overrides
-        JsonInclude.Value inclV = _config.getDefaultPropertyInclusion(actualType.getRawClass(),
-                _defaultInclusion);
+        JsonInclude.Value inclV = _config.getDefaultInclusion(actualType.getRawClass(),
+                rawPropertyType, _defaultInclusion);
 
         // property annotation override
         

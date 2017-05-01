@@ -437,15 +437,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public JsonInclude.Value getDefaultInclusion(Class<?> baseType,
             Class<?> propertyType, JsonInclude.Value defaultIncl)
     {
-        JsonInclude.Value v0 = getConfigOverride(propertyType).getIncludeAsProperty();
-        if (v0 != null) {
-            return v0;
-        }
-        JsonInclude.Value v1 = getConfigOverride(baseType).getInclude();
-        if (v1 != null) {
-            return v1;
-        }
-        return defaultIncl;
+        JsonInclude.Value baseOverride = getConfigOverride(baseType).getInclude();
+        JsonInclude.Value propOverride = getConfigOverride(propertyType).getIncludeAsProperty();
+
+        JsonInclude.Value result = JsonInclude.Value.mergeAll(defaultIncl, baseOverride, propOverride);
+        return result;
     }
 
     /**

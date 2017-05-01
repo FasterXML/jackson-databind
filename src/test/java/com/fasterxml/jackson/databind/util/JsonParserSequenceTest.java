@@ -13,6 +13,7 @@ public class JsonParserSequenceTest extends BaseMapTest {
     /**
      * Verifies fix for [core#372]
      */
+    @SuppressWarnings("resource")
     public void testJsonParserSequenceOverridesSkipChildren() throws Exception
     {
         // Create parser from TokenBuffer containing an incomplete JSON object

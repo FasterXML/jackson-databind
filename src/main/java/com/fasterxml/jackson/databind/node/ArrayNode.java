@@ -157,24 +157,20 @@ public class ArrayNode
         for (int i = 0; i < size; ++i) { // we'll typically have array list
             // For now, assuming it's either BaseJsonNode, JsonSerializable
             JsonNode n = c.get(i);
-            if (n instanceof BaseJsonNode) {
-                ((BaseJsonNode) n).serialize(f, provider);
-            } else {
-                ((JsonSerializable) n).serialize(f, provider);
-            }
+            ((BaseJsonNode) n).serialize(f, provider);
         }
         f.writeEndArray();
     }
 
     @Override
-    public void serializeWithType(JsonGenerator jg, SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForArray(this, jg);
+        typeSer.writeTypePrefixForArray(this, g);
         for (JsonNode n : _children) {
-            ((BaseJsonNode)n).serialize(jg, provider);
+            ((BaseJsonNode)n).serialize(g, provider);
         }
-        typeSer.writeTypeSuffixForArray(this, jg);
+        typeSer.writeTypeSuffixForArray(this, g);
     }
 
     /*

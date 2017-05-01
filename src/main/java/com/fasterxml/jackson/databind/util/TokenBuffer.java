@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
-import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.*;
@@ -44,6 +43,14 @@ public class TokenBuffer
      * such methods can not be used.
      */
     protected ObjectCodec _objectCodec;
+
+    /**
+     * Parse context from "parent" parser (one from which content to buffer is read,
+     * if specified). Used, if available, when reading content, to present full
+     * context as if content was read from the original parser: this is useful
+     * in error reporting and sometimes processing as well.
+     */
+    protected JsonStreamContext _parentContext;
 
     /**
      * Bit flag composed of bits that indicate which
@@ -136,18 +143,6 @@ public class TokenBuffer
      * @param codec Object codec to use for stream-based object
      *   conversion through parser/generator interfaces. If null,
      *   such methods can not be used.
-     *   
-     * @deprecated since 2.3 preferred variant is one that takes {@link JsonParser} or additional boolean parameter.
-     */
-    @Deprecated
-    public TokenBuffer(ObjectCodec codec) {
-        this(codec, false);
-    }
-
-    /**
-     * @param codec Object codec to use for stream-based object
-     *   conversion through parser/generator interfaces. If null,
-     *   such methods can not be used.
      * @param hasNativeIds Whether resulting {@link JsonParser} (if created)
      *   is considered to support native type and object ids
      */
@@ -178,6 +173,7 @@ public class TokenBuffer
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
         _objectCodec = p.getCodec();
+        _parentContext = p.getParsingContext();
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
         _writeContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
@@ -204,6 +200,19 @@ public class TokenBuffer
         TokenBuffer b = new TokenBuffer(p);
         b.copyCurrentStructure(p);
         return b;
+    }
+
+    /**
+     * Method that allows explicitly specifying parent parse context to associate
+     * with contents of this buffer. Usually context is assigned at construction,
+     * based on given parser; but it is not always available, and may not contain
+     * intended context.
+     *
+     * @since 2.9
+     */
+    public TokenBuffer overrideParentContext(JsonStreamContext ctxt) {
+        _parentContext = ctxt;
+        return this;
     }
 
     /**
@@ -264,7 +273,7 @@ public class TokenBuffer
      */
     public JsonParser asParser(ObjectCodec codec)
     {
-        return new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds);
+        return new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
     /**
@@ -273,7 +282,7 @@ public class TokenBuffer
      */
     public JsonParser asParser(JsonParser src)
     {
-        Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds);
+        Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
         p.setLocation(src.getTokenLocation());
         return p;
     }
@@ -1257,7 +1266,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * Information about parser context, context in which
          * the next token is to be parsed (root, array, object).
          */
-        protected JsonReadContext _parsingContext;
+        protected TokenBufferReadContext _parsingContext;
         
         protected boolean _closed;
 
@@ -1271,15 +1280,22 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**********************************************************
          */
 
+        @Deprecated // since 2.9
         public Parser(Segment firstSeg, ObjectCodec codec,
-                boolean hasNativeTypeIds,
-                boolean hasNativeObjectIds)
+                boolean hasNativeTypeIds, boolean hasNativeObjectIds)
+        {
+            this(firstSeg, codec, hasNativeTypeIds, hasNativeObjectIds, null);
+        }
+        
+        public Parser(Segment firstSeg, ObjectCodec codec,
+                boolean hasNativeTypeIds, boolean hasNativeObjectIds,
+                JsonStreamContext parentContext)
         {
             super(0);
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
             _codec = codec;
-            _parsingContext = JsonReadContext.createRootContext(null);
+            _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
             _hasNativeIds = (hasNativeTypeIds | hasNativeObjectIds);
@@ -1359,17 +1375,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
                 _parsingContext.setCurrentName(name);
             } else if (_currToken == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
+                _parsingContext = _parsingContext.createChildObjectContext();
             } else if (_currToken == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
+                _parsingContext = _parsingContext.createChildArrayContext();
             } else if (_currToken == JsonToken.END_OBJECT
                     || _currToken == JsonToken.END_ARRAY) {
                 // Closing JSON Object/Array? Close matching context
-                _parsingContext = _parsingContext.getParent();
-                // but allow unbalanced cases too (more close markers)
-                if (_parsingContext == null) {
-                    _parsingContext = JsonReadContext.createRootContext(null);
-                }
+                _parsingContext = _parsingContext.parentOrCopy();
             }
             return _currToken;
         }
@@ -1415,7 +1427,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public String getCurrentName() {
             // 25-Jun-2015, tatu: as per [databind#838], needs to be same as ParserBase
             if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-                JsonReadContext parent = _parsingContext.getParent();
+                JsonStreamContext parent = _parsingContext.getParent();
                 return parent.getCurrentName();
             }
             return _parsingContext.getCurrentName();
@@ -1425,14 +1437,16 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public void overrideCurrentName(String name)
         {
             // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
-            JsonReadContext ctxt = _parsingContext;
+            JsonStreamContext ctxt = _parsingContext;
             if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
                 ctxt = ctxt.getParent();
             }
-            try {
-                ctxt.setCurrentName(name);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (ctxt instanceof TokenBufferReadContext) {
+                try {
+                    ((TokenBufferReadContext) ctxt).setCurrentName(name);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 

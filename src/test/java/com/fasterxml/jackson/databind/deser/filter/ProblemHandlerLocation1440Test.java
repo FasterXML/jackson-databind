@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import java.io.IOException;
 import java.util.*;
@@ -10,7 +10,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
-public class IncorrectContext1440Test extends BaseMapTest
+// Test(s) to verify [databind#1440]
+public class ProblemHandlerLocation1440Test extends BaseMapTest
 {
     static class DeserializationProblem {
         public List<String> unknownProperties = new ArrayList<>();
@@ -44,9 +45,6 @@ public class IncorrectContext1440Test extends BaseMapTest
                         throws IOException
         {
             final JsonStreamContext parsingContext = p.getParsingContext();
-
-//    System.err.println("DEBUG: parser == "+p.getClass());
-
             final List<String> pathList = new ArrayList<>();
             addParent(parsingContext, pathList);
             Collections.reverse(pathList);
@@ -136,7 +134,7 @@ public class IncorrectContext1440Test extends BaseMapTest
         List<String> probs = logger.problems();
         assertEquals(4, probs.size());
         assertEquals("actor.invalid_1#invalid_1", probs.get(0));
-        assertEquals("object.object_invalid_2#object_invalid_2", probs.get(1));
+        assertEquals("object.invalid_2#invalid_2", probs.get(1));
         assertEquals("target.invalid_3#invalid_3", probs.get(2));
         assertEquals("target.invalid_4#invalid_4", probs.get(3));
     }

@@ -1123,7 +1123,7 @@ public abstract class DeserializationContext
      * actual type; usually since there is no mapping defined.
      * Default implementation will try to call {@link DeserializationProblemHandler#handleUnknownTypeId}
      * on configured handlers, if any, to allow for recovery; if recovery does not
-     * succeed, will throw exception constructed with {@link #unknownTypeIdException}.
+     * succeed, will throw exception constructed with {@link #invalidTypeIdException}.
      *
      * @param baseType Base type from which resolution starts
      * @param id Type id that could not be converted

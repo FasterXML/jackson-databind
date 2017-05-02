@@ -103,33 +103,32 @@ public class AbstractDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        final AnnotatedMember accessor = (property == null || intr == null)
-                ? null : property.getMember();
-        if (accessor != null && intr != null) {
-            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
-            if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
-                // 2.1: allow modifications by "id ref" annotations as well:
-                objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
-                
-                Class<?> implClass = objectIdInfo.getGeneratorType();
-                // 02-May-2017, tatu: Alas, properties are NOT available for abstract classes; can not
-                //    support this particular type
-                if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
-                    ctxt.reportMappingException(
+        if (property != null && intr != null) {
+            final AnnotatedMember accessor = property.getMember();
+            if (accessor != null) {
+                ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+                if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
+                    // 2.1: allow modifications by "id ref" annotations as well:
+                    objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                    Class<?> implClass = objectIdInfo.getGeneratorType();
+                    // 02-May-2017, tatu: Alas, properties are NOT available for abstract classes; can not
+                    //    support this particular type. Yet.
+                    if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
+                        ctxt.reportBadDefinition(_baseType, String.format(
 "Invalid Object Id definition for abstract type %s: can not use `PropertyGenerator` on polymorphic types using property annotation",
-handledType().getName());
+handledType().getName()));
+                    }
+                    ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
+                    JavaType type = ctxt.constructType(implClass);
+                    JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+                    SettableBeanProperty idProp = null;
+                    ObjectIdGenerator<?> idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
+                    JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+                    ObjectIdReader oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
+                             idGen, deser, idProp, resolver);
+                    return new AbstractDeserializer(this, oir);
                 }
-                ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
-                JavaType type = ctxt.constructType(implClass);
-                JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
-                SettableBeanProperty idProp = null;
-                ObjectIdGenerator<?> idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
-                JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
-                ObjectIdReader oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
-                         idGen, deser, idProp, resolver);
-                return new AbstractDeserializer(this, oir);
             }
         }
         // either way, need to resolve serializer:
@@ -207,10 +206,8 @@ handledType().getName());
                         && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
                     return _deserializeFromObjectId(p, ctxt);
                 }
-            
             }
         }
-        
         // First: support "natural" values (which are always serialized without type info!)
         Object result = _deserializeIfNatural(p, ctxt);
         if (result != null) {
@@ -236,7 +233,7 @@ handledType().getName());
     /* Internal methods
     /**********************************************************
      */
-    
+
     protected Object _deserializeIfNatural(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         /* There is a chance we might be "natural" types

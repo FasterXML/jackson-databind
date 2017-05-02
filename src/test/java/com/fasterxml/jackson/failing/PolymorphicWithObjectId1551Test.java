@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 public class PolymorphicWithObjectId1551Test extends BaseMapTest
 {
@@ -44,7 +45,8 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
             /*VehicleOwnerViaProp[] deserialized = */
             objectMapper.readValue(serialized, VehicleOwnerViaProp[].class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
+            assertEquals(Vehicle.class, e.getType().getRawClass());
             verifyException(e, "Invalid Object Id definition for abstract type");
         }
 //        assertEquals(2, deserialized.length);

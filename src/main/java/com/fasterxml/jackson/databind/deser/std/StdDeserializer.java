@@ -948,7 +948,7 @@ public abstract class StdDeserializer<T>
         throws JsonMappingException
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null && prop != null) {
+        if (_neitherNull(intr, prop)) {
             AnnotatedMember member = prop.getMember();
             if (member != null) {
                 Object convDef = intr.findDeserializationContentConverter(member);
@@ -1167,6 +1167,13 @@ handledType().getName());
     /* Helper methods, other
     /**********************************************************
      */
+
+    /**
+     * @since 2.9
+     */
+    protected final static boolean _neitherNull(Object a, Object b) {
+        return (a != null) && (b != null);
+    }
 
     /**
      * @since 2.9

@@ -3,10 +3,17 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -17,7 +24,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class AbstractDeserializer
     extends JsonDeserializer<Object>
-    implements java.io.Serializable
+    implements ContextualDeserializer, // since 2.9
+        java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -33,7 +41,13 @@ public class AbstractDeserializer
     protected final boolean _acceptBoolean;
     protected final boolean _acceptInt;
     protected final boolean _acceptDouble;
-    
+
+    /*
+    /**********************************************************
+    /* Life cycle
+    /**********************************************************
+     */
+
     public AbstractDeserializer(BeanDeserializerBuilder builder,
             BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps)
     {
@@ -58,6 +72,22 @@ public class AbstractDeserializer
         _acceptInt = (cls == Integer.TYPE) || cls.isAssignableFrom(Integer.class);
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
+
+    /**
+     * @since 2.9
+     */
+    protected AbstractDeserializer(AbstractDeserializer base,
+            ObjectIdReader objectIdReader)
+    {
+        _baseType = base._baseType;
+        _backRefProperties = base._backRefProperties;
+        _acceptString = base._acceptString;
+        _acceptBoolean = base._acceptBoolean;
+        _acceptInt = base._acceptInt;
+        _acceptDouble = base._acceptDouble;
+
+        _objectIdReader = objectIdReader;
+    }
     
     /**
      * Factory method used when constructing instances for non-POJO types, like
@@ -68,7 +98,44 @@ public class AbstractDeserializer
     public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc) {
         return new AbstractDeserializer(beanDesc);
     }
-    
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
+    {
+        // First: may have an override for Object Id:
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final AnnotatedMember accessor = (property == null || intr == null)
+                ? null : property.getMember();
+        if (accessor != null && intr != null) {
+            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+            if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
+                // 2.1: allow modifications by "id ref" annotations as well:
+                objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                
+                Class<?> implClass = objectIdInfo.getGeneratorType();
+                // 02-May-2017, tatu: Alas, properties are NOT available for abstract classes; can not
+                //    support this particular type
+                if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
+                    ctxt.reportMappingException(
+"Invalid Object Id definition for abstract type %s: can not use `PropertyGenerator` on polymorphic types using property annotation",
+handledType().getName());
+                }
+                ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
+                JavaType type = ctxt.constructType(implClass);
+                JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+                SettableBeanProperty idProp = null;
+                ObjectIdGenerator<?> idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
+                JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+                ObjectIdReader oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
+                         idGen, deser, idProp, resolver);
+                return new AbstractDeserializer(this, oir);
+            }
+        }
+        // either way, need to resolve serializer:
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Public accessors

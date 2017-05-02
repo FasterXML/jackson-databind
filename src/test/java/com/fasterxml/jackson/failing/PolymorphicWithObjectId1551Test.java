@@ -18,30 +18,36 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
         public int numberOfDoors;
     }
 
-    static class VehicleOwner {
+    static class VehicleOwnerViaProp {
         @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "vehicleId")
         @JsonIdentityReference(alwaysAsId = false)
         public Vehicle ownedVehicle;
     }
 
-    public void testSerializeDeserialize() throws Exception {
+    public void testWithAbstractUsingProp() throws Exception {
         Car c = new Car();
         c.vehicleId = "123";
         c.numberOfDoors = 2;
         // both owners own the same vehicle (car sharing ;-))
-        VehicleOwner v1 = new VehicleOwner();
+        VehicleOwnerViaProp v1 = new VehicleOwnerViaProp();
         v1.ownedVehicle = c;
-        VehicleOwner v2 = new VehicleOwner();
+        VehicleOwnerViaProp v2 = new VehicleOwnerViaProp();
         v2.ownedVehicle = c;
 
         ObjectMapper objectMapper = new ObjectMapper();
         String serialized = objectMapper.writer()
-//                .with(SerializationFeature.INDENT_OUTPUT)
-                .writeValueAsString(new VehicleOwner[] { v1, v2 });
-//        System.out.println(serialized);
+                .writeValueAsString(new VehicleOwnerViaProp[] { v1, v2 });
 
-        VehicleOwner[] deserialized = objectMapper.readValue(serialized, VehicleOwner[].class);
-        assertEquals(2, deserialized.length);
-        assertSame(deserialized[0].ownedVehicle, deserialized[1].ownedVehicle);
+        // 02-May-2017, tatu: Not possible to support as of Jackson 2.8 at least, so:
+
+        try {
+            /*VehicleOwnerViaProp[] deserialized = */
+            objectMapper.readValue(serialized, VehicleOwnerViaProp[].class);
+            fail("Should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Invalid Object Id definition for abstract type");
+        }
+//        assertEquals(2, deserialized.length);
+//        assertSame(deserialized[0].ownedVehicle, deserialized[1].ownedVehicle);
     }
 }

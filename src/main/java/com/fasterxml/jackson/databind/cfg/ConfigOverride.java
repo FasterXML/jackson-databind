@@ -23,12 +23,19 @@ public abstract class ConfigOverride
     protected JsonFormat.Value _format;
 
     /**
-     * Definitions of inclusion overrides, if any.
+     * Definitions of inclusion defaults to use for properties included in this POJO type.
+     * Overrides global defaults, may be overridden by per-property-type (see
+     * {@link #_includeAsProperty}) and per-property overrides (annotations).
      */
     protected JsonInclude.Value _include;
 
     /**
-     * Definitions of inclusion overrides for properties of configured type, if any.
+     * Definitions of inclusion defaults for properties of this specified type (regardless
+     * of POJO in which they are included).
+     * Overrides global defaults, per-POJO inclusion defaults (see {#link {@link #_include}}),
+     * may be overridden by per-property overrides.
+     *
+     * @since 2.9
      */
     protected JsonInclude.Value _includeAsProperty;
 

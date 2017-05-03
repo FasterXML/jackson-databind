@@ -380,7 +380,7 @@ public class BeanDeserializerBuilder
      * @since 2.0
      */
     public AbstractDeserializer buildAbstract() {
-        return new AbstractDeserializer(this, _beanDesc, _backRefProperties);
+        return new AbstractDeserializer(this, _beanDesc, _backRefProperties, _properties);
     }
 
     /**

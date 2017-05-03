@@ -25,7 +25,14 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
         public Vehicle ownedVehicle;
     }
 
-    public void testWithAbstractUsingProp() throws Exception {
+    static class VehicleOwnerBroken {
+        @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "bogus")
+        @JsonIdentityReference(alwaysAsId = false)
+        public Vehicle ownedVehicle;
+    }
+
+    public void testWithAbstractUsingProp() throws Exception
+    {
         Car c = new Car();
         c.vehicleId = "123";
         c.numberOfDoors = 2;
@@ -38,18 +45,47 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
         ObjectMapper objectMapper = new ObjectMapper();
         String serialized = objectMapper.writer()
                 .writeValueAsString(new VehicleOwnerViaProp[] { v1, v2 });
-
         // 02-May-2017, tatu: Not possible to support as of Jackson 2.8 at least, so:
 
+        VehicleOwnerViaProp[] deserialized = objectMapper.readValue(serialized, VehicleOwnerViaProp[].class);
+        assertEquals(2, deserialized.length);
+        assertSame(deserialized[0].ownedVehicle, deserialized[1].ownedVehicle);
+    }
+
+    public void testFailingAbstractUsingProp() throws Exception
+    {
+        Car c = new Car();
+        c.vehicleId = "123";
+        c.numberOfDoors = 2;
+        // both owners own the same vehicle (car sharing ;-))
+        VehicleOwnerBroken v1 = new VehicleOwnerBroken();
+        v1.ownedVehicle = c;
+        VehicleOwnerBroken v2 = new VehicleOwnerBroken();
+        v2.ownedVehicle = c;
+
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            /*VehicleOwnerViaProp[] deserialized = */
-            objectMapper.readValue(serialized, VehicleOwnerViaProp[].class);
+            objectMapper.writer()
+                .writeValueAsString(new VehicleOwnerBroken[] { v1, v2 });
+        } catch (InvalidDefinitionException e) {
+            // on serialization, reported for different type
+            assertEquals(Car.class, e.getType().getRawClass());
+            verifyException(e, "Invalid Object Id definition");
+            verifyException(e, "can not find property with name 'bogus'");
+        }
+
+        // and same for deser
+        final String JSON = aposToQuotes(
+"[{'ownedVehicle':{'@class':'com.fasterxml.jackson.failing.PolymorphicWithObjectId1551Test$Car','vehicleId':'123',"
++"'numberOfDoors':2}},{'ownedVehicle':'123'}]"
+                );
+        try {
+            objectMapper.readValue(JSON, VehicleOwnerBroken[].class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             assertEquals(Vehicle.class, e.getType().getRawClass());
-            verifyException(e, "Invalid Object Id definition for abstract type");
+            verifyException(e, "Invalid Object Id definition");
+            verifyException(e, "can not find property with name 'bogus'");
         }
-//        assertEquals(2, deserialized.length);
-//        assertSame(deserialized[0].ownedVehicle, deserialized[1].ownedVehicle);
     }
 }

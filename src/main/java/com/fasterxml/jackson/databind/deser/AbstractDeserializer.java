@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
+import com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -35,6 +36,8 @@ public class AbstractDeserializer
 
     protected final Map<String, SettableBeanProperty> _backRefProperties;
 
+    protected transient Map<String,SettableBeanProperty> _properties;
+
     // support for "native" types, which require special care:
     
     protected final boolean _acceptString;
@@ -48,17 +51,32 @@ public class AbstractDeserializer
     /**********************************************************
      */
 
+    /**
+     * @since 2.9
+     *
+     * @param props Regular properties: currently only needed to support property-annotated
+     *    Object Id handling with property inclusion (needed for determining type of Object Id
+     *    to bind)
+     */
     public AbstractDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps)
+            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps,
+            Map<String, SettableBeanProperty> props)
     {
         _baseType = beanDesc.getType();
         _objectIdReader = builder.getObjectIdReader();
         _backRefProperties = backRefProps;
+        _properties = props;
         Class<?> cls = _baseType.getRawClass();
         _acceptString = cls.isAssignableFrom(String.class);
         _acceptBoolean = (cls == Boolean.TYPE) || cls.isAssignableFrom(Boolean.class);
         _acceptInt = (cls == Integer.TYPE) || cls.isAssignableFrom(Integer.class);
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
+    }
+
+    @Deprecated // since 2.9
+    public AbstractDeserializer(BeanDeserializerBuilder builder,
+            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps) {
+        this(builder, beanDesc, backRefProps, null);
     }
 
     protected AbstractDeserializer(BeanDescription beanDesc)
@@ -77,7 +95,7 @@ public class AbstractDeserializer
      * @since 2.9
      */
     protected AbstractDeserializer(AbstractDeserializer base,
-            ObjectIdReader objectIdReader)
+            ObjectIdReader objectIdReader, Map<String, SettableBeanProperty> props)
     {
         _baseType = base._baseType;
         _backRefProperties = base._backRefProperties;
@@ -87,8 +105,9 @@ public class AbstractDeserializer
         _acceptDouble = base._acceptDouble;
 
         _objectIdReader = objectIdReader;
+        _properties = props;
     }
-    
+
     /**
      * Factory method used when constructing instances for non-POJO types, like
      * {@link java.util.Map}s.
@@ -109,30 +128,49 @@ public class AbstractDeserializer
             if (accessor != null) {
                 ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
                 if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
+                    JavaType idType;
+                    ObjectIdGenerator<?> idGen;
+                    SettableBeanProperty idProp = null;
+                    ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
+
                     // 2.1: allow modifications by "id ref" annotations as well:
                     objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
                     Class<?> implClass = objectIdInfo.getGeneratorType();
-                    // 02-May-2017, tatu: Alas, properties are NOT available for abstract classes; can not
-                    //    support this particular type. Yet.
+
                     if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
-                        ctxt.reportBadDefinition(_baseType, String.format(
+                        PropertyName propName = objectIdInfo.getPropertyName();
+                        idProp = (_properties == null) ? null : _properties.get(propName.getSimpleName());
+                        if (idProp == null) {
+                            ctxt.reportBadDefinition(_baseType, String.format(
+                                    "Invalid Object Id definition for %s: can not find property with name '%s'",
+                                    handledType().getName(), propName));
+                        }
+                        idType = idProp.getType();
+                        idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
+/*
+                         ctxt.reportBadDefinition(_baseType, String.format(
+/
 "Invalid Object Id definition for abstract type %s: can not use `PropertyGenerator` on polymorphic types using property annotation",
 handledType().getName()));
+*/
+                    } else { // other types simpler
+                        resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
+                        JavaType type = ctxt.constructType(implClass);
+                        idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+                        idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                     }
-                    ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
-                    JavaType type = ctxt.constructType(implClass);
-                    JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
-                    SettableBeanProperty idProp = null;
-                    ObjectIdGenerator<?> idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                     JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
                     ObjectIdReader oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
                              idGen, deser, idProp, resolver);
-                    return new AbstractDeserializer(this, oir);
+                    return new AbstractDeserializer(this, oir, null);
                 }
             }
         }
-        // either way, need to resolve serializer:
-        return this;
+        if (_properties == null) {
+            return this;
+        }
+        // Need to ensure properties are dropped at this point, regardless
+        return new AbstractDeserializer(this, _objectIdReader, null);
     }
 
     /*

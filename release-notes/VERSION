@@ -74,6 +74,8 @@ Project: jackson-databind
  (reported by Lyor G)
 #1550: Unexpected behavior with `@JsonInclude(JsonInclude.Include.NON_EMPTY)` and
  `java.util.Date` serialization
+#1551: `JsonMappingException` with polymorphic type and `JsonIdentityInfo` when basic type is abstract
+ (reported by acm073@github)
 #1552: Map key converted to byte array is not serialized as base64 string
  (reported by nmatt@github)
 #1554: Support deserialization of `Shape.OBJECT` ("as POJO") for `Map`s (and map-like types)

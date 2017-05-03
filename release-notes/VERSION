@@ -85,6 +85,7 @@ Project: jackson-databind
 #1605: Allow serialization of `InetAddress` as simple numeric host address
  (requested by Jared J)
 #1616: Extraneous type id mapping added for base type itself
+#1619: By-pass annotation introspection for array types
 
 2.8.9 (not yet released)
 

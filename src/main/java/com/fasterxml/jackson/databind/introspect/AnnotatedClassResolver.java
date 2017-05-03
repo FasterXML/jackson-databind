@@ -63,48 +63,71 @@ public class AnnotatedClassResolver
     public static AnnotatedClass resolve(MapperConfig<?> config, JavaType forType,
             MixInResolver r)
     {
+        if (forType.isArrayType() && skippableArray(config, forType.getRawClass())) {
+            return createArrayType(config, forType.getRawClass());
+        }
         return new AnnotatedClassResolver(config, forType, r).resolveFully();
-    }
-
-    public static AnnotatedClass resolveWithoutSuperTypes(MapperConfig<?> config, JavaType forType,
-            MixInResolver r)
-    {
-        return new AnnotatedClassResolver(config, forType, r).resolveWithoutSuperTypes();
     }
 
     public static AnnotatedClass resolveWithoutSuperTypes(MapperConfig<?> config, Class<?> forType) {
         return resolveWithoutSuperTypes(config, forType, config);
     }
 
-    public static AnnotatedClass resolveWithoutSuperTypes(MapperConfig<?> config, Class<?> forType,
+    public static AnnotatedClass resolveWithoutSuperTypes(MapperConfig<?> config, JavaType forType,
             MixInResolver r)
     {
+        if (forType.isArrayType() && skippableArray(config, forType.getRawClass())) {
+            return createArrayType(config, forType.getRawClass());
+        }
         return new AnnotatedClassResolver(config, forType, r).resolveWithoutSuperTypes();
     }
 
+    public static AnnotatedClass resolveWithoutSuperTypes(MapperConfig<?> config, Class<?> forType,
+            MixInResolver r)
+    {
+        if (forType.isArray() && skippableArray(config, forType)) {
+            return createArrayType(config, forType);
+        }
+        return new AnnotatedClassResolver(config, forType, r).resolveWithoutSuperTypes();
+    }
+
+    private static boolean skippableArray(MapperConfig<?> config, Class<?> type) {
+        return (config == null) || (config.findMixInClassFor(type) == null);
+                
+    }
+
     /**
-     * Internal helper class used for resolving a small set of "primordial" types for which
+     * Internal helper method used for resolving a small set of "primordial" types for which
      * we do not accept any annotation information or overrides. 
      */
     static AnnotatedClass createPrimordial(Class<?> raw) {
-        Annotations noClassAnn = new AnnotationMap();
         List<JavaType> superTypes = Collections.emptyList();
-        return new AnnotatedClass(null, raw, superTypes, null, noClassAnn,
+        return new AnnotatedClass(null, raw, superTypes, null, NO_ANNOTATIONS,
+                TypeBindings.emptyBindings(), null, null, null);
+    }
+
+    /**
+     * Internal helper method used for resolving array types, unless they happen
+     * to have associated mix-in to apply.
+     */
+    static AnnotatedClass createArrayType(MapperConfig<?> config, Class<?> raw) {
+        List<JavaType> superTypes = Collections.emptyList();
+        return new AnnotatedClass(null, raw, superTypes, null, NO_ANNOTATIONS,
                 TypeBindings.emptyBindings(), null, null, null);
     }
 
     AnnotatedClass resolveFully() {
         List<JavaType> superTypes = ClassUtil.findSuperTypes(_type, null, false);
-        Annotations classAnn = resolveClassAnnotations(superTypes);
-        return new AnnotatedClass(_type, _class, superTypes, _primaryMixin, classAnn, _bindings,
-                _intr, _mixInResolver, _config.getTypeFactory());
+        return new AnnotatedClass(_type, _class, superTypes, _primaryMixin,
+                resolveClassAnnotations(superTypes),
+                _bindings, _intr, _mixInResolver, _config.getTypeFactory());
 
     }
 
     AnnotatedClass resolveWithoutSuperTypes() {
         List<JavaType> superTypes = Collections.<JavaType>emptyList();
-        Annotations classAnn = resolveClassAnnotations(superTypes);
-        return new AnnotatedClass(null, _class, superTypes, _primaryMixin, classAnn,
+        return new AnnotatedClass(null, _class, superTypes, _primaryMixin,
+                resolveClassAnnotations(superTypes),
                 _bindings, _intr, _config, _config.getTypeFactory());
     }
 

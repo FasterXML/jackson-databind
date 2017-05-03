@@ -1558,17 +1558,7 @@ public abstract class DeserializationContext
         return InvalidDefinitionException.from(_parser, msg, type);
     }
 
-    /**
-     * Helper method for constructing exception to indicate that given type id
-     * could not be resolved to a valid subtype of specified base type, during
-     * polymorphic deserialization.
-     *<p>
-     * Note that most of the time this method should NOT be called; instead,
-     * {@link #handleUnknownTypeId} should be called which will call this method
-     * if necessary.
-     *
-     * @since 2.9
-     */
+    @Override
     public JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
             String extraDesc) {
         String msg = String.format("Could not resolve type id '%s' as a subtype of %s",

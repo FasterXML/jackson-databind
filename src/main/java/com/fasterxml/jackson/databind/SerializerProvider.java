@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -1220,6 +1221,14 @@ public abstract class SerializerProvider
     public void reportMappingProblem(Throwable t, String message, Object... msgArgs) throws JsonMappingException {
         message = _format(message, msgArgs);
         throw JsonMappingException.from(getGenerator(), message, t);
+    }
+
+    @Override
+    public JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
+            String extraDesc) {
+        String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
+                typeId, baseType);
+        return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);
     }
 
     /*

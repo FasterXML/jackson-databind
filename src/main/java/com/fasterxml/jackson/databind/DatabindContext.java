@@ -161,6 +161,52 @@ public abstract class DatabindContext
         return getConfig().constructSpecializedType(baseType, subclass);
     }
 
+    /**
+     * Lookup method called when code needs to resolve class name from input;
+     * usually simple lookup
+     *
+     * @since 2.9
+     */
+    public JavaType resolveSubType(JavaType baseType, String subClass)
+        throws JsonMappingException
+    {
+        // 30-Jan-2010, tatu: Most ids are basic class names; so let's first
+        //    check if any generics info is added; and only then ask factory
+        //    to do translation when necessary
+        if (subClass.indexOf('<') > 0) {
+            // note: may want to try combining with specialization (esp for EnumMap)?
+            return getTypeFactory().constructFromCanonical(subClass);
+        }
+        Class<?> cls;
+        try {
+            cls =  getTypeFactory().findClass(subClass);
+        } catch (ClassNotFoundException e) { // let caller handle this problem
+            return null;
+        } catch (Exception e) {
+            throw invalidTypeIdException(baseType, subClass, String.format(
+                    "problem: (%s) %s",
+                    e.getClass().getName(), e.getMessage()));
+        }
+        if (baseType.isTypeOrSuperTypeOf(cls)) {
+            return getTypeFactory().constructSpecializedType(baseType, cls);
+        }
+        throw invalidTypeIdException(baseType, subClass, "Not a subtype");
+    }
+
+    /**
+     * Helper method for constructing exception to indicate that given type id
+     * could not be resolved to a valid subtype of specified base type.
+     * Most commonly called during polymorphic deserialization.
+     *<p>
+     * Note that most of the time this method should NOT be called directly: instead,
+     * method <code>handleUnknownTypeId()</code> should be called which will call this method
+     * if necessary.
+     *
+     * @since 2.9
+     */
+    protected abstract JsonMappingException invalidTypeIdException(JavaType baseType, String typeId,
+            String extraDesc);
+
     public abstract TypeFactory getTypeFactory();
 
     /*

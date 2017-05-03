@@ -302,8 +302,8 @@ public final class TypeFactory
     }
     
     protected Class<?> classForName(String name, boolean initialize,
-                                   ClassLoader loader) throws ClassNotFoundException {
-    	return Class.forName(name, true, loader);
+            ClassLoader loader) throws ClassNotFoundException {
+        return Class.forName(name, true, loader);
     }
     
     protected Class<?> classForName(String name) throws ClassNotFoundException {

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
-
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 
 public class MapMergeTest extends BaseMapTest
@@ -31,6 +32,17 @@ public class MapMergeTest extends BaseMapTest
         }
     }
 
+    static class MergedIntMap
+    {
+        @JsonMerge
+        public Map<Integer,Object> values;
+
+        protected MergedIntMap() {
+            values = new LinkedHashMap<>();
+            values.put(Integer.valueOf(13), "a");
+        }
+    }
+
     /*
     /********************************************************
     /* Test methods, Map merging
@@ -42,14 +54,41 @@ public class MapMergeTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
     ;
 
+    private final ObjectMapper MAPPER_SKIP_NULLS = newObjectMapper()
+            .setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
+    ;
+    
     public void testShallowMapMerging() throws Exception
     {
-        MergedMap v = MAPPER.readValue(aposToQuotes("{'values':{'c':'y'}}"), MergedMap.class);
+        final String JSON = aposToQuotes("{'values':{'c':'y','d':null}}");
+        MergedMap v = MAPPER.readValue(JSON, MergedMap.class);
+        assertEquals(3, v.values.size());
+        assertEquals("y", v.values.get("c"));
+        assertEquals("x", v.values.get("a"));
+        assertNull(v.values.get("d"));
+
+        // but also, skip nulls
+        v = MAPPER_SKIP_NULLS.readValue(JSON, MergedMap.class);
         assertEquals(2, v.values.size());
         assertEquals("y", v.values.get("c"));
         assertEquals("x", v.values.get("a"));
     }
 
+    public void testShallowNonStringMerging() throws Exception
+    {
+        final String JSON = aposToQuotes("{'values':{'72':'b','666':null}}");
+        MergedIntMap v = MAPPER.readValue(JSON , MergedIntMap.class);
+        assertEquals(3, v.values.size());
+        assertEquals("a", v.values.get(Integer.valueOf(13)));
+        assertEquals("b", v.values.get(Integer.valueOf(72)));
+        assertNull(v.values.get(Integer.valueOf(666)));
+
+        v = MAPPER_SKIP_NULLS.readValue(JSON , MergedIntMap.class);
+        assertEquals(2, v.values.size());
+        assertEquals("a", v.values.get(Integer.valueOf(13)));
+        assertEquals("b", v.values.get(Integer.valueOf(72)));
+    }
+    
     @SuppressWarnings("unchecked")
     public void testDeeperMapMerging() throws Exception
     {

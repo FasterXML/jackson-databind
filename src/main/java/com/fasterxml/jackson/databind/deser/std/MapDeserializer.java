@@ -205,30 +205,27 @@ public class MapDeserializer
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
         // May need to resolve types for delegate- and/or property-based creators:
-        if (_valueInstantiator != null) {
-            if (_valueInstantiator.canCreateUsingDelegate()) {
-                JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
-                if (delegateType == null) {
-                    ctxt.reportBadDefinition(_containerType, String.format(
+        if (_valueInstantiator.canCreateUsingDelegate()) {
+            JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
+            if (delegateType == null) {
+                ctxt.reportBadDefinition(_containerType, String.format(
 "Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'",
-                            _containerType,
-                            _valueInstantiator.getClass().getName()));
-                }
-                /* Theoretically should be able to get CreatorProperty for delegate
-                 * parameter to pass; but things get tricky because DelegateCreator
-                 * may contain injectable values. So, for now, let's pass nothing.
-                 */
-                _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
-            } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
-                JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
-                if (delegateType == null) {
-                    ctxt.reportBadDefinition(_containerType, String.format(
-"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
-                            _containerType,
-                            _valueInstantiator.getClass().getName()));
-                }
-                _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
+                _containerType,
+                _valueInstantiator.getClass().getName()));
             }
+            // Theoretically should be able to get CreatorProperty for delegate
+            // parameter to pass; but things get tricky because DelegateCreator
+            // may contain injectable values. So, for now, let's pass nothing.
+            _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
+        } else if (_valueInstantiator.canCreateUsingArrayDelegate()) {
+            JavaType delegateType = _valueInstantiator.getArrayDelegateType(ctxt.getConfig());
+            if (delegateType == null) {
+                ctxt.reportBadDefinition(_containerType, String.format(
+"Invalid delegate-creator definition for %s: value instantiator (%s) returned true for 'canCreateUsingArrayDelegate()', but null for 'getArrayDelegateType()'",
+                    _containerType,
+                    _valueInstantiator.getClass().getName()));
+            }
+            _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
         }
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
@@ -272,7 +269,7 @@ public class MapDeserializer
         }
         Set<String> ignored = _ignorableProperties;
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr != null && property != null) {
+        if (_neitherNull(intr, property)) {
             AnnotatedMember member = property.getMember();
             if (member != null) {
                 JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(member);
@@ -328,9 +325,8 @@ public class MapDeserializer
      */
     @Override
     public boolean isCachable() {
-        /* As per [databind#735], existence of value or key deserializer (only passed
-         * if annotated to use non-standard one) should also prevent caching.
-         */
+        // As per [databind#735], existence of value or key deserializer (only passed
+        // if annotated to use non-standard one) should also prevent caching.
         return (_valueDeserializer == null)
                 && (_keyDeserializer == null)
                 && (_valueTypeDeserializer == null)

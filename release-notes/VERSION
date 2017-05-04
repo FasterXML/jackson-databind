@@ -5,6 +5,8 @@ Project: jackson-databind
 
 2.8.9 (not yet released)
 
+#1595: `JsonIgnoreProperties.allowSetters` is not working in Jackson 2.8
+ (reported by Javy L)
 #1597: Escape JSONP breaking characters
  (contributed by Marco C)
 

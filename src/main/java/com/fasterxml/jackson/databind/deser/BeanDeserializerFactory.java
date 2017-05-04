@@ -492,7 +492,7 @@ public class BeanDeserializerFactory
             boolean ignoreAny = ignorals.getIgnoreUnknown();
             builder.setIgnoreUnknownProperties(ignoreAny);
             // Or explicit/implicit definitions?
-            ignored = ignorals.getIgnored();
+            ignored = ignorals.findIgnoredForDeserialization();
             for (String propName : ignored) {
                 builder.addIgnorable(propName);
             }

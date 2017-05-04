@@ -27,19 +27,4 @@ public class IgnorePropertiesDeser1575Test extends BaseMapTest
         Person result = mapper.readValue(st, Person.class);
         assertEquals("admin", result.name);
     }
-
-    /*
-    public void testIgnorePropSer1575() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        Person input = new Person();
-        input.name = "Bob";
-
-        // 24-Mar-2017, tatu: This shouldn't cause issues... but does as of now:
-        
-//        input.personZ = input;
-        String json = mapper.writeValueAsString(input);
-        assertNotNull(json);
-    }
-    */
 }

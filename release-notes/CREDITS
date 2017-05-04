@@ -601,6 +601,10 @@ Ivo Studens (istudens@redhat.com)
     when loading modules using `ObjectMapper.findModules()`
    (2.8.9)
 
+Javy Luo (AnywnYu@github)
+  * Reported #1595: `JsonIgnoreProperties.allowSetters` is not working in Jackson 2.8
+   (2.8.9)
+
 Marco Catania (catanm@github.com)
   * Contributed #1597: Escape JSONP breaking characters
    (2.8.9)

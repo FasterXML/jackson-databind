@@ -779,7 +779,7 @@ public abstract class JsonNode
      * @return Set that can be used to traverse all key/value pairs for
      *   object nodes; empty set (no contents) for other types
      */
-    public Set<Map.Entry<String, JsonNode>> fields() {
+    public Set<Map.Entry<String, JsonNode>> fieldSet() {
         return Collections.emptySet();
     }
 

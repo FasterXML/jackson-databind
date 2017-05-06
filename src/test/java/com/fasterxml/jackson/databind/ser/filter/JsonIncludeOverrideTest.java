@@ -1,24 +1,24 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import static junit.framework.TestCase.assertEquals;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Unit tests for checking that overridden settings for
- * {@link JsonSerialize#include} annotation property work
+ * {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#include} annotation property work
  * as expected.
  */
 public class JsonIncludeOverrideTest
     extends BaseMapTest
 {
-
     @JsonPropertyOrder({"list", "map"})
     static class EmptyListMapBean
     {

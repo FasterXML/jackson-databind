@@ -466,6 +466,7 @@ public class JsonMappingException
     /**********************************************************
      */
 
+    @JsonIgnore
     @Override // since 2.7.5
     @JsonIgnore // as per [databind#1368]
     public Object getProcessor() { return _processor; }

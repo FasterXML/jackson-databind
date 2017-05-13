@@ -189,6 +189,10 @@ public class PropertyValueBuffer
             return _context.findInjectableValue(prop.getInjectableValueId(),
                     prop, null);
         }
+        Object contextDefaultValue = _context.getAttribute(prop.getName());
+        if (contextDefaultValue != null) {
+            return contextDefaultValue;
+        }
         // Second: required?
         if (prop.isRequired()) {
             _context.reportInputMismatch(prop, String.format(

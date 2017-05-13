@@ -497,6 +497,14 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> findValueSerializer(Class<?> valueType, BeanProperty property)
         throws JsonMappingException
     {
+        return findTypedValueSerializer(valueType, true, property);
+    }
+
+    @SuppressWarnings("unchecked")
+    private JsonSerializer<Object> findValueSerializer0(Class<?> valueType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
         // Fast lookup from local lookup thingy works?
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
@@ -537,7 +545,15 @@ public abstract class SerializerProvider
      *   may be checked to create contextual serializers.
      */
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> findValueSerializer(JavaType valueType, BeanProperty property)
+    public JsonSerializer<Object> findValueSerializer(JavaType valueType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        return findTypedValueSerializer(valueType, true, property);
+    }
+
+    @SuppressWarnings("unchecked")
+    private JsonSerializer<Object> findValueSerializer0(JavaType valueType, BeanProperty property)
         throws JsonMappingException
     {
         if (valueType == null) {
@@ -710,7 +726,7 @@ public abstract class SerializerProvider
         }
 
         // Well, let's just compose from pieces:
-        ser = findValueSerializer(valueType, property);
+        ser = findValueSerializer0(valueType, property);
         TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config,
                 _config.constructType(valueType));
         if (typeSer != null) {
@@ -755,7 +771,7 @@ public abstract class SerializerProvider
         }
 
         // Well, let's just compose from pieces:
-        ser = findValueSerializer(valueType, property);
+        ser = findValueSerializer0(valueType, property);
         TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config, valueType);
         if (typeSer != null) {
             typeSer = typeSer.forProperty(property);

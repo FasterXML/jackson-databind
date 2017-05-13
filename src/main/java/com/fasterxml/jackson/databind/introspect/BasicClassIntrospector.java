@@ -85,7 +85,7 @@ public class BasicClassIntrospector
             desc = _findStdJdkCollectionDesc(cfg, type);
             if (desc == null) {
                 desc = BasicBeanDescription.forSerialization(collectProperties(cfg,
-                        type, r, true, "set"));
+                        type, r, true, "get"));
             }
             // Also: this is a superset of "forClassAnnotations", so may optimize by optional add:
             _cachedFCA.putIfAbsent(type, desc);

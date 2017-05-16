@@ -170,6 +170,17 @@ public class EnumDeserializationTest
         }
     }
 
+    // [databind#1626]
+    enum NumberEnum {
+        @JsonProperty("2")
+        EN2,
+        @JsonProperty("0")
+        EN0,
+        @JsonProperty("1")
+        EN1
+        ;
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -509,5 +520,13 @@ public class EnumDeserializationTest
         } catch (IOException e) {
             assertTrue(e.getMessage().contains("Undefined AnEnum"));
         }
+    }
+
+    // [databind#1626]
+    public void testNumericEnumName() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(NumberEnum.EN2);
+        assertEquals(quote("2"), json);
+        assertEquals(NumberEnum.EN2, MAPPER.readValue(json, NumberEnum.class));
     }
 }

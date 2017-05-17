@@ -874,15 +874,15 @@ public final class TypeFactory
      * type <code>List&lt;Set&lt;Integer>></code>, you could
      * call
      *<pre>
-     *  JavaType inner = TypeFactory.constructParametrizedType(Set.class, Set.class, Integer.class);
-     *  return TypeFactory.constructParametrizedType(ArrayList.class, List.class, inner);
+     *  JavaType inner = TypeFactory.constructParametricType(Set.class, Set.class, Integer.class);
+     *  return TypeFactory.constructParametricType(ArrayList.class, List.class, inner);
      *</pre>
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
      * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
      *<pre>
-     *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
+     *  TypeFactory.constructParametricType(ArrayList.class, List.class, Integer.class);
      *</pre>
      * since parameterization is applied to {@link java.util.List}.
      * In most cases distinction does not matter, but there are types where it does;
@@ -910,15 +910,15 @@ public final class TypeFactory
      * type <code>List&lt;Set&lt;Integer>></code>, you could
      * call
      *<pre>
-     *  JavaType inner = TypeFactory.constructParametrizedType(Set.class, Set.class, Integer.class);
-     *  return TypeFactory.constructParametrizedType(ArrayList.class, List.class, inner);
+     *  JavaType inner = TypeFactory.constructParametricType(Set.class, Set.class, Integer.class);
+     *  return TypeFactory.constructParametricType(ArrayList.class, List.class, inner);
      *</pre>
      *<p>
      * The reason for first two arguments to be separate is that parameterization may
      * apply to a super-type. For example, if generic type was instead to be
      * constructed for <code>ArrayList&lt;Integer></code>, the usual call would be:
      *<pre>
-     *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
+     *  TypeFactory.constructParametricType(ArrayList.class, List.class, Integer.class);
      *</pre>
      * since parameterization is applied to {@link java.util.List}.
      * In most cases distinction does not matter, but there are types where it does;
@@ -938,7 +938,10 @@ public final class TypeFactory
 
     /**
      * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
+     *
+     * @deprecated since 2.9 Use {@link #constructParametricType(Class,JavaType...)} instead
      */
+    @Deprecated
     public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
             JavaType... parameterTypes)
     {
@@ -947,7 +950,10 @@ public final class TypeFactory
 
     /**
      * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
+     *
+     * @deprecated since 2.9 Use {@link #constructParametricType(Class,Class...)} instead
      */
+    @Deprecated
     public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
             Class<?>... parameterClasses)
     {

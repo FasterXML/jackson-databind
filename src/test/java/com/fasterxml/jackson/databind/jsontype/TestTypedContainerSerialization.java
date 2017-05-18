@@ -9,12 +9,13 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestTypedContainerSerialization
 	extends BaseMapTest
@@ -123,13 +124,13 @@ public class TestTypedContainerSerialization
 
     public void testIssue329() throws Exception
     {
-            ArrayList<Animal> animals = new ArrayList<Animal>();
-            animals.add(new Dog("Spot"));
-            JavaType rootType = TypeFactory.defaultInstance().constructParametrizedType(Iterator.class, Iterator.class, Animal.class);
-            String json = mapper.writerFor(rootType).writeValueAsString(animals.iterator());
-            if (json.indexOf("\"object-type\":\"doggy\"") < 0) {
-                fail("No polymorphic type retained, should be; JSON = '"+json+"'");
-            }
+        ArrayList<Animal> animals = new ArrayList<Animal>();
+        animals.add(new Dog("Spot"));
+        JavaType rootType = mapper.getTypeFactory().constructParametricType(Iterator.class, Animal.class);
+        String json = mapper.writerFor(rootType).writeValueAsString(animals.iterator());
+        if (json.indexOf("\"object-type\":\"doggy\"") < 0) {
+            fail("No polymorphic type retained, should be; JSON = '"+json+"'");
+        }
     }
 
     public void testIssue508() throws Exception

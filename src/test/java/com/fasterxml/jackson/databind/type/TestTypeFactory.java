@@ -354,12 +354,7 @@ public class TestTypeFactory
         assertEquals(Integer.class, subtype.getContentType().getContentType().getRawClass());
 
         // but with refinement, should have non-null super class
-        // 20-Oct-2015, tatu: For now refinement does not faithfully replicate the
-        //    structure, it only retains most important information. Here it means
-        //    that actually existing super-classes are skipped, and only original
-        //    type is linked as expected
 
-        /*
         JavaType superType = subtype.getSuperClass();
         assertNotNull(superType);
         assertEquals(HashMap.class, superType.getRawClass());
@@ -367,7 +362,25 @@ public class TestTypeFactory
         assertEquals(String.class, superType.getKeyType().getRawClass());
         assertEquals(List.class, superType.getContentType().getRawClass());
         assertEquals(Integer.class, superType.getContentType().getContentType().getRawClass());
-        */
+    }
+
+    public void testTypeGeneralization()
+    {
+        TypeFactory tf = newTypeFactory();
+        MapType t = tf.constructMapType(HashMap.class, String.class, Long.class);
+        JavaType superT = tf.constructGeneralizedType(t, Map.class);
+        assertEquals(String.class, superT.getKeyType().getRawClass());
+        assertEquals(Long.class, superT.getContentType().getRawClass());
+
+        assertSame(t, tf.constructGeneralizedType(t, HashMap.class));
+
+        // plus check there is super/sub relationship
+        try {
+            tf.constructGeneralizedType(t, TreeMap.class);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "not a super-type of");
+        }
     }
 
     public void testMapTypesRaw()

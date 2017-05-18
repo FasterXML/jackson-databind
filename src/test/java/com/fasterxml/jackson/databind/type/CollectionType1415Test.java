@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
@@ -17,7 +17,7 @@ public class CollectionType1415Test extends BaseMapTest
 
     /*
     /**********************************************************
-    /* Unit tests
+    /* Unit tests, success
     /**********************************************************
      */
 
@@ -58,4 +58,45 @@ public class CollectionType1415Test extends BaseMapTest
         assertEquals(Long.class, t.getKeyType().getRawClass());
         assertEquals(Boolean.class, t.getContentType().getRawClass());
     }
+
+    /*
+    /**********************************************************
+    /* Unit tests, fails
+    /**********************************************************
+     */
+
+    public void testMismatchedCollectionType() throws Exception
+    {
+        try {
+            MAPPER.getTypeFactory()
+                .constructCollectionType(LongList.class, String.class);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "LongList did not resolve to something");
+            verifyException(e, "element type");
+        }
+    }
+
+    public void testMismatchedMapType() throws Exception
+    {
+        // first, mismatched key type
+        try {
+            MAPPER.getTypeFactory()
+                .constructMapType(StringLongMap.class, Boolean.class, Long.class);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "StringLongMap did not resolve to something");
+            verifyException(e, "key type");
+        }
+        // then, mismatched value type
+        try {
+            MAPPER.getTypeFactory()
+                .constructMapType(StringLongMap.class, String.class, Class.class);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "StringLongMap did not resolve to something");
+            verifyException(e, "value type");
+        }
+    }
 }
+

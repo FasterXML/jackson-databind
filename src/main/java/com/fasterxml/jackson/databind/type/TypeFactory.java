@@ -727,11 +727,22 @@ public final class TypeFactory
      * for contained types.
      */
     public CollectionType constructCollectionType(Class<? extends Collection> collectionClass,
-            JavaType elementType) {
-        // 19-Oct-2015, tatu: Allow case of no-type-variables, since it seems likely to be
-        //    a valid use case here
-        return (CollectionType) _fromClass(null, collectionClass,
-                TypeBindings.create(collectionClass, elementType));
+            JavaType elementType)
+    {
+        TypeBindings bindings = TypeBindings.createIfNeeded(collectionClass, elementType);
+        CollectionType result = (CollectionType) _fromClass(null, collectionClass, bindings);
+        // 17-May-2017, tatu: As per [databind#1415], we better verify bound values if (but only if)
+        //    type being resolved was non-generic (i.e.element type was ignored)
+        if (bindings.isEmpty() && (elementType != null)) {
+            JavaType t = result.findSuperType(Collection.class);
+            JavaType realET = t.getContentType();
+            if (!realET.equals(elementType)) {
+                throw new IllegalArgumentException(String.format(
+                        "Non-generic Collection class %s did not resolve to something with element type %s but %s ",
+                        ClassUtil.nameOf(collectionClass), elementType, realET));
+            }
+        }
+        return result;
     }
 
     /**
@@ -785,8 +796,26 @@ public final class TypeFactory
      * for contained types.
      */
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
-        return (MapType) _fromClass(null, mapClass,
-                TypeBindings.create(mapClass, keyType, valueType));
+        TypeBindings bindings = TypeBindings.createIfNeeded(mapClass, new JavaType[] { keyType, valueType });
+        MapType result = (MapType) _fromClass(null, mapClass, bindings);
+        // 17-May-2017, tatu: As per [databind#1415], we better verify bound values if (but only if)
+        //    type being resolved was non-generic (i.e.element type was ignored)
+        if (bindings.isEmpty()) {
+            JavaType t = result.findSuperType(Map.class);
+            JavaType realKT = t.getKeyType();
+            if (!realKT.equals(keyType)) {
+                throw new IllegalArgumentException(String.format(
+                        "Non-generic Map class %s did not resolve to something with key type %s but %s ",
+                        ClassUtil.nameOf(mapClass), keyType, realKT));
+            }
+            JavaType realVT = t.getContentType();
+            if (!realVT.equals(valueType)) {
+                throw new IllegalArgumentException(String.format(
+                        "Non-generic Map class %s did not resolve to something with value type %s but %s ",
+                        ClassUtil.nameOf(mapClass), valueType, realVT));
+            }
+        }
+        return result;
     }
 
     /**

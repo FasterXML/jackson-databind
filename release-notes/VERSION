@@ -49,6 +49,7 @@ Project: jackson-databind
  (reported by Fabrizio C)
 #1407: `@JsonFormat.pattern` is ignored for `java.sql.Date` valued properties
  (reported by sangpire@github)
+#1415: Creating CollectionType for non generic collection class broken
 #1428: Allow `@JsonValue` on a field, not just getter
 #1434: Explicitly pass null on invoke calls with no arguments
  (contributed by Emiliano C)

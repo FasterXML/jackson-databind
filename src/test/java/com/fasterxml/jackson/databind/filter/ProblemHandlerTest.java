@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.filter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonParser;
@@ -239,6 +240,13 @@ public class ProblemHandlerTest extends BaseMapTest
             ;
         SingleValuedEnum result = mapper.readValue("\"B\"", SingleValuedEnum.class);
         assertEquals(SingleValuedEnum.A, result);
+
+        // also, write [databind#1629] try this
+        UUID defaultUUID = UUID.nameUUIDFromBytes("abc".getBytes());
+        mapper = new ObjectMapper()
+                .addHandler(new WeirdStringHandler(defaultUUID));
+        UUID result2 = mapper.readValue(quote("not a uuid!"), UUID.class);
+        assertEquals(defaultUUID, result2);
     }
 
     public void testInvalidTypeId() throws Exception

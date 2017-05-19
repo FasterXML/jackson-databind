@@ -13,6 +13,7 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -112,10 +113,10 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             Exception cause = null;
             try {
-                T result = _deserialize(text, ctxt);
-                if (result != null) {
-                    return result;
-                }
+                // 19-May-2017, tatu: Used to require non-null result (assuming `null`
+                //    indicated error; but that seems wrong. Should be able to return
+                //    `null` as value.
+                return _deserialize(text, ctxt);
             } catch (IllegalArgumentException iae) {
                 cause = iae;
             } catch (MalformedURLException me) {
@@ -277,7 +278,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             case STD_STRING_BUILDER:
                 return new StringBuilder(value);
             }
-            throw new IllegalArgumentException();
+            VersionUtil.throwInternal();
+            return null;
         }
 
         @Override

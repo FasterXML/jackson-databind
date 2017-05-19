@@ -609,6 +609,11 @@ Marco Catania (catanm@github.com)
   * Contributed #1597: Escape JSONP breaking characters
    (2.8.9)
 
+Andrew Joseph (apjoseph@github)
+  * Reported #1629 `FromStringDeserializer` ignores registered `DeserializationProblemHandler`
+    for `java.util.UUID`
+   (2.8.9)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

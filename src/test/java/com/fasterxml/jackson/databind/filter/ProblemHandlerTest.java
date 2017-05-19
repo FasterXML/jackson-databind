@@ -242,11 +242,10 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(SingleValuedEnum.A, result);
 
         // also, write [databind#1629] try this
-        UUID defaultUUID = UUID.nameUUIDFromBytes("abc".getBytes());
         mapper = new ObjectMapper()
-                .addHandler(new WeirdStringHandler(defaultUUID));
+                .addHandler(new WeirdStringHandler(null));
         UUID result2 = mapper.readValue(quote("not a uuid!"), UUID.class);
-        assertEquals(defaultUUID, result2);
+        assertNull(result2);
     }
 
     public void testInvalidTypeId() throws Exception

@@ -9,6 +9,9 @@ Project: jackson-databind
  (reported by Javy L)
 #1597: Escape JSONP breaking characters
  (contributed by Marco C)
+#1629: `FromStringDeserializer` ignores registered `DeserializationProblemHandler`
+  for `java.util.UUID`
+ (reported by Andrew J)
 
 2.8.8.1 (19-Apr-2017)
 

@@ -6,6 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
+/**
+ * NOTE: not assumed to be actual bug -- real numbers are not coerced into
+ * Strings, and are instead assumed to always mean index numbers.
+ * But test retained in case there might be ways to improve support
+ * here: as is, one MUST use Creator method to resolve from number to
+ * enum.
+ */
 public class EnumDeserialization1626Test extends BaseMapTest
 {
     static class JsonResponseEnvelope<T> {

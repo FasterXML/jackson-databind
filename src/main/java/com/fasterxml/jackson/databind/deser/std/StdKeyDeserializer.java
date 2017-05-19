@@ -189,13 +189,13 @@ public class StdKeyDeserializer extends KeyDeserializer
         case TYPE_LOCALE:
             try {
                 return _deser._deserialize(key, ctxt);
-            } catch (IOException e) {
+            } catch (IllegalArgumentException e) {
                 return _weirdKey(ctxt, key, e);
             }
         case TYPE_CURRENCY:
             try {
                 return _deser._deserialize(key, ctxt);
-            } catch (IOException e) {
+            } catch (IllegalArgumentException e) {
                 return _weirdKey(ctxt, key, e);
             }
         case TYPE_DATE:
@@ -229,7 +229,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         case TYPE_BYTE_ARRAY:
             try {
                 return ctxt.getConfig().getBase64Variant().decode(key);
-            } catch (Exception e) {
+            } catch (IllegalArgumentException e) {
                 return _weirdKey(ctxt, key, e);
             }
         default:

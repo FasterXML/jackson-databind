@@ -594,12 +594,21 @@ public class POJOPropertyBuilder
 
     protected int _setterPriority(AnnotatedMethod m)
     {
-        final String name = m.getName();
-        if (name.startsWith("set") && name.length() > 3) {
-            // should we check capitalization?
-            return 1;
-        }
-        return 2;
+		final String name = m.getName();
+		int priority = 20;
+		if(name.startsWith("set") && name.length() > 3) {
+			// should we check capitalization?
+			priority = 10;
+		}
+		Class params[] = m.getAnnotated().getParameterTypes();
+		if(params.length != 1)
+			return priority + 10;			// we don't want setters with multiple args
+		Class clazz = params[0];
+		if(clazz.isPrimitive())				// primitive types are good!
+			return priority - 5;
+		if(clazz.equals(String.class))
+			return priority - 3;			// strings are good too.
+		return priority;					// objects in general are ok.
     }
 
     /*

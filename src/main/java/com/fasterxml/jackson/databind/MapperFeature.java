@@ -213,6 +213,8 @@ public enum MapperFeature implements ConfigFeature
      */
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
+    SET_PROPERTY_CREATOR_AS_DEFAULT(false),
+
     /*
     /******************************************************
     /* Access modifier handling

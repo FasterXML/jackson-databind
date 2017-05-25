@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 
@@ -213,6 +214,13 @@ public enum MapperFeature implements ConfigFeature
      */
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
+    /**
+     * Feature that determines handling of creators.
+     * When enabled, in a case where JsonCreator mode can't be resolved it will be
+     * resolved as {@link JsonCreator.Mode.PROPERTIES} instead.
+     *
+     * @since 2.9
+     */
     SET_PROPERTY_CREATOR_AS_DEFAULT(false),
 
     /*

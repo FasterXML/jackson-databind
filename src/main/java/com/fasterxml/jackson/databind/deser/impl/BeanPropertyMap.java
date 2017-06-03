@@ -165,11 +165,9 @@ public class BeanPropertyMap
 
             // and aliases
         }
-/*
-for (int i = 0; i < hashed.length; i += 2) {
-System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
-}
-*/
+//for (int i = 0; i < hashed.length; i += 2) {
+//System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
+//}
         _hashArea = hashed;
         _spillCount = spillCount;
     }
@@ -239,16 +237,13 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
                 _spillCount += 2;
                 if (ix >= _hashArea.length) {
                     _hashArea = Arrays.copyOf(_hashArea, _hashArea.length + 4);
-                    // Uncomment for debugging only
-                    /*
-for (int i = 0; i < _hashArea.length; i += 2) {
-    if (_hashArea[i] != null) {
-        System.err.println("Property #"+(i/2)+" '"+_hashArea[i]+"'...");
-    }
-}
-System.err.println("And new propr #"+slot+" '"+key+"'");
-*/
-                
+// Uncomment for debugging only
+//for (int i = 0; i < _hashArea.length; i += 2) {
+//    if (_hashArea[i] != null) {
+//        System.err.println("Property #"+(i/2)+" '"+_hashArea[i]+"'...");
+//    }
+//}
+//System.err.println("And new propr #"+slot+" '"+key+"'");
                 }
             }
         }

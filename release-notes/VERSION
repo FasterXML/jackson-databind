@@ -4,10 +4,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.9.2 (not yet released)
+2.7.10 (not yet released)
 
 #1607: @JsonIdentityReference not used when setup on class only
  (reported by vboulaye@github)
+#1628: Don't print to error stream about failure to load JDK 7 types
+ (reported by Villane@github)
 
 2.7.9.1 (18-Apr-2017)
 

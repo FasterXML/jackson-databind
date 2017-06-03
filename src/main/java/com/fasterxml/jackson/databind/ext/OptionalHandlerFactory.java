@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.ext;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -52,7 +55,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
             doc = org.w3c.dom.Document.class;
         } catch (Exception e) {
             // not optimal but will do
-            System.err.println("WARNING: could not load DOM Node and/or Document classes");
+            Logger.getLogger("com.fasterxml.jackson.databind.ext.OptionalHandlerFactory")
+                .log(Level.INFO, "Could not load DOM `Node` and/or `Document` classes: ignoring");
         }
         CLASS_DOM_NODE = node;
         CLASS_DOM_DOCUMENT = doc;
@@ -68,8 +72,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
         try {
             cls = Class.forName("java.nio.file.Path");
         } catch (Exception e) {
-            // not optimal but will do
-            System.err.println("WARNING: could not load Java7 Path class");
+            Logger.getLogger("com.fasterxml.jackson.databind.ext.OptionalHandlerFactory")
+                .log(Level.INFO, "Could not load Java7 `java.nio.file.Path` class: ignoring");
         }
         CLASS_JAVA7_PATH = cls;
     }

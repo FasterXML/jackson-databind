@@ -664,3 +664,8 @@ Patrick Gunia (pgunia@github)
 Carsten Wickner (CarstenWickner@github)
   * Contributed #1522: Global `@JsonInclude(Include.NON_NULL)` for all properties with a specific type
    (2.9.0)
+
+Chris Plummer (strmer15@github)
+  * Reported #1637: `ObjectReader.at()` with `JsonPointer` stops after first collection
+   (2.9.0)
+

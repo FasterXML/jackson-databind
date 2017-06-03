@@ -4,6 +4,7 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
 
@@ -64,73 +65,6 @@ public class ObjectReaderTest extends BaseMapTest
         } catch (JsonProcessingException e) {
             verifyException(e, "foo");
         }
-    }
-    
-    public void testNoPointerLoading() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
-
-        JsonNode tree = MAPPER.readTree(source);
-        JsonNode node = tree.at("/foo/bar/caller");
-        POJO pojo = MAPPER.treeToValue(node, POJO.class);
-        assertTrue(pojo.name.containsKey("value"));
-        assertEquals(1234, pojo.name.get("value"));
-    }
-
-    public void testPointerLoading() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
-
-        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
-
-        POJO pojo = reader.readValue(source);
-        assertTrue(pojo.name.containsKey("value"));
-        assertEquals(1234, pojo.name.get("value"));
-    }
-
-    public void testPointerLoadingAsJsonNode() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
-
-        ObjectReader reader = MAPPER.readerFor(POJO.class).at(JsonPointer.compile("/foo/bar/caller"));
-
-        JsonNode node = reader.readTree(source);
-        assertTrue(node.has("name"));
-        assertEquals("{\"value\":1234}", node.get("name").toString());
-    }
-
-    public void testPointerLoadingMappingIteratorOne() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
-
-        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
-
-        MappingIterator<POJO> itr = reader.readValues(source);
-
-        POJO pojo = itr.next();
-
-        assertTrue(pojo.name.containsKey("value"));
-        assertEquals(1234, pojo.name.get("value"));
-        assertFalse(itr.hasNext());
-        itr.close();
-    }
-    
-    public void testPointerLoadingMappingIteratorMany() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":[{\"name\":{\"value\":1234}}, {\"name\":{\"value\":5678}}]}}}";
-
-        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
-
-        MappingIterator<POJO> itr = reader.readValues(source);
-
-        POJO pojo = itr.next();
-
-        assertTrue(pojo.name.containsKey("value"));
-        assertEquals(1234, pojo.name.get("value"));
-        assertTrue(itr.hasNext());
-        
-        pojo = itr.next();
-
-        assertNotNull(pojo.name);
-        assertTrue(pojo.name.containsKey("value"));
-        assertEquals(5678, pojo.name.get("value"));
-        assertFalse(itr.hasNext());
-        itr.close();
     }
 
     public void testNodeHandling() throws Exception
@@ -216,6 +150,108 @@ public class ObjectReaderTest extends BaseMapTest
         Number n = r.forType(Integer.class).readValue("123 ");
         assertEquals(Integer.valueOf(123), n);
     }
+
+    /*
+    /**********************************************************
+    /* Test methods, JsonPointer
+    /**********************************************************
+     */
+
+    public void testNoPointerLoading() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        JsonNode tree = MAPPER.readTree(source);
+        JsonNode node = tree.at("/foo/bar/caller");
+        POJO pojo = MAPPER.treeToValue(node, POJO.class);
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
+    }
+
+    public void testPointerLoading() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        POJO pojo = reader.readValue(source);
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
+    }
+
+    public void testPointerLoadingAsJsonNode() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at(JsonPointer.compile("/foo/bar/caller"));
+
+        JsonNode node = reader.readTree(source);
+        assertTrue(node.has("name"));
+        assertEquals("{\"value\":1234}", node.get("name").toString());
+    }
+
+    public void testPointerLoadingMappingIteratorOne() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        MappingIterator<POJO> itr = reader.readValues(source);
+
+        POJO pojo = itr.next();
+
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
+        assertFalse(itr.hasNext());
+        itr.close();
+    }
+    
+    public void testPointerLoadingMappingIteratorMany() throws Exception {
+        final String source = "{\"foo\":{\"bar\":{\"caller\":[{\"name\":{\"value\":1234}}, {\"name\":{\"value\":5678}}]}}}";
+
+        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
+
+        MappingIterator<POJO> itr = reader.readValues(source);
+
+        POJO pojo = itr.next();
+
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(1234, pojo.name.get("value"));
+        assertTrue(itr.hasNext());
+        
+        pojo = itr.next();
+
+        assertNotNull(pojo.name);
+        assertTrue(pojo.name.containsKey("value"));
+        assertEquals(5678, pojo.name.get("value"));
+        assertFalse(itr.hasNext());
+        itr.close();
+    }
+
+    // [databind#1637]
+    public void testPointerWithArrays() throws Exception
+    {
+        final String json = aposToQuotes("{\n'wrapper1': {\n" +
+                "  'set1': ['one', 'two', 'three'],\n" +
+                "  'set2': ['four', 'five', 'six']\n" +
+                "},\n" +
+                "'wrapper2': {\n" +
+                "  'set1': ['one', 'two', 'three'],\n" +
+                "  'set2': ['four', 'five', 'six']\n" +
+                "}\n}");
+
+        final Pojo1637 testObject = MAPPER.readerFor(Pojo1637.class)
+                .at("/wrapper1")
+                .readValue(json);
+        assertNotNull(testObject);
+
+        assertNotNull(testObject.set1);
+        assertTrue(!testObject.set1.isEmpty());
+
+        assertNotNull(testObject.set2);
+        assertTrue(!testObject.set2.isEmpty());
+    }
+
+    public static class Pojo1637 {
+        public Set<String> set1;
+        public Set<String> set2;
+    }    
 
     /*
     /**********************************************************

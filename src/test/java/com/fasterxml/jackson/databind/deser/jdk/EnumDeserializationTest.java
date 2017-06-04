@@ -116,6 +116,17 @@ public class EnumDeserializationTest
         }
     }
 
+    static enum StrictEnumCreator {
+        A, B;
+
+        @JsonCreator public static StrictEnumCreator fromId(String value) {
+            for (StrictEnumCreator e: values()) {
+                if (e.name().toLowerCase().equals(value)) return e;
+            }
+            throw new IllegalArgumentException(value);
+        }
+    }
+
     // // 
     
     public enum AnEnum {
@@ -319,6 +330,16 @@ public class EnumDeserializationTest
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         assertNull(reader.forType(TestEnum.class).readValue("\"NO-SUCH-VALUE\""));
         assertNull(reader.forType(TestEnum.class).readValue(" 4343 "));
+    }
+
+    // Ability to ignore unknown Enum values:
+
+    public void testAllowUnknownEnumValuesReadAsNullWithCreatorMethod() throws Exception
+    {
+        // can not use shared mapper when changing configs...
+        ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        assertNull(reader.forType(StrictEnumCreator.class).readValue("\"NO-SUCH-VALUE\""));
+        assertNull(reader.forType(StrictEnumCreator.class).readValue(" 4343 "));
     }
 
     public void testAllowUnknownEnumValuesForEnumSets() throws Exception

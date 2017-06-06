@@ -39,6 +39,11 @@ public class MutableConfigOverride
         return this;
     }
 
+    public MutableConfigOverride setIncludeAsProperty(JsonInclude.Value v) {
+        _includeAsProperty = v;
+        return this;
+    }
+
     public MutableConfigOverride setIgnorals(JsonIgnoreProperties.Value v) {
         _ignorals = v;
         return this;

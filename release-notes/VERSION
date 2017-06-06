@@ -12,6 +12,8 @@ Project: jackson-databind
 #1629: `FromStringDeserializer` ignores registered `DeserializationProblemHandler`
   for `java.util.UUID`
  (reported by Andrew J)
+#1642: Support `READ_UNKNOWN_ENUM_VALUES_AS_NULL` with `@JsonCreator`
+ (contributed by Joe L)
 
 2.8.8.1 (19-Apr-2017)
 

@@ -614,6 +614,10 @@ Andrew Joseph (apjoseph@github)
     for `java.util.UUID`
    (2.8.9)
 
+Joe Littlejohn (joelittlejohn@github)
+  * Contributed #1642: Support `READ_UNKNOWN_ENUM_VALUES_AS_NULL` with `@JsonCreator`
+   (2.8.9)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

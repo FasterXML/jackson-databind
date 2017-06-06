@@ -134,12 +134,11 @@ class FactoryBasedEnumDeserializer
             return _factory.callOnWith(_valueClass, value);
         } catch (Exception e) {
             Throwable t = ClassUtil.throwRootCauseIfIOE(e);
-
+            // [databind#1642]:
             if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL) &&
                     t instanceof IllegalArgumentException) {
                 return null;
             }
-
             return ctxt.handleInstantiationProblem(_valueClass, value, t);
         }
     }

@@ -334,6 +334,7 @@ public class EnumDeserializationTest
 
     // Ability to ignore unknown Enum values:
 
+    // [databind#1642]
     public void testAllowUnknownEnumValuesReadAsNullWithCreatorMethod() throws Exception
     {
         // can not use shared mapper when changing configs...

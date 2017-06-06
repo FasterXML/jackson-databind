@@ -146,18 +146,15 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             } catch (IllegalArgumentException | MalformedURLException e) {
                 cause = e;
             }
+            // note: `cause` can't be null
             String msg = "not a valid textual representation";
-            if (cause != null) {
-                String m2 = cause.getMessage();
-                if (m2 != null) {
-                    msg = msg + ", problem: "+m2;
-                }
+            String m2 = cause.getMessage();
+            if (m2 != null) {
+                msg = msg + ", problem: "+m2;
             }
             // 05-May-2016, tatu: Unlike most usage, this seems legit, so...
             JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
-            if (cause != null) {
-                e.initCause(cause);
-            }
+            e.initCause(cause);
             throw e;
             // nothing to do here, yet? We'll fail anyway
         }

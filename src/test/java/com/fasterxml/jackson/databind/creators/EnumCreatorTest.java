@@ -275,6 +275,12 @@ public class EnumCreatorTest extends BaseMapTest
     {
         Enum929 v = MAPPER.readValue("{\"id\":3,\"name\":\"B\"}", Enum929.class);
         assertEquals(Enum929.B, v);
+        EnumSet<Enum929> valueEnumSet = MAPPER.readValue("[{\"id\":3,\"name\":\"B\"}, {\"id\":3,\"name\":\"A\"}]",
+                new TypeReference<EnumSet<Enum929>>() {});
+        assertTrue(valueEnumSet.contains(v));
+        List<Enum929> valueList = MAPPER.readValue("[{\"id\":3,\"name\":\"B\"}, {\"id\":3,\"name\":\"A\"}, {\"id\":3,\"name\":\"B\"}]",
+                new TypeReference<List<Enum929>>() {});
+        assertTrue(valueList.contains(v));
     }
     
     // for [databind#960]

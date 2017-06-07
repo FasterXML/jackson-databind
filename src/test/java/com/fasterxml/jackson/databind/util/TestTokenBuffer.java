@@ -592,4 +592,20 @@ public class TestTokenBuffer extends BaseMapTest
         // then verify it would be serialized just fine
         assertEquals(RAW, MAPPER.writeValueAsString(buf));
     }
+
+    //token buffer honours writeObjectId/getObjectId
+    public void testObjectId() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(null, true);
+
+        buf.writeFieldName("_id");
+        Object id = new Object();
+        buf.writeObjectId(id);
+
+        JsonParser p = buf.asParser();
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("_id", p.getCurrentName());
+        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+        assertEquals(id, p.getObjectId());
+    }
 }

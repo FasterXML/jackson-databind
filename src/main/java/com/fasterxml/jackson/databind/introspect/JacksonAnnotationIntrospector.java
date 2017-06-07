@@ -1320,6 +1320,11 @@ public class JacksonAnnotationIntrospector
                 }
             }
         }
+
+        if(config.isEnabled(MapperFeature.SET_PROPERTY_CREATOR_AS_DEFAULT)) {
+            return JsonCreator.Mode.PROPERTIES;
+        }
+
         return null;
     }
 

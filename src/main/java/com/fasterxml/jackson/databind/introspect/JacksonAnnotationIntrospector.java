@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
@@ -1303,7 +1304,12 @@ public class JacksonAnnotationIntrospector
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         JsonCreator ann = _findAnnotation(a, JsonCreator.class);
         if (ann != null) {
-            return ann.mode();
+            JsonCreator.Mode mode = ann.mode();
+            if ((mode == Mode.DEFAULT)
+                    && config.isEnabled(MapperFeature.CREATOR_MODE_DEFAULT_PROPERTIES)) {
+                mode = JsonCreator.Mode.PROPERTIES;
+            }
+            return mode;
         }
 
         if (_cfgConstructorPropertiesImpliesCreator
@@ -1320,11 +1326,6 @@ public class JacksonAnnotationIntrospector
                 }
             }
         }
-
-        if(config.isEnabled(MapperFeature.SET_PROPERTY_CREATOR_AS_DEFAULT)) {
-            return JsonCreator.Mode.PROPERTIES;
-        }
-
         return null;
     }
 

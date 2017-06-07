@@ -1,4 +1,6 @@
-package com.fasterxml.jackson.databind.creators;
+package com.fasterxml.jackson.databind.deser.creators;
+
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
@@ -139,6 +141,16 @@ public class SingleArgCreatorTest extends BaseMapTest
         public XY getFoobar() { return _value; }
     }
 
+    // [databind#1631]
+    static class SingleArg1631 {
+        Object value;
+
+        @JsonCreator // but no mode!
+        public SingleArg1631(Object arg) {
+            value = arg;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -207,5 +219,25 @@ public class SingleArgCreatorTest extends BaseMapTest
         assertEquals(1, v.x);
         assertEquals(2, v.y);
     }
-}
 
+    // [databind#1631]
+    public void testSingleArgAsPropertiesViaFeature() throws Exception
+    {
+        // First things first: should default to delegating, in absence of anything else:
+        SingleArg1631 result = MAPPER.readValue(quote("zap"), SingleArg1631.class);
+        assertEquals("zap", result.value);
+        
+        // and should bind to Map if given JSON Object (since nominal type Object)
+        final String json = aposToQuotes("{'ctor':'ding'}");
+        result = MAPPER.readValue(json, SingleArg1631.class);
+        assertTrue(result.value instanceof Map<?,?>);
+
+        // But change of defaults should work wonders:
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(MapperFeature.CREATOR_MODE_DEFAULT_PROPERTIES);
+        mapper.setAnnotationIntrospector(new MyParamIntrospector("ctor"));
+        
+        result = mapper.readValue(json, SingleArg1631.class);
+        assertEquals("ding", result.value);
+    }
+}

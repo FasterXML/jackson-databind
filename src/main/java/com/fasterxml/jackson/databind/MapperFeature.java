@@ -215,13 +215,20 @@ public enum MapperFeature implements ConfigFeature
     INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES(true),
 
     /**
-     * Feature that determines handling of creators.
-     * When enabled, in a case where JsonCreator mode can't be resolved it will be
-     * resolved as {@link JsonCreator.Mode.PROPERTIES} instead.
+     * Feature that determines whether single-argument creator without explicit
+     * mode definition should be assumed to be "property-based" creator (expect JSON
+     * Obejct, bind named property that matches argument name) or not.
+     * If not, default logic usually chooses "delegating" mode instead (input value directly bound
+     * to nominal type of the argument, ignoring its name, if any).
+     * If feature is enabled, type is assumed to be "property-based"; if disabled,
+     * heuristics will be used to try to determine better match, usually leading
+     * to choice of "delegating" mode.
+     *<p>
+     * Feature is disabled by default for backwards compatibility.
      *
      * @since 2.9
      */
-    SET_PROPERTY_CREATOR_AS_DEFAULT(false),
+    CREATOR_MODE_DEFAULT_PROPERTIES(false),
 
     /*
     /******************************************************

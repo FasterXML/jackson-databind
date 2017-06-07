@@ -32,7 +32,8 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return p.getText();
+            String tokenValue = p.getText();
+            return (tokenValue.length == 0 && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) ? null : tokenValue;
         }
         JsonToken t = p.getCurrentToken();
         // [databind#381]

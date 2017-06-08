@@ -43,6 +43,30 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that determines whether JSON integral (non-floating-point)
+     * numbers are to be deserialized into {@link java.math.BigDecimal}s
+     * if only generic type description (either {@link Object} or
+     * {@link Number}, or within untyped {@link java.util.Map}
+     * or {@link java.util.Collection} context) is available.
+     * If enabled such values will be deserialized as
+     * {@link java.math.BigDecimal}s;
+     * if disabled, will be deserialized as "smallest" available type,
+     * which is either {@link Integer}, {@link Long} or
+     * {@link java.math.BigInteger}, depending on number of digits.
+     * <p>
+     * Feature is disabled by default, meaning that "untyped" integral
+     * numbers will by default be deserialized using whatever
+     * is the most compact integral type, to optimize efficiency.
+     * <p>
+     * Using this feature and {@link #USE_BIG_DECIMAL_FOR_FLOATS}
+     * allows all numbers to be tested for equality without
+     * loss of precision.
+     *
+     * @since 2.9
+     */
+    USE_BIG_DECIMAL_FOR_INTS(false),
+
+    /**
+     * Feature that determines whether JSON integral (non-floating-point)
      * numbers are to be deserialized into {@link java.math.BigInteger}s
      * if only generic type description (either {@link Object} or
      * {@link Number}, or within untyped {@link java.util.Map}
@@ -52,6 +76,10 @@ public enum DeserializationFeature implements ConfigFeature
      * if disabled, will be deserialized as "smallest" available type,
      * which is either {@link Integer}, {@link Long} or
      * {@link java.math.BigInteger}, depending on number of digits.
+     * <p>
+     * Note: if {@link #USE_BIG_DECIMAL_FOR_INTS} is enabled, it has precedence
+     * over this setting, forcing use of {@link java.math.BigDecimal} for all
+     * integral values.
      * <p>
      * Feature is disabled by default, meaning that "untyped" integral
      * numbers will by default be deserialized using whatever
@@ -70,9 +98,10 @@ public enum DeserializationFeature implements ConfigFeature
      * In addition, if enabled, trying to bind values that do not fit in {@link java.lang.Long}
      * will throw a {@link com.fasterxml.jackson.core.JsonProcessingException}.
      *<p>
-     * Note: if {@link #USE_BIG_INTEGER_FOR_INTS} is enabled, it has precedence
-     * over this setting, forcing use of {@link java.math.BigInteger} for all
-     * integral values.
+     * Note: if {@link #USE_BIG_DECIMAL_FOR_INTS} or {@link #USE_BIG_INTEGER_FOR_INTS}
+     * is enabled, it has precedence over this setting, forcing use of
+     * {@link java.math.BigDecimal} or {@link java.math.BigInteger} (respectively)
+     * for all integral values.
      *<p>
      * Feature is disabled by default, meaning that "untyped" integral
      * numbers will by default be deserialized using {@link java.lang.Integer}

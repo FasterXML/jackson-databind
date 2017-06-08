@@ -206,7 +206,36 @@ public class JDKNumberDeserTest extends BaseMapTest
         assertEquals(biggie, result);
     }
 
-    public void testIntTypeOverride() throws Exception
+    public void testBigDecIntTypeOverride() throws Exception
+    {
+        ObjectReader r = MAPPER.reader(DeserializationFeature.USE_BIG_DECIMAL_FOR_INTS);
+
+        BigDecimal exp = BigDecimal.valueOf(123L);
+
+        // first test as any Number
+        Number result = r.forType(Number.class).readValue(" 123 ");
+        assertEquals(BigDecimal.class, result.getClass());
+        assertEquals(exp, result);
+
+        // then as any Object
+        /*Object value =*/ r.forType(Object.class).readValue("123");
+        assertEquals(BigDecimal.class, result.getClass());
+        assertEquals(exp, result);
+
+        // and as JsonNode
+        JsonNode node = r.readTree("  123");
+        assertTrue(node.isBigDecimal());
+        assertEquals(123, node.asInt());
+
+        r = MAPPER.reader(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+
+        // test integral and decimal for equality
+        JsonNode decNode = r.readTree("1.23E2");
+        assertTrue(decNode.isBigDecimal());
+        assertEquals(node, decNode);
+    }
+
+    public void testBigIntTypeOverride() throws Exception
     {
         /* Slight twist; as per [JACKSON-100], can also request binding
          * to BigInteger even if value would fit in Integer
@@ -229,6 +258,13 @@ public class JDKNumberDeserTest extends BaseMapTest
         JsonNode node = r.readTree("  123");
         assertTrue(node.isBigInteger());
         assertEquals(123, node.asInt());
+
+        r = MAPPER.reader(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+
+        // test integral and decimal for equality
+        JsonNode decNode = r.readTree("1.23E2");
+        assertTrue(decNode.isBigDecimal());
+        assertFalse(node.equals(decNode));
     }
 
     public void testDoubleAsNumber() throws Exception

@@ -326,6 +326,7 @@ public class NumberNodesTest extends NodeTestBase
         BigIntegerNode n = BigIntegerNode.valueOf(BigInteger.ONE);
         assertStandardEquals(n);
         assertTrue(n.equals(new BigIntegerNode(BigInteger.ONE)));
+        assertFalse(n.equals(new DecimalNode(BigDecimal.ONE)));
         assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
         assertEquals(JsonParser.NumberType.BIG_INTEGER, n.numberType());
         assertTrue(n.isNumber());

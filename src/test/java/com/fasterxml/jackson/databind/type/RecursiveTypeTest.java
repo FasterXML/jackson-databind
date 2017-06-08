@@ -13,6 +13,15 @@ public class RecursiveTypeTest extends BaseMapTest
  // for [databind#938]
     public static interface Ability<T> { }
 
+    // for [databind#1647]
+    static interface IFace<T> {}
+
+    // for [databind#1647]
+    static class Base implements IFace<Sub> { }
+
+    // for [databind#1647]
+    static class Sub extends Base { }
+
     public static final class ImmutablePair<L, R> implements Map.Entry<L, R>, Ability<ImmutablePair<L, R>> {
         public final L key;
         public final R value;
@@ -92,5 +101,15 @@ public class RecursiveTypeTest extends BaseMapTest
         if (!desc.contains("recursive type")) {
             fail("Description should contain 'recursive type', did not: "+desc);
         }
+    }
+
+    // for [databind#1647]
+    public void testSuperClassWithReferencedJavaType() {
+        TypeFactory tf = objectMapper().getTypeFactory();
+        tf.constructType(Base.class); // must be constructed before sub to set the cache correctly
+        JavaType subType = tf.constructType(Sub.class);
+        // baseTypeFromSub should be a ResolvedRecursiveType in this test
+        JavaType baseTypeFromSub = subType.getSuperClass();
+        assertNotNull(baseTypeFromSub.getSuperClass());
     }
 }

@@ -789,7 +789,7 @@ public abstract class BeanDeserializerBase
     {
         ObjectIdInfo objectIdInfo = prop.getObjectIdInfo();
         JsonDeserializer<Object> valueDeser = prop.getValueDeserializer();
-        ObjectIdReader objectIdReader = valueDeser.getObjectIdReader();
+        ObjectIdReader objectIdReader = (valueDeser == null) ? null : valueDeser.getObjectIdReader();
         if (objectIdInfo == null && objectIdReader == null) {
             return prop;
         }

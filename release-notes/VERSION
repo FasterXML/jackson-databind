@@ -101,6 +101,8 @@ Project: jackson-databind
  (reported by Andrew J)
 #1642: Support `READ_UNKNOWN_ENUM_VALUES_AS_NULL` with `@JsonCreator`
  (contributed by Joe L)
+#1648: `DateTimeSerializerBase` ignores configured date format when creating contextual
+ (reported by Bertrand R)
 
 2.8.8.1 (19-Apr-2017)
 

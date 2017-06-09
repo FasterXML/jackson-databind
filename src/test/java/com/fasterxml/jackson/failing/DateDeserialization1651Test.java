@@ -19,7 +19,7 @@ public class DateDeserialization1651Test extends BaseMapTest
          // Mapper with timezone GMT-2
          ObjectMapper mapper = new ObjectMapper();
          mapper.setTimeZone(TimeZone.getTimeZone("GMT-2"));
-         Date dateGMT1 = mapper.readValue(json, Date.class);  // 11970-01-01T00:00:00.000-02:00
+         Date dateGMT1 = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000-02:00
     
          // Underlying timestamps should be the same
          assertEquals(dateUTC.getTime(), dateGMT1.getTime());

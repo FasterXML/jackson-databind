@@ -622,6 +622,11 @@ Joe Littlejohn (joelittlejohn@github)
   * Contributed #1642: Support `READ_UNKNOWN_ENUM_VALUES_AS_NULL` with `@JsonCreator`
    (2.8.9)
 
+Slobodan Pejic (slobo-showbie@github)
+  * Reported #1647, contributed fix: Missing properties from base class when recursive
+    types are involved
+   (2.8.9)
+
 Bertrand Renuart (brenuart@github)
   * Reported #1648: `DateTimeSerializerBase` ignores configured date format when creating contextual
    (2.8.9)

@@ -25,6 +25,14 @@ public class ResolvedRecursiveType extends TypeBase
         }
         _referencedType = ref;
     }
+   
+    @Override
+    public JavaType getSuperClass() {
+    	if (_referencedType != null) {
+    		return _referencedType.getSuperClass();
+    	}
+    	return super.getSuperClass();
+    }
 
     public JavaType getSelfReferencedType() { return _referencedType; }
 

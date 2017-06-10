@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 

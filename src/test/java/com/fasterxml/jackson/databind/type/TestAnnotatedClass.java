@@ -2,9 +2,7 @@ package com.fasterxml.jackson.databind.type;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+import com.fasterxml.jackson.databind.introspect.*;
 
 /**
  * Unit test for verifying that {@link AnnotatedClass}
@@ -104,5 +102,25 @@ public class TestAnnotatedClass
         JavaType t = MAPPER.constructType(bean.getClass());
         AnnotatedClass ac = AnnotatedClassResolver.resolve(config, t, config);
         assertEquals(1, ac.getConstructors().size());
+    }
+
+    public void testArrayTypeIntrospection() throws Exception
+    {
+        AnnotatedClass ac = AnnotatedClassResolver.resolve(MAPPER.getSerializationConfig(),
+                MAPPER.constructType(int[].class), null);
+        // 09-Jun-2017, tatu: During 2.9 development, access methods were failing at
+        //    certain points so
+        assertFalse(ac.memberMethods().iterator().hasNext());
+        assertFalse(ac.fields().iterator().hasNext());
+    }
+    
+    public void testIntrospectionWithRawClass() throws Exception
+    {
+        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(MAPPER.getSerializationConfig(),
+                String.class, null);
+        // 09-Jun-2017, tatu: During 2.9 development, access methods were failing at
+        //    certain points so
+        assertFalse(ac.memberMethods().iterator().hasNext());
+        assertFalse(ac.fields().iterator().hasNext());
     }
 }

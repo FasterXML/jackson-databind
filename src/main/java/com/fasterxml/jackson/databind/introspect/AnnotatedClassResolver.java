@@ -101,9 +101,7 @@ public class AnnotatedClassResolver
      * we do not accept any annotation information or overrides. 
      */
     static AnnotatedClass createPrimordial(Class<?> raw) {
-        List<JavaType> superTypes = Collections.emptyList();
-        return new AnnotatedClass(null, raw, superTypes, null, NO_ANNOTATIONS,
-                TypeBindings.emptyBindings(), null, null, null);
+        return new AnnotatedClass(raw);
     }
 
     /**
@@ -111,9 +109,7 @@ public class AnnotatedClassResolver
      * to have associated mix-in to apply.
      */
     static AnnotatedClass createArrayType(MapperConfig<?> config, Class<?> raw) {
-        List<JavaType> superTypes = Collections.emptyList();
-        return new AnnotatedClass(null, raw, superTypes, null, NO_ANNOTATIONS,
-                TypeBindings.emptyBindings(), null, null, null);
+        return new AnnotatedClass(raw);
     }
 
     AnnotatedClass resolveFully() {

@@ -17,6 +17,10 @@ public final class AnnotatedClass
     extends Annotated
     implements TypeResolutionContext
 {
+    private final static Creators NO_CREATORS = new Creators(null,
+            Collections.<AnnotatedConstructor>emptyList(),
+            Collections.<AnnotatedMethod>emptyList());
+
     /*
     /**********************************************************
     /* Configuration
@@ -118,6 +122,10 @@ public final class AnnotatedClass
     /**
      * Constructor will not do any initializations, to allow for
      * configuring instances differently depending on use cases
+     *
+     * @param type Fully resolved type; may be `null`, but ONLY if no member fields or
+     *    methods are to be accessed
+     * @param rawType Type-erased class; pass if no `type` needed or available
      */
     AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
             Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
@@ -125,13 +133,31 @@ public final class AnnotatedClass
     {
         _type = type;
         _class = rawType;
+        _superTypes = superTypes;
+        _primaryMixIn = primaryMixIn;
         _classAnnotations = classAnnotations;
         _bindings = bindings;
-        _superTypes = superTypes;
         _annotationIntrospector = aintr;
-        _typeFactory = tf;
         _mixInResolver = mir;
-        _primaryMixIn = primaryMixIn;
+        _typeFactory = tf;
+    }
+
+    /**
+     * Constructor (only) used for creating primordial simple types (during bootstrapping)
+     * and array type placeholders where no fields or methods are needed.
+     *
+     * @since 2.9
+     */
+    AnnotatedClass(Class<?> rawType) {
+        _type = null;
+        _class = rawType;
+        _superTypes = Collections.emptyList();
+        _primaryMixIn = null;
+        _classAnnotations = AnnotationCollector.emptyAnnotations();
+        _bindings = TypeBindings.emptyBindings();
+        _annotationIntrospector = null;
+        _mixInResolver = null;
+        _typeFactory = null;
     }
 
     /**
@@ -263,16 +289,6 @@ public final class AnnotatedClass
         return getFactoryMethods();
     }
 
-    private final Creators _creators() {
-        Creators c = _creators;
-        if (c == null) {
-            _creators = c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
-                    this,
-                    _type, _primaryMixIn);
-        }
-        return c;
-    }
-
     public Iterable<AnnotatedMethod> memberMethods() {
         return _methods();
     }
@@ -285,17 +301,6 @@ public final class AnnotatedClass
         return _methods().find(name, paramTypes);
     }
 
-    private final AnnotatedMethodMap _methods() {
-        AnnotatedMethodMap m = _memberMethods;
-        if (m == null) {
-            _memberMethods = m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
-                    this,
-                    _mixInResolver, _typeFactory,
-                    _type, _superTypes, _primaryMixIn);
-        }
-        return m;
-    }
-
     public int getFieldCount() {
         return _fields().size();
     }
@@ -304,17 +309,6 @@ public final class AnnotatedClass
         return _fields();
     }
 
-    private final List<AnnotatedField> _fields() {
-        List<AnnotatedField> f = _fields;
-        if (f == null) {
-            _fields = f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
-                    this,
-                    _mixInResolver, _typeFactory,
-                    _type);
-        }
-        return f;
-    }
-    
     /**
      * @since 2.9
      */
@@ -325,6 +319,59 @@ public final class AnnotatedClass
             _nonStaticInnerClass = B = ClassUtil.isNonStaticInnerClass(_class);
         }
         return B.booleanValue();
+    }
+
+    /*
+    /**********************************************************
+    /* Lazily-operating accessors
+    /**********************************************************
+     */
+
+    private final List<AnnotatedField> _fields() {
+        List<AnnotatedField> f = _fields;
+        if (f == null) {
+            // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
+            if (_type == null) {
+                f = Collections.emptyList();
+            } else {
+                f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
+                        this, _mixInResolver, _typeFactory, _type);
+            }
+            _fields = f;
+        }
+        return f;
+    }
+
+    private final AnnotatedMethodMap _methods() {
+        AnnotatedMethodMap m = _memberMethods;
+        if (m == null) {
+            // 09-Jun-2017, tatu: _type only null for primordial, placeholder array types.
+            //    NOTE: would be great to have light-weight shareable maps; no such impl exists for now
+            if (_type == null) {
+                m = new AnnotatedMethodMap();
+            } else {
+                m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
+                        this,
+                        _mixInResolver, _typeFactory,
+                        _type, _superTypes, _primaryMixIn);
+            }
+            _memberMethods = m;
+        }
+        return m;
+    }
+
+    private final Creators _creators() {
+        Creators c = _creators;
+        if (c == null) {
+            if (_type == null) {
+                c = NO_CREATORS;
+            } else {
+                c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
+                        this, _type, _primaryMixIn);
+            }
+            _creators = c;
+        }
+        return c;
     }
 
     /*

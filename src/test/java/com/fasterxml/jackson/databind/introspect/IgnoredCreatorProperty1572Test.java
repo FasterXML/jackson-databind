@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.annotation.*;
 

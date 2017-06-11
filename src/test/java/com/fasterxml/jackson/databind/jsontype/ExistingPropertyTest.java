@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestSubtypesExistingProperty extends BaseMapTest {
+public class ExistingPropertyTest extends BaseMapTest {
 
     /**
      * Polymorphic base class - existing property as simple property on subclasses
@@ -169,8 +169,26 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
         public CarWrapper() {}
         public CarWrapper(Car c) { car = c; }
     }
-    
-    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    // for [databind#1635]
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            // IMPORTANT! Must be defined as `visible`
+            visible=true,
+            property = "type",
+            defaultImpl=Bean1635Default.class)
+    @JsonSubTypes({ @JsonSubTypes.Type(Bean1635A.class) })
+    static class Bean1635 {
+        public ABC type;
+    }
+
+    @JsonTypeName("A")
+    static class Bean1635A extends Bean1635 {
+        public int value;
+    }
+
+    static class Bean1635Default extends Bean1635 { }
 
     /*
     /**********************************************************
@@ -178,39 +196,41 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     /**********************************************************
      */
 
-	private static final Orange mandarin = new Orange("Mandarin Orange", "orange");
-	private static final String mandarinJson = "{\"name\":\"Mandarin Orange\",\"color\":\"orange\",\"type\":\"orange\"}";	
-	private static final Apple pinguo = new Apple("Apple-A-Day", 16);
-	private static final String pinguoJson = "{\"name\":\"Apple-A-Day\",\"seedCount\":16,\"type\":\"apple\"}";
-	private static final FruitWrapper pinguoWrapper = new FruitWrapper(pinguo);
-	private static final String pinguoWrapperJson = "{\"fruit\":" + pinguoJson + "}";
-	private static final List<Fruit> fruitList = Arrays.asList(pinguo, mandarin);
-	private static final String fruitListJson = "[" + pinguoJson + "," + mandarinJson + "]";
+    private static final Orange mandarin = new Orange("Mandarin Orange", "orange");
+    private static final String mandarinJson = "{\"name\":\"Mandarin Orange\",\"color\":\"orange\",\"type\":\"orange\"}";	
+    private static final Apple pinguo = new Apple("Apple-A-Day", 16);    
+    private static final String pinguoJson = "{\"name\":\"Apple-A-Day\",\"seedCount\":16,\"type\":\"apple\"}";
+    private static final FruitWrapper pinguoWrapper = new FruitWrapper(pinguo);
+    private static final String pinguoWrapperJson = "{\"fruit\":" + pinguoJson + "}";
+    private static final List<Fruit> fruitList = Arrays.asList(pinguo, mandarin);
+    private static final String fruitListJson = "[" + pinguoJson + "," + mandarinJson + "]";
 
-	private static final Cat beelzebub = new Cat("Beelzebub", "tabby");
-	private static final String beelzebubJson = "{\"name\":\"Beelzebub\",\"furColor\":\"tabby\",\"type\":\"kitty\"}";	
-	private static final Dog rover = new Dog("Rover", 42);
-	private static final String roverJson = "{\"name\":\"Rover\",\"boneCount\":42,\"type\":\"doggie\"}";
-	private static final AnimalWrapper beelzebubWrapper = new AnimalWrapper(beelzebub);
-	private static final String beelzebubWrapperJson = "{\"animal\":" + beelzebubJson + "}";
-	private static final List<Animal> animalList = Arrays.asList(beelzebub, rover);
-	private static final String animalListJson = "[" + beelzebubJson + "," + roverJson + "]";
+    private static final Cat beelzebub = new Cat("Beelzebub", "tabby");
+    private static final String beelzebubJson = "{\"name\":\"Beelzebub\",\"furColor\":\"tabby\",\"type\":\"kitty\"}";	
+    private static final Dog rover = new Dog("Rover", 42);
+    private static final String roverJson = "{\"name\":\"Rover\",\"boneCount\":42,\"type\":\"doggie\"}";
+    private static final AnimalWrapper beelzebubWrapper = new AnimalWrapper(beelzebub);
+    private static final String beelzebubWrapperJson = "{\"animal\":" + beelzebubJson + "}";
+    private static final List<Animal> animalList = Arrays.asList(beelzebub, rover);
+    private static final String animalListJson = "[" + beelzebubJson + "," + roverJson + "]";
 
-	private static final Camry camry = new Camry("Sweet Ride", "candy-apple-red");
-	private static final String camryJson = "{\"name\":\"Sweet Ride\",\"exteriorColor\":\"candy-apple-red\",\"type\":\"camry\"}";	
-	private static final Accord accord = new Accord("Road Rage", 6);
-	private static final String accordJson = "{\"name\":\"Road Rage\",\"speakerCount\":6,\"type\":\"accord\"}";
-	private static final CarWrapper camryWrapper = new CarWrapper(camry);
-	private static final String camryWrapperJson = "{\"car\":" + camryJson + "}";
-	private static final List<Car> carList = Arrays.asList(camry, accord);
-	private static final String carListJson = "[" + camryJson + "," + accordJson + "]";
+    private static final Camry camry = new Camry("Sweet Ride", "candy-apple-red");
+    private static final String camryJson = "{\"name\":\"Sweet Ride\",\"exteriorColor\":\"candy-apple-red\",\"type\":\"camry\"}";	
+    private static final Accord accord = new Accord("Road Rage", 6);
+    private static final String accordJson = "{\"name\":\"Road Rage\",\"speakerCount\":6,\"type\":\"accord\"}";
+    private static final CarWrapper camryWrapper = new CarWrapper(camry);
+    private static final String camryWrapperJson = "{\"car\":" + camryJson + "}";
+    private static final List<Car> carList = Arrays.asList(camry, accord);
+    private static final String carListJson = "[" + camryJson + "," + accordJson + "]";
 
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     /**
      * Fruits - serialization tests for simple property on sub-classes
      */
@@ -400,4 +420,25 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
         assertTrue(result instanceof Accord);
         assertSame(result.getClass(), Accord.class);
     }
-}    
+
+    // for [databind#1635]: simple usage
+    public void testExistingEnumTypeId() throws Exception
+    {
+        Bean1635 result = MAPPER.readValue(aposToQuotes("{'value':3, 'type':'A'}"),
+                Bean1635.class);
+        assertEquals(Bean1635A.class, result.getClass());
+        Bean1635A bean = (Bean1635A) result;
+        assertEquals(3, bean.value);
+        assertEquals(ABC.A, bean.type);
+    }
+
+    // for [databind#1635]: verify that `defaultImpl` does not block assignment of
+    // type id
+    public void testExistingEnumTypeIdViaDefault() throws Exception
+    {
+        Bean1635 result = MAPPER.readValue(aposToQuotes("{'type':'C'}"),
+                Bean1635.class);
+        assertEquals(Bean1635Default.class, result.getClass());
+        assertEquals(ABC.C, result.type);
+    }
+}

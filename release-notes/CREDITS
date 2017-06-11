@@ -630,6 +630,8 @@ Slobodan Pejic (slobo-showbie@github)
 Bertrand Renuart (brenuart@github)
   * Reported #1648: `DateTimeSerializerBase` ignores configured date format when creating contextual
    (2.8.9)
+  * Reported #1651: `StdDateFormat` fails to parse 'zulu' date when TimeZone other than UTC
+   (2.8.9)
 
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY

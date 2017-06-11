@@ -105,6 +105,8 @@ Project: jackson-databind
  (reported by Slobodan P)
 #1648: `DateTimeSerializerBase` ignores configured date format when creating contextual
  (reported by Bertrand R)
+#1651: `StdDateFormat` fails to parse 'zulu' date when TimeZone other than UTC
+ (reported by Bertrand R)
 
 2.8.8.1 (19-Apr-2017)
 

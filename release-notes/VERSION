@@ -90,7 +90,7 @@ Project: jackson-databind
 #1637: `ObjectReader.at()` with `JsonPointer` stops after first collection
  (reported by Chris P)
 
-2.8.9 (not yet released)
+2.8.9 (12-Jun-2017)
 
 #1595: `JsonIgnoreProperties.allowSetters` is not working in Jackson 2.8
  (reported by Javy L)

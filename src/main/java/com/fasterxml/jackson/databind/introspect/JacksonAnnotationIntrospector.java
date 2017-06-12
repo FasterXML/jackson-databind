@@ -1304,14 +1304,8 @@ public class JacksonAnnotationIntrospector
     public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
         JsonCreator ann = _findAnnotation(a, JsonCreator.class);
         if (ann != null) {
-            JsonCreator.Mode mode = ann.mode();
-            if ((mode == Mode.DEFAULT)
-                    && config.isEnabled(MapperFeature.CREATOR_MODE_DEFAULT_PROPERTIES)) {
-                mode = JsonCreator.Mode.PROPERTIES;
-            }
-            return mode;
+            return ann.mode();
         }
-
         if (_cfgConstructorPropertiesImpliesCreator
                 && config.isEnabled(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES)
             ) {

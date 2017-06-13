@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -147,4 +144,5 @@ public class MapMergeTest extends BaseMapTest
         assertEquals("foo", names.get(0));
         assertEquals("bar", names.get(1));
     }
+
 }

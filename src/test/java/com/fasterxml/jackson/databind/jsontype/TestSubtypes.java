@@ -2,6 +2,9 @@ package com.fasterxml.jackson.databind.jsontype;
 
 
 import com.fasterxml.jackson.core.Version;
+
+import java.util.*;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -177,7 +180,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertSame(SubC.class, result.value.getClass());
     }
 
-    // [JACKSON-748]: also works via modules
+    // also works via modules
     public void testSubtypesViaModule() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -186,6 +189,19 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         mapper.registerModule(module);
         String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
         PropertyBean result = mapper.readValue(json, PropertyBean.class);
+        assertSame(SubC.class, result.value.getClass());
+
+        // and as per [databind#1653]:
+        mapper = new ObjectMapper();
+        module = new SimpleModule();
+        List<Class<?>> l = new ArrayList<>();
+        l.add(SubB.class);
+        l.add(SubC.class);
+        l.add(SubD.class);
+        module.registerSubtypes(l);
+        mapper.registerModule(module);
+        json = mapper.writeValueAsString(new PropertyBean(new SubC()));
+        result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
     }
     

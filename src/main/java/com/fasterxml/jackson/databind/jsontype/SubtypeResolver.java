@@ -29,6 +29,11 @@ public abstract class SubtypeResolver
 
     public abstract void registerSubtypes(Class<?>... classes);
 
+    /**
+     * @since 2.9
+     */
+    public abstract void registerSubtypes(Collection<Class<?>> subtypes);
+    
     /*
     /**********************************************************
     /* Subtype resolution

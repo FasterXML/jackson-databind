@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind;
 
+import java.util.Collection;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
@@ -297,6 +299,14 @@ public abstract class Module
          * they have), using specified type names.
          */
         public void registerSubtypes(NamedType... subtypes);
+
+        /**
+         * Method for registering specified classes as subtypes (of supertype(s)
+         * they have)
+         *
+         * @since 2.9
+         */
+        public void registerSubtypes(Collection<Class<?>> subtypes);
         
         /**
          * Method used for defining mix-in annotations to use for augmenting

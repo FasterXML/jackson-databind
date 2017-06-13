@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.module;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -347,7 +348,7 @@ public class SimpleModule
     public SimpleModule registerSubtypes(Class<?> ... subtypes)
     {
         if (_subtypes == null) {
-            _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
+            _subtypes = new LinkedHashSet<>();
         }
         for (Class<?> subtype : subtypes) {
             _checkNotNull(subtype, "subtype to register");
@@ -364,7 +365,7 @@ public class SimpleModule
     public SimpleModule registerSubtypes(NamedType ... subtypes)
     {
         if (_subtypes == null) {
-            _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
+            _subtypes = new LinkedHashSet<>();
         }
         for (NamedType subtype : subtypes) {
             _checkNotNull(subtype, "subtype to register");
@@ -372,7 +373,26 @@ public class SimpleModule
         }
         return this;
     }
-    
+
+    /**
+     * Method for adding set of subtypes (along with type name to use) to be registered with
+     * {@link ObjectMapper}
+     * this is an alternative to using annotations in super type to indicate subtypes.
+     *
+     * @since 2.9
+     */
+    public SimpleModule registerSubtypes(Collection<Class<?>> subtypes)
+    {
+        if (_subtypes == null) {
+            _subtypes = new LinkedHashSet<>();
+        }
+        for (Class<?> subtype : subtypes) {
+            _checkNotNull(subtype, "subtype to register");
+            _subtypes.add(new NamedType(subtype));
+        }
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Configuration methods, add other handlers

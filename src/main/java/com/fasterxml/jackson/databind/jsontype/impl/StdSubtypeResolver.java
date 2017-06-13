@@ -48,6 +48,17 @@ public class StdSubtypeResolver
         registerSubtypes(types);
     }
 
+    @Override // since 2.9
+    public void registerSubtypes(Collection<Class<?>> subtypes) {
+        int len = subtypes.size();
+        NamedType[] types = new NamedType[len];
+        int i = 0;
+        for (Class<?> subtype : subtypes) {
+            types[i++] = new NamedType(subtype);
+        }
+        registerSubtypes(types);
+    }
+
     /*
     /**********************************************************
     /* Resolution by class (serialization)

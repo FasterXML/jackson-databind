@@ -89,6 +89,7 @@ Project: jackson-databind
 #1619: By-pass annotation introspection for array types
 #1637: `ObjectReader.at()` with `JsonPointer` stops after first collection
  (reported by Chris P)
+#1653: Convenience overload(s) for ObjectMapper#registerSubtypes
 
 2.8.9 (12-Jun-2017)
 

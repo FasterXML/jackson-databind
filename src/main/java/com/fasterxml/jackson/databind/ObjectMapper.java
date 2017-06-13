@@ -891,7 +891,12 @@ public class ObjectMapper
             public void registerSubtypes(NamedType... subtypes) {
                 ObjectMapper.this.registerSubtypes(subtypes);
             }
-            
+
+            @Override
+            public void registerSubtypes(Collection<Class<?>> subtypes) {
+                ObjectMapper.this.registerSubtypes(subtypes);
+            }
+
             @Override
             public void setMixInAnnotations(Class<?> target, Class<?> mixinSource) {
                 addMixIn(target, mixinSource);
@@ -1597,6 +1602,13 @@ public class ObjectMapper
      */
     public void registerSubtypes(NamedType... types) {
         getSubtypeResolver().registerSubtypes(types);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public void registerSubtypes(Collection<Class<?>> subtypes) {
+        getSubtypeResolver().registerSubtypes(subtypes);
     }
 
     /*

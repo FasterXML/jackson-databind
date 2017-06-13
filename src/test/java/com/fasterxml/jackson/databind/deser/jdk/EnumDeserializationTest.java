@@ -505,10 +505,10 @@ public class EnumDeserializationTest
     }
 
     public void testExceptionFromCustomEnumKeyDeserializer() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new EnumModule());
+        ObjectMapper mapper = newObjectMapper()
+                .registerModule(new EnumModule());
         try {
-            objectMapper.readValue("{\"TWO\": \"dumpling\"}",
+            mapper.readValue("{\"TWO\": \"dumpling\"}",
                     new TypeReference<Map<AnEnum, String>>() {});
             fail("No exception");
         } catch (IOException e) {

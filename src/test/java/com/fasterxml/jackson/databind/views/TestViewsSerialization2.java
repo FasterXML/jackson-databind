@@ -9,59 +9,16 @@ import com.fasterxml.jackson.databind.*;
 public class TestViewsSerialization2 extends BaseMapTest
 {
     /*
-    /************************************************************************ 
-    /* Tests
-    /************************************************************************ 
+    /************************************************************************
+    /* Helper classes
+    /************************************************************************
      */
-    
-  public void testDataBindingUsage( ) throws Exception
-  {
-    ObjectMapper objectMapper = createObjectMapper( null );
-    String result = serializeWithObjectMapper(new ComplexTestData( ), Views.View.class, objectMapper );
-    assertEquals(-1, result.indexOf( "nameHidden" ));
-  }
 
-  public void testDataBindingUsageWithoutView( ) throws Exception
-  {
-    ObjectMapper objectMapper = createObjectMapper( null );
-    String json = serializeWithObjectMapper(new ComplexTestData( ), null, objectMapper);
-    assertTrue(json.indexOf( "nameHidden" ) > 0);
-  }
-
-  /*
-  /************************************************************************
-  /* Helper  methods
-  /************************************************************************
-   */
-
-  private ObjectMapper createObjectMapper(Class<?> viewClass)
-  {
-    ObjectMapper objectMapper = new ObjectMapper( );
-    objectMapper.configure( SerializationFeature.FAIL_ON_EMPTY_BEANS, false );
-    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
-    objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false );
-//    objectMapper.getSerializationConfig( ).disable( SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION );
-//    objectMapper.getSerializationConfig( ).setSerializationView( viewClass );
-    return objectMapper;
-  }
-  
-  private String serializeWithObjectMapper(Object object, Class<? extends Views.View> view, ObjectMapper objectMapper )
-      throws IOException
-  {
-    return objectMapper.writerWithView(view).writeValueAsString(object);
-  }
-
-  /*
-  /************************************************************************
-  /* Helper classes
-  /************************************************************************
-   */
-
-  static class Views
-  {
-    public interface View { }
-    public interface ExtendedView  extends View { }
-  }
+    static class Views
+    {
+        public interface View { }
+        public interface ExtendedView  extends View { }
+    }
   
   static class ComplexTestData
   {
@@ -156,6 +113,47 @@ public class TestViewsSerialization2 extends BaseMapTest
     {
       this.nameHidden = nameHidden;
     }
-  }
+    }
 
-}
+    /*
+    /************************************************************************ 
+    /* Tests
+    /************************************************************************ 
+     */
+  
+    public void testDataBindingUsage( ) throws Exception
+    {
+        ObjectMapper mapper = createMapper();
+        String result = serializeWithObjectMapper(new ComplexTestData( ), Views.View.class, mapper);
+        assertEquals(-1, result.indexOf( "nameHidden" ));
+    }
+
+    public void testDataBindingUsageWithoutView( ) throws Exception
+    {
+        ObjectMapper mapper = createMapper();
+        String json = serializeWithObjectMapper(new ComplexTestData( ), null, mapper);
+        assertTrue(json.indexOf( "nameHidden" ) > 0);
+    }
+
+    /*
+    /************************************************************************
+    /* Helper  methods
+    /************************************************************************
+     */
+
+    private ObjectMapper createMapper()
+    {
+        ObjectMapper mapper = newObjectMapper();
+        mapper.configure( SerializationFeature.FAIL_ON_EMPTY_BEANS, false );
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false );
+        return mapper;
+    }
+
+    private String serializeWithObjectMapper(Object object, Class<? extends Views.View> view, ObjectMapper mapper )
+            throws IOException
+    {
+        return mapper.writerWithView(view).writeValueAsString(object);
+    }
+
+  }

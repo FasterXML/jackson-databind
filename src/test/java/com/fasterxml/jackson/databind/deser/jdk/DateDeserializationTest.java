@@ -61,7 +61,7 @@ public class DateDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newObjectMapper();
 
     public void testDateUtil() throws Exception
     {
@@ -522,6 +522,26 @@ public class DateDeserializationTest
         assertEquals(d.getTime(), d2.getTime());
     }
 
+    // [databind#1651]
+    public void testDateEndingWithZNonDefTZ1651() throws Exception
+    {
+        String json = quote("1970-01-01T00:00:00.000Z");
+
+        // Standard mapper with timezone UTC: shared instance should be ok.
+        // ... but, Travis manages to have fails, so insist on newly created
+        ObjectMapper mapper = newObjectMapper();
+        Date dateUTC = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000+00:00
+    
+        // Mapper with timezone GMT-2
+        // note: must construct new one, not share
+        mapper = new ObjectMapper();
+        mapper.setTimeZone(TimeZone.getTimeZone("GMT-2"));
+        Date dateGMT1 = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000-02:00
+    
+        // Underlying timestamps should be the same
+        assertEquals(dateUTC.getTime(), dateGMT1.getTime());
+    }
+    
     /*
     /**********************************************************
     /* Test(s) for array unwrapping

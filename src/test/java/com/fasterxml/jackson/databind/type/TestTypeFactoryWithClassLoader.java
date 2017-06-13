@@ -24,31 +24,31 @@ public class TestTypeFactoryWithClassLoader {
   private static ClassLoader classLoader;
   private static ClassLoader threadClassLoader;
   private static String aClassName;
-  private ObjectMapper objectMapper;
+  private ObjectMapper mapper;
 
-@BeforeClass
-public static void beforeClass() {
+  @BeforeClass
+  public static void beforeClass() {
 	  classLoader = AClass.class.getClassLoader();
 	  aClassName = AClass.getStaticClassName();
 	  threadClassLoader = Thread.currentThread().getContextClassLoader();
 	  Assert.assertNotNull(threadClassLoader);
-}
+  }
   
-@Before
-public void before() {
-  objectMapper = new ObjectMapper();
-}
+  @Before
+  public void before() {
+      mapper = new ObjectMapper();
+  }
 
-@After
-public void after() {
+  @After
+  public void after() {
 	Thread.currentThread().setContextClassLoader(threadClassLoader);
-	objectMapper = null;
-}
-	
-@Test
-public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNull() throws ClassNotFoundException {
+	mapper = null;
+  }
+
+  @Test
+  public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNull() throws ClassNotFoundException {
 	Thread.currentThread().setContextClassLoader(null);
-	TypeFactory spySut = spy(objectMapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader));
+	TypeFactory spySut = spy(mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader));
 	Class<?> clazz = spySut.findClass(aClassName);
 	verify(spySut).getClassLoader();
 	verify(spySut).classForName(any(String.class), any(Boolean.class), eq(classLoader));
@@ -56,11 +56,11 @@ public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNull() throws Class
 	Assert.assertEquals(classLoader, spySut.getClassLoader());
 	Assert.assertEquals(typeModifier,spySut._modifiers[0]);
 	Assert.assertEquals(null, Thread.currentThread().getContextClassLoader());
-}
+  }
 
-@Test
+  @Test
 public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNotNull() throws ClassNotFoundException {
-	TypeFactory spySut = spy(objectMapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader));
+	TypeFactory spySut = spy(mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader));
 	Class<?> clazz = spySut.findClass(aClassName);
 	verify(spySut).getClassLoader();
 	verify(spySut).classForName(any(String.class), any(Boolean.class), eq(classLoader));
@@ -71,42 +71,42 @@ public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNotNull() throws Cl
 
 @Test
 public void testCallingOnlyWithModifierGivesExpectedResults(){
-	TypeFactory sut = objectMapper.getTypeFactory().withModifier(typeModifier);
+	TypeFactory sut = mapper.getTypeFactory().withModifier(typeModifier);
 	Assert.assertNull(sut.getClassLoader());
 	Assert.assertEquals(typeModifier,sut._modifiers[0]);
 }
 
 @Test
 public void testCallingOnlyWithClassLoaderGivesExpectedResults(){
-	TypeFactory sut = objectMapper.getTypeFactory().withClassLoader(classLoader);
+	TypeFactory sut = mapper.getTypeFactory().withClassLoader(classLoader);
 	Assert.assertNotNull(sut.getClassLoader());
 	Assert.assertArrayEquals(null,sut._modifiers);
 }
 
 @Test
 public void testDefaultTypeFactoryNotAffectedByWithConstructors() {
-	TypeFactory sut = objectMapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader);
+	TypeFactory sut = mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader);
 	Assert.assertEquals(classLoader, sut.getClassLoader());
 	Assert.assertEquals(typeModifier,sut._modifiers[0]);
-	Assert.assertNull(objectMapper.getTypeFactory().getClassLoader());
-	Assert.assertArrayEquals(null,objectMapper.getTypeFactory()._modifiers);
+	Assert.assertNull(mapper.getTypeFactory().getClassLoader());
+	Assert.assertArrayEquals(null,mapper.getTypeFactory()._modifiers);
 }
 
 @Test
 public void testSetsTheCorrectClassLoderIfUsingWithModifierFollowedByWithClassLoader() {
-	TypeFactory sut = objectMapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader);
+	TypeFactory sut = mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader);
 	Assert.assertNotNull(sut.getClassLoader());
 }
 
 @Test
 public void testSetsTheCorrectClassLoderIfUsingWithClassLoaderFollowedByWithModifier() {
-	TypeFactory sut = objectMapper.getTypeFactory().withClassLoader(classLoader).withModifier(typeModifier);
+	TypeFactory sut = mapper.getTypeFactory().withClassLoader(classLoader).withModifier(typeModifier);
 	Assert.assertNotNull(sut.getClassLoader());
 }
 
 @Test
 public void testThreadContextClassLoaderIsUsedIfNotUsingWithClassLoader() throws ClassNotFoundException {
-	TypeFactory spySut = spy(objectMapper.getTypeFactory());
+	TypeFactory spySut = spy(mapper.getTypeFactory());
 	Assert.assertNull(spySut.getClassLoader());
 	Class<?> clazz = spySut.findClass(aClassName);
 	Assert.assertNotNull(clazz);
@@ -116,7 +116,7 @@ public void testThreadContextClassLoaderIsUsedIfNotUsingWithClassLoader() throws
 @Test
 public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader() throws ClassNotFoundException {
 	Thread.currentThread().setContextClassLoader(null);
-	TypeFactory spySut = spy(objectMapper.getTypeFactory());
+	TypeFactory spySut = spy(mapper.getTypeFactory());
 	Assert.assertNull(spySut.getClassLoader());
 	Assert.assertArrayEquals(null,spySut._modifiers);
 	Class<?> clazz = spySut.findClass(aClassName);
@@ -124,24 +124,24 @@ public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader
 	verify(spySut).classForName(any(String.class));
 }
 
-public static class AClass
-{
-  private String _foo, _bar;
-  protected final static Class<?> thisClass = new Object() {
-  }.getClass().getEnclosingClass();
+    public static class AClass
+    {
+        private String _foo, _bar;
+        protected final static Class<?> thisClass = new Object() {
+        }.getClass().getEnclosingClass();
 
-  public AClass() { }
-  public AClass(String foo, String bar) {
-      _foo = foo;
-      _bar = bar;
-  }
-  public String getFoo() { return _foo; }
-  public String getBar() { return _bar; }
+        public AClass() { }
+        public AClass(String foo, String bar) {
+            _foo = foo;
+            _bar = bar;
+        }
+        public String getFoo() { return _foo; }
+        public String getBar() { return _bar; }
 
-  public void setFoo(String foo) { _foo = foo; }
-  public void setBar(String bar) { _bar = bar; }
-  public static String getStaticClassName() {
-	  return thisClass.getCanonicalName().replace("."+thisClass.getSimpleName(), "$"+thisClass.getSimpleName());
-  }
-}
+        public void setFoo(String foo) { _foo = foo; }
+        public void setBar(String bar) { _bar = bar; }
+        public static String getStaticClassName() {
+            return thisClass.getCanonicalName().replace("."+thisClass.getSimpleName(), "$"+thisClass.getSimpleName());
+        }
+    }
 }

@@ -90,6 +90,8 @@ Project: jackson-databind
 #1637: `ObjectReader.at()` with `JsonPointer` stops after first collection
  (reported by Chris P)
 #1653: Convenience overload(s) for ObjectMapper#registerSubtypes
+#1655: `@JsonAnyGetter` uses different `bean` parameter in `SimpleBeanPropertyFilter`
+ (reported by georgeflugq@github)
 
 2.8.9 (12-Jun-2017)
 

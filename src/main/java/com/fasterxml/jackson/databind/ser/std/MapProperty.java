@@ -28,7 +28,7 @@ public class MapProperty extends PropertyWriter
 
     protected final BeanProperty _property;
 
-    protected Object _key;
+    protected Object _key, _value;
 
     protected JsonSerializer<Object> _keySerializer, _valueSerializer;
 
@@ -43,10 +43,11 @@ public class MapProperty extends PropertyWriter
      * Initialization method that needs to be called before passing
      * property to filter.
      */
-    public void reset(Object key,
+    public void reset(Object key, Object value,
             JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer)
     {
         _key = key;
+        _value = value;
         _keySerializer = keySer;
         _valueSerializer = valueSer;
     }
@@ -57,6 +58,20 @@ public class MapProperty extends PropertyWriter
             return (String) _key;
         }
         return String.valueOf(_key);
+    }
+
+    /**
+     * @since 2.9
+     */
+    public Object getValue() {
+        return _value;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public void setValue(Object v) {
+        _value = v;
     }
 
     @Override
@@ -75,19 +90,19 @@ public class MapProperty extends PropertyWriter
     }
     
     @Override
-    public void serializeAsField(Object value, JsonGenerator gen,
+    public void serializeAsField(Object map, JsonGenerator gen,
             SerializerProvider provider) throws IOException
     {
         _keySerializer.serialize(_key, gen, provider);
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(value, gen, provider);
+            _valueSerializer.serialize(_value, gen, provider);
         } else {
-            _valueSerializer.serializeWithType(value, gen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(_value, gen, provider, _typeSerializer);
         }
     }
 
     @Override
-    public void serializeAsOmittedField(Object value, JsonGenerator gen,
+    public void serializeAsOmittedField(Object map, JsonGenerator gen,
             SerializerProvider provider) throws Exception
     {
         if (!gen.canOmitFields()) {
@@ -96,13 +111,13 @@ public class MapProperty extends PropertyWriter
     }
 
     @Override
-    public void serializeAsElement(Object value, JsonGenerator gen,
+    public void serializeAsElement(Object map, JsonGenerator gen,
             SerializerProvider provider) throws Exception
     {
         if (_typeSerializer == null) {
-            _valueSerializer.serialize(value, gen, provider);
+            _valueSerializer.serialize(_value, gen, provider);
         } else {
-            _valueSerializer.serializeWithType(value, gen, provider, _typeSerializer);
+            _valueSerializer.serializeWithType(_value, gen, provider, _typeSerializer);
         }
     }
     
@@ -132,7 +147,7 @@ public class MapProperty extends PropertyWriter
     public void depositSchemaProperty(ObjectNode propertiesNode,
             SerializerProvider provider) throws JsonMappingException {
         // nothing to do here
-   }
+    }
 
     @Override
     public JavaType getType() {

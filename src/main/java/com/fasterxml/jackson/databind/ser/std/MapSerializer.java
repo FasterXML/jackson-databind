@@ -872,9 +872,9 @@ public class MapSerializer
                 }
             }
             // and with that, ask filter to handle it
-            prop.reset(keyElem, keySerializer, valueSer);
+            prop.reset(keyElem, valueElem, keySerializer, valueSer);
             try {
-                filter.serializeAsField(valueElem, gen, provider, prop);
+                filter.serializeAsField(value, gen, provider, prop);
             } catch (Exception e) {
                 wrapAndThrow(provider, e, value, String.valueOf(keyElem));
             }
@@ -935,16 +935,80 @@ public class MapSerializer
         }
     }
 
+    /**
+     * Helper method used when we have a JSON Filter to use AND contents are
+     * "any properties" of a POJO.
+     *
+     * @param bean Enclosing POJO that has any-getter used to obtain "any properties"
+     * 
+     * @since 2.9
+     */
+    public void serializeFilteredAnyProperties(SerializerProvider provider, JsonGenerator gen,
+            Object bean, Map<?,?> value, PropertyFilter filter,
+            Object suppressableValue)
+        throws IOException
+    {
+        final Set<String> ignored = _ignoredEntries;
+        final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
+        final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
+
+        for (Map.Entry<?,?> entry : value.entrySet()) {
+            // First, serialize key; unless ignorable by key
+            final Object keyElem = entry.getKey();
+            if (ignored != null && ignored.contains(keyElem)) continue;
+
+            JsonSerializer<Object> keySerializer;
+            if (keyElem == null) {
+                keySerializer = provider.findNullKeySerializer(_keyType, _property);
+            } else {
+                keySerializer = _keySerializer;
+            }
+            // or by value; nulls often suppressed
+            final Object valueElem = entry.getValue();
+
+            JsonSerializer<Object> valueSer;
+            // And then value
+            if (valueElem == null) {
+                if (_suppressNulls) {
+                    continue;
+                }
+                valueSer = provider.getDefaultNullValueSerializer();
+            } else {
+                valueSer = _valueSerializer;
+                if (valueSer == null) {
+                    valueSer = _findSerializer(provider, valueElem);
+                }
+                // also may need to skip non-empty values:
+                if (checkEmpty) {
+                    if (valueSer.isEmpty(provider, valueElem)) {
+                        continue;
+                    }
+                } else if (suppressableValue != null) {
+                    if (suppressableValue.equals(valueElem)) {
+                        continue;
+                    }
+                }
+            }
+            // and with that, ask filter to handle it
+            prop.reset(keyElem, valueElem, keySerializer, valueSer);
+            try {
+                filter.serializeAsField(bean, gen, provider, prop);
+            } catch (Exception e) {
+                wrapAndThrow(provider, e, value, String.valueOf(keyElem));
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Schema related functionality
     /**********************************************************
      */
-    
+
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
-        //(ryan) even though it's possible to statically determine the "value" type of the map,
+        // even though it's possible to statically determine the "value" type of the map,
         // there's no way to statically determine the keys, so the "Entries" can't be determined.
         return createSchemaNode("object", true);
     }

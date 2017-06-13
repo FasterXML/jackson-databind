@@ -34,17 +34,17 @@ public interface PropertyFilter
      * Typical implementation is something like:
      *<pre>
      * if (include(writer)) {
-     *      writer.serializeAsField(pojo, jgen, prov);
+     *      writer.serializeAsField(pojo, gen, prov);
      * }
      *</pre>
      * 
      * @param pojo Object that contains property value to serialize
-     * @param jgen Generator use for serializing value
+     * @param gen Generator use for serializing value
      * @param prov Provider that can be used for accessing dynamic aspects of serialization
      *    processing
      * @param writer Object called to do actual serialization of the field, if not filtered out
      */
-    public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider prov,
+    public void serializeAsField(Object pojo, JsonGenerator gen, SerializerProvider prov,
             PropertyWriter writer)
         throws Exception;
 
@@ -58,17 +58,17 @@ public interface PropertyFilter
      * Typical implementation is something like:
      *<pre>
      * if (include(writer)) {
-     *      writer.serializeAsElement(pojo, jgen, prov);
+     *      writer.serializeAsElement(pojo, gen, prov);
      * }
      *</pre>
      * 
      * @param elementValue Element value being serializerd
-     * @param jgen Generator use for serializing value
+     * @param gen Generator use for serializing value
      * @param prov Provider that can be used for accessing dynamic aspects of serialization
      *    processing
      * @param writer Object called to do actual serialization of the field, if not filtered out
      */
-    public void serializeAsElement(Object elementValue, JsonGenerator jgen, SerializerProvider prov,
+    public void serializeAsElement(Object elementValue, JsonGenerator gen, SerializerProvider prov,
             PropertyWriter writer)
         throws Exception;
     

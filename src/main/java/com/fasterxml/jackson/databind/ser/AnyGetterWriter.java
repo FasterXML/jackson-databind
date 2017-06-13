@@ -83,13 +83,14 @@ public class AnyGetterWriter
         }
         // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
         if (_mapSerializer != null) {
-            _mapSerializer.serializeFilteredFields((Map<?,?>) value, gen, provider, filter, null);
+            _mapSerializer.serializeFilteredAnyProperties(provider, gen, bean,(Map<?,?>) value,
+                    filter, null);
             return;
         }
         // ... not sure how custom handler would do it
         _serializer.serialize(value, gen, provider);
     }
-    
+
     // Note: NOT part of ResolvableSerializer...
     @SuppressWarnings("unchecked")
     public void resolve(SerializerProvider provider) throws JsonMappingException

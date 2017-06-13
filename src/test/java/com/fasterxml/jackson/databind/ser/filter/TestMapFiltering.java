@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.ser.std.MapProperty;
 
 @SuppressWarnings("serial")
 public class TestMapFiltering extends BaseMapTest
@@ -56,7 +57,7 @@ public class TestMapFiltering extends BaseMapTest
     static class TestMapFilter implements PropertyFilter
     {
         @Override
-        public void serializeAsField(Object value, JsonGenerator g,
+        public void serializeAsField(Object bean, JsonGenerator g,
                 SerializerProvider provider, PropertyWriter writer)
             throws Exception
         {
@@ -71,9 +72,14 @@ public class TestMapFiltering extends BaseMapTest
             }
             CustomOffset n = writer.findAnnotation(CustomOffset.class);
             int offset = (n == null) ? 0 : n.value();
-            Integer I = offset + ((Integer) value).intValue();
 
-            writer.serializeAsField(I, g, provider);
+            // 12-Jun-2017, tatu: With 2.9, `value` is the surrounding POJO, so
+            //    need to do casting
+            MapProperty prop = (MapProperty) writer;
+            Integer old = (Integer) prop.getValue();
+            prop.setValue(Integer.valueOf(offset + old.intValue()));
+
+            writer.serializeAsField(bean, g, provider);
         }
 
         @Override

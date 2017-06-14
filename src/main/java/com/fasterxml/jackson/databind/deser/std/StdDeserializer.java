@@ -454,7 +454,7 @@ public abstract class StdDeserializer<T>
             return parseDouble(text);
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, text, 
-                "not a valid double value");
+                "not a valid double value (as String to convert)");
         return _nonNullNumber(v).doubleValue();
     }
 
@@ -465,7 +465,17 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_STRING:
             return _parseDate(p.getText().trim(), ctxt);
         case JsonTokenId.ID_NUMBER_INT:
-            return new java.util.Date(p.getLongValue());
+            {
+                long ts;
+                try {
+                    ts = p.getLongValue();
+                } catch (JsonParseException e) {
+                    Number v = (Number) ctxt.handleWeirdNumberValue(_valueClass, p.getNumberValue(),
+                            "not a valid 64-bit long for creating `java.util.Date`");
+                    ts = v.longValue();
+                }
+                return new java.util.Date(ts);
+            }
         case JsonTokenId.ID_NULL:
             return (java.util.Date) getNullValue(ctxt);
         case JsonTokenId.ID_START_ARRAY:

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -9,14 +9,17 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+/**
+ * Additional `java.util.Date` deserialization tests for cases where `ObjectMapper`
+ * is configured to use timezone different from UTC.
+ */
 @SuppressWarnings("javadoc")
-public class DateDeserializationTest
+public class DateDeserializationTZTest
     extends BaseMapTest
 {
     private static final String LOCAL_TZ = "GMT+2";
@@ -259,45 +262,42 @@ public class DateDeserializationTest
     	failure( MAPPER, "20-01-02"   );
     	verify(  MAPPER, "2-01-02",        judate(2, 1, 2,   0, 0, 0, 0, LOCAL_TZ));	// FIXME Why accept 1 digit and refuse they other cases??
     }
-    
-    
+
     /**
      * DateTime as numeric representation
      */
     @SuppressWarnings("javadoc")
     public void testDateUtil_Numeric() throws Exception
     {
-    	{
-	    	long now = 123456789L;
-	    	verify( MAPPER,                now, new java.util.Date(now) ); // as a long
-	    	verify( MAPPER, Long.toString(now), new java.util.Date(now) ); // as a string
-    	}
-    	{
-            /* As of 1.5.0, should be ok to pass as JSON String, as long
-             * as it is plain timestamp (all numbers, 64-bit)
-             */
-    		long now = 1321992375446L;
-	    	verify( MAPPER,                now, new java.util.Date(now) );	// as a long
-	    	verify( MAPPER, Long.toString(now), new java.util.Date(now) );  // as a string
-    	}
-    	{
-    		// #267: should handle negative timestamps too; like 12 hours before 1.1.1970
-    		long now = - (24 * 3600 * 1000L);
-	    	verify( MAPPER,                now, new java.util.Date(now) );	// as a long
-	    	verify( MAPPER, Long.toString(now), new java.util.Date(now) );  // as a string
-    	}
+        {
+            long now = 123456789L;
+            verify( MAPPER,                now, new java.util.Date(now) ); // as a long
+            verify( MAPPER, Long.toString(now), new java.util.Date(now) ); // as a string
+        }
+        {
+            // should be ok to pass as JSON String, as long
+            // as it is plain timestamp (all numbers, 64-bit)
+            long now = 1321992375446L;
+            verify( MAPPER,                now, new java.util.Date(now) );	// as a long
+            verify( MAPPER, Long.toString(now), new java.util.Date(now) );  // as a string
+        }
+        {
+            // #267: should handle negative timestamps too; like 12 hours before 1.1.1970
+            long now = - (24 * 3600 * 1000L);
+            verify( MAPPER,                now, new java.util.Date(now) );	// as a long
+            verify( MAPPER, Long.toString(now), new java.util.Date(now) );  // as a string
+        }
     	
-    	// value larger than a long (Long.MAX_VALUE+1)
-    	BigInteger tooLarge = BigInteger.valueOf(Long.MAX_VALUE).add( BigInteger.valueOf(1) );
-    	failure(MAPPER, tooLarge, JsonParseException.class);	// FIXME: InvalidFormatException is thrown everywhere else...
-    	failure(MAPPER, tooLarge.toString());
+        // value larger than a long (Long.MAX_VALUE+1)
+        BigInteger tooLarge = BigInteger.valueOf(Long.MAX_VALUE).add( BigInteger.valueOf(1) );
+        failure(MAPPER, tooLarge, InvalidFormatException.class);
+        failure(MAPPER, tooLarge.toString(), InvalidFormatException.class);
     	
-    	// decimal value
-    	failure(MAPPER, 0.0, JsonMappingException.class);	    // FIXME: InvalidFormatException is thrown everywhere else...
-    	failure(MAPPER, "0.0");
+        // decimal value
+        failure(MAPPER, 0.0, MismatchedInputException.class);
+        failure(MAPPER, "0.0", InvalidFormatException.class);
     }
 
-    
     /**
      * Note: may be these cases are already covered by {@link #testDateUtil_Annotation_PatternAndLocale()}
      */
@@ -433,18 +433,17 @@ public class DateDeserializationTest
      * @param tz timezone id as accepted by {@link TimeZone#getTimeZone(String)}
      * @return a new {@link Date} instance
      */
-	private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) 
-	{
-		Calendar cal = Calendar.getInstance();
-		cal.setLenient(false);
-		cal.set(year, month-1, day, hour, minutes, seconds);
-		cal.set(Calendar.MILLISECOND, millis);
-		cal.setTimeZone(TimeZone.getTimeZone(tz));
-		
-		return cal.getTime();
-	}
+    private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) 
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setLenient(false);
+        cal.set(year, month-1, day, hour, minutes, seconds);
+        cal.set(Calendar.MILLISECOND, millis);
+        cal.setTimeZone(TimeZone.getTimeZone(tz));
+        return cal.getTime();
+    }
 
-	private static void verify(ObjectMapper mapper, Object input, Date expected) throws Exception {
+    private static void verify(ObjectMapper mapper, Object input, Date expected) throws Exception {
 		// Deserialize using the supplied ObjectMapper
 		Date actual = read(mapper, input, java.util.Date.class);
 		
@@ -461,33 +460,32 @@ public class DateDeserializationTest
 		if( actual.getTime() != expected.getTime() ) {
 			fail("Failed to deserialize "+input+", actual: '"+FORMAT.format(actual)+"', expected: '"+FORMAT.format(expected)+"'");
 		}
-	}
+    }
 
-	private static void failure(ObjectMapper mapper, Object input) throws Exception {
-		failure(mapper, input, InvalidFormatException.class);
-	}
-	
-	private static void failure(ObjectMapper mapper, Object input, Class<? extends Exception> exceptionType) throws Exception {
-		try {
-			Date date = read(mapper, input, java.util.Date.class);
-			fail("Input "+input+" should not have been accepted but was deserialized into "+FORMAT.format(date));
-		}
-		catch(Exception e) {
-			// Is it the expected exception ?
-			if( ! exceptionType.isAssignableFrom(e.getClass()) ) {
-				fail("Wrong exception thrown when reading "+input+", actual: "+e.getClass().getName() + "("+e.getMessage()+"), expected: "+exceptionType.getName());
-			}
-		}
-	}
-	
-	private static <T> T read(ObjectMapper mapper, Object input, Class<T> type) throws Exception {
-		// Construct the json representation from the input
-		String json = input.toString();
-		if( !(input instanceof Number) ) {
-			json = "\""+json+"\"";
-		}
+    private static void failure(ObjectMapper mapper, Object input) throws Exception {
+        failure(mapper, input, MismatchedInputException.class);
+    }
 
-		// Deserialize using the supplied ObjectMapper
-		return (T) mapper.readValue(json, type);
-	}
+    private static void failure(ObjectMapper mapper, Object input, Class<? extends Exception> exceptionType) throws Exception {
+        try {
+            Date date = read(mapper, input, java.util.Date.class);
+            fail("Input "+input+" should not have been accepted but was deserialized into "+FORMAT.format(date));
+        }
+        catch(Exception e) {
+            // Is it the expected exception ?
+            if (!exceptionType.isAssignableFrom(e.getClass()) ) {
+                fail("Wrong exception thrown when reading "+input+", actual: "+e.getClass().getName() + "("+e.getMessage()+"), expected: "+exceptionType.getName());
+            }
+        }
+    }
+
+    private static <T> T read(ObjectMapper mapper, Object input, Class<T> type) throws Exception {
+        // Construct the json representation from the input
+        String json = input.toString();
+        if( !(input instanceof Number) ) {
+            json = "\""+json+"\"";
+        }
+        // Deserialize using the supplied ObjectMapper
+        return (T) mapper.readValue(json, type);
+    }
 }

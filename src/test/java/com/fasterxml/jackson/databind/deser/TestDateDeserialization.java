@@ -263,6 +263,28 @@ public class TestDateDeserialization
         assertEquals(0, c.get(Calendar.MILLISECOND));
     }
 
+    // [databind#1657]: no timezone should use configured default
+    public void testDateUtilISO8601NoTimezoneNonDefault() throws Exception
+    {
+        // In first case, no timezone -> SHOULD use configured timezone
+        ObjectReader r = MAPPER.readerFor(Date.class);
+        TimeZone tz = TimeZone.getTimeZone("GMT-2");
+        Date date1 = r.with(tz)
+                .readValue(quote("1970-01-01T00:00:00.000"));
+        // Second case, should use specified timezone, not configured
+        Date date2 = r.with(TimeZone.getTimeZone("GMT+5"))
+                .readValue(quote("1970-01-01T00:00:00.000-02:00"));
+        assertEquals(date1, date2);
+
+        // also verify actual value, in GMT
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.setTime(date1);
+        assertEquals(1970, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JANUARY, c.get(Calendar.MONTH));
+        assertEquals(1, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(2, c.get(Calendar.HOUR_OF_DAY));
+    }
+
     // [Issue#338]
     public void testDateUtilISO8601NoMilliseconds() throws Exception
     {
@@ -296,7 +318,7 @@ public class TestDateDeserialization
         assertEquals(0, c.get(Calendar.MILLISECOND));
         */
     }
-    
+
     public void testDateUtilISO8601JustDate() throws Exception
     {
         // Plain date (no time)

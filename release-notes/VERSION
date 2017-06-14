@@ -3,6 +3,12 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.9.1 (not yet released)
+
+#1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of
+  configured timezone
+ (reported by Bertrand R)
+
 2.8.9 (12-Jun-2017)
 
 #1595: `JsonIgnoreProperties.allowSetters` is not working in Jackson 2.8

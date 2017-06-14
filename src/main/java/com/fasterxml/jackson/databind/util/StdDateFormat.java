@@ -40,6 +40,13 @@ public class StdDateFormat
     protected final static String DATE_FORMAT_STR_ISO8601_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     /**
+     * Same as 'regular' 8601 except misses timezone altogether
+     *
+     * @since 2.8.10
+     */
+    protected final static String DATE_FORMAT_STR_ISO8601_NO_TZ = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
+    /**
      * ISO-8601 with just the Date part, no time
      */
     protected final static String DATE_FORMAT_STR_PLAIN = "yyyy-MM-dd";
@@ -56,6 +63,7 @@ public class StdDateFormat
     protected final static String[] ALL_FORMATS = new String[] {
         DATE_FORMAT_STR_ISO8601,
         DATE_FORMAT_STR_ISO8601_Z,
+        DATE_FORMAT_STR_ISO8601_NO_TZ,
         DATE_FORMAT_STR_RFC1123,
         DATE_FORMAT_STR_PLAIN
     };
@@ -70,11 +78,12 @@ public class StdDateFormat
     }
 
     private final static Locale DEFAULT_LOCALE = Locale.US;
-    
+
     protected final static DateFormat DATE_FORMAT_RFC1123;
 
     protected final static DateFormat DATE_FORMAT_ISO8601;
     protected final static DateFormat DATE_FORMAT_ISO8601_Z;
+    protected final static DateFormat DATE_FORMAT_ISO8601_NO_TZ; // since 2.8.10
 
     protected final static DateFormat DATE_FORMAT_PLAIN;
 
@@ -93,6 +102,8 @@ public class StdDateFormat
         DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);
         DATE_FORMAT_ISO8601_Z = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601_Z, DEFAULT_LOCALE);
         DATE_FORMAT_ISO8601_Z.setTimeZone(DEFAULT_TIMEZONE);
+        DATE_FORMAT_ISO8601_NO_TZ = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601_NO_TZ, DEFAULT_LOCALE);
+        DATE_FORMAT_ISO8601_NO_TZ.setTimeZone(DEFAULT_TIMEZONE);
         DATE_FORMAT_PLAIN = new SimpleDateFormat(DATE_FORMAT_STR_PLAIN, DEFAULT_LOCALE);
         DATE_FORMAT_PLAIN.setTimeZone(DEFAULT_TIMEZONE);
     }
@@ -123,6 +134,7 @@ public class StdDateFormat
     protected transient DateFormat _formatRFC1123;
     protected transient DateFormat _formatISO8601;
     protected transient DateFormat _formatISO8601_z;
+    protected transient DateFormat _formatISO8601_noTz; // 2.8.10
     protected transient DateFormat _formatPlain;
 
     /*
@@ -504,11 +516,11 @@ public class StdDateFormat
                             _timezone, _locale, _lenient);
                 }
             } else {
-                // If not, plain date. Easiest to just patch 'Z' in the end?
-                StringBuilder sb = new StringBuilder(dateStr);
-                // And possible also millisecond part if missing
+                // If not, plain date, no timezone
                 int timeLen = len - dateStr.lastIndexOf('T') - 1;
+                // And possible also millisecond part if missing
                 if (timeLen < 12) { // missing, or partial
+                    StringBuilder sb = new StringBuilder(dateStr);
                     switch (timeLen) {
                     case 11: sb.append('0');
                     case 10: sb.append('0');
@@ -517,17 +529,16 @@ public class StdDateFormat
                     default:
                         sb.append(".000");
                     }
+                    dateStr = sb.toString();
                 }
-                sb.append('Z');
-                dateStr = sb.toString();
-                df = _formatISO8601_z;
-                formatStr = DATE_FORMAT_STR_ISO8601_Z;
+                df = _formatISO8601_noTz;
+                formatStr = DATE_FORMAT_STR_ISO8601_NO_TZ;
                 if (df == null) {
                     // 10-Jun-2017, tatu: As per [databind#1651], when using this format,
                     //    must use UTC, not whatever is configured as default timezone
                     //    (because we know `Z` identifier is used)
-                    df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z, formatStr,
-                            DEFAULT_TIMEZONE, _locale, _lenient);
+                    df = _formatISO8601_noTz = _cloneFormat(DATE_FORMAT_ISO8601_NO_TZ, formatStr,
+                            _timezone, _locale, _lenient);
                 }
             }
         }
@@ -588,6 +599,8 @@ public class StdDateFormat
         _formatRFC1123 = null;
         _formatISO8601 = null;
         _formatISO8601_z = null;
+        _formatISO8601_noTz = null;
+
         _formatPlain = null;
     }
 }

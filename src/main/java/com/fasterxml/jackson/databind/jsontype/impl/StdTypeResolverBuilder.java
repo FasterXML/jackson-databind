@@ -176,6 +176,10 @@ public class StdTypeResolverBuilder
         {
             AnnotatedClass annotatedClass = AnnotatedClass.construct(current, config);
             if (annotatedClass.hasAnnotation(JsonTypeInfo.class)) {
+                JsonTypeInfo typeInfo = annotatedClass.getAnnotation(JsonTypeInfo.class);
+                if (typeInfo.defaultImpl() == null || !typeInfo.defaultImpl().equals(_defaultImpl)) {
+                    break; // ignore any classes that have a different JsonTypeInfo annotation
+                }
                 if (annotatedClass.getRawType().isAssignableFrom(baseType.getRawClass())) {
                     return true;
                 }

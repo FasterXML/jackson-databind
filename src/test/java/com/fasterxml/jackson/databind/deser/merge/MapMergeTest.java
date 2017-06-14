@@ -145,4 +145,71 @@ public class MapMergeTest extends BaseMapTest
         assertEquals("bar", names.get(1));
     }
 
+    /*
+    /********************************************************
+    /* Forcing shallow merge of root Maps:
+    /********************************************************
+     */
+    
+    public void testDefaultDeepMapMerge() throws Exception
+    {
+        // First: deep merge should be enabled by default
+        HashMap<String,Object> input = new HashMap<>();
+        input.put("list", new ArrayList<>(Arrays.asList("a")));
+
+        Map<?,?> resultMap = MAPPER.readerForUpdating(input)
+                .readValue(aposToQuotes("{'list':['b']}"));
+
+        List<?> resultList = (List<?>) resultMap.get("list");
+        assertEquals(Arrays.asList("a", "b"), resultList);
+    }
+
+    public void testDisabledMergeViaGlobal() throws Exception
+    {
+        ObjectMapper mapper = newObjectMapper();
+        // disable merging, globally; does not affect main level
+        mapper.setDefaultMergeable(false);
+
+        HashMap<String,Object> input = new HashMap<>();
+        input.put("list", new ArrayList<>(Arrays.asList("a")));
+
+        Map<?,?> resultMap = mapper.readerForUpdating(input)
+                .readValue(aposToQuotes("{'list':['b']}"));
+
+        List<?> resultList = (List<?>) resultMap.get("list");
+
+        assertEquals(Arrays.asList("b"), resultList);
+    }
+
+    public void testDisabledMergeByType() throws Exception
+    {
+        ObjectMapper mapper = newObjectMapper();
+        // disable merging for "untyped", that is, `Object.class`
+        mapper.configOverride(Object.class)
+            .setMergeable(false);
+
+        HashMap<String,Object> input = new HashMap<>();
+        input.put("list", new ArrayList<>(Arrays.asList("a")));
+
+        Map<?,?> resultMap = mapper.readerForUpdating(input)
+                .readValue(aposToQuotes("{'list':['b']}"));
+        List<?> resultList = (List<?>) resultMap.get("list");
+        assertEquals(Arrays.asList("b"), resultList);
+
+        // and for extra points, disable by default but ENABLE for type,
+        // which should once again allow merging
+
+        mapper = newObjectMapper();
+        mapper.setDefaultMergeable(false);
+        mapper.configOverride(Object.class)
+            .setMergeable(true);
+
+        input = new HashMap<>();
+        input.put("list", new ArrayList<>(Arrays.asList("x")));
+
+        resultMap = mapper.readerForUpdating(input)
+                .readValue(aposToQuotes("{'list':['y']}"));
+        resultList = (List<?>) resultMap.get("list");
+        assertEquals(Arrays.asList("x", "y"), resultList);
+    }
 }

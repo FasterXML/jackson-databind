@@ -69,6 +69,11 @@ public class UntypedObjectDeserializer
     protected JavaType _mapType;
 
     /**
+     * @since 2.9
+     */
+    protected final boolean _nonMerging;
+    
+    /**
      * @deprecated Since 2.6 use variant takes type arguments
      */
     @Deprecated
@@ -80,6 +85,7 @@ public class UntypedObjectDeserializer
         super(Object.class);
         _listType = listType;
         _mapType = mapType;
+        _nonMerging = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -94,6 +100,23 @@ public class UntypedObjectDeserializer
         _numberDeserializer = (JsonDeserializer<Object>) numberDeser;
         _listType = base._listType;
         _mapType = base._mapType;
+        _nonMerging = base._nonMerging;
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected UntypedObjectDeserializer(UntypedObjectDeserializer base,
+            boolean nonMerging)
+    {
+        super(Object.class);
+        _mapDeserializer = base._mapDeserializer;
+        _listDeserializer = base._listDeserializer;
+        _stringDeserializer = base._stringDeserializer;
+        _numberDeserializer = base._numberDeserializer;
+        _listType = base._listType;
+        _mapType = base._mapType;
+        _nonMerging = nonMerging;
     }
 
     /*
@@ -169,12 +192,18 @@ public class UntypedObjectDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
+        // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
+        boolean preventMerge = (property == null)
+                && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
         // 20-Apr-2014, tatu: If nothing custom, let's use "vanilla" instance,
         //     simpler and can avoid some of delegation
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
                 &&  getClass() == UntypedObjectDeserializer.class) {
-            return Vanilla.std;
+            return Vanilla.instance(preventMerge);
+        }
+        if (preventMerge != _nonMerging) {
+            return new UntypedObjectDeserializer(this, preventMerge);
         }
         return this;
     }
@@ -271,7 +300,8 @@ public class UntypedObjectDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer) throws IOException
     {
         switch (p.getCurrentTokenId()) {
         // First: does it look like we had type id wrapping of some kind?
@@ -329,6 +359,10 @@ public class UntypedObjectDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
         throws IOException
     {
+        if (_nonMerging) {
+            return deserialize(p, ctxt);
+        }
+
         switch (p.getCurrentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_FIELD_NAME:
@@ -579,12 +613,30 @@ public class UntypedObjectDeserializer
 
         public final static Vanilla std = new Vanilla();
 
-        public Vanilla() { super(Object.class); }
+        /**
+         * @since 2.9
+         */
+        protected final boolean _nonMerging;
+        
+        public Vanilla() { this(false); }
 
+        protected Vanilla(boolean nonMerging) {
+            super(Object.class);
+            _nonMerging = nonMerging;
+        }
+
+        public static Vanilla instance(boolean nonMerging) {
+            if (nonMerging) {
+                return new Vanilla(true);
+            }
+            return std;
+        }
+        
         @Override // since 2.9
         public Boolean supportsUpdate(DeserializationConfig config) {
             // 21-Apr-2017, tatu: Bit tricky... some values, yes. So let's say "dunno"
-            return null;
+            // 14-Jun-2017, tatu: Well, if merging blocked, can say no, as well.
+            return _nonMerging ? Boolean.FALSE : null;
         }
 
         @Override
@@ -693,6 +745,10 @@ public class UntypedObjectDeserializer
         public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
             throws IOException
         {
+            if (_nonMerging) {
+                return deserialize(p, ctxt);
+            }
+
             switch (p.getCurrentTokenId()) {
             case JsonTokenId.ID_END_OBJECT:
             case JsonTokenId.ID_END_ARRAY:

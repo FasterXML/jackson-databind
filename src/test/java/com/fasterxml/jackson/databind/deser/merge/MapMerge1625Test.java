@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.merge;
 
 import java.util.*;
 
@@ -11,15 +11,6 @@ public class MapMerge1625Test extends BaseMapTest
     public void testDefaultDeepMapMerge() throws Exception
     {
         // First: deep merge should be enabled by default
-
-        /*
-//        mapper.configOverride(Map.class)
-        mapper.configOverride(List.class)
-            .setMergeable(false);
-        mapper.configOverride(Object.class)
-        .setMergeable(false);
-        */
-
         HashMap<String,Object> input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("a")));
 

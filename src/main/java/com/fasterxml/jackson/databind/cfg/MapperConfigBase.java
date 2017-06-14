@@ -717,6 +717,19 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _configOverrides.getDefaultMergeable();
     }
 
+    @Override
+    public Boolean getDefaultMergeable(Class<?> baseType) {
+        Boolean b;
+        ConfigOverride cfg = _configOverrides.findOverride(baseType);
+        if (cfg != null) {
+            b = cfg.getMergeable();
+            if (b != null) {
+                return b;
+            }
+        }
+        return _configOverrides.getDefaultMergeable();
+    }
+
     /*
     /**********************************************************
     /* Other config access

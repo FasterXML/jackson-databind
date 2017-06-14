@@ -303,10 +303,8 @@ public class POJOPropertyBuilder
             }
             if (needMerge) {
                 Boolean b = _config.getDefaultMergeable();
-                if ((acc != null) && (b != null)) {
-                    if (b.booleanValue()) {
-                        metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForDefaults(acc));
-                    }
+                if (Boolean.TRUE.equals(b) && (acc != null)) {
+                    metadata = metadata.withMergeInfo(PropertyMetadata.MergeInfo.createForDefaults(acc));
                 }
             }
         }

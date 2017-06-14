@@ -510,11 +510,23 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for the baseline merge info used as the global baseline,
      * not considering possible per-type overrides.
      *
-     * @return Global base settings; never null
+     * @return Global base settings, if any; `null` if none.
      *
      * @since 2.9
      */
     public abstract Boolean getDefaultMergeable();
+
+    /**
+     * Accessor for the baseline merge info used for given type, including global
+     * defaults if no type-specific overrides defined.
+     *
+     * @return Type-specific settings (if any); global defaults (same as
+     *    {@link #getDefaultMergeable()}) otherwise, if any defined; or `null`
+     *    if neither defined
+     *
+     * @since 2.9
+     */
+    public abstract Boolean getDefaultMergeable(Class<?> baseType);
 
     /*
     /**********************************************************

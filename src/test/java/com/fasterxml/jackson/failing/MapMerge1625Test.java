@@ -1,32 +1,50 @@
 package com.fasterxml.jackson.failing;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
 public class MapMerge1625Test extends BaseMapTest
 {
+    final ObjectMapper MAPPER = newObjectMapper();
 
-    // for [databind#1625]: should be possible to prevent deep merge
-    public void testMapMergeForcedShallow() throws Exception
+    public void testDefaultDeepMapMerge() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        // prevent merging of "untyped" values
+        // First: deep merge should be enabled by default
+
+        /*
+//        mapper.configOverride(Map.class)
+        mapper.configOverride(List.class)
+            .setMergeable(false);
         mapper.configOverride(Object.class)
-            .setMergeable(Boolean.FALSE);
-        Map<String,Object> variables = new HashMap<>();
-        List<String> list = new ArrayList<>();
-        list.add("a");
-        variables.put("list", list);
-        mapper.readerForUpdating(variables).readValue(aposToQuotes("{'list':['b']}"));
-        // should overwrite, not append
-        List<?> l = (List<?>) variables.get("list");
-        if (l.size() != 1 || !"b".equals(list.get(0))) {
-            fail("Should overwrite contents, end up with entry for 'b', got: "+l);
-        }
+        .setMergeable(false);
+        */
+
+        HashMap<String,Object> input = new HashMap<>();
+        input.put("list", new ArrayList<>(Arrays.asList("a")));
+
+        Map<?,?> resultMap = MAPPER.readerForUpdating(input)
+                .readValue(aposToQuotes("{'list':['b']}"));
+
+        List<?> resultList = (List<?>) resultMap.get("list");
+
+        assertEquals(Arrays.asList("a", "b"), resultList);
+    }
+
+    public void testGloballyDisabledDeepMapMerge() throws Exception
+    {
+        ObjectMapper mapper = newObjectMapper();
+        // disable merging, globally; does not affect main level
+        mapper.setDefaultMergeable(false);
+
+        HashMap<String,Object> input = new HashMap<>();
+        input.put("list", new ArrayList<>(Arrays.asList("a")));
+
+        Map<?,?> resultMap = mapper.readerForUpdating(input)
+                .readValue(aposToQuotes("{'list':['b']}"));
+
+        List<?> resultList = (List<?>) resultMap.get("list");
+
+        assertEquals(Arrays.asList("b"), resultList);
     }
 }

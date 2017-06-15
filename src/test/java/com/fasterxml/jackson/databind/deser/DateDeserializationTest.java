@@ -384,20 +384,53 @@ public class DateDeserializationTest
 
     /**
      * ObjectMapper configured with a custom date format that does NOT handle the TIMEZONE.
-     * Dates should be constructed with the time zone set on the ObjectMapper.
+     * Dates must be constructed with the time zone set on the ObjectMapper.
      */
     public void testDateUtil_customDateFormat_withoutTZ() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
-        // use a timezone different than the ObjectMapper and the system default
-        final String tzOverrideStr = "GMT+4";
-        df.setTimeZone(TimeZone.getTimeZone(tzOverrideStr));
-        mapper.setDateFormat(df);
-
-        verify(mapper, "2000-01-02X03:04:05", judate(2000, 1, 2, 3, 4, 5, 00, tzOverrideStr));
-        	// Note: the timezone set on the custom format is ignored during deserialization 
-        	//       and serialization, the ObjectMapper TZ is used instead.
+        // FIXME
+        //
+        // The general rule with the StdDateFormat is:
+        //     the TimeZone of the ObjectMapper is used if the JSON doesn't hold
+        //     any timezone/offset information.
+        //
+        // This rule remains valid with the @JsonFormat annotation unless it forces
+        // an explicit timezeone, in which case the latter takes precedence.
+        //
+        // One would expect the same behavior when the StdDateFormat is replaced by a 
+        // custom DateFormat on the ObjectMapper. In other words, the timezone of the 
+        // DateFormat is of no importance: the ObjectMapper's default should be used
+        // whenever it is needed.
+        
+        
+        // Test first with a non default TZ on the ObjectMapper
+        // --> OK: the mapper's default TZ is used to parse the date.
+        {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
+            df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
+            
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setTimeZone( TimeZone.getTimeZone(LOCAL_TZ) );
+            mapper.setDateFormat(df);
+            
+            // The mapper's default TZ is used...
+            verify(mapper, "2000-01-02X04:00:00", judate(2000, 1, 2, 4, 00, 00, 00, LOCAL_TZ));
+        }
+        
+        // Test a second time with the default TZ on the ObjectMapper
+        // Note it is important NOT TO CALL mapper.setTimeZone(...) in this test..
+        // --> KO: the custom format's TZ is used instead of the mapper's default as above.
+        //
+        {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
+            df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
+            
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setDateFormat(df);
+            
+            // FIXME mapper's default TZ should have been used
+            verify(mapper, "2000-01-02X04:00:00", judate(2000, 1, 2, 4, 00, 00, 00, "GMT+4"));
+        }
     }
 
     /**

@@ -633,6 +633,11 @@ Bertrand Renuart (brenuart@github)
   * Reported #1651: `StdDateFormat` fails to parse 'zulu' date when TimeZone other than UTC
    (2.8.9)
 
+Kevin Gallardo (newkek@github)
+  * Reported #1658: Infinite recursion when deserializing a class extending a Map,
+    with a recursive value type
+   (2.8.10)
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

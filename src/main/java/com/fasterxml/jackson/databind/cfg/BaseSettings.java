@@ -238,14 +238,24 @@ public final class BaseSettings
                 _timeZone, _defaultBase64);
     }
     
+    /**
+     * Set the {@link DateFormat} instance to use with this settings.
+     * <p>
+     * Note that the TimeZone value originally set on the DateFormat will be ignored and
+     * reset reset to use the value configured on this settings object.
+     * The locale will remains unchanged however.
+     * 
+     * @param df the {@link DateFormat} instance to use
+     * @return a new instance of the settings with the DateFormat set to the desired value
+     */
     public BaseSettings withDateFormat(DateFormat df) {
         if (_dateFormat == df) {
             return this;
         }
-        // 26-Sep-2015, tatu: Related to [databind#939], let's try to force TimeZone if
-        //   (but only if!) it has been set explicitly.
-        if ((df != null) && hasExplicitTimeZone()) {
-            df = _force(df, _timeZone);
+        
+        // Configure the DateFormat with the TimeZone mandated by this settings
+        if (df != null ) {
+            df = _force(df, getTimeZone());
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
@@ -284,7 +294,11 @@ public final class BaseSettings
             return this;
         }
         
-        DateFormat df = _force(_dateFormat, tz);
+        // Reconfigure the DateFormat with the new TimeZone
+        DateFormat df = _dateFormat;
+        if( df != null ) {
+        	df = _force(_dateFormat, tz);
+        }
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
@@ -346,6 +360,16 @@ public final class BaseSettings
         return _locale;
     }
 
+    /**
+     * Get the {@link TimeZone} explicitly set on this settings object or the 
+     * default value otherwise.
+     * 
+     * @return the {@link TimeZone} to use according to this settings object (not null).
+     * 
+     * @see #with(TimeZone)
+     * @see #hasExplicitTimeZone()
+     * @see #DEFAULT_TIMEZONE
+     */
     public TimeZone getTimeZone() {
         TimeZone tz = _timeZone;
         return (tz == null) ? DEFAULT_TIMEZONE : tz;
@@ -353,9 +377,10 @@ public final class BaseSettings
 
     /**
      * Accessor that may be called to determine whether this settings object
-     * has been explicitly configured with a TimeZone (true), or is still
-     * relying on the default settings (false).
+     * has been explicitly configured with a TimeZone {@code true}, or is still
+     * relying on the default settings {@code false}.
      *
+     * @return {@code true} if a TimeZone has been explicitly configured
      * @since 2.7
      */
     public boolean hasExplicitTimeZone() {
@@ -372,6 +397,13 @@ public final class BaseSettings
     /**********************************************************
      */
 
+    /**
+     * Set the timeZone on the given DateFormat
+     * 
+     * @param df the DateFormat instance to configure
+     * @param tz the TimeZone to set on the DateFormat
+     * @return a potentially new instance of the DateFormat with the TimeZone set to the desired value
+     */
     private DateFormat _force(DateFormat df, TimeZone tz)
     {
         if (df instanceof StdDateFormat) {

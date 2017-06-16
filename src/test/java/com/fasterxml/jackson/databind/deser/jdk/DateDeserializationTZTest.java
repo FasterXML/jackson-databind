@@ -25,23 +25,24 @@ public class DateDeserializationTZTest
     private static final String LOCAL_TZ = "GMT+2";
 
     private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-    
+
     static class Annot_TimeZone {
         @JsonFormat(timezone="GMT+4")
         private java.util.Date date;
-       }
+    }
+
     static class Annot_Pattern {
-     @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'")
-     private java.util.Date pattern;
-     
-     @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", locale="FR")
-     private java.util.Date pattern_FR;
-     
-     @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", timezone="GMT+4")
-     private java.util.Date pattern_GMT4;
-     
-     @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", locale="FR", timezone="GMT+4")
-     private java.util.Date pattern_FR_GMT4;
+        @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'")
+        private java.util.Date pattern;
+
+        @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", locale="FR")
+        private java.util.Date pattern_FR;
+
+        @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", timezone="GMT+4")
+        private java.util.Date pattern_GMT4;
+
+        @JsonFormat(pattern="'*'d MMM yyyy HH:mm:ss'*'", locale="FR", timezone="GMT+4")
+        private java.util.Date pattern_FR_GMT4;
     }
 
     static class DateAsStringBean {
@@ -53,7 +54,7 @@ public class DateDeserializationTZTest
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="/yyyy/MM/dd/", locale="fr_FR")
         public Date date;
     }
-    
+
     private ObjectMapper MAPPER;
 
     @Override
@@ -61,11 +62,13 @@ public class DateDeserializationTZTest
         super.setUp();
 
         // Create an ObjectMapper with its timezone set to something other than the default (UTC).
-        // This way we can verify that serialization and deserialization actually consider the time  
+        // This way we can verify that serialization and deserialization actually consider the time
         // zone set on the mapper.
         ObjectMapper m = new ObjectMapper();
         m.setTimeZone(TimeZone.getTimeZone(LOCAL_TZ));
         MAPPER = m;
+        
+        FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     /*
@@ -85,7 +88,7 @@ public class DateDeserializationTZTest
         verify( MAPPER, "2000-01-02T03:04:05.678+0100",  judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
         // Hour offset (no minutes)
         verify( MAPPER, "2000-01-02T03:04:05.678+01",    judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
-    	
+
         // 'zulu' offset
         verify( MAPPER, "2000-01-02T03:04:05.678Z",      judate(2000, 1, 2,   3, 4, 5, 678, "UTC"));
 
@@ -93,139 +96,189 @@ public class DateDeserializationTZTest
         // WARNING:
         //   According to ISO8601, hours and minutes of the offset must be expressed with 2 digits 
         //   (not more, not less), i.e. Z or +hh:mm or -hh:mm. See https://www.w3.org/TR/NOTE-datetime. 
-    	    //   
+        //
         //   The forms below should be refused but some are accepted by the StdDateFormat. They are 
-    	    //   included in the test to detect any change in behavior in futur releases...
-    	    // ---------------------------------------------------------------------------------------------
-    	
+        //   included in the test to detect any change in behavior in futur releases...
+        // ---------------------------------------------------------------------------------------------
+
         // Interpreted as if there was no timezone, therefore producing a date with the TZ set on the mapper
+        // FIXME it is probably better to refuse these cases instead of silently creating dates in local tz...
         verify( MAPPER, "2000-01-02T03:04:05.678+",        judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
         verify( MAPPER, "2000-01-02T03:04:05.678+1",       judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-    	    verify( MAPPER, "2000-01-02T03:04:05.678+001",     judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-    	    verify( MAPPER, "2000-01-02T03:04:05.678+00:",     judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-    	    verify( MAPPER, "2000-01-02T03:04:05.678+00:001",  judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-    	    verify( MAPPER, "2000-01-02T03:04:05.678+001:001", judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
+            // FIXME this should probably give GMT+1
+        verify( MAPPER, "2000-01-02T03:04:05.678+001",     judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05.678+00:",     judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05.678+00:001",  judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05.678+001:001", judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
 
-    	    // Considering the above forms have been accepted, it is strange the following are refused...
-    	    failure( MAPPER, "2000-01-02T03:04:05.678+1:");		// FIXME
-    	    failure( MAPPER, "2000-01-02T03:04:05.678+00:1");	// FIXME
+        // Considering the above forms have been accepted, it is strange the following are refused...
+        failure( MAPPER, "2000-01-02T03:04:05.678+1:");      // FIXME
+        failure( MAPPER, "2000-01-02T03:04:05.678+00:1");    // FIXME
     }
 
     /**
      * Test the millis
      */
     public void testDateUtilISO8601_DateTimeMillis() throws Exception 
-    {	
-    	// WITH timezone (from 4 to 0 digits)
-    	failure(MAPPER, "2000-01-02T03:04:05.6789+01:00");
-    	verify( MAPPER, "2000-01-02T03:04:05.678+01:00", judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
-    	verify( MAPPER, "2000-01-02T03:04:05.67+01:00",  judate(2000, 1, 2,   3, 4, 5, 670, "GMT+1"));
-    	verify( MAPPER, "2000-01-02T03:04:05.6+01:00",   judate(2000, 1, 2,   3, 4, 5, 600, "GMT+1"));
-    	verify( MAPPER, "2000-01-02T03:04:05+01:00",     judate(2000, 1, 2,   3, 4, 5, 000, "GMT+1"));
+    {    
+        // WITH timezone (from 4 to 0 digits)
+        failure(MAPPER, "2000-01-02T03:04:05.6789+01:00");
+        verify( MAPPER, "2000-01-02T03:04:05.678+01:00", judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05.67+01:00",  judate(2000, 1, 2,   3, 4, 5, 670, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05.6+01:00",   judate(2000, 1, 2,   3, 4, 5, 600, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05+01:00",     judate(2000, 1, 2,   3, 4, 5, 000, "GMT+1"));
 
-    	// WITHOUT timezone (from 4 to 0 digits)
-    	verify(MAPPER, "2000-01-02T03:04:05.6789",       judate(2000, 1, 2,   3, 4, 11, 789, LOCAL_TZ));
-    		// FIXME: the .6789 millis are interpreted as 6789 millisecondes or 6.789 seconds!
-    	
-    	verify( MAPPER, "2000-01-02T03:04:05.678",       judate(2000, 1, 2,   3, 4,  5, 678, LOCAL_TZ));
-    	verify( MAPPER, "2000-01-02T03:04:05.67",        judate(2000, 1, 2,   3, 5, 12, 000, LOCAL_TZ));
-    		// FIXME: the .67 millis are interpreted as 67 seconds.
-    	
-    	verify( MAPPER, "2000-01-02T03:04:05.6",         judate(2000, 1, 2,   3, 4,  5, 600, LOCAL_TZ));
-    	verify( MAPPER, "2000-01-02T03:04:05",           judate(2000, 1, 2,   3, 4,  5, 000, LOCAL_TZ));
-    	
-    	
-    	// ---------------------------------------------------------------------------------------------
-    	// WARNING:
-    	//   RFC339 includes an Internet profile of the ISO 8601 standard for representation of dates 
-    	//   and times using the Gregorian calendar (https://tools.ietf.org/html/rfc3339).
-    	//
-    	//   The RFC defines a partial time with the following BNF notation (chapter 5.6):
-    	//      time-hour       = 2DIGIT  ; 00-23
-		//      time-minute     = 2DIGIT  ; 00-59
-		//      time-second     = 2DIGIT  ; 00-58, 00-59, 00-60 based on leap second rules
-		//      time-secfrac    = "." 1*DIGIT
-		//      partial-time    = time-hour ":" time-minute ":" time-second [time-secfrac]
-    	//
-    	//   The second fraction (ie the millis) is optional and can be ommitted. However, a fraction
-    	//   with only a dot (.) and no digit is not allowed.
-    	//
+        
+        // WITH timezone Z (from 4 to 0 digits)
+        verify( MAPPER, "2000-01-02T03:04:05.6789Z", judate(2000, 1, 2,   3, 4, 11, 789, "UTC"));
+            // FIXME the .6789 millis are interpreted as 6789 millisecondes or 6.789 seconds!
+        verify( MAPPER, "2000-01-02T03:04:05.678Z", judate(2000, 1, 2,   3, 4, 5, 678, "UTC"));
+        verify( MAPPER, "2000-01-02T03:04:05.67Z",  judate(2000, 1, 2,   3, 4, 5,  67, "UTC"));
+           // FIXME should be 670 millis instead of 67
+        verify( MAPPER, "2000-01-02T03:04:05.6Z",   judate(2000, 1, 2,   3, 4, 5,   6, "UTC"));
+           // FIXME should be 600 millis instead of 6
+        verify( MAPPER, "2000-01-02T03:04:05Z",     judate(2000, 1, 2,   3, 4, 5,   0, "UTC"));
+        
+
+        // WITHOUT timezone (from 4 to 0 digits)
+        verify(MAPPER, "2000-01-02T03:04:05.6789",       judate(2000, 1, 2,   3, 4, 11, 789, LOCAL_TZ));
+            // FIXME: the .6789 millis are interpreted as 6789 millisecondes or 6.789 seconds!
+        
+        verify( MAPPER, "2000-01-02T03:04:05.678",       judate(2000, 1, 2,   3, 4,  5, 678, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05.67",        judate(2000, 1, 2,   3, 5, 12, 000, LOCAL_TZ));
+            // FIXME: the .67 millis are interpreted as 67 seconds.
+        
+        verify( MAPPER, "2000-01-02T03:04:05.6",         judate(2000, 1, 2,   3, 4,  5, 600, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05",           judate(2000, 1, 2,   3, 4,  5, 000, LOCAL_TZ));
+        
+        
+        // ---------------------------------------------------------------------------------------------
+        // WARNING:
+        //   RFC339 includes an Internet profile of the ISO 8601 standard for representation of dates 
+        //   and times using the Gregorian calendar (https://tools.ietf.org/html/rfc3339).
+        //
+        //   The RFC defines a partial time with the following BNF notation (chapter 5.6):
+        //      time-hour       = 2DIGIT  ; 00-23
+        //      time-minute     = 2DIGIT  ; 00-59
+        //      time-second     = 2DIGIT  ; 00-58, 00-59, 00-60 based on leap second rules
+        //      time-secfrac    = "." 1*DIGIT
+        //      partial-time    = time-hour ":" time-minute ":" time-second [time-secfrac]
+        //
+        //   The second fraction (ie the millis) is optional and can be ommitted. However, a fraction
+        //   with only a dot (.) and no digit is not allowed.
+        //
         //   The forms below should be refused but some are accepted by the StdDateFormat. They are 
-       	//   included in the test to detect any change in behavior in futur releases...
-    	// ---------------------------------------------------------------------------------------------
-    	
-    	// millis part with only a dot (.) and no digits
-    	verify(MAPPER, "2000-01-02T03:04:05.+01:00",    judate(2000, 1, 2,   3, 4, 5, 000, "GMT+1"));
-    	verify(MAPPER, "2000-01-02T03:04:05.",          judate(2000, 1, 2,   3, 4, 5, 000, LOCAL_TZ));
+           //   included in the test to detect any change in behavior in futur releases...
+        // ---------------------------------------------------------------------------------------------
+        
+        // millis part with only a dot (.) and no digits
+        verify( MAPPER, "2000-01-02T03:04:05.+01:00",    judate(2000, 1, 2,   3, 4, 5, 000, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05.",          judate(2000, 1, 2,   3, 4, 5, 000, LOCAL_TZ));
+        failure(MAPPER, "2000-01-02T03:04:05.Z");	     // FIXME this one fails, but not the others...
     }
-    
-    
+
+
     /**
      * Date+Time representations
      * 
      * NOTE: millis are not tested here since they are covered by another test case
      */
-    @SuppressWarnings("javadoc")
     public void testDateUtilISO8601_DateTime() throws Exception 
     {
-    	// Full representation with a timezone
-    	verify(MAPPER, "2000-01-02T03:04:05+01:00",  judate(2000, 1, 2,   3, 4, 5, 0, "GMT+1"));
+        // Full representation with a timezone
+        verify(MAPPER, "2000-01-02T03:04:05+01:00",  judate(2000, 1, 2,   3, 4, 5, 0, "GMT+1"));
 
-    	// No timezone --> the one configured on the ObjectMapper must be used
-    	verify(MAPPER, "2000-01-02T03:04:05",        judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        // No timezone --> the one configured on the ObjectMapper must be used
+        verify(MAPPER, "2000-01-02T03:04:05",        judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
 
-    	// Hours, minutes and seconds are mandatory when time is specified
-    	failure(MAPPER, "2000-01-02T");
-    	failure(MAPPER, "2000-01-02T03");
-    	failure(MAPPER, "2000-01-02T03:");
-    	failure(MAPPER, "2000-01-02T03:04");
-    	failure(MAPPER, "2000-01-02T03:04:");
+        // Hours, minutes and seconds are mandatory when time is specified
+        failure(MAPPER, "2000-01-02T");
+        failure(MAPPER, "2000-01-02T03");
+        failure(MAPPER, "2000-01-02T03:");
+        failure(MAPPER, "2000-01-02T03:04");
+        failure(MAPPER, "2000-01-02T03:04:");
 
-    	// Although hours, minutes and seconds are mandatory, they can sometimes be omitted 
-    	// if a TZ is specified... !!??
-    	failure(MAPPER, "2000-01-02T+01:00");
-    	failure(MAPPER, "2000-01-02T03+01:00");
-    	failure(MAPPER, "2000-01-02T03:+01:00");
-    	verify( MAPPER, "2000-01-02T03:04+01:00",   judate(2000, 1, 2,   3, 4, 0, 0, "GMT+1"));	// FIXME should be refused
-    	failure(MAPPER, "2000-01-02T03:04:+01:00");
-    	
-    	
-    	// ---------------------------------------------------------------------------------------------
-    	// WARNING:
-    	//   ISO8601 (https://en.wikipedia.org/wiki/ISO_8601#Times) and its RFC339 profile 
-    	//   (https://tools.ietf.org/html/rfc3339, chapter 5.6) seem to require 2 DIGITS for 
-    	//   the hours, minutes and seconds.
-    	//
-    	//   The following forms should therefore be refused but are accepted by Jackson (and 
-    	//   java.text.SimpleDateFormat). They are verified here to detect any changes in future
-    	//   releases.
-    	//
-    	//   NOTE: 1 digit is accepted only when NO TIMEZONE is specified and fails otherwise.
-    	// ---------------------------------------------------------------------------------------------
-    	
-    	// second
-    	verify( MAPPER, "2000-01-02T03:04:5",           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-    	verify( MAPPER, "2000-01-02T03:04:5.000",       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-    	failure(MAPPER, "2000-01-02T03:04:5+01:00");		// FIXME Was accepted without TZ - consistency !!
-    	failure(MAPPER, "2000-01-02T03:04:5.000+01:00");	// FIXME Was accepted without TZ - consistency !!
-    	failure(MAPPER, "2000-01-02T03:04:005");
+        // Although hours, minutes and seconds are mandatory, they can sometimes be omitted 
+        // if a TZ is specified... !!??
+        failure(MAPPER, "2000-01-02T+01:00");
+        failure(MAPPER, "2000-01-02T03+01:00");
+        failure(MAPPER, "2000-01-02T03:+01:00");
+        verify( MAPPER, "2000-01-02T03:04+01:00",   judate(2000, 1, 2,   3, 4, 0, 0, "GMT+1"));    // FIXME should be refused
+        failure(MAPPER, "2000-01-02T03:04:+01:00");
+        
+        failure(MAPPER, "2000-01-02TZ");
+        failure(MAPPER, "2000-01-02T03Z");
+        failure(MAPPER, "2000-01-02T03:Z");
+        failure(MAPPER, "2000-01-02T03:04Z");
+        failure(MAPPER, "2000-01-02T03:04:Z");
 
-    	// minute
-    	verify( MAPPER, "2000-01-02T03:4:05",           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-    	verify( MAPPER, "2000-01-02T03:4:05.000",       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-    	failure(MAPPER, "2000-01-02T03:4:05+01:00");		// FIXME Was accepted without TZ - consistency !!
-    	failure(MAPPER, "2000-01-02T03:4:05.000+01:00");	// FIXME Was accepted without TZ - consistency !!
-    	failure(MAPPER, "2000-01-02T03:004:05");
+        
+        // ---------------------------------------------------------------------------------------------
+        // WARNING:
+        //   ISO8601 (https://en.wikipedia.org/wiki/ISO_8601#Times) and its RFC339 profile 
+        //   (https://tools.ietf.org/html/rfc3339, chapter 5.6) seem to require 2 DIGITS for 
+        //   the hours, minutes and seconds.
+        //
+        //   The following forms should therefore be refused but are accepted by Jackson (and 
+        //   java.text.SimpleDateFormat). They are verified here to detect any changes in future
+        //   releases.
+        //
+        // ---------------------------------------------------------------------------------------------
+        
+        // FIXME As highlighted in the tests below, the behaviour is not consistent and largely 
+        // depends on wether a timezone and or millis are specified or not.
+        // The tests assert the behavior with different number of digits for hour, min and sec.
+        // Behavior should be the SAME whatever the timezone and/or the millis.
+        
+        // seconds (no TZ)
+        verify( MAPPER, "2000-01-02T03:04:5",           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:5.000",       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        failure(MAPPER, "2000-01-02T03:04:005");
+        
+        // seconds (+01:00)
+        failure(MAPPER, "2000-01-02T03:04:5+01:00");
+        failure(MAPPER, "2000-01-02T03:04:5.000+01:00");
+        failure(MAPPER, "2000-01-02T03:04:005+01:00");
+        
+        // seconds (Z)
+        failure(MAPPER, "2000-01-02T03:04:5Z");
+        verify( MAPPER, "2000-01-02T03:04:5.000Z",      judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        failure(MAPPER, "2000-01-02T03:04:005Z");
+        
 
-    	// hour
-    	verify( MAPPER, "2000-01-02T3:04:05",           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-    	verify( MAPPER, "2000-01-02T3:04:05.000",       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-    	failure(MAPPER, "2000-01-02T3:04:05+01:00");		// FIXME Was accepted without TZ - consistency !!
-    	failure(MAPPER, "2000-01-02T3:04:05.000+01:00"); 	// FIXME Was accepted without TZ - consistency !!
-    	failure(MAPPER, "2000-01-02T003:04:05");
+        // minutes (no TZ)
+        verify( MAPPER, "2000-01-02T03:4:05",           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:4:05.000",       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        failure(MAPPER, "2000-01-02T03:004:05");
+        
+        // minutes (+01:00)
+        failure(MAPPER, "2000-01-02T03:4:05+01:00");
+        failure(MAPPER, "2000-01-02T03:4:05.000+01:00");
+        failure(MAPPER, "2000-01-02T03:004:05+01:00");
+        
+        // minutes (Z)
+        verify( MAPPER, "2000-01-02T03:4:05Z",          judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        verify( MAPPER, "2000-01-02T03:4:05.000Z",      judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        verify( MAPPER, "2000-01-02T03:004:05Z",        judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+
+
+        // hour (no TZ)
+        verify( MAPPER, "2000-01-02T3:04:05",           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T3:04:05.000",       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        failure(MAPPER, "2000-01-02T003:04:05");
+
+        // hour (+01:00)
+        failure(MAPPER, "2000-01-02T3:04:05+01:00");
+        failure(MAPPER, "2000-01-02T3:04:05.000+01:00");
+        failure(MAPPER, "2000-01-02T003:04:05+01:00");
+
+        // hour (Z)
+        verify( MAPPER, "2000-01-02T3:04:05Z",         judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        verify( MAPPER, "2000-01-02T3:04:05.000Z",     judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        verify( MAPPER, "2000-01-02T003:04:05Z",       judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
     }
-    
-    
+
+
     /**
      * Date-only representations (no Time part)
      * 
@@ -233,40 +286,39 @@ public class DateDeserializationTZTest
      */
     public void testDateUtilISO8601_Date() throws Exception
     {
-    	// Date is constructed with the timezone of the ObjectMapper. Time part is set to zero.
-    	verify(MAPPER, "2000-01-02", judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
-    	
-    	
-    	// ---------------------------------------------------------------------------------------------
-    	// WARNING:
-    	//   ISO8601 (https://en.wikipedia.org/wiki/ISO_8601#Times) and its RFC339 profile 
-    	//   (https://tools.ietf.org/html/rfc3339, chapter 5.6) seem to require 2 DIGITS for 
-    	//   the month and dayofweek but 4 DIGITS for the year.
-    	//
-    	//   The following forms should therefore be refused but are accepted by Jackson (and 
-    	//   java.text.SimpleDateFormat). They are verified here to detect any changes in future
-    	//   releases.
-    	// ---------------------------------------------------------------------------------------------
+        // Date is constructed with the timezone of the ObjectMapper. Time part is set to zero.
+        verify(MAPPER, "2000-01-02", judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
+        
+        
+        // ---------------------------------------------------------------------------------------------
+        // WARNING:
+        //   ISO8601 (https://en.wikipedia.org/wiki/ISO_8601#Times) and its RFC339 profile 
+        //   (https://tools.ietf.org/html/rfc3339, chapter 5.6) seem to require 2 DIGITS for 
+        //   the month and dayofweek but 4 DIGITS for the year.
+        //
+        //   The following forms should therefore be refused but are accepted by Jackson (and 
+        //   java.text.SimpleDateFormat). They are verified here to detect any changes in future
+        //   releases.
+        // ---------------------------------------------------------------------------------------------
 
-    	// day
-    	verify(  MAPPER, "2000-01-2",      judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
-    	failure( MAPPER, "2000-01-002");
-    	
-    	// month
-    	verify(  MAPPER, "2000-1-02",      judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
-    	failure( MAPPER, "2000-001-02");
-    	
-    	// year
-    	failure( MAPPER, "20000-01-02");
-    	failure( MAPPER, "200-01-02"  );
-    	failure( MAPPER, "20-01-02"   );
-    	verify(  MAPPER, "2-01-02",        judate(2, 1, 2,   0, 0, 0, 0, LOCAL_TZ));	// FIXME Why accept 1 digit and refuse they other cases??
+        // day
+        verify(  MAPPER, "2000-01-2",      judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
+        failure( MAPPER, "2000-01-002");
+        
+        // month
+        verify(  MAPPER, "2000-1-02",      judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
+        failure( MAPPER, "2000-001-02");
+        
+        // year
+        failure( MAPPER, "20000-01-02");
+        failure( MAPPER, "200-01-02"  );
+        failure( MAPPER, "20-01-02"   );
+        verify(  MAPPER, "2-01-02",        judate(2, 1, 2,   0, 0, 0, 0, LOCAL_TZ));    // FIXME Why accept 1 digit and refuse they other cases??
     }
 
     /**
      * DateTime as numeric representation
      */
-    @SuppressWarnings("javadoc")
     public void testDateUtil_Numeric() throws Exception
     {
         {
@@ -303,32 +355,32 @@ public class DateDeserializationTZTest
      */
     public void testDateUtil_Annotation() throws Exception
     {
-    	// Build the input JSON and expected value
-    	String json = aposToQuotes("{'date':'/2005/05/25/'}");
-    	java.util.Date expected = judate(2005, 05, 25, 0, 0, 0, 0, LOCAL_TZ);
-    	
-    	
-    	// Read it to make sure the format specified by the annotation is taken into account
-    	{
-	    	DateAsStringBean result = MAPPER.readValue(json, DateAsStringBean.class);
-	    	assertNotNull(result);
-	    	assertEquals( expected, result.date );
-    	}
-    	{
-	    	DateAsStringBean result = MAPPER.readerFor(DateAsStringBean.class)
-	    	        .with(Locale.GERMANY)
-	    	        .readValue(json);
-	    	assertNotNull(result);
-	    	assertEquals( expected, result.date );
-    	}
-    	
+        // Build the input JSON and expected value
+        String json = aposToQuotes("{'date':'/2005/05/25/'}");
+        java.util.Date expected = judate(2005, 05, 25, 0, 0, 0, 0, LOCAL_TZ);
+        
+        
+        // Read it to make sure the format specified by the annotation is taken into account
+        {
+            DateAsStringBean result = MAPPER.readValue(json, DateAsStringBean.class);
+            assertNotNull(result);
+            assertEquals( expected, result.date );
+        }
+        {
+            DateAsStringBean result = MAPPER.readerFor(DateAsStringBean.class)
+                    .with(Locale.GERMANY)
+                    .readValue(json);
+            assertNotNull(result);
+            assertEquals( expected, result.date );
+        }
+        
         // or, via annotations
-    	{
-	        DateAsStringBeanGermany result = MAPPER.readerFor(DateAsStringBeanGermany.class)
-	        		                               .readValue(json);
-	        assertNotNull(result);
-	    	assertEquals( expected, result.date );
-    	}
+        {
+            DateAsStringBeanGermany result = MAPPER.readerFor(DateAsStringBeanGermany.class)
+                                                   .readValue(json);
+            assertNotNull(result);
+            assertEquals( expected, result.date );
+        }
     }
 
     /**
@@ -337,21 +389,21 @@ public class DateDeserializationTZTest
      */
     public void testDateUtil_Annotation_PatternAndLocale() throws Exception
     {
-    	// Change the default locale set on the ObjectMapper to something else than the default.
-    	// This way we know if the default is correctly taken into account
+        // Change the default locale set on the ObjectMapper to something else than the default.
+        // This way we know if the default is correctly taken into account
         ObjectMapper mapper = MAPPER.copy();
         mapper.setLocale( Locale.ITALY );
-    	
+
         // Build the JSON string. This is a mixed of ITALIAN and FRENCH (no ENGLISH because this 
         // would be the default).
         String json = aposToQuotes("{ 'pattern': '*1 giu 2000 01:02:03*', 'pattern_FR': '*01 juin 2000 01:02:03*', 'pattern_GMT4': '*1 giu 2000 01:02:03*', 'pattern_FR_GMT4': '*1 juin 2000 01:02:03*'}");
-    	    Annot_Pattern result = mapper.readValue(json, Annot_Pattern.class);
-    	
-    	    assertNotNull(result);
-    	    assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, LOCAL_TZ), result.pattern        );
-    	    assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, LOCAL_TZ), result.pattern_FR     );
-    	    assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, "GMT+4"),  result.pattern_GMT4    );
-    	    assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, "GMT+4"),  result.pattern_FR_GMT4 );
+        Annot_Pattern result = mapper.readValue(json, Annot_Pattern.class);
+
+        assertNotNull(result);
+        assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, LOCAL_TZ), result.pattern        );
+        assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, LOCAL_TZ), result.pattern_FR     );
+        assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, "GMT+4"),  result.pattern_GMT4    );
+        assertEquals( judate(2000, 6, 1, 1, 2, 3, 0, "GMT+4"),  result.pattern_FR_GMT4 );
     }
 
     /**
@@ -360,55 +412,88 @@ public class DateDeserializationTZTest
      */
     public void testDateUtil_Annotation_TimeZone() throws Exception
     {
-    	// WITHOUT timezone
-    	{
-	    	String json = aposToQuotes("{ 'date': '2000-01-02T03:04:05.678' }");
-	    	Annot_TimeZone result = MAPPER.readValue(json, Annot_TimeZone.class);
-	    	
-	    	assertNotNull(result);
-	    	assertEquals( judate(2000, 1, 2, 3, 4, 5, 678, "GMT+4"), result.date);
-    	}
-    	
-    	// WITH timezone
-    	//   --> the annotation acts as the "default" timezone. The timezone specified
-    	//       in the JSON should be considered first.
-    	{
-	    	String json = aposToQuotes("{ 'date': '2000-01-02T03:04:05.678+01:00' }");
-	    	Annot_TimeZone result = MAPPER.readValue(json, Annot_TimeZone.class);
-	    	
-	    	assertNotNull(result);
-	    	assertEquals( judate(2000, 1, 2, 3, 4, 5, 678, "GMT+1"), result.date);
-    	}
+        // WITHOUT timezone
+        {
+            String json = aposToQuotes("{ 'date': '2000-01-02T03:04:05.678' }");
+            Annot_TimeZone result = MAPPER.readValue(json, Annot_TimeZone.class);
+            
+            assertNotNull(result);
+            assertEquals( judate(2000, 1, 2, 3, 4, 5, 678, "GMT+4"), result.date);
+        }
+        
+        // WITH timezone
+        //   --> the annotation acts as the "default" timezone. The timezone specified
+        //       in the JSON should be considered first.
+        {
+            String json = aposToQuotes("{ 'date': '2000-01-02T03:04:05.678+01:00' }");
+            Annot_TimeZone result = MAPPER.readValue(json, Annot_TimeZone.class);
+            
+            assertNotNull(result);
+            assertEquals( judate(2000, 1, 2, 3, 4, 5, 678, "GMT+1"), result.date);
+        }
     }
 
     /**
      * ObjectMapper configured with a custom date format that does NOT handle the TIMEZONE.
-     * Dates should be constructed with the time zone set on the ObjectMapper.
+     * Dates must be constructed with the time zone set on the ObjectMapper.
      */
     public void testDateUtil_customDateFormat_withoutTZ() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
-        // use a timezone different than the ObjectMapper and the system default
-        final String tzOverrideStr = "GMT+4";
-        df.setTimeZone(TimeZone.getTimeZone(tzOverrideStr));
-        mapper.setDateFormat(df);
-
-        verify(mapper, "2000-01-02X03:04:05", judate(2000, 1, 2, 3, 4, 5, 00, tzOverrideStr));
-        	// Note: the timezone set on the custom format is ignored during deserialization 
-        	//       and serialization, the ObjectMapper TZ is used instead.
+        // FIXME
+        //
+        // The general rule with the StdDateFormat is:
+        //     the TimeZone of the ObjectMapper is used if the JSON doesn't hold
+        //     any timezone/offset information.
+        //
+        // This rule remains valid with the @JsonFormat annotation unless it forces
+        // an explicit timezeone, in which case the latter takes precedence.
+        //
+        // One would expect the same behavior when the StdDateFormat is replaced by a 
+        // custom DateFormat on the ObjectMapper. In other words, the timezone of the 
+        // DateFormat is of no importance: the ObjectMapper's default should be used
+        // whenever it is needed.
+        
+        
+        // Test first with a non default TZ on the ObjectMapper
+        // --> OK: the mapper's default TZ is used to parse the date.
+        {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
+            df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
+            
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setTimeZone( TimeZone.getTimeZone(LOCAL_TZ) );
+            mapper.setDateFormat(df);
+            
+            // The mapper's default TZ is used...
+            verify(mapper, "2000-01-02X04:00:00", judate(2000, 1, 2, 4, 00, 00, 00, LOCAL_TZ));
+        }
+        
+        // Test a second time with the default TZ on the ObjectMapper
+        // Note it is important NOT TO CALL mapper.setTimeZone(...) in this test..
+        // --> KO: the custom format's TZ is used instead of the mapper's default as above.
+        //
+        {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
+            df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
+            
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setDateFormat(df);
+            
+            // FIXME mapper's default TZ should have been used
+            verify(mapper, "2000-01-02X04:00:00", judate(2000, 1, 2, 4, 00, 00, 00, "GMT+4"));
+        }
     }
 
     /**
-     * ObjectMapper configured with a custom date format that does NOT handle the TIMEZONE.
-     * Dates should be constructed with the time zone set on the ObjectMapper.
+     * ObjectMapper configured with a custom date format that DOES handle the TIMEZONE.
+     * Dates must be constructed from the timezone of the input, regardless of the one
+     * of the ObjectMapper.
      */
-    @SuppressWarnings("javadoc")
     public void testDateUtil_customDateFormat_withTZ() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ssZ");
-        df.setTimeZone(TimeZone.getTimeZone("GMT+4"));	// use a timezone different than the ObjectMapper and the system default
+        df.setTimeZone(TimeZone.getTimeZone("GMT+4"));    // use a timezone different than the ObjectMapper and the system default
         mapper.setDateFormat(df);
 
         verify(mapper, "2000-01-02X03:04:05+0300", judate(2000, 1, 2, 3, 4, 5, 00, "GMT+3"));

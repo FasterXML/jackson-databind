@@ -38,7 +38,6 @@ public class StdDateFormat
 
     /**
      * Same as 'regular' 8601 except misses timezone altogether.
-     * Used only for parsing/reading dates.
      *
      * @since 2.8.10
      */
@@ -605,7 +604,7 @@ public class StdDateFormat
     	
     	
     	//
-    	// -- SECONDS --
+    	// -- TIME fields --
     	// 
     	//  Things to handle:
     	//  - hours, minutes and seconds are optional. Add a default value so it can be 

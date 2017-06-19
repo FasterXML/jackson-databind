@@ -608,7 +608,8 @@ public class StdDateFormat
     	// -- SECONDS --
     	// 
     	//  Things to handle:
-    	//  - add seconds if absent (they are optional but required by the DateFormat we gonna use)
+    	//  - hours, minutes and seconds are optional. Add a default value so it can be 
+    	//    accepted by SimpleDateFormat
     	
     	// Count how many ':' we have in the time part
     	int columnCount = 0;
@@ -619,7 +620,6 @@ public class StdDateFormat
     		}
     	}
     	
-    	// If not exactly 2 ':', then we are missing some optional time elements
     	if( columnCount < 2 ) { 
     		sb.insert(current, ":00");
     	}

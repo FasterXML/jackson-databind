@@ -1221,7 +1221,7 @@ public abstract class AnnotationIntrospector
      * @since 2.9
      */
     public Boolean hasAnySetter(Annotated a) {
-        return false;
+        return null;
     }
 
     /**

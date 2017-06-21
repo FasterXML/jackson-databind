@@ -199,6 +199,17 @@ public class IntrospectorPairTest extends BaseMapTest
 
         /*
         /******************************************************
+        /* Deserialization introspection
+        /******************************************************
+         */
+
+        @Override
+        public Boolean hasAnySetter(Annotated a) {
+            return (Boolean) values.get("hasAnySetter");
+        }
+
+        /*
+        /******************************************************
         /* Helper methods
         /******************************************************
          */        
@@ -215,7 +226,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final IntrospectorWithMap NO_ANNOTATIONS = new IntrospectorWithMap();
+    private final AnnotationIntrospector NO_ANNOTATIONS = AnnotationIntrospector.nopInstance();
 
     public void testVersion() throws Exception
     {
@@ -225,8 +236,9 @@ public class IntrospectorPairTest extends BaseMapTest
                 .version(v);
         assertEquals(v,
                 new AnnotationIntrospectorPair(withVersion, NO_ANNOTATIONS).version());
+        IntrospectorWithMap noVersion = new IntrospectorWithMap();
         assertEquals(Version.unknownVersion(),
-                new AnnotationIntrospectorPair(NO_ANNOTATIONS, withVersion).version());
+                new AnnotationIntrospectorPair(noVersion, withVersion).version());
     }
 
     public void testAccess() throws Exception
@@ -395,7 +407,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /******************************************************
     /* Property auto-detection
     /******************************************************
-    */
+     */
 
     public void testFindAutoDetectVisibility() throws Exception
     {
@@ -414,7 +426,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /******************************************************
     /* Type handling
     /******************************************************
-    */
+     */
 
     public void testFindTypeResolver() throws Exception
     {
@@ -443,6 +455,29 @@ public class IntrospectorPairTest extends BaseMapTest
                 new AnnotationIntrospectorPair(intr1, intr2).findTypeName(null));
         assertEquals("type2",
                 new AnnotationIntrospectorPair(intr2, intr1).findTypeName(null));
+    }
+
+    /*
+    /******************************************************
+    /* Deserialization introspection
+    /******************************************************
+     */
+
+    // for [databind#1672]
+    public void testHasAnySetter() {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("hasAnySetter", Boolean.TRUE);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("hasAnySetter", Boolean.FALSE);
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS).hasAnySetter(null));
+        assertEquals(Boolean.TRUE,
+                new AnnotationIntrospectorPair(intr1, intr2).hasAnySetter(null));
+        assertEquals(Boolean.TRUE,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1).hasAnySetter(null));
+        assertEquals(Boolean.FALSE,
+                new AnnotationIntrospectorPair(intr2, intr1).hasAnySetter(null));
+        assertEquals(Boolean.FALSE,
+                new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2).hasAnySetter(null));
     }
 
     /*

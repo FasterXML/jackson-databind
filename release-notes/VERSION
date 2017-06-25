@@ -92,6 +92,7 @@ Project: jackson-databind
 #1653: Convenience overload(s) for ObjectMapper#registerSubtypes
 #1655: `@JsonAnyGetter` uses different `bean` parameter in `SimpleBeanPropertyFilter`
  (reported by georgeflugq@github)
+#1678: Rewrite `StdDateFormat` ISO-8601 deserialization functionality
 
 2.8.9.1 (not yet released)
 

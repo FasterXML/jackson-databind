@@ -19,7 +19,7 @@ public class ISO8601DateFormat extends DateFormat
 {
     private static final long serialVersionUID = 1L;
 
-    // those classes are to try to allow a consistent behavior for hascode/equals and other methods
+    // those classes are to try to allow a consistent behavior for hashcode/equals and other methods
     private static Calendar CALENDAR = new GregorianCalendar();
     private static NumberFormat NUMBER_FORMAT = new DecimalFormat();
 

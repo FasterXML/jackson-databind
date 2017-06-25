@@ -133,7 +133,6 @@ public class ISO8601Utils
         } else {
             formatted.append('Z');
         }
-
         return formatted.toString();
     }
 

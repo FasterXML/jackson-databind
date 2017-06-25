@@ -26,7 +26,6 @@ public class StdDateFormat
      *   for easier enforcing of specific rules. Heavy lifting done by Calendar,
      *   anyway.
      */
-
     protected final static String PATTERN_PLAIN_STR = "\\d\\d\\d\\d[-]\\d\\d[-]\\d\\d";
 
     protected final static Pattern PATTERN_PLAIN = Pattern.compile(PATTERN_PLAIN_STR);
@@ -95,10 +94,8 @@ public class StdDateFormat
      * actual instances more cheaply (avoids re-parsing).
      */
     static {
-        /* Another important thing: let's force use of default timezone for
-         * baseline DataFormat objects
-         */
-
+        // Another important thing: let's force use of default timezone for
+        // baseline DataFormat objects
         DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
         DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
         DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, DEFAULT_LOCALE);
@@ -129,7 +126,6 @@ public class StdDateFormat
     protected Boolean _lenient;
     
     private transient DateFormat _formatRFC1123;
-    private transient DateFormat _formatISO8601;
 
     /*
     /**********************************************************
@@ -196,20 +192,15 @@ public class StdDateFormat
     }
 
     /**
-     * @deprecated Since 2.4; use variant that takes Locale
-     */
-    @Deprecated
-    public static DateFormat getISO8601Format(TimeZone tz) {
-        return getISO8601Format(tz, DEFAULT_LOCALE);
-    }
-
-    /**
      * Method for getting a non-shared DateFormat instance
      * that uses specified timezone and can handle simple ISO-8601
      * compliant date format.
      * 
      * @since 2.4
+     *
+     * @deprecated Since 2.9
      */
+    @Deprecated // since 2.9
     public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
         return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc, null);
     }
@@ -220,7 +211,10 @@ public class StdDateFormat
      * compliant date format.
      * 
      * @since 2.4
+     *
+     * @deprecated Since 2.9
      */
+    @Deprecated // since 2.9
     public static DateFormat getRFC1123Format(TimeZone tz, Locale loc) {
         return _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
                 tz, loc, null);
@@ -347,14 +341,85 @@ public class StdDateFormat
     public StringBuffer format(Date date, StringBuffer toAppendTo,
             FieldPosition fieldPosition)
     {
-        if (_formatISO8601 == null) {
-            _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601,
-                    _timezone, _locale, _lenient);
+        TimeZone tz = _timezone;
+        if (tz == null) {
+            tz = DEFAULT_TIMEZONE;
         }
-        // 24-Jun-2017, tatu: is this actually safe thing to do without clone() or sync?
-        return _formatISO8601.format(date, toAppendTo, fieldPosition);
+        _format(tz, _locale, date, toAppendTo);
+        return toAppendTo;
     }
 
+    protected static void _format(TimeZone tz, Locale loc, Date date,
+            StringBuffer buffer)
+    {
+        Calendar calendar = new GregorianCalendar(tz, loc);
+        calendar.setTime(date);
+
+        pad4(buffer, calendar.get(Calendar.YEAR));
+        buffer.append('-');
+        pad2(buffer, calendar.get(Calendar.MONTH) + 1);
+        buffer.append('-');
+        pad2(buffer, calendar.get(Calendar.DAY_OF_MONTH));
+        buffer.append('T');
+        pad2(buffer, calendar.get(Calendar.HOUR_OF_DAY));
+        buffer.append(':');
+        pad2(buffer, calendar.get(Calendar.MINUTE));
+        buffer.append(':');
+        pad2(buffer, calendar.get(Calendar.SECOND));
+        buffer.append('.');
+        pad3(buffer, calendar.get(Calendar.MILLISECOND));
+
+        int offset = tz.getOffset(calendar.getTimeInMillis());
+        if (offset != 0) {
+            int hours = Math.abs((offset / (60 * 1000)) / 60);
+            int minutes = Math.abs((offset / (60 * 1000)) % 60);
+            buffer.append(offset < 0 ? '-' : '+');
+            pad2(buffer, hours);
+            // 24-Jun-2017, tatu: To add colon or not to add colon? Both are legal...
+            //   tests appear to expect no colon so let's go with that.
+//            formatted.append(':');
+            pad2(buffer, minutes);
+        } else {
+            // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
+            //   mandate use of full `+0000`
+//            formatted.append('Z');
+            buffer.append("+0000");
+        }
+    }
+
+    private static void pad2(StringBuffer buffer, int value) {
+        int tens = value / 10;
+        if (tens == 0) {
+            buffer.append('0');
+        } else {
+            buffer.append((char) ('0' + tens));
+            value -= 10 * tens;
+        }
+        buffer.append((char) ('0' + value));
+    }
+
+    private static void pad3(StringBuffer buffer, int value) {
+        int h = value / 100;
+        if (h == 0) {
+            buffer.append('0');
+        } else {
+            buffer.append((char) ('0' + h));
+            value -= (h * 100);
+        }
+        pad2(buffer, value);
+    }
+
+    private static void pad4(StringBuffer buffer, int value) {
+        int h = value / 100;
+        if (h == 0) {
+            buffer.append('0').append('0');
+        } else {
+            pad2(buffer, h);
+            value -= (100 * h);
+        }
+        pad2(buffer, value);
+    }
+    
     /*
     /**********************************************************
     /* Std overrides
@@ -448,7 +513,7 @@ public class StdDateFormat
         if ((_timezone != null) && ('Z' != dateStr.charAt(totalLen-1))) {
             tz = _timezone;
         }
-        Calendar cal = Calendar.getInstance(tz, _locale);
+        Calendar cal = new GregorianCalendar(tz, _locale);
         if (_lenient != null) {
             cal.setLenient(_lenient.booleanValue());
         }
@@ -591,7 +656,6 @@ public class StdDateFormat
 
     protected void _clearFormats() {
         _formatRFC1123 = null;
-        _formatISO8601 = null;
     }
 
     protected static <T> boolean _equals(T value1, T value2) {

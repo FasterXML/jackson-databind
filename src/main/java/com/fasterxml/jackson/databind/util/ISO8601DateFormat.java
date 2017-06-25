@@ -15,6 +15,7 @@ import java.util.GregorianCalendar;
  *
  * @see ISO8601Utils
  */
+@Deprecated // since 2.9
 public class ISO8601DateFormat extends DateFormat
 {
     private static final long serialVersionUID = 1L;

@@ -6,9 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 
-/**
- * @see ISO8601DateFormat
- */
+@SuppressWarnings("deprecation")
 public class ISO8601DateFormatTest extends BaseMapTest
 {
     private ISO8601DateFormat df;

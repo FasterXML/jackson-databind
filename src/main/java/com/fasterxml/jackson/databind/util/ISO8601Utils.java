@@ -12,54 +12,16 @@ import java.util.*;
  * 
  * @see <a href="http://www.w3.org/TR/NOTE-datetime">this specification</a>
  */
+@Deprecated // since 2.9
 public class ISO8601Utils
 {
-    @Deprecated // since 2.7
-    private static final String GMT_ID = "GMT";
-
-    /**
-     * ID to represent the 'UTC' string, default timezone since Jackson 2.7
-     * 
-     * @since 2.7
-     */
-    private static final String UTC_ID = "UTC";
-    
-    /**
-     * The GMT timezone, prefetched to avoid more lookups.
-     * 
-     * @deprecated Since 2.7 use {@link #TIMEZONE_UTC} instead
-     */
-    @Deprecated
-    private static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone(GMT_ID);
-
-    /**
-     * The UTC timezone, prefetched to avoid more lookups.
-     * 
-     * @since 2.7
-     */
-    private static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone(UTC_ID);
+    protected final static int DEF_8601_LEN = "yyyy-MM-ddThh:mm:ss.SSS+00:00".length();
 
     /**
      * Timezone we use for 'Z' in ISO-8601 date/time values: since 2.7
      * {@link #TIMEZONE_UTC}; with earlier versions up to 2.7 was {@link #TIMEZONE_GMT}.
      */
-    private static final TimeZone TIMEZONE_Z = TIMEZONE_UTC;
-    
-    /*
-    /**********************************************************
-    /* Static factories
-    /**********************************************************
-     */
-
-    /**
-     * Accessor for static GMT timezone instance.
-     *
-     * @deprecated since 2.6
-     */
-    @Deprecated // since 2.6
-    public static TimeZone timeZoneGMT() {
-        return TIMEZONE_GMT;
-    }
+    private static final TimeZone TIMEZONE_Z = TimeZone.getTimeZone("UTC");
 
     /*
     /**********************************************************
@@ -74,7 +36,7 @@ public class ISO8601Utils
      * @return the date formatted as 'yyyy-MM-ddThh:mm:ssZ'
      */
     public static String format(Date date) {
-        return format(date, false, TIMEZONE_UTC);
+        return format(date, false, TIMEZONE_Z);
     }
 
     /**
@@ -85,7 +47,12 @@ public class ISO8601Utils
      * @return the date formatted as 'yyyy-MM-ddThh:mm:ss[.sss]Z'
      */
     public static String format(Date date, boolean millis) {
-        return format(date, millis, TIMEZONE_UTC);
+        return format(date, millis, TIMEZONE_Z);
+    }
+
+    @Deprecated // since 2.9
+    public static String format(Date date, boolean millis, TimeZone tz) {
+        return format(date, millis, tz, Locale.US);
     }
 
     /**
@@ -95,45 +62,39 @@ public class ISO8601Utils
      * @param millis true to include millis precision otherwise false
      * @param tz timezone to use for the formatting (UTC will produce 'Z')
      * @return the date formatted as yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
+     *
+     * @since 2.9
      */
-    public static String format(Date date, boolean millis, TimeZone tz) {
-        Calendar calendar = new GregorianCalendar(tz, Locale.US);
+    public static String format(Date date, boolean millis, TimeZone tz, Locale loc) {
+        Calendar calendar = new GregorianCalendar(tz, loc);
         calendar.setTime(date);
 
         // estimate capacity of buffer as close as we can (yeah, that's pedantic ;)
-        int capacity = "yyyy-MM-ddThh:mm:ss".length();
-        capacity += millis ? ".sss".length() : 0;
-        capacity += tz.getRawOffset() == 0 ? "Z".length() : "+hh:mm".length();
-        StringBuilder formatted = new StringBuilder(capacity);
-
-        padInt(formatted, calendar.get(Calendar.YEAR), "yyyy".length());
-        formatted.append('-');
-        padInt(formatted, calendar.get(Calendar.MONTH) + 1, "MM".length());
-        formatted.append('-');
-        padInt(formatted, calendar.get(Calendar.DAY_OF_MONTH), "dd".length());
-        formatted.append('T');
-        padInt(formatted, calendar.get(Calendar.HOUR_OF_DAY), "hh".length());
-        formatted.append(':');
-        padInt(formatted, calendar.get(Calendar.MINUTE), "mm".length());
-        formatted.append(':');
-        padInt(formatted, calendar.get(Calendar.SECOND), "ss".length());
+        StringBuilder sb = new StringBuilder(30);
+        sb.append(String.format(
+                "%04d-%02d-%02dT%02d:%02d:%02d",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND)
+                ));
         if (millis) {
-            formatted.append('.');
-            padInt(formatted, calendar.get(Calendar.MILLISECOND), "sss".length());
+            sb.append(String.format(".%03d", calendar.get(Calendar.MILLISECOND)));
         }
 
         int offset = tz.getOffset(calendar.getTimeInMillis());
         if (offset != 0) {
             int hours = Math.abs((offset / (60 * 1000)) / 60);
             int minutes = Math.abs((offset / (60 * 1000)) % 60);
-            formatted.append(offset < 0 ? '-' : '+');
-            padInt(formatted, hours, "hh".length());
-            formatted.append(':');
-            padInt(formatted, minutes, "mm".length());
+            sb.append(String.format("%c%02d:%02d",
+                    (offset < 0 ? '-' : '+'),
+                    hours, minutes));
         } else {
-            formatted.append('Z');
+            sb.append('Z');
         }
-        return formatted.toString();
+        return sb.toString();
     }
 
     /*
@@ -286,11 +247,7 @@ public class ISO8601Utils
             return calendar.getTime();
             // If we get a ParseException it'll already have the right message/offset.
             // Other exception types can convert here.
-        } catch (IndexOutOfBoundsException e) {
-            fail = e;
-        } catch (NumberFormatException e) {
-            fail = e;
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             fail = e;
         }
         String input = (date == null) ? null : ('"' + date + '"');
@@ -348,21 +305,6 @@ public class ISO8601Utils
             result -= digit;
         }
         return -result;
-    }
-
-    /**
-     * Zero pad a number to a specified length
-     * 
-     * @param buffer buffer to use for padding
-     * @param value the integer value to pad if necessary.
-     * @param length the length of the string we should zero pad
-     */
-    private static void padInt(StringBuilder buffer, int value, int length) {
-        String strValue = Integer.toString(value);
-        for (int i = length - strValue.length(); i > 0; i--) {
-            buffer.append('0');
-        }
-        buffer.append(strValue);
     }
 
     /**

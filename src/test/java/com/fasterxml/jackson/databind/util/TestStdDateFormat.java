@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 public class TestStdDateFormat
     extends BaseMapTest
 {
+    @SuppressWarnings("deprecation")
     public void testFactories() {
         TimeZone tz = TimeZone.getTimeZone("GMT");
         Locale loc = Locale.US;

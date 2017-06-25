@@ -10,10 +10,9 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @see ISO8601Utils
- */
-public class ISO8601UtilsTest extends BaseMapTest {
+@SuppressWarnings("deprecation")
+public class ISO8601UtilsTest extends BaseMapTest
+{
     private Date date;
     private Date dateWithoutTime;
     private Date dateZeroMillis;

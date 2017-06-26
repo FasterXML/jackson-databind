@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.text.*;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -20,19 +19,14 @@ public class ISO8601DateFormat extends DateFormat
 {
     private static final long serialVersionUID = 1L;
 
-    // those classes are to try to allow a consistent behavior for hashcode/equals and other methods
-    private static Calendar CALENDAR = new GregorianCalendar();
-    private static NumberFormat NUMBER_FORMAT = new DecimalFormat();
-
     public ISO8601DateFormat() {
-        this.numberFormat = NUMBER_FORMAT;
-        this.calendar = CALENDAR;
+        this.numberFormat = new DecimalFormat();;
+        this.calendar = new GregorianCalendar();;
     }
 
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
-        String value = ISO8601Utils.format(date);
-        toAppendTo.append(value);
+        toAppendTo.append(ISO8601Utils.format(date));
         return toAppendTo;
     }
 
@@ -55,13 +49,6 @@ public class ISO8601DateFormat extends DateFormat
 
     @Override
     public Object clone() {
-        /* Jackson calls clone for every call. Since this instance is
-         * immutable (and hence thread-safe)
-         * we can just return this instance
-         */
         return this;
     }
-
-    @Override
-    public String toString() { return getClass().getName(); }
 }

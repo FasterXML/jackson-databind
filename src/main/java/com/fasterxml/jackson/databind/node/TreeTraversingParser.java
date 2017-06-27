@@ -407,7 +407,7 @@ public class TreeTraversingParser extends ParserMinimalBase
         JsonNode n = currentNode();
         if (n == null || !n.isNumber()) {
             JsonToken t = (n == null) ? null : n.asToken();
-            throw _constructError("Current token ("+t+") not numeric, can not use numeric value accessors");
+            throw _constructError("Current token ("+t+") not numeric, cannot use numeric value accessors");
         }
         return n;
     }

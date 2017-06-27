@@ -321,7 +321,7 @@ public class ObjectReaderTest extends BaseMapTest
             
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not use FormatSchema");
+            verifyException(e, "Cannot use FormatSchema");
         }
     }
 }

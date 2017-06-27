@@ -43,7 +43,7 @@ public class Base64DecodingTest extends BaseMapTest
             /*byte[] b =*/ nodeValue.binaryValue();
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not access contents of TextNode as binary");
+            verifyException(e, "Cannot access contents of TextNode as binary");
             verifyException(e, "Illegal character '!'");
         }
     }

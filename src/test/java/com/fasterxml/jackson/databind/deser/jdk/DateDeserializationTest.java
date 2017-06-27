@@ -617,7 +617,7 @@ public class DateDeserializationTest
             reader.readValue(input);
             fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
         } catch (MismatchedInputException exp) {
-            verifyException(exp, "Can not deserialize");
+            verifyException(exp, "Cannot deserialize");
             verifyException(exp, "out of START_ARRAY");
         }
 
@@ -655,7 +655,7 @@ public class DateDeserializationTest
             MAPPER.readValue(JSON, StrictCalendarBean.class);
             fail("Should not pass with invalid (with strict) date value");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not deserialize value of type java.util.Calendar");
+            verifyException(e, "Cannot deserialize value of type java.util.Calendar");
             verifyException(e, "from String \"2015-11-32\"");
             verifyException(e, "expected format");
         }
@@ -668,7 +668,7 @@ public class DateDeserializationTest
             mapper.readValue(quote("2015-11-32"), java.util.Date.class);
             fail("Should not pass with invalid (with strict) date value");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not deserialize value of type java.util.Date");
+            verifyException(e, "Cannot deserialize value of type java.util.Date");
             verifyException(e, "from String \"2015-11-32\"");
             verifyException(e, "expected format");
         }
@@ -686,7 +686,7 @@ public class DateDeserializationTest
             MAPPER.readValue(quote("foobar"), Date.class);
             fail("Should have failed with an exception");
         } catch (InvalidFormatException e) {
-            verifyException(e, "Can not deserialize value of type java.util.Date from String");
+            verifyException(e, "Cannot deserialize value of type java.util.Date from String");
             assertEquals("foobar", e.getValue());
             assertEquals(Date.class, e.getTargetType());
         } catch (Exception e) {

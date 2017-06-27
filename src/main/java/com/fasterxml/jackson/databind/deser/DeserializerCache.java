@@ -578,14 +578,14 @@ public final class DeserializerCache
         // Let's try to figure out the reason, to give better error messages
         Class<?> rawClass = type.getRawClass();
         if (!ClassUtil.isConcrete(rawClass)) {
-            return ctxt.reportBadDefinition(type, "Can not find a Value deserializer for abstract type "+type);
+            return ctxt.reportBadDefinition(type, "Cannot find a Value deserializer for abstract type "+type);
         }
-        return ctxt.reportBadDefinition(type, "Can not find a Value deserializer for type "+type);
+        return ctxt.reportBadDefinition(type, "Cannot find a Value deserializer for type "+type);
     }
 
     protected KeyDeserializer _handleUnknownKeyDeserializer(DeserializationContext ctxt, JavaType type)
         throws JsonMappingException
     {
-        return ctxt.reportBadDefinition(type, "Can not find a (Map) Key deserializer for type "+type);
+        return ctxt.reportBadDefinition(type, "Cannot find a (Map) Key deserializer for type "+type);
     }
 }

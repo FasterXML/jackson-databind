@@ -65,7 +65,7 @@ public class StdTypeResolverBuilder
     {
         // sanity checks
         if (idType == null) {
-            throw new IllegalArgumentException("idType can not be null");
+            throw new IllegalArgumentException("idType cannot be null");
         }
         _idType = idType;
         _customIdResolver = idRes;
@@ -168,7 +168,7 @@ public class StdTypeResolverBuilder
     @Override
     public StdTypeResolverBuilder inclusion(JsonTypeInfo.As includeAs) {
         if (includeAs == null) {
-            throw new IllegalArgumentException("includeAs can not be null");
+            throw new IllegalArgumentException("includeAs cannot be null");
         }
         _includeAs = includeAs;
         return this;
@@ -227,7 +227,7 @@ public class StdTypeResolverBuilder
     {
         // Custom id resolver?
         if (_customIdResolver != null) { return _customIdResolver; }
-        if (_idType == null) throw new IllegalStateException("Can not build, 'init()' not yet called");
+        if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
         switch (_idType) {
         case CLASS:
             return new ClassNameIdResolver(baseType, config.getTypeFactory());

@@ -146,7 +146,7 @@ public class TestJsonFilter extends BaseMapTest
             MAPPER.writeValueAsString(new Bean());
             fail("Should have failed without configured filter");
         } catch (JsonMappingException e) { // should be resolved to a MappingException (internally may be something else)
-            verifyException(e, "Can not resolve PropertyFilter with id 'RootFilter'");
+            verifyException(e, "Cannot resolve PropertyFilter with id 'RootFilter'");
         }
         
         // but when changing behavior, should work difference

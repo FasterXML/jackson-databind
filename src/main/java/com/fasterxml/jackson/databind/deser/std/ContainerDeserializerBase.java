@@ -98,7 +98,7 @@ public abstract class ContainerDeserializerBase<T>
         JsonDeserializer<Object> valueDeser = getContentDeserializer();
         if (valueDeser == null) {
             throw new IllegalArgumentException(String.format(
-                    "Can not handle managed/back reference '%s': type: container deserializer of type %s returned null for 'getContentDeserializer()'",
+                    "Cannot handle managed/back reference '%s': type: container deserializer of type %s returned null for 'getContentDeserializer()'",
                     refName, getClass().getName()));
         }
         return valueDeser.findBackReference(refName);
@@ -147,7 +147,7 @@ public abstract class ContainerDeserializerBase<T>
         if (vi == null || !vi.canCreateUsingDefault()) {
             JavaType type = getValueType();
             ctxt.reportBadDefinition(type,
-                    String.format("Can not create empty instance of %s, no default Creator", type));
+                    String.format("Cannot create empty instance of %s, no default Creator", type));
         }
         try {
             return vi.createUsingDefault(ctxt);

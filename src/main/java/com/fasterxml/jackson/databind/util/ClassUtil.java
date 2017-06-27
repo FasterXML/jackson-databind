@@ -570,7 +570,7 @@ public final class ClassUtil
             } else {
                 // Has to be public...
                 if (!Modifier.isPublic(ctor.getModifiers())) {
-                    throw new IllegalArgumentException("Default constructor for "+cls.getName()+" is not accessible (non-public?): not allowed to try modify access via Reflection: can not instantiate type");
+                    throw new IllegalArgumentException("Default constructor for "+cls.getName()+" is not accessible (non-public?): not allowed to try modify access via Reflection: cannot instantiate type");
                 }
             }
             return ctor;
@@ -862,7 +862,7 @@ public final class ClassUtil
             // Google App Engine); so let's only fail if we really needed it...
             if (!ao.isAccessible()) {
                 Class<?> declClass = member.getDeclaringClass();
-                throw new IllegalArgumentException("Can not access "+member+" (from class "+declClass.getName()+"; failed to set access: "+se.getMessage());
+                throw new IllegalArgumentException("Cannot access "+member+" (from class "+declClass.getName()+"; failed to set access: "+se.getMessage());
             }
         }
     }
@@ -1153,7 +1153,7 @@ public final class ClassUtil
             if (enumSetTypeField != null) {
                 return (Class<? extends Enum<?>>) get(set, enumSetTypeField);
             }
-            throw new IllegalStateException("Can not figure out type for EnumSet (odd JDK platform?)");
+            throw new IllegalStateException("Cannot figure out type for EnumSet (odd JDK platform?)");
         }
 
         @SuppressWarnings("unchecked")
@@ -1162,7 +1162,7 @@ public final class ClassUtil
             if (enumMapTypeField != null) {
                 return (Class<? extends Enum<?>>) get(set, enumMapTypeField);
             }
-            throw new IllegalStateException("Can not figure out type for EnumMap (odd JDK platform?)");
+            throw new IllegalStateException("Cannot figure out type for EnumMap (odd JDK platform?)");
         }
     	
         private Object get(Object bean, Field field)

@@ -1285,7 +1285,7 @@ public class POJOPropertyBuilder
 
             if (explName) {
                 if (this.name == null) { // sanity check to catch internal problems
-                    throw new IllegalArgumentException("Can not pass true for 'explName' if name is null/empty");
+                    throw new IllegalArgumentException("Cannot pass true for 'explName' if name is null/empty");
                 }
                 // 03-Apr-2014, tatu: But how about name-space only override?
                 //   Probably should not be explicit? Or, need to merge somehow?

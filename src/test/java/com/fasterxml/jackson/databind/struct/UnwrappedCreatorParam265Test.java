@@ -78,7 +78,7 @@ public class UnwrappedCreatorParam265Test extends BaseMapTest
             /*JPersonWithoutName result =*/ mapper.readValue(json, JPersonWithoutName.class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Can not define Creator parameter");
+            verifyException(e, "Cannot define Creator parameter");
             verifyException(e, "@JsonUnwrapped");
         }
     }
@@ -94,7 +94,7 @@ public class UnwrappedCreatorParam265Test extends BaseMapTest
             /*JPersonWithName result =*/ mapper.readValue(json, JPersonWithName.class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Can not define Creator property \"address\"");
+            verifyException(e, "Cannot define Creator property \"address\"");
             verifyException(e, "@JsonUnwrapped");
         }
     }

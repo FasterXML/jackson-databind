@@ -22,25 +22,25 @@ public class NumericConversionTest extends BaseMapTest
             R.forType(Integer.class).readValue("1.5");
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
         try {
             R.forType(Integer.TYPE).readValue("1.5");
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
         try {
             R.forType(IntWrapper.class).readValue("{\"i\":-2.25 }");
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
         try {
             R.forType(int[].class).readValue("[ 2.5 ]");
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
     }
 
@@ -58,27 +58,27 @@ public class NumericConversionTest extends BaseMapTest
             R.forType(Long.class).readValue("1.5");
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
 
         try {
             R.forType(Long.TYPE).readValue("1.5");
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
         
         try {
             R.forType(LongWrapper.class).readValue("{\"l\": 7.7 }");
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
         try {
             R.forType(long[].class).readValue("[ 2.5 ]");
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not coerce a floating-point");
+            verifyException(e, "Cannot coerce a floating-point");
         }
     }
 }

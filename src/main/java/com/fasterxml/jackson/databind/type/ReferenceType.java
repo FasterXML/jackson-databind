@@ -70,7 +70,7 @@ public class ReferenceType extends SimpleType
         if (baseType instanceof TypeBase) {
             return new ReferenceType((TypeBase) baseType, refdType);
         }
-        throw new IllegalArgumentException("Can not upgrade from an instance of "+baseType.getClass());
+        throw new IllegalArgumentException("Cannot upgrade from an instance of "+baseType.getClass());
     }
 
     /**

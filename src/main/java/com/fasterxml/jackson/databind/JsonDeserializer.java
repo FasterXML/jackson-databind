@@ -128,7 +128,7 @@ public abstract class JsonDeserializer<T>
         if (ctxt.isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
             return deserialize(p, ctxt);
         }
-        throw new UnsupportedOperationException("Can not update object of type "
+        throw new UnsupportedOperationException("Cannot update object of type "
                 +intoValue.getClass().getName()+" (by deserializer of type "+getClass().getName()+")");
     }
 
@@ -362,7 +362,7 @@ public abstract class JsonDeserializer<T>
      */
     public SettableBeanProperty findBackReference(String refName)
     {
-        throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
+        throw new IllegalArgumentException("Cannot handle managed/back reference '"+refName
                 +"': type: value deserializer of type "+getClass().getName()+" does not support them");
     }
 

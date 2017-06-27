@@ -192,14 +192,14 @@ public class TestTypeFactory
             // Maps must take 2 type parameters, not just one
             tf.constructParametrizedType(Map.class, Map.class, strC);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not create TypeBindings for class java.util.Map");
+            verifyException(e, "Cannot create TypeBindings for class java.util.Map");
         }
 
         try {
             // Type only accepts one type param
             tf.constructParametrizedType(SingleArgGeneric.class, SingleArgGeneric.class, strC, strC);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not create TypeBindings for class ");
+            verifyException(e, "Cannot create TypeBindings for class ");
         }
     }
 

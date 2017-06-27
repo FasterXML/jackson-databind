@@ -154,7 +154,7 @@ public class NumberDeserializers
             //    short-circuits `null` handling. Hence need this check as well.
             if (_primitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 ctxt.reportInputMismatch(this,
-                        "Can not map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
+                        "Cannot map `null` into type %s (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)",
                         handledType().toString());
             }
             return _nullValue;
@@ -310,7 +310,7 @@ public class NumberDeserializers
                 // as per [JACKSON-804], allow range up to 255, inclusive
                 if (_byteOverflow(value)) {
                     return (Byte) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "overflow, value can not be represented as 8-bit value");
+                            "overflow, value cannot be represented as 8-bit value");
                     // fall-through for deferred fails
                 }
                 return Byte.valueOf((byte) value);
@@ -382,7 +382,7 @@ public class NumberDeserializers
                 // So far so good: but does it fit?
                 if (_shortOverflow(value)) {
                     return (Short) ctxt.handleWeirdStringValue(_valueClass, text,
-                            "overflow, value can not be represented as 16-bit value");
+                            "overflow, value cannot be represented as 16-bit value");
                 }
                 return Short.valueOf((short) value);
             }
@@ -848,7 +848,7 @@ public class NumberDeserializers
             case JsonTokenId.ID_NUMBER_INT:
             case JsonTokenId.ID_NUMBER_FLOAT:
             case JsonTokenId.ID_STRING:
-                // can not point to type information: hence must be non-typed (int/double)
+                // cannot point to type information: hence must be non-typed (int/double)
                 return deserialize(p, ctxt);
             }
             return typeDeserializer.deserializeTypedFromScalar(p, ctxt);

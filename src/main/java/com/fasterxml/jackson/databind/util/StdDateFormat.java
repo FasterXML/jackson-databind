@@ -290,7 +290,7 @@ public class StdDateFormat
         }
         sb.append('"');
         throw new ParseException
-            (String.format("Can not parse date \"%s\": not compatible with any of standard forms (%s)",
+            (String.format("Cannot parse date \"%s\": not compatible with any of standard forms (%s)",
                            dateStr, sb.toString()), pos.getErrorIndex());
     }
 
@@ -498,7 +498,7 @@ public class StdDateFormat
         try {
             return _parseAsISO8601(dateStr, pos);
         } catch (IllegalArgumentException e) {
-            throw new ParseException(String.format("Can not parse date \"%s\", problem: %s",
+            throw new ParseException(String.format("Cannot parse date \"%s\", problem: %s",
                     dateStr, e.getMessage()),
                     pos.getErrorIndex());
         }
@@ -591,7 +591,7 @@ public class StdDateFormat
                         break;
                     default:
                         throw new ParseException(String.format(
-"Can not parse date \"%s\": invalid fractional seconds '%s'; can use at most 3 digits",
+"Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 3 digits",
                                        dateStr, m.group(1).substring(1)
                                        ),
                                 pos.getErrorIndex());
@@ -604,7 +604,7 @@ public class StdDateFormat
         }
 
         throw new ParseException
-        (String.format("Can not parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
+        (String.format("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
                        dateStr, formatStr, _lenient),
            pos.getErrorIndex());
     }

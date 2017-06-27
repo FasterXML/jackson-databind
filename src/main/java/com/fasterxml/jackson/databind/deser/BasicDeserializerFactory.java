@@ -518,7 +518,7 @@ public abstract class BasicDeserializerFactory
                     /*
                     if ((ix == 0) && isNonStaticInnerClass) {
                         throw new IllegalArgumentException("Non-static inner classes like "
-                                +ctor.getDeclaringClass().getName()+" can not use @JsonCreator for constructors");
+                                +ctor.getDeclaringClass().getName()+" cannot use @JsonCreator for constructors");
                     }
                     */
                     throw new IllegalArgumentException("Argument #"+ix
@@ -809,7 +809,7 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         ctxt.reportBadDefinition(beanDesc.getType(), String.format(
-                "Can not define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
+                "Cannot define Creator parameter %d as `@JsonUnwrapped`: combination not yet supported",
                 param.getIndex()));
     }
 
@@ -1018,7 +1018,7 @@ public abstract class BasicDeserializerFactory
                 if (implType == null) {
                     // [databind#292]: Actually, may be fine, but only if polymorphich deser enabled
                     if (type.getTypeHandler() == null) {
-                        throw new IllegalArgumentException("Can not find a deserializer for non-concrete Collection type "+type);
+                        throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Collection type "+type);
                     }
                     deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                 } else {
@@ -1140,7 +1140,7 @@ public abstract class BasicDeserializerFactory
                 }
                 Class<?> kt = keyType.getRawClass();
                 if (kt == null || !kt.isEnum()) {
-                    throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
+                    throw new IllegalArgumentException("Cannot construct EnumMap; generic (key) type not available");
                 }
                 deser = new EnumMapDeserializer(type, inst, null,
                         contentDeser, contentTypeDeser, null);
@@ -1169,7 +1169,7 @@ public abstract class BasicDeserializerFactory
                     } else {
                         // [databind#292]: Actually, may be fine, but only if polymorphic deser enabled
                         if (type.getTypeHandler() == null) {
-                            throw new IllegalArgumentException("Can not find a deserializer for non-concrete Map type "+type);
+                            throw new IllegalArgumentException("Cannot find a deserializer for non-concrete Map type "+type);
                         }
                         deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                     }

@@ -102,7 +102,7 @@ public class BeanSerializerFactory
          */
         if (getClass() != BeanSerializerFactory.class) {
             throw new IllegalStateException("Subtype of BeanSerializerFactory ("+getClass().getName()
-                    +") has not properly overridden method 'withAdditionalSerializers': can not instantiate subtype with "
+                    +") has not properly overridden method 'withAdditionalSerializers': cannot instantiate subtype with "
                     +"additional serializer definitions");
         }
         return new BeanSerializerFactory(config);
@@ -446,7 +446,7 @@ public class BeanSerializerFactory
         // 05-Jul-2012, tatu: ... but we should be able to just return "unknown type" serializer, right?
         if (beanDesc.getBeanClass() == Object.class) {
             return prov.getUnknownTypeSerializer(Object.class);
-//            throw new IllegalArgumentException("Can not create bean serializer for Object.class");
+//            throw new IllegalArgumentException("Cannot create bean serializer for Object.class");
         }
         final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
@@ -557,7 +557,7 @@ public class BeanSerializerFactory
             for (int i = 0, len = props.size() ;; ++i) {
                 if (i == len) {
                     throw new IllegalArgumentException("Invalid Object Id definition for "+beanDesc.getBeanClass().getName()
-                            +": can not find property with name '"+propName+"'");
+                            +": cannot find property with name '"+propName+"'");
                 }
                 BeanPropertyWriter prop = props.get(i);
                 if (propName.equals(prop.getName())) {

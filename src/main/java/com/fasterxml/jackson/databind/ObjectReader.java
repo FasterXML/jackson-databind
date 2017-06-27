@@ -1781,7 +1781,7 @@ public class ObjectReader
         throws JsonProcessingException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
-        throw new JsonParseException(null, "Can not detect format from input, does not look like any of detectable formats "
+        throw new JsonParseException(null, "Cannot detect format from input, does not look like any of detectable formats "
                 +detector.toString());
     }
 
@@ -1798,7 +1798,7 @@ public class ObjectReader
     {
         if (schema != null) {
             if (!_parserFactory.canUseSchema(schema)) {
-                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                    throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
                             +" for format "+_parserFactory.getFormatName());
             }
         }
@@ -1824,7 +1824,7 @@ public class ObjectReader
     protected void _reportUndetectableSource(Object src) throws JsonProcessingException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
-        throw new JsonParseException(null, "Can not use source of type "
+        throw new JsonParseException(null, "Cannot use source of type "
                 +src.getClass().getName()+" with format auto-detection: must be byte- not char-based");
     }
 
@@ -1858,7 +1858,7 @@ public class ObjectReader
         // Nope: need to ask provider to resolve it
         deser = ctxt.findRootValueDeserializer(t);
         if (deser == null) { // can this happen?
-            ctxt.reportBadDefinition(t, "Can not find a deserializer for type "+t);
+            ctxt.reportBadDefinition(t, "Cannot find a deserializer for type "+t);
         }
         _rootDeserializers.put(t, deser);
         return deser;
@@ -1876,7 +1876,7 @@ public class ObjectReader
             deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
             if (deser == null) { // can this happen?
                 ctxt.reportBadDefinition(JSON_NODE_TYPE,
-                        "Can not find a deserializer for type "+JSON_NODE_TYPE);
+                        "Cannot find a deserializer for type "+JSON_NODE_TYPE);
             }
             _rootDeserializers.put(JSON_NODE_TYPE, deser);
         }

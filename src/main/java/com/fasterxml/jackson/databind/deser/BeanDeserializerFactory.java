@@ -369,7 +369,7 @@ public class BeanDeserializerFactory
             idProp = builder.findProperty(propName);
             if (idProp == null) {
                 throw new IllegalArgumentException("Invalid Object Id definition for "
-                        +beanDesc.getBeanClass().getName()+": can not find property with name '"+propName+"'");
+                        +beanDesc.getBeanClass().getName()+": cannot find property with name '"+propName+"'");
             }
             idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
@@ -688,7 +688,7 @@ public class BeanDeserializerFactory
                     //    work through constructors; but let's at least indicate the issue for now
                     if (m instanceof AnnotatedParameter) {
                         ctxt.reportBadTypeDefinition(beanDesc,
-"Can not bind back reference using Creator parameter (reference '%s', parameter index #%d)",
+"Cannot bind back reference using Creator parameter (reference '%s', parameter index #%d)",
 name, ((AnnotatedParameter) m).getIndex());
                     }
                 }
@@ -889,17 +889,17 @@ name, ((AnnotatedParameter) m).getIndex());
     {
         String typeStr = ClassUtil.canBeABeanType(type);
         if (typeStr != null) {
-            throw new IllegalArgumentException("Can not deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
+            throw new IllegalArgumentException("Cannot deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
         }
         if (ClassUtil.isProxyType(type)) {
-            throw new IllegalArgumentException("Can not deserialize Proxy class "+type.getName()+" as a Bean");
+            throw new IllegalArgumentException("Cannot deserialize Proxy class "+type.getName()+" as a Bean");
         }
         /* also: can't deserialize some local classes: static are ok; in-method not;
          * other non-static inner classes are ok
          */
         typeStr = ClassUtil.isLocalType(type, true);
         if (typeStr != null) {
-            throw new IllegalArgumentException("Can not deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
+            throw new IllegalArgumentException("Cannot deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
         }
         return true;
     }

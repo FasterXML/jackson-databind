@@ -277,7 +277,7 @@ public class TestCustomDeserializers
                         JsonDeserializer<?> d = new MyStringDeserializer(deserializer);
                         // just for test coverage purposes...
                         if (d.getDelegatee() != deserializer) {
-                            throw new Error("Can not access delegatee!");
+                            throw new Error("Cannot access delegatee!");
                         }
                         return d;
                     }

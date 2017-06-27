@@ -1099,7 +1099,7 @@ public class ObjectWriter
     {
         if (schema != null) {
             if (!_generatorFactory.canUseSchema(schema)) {
-                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                    throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
                             +" for format "+_generatorFactory.getFormatName());
             }
         }

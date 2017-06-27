@@ -142,7 +142,7 @@ public class AbstractDeserializer
                         idProp = (_properties == null) ? null : _properties.get(propName.getSimpleName());
                         if (idProp == null) {
                             ctxt.reportBadDefinition(_baseType, String.format(
-                                    "Invalid Object Id definition for %s: can not find property with name '%s'",
+                                    "Invalid Object Id definition for %s: cannot find property with name '%s'",
                                     handledType().getName(), propName));
                         }
                         idType = idProp.getType();
@@ -150,7 +150,7 @@ public class AbstractDeserializer
 /*
                          ctxt.reportBadDefinition(_baseType, String.format(
 /
-"Invalid Object Id definition for abstract type %s: can not use `PropertyGenerator` on polymorphic types using property annotation",
+"Invalid Object Id definition for abstract type %s: cannot use `PropertyGenerator` on polymorphic types using property annotation",
 handledType().getName()));
 */
                     } else { // other types simpler

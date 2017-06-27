@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
  * is a scalar value (String, number, boolean).
  *<p>
  * Note that this type is not parameterized (even though it would seemingly
- * make sense), because such type information can not be use effectively
+ * make sense), because such type information cannot be use effectively
  * during runtime: access is always using either wildcard type, or just
  * basic {@link java.lang.Object}; and so adding type parameter seems
  * like unnecessary extra work.

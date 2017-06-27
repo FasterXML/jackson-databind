@@ -488,7 +488,7 @@ public class POJOPropertiesCollector
         boolean expl = (pn != null && !pn.isEmpty());
         if (!expl) {
             if (impl.isEmpty()) {
-                // Important: if neither implicit nor explicit name, can not make use of
+                // Important: if neither implicit nor explicit name, cannot make use of
                 // this creator parameter -- may or may not be a problem, verified at a later point.
                 return;
             }

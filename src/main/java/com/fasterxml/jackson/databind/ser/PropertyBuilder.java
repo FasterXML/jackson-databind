@@ -162,7 +162,7 @@ public class PropertyBuilder
             // First: case of class/type specifying it; try to find POJO property defaults
             Object defaultBean;
 
-            // 16-Oct-2016, tatu: Note: if we can not for some reason create "default instance",
+            // 16-Oct-2016, tatu: Note: if we cannot for some reason create "default instance",
             //    revert logic to the case of general/per-property handling, so both
             //    type-default AND null are to be excluded.
             //    (as per [databind#1417]

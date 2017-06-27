@@ -16,7 +16,7 @@ public class CreatorPropertiesTest extends BaseMapTest
 
         @ConstructorProperties({"x", "y"})
         // Same as above; use differing local parameter names so that parameter name
-        // introspection can not be used as the source of property names.
+        // introspection cannot be used as the source of property names.
         public Issue905Bean(int a, int b) {
             _x = a;
             _y = b;

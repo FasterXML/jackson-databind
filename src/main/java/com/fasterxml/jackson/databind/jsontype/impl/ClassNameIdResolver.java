@@ -71,7 +71,7 @@ public class ClassNameIdResolver
         }
         String str = cls.getName();
         if (str.startsWith("java.util")) {
-            // 25-Jan-2009, tatu: There are some internal classes that we can not access as is.
+            // 25-Jan-2009, tatu: There are some internal classes that we cannot access as is.
             //     We need better mechanism; for now this has to do...
 
             // Enum sets and maps are problematic since we MUST know type of

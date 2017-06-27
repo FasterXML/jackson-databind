@@ -18,7 +18,7 @@ public class RawSerializer<T>
 {
     /**
      * Constructor takes in expected type of values; but since caller
-     * typically can not really provide actual type parameter, we will
+     * typically cannot really provide actual type parameter, we will
      * just take wild card and coerce type.
      */
     public RawSerializer(Class<?> cls) {

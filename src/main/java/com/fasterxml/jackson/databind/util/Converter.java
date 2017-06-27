@@ -30,7 +30,7 @@ public interface Converter<IN,OUT>
      * Method that can be used to find out actual input (source) type; this
      * usually can be determined from type parameters, but may need
      * to be implemented differently from programmatically defined
-     * converters (which can not change static type parameter bindings).
+     * converters (which cannot change static type parameter bindings).
      * 
      * @since 2.2
      */
@@ -40,7 +40,7 @@ public interface Converter<IN,OUT>
      * Method that can be used to find out actual output (target) type; this
      * usually can be determined from type parameters, but may need
      * to be implemented differently from programmatically defined
-     * converters (which can not change static type parameter bindings).
+     * converters (which cannot change static type parameter bindings).
      * 
      * @since 2.2
      */

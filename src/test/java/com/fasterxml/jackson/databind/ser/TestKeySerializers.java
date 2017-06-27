@@ -158,7 +158,7 @@ public class TestKeySerializers extends BaseMapTest
     // Test custom key serializer for enum
     public void testCustomForEnum() throws IOException
     {
-        // can not use shared mapper as we are registering a module
+        // cannot use shared mapper as we are registering a module
         final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());

@@ -179,7 +179,7 @@ public class JacksonAnnotationIntrospector
     public String findEnumValue(Enum<?> value)
     {
         // 11-Jun-2015, tatu: As per [databind#677], need to allow explicit naming.
-        //   Unfortunately can not quite use standard AnnotatedClass here (due to various
+        //   Unfortunately cannot quite use standard AnnotatedClass here (due to various
         //   reasons, including odd representation JVM uses); has to do for now
         try {
             // We know that values are actually static fields with matching name so:
@@ -1438,7 +1438,7 @@ public class JacksonAnnotationIntrospector
         // 08-Dec-2014, tatu: To deprecate `JsonTypeInfo.None` we need to use other placeholder(s);
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
-        //   valid use (can not instantiate as default)
+        //   valid use (cannot instantiate as default)
         if (defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
             b = b.defaultImpl(defaultImpl);
         }

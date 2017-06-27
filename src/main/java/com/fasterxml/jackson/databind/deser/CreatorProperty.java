@@ -49,7 +49,7 @@ public class CreatorProperty
     protected final int _creatorIndex;
 
     /**
-     * In special cases, when implementing "updateValue", we can not use
+     * In special cases, when implementing "updateValue", we cannot use
      * constructors or factory methods, but have to fall back on using a
      * setter (or mutable field property). If so, this refers to that fallback
      * accessor.

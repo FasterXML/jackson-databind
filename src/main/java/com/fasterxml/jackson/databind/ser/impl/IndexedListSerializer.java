@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.AsArraySerializerBase;
 /**
  * This is an optimized serializer for Lists that can be efficiently
  * traversed by index (as opposed to others, such as {@link LinkedList}
- * that can not}.
+ * that cannot}.
  */
 @JacksonStdImpl
 public final class IndexedListSerializer

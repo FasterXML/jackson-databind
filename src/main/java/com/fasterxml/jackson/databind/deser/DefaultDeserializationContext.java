@@ -38,7 +38,7 @@ public abstract class DefaultDeserializationContext
     /**
      * Constructor that will pass specified deserializer factory and
      * cache: cache may be null (in which case default implementation
-     * will be used), factory can not be null
+     * will be used), factory cannot be null
      */
     protected DefaultDeserializationContext(DeserializerFactory df, DeserializerCache cache) {
         super(df, cache);

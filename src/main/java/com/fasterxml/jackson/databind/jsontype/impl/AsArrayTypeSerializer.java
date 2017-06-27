@@ -35,7 +35,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator g) throws IOException {
         final String typeId = idFromValue(value);
-        // NOTE: can not always avoid writing type id, even if null
+        // NOTE: cannot always avoid writing type id, even if null
         if (g.canWriteTypeId()) {
             _writeTypeId(g, typeId);
         } else {
@@ -48,7 +48,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator g, Class<?> type) throws IOException {
         final String typeId = idFromValueAndType(value, type);
-        // NOTE: can not always avoid writing type id, even if null
+        // NOTE: cannot always avoid writing type id, even if null
         if (g.canWriteTypeId()) {
             _writeTypeId(g, typeId);
         } else {

@@ -69,7 +69,7 @@ public abstract class ContextAttributes
         protected final static Object NULL_SURROGATE = new Object();
         
         /**
-         * Shared attributes that we can not modify in-place.
+         * Shared attributes that we cannot modify in-place.
          */
         protected final Map<?,?> _shared;
 

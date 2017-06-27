@@ -50,7 +50,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /**
      * Mix-in annotation mappings to use, if any: immutable,
-     * can not be changed once defined.
+     * cannot be changed once defined.
      * 
      * @since 2.6
      */

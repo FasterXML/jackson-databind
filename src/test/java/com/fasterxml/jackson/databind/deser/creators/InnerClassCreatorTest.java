@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 
 // For [databind#1501], [databind#1502], [databind#1503]; mostly to
 // test that for non-static inner classes constructors are ignored
-// and no Creators should be processed (since they can not be made
+// and no Creators should be processed (since they cannot be made
 // to work in standard way anyway).
 public class InnerClassCreatorTest extends BaseMapTest
 {

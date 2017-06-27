@@ -90,7 +90,7 @@ Simplest usage is of form:
  *  </li>
  * <li>If the specific kind of configurability is not available via {@link ObjectReader} and
  *   {@link ObjectWriter}, you may need to use multiple {@link ObjectMapper} instead (for example:
- *   you can not change mix-in annotations on-the-fly; or, set of custom (de)serializers).
+ *   you cannot change mix-in annotations on-the-fly; or, set of custom (de)serializers).
  *   To help with this usage, you may want to use method {@link #copy()} which creates a clone
  *   of the mapper with specific configuration, and allows configuration of the copied instance
  *   before it gets used. Note that {@link #copy} operation is as expensive as constructing
@@ -295,7 +295,7 @@ public class ObjectMapper
      * instances.
      */
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
-            null, // can not share global ClassIntrospector any more (2.5+)
+            null, // cannot share global ClassIntrospector any more (2.5+)
             DEFAULT_ANNOTATION_INTROSPECTOR,
              null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
@@ -1097,7 +1097,7 @@ public class ObjectMapper
     /**
      * Accessor for the "blueprint" (or, factory) instance, from which instances
      * are created by calling {@link DefaultSerializerProvider#createInstance}.
-     * Note that returned instance can not be directly used as it is not properly
+     * Note that returned instance cannot be directly used as it is not properly
      * configured: to get a properly configured instance to call, use
      * {@link #getSerializerProviderInstance()} instead.
      */
@@ -2245,7 +2245,7 @@ public class ObjectMapper
      * Note: this method should NOT be used if the result type is a
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
-     * can not be introspected when using this method.
+     * cannot be introspected when using this method.
      * 
      * @throws IOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
@@ -2681,7 +2681,7 @@ public class ObjectMapper
     /**
      *<p>
      * Note: return type is co-variant, as basic ObjectCodec
-     * abstraction can not refer to concrete node types (as it's
+     * abstraction cannot refer to concrete node types (as it's
      * part of core package, whereas impls are part of mapper
      * package)
      */
@@ -2693,7 +2693,7 @@ public class ObjectMapper
     /**
      *<p>
      * Note: return type is co-variant, as basic ObjectCodec
-     * abstraction can not refer to concrete node types (as it's
+     * abstraction cannot refer to concrete node types (as it's
      * part of core package, whereas impls are part of mapper
      * package)
      */
@@ -4061,7 +4061,7 @@ public class ObjectMapper
      * content for data binding.
      *
      * @return First token to be used for data binding after this call:
-     *  can never be null as exception will be thrown if parser can not
+     *  can never be null as exception will be thrown if parser cannot
      *  provide more tokens.
      *
      * @throws IOException if the underlying input source has problems during

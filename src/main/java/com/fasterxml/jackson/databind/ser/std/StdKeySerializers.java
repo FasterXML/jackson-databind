@@ -30,7 +30,7 @@ public abstract class StdKeySerializers
             Class<?> rawKeyType, boolean useDefault)
     {
         // 24-Sep-2015, tatu: Important -- should ONLY consider types for which `@JsonValue`
-        //    can not be used, since caller has not yet checked for that annotation
+        //    cannot be used, since caller has not yet checked for that annotation
         //    This is why Enum types are not handled here quite yet
 
         // [databind#943: Use a dynamic key serializer if we are not given actual

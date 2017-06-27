@@ -43,7 +43,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
             g.writeStartObject();
             // and then JSON Object start caller wants
 
-            // 28-Jan-2015, tatu: No really good answer here; can not really change
+            // 28-Jan-2015, tatu: No really good answer here; cannot really change
             //   structure, so change null to empty String...
             g.writeObjectFieldStart(_validTypeId(typeId));
         }
@@ -61,7 +61,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
             g.writeStartObject();
             // and then JSON Object start caller wants
 
-            // 28-Jan-2015, tatu: No really good answer here; can not really change
+            // 28-Jan-2015, tatu: No really good answer here; cannot really change
             //   structure, so change null to empty String...
             g.writeObjectFieldStart(_validTypeId(typeId));
         }

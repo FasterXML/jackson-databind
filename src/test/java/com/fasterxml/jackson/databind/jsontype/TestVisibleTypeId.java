@@ -92,7 +92,7 @@ public class TestVisibleTypeId extends BaseMapTest
     static class ExternalIdBean2 {
         public int a = 2;
 
-        /* Type id property itself can not be external, as it is conceptually
+        /* Type id property itself cannot be external, as it is conceptually
          * part of the bean for which info is written:
          */
         @JsonTypeId

@@ -130,7 +130,7 @@ public @interface JsonSerialize
     /**
      * Which helper object is to be used to convert type into something
      * that Jackson knows how to serialize; either because base type
-     * can not be serialized easily, or just to alter serialization.
+     * cannot be serialized easily, or just to alter serialization.
      *
      * @since 2.2
      */

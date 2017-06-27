@@ -558,7 +558,7 @@ public class BeanDeserializerFactory
                     } else if (!propDef.hasConstructorParameter()) {
                         PropertyMetadata md = propDef.getMetadata();
                         // 25-Oct-2016, tatu: If merging enabled, might not need setter.
-                        //   We can not quite support this with creator parameters; in theory
+                        //   We cannot quite support this with creator parameters; in theory
                         //   possibly, but right not not due to complexities of routing, so
                         //   just prevent
                         if (md.getMergeInfo() != null) {
@@ -879,7 +879,7 @@ name, ((AnnotatedParameter) m).getIndex());
 
     /**
      * Helper method used to skip processing for types that we know
-     * can not be (i.e. are never consider to be) beans: 
+     * cannot be (i.e. are never consider to be) beans: 
      * things like primitives, Arrays, Enums, and proxy types.
      *<p>
      * Note that usually we shouldn't really be getting these sort of

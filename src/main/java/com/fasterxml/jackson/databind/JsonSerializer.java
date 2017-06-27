@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * with null values -- caller <b>must</b> handle null values, usually
  * by calling {@link SerializerProvider#findNullValueSerializer} to obtain
  * serializer to use.
- * This also means that custom serializers can not be directly used to change
+ * This also means that custom serializers cannot be directly used to change
  * the output to produce when serializing null values.
  *<p>
  * If serializer is an aggregate one -- meaning it delegates handling of some

@@ -75,7 +75,7 @@ public abstract class DeserializationProblemHandler
     }
 
     /**
-     * Method called when a property name from input can not be converted to a
+     * Method called when a property name from input cannot be converted to a
      * non-Java-String key type (passed as <code>rawKeyType</code>) due to format problem.
      * Handler may choose to do one of 3 things:
      *<ul>
@@ -108,7 +108,7 @@ public abstract class DeserializationProblemHandler
 
     /**
      * Method called when a String value
-     * can not be converted to a non-String value type due to specific problem
+     * cannot be converted to a non-String value type due to specific problem
      * (as opposed to String values never being usable).
      * Handler may choose to do one of 3 things:
      *<ul>
@@ -142,7 +142,7 @@ public abstract class DeserializationProblemHandler
 
     /**
      * Method called when a numeric value (integral or floating-point from input
-     * can not be converted to a non-numeric value type due to specific problem
+     * cannot be converted to a non-numeric value type due to specific problem
      * (as opposed to numeric values never being usable).
      * Handler may choose to do one of 3 things:
      *<ul>
@@ -177,7 +177,7 @@ public abstract class DeserializationProblemHandler
     /**
      * Method that deserializers should call if the first token of the value to
      * deserialize is of unexpected type (that is, type of token that deserializer
-     * can not handle). This could occur, for example, if a Number deserializer
+     * cannot handle). This could occur, for example, if a Number deserializer
      * encounter {@link JsonToken#START_ARRAY} instead of
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
      *<ul>

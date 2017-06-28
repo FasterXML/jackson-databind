@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -57,7 +58,36 @@ public abstract class TypeSerializer
      * types and matching type ids.
      */
     public abstract TypeIdResolver getTypeIdResolver();
-    
+
+    /*
+    /**********************************************************
+    /* Type serialization methods: new (2.9)
+    /**********************************************************
+     */
+
+    /**
+     * Method called to write initial part of type information for given
+     * value, along with possible wrapping to use: details are specified
+     * by `typeId` argument.
+     *
+     * @param g Generator to use for outputting type id and possible wrapping
+     * @param typeId Details of what type id is to be written, how.
+     * 
+     * @since 2.9
+     */
+    public void writeTypePrefix(JsonGenerator g,
+            WritableTypeId typeId) throws IOException {
+        
+    }
+
+    /**
+     * @since 2.9
+     */
+    public void writeTypeSuffix(JsonGenerator g,
+            WritableTypeId typeId) throws IOException {
+        
+    }
+
     /*
     /**********************************************************
     /* Type serialization methods

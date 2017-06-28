@@ -26,10 +26,10 @@ public class AsExistingPropertyTypeSerializer
         return (_property == prop) ? this :
             new AsExistingPropertyTypeSerializer(_idResolver, prop, _typePropertyName);
     }
-    
+
     @Override
     public As getTypeInclusion() { return As.EXISTING_PROPERTY; }
-    
+
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator gen) throws IOException
     {
@@ -53,7 +53,7 @@ public class AsExistingPropertyTypeSerializer
         }
         gen.writeStartObject();
     }
-    
+
     @Override
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator gen, String typeId) throws IOException
     {

@@ -1036,7 +1036,7 @@ public abstract class DeserializationContext
             Object instance = h.value().handleInstantiationProblem(this, instClass, argument, t);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if (instClass.isInstance(instance)) {
+                if ((instance == null) || instClass.isInstance(instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(

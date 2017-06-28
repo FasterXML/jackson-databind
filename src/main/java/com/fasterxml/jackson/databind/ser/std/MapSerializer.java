@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -646,9 +647,10 @@ public class MapSerializer
             TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForObject(value, gen);
+        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_OBJECT);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
+        typeSer.writeTypePrefix(gen, typeIdDef);
         if (!value.isEmpty()) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value, gen, provider);
@@ -664,7 +666,7 @@ public class MapSerializer
                 serializeFields(value, gen, provider);
             }
         }
-        typeSer.writeTypeSuffixForObject(value, gen);
+        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
     /*

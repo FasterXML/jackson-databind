@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
@@ -125,17 +126,19 @@ public abstract class ArraySerializerBase<T>
     }
 
     @Override
-    public final void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
+    public final void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForArray(value, gen);
+        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_ARRAY);
+
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
-        serializeContents(value, gen, provider);
-        typeSer.writeTypeSuffixForArray(value, gen);
+        g.setCurrentValue(value);
+        typeSer.writeTypePrefix(g, typeIdDef);
+        serializeContents(value, g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
-    
+
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException;
 

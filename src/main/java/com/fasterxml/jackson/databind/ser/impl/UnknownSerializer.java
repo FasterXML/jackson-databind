@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -43,8 +44,9 @@ public class UnknownSerializer
         if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
             failForEmpty(provider, value);
         }
-        typeSer.writeTypePrefixForObject(value, gen);
-        typeSer.writeTypeSuffixForObject(value, gen);
+        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_OBJECT);
+        typeSer.writeTypePrefix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
     @Override

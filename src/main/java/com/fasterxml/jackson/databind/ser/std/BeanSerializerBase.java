@@ -595,21 +595,7 @@ public abstract class BeanSerializerBase
             return;
         }
 
-        WritableTypeId typeIdDef;
-        if (_typeId == null) {
-            typeIdDef = new WritableTypeId(bean, JsonToken.START_OBJECT);
-        } else {
-            typeIdDef = new WritableTypeId(bean, JsonToken.START_OBJECT,
-                    _customTypeId(bean));
-        }
-        /*
-        String typeStr = (_typeId == null) ? null : _customTypeId(bean);
-        if (typeStr == null) {
-            typeSer.writeTypePrefixForObject(bean, gen);
-        } else {
-            typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
-        }
-        */
+        WritableTypeId typeIdDef = _typeIdDef(bean);
         gen.setCurrentValue(bean); // [databind#631]
         typeSer.writeTypePrefix(gen, typeIdDef);
 
@@ -618,15 +604,7 @@ public abstract class BeanSerializerBase
         } else {
             serializeFields(bean, gen, provider);
         }
-
         typeSer.writeTypeSuffix(gen, typeIdDef);
-        /*
-        if (typeStr == null) {
-            typeSer.writeTypeSuffixForObject(bean, gen);
-        } else {
-            typeSer.writeCustomTypeSuffixForObject(bean, gen, typeStr);
-        }
-        */
     }
 
     protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
@@ -673,7 +651,6 @@ public abstract class BeanSerializerBase
             w.serializer.serialize(id, gen, provider);
             return;
         }
-
         _serializeObjectId(bean, gen, provider, typeSer, objectId);
     }
 
@@ -681,25 +658,34 @@ public abstract class BeanSerializerBase
             TypeSerializer typeSer, WritableObjectId objectId) throws IOException
     {
         final ObjectIdWriter w = _objectIdWriter;
-        String typeStr = (_typeId == null) ? null :_customTypeId(bean);
-        if (typeStr == null) {
-            typeSer.writeTypePrefixForObject(bean, gen);
-        } else {
-            typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
-        }
+        WritableTypeId typeIdDef = _typeIdDef(bean);
+
+        typeSer.writeTypePrefix(gen, typeIdDef);
         objectId.writeAsField(gen, provider, w);
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {
             serializeFields(bean, gen, provider);
         }
-        if (typeStr == null) {
-            typeSer.writeTypeSuffixForObject(bean, gen);
-        } else {
-            typeSer.writeCustomTypeSuffixForObject(bean, gen, typeStr);
-        }
+        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
-    
+
+    /**
+     * @since 2.9
+     */
+    protected final WritableTypeId _typeIdDef(Object bean) {
+        if (_typeId == null) {
+            return new WritableTypeId(bean, JsonToken.START_OBJECT);
+        }
+        Object typeId = _typeId.getValue(bean);
+        if (typeId == null) {
+            // 28-Jun-2017, tatu: Is this really needed? Unchanged from 2.8 but...
+            typeId = "";
+        }
+        return new WritableTypeId(bean, JsonToken.START_OBJECT, typeId);
+    }
+
+    @Deprecated // since 2.9
     protected final String _customTypeId(Object bean)
     {
         final Object typeId = _typeId.getValue(bean);
@@ -708,7 +694,7 @@ public abstract class BeanSerializerBase
         }
         return (typeId instanceof String) ? (String) typeId : typeId.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Field serialization methods

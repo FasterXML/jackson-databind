@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -251,15 +251,15 @@ public abstract class AsArraySerializerBase<T>
     }
 
     @Override
-    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
-        // note: let's NOT consider [JACKSON-805] here; gets too complicated, and probably just won't work
-        typeSer.writeTypePrefixForArray(value, gen);
+        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_ARRAY);
+        typeSer.writeTypePrefix(g, typeIdDef);
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
-        serializeContents(value, gen, provider);
-        typeSer.writeTypeSuffixForArray(value, gen);
+        g.setCurrentValue(value);
+        serializeContents(value, g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)

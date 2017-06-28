@@ -199,24 +199,22 @@ public class JsonValueSerializer
             }
             JsonSerializer<Object> ser = _valueSerializer;
             if (ser == null) { // no serializer yet? Need to fetch
-//                ser = provider.findTypedValueSerializer(value.getClass(), true, _property);
                 ser = provider.findValueSerializer(value.getClass(), _property);
             } else {
                 /* 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
                  *    this (note: type is for the wrapper type, not enclosed value!)
                  */
                 if (_forceTypeInformation) {
+                    /*
                     typeSer0.writeTypePrefixForScalar(bean, gen);
                     ser.serialize(value, gen, provider);
                     typeSer0.writeTypeSuffixForScalar(bean, gen);
-
-                    /*
-                    // Scalar, likely
-                    WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.VALUE_STRING);
-                    typeSer0.writeTypePrefix(gen, typeIdDef);
-                    serialize(value, gen, provider);
-                    typeSer0.writeTypeSuffix(gen, typeIdDef);
                     */
+                    // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
+                    WritableTypeId typeIdDef = new WritableTypeId(bean, JsonToken.VALUE_STRING);
+                    typeSer0.writeTypePrefix(gen, typeIdDef);
+                    ser.serialize(value, gen, provider);
+                    typeSer0.writeTypeSuffix(gen, typeIdDef);
 
                     return;
                 }

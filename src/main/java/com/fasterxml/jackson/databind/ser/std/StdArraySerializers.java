@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -288,15 +289,18 @@ public class StdArraySerializers
             throws IOException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
-            if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-                typeSer.writeTypePrefixForArray(value, g);
+            final boolean asArray = provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS);
+            WritableTypeId typeIdDef;
+            if (asArray) {
+                typeIdDef = new WritableTypeId(value, JsonToken.START_ARRAY);
+                typeSer.writeTypePrefix(g, typeIdDef);
                 _writeArrayContents(g, value);
-                typeSer.writeTypeSuffixForArray(value, g);
             } else { // default is to write as simple String
-                typeSer.writeTypePrefixForScalar(value, g);
+                typeIdDef = new WritableTypeId(value, JsonToken.VALUE_STRING);
+                typeSer.writeTypePrefix(g, typeIdDef);
                 g.writeString(value, 0, value.length);
-                typeSer.writeTypeSuffixForScalar(value, g);
             }
+            typeSer.writeTypeSuffix(g, typeIdDef);
         }
 
         private final void _writeArrayContents(JsonGenerator g, char[] value)

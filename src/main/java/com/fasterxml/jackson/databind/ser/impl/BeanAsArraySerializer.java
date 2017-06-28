@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -134,18 +136,31 @@ public class BeanAsArraySerializer
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-        String typeStr = (_typeId == null) ? null : _customTypeId(bean);
+        WritableTypeId typeIdDef;
+        if (_typeId == null) {
+            typeIdDef = new WritableTypeId(bean, JsonToken.START_ARRAY);
+        } else {
+            typeIdDef = new WritableTypeId(bean, JsonToken.START_ARRAY,
+                    _customTypeId(bean));
+        }
+        /*
         if (typeStr == null) {
             typeSer.writeTypePrefixForArray(bean, gen);
         } else {
             typeSer.writeCustomTypePrefixForArray(bean, gen, typeStr);
         }
+        */
+        gen.setCurrentValue(bean);
+        typeSer.writeTypePrefix(gen, typeIdDef);
         serializeAsArray(bean, gen, provider);
+        typeSer.writeTypeSuffix(gen, typeIdDef);
+        /*
         if (typeStr == null) {
             typeSer.writeTypeSuffixForArray(bean, gen);
         } else {
             typeSer.writeCustomTypeSuffixForArray(bean, gen, typeStr);
         }
+        */
     }
 
     /**

@@ -122,6 +122,7 @@ public class TestDefaultForArrays extends BaseMapTest
         _testArrayTypingForPrimitiveArrays(m, new double[] { 0.5, 5.5, -1.0 });
         _testArrayTypingForPrimitiveArrays(m, new float[] { 0.5f, 5.5f, -1.0f });
         _testArrayTypingForPrimitiveArrays(m, new boolean[] { true, false });
+        _testArrayTypingForPrimitiveArrays(m, new byte[] { 1, 2, 3 });
 
         _testArrayTypingForPrimitiveArrays(m, new char[] { 'a', 'b' });
     }

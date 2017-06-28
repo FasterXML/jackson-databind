@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -497,9 +498,8 @@ public abstract class BeanSerializerBase
                         BeanPropertyWriter prop = _props[i];
                         if (propName.equals(prop.getName())) {
                             idProp = prop;
-                            /* Let's force it to be the first property to output
-                             * (although it may still get rearranged etc)
-                             */
+                            // Let's force it to be the first property to output
+                            // (although it may still get rearranged etc)
                             if (i > 0) { // note: must shuffle both regular properties and filtered
                                 System.arraycopy(_props, 0, _props, 1, i);
                                 _props[0] = idProp;
@@ -595,23 +595,38 @@ public abstract class BeanSerializerBase
             return;
         }
 
+        WritableTypeId typeIdDef;
+        if (_typeId == null) {
+            typeIdDef = new WritableTypeId(bean, JsonToken.START_OBJECT);
+        } else {
+            typeIdDef = new WritableTypeId(bean, JsonToken.START_OBJECT,
+                    _customTypeId(bean));
+        }
+        /*
         String typeStr = (_typeId == null) ? null : _customTypeId(bean);
         if (typeStr == null) {
             typeSer.writeTypePrefixForObject(bean, gen);
         } else {
             typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
         }
+        */
         gen.setCurrentValue(bean); // [databind#631]
+        typeSer.writeTypePrefix(gen, typeIdDef);
+
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {
             serializeFields(bean, gen, provider);
         }
+
+        typeSer.writeTypeSuffix(gen, typeIdDef);
+        /*
         if (typeStr == null) {
             typeSer.writeTypeSuffixForObject(bean, gen);
         } else {
             typeSer.writeCustomTypeSuffixForObject(bean, gen, typeStr);
         }
+        */
     }
 
     protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,

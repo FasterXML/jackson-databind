@@ -14,6 +14,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * {@link com.fasterxml.jackson.databind.JsonSerializer}s using proper contextual
  * calls, to add type information using mechanism type serializer was
  * configured with.
+ *<p>
+ * NOTE: version 2.9 contains significant attempt at simplifying interface,
+ * as well as giving format implementation (via {@link JsonGenerator}) more
+ * control over actual serialization details.
  */
 public abstract class TypeSerializer
 {
@@ -75,18 +79,14 @@ public abstract class TypeSerializer
      * 
      * @since 2.9
      */
-    public void writeTypePrefix(JsonGenerator g,
-            WritableTypeId typeId) throws IOException {
-        
-    }
+    public abstract void writeTypePrefix(JsonGenerator g,
+            WritableTypeId typeId) throws IOException;
 
     /**
      * @since 2.9
      */
-    public void writeTypeSuffix(JsonGenerator g,
-            WritableTypeId typeId) throws IOException {
-        
-    }
+    public abstract void writeTypeSuffix(JsonGenerator g,
+            WritableTypeId typeId) throws IOException;
 
     /*
     /**********************************************************

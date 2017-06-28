@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -208,6 +209,15 @@ public class JsonValueSerializer
                     typeSer0.writeTypePrefixForScalar(bean, gen);
                     ser.serialize(value, gen, provider);
                     typeSer0.writeTypeSuffixForScalar(bean, gen);
+
+                    /*
+                    // Scalar, likely
+                    WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.VALUE_STRING);
+                    typeSer0.writeTypePrefix(gen, typeIdDef);
+                    serialize(value, gen, provider);
+                    typeSer0.writeTypeSuffix(gen, typeIdDef);
+                    */
+
                     return;
                 }
             }
@@ -369,6 +379,25 @@ public class JsonValueSerializer
             return _typeSerializer.getTypeIdResolver();
         }
 
+        // // // New Write API, 2.9+
+        
+        @Override // since 2.9
+        public void writeTypePrefix(JsonGenerator g,
+                WritableTypeId typeId) throws IOException {
+            // 28-Jun-2017, tatu: Important! Need to "override" value
+            typeId.forValue = _forObject;
+            _typeSerializer.writeTypePrefix(g, typeId);
+        }
+
+        @Override // since 2.9
+        public void writeTypeSuffix(JsonGenerator g,
+                WritableTypeId typeId) throws IOException {
+            // NOTE: already overwrote value object so:
+            _typeSerializer.writeTypeSuffix(g, typeId);
+        }
+
+        // // // Old Write API, pre-2.9
+        
         @Override
         public void writeTypePrefixForScalar(Object value, JsonGenerator gen) throws IOException {
             _typeSerializer.writeTypePrefixForScalar(_forObject, gen);

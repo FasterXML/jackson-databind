@@ -64,39 +64,40 @@ public class StringCollectionSerializer
      */
     
     @Override
-    public void serialize(Collection<String> value, JsonGenerator gen,
+    public void serialize(Collection<String> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
+        g.setCurrentValue(value);
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, provider);
                 return;
             }
         }
-        gen.writeStartArray(len);
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.writeStartArray(len);
+        serializeContents(value, g, provider);
+        g.writeEndArray();
     }
 
     @Override
-    public void serializeWithType(Collection<String> value, JsonGenerator g, SerializerProvider provider,
-            TypeSerializer typeSer)
+    public void serializeWithType(Collection<String> value, JsonGenerator g,
+            SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_ARRAY);
-        typeSer.writeTypePrefix(g, typeIdDef);
+        g.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
-    private final void serializeContents(Collection<String> value, JsonGenerator g, SerializerProvider provider)
+    private final void serializeContents(Collection<String> value, JsonGenerator g,
+            SerializerProvider provider)
         throws IOException
     {
-        g.setCurrentValue(value);
-
         int i = 0;
 
         try {

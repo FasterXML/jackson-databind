@@ -36,8 +36,8 @@ public class RawSerializer<T>
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.VALUE_EMBEDDED_OBJECT);
-        typeSer.writeTypePrefix(g, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

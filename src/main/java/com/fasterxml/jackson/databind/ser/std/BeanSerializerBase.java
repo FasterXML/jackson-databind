@@ -595,10 +595,9 @@ public abstract class BeanSerializerBase
             return;
         }
 
-        WritableTypeId typeIdDef = _typeIdDef(bean, JsonToken.START_OBJECT);
         gen.setCurrentValue(bean); // [databind#631]
+        WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, typeIdDef);
-
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, gen, provider);
         } else {
@@ -654,35 +653,37 @@ public abstract class BeanSerializerBase
         _serializeObjectId(bean, gen, provider, typeSer, objectId);
     }
 
-    protected  void _serializeObjectId(Object bean, JsonGenerator gen,SerializerProvider provider,
+    protected  void _serializeObjectId(Object bean, JsonGenerator g,
+            SerializerProvider provider,
             TypeSerializer typeSer, WritableObjectId objectId) throws IOException
     {
         final ObjectIdWriter w = _objectIdWriter;
-        WritableTypeId typeIdDef = _typeIdDef(bean, JsonToken.START_OBJECT);
+        WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
 
-        typeSer.writeTypePrefix(gen, typeIdDef);
-        objectId.writeAsField(gen, provider, w);
+        typeSer.writeTypePrefix(g, typeIdDef);
+        objectId.writeAsField(g, provider, w);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, gen, provider);
+            serializeFieldsFiltered(bean, g, provider);
         } else {
-            serializeFields(bean, gen, provider);
+            serializeFields(bean, g, provider);
         }
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     /**
      * @since 2.9
      */
-    protected final WritableTypeId _typeIdDef(Object bean, JsonToken valueShape) {
+    protected final WritableTypeId _typeIdDef(TypeSerializer typeSer,
+            Object bean, JsonToken valueShape) {
         if (_typeId == null) {
-            return new WritableTypeId(bean, valueShape);
+            return typeSer.typeId(bean, valueShape);
         }
         Object typeId = _typeId.getValue(bean);
         if (typeId == null) {
             // 28-Jun-2017, tatu: Is this really needed? Unchanged from 2.8 but...
             typeId = "";
         }
-        return new WritableTypeId(bean, valueShape, typeId);
+        return typeSer.typeId(bean, valueShape, typeId);
     }
 
     @Deprecated // since 2.9

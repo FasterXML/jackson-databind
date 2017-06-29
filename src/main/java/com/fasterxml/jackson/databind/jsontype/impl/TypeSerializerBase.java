@@ -38,7 +38,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
 
     @Override
-    public void writeTypePrefix(JsonGenerator g,
+    public WritableTypeId writeTypePrefix(JsonGenerator g,
             WritableTypeId idMetadata) throws IOException
     {
         final Object value = idMetadata.forValue;
@@ -54,6 +54,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
         } else { // scalar
             writeCustomTypePrefixForScalar(value, g, idStr);
         }
+        return idMetadata;
     }
 
     @Override

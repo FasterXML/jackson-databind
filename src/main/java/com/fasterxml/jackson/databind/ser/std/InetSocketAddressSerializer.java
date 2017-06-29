@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -45,9 +43,8 @@ public class InetSocketAddressSerializer
             SerializerProvider provider, TypeSerializer typeSer) throws IOException
     {
         // Better ensure we don't use specific sub-classes...
-        WritableTypeId typeIdDef = new WritableTypeId(value,
-                InetSocketAddress.class, JsonToken.VALUE_STRING);
-        typeSer.writeTypePrefix(g, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, InetSocketAddress.class, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

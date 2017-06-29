@@ -86,13 +86,12 @@ public class InetAddressSerializer
     }
 
     @Override
-    public void serializeWithType(InetAddress value, JsonGenerator g, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+    public void serializeWithType(InetAddress value, JsonGenerator g,
+            SerializerProvider provider, TypeSerializer typeSer) throws IOException
     {
         // Better ensure we don't use specific sub-classes...
-        WritableTypeId typeIdDef = new WritableTypeId(value, InetAddress.class,
-                JsonToken.VALUE_STRING);
-        typeSer.writeTypePrefix(g, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, InetAddress.class, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

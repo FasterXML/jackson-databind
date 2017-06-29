@@ -292,12 +292,12 @@ public class StdArraySerializers
             final boolean asArray = provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS);
             WritableTypeId typeIdDef;
             if (asArray) {
-                typeIdDef = new WritableTypeId(value, JsonToken.START_ARRAY);
-                typeSer.writeTypePrefix(g, typeIdDef);
+                typeIdDef = typeSer.writeTypePrefix(g,
+                        typeSer.typeId(value, JsonToken.START_ARRAY));
                 _writeArrayContents(g, value);
             } else { // default is to write as simple String
-                typeIdDef = new WritableTypeId(value, JsonToken.VALUE_STRING);
-                typeSer.writeTypePrefix(g, typeIdDef);
+                typeIdDef = typeSer.writeTypePrefix(g,
+                        typeSer.typeId(value, JsonToken.VALUE_STRING));
                 g.writeString(value, 0, value.length);
             }
             typeSer.writeTypeSuffix(g, typeIdDef);

@@ -55,8 +55,8 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
         throws IOException
     {
         // most likely scalar
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.VALUE_EMBEDDED_OBJECT);
-        typeSer.writeTypePrefix(g, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
         g.writeBinary(provider.getConfig().getBase64Variant(),
                 value, 0, value.length);
         typeSer.writeTypeSuffix(g, typeIdDef);

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -70,6 +71,51 @@ public abstract class TypeSerializer
      */
 
     /**
+     * Factory method for constructing type id value object to pass to
+     * {@link #writePrefix}.
+     */
+    public WritableTypeId typeId(Object value, JsonToken valueShape) {
+        WritableTypeId typeIdDef = new WritableTypeId(value, valueShape);
+        switch (getTypeInclusion()) {
+        case EXISTING_PROPERTY:
+            typeIdDef.include = WritableTypeId.Inclusion.PAYLOAD_PROPERTY;
+            typeIdDef.asProperty = getPropertyName();
+            break;
+        case EXTERNAL_PROPERTY:
+            typeIdDef.include = WritableTypeId.Inclusion.PARENT_PROPERTY;
+            typeIdDef.asProperty = getPropertyName();
+            break;
+        case PROPERTY:
+            typeIdDef.include = WritableTypeId.Inclusion.METADATA_PROPERTY;
+            typeIdDef.asProperty = getPropertyName();
+            break;
+        case WRAPPER_ARRAY:
+            typeIdDef.include = WritableTypeId.Inclusion.WRAPPER_ARRAY;
+            break;
+        case WRAPPER_OBJECT:
+            typeIdDef.include = WritableTypeId.Inclusion.WRAPPER_OBJECT;
+            break;
+        default:
+            VersionUtil.throwInternal();
+        }
+        return typeIdDef;
+    }
+
+    public WritableTypeId typeId(Object value, JsonToken valueShape,
+            Object id) {
+        WritableTypeId typeId = typeId(value, valueShape);
+        typeId.id = id;
+        return typeId;
+    }
+
+    public WritableTypeId typeId(Object value, Class<?> typeForId,
+            JsonToken valueShape) {
+        WritableTypeId typeId = typeId(value, valueShape);
+        typeId.forValueType = typeForId;
+        return typeId;
+    }
+
+    /**
      * Method called to write initial part of type information for given
      * value, along with possible wrapping to use: details are specified
      * by `typeId` argument.
@@ -79,7 +125,7 @@ public abstract class TypeSerializer
      * 
      * @since 2.9
      */
-    public abstract void writeTypePrefix(JsonGenerator g,
+    public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;
 
     /**

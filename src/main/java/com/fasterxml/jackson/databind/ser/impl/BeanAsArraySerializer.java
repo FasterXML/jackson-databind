@@ -136,25 +136,11 @@ public class BeanAsArraySerializer
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-        WritableTypeId typeIdDef = _typeIdDef(bean, JsonToken.START_ARRAY);
-        /*
-        if (typeStr == null) {
-            typeSer.writeTypePrefixForArray(bean, gen);
-        } else {
-            typeSer.writeCustomTypePrefixForArray(bean, gen, typeStr);
-        }
-        */
         gen.setCurrentValue(bean);
+        WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, typeIdDef);
         serializeAsArray(bean, gen, provider);
         typeSer.writeTypeSuffix(gen, typeIdDef);
-        /*
-        if (typeStr == null) {
-            typeSer.writeTypeSuffixForArray(bean, gen);
-        } else {
-            typeSer.writeCustomTypeSuffixForArray(bean, gen, typeStr);
-        }
-        */
     }
 
     /**

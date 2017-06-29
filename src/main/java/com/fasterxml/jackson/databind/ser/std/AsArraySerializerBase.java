@@ -254,10 +254,10 @@ public abstract class AsArraySerializerBase<T>
     public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_ARRAY);
-        typeSer.writeTypePrefix(g, typeIdDef);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         g.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

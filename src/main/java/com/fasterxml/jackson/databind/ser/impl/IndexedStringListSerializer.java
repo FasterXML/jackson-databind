@@ -83,8 +83,8 @@ public final class IndexedStringListSerializer
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_ARRAY);
-        typeSer.writeTypePrefix(g, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, g, provider, value.size());
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

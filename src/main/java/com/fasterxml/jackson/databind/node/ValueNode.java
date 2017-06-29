@@ -41,8 +41,8 @@ public abstract class ValueNode
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = new WritableTypeId(this, asToken());
-        typeSer.writeTypePrefix(g, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(this, asToken()));
         serialize(g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }

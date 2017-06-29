@@ -342,15 +342,15 @@ public class MapEntrySerializer
     }
 
     @Override
-    public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+    public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator g,
+            SerializerProvider provider, TypeSerializer typeSer) throws IOException
     {
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_OBJECT);
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
-        typeSer.writeTypePrefix(gen, typeIdDef);
-        serializeDynamic(value, gen, provider);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        g.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.START_OBJECT));
+        serializeDynamic(value, g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     protected void serializeDynamic(Map.Entry<?, ?> value, JsonGenerator gen,

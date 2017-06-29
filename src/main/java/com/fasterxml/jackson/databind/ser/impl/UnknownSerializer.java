@@ -44,8 +44,8 @@ public class UnknownSerializer
         if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
             failForEmpty(provider, value);
         }
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_OBJECT);
-        typeSer.writeTypePrefix(gen, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                typeSer.typeId(value, JsonToken.START_OBJECT));
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 

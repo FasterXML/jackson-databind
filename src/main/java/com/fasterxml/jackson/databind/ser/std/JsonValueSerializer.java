@@ -201,18 +201,12 @@ public class JsonValueSerializer
             if (ser == null) { // no serializer yet? Need to fetch
                 ser = provider.findValueSerializer(value.getClass(), _property);
             } else {
-                /* 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
-                 *    this (note: type is for the wrapper type, not enclosed value!)
-                 */
+                // 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
+                //    this (note: type is for the wrapper type, not enclosed value!)
                 if (_forceTypeInformation) {
-                    /*
-                    typeSer0.writeTypePrefixForScalar(bean, gen);
-                    ser.serialize(value, gen, provider);
-                    typeSer0.writeTypeSuffixForScalar(bean, gen);
-                    */
                     // Confusing? Type id is for POJO and NOT for value returned by JsonValue accessor...
-                    WritableTypeId typeIdDef = new WritableTypeId(bean, JsonToken.VALUE_STRING);
-                    typeSer0.writeTypePrefix(gen, typeIdDef);
+                    WritableTypeId typeIdDef = typeSer0.writeTypePrefix(gen,
+                            typeSer0.typeId(bean, JsonToken.VALUE_STRING));
                     ser.serialize(value, gen, provider);
                     typeSer0.writeTypeSuffix(gen, typeIdDef);
 
@@ -380,11 +374,11 @@ public class JsonValueSerializer
         // // // New Write API, 2.9+
         
         @Override // since 2.9
-        public void writeTypePrefix(JsonGenerator g,
+        public WritableTypeId writeTypePrefix(JsonGenerator g,
                 WritableTypeId typeId) throws IOException {
             // 28-Jun-2017, tatu: Important! Need to "override" value
             typeId.forValue = _forObject;
-            _typeSerializer.writeTypePrefix(g, typeId);
+            return _typeSerializer.writeTypePrefix(g, typeId);
         }
 
         @Override // since 2.9

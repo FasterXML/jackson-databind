@@ -647,10 +647,10 @@ public class MapSerializer
             TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = new WritableTypeId(value, JsonToken.START_OBJECT);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
-        typeSer.writeTypePrefix(gen, typeIdDef);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value, gen, provider);

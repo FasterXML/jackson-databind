@@ -135,7 +135,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
 
     /**
      * Method for specifying default implementation to use if type id 
-     * is either not available, or can not be resolved.
+     * is either not available, or cannot be resolved.
      * 
      * @return Resulting builder instance (usually this builder,
      *   but may be a newly constructed instance for immutable builders}

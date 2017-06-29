@@ -549,7 +549,7 @@ public abstract class BasicSerializerFactory
         TypeSerializer elementTypeSerializer = createTypeSerializer(config,
                 elementType);
 
-        // if elements have type serializer, can not force static typing:
+        // if elements have type serializer, cannot force static typing:
         if (elementTypeSerializer != null) {
             staticTyping = false;
         }
@@ -975,7 +975,7 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         // 25-Jun-2015, tatu: Note that unlike with Collection(Like) and Map(Like) types, array
-        //   types can not be annotated (in theory I guess we could have mix-ins but... ?)
+        //   types cannot be annotated (in theory I guess we could have mix-ins but... ?)
         //   so we need not do primary annotation lookup here.
         //   So all we need is (1) Custom, (2) Default array serializers
         SerializationConfig config = prov.getConfig();
@@ -1129,7 +1129,7 @@ public abstract class BasicSerializerFactory
     protected boolean usesStaticTyping(SerializationConfig config,
             BeanDescription beanDesc, TypeSerializer typeSer)
     {
-        /* 16-Aug-2010, tatu: If there is a (value) type serializer, we can not force
+        /* 16-Aug-2010, tatu: If there is a (value) type serializer, we cannot force
          *    static typing; that would make it impossible to handle expected subtypes
          */
         if (typeSer != null) {

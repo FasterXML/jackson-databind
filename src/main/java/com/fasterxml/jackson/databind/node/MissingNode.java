@@ -61,7 +61,7 @@ public final class MissingNode
         /* Nothing to output... should we signal an error tho?
          * Chances are, this is an erroneous call. For now, let's
          * not do that; serialize as explicit null. Why? Because we
-         * can not just omit a value as JSON Object field name may have
+         * cannot just omit a value as JSON Object field name may have
          * been written out.
          */
         jg.writeNull();

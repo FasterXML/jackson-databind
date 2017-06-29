@@ -15,7 +15,7 @@ public class BeanAsArrayBuilderDeserializer
     private static final long serialVersionUID = 1L;
 
     /**
-     * Deserializer we delegate operations that we can not handle.
+     * Deserializer we delegate operations that we cannot handle.
      */
     final protected BeanDeserializerBase _delegate;
 

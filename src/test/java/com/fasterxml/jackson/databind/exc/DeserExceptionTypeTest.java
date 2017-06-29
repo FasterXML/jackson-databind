@@ -20,7 +20,7 @@ public class DeserExceptionTypeTest
         public String propX;
     }
 
-    // Class that has no applicable creators and thus can not be instantiated;
+    // Class that has no applicable creators and thus cannot be instantiated;
     // definition problem
     static class NoCreatorsBean {
         public int x;

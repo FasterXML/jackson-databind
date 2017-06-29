@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Generic handler for types that implement {@link JsonSerializable}.
  *<p>
  * Note: given that this is used for anything that implements
- * interface, can not be checked for direct class equivalence.
+ * interface, cannot be checked for direct class equivalence.
  */
 @JacksonStdImpl
 @SuppressWarnings("serial")

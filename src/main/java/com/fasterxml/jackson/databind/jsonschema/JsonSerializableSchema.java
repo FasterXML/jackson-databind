@@ -25,7 +25,7 @@ public @interface JsonSerializableSchema
 {
     /**
      * Marker value used to indicate that property has "no value";
-     * needed because annotations can not have null as default
+     * needed because annotations cannot have null as default
      * value.
      */
     public final static String NO_VALUE = "##irrelevant";

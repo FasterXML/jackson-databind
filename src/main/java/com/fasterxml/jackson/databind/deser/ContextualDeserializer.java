@@ -29,7 +29,7 @@ public interface ContextualDeserializer
      *    deserializers that may be needed by this deserializer
      * @param property Method, field or constructor parameter that represents the property
      *   (and is used to assign deserialized value).
-     *   Should be available; but there may be cases where caller can not provide it and
+     *   Should be available; but there may be cases where caller cannot provide it and
      *   null is passed instead (in which case impls usually pass 'this' deserializer as is)
      * 
      * @return Deserializer to use for deserializing values of specified property;

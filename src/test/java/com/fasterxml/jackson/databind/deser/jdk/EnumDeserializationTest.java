@@ -326,7 +326,7 @@ public class EnumDeserializationTest
 
     public void testAllowUnknownEnumValuesReadAsNull() throws Exception
     {
-        // can not use shared mapper when changing configs...
+        // cannot use shared mapper when changing configs...
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         assertNull(reader.forType(TestEnum.class).readValue("\"NO-SUCH-VALUE\""));
         assertNull(reader.forType(TestEnum.class).readValue(" 4343 "));
@@ -337,7 +337,7 @@ public class EnumDeserializationTest
     // [databind#1642]
     public void testAllowUnknownEnumValuesReadAsNullWithCreatorMethod() throws Exception
     {
-        // can not use shared mapper when changing configs...
+        // cannot use shared mapper when changing configs...
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
         assertNull(reader.forType(StrictEnumCreator.class).readValue("\"NO-SUCH-VALUE\""));
         assertNull(reader.forType(StrictEnumCreator.class).readValue(" 4343 "));

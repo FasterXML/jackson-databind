@@ -837,7 +837,7 @@ public abstract class SerializerProvider
     /**
      * Method called to find a serializer to use for null values for given
      * declared type. Note that type is completely based on declared type,
-     * since nulls in Java have no type and thus runtime type can not be
+     * since nulls in Java have no type and thus runtime type cannot be
      * determined.
      * 
      * @since 2.0
@@ -867,7 +867,7 @@ public abstract class SerializerProvider
 
     /**
      * Method called to get the serializer to use if provider
-     * can not determine an actual type-specific serializer
+     * cannot determine an actual type-specific serializer
      * to use; typically when none of {@link SerializerFactory}
      * instances are able to construct a serializer.
      *<p>
@@ -1289,7 +1289,7 @@ public abstract class SerializerProvider
     /**
      * Method that will try to find a serializer, either from cache
      * or by constructing one; but will not return an "unknown" serializer
-     * if this can not be done but rather returns null.
+     * if this cannot be done but rather returns null.
      *
      * @return Serializer if one can be found, null if not.
      */

@@ -112,7 +112,7 @@ public class ObjectReader
      * this value object will be updated instead.
      * Note that value can be of almost any type, except not
      * {@link com.fasterxml.jackson.databind.type.ArrayType}; array
-     * types can not be modified because array size is immutable.
+     * types cannot be modified because array size is immutable.
      */
     protected final Object _valueToUpdate;
 
@@ -134,7 +134,7 @@ public class ObjectReader
      * NOTE: If defined non-null, <code>readValue()</code> methods that take
      * {@link Reader} or {@link String} input <b>will fail with exception</b>,
      * because format-detection only works on byte-sources. Also, if format
-     * can not be detect reliably (as per detector settings),
+     * cannot be detect reliably (as per detector settings),
      * a {@link JsonParseException} will be thrown).
      * 
      * @since 2.1
@@ -807,7 +807,7 @@ public class ObjectReader
      * to construct appropriate {@link JsonParser} for actual parsing.
      *<p>
      * Note: since format detection only works with byte sources, it is possible to
-     * get a failure from some 'readValue()' methods. Also, if input can not be reliably
+     * get a failure from some 'readValue()' methods. Also, if input cannot be reliably
      * (enough) detected as one of specified types, an exception will be thrown.
      *<p>
      * Note: not all {@link JsonFactory} types can be passed: specifically, ones that
@@ -831,7 +831,7 @@ public class ObjectReader
      * {@link DataFormatReaders}.
      *<p>
      * NOTE: since format detection only works with byte sources, it is possible to
-     * get a failure from some 'readValue()' methods. Also, if input can not be reliably
+     * get a failure from some 'readValue()' methods. Also, if input cannot be reliably
      * (enough) detected as one of specified types, an exception will be thrown.
      * 
      * @param readers DataFormatReaders to use for detecting underlying format.

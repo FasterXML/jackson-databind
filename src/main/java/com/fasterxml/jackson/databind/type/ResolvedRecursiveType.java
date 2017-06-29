@@ -112,7 +112,7 @@ public class ResolvedRecursiveType extends TypeBase
         if (o == this) return true;
         if (o == null) return false;
         if (o.getClass() == getClass()) {
-            // 16-Jun-2017, tatu: as per [databind#1658], can not do recursive call since
+            // 16-Jun-2017, tatu: as per [databind#1658], cannot do recursive call since
             //    there is likely to be a cycle...
 
             // but... true or false?

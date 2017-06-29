@@ -50,7 +50,7 @@ public class BeanAsArraySerializer
 
     /**
      * Serializer that would produce JSON Object version; used in
-     * cases where array output can not be used.
+     * cases where array output cannot be used.
      */
     protected final BeanSerializerBase _defaultSerializer;
     
@@ -218,7 +218,7 @@ public class BeanAsArraySerializer
                     prop.serializeAsElement(bean, gen, provider);
                 }
             }
-            // NOTE: any getters can not be supported either
+            // NOTE: any getters cannot be supported either
             //if (_anyGetterWriter != null) {
             //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
             //}

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * as numbers. Instead, we assume that it would make more sense to output content
  * as base64 encoded bytes (using default base64 encoding).
  *<p>
- * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
+ * NOTE: since it is NOT serialized as an array, cannot use AsArraySerializer as base
  *<p>
  * NOTE: since 2.6, has been a main-level class; earlier was embedded in
  * {@link StdArraySerializers}.

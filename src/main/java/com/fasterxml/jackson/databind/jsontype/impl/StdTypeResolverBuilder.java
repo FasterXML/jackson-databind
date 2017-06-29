@@ -127,7 +127,7 @@ public class StdTypeResolverBuilder
         } else {
             // 20-Mar-2016, tatu: It is important to do specialization go through
             //   TypeFactory to ensure proper resolution; with 2.7 and before, direct
-            //   call to JavaType was used, but that can not work reliably with 2.7
+            //   call to JavaType was used, but that cannot work reliably with 2.7
             // 20-Mar-2016, tatu: Can finally add a check for type compatibility BUT
             //   if so, need to add explicit checks for marker types. Not ideal, but
             //   seems like a reasonable compromise.

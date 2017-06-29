@@ -26,7 +26,7 @@ public interface ValueInstantiators
      *   a custom instantiator already)
      *   
      * @return Instantiator to use; either <code>defaultInstantiator</code> that was passed,
-     *   or a custom variant; can not be null.
+     *   or a custom variant; cannot be null.
      */
     public ValueInstantiator findValueInstantiator(DeserializationConfig config,
             BeanDescription beanDesc, ValueInstantiator defaultInstantiator);

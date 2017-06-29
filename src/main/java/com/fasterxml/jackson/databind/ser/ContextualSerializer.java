@@ -27,7 +27,7 @@ public interface ContextualSerializer
      * @param prov Serializer provider to use for accessing config, other serializers
      * @param property Method or field that represents the property
      *   (and is used to access value to serialize).
-     *   Should be available; but there may be cases where caller can not provide it and
+     *   Should be available; but there may be cases where caller cannot provide it and
      *   null is passed instead (in which case impls usually pass 'this' serializer as is)
      * 
      * @return Serializer to use for serializing values of specified property;

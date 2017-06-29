@@ -808,7 +808,7 @@ public abstract class BeanDeserializerBase
         if (am != null) {
             NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(am);
             if (unwrapper != null) {
-                // 01-Dec-2016, tatu: As per [databind#265] we can not yet support passing
+                // 01-Dec-2016, tatu: As per [databind#265] we cannot yet support passing
                 //   of unwrapped values through creator properties, so fail fast
                 if (prop instanceof CreatorProperty) {
                     ctxt.reportBadDefinition(getValueType(), String.format(
@@ -913,7 +913,7 @@ public abstract class BeanDeserializerBase
 
     @Override
     public AccessPattern getEmptyAccessPattern() {
-        // Empty values can not be shared
+        // Empty values cannot be shared
         return AccessPattern.DYNAMIC;
     }
     
@@ -1407,7 +1407,7 @@ public abstract class BeanDeserializerBase
 
     public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        // note: can not call `_delegateDeserializer()` since order reversed here:
+        // note: cannot call `_delegateDeserializer()` since order reversed here:
         JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
         // fallback to non-array delegate
         if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
@@ -1528,7 +1528,7 @@ public abstract class BeanDeserializerBase
 
     /**
      * Method called when a JSON property is encountered that has not matching
-     * setter, any-setter or field, and thus can not be assigned.
+     * setter, any-setter or field, and thus cannot be assigned.
      */
     @Override
     protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt,

@@ -66,7 +66,7 @@ public abstract class TypeDeserializer
     /**
      * Accessor for "default implementation" type; optionally defined
      * class to use in cases where type id is not
-     * accessible for some reason (either missing, or can not be
+     * accessible for some reason (either missing, or cannot be
      * resolved)
      */
     public abstract Class<?> getDefaultImpl();

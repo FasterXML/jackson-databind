@@ -89,7 +89,7 @@ public class StdDateFormat
 
     protected final static DateFormat DATE_FORMAT_ISO8601;
 
-    /* Let's construct "blueprint" date format instances: can not be used
+    /* Let's construct "blueprint" date format instances: cannot be used
      * as is, due to thread-safety issues, but can be used for constructing
      * actual instances more cheaply (avoids re-parsing).
      */
@@ -118,7 +118,7 @@ public class StdDateFormat
     /**
      * Explicit override for leniency, if specified.
      *<p>
-     * Can not be `final` because {@link #setLenient(boolean)} returns
+     * Cannot be `final` because {@link #setLenient(boolean)} returns
      * `void`.
      *
      * @since 2.7

@@ -108,7 +108,7 @@ public abstract class NameTransformer
 
     /**
      * Method called when reversal of transformation is needed; should return
-     * null if this is not possible, that is, given name can not have been
+     * null if this is not possible, that is, given name cannot have been
      * result of calling {@link #transform} of this object.
      */
     public abstract String reverse(String transformed);

@@ -69,7 +69,7 @@ public class StdArraySerializers
         }
 
         // 01-Dec-2016, tatu: Only now realized that due strong typing of Java arrays,
-        //    we can not really ever have value type serializers
+        //    we cannot really ever have value type serializers
         @Override
         public final ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             // throw exception or just do nothing?
@@ -256,7 +256,7 @@ public class StdArraySerializers
      * they are most likely to be textual data, and should be written as
      * Strings, not arrays of entries.
      *<p>
-     * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
+     * NOTE: since it is NOT serialized as an array, cannot use AsArraySerializer as base
      */
     @JacksonStdImpl
     public static class CharArraySerializer extends StdSerializer<char[]>

@@ -98,7 +98,7 @@ public abstract class TypeSerializer
      * Method called to write initial part of type information for given
      * value, when it will be output as scalar JSON value (not as JSON
      * Object or Array).
-     * This means that the context after call can not be that of JSON Object;
+     * This means that the context after call cannot be that of JSON Object;
      * it may be Array or root context.
      * 
      * @param value Value that will be serialized, for which type information is
@@ -193,7 +193,7 @@ public abstract class TypeSerializer
 //    @Deprecated // since 2.9
     public void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException { }
 
-//    @Deprecated // since 2.9
+    //    @Deprecated // since 2.9
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException { }
 
 //    @Deprecated // since 2.9

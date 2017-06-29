@@ -87,7 +87,7 @@ public class UnwrappingBeanSerializer
     }
 
     /**
-     * JSON Array output can not be done if unwrapping operation is
+     * JSON Array output cannot be done if unwrapping operation is
      * requested; so implementation will simply return 'this'.
      */
     @Override

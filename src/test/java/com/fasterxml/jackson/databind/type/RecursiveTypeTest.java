@@ -85,7 +85,7 @@ public class RecursiveTypeTest extends BaseMapTest
 
         assertNotNull(json);
 
-        // can not deserialize with current definition, however
+        // cannot deserialize with current definition, however
     }
 
     // for [databind#1301]

@@ -135,7 +135,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      */
 
     /**
-     * Serializer to use for writing out the value: null if it can not be known
+     * Serializer to use for writing out the value: null if it cannot be known
      * statically; non-null if it can.
      */
     protected JsonSerializer<Object> _serializer;

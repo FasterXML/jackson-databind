@@ -18,7 +18,7 @@ public final class AnnotatedField
     /**
      * Actual {@link Field} used for access.
      *<p>
-     * Transient since it can not be persisted directly using
+     * Transient since it cannot be persisted directly using
      * JDK serialization
      */
     protected final transient Field _field;

@@ -340,7 +340,7 @@ public abstract class JsonDeserializer<T>
      * serialization, and if so, should be able to resolve it to actual
      * Object instance to return as deserialized value.
      *<p>
-     * Default implementation returns null, as support can not be implemented
+     * Default implementation returns null, as support cannot be implemented
      * generically. Some standard deserializers (most notably
      * {@link com.fasterxml.jackson.databind.deser.BeanDeserializer})
      * do implement this feature, and may return reader instance, depending on exact

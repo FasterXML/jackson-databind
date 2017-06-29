@@ -34,7 +34,7 @@ public class NullSerializer
      * Although this method should rarely get called, for convenience we should override
      * it, and handle it same way as "natural" types: by serializing exactly as is,
      * without type decorations. The most common possible use case is that of delegation
-     * by JSON filter; caller can not know what kind of serializer it gets handed.
+     * by JSON filter; caller cannot know what kind of serializer it gets handed.
      */
     @Override
     public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider serializers,

@@ -112,7 +112,7 @@ public class BeanSerializer
     @Override
     protected BeanSerializerBase asArraySerializer()
     {
-        /* Can not:
+        /* Cannot:
          * 
          * - have Object Id (may be allowed in future)
          * - have "any getter"

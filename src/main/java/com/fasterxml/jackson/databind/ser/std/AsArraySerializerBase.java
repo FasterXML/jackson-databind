@@ -56,7 +56,7 @@ public abstract class AsArraySerializerBase<T>
     protected final JsonSerializer<Object> _elementSerializer;
 
     /**
-     * If element type can not be statically determined, mapping from
+     * If element type cannot be statically determined, mapping from
      * runtime type to serializer is handled using this object
      */
     protected PropertySerializerMap _dynamicSerializers;

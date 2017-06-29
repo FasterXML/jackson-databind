@@ -1322,7 +1322,7 @@ public class ObjectWriter
         private final JsonSerializer<Object> valueSerializer;
 
         /**
-         * When dealing with polymorphic types, we can not pre-fetch
+         * When dealing with polymorphic types, we cannot pre-fetch
          * serializer, but can pre-fetch {@link TypeSerializer}.
          */
         private final TypeSerializer typeSerializer;

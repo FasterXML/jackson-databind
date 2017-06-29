@@ -275,7 +275,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).
      *<p>
-     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>can not</b> be
+     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>cannot</b> be
      * dynamically changed on per-call basis, because its effect is considered during
      * construction of serializers and property handlers.
      *<p>
@@ -297,7 +297,7 @@ public enum SerializationFeature implements ConfigFeature
      * Note that this does not change behavior of {@link java.util.Map}s, or
      * "Collection-like" types.
      *<p>
-     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>can not</b> be
+     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>cannot</b> be
      * dynamically changed on per-call basis, because its effect is considered during
      * construction of serializers and property handlers.
      *<p>

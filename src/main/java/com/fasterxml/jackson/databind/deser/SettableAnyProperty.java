@@ -163,7 +163,7 @@ public class SettableAnyProperty
                 AnnotatedField field = (AnnotatedField) _setter;
                 Map<Object,Object> val = (Map<Object,Object>) field.getValue(instance);
                 /* 01-Jun-2016, tatu: At this point it is not quite clear what to do if
-                 *    field is `null` -- we can not necessarily count on zero-args
+                 *    field is `null` -- we cannot necessarily count on zero-args
                  *    constructor except for a small set of types, so for now just
                  *    ignore if null. May need to figure out something better in future.
                  */
@@ -172,7 +172,7 @@ public class SettableAnyProperty
                     val.put(propName, value);
                 }
             } else {
-                // note: can not use 'setValue()' due to taking 2 args
+                // note: cannot use 'setValue()' due to taking 2 args
                 ((AnnotatedMethod) _setter).callOnWith(instance, propName, value);
             }
         } catch (Exception e) {

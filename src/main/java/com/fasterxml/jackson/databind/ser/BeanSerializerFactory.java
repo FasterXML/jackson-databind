@@ -616,7 +616,7 @@ public class BeanSerializerFactory
     
     /**
      * Helper method used to skip processing for types that we know
-     * can not be (i.e. are never consider to be) beans: 
+     * cannot be (i.e. are never consider to be) beans: 
      * things like primitives, Arrays, Enums, and proxy types.
      *<p>
      * Note that usually we shouldn't really be getting these sort of

@@ -294,10 +294,10 @@ public class ExternalTypeIdTest extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(ValueBean.class);
         // This may look odd, but one implementation nastiness is the fact
-        // that we can not properly serialize type id before the object,
+        // that we cannot properly serialize type id before the object,
         // because call is made after property name (for object) has already
         // been written out. So we'll write it after...
-        // Deserializer will work either way as it can not rely on ordering
+        // Deserializer will work either way as it cannot rely on ordering
         // anyway.
         assertEquals("{\"bean\":{\"value\":11},\"extType\":\"vbean\"}",
                 mapper.writeValueAsString(new ExternalBean(11)));

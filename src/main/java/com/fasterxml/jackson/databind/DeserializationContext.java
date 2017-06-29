@@ -825,7 +825,7 @@ public abstract class DeserializationContext
 
     /**
      * Method that deserializers should call if they encounter a String value
-     * that can not be converted to expected key of a {@link java.util.Map}
+     * that cannot be converted to expected key of a {@link java.util.Map}
      * valued property.
      * Default implementation will try to call {@link DeserializationProblemHandler#handleWeirdNumberValue}
      * on configured handlers, if any, to allow for recovery; if recovery does not
@@ -868,7 +868,7 @@ public abstract class DeserializationContext
 
     /**
      * Method that deserializers should call if they encounter a String value
-     * that can not be converted to target property type, in cases where some
+     * that cannot be converted to target property type, in cases where some
      * String values could be acceptable (either with different settings,
      * or different value).
      * Default implementation will try to call {@link DeserializationProblemHandler#handleWeirdStringValue}
@@ -912,7 +912,7 @@ public abstract class DeserializationContext
 
     /**
      * Method that deserializers should call if they encounter a numeric value
-     * that can not be converted to target property type, in cases where some
+     * that cannot be converted to target property type, in cases where some
      * numeric values could be acceptable (either with different settings,
      * or different numeric value).
      * Default implementation will try to call {@link DeserializationProblemHandler#handleWeirdNumberValue}
@@ -1053,7 +1053,7 @@ public abstract class DeserializationContext
     /**
      * Method that deserializers should call if the first token of the value to
      * deserialize is of unexpected type (that is, type of token that deserializer
-     * can not handle). This could occur, for example, if a Number deserializer
+     * cannot handle). This could occur, for example, if a Number deserializer
      * encounter {@link JsonToken#START_ARRAY} instead of
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
      * 
@@ -1073,7 +1073,7 @@ public abstract class DeserializationContext
     /**
      * Method that deserializers should call if the first token of the value to
      * deserialize is of unexpected type (that is, type of token that deserializer
-     * can not handle). This could occur, for example, if a Number deserializer
+     * cannot handle). This could occur, for example, if a Number deserializer
      * encounter {@link JsonToken#START_ARRAY} instead of
      * {@link JsonToken#VALUE_NUMBER_INT} or {@link JsonToken#VALUE_NUMBER_FLOAT}.
      * 
@@ -1119,7 +1119,7 @@ public abstract class DeserializationContext
 
     /**
      * Method that deserializers should call if they encounter a type id
-     * (for polymorphic deserialization) that can not be resolved to an
+     * (for polymorphic deserialization) that cannot be resolved to an
      * actual type; usually since there is no mapping defined.
      * Default implementation will try to call {@link DeserializationProblemHandler#handleUnknownTypeId}
      * on configured handlers, if any, to allow for recovery; if recovery does not
@@ -1132,7 +1132,7 @@ public abstract class DeserializationContext
      *
      * @return {@link JavaType} that id resolves to
      *
-     * @throws IOException To indicate unrecoverable problem, if resolution can not
+     * @throws IOException To indicate unrecoverable problem, if resolution cannot
      *    be made to work
      *
      * @since 2.8

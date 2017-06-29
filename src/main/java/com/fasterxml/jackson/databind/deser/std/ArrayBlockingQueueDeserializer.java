@@ -79,7 +79,7 @@ public class ArrayBlockingQueueDeserializer
     protected Collection<Object> createDefaultInstance(DeserializationContext ctxt)
         throws IOException
     {
-        // 07-Nov-2016, tatu: Important: can not create using default ctor (one
+        // 07-Nov-2016, tatu: Important: cannot create using default ctor (one
         //    does not exist); and also need to know exact size. Hence, return
         //    null from here
         return null;

@@ -572,7 +572,7 @@ public abstract class AnnotationIntrospector
      * it is "weak" and does not either proof that a property exists (for example,
      * if visibility is not high enough), or override explicit names.
      * In practice this method is used to introspect optional names for creator
-     * parameters (which may or may not be available and can not be detected
+     * parameters (which may or may not be available and cannot be detected
      * by standard databind); or to provide alternate name mangling for
      * fields, getters and/or setters.
      * 
@@ -605,7 +605,7 @@ public abstract class AnnotationIntrospector
      * Method called in cases where a class has two methods eligible to be used
      * for the same logical property, and default logic is not enough to figure
      * out clear precedence. Introspector may try to choose one to use; or, if
-     * unable, return `null` to indicate it can not resolve the problem.
+     * unable, return `null` to indicate it cannot resolve the problem.
      *
      * @since 2.7
      */

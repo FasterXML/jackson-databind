@@ -40,7 +40,7 @@ public abstract class TypeDeserializerBase
 
     /**
      * Type to use as the default implementation, if type id is
-     * missing or can not be resolved.
+     * missing or cannot be resolved.
      */
     protected final JavaType _defaultImpl;
 
@@ -172,7 +172,7 @@ public abstract class TypeDeserializerBase
                  *   we actually now need to explicitly narrow from base type (which may have parameterization)
                  *   using raw type.
                  *
-                 *   One complication, though; can not change 'type class' (simple type to container); otherwise
+                 *   One complication, though; cannot change 'type class' (simple type to container); otherwise
                  *   we may try to narrow a SimpleType (Object.class) into MapType (Map.class), losing actual
                  *   type in process (getting SimpleType of Map.class which will not work as expected)
                  */
@@ -263,7 +263,7 @@ public abstract class TypeDeserializerBase
     }
 
     /**
-     * Helper method called when given type id can not be resolved into 
+     * Helper method called when given type id cannot be resolved into 
      * concrete deserializer either directly (using given {@link  TypeIdResolver}),
      * or using default type.
      * Default implementation simply throws a {@link com.fasterxml.jackson.databind.JsonMappingException} to

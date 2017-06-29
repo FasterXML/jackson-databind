@@ -39,7 +39,7 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
     }
 
     /**
-     * By default assumption is that scalar types can not be updated: many are immutable
+     * By default assumption is that scalar types cannot be updated: many are immutable
      * values (such as primitives and wrappers)
      */
     @Override // since 2.9

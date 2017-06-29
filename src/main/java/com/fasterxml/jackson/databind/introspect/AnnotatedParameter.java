@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Object that represents method parameters, mostly so that associated
  * annotations can be processed conveniently. Note that many of accessors
- * can not return meaningful values since parameters do not have stand-alone
+ * cannot return meaningful values since parameters do not have stand-alone
  * JDK objects associated; so access should mostly be limited to checking
  * annotation values which are properly aggregated and included.
  */

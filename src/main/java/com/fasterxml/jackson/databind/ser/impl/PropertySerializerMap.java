@@ -42,7 +42,7 @@ public abstract class PropertySerializerMap
 
     /**
      * Main lookup method. Takes a "raw" type since usage is always from
-     * place where parameterization is fixed such that there can not be
+     * place where parameterization is fixed such that there cannot be
      * type-parametric variations.
      */
     public abstract JsonSerializer<Object> serializerFor(Class<?> type);

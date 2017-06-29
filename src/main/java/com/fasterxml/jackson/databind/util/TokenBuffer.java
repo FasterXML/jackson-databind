@@ -40,7 +40,7 @@ public class TokenBuffer
     /**
      * Object codec to use for stream-based object
      * conversion through parser/generator interfaces. If null,
-     * such methods can not be used.
+     * such methods cannot be used.
      */
     protected ObjectCodec _objectCodec;
 
@@ -142,7 +142,7 @@ public class TokenBuffer
     /**
      * @param codec Object codec to use for stream-based object
      *   conversion through parser/generator interfaces. If null,
-     *   such methods can not be used.
+     *   such methods cannot be used.
      * @param hasNativeIds Whether resulting {@link JsonParser} (if created)
      *   is considered to support native type and object ids
      */
@@ -267,7 +267,7 @@ public class TokenBuffer
      *
      * @param codec Object codec to use for stream-based object
      *   conversion through parser/generator interfaces. If null,
-     *   such methods can not be used.
+     *   such methods cannot be used.
      * 
      * @return Parser that can be used for reading contents stored in this buffer
      */
@@ -336,9 +336,9 @@ public class TokenBuffer
      *<p>
      * Note: this method would be enough to implement
      * <code>JsonSerializer</code>  for <code>TokenBuffer</code> type;
-     * but we can not have upwards
+     * but we cannot have upwards
      * references (from core to mapper package); and as such we also
-     * can not take second argument.
+     * cannot take second argument.
      */
     public void serialize(JsonGenerator gen) throws IOException
     {
@@ -947,7 +947,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     /**
      * Although we could support this method, it does not necessarily make
-     * sense: we can not make good use of streaming because buffer must
+     * sense: we cannot make good use of streaming because buffer must
      * hold all the data. Because of this, currently this will simply
      * throw {@link UnsupportedOperationException}
      */
@@ -1604,7 +1604,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 return (Number) value;
             }
             // Difficult to really support numbers-as-Strings; but let's try.
-            // NOTE: no access to DeserializationConfig, unfortunately, so can not
+            // NOTE: no access to DeserializationConfig, unfortunately, so cannot
             // try to determine Double/BigDecimal preference...
             if (value instanceof String) {
                 String str = (String) value;

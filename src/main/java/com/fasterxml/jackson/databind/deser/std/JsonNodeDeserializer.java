@@ -540,7 +540,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             */
 
             
-            // These states can not be mapped; input stream is
+            // These states cannot be mapped; input stream is
             // off by an event or two
 
         //case END_OBJECT:

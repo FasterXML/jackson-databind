@@ -544,7 +544,7 @@ public abstract class JsonNode
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an int (including structured types
+     * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
@@ -558,7 +558,7 @@ public abstract class JsonNode
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an int (including structured types
+     * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
@@ -572,7 +572,7 @@ public abstract class JsonNode
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an long (including structured types
+     * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
@@ -586,7 +586,7 @@ public abstract class JsonNode
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an long (including structured types
+     * If representation cannot be converted to an long (including structured types
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
@@ -600,7 +600,7 @@ public abstract class JsonNode
      * and 1.0 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an int (including structured types
+     * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
      */
@@ -614,7 +614,7 @@ public abstract class JsonNode
      * and 1.0 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an int (including structured types
+     * If representation cannot be converted to an int (including structured types
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */
@@ -628,7 +628,7 @@ public abstract class JsonNode
      * 0 maps to false
      * and Strings 'true' and 'false' map to corresponding values.
      *<p>
-     * If representation can not be converted to a boolean value (including structured types
+     * If representation cannot be converted to a boolean value (including structured types
      * like Objects and Arrays),
      * default value of <b>false</b> will be returned; no exceptions are thrown.
      */
@@ -642,7 +642,7 @@ public abstract class JsonNode
      * 0 maps to false
      * and Strings 'true' and 'false' map to corresponding values.
      *<p>
-     * If representation can not be converted to a boolean value (including structured types
+     * If representation cannot be converted to a boolean value (including structured types
      * like Objects and Arrays),
      * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
      */

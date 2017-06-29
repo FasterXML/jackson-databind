@@ -127,7 +127,7 @@ public class UntypedObjectDeserializer
 
     /**
      * We need to implement this method to properly find things to delegate
-     * to: it can not be done earlier since delegated deserializers almost
+     * to: it cannot be done earlier since delegated deserializers almost
      * certainly require access to this instance (at least "List" and "Map" ones)
      */
     @SuppressWarnings("unchecked")

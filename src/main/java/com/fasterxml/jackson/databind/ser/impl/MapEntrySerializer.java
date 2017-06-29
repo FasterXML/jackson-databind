@@ -66,7 +66,7 @@ public class MapEntrySerializer
     protected final TypeSerializer _valueTypeSerializer;
 
     /**
-     * If value type can not be statically determined, mapping from
+     * If value type cannot be statically determined, mapping from
      * runtime value types to serializers are stored in this object.
      */
     protected PropertySerializerMap _dynamicValueSerializers;
@@ -314,7 +314,7 @@ public class MapEntrySerializer
             if (valueSer == null) {
                 try {
                     valueSer = _findAndAddDynamic(_dynamicValueSerializers, cc, prov);
-                } catch (JsonMappingException e) { // Ugh... can not just throw as-is, so...
+                } catch (JsonMappingException e) { // Ugh... cannot just throw as-is, so...
                     return false;
                 }
             }

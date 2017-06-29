@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * Type serializer that preferably embeds type information as an "external"
  * type property; embedded in enclosing JSON object.
  * Note that this serializer should only be used when value is being output
- * at JSON Object context; otherwise it can not work reliably, and will have
+ * at JSON Object context; otherwise it cannot work reliably, and will have
  * to revert operation similar to {@link AsPropertyTypeSerializer}.
  *<p>
  * Note that implementation of serialization is bit cumbersome as we must

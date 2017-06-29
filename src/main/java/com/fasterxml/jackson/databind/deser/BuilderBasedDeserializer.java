@@ -54,7 +54,7 @@ public class BuilderBasedDeserializer
                 ignorableProps, ignoreAllUnknown, hasViews);
         _targetType = targetType;
         _buildMethod = builder.getBuildMethod();
-        // 05-Mar-2012, tatu: Can not really make Object Ids work with builders, not yet anyway
+        // 05-Mar-2012, tatu: Cannot really make Object Ids work with builders, not yet anyway
         if (_objectIdReader != null) {
             throw new IllegalArgumentException("Can not use Object Id with Builder-based deserialization (type "
                     +beanDesc.getType()+")");
@@ -228,7 +228,7 @@ public class BuilderBasedDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt,
     		Object value) throws IOException
     {
-        // 26-Oct-2016, tatu: I can not see any of making this actually
+        // 26-Oct-2016, tatu: I cannot see any of making this actually
         //    work correctly, so let's indicate problem right away
         JavaType valueType = _targetType;
         // Did they try to give us builder?

@@ -825,7 +825,7 @@ public class JDKScalarsTest
         _testInvalidStringCoercionFail(boolean[].class);
         _testInvalidStringCoercionFail(byte[].class);
 
-        // char[] is special, can not use generalized test here
+        // char[] is special, cannot use generalized test here
 //        _testInvalidStringCoercionFail(char[].class);
         _testInvalidStringCoercionFail(short[].class);
         _testInvalidStringCoercionFail(int[].class);

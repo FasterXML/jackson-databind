@@ -43,7 +43,7 @@ public class UnrecognizedPropertyException
      *    if available), or if not, type itself
      * @param propertyName Name of unrecognized property
      * @param propertyIds (optional, null if not available) Set of properties that
-     *    type would recognize, if completely known: null if set can not be determined.
+     *    type would recognize, if completely known: null if set cannot be determined.
      */
     public static UnrecognizedPropertyException from(JsonParser p,
             Object fromObjectOrClass, String propertyName,

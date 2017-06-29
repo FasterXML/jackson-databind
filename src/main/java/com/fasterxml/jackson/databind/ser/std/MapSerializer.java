@@ -92,7 +92,7 @@ public class MapSerializer
     protected final TypeSerializer _valueTypeSerializer;
 
     /**
-     * If value type can not be statically determined, mapping from
+     * If value type cannot be statically determined, mapping from
      * runtime value types to serializers are stored in this object.
      */
     protected PropertySerializerMap _dynamicValueSerializers;
@@ -310,7 +310,7 @@ public class MapSerializer
         if (!staticValueType) {
             staticValueType = (valueType != null && valueType.isFinal());
         } else {
-            // also: Object.class can not be handled as static, ever
+            // also: Object.class cannot be handled as static, ever
             if (valueType.getRawClass() == Object.class) {
                 staticValueType = false;
             }

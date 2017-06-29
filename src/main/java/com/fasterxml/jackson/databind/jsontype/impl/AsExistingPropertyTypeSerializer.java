@@ -31,35 +31,35 @@ public class AsExistingPropertyTypeSerializer
     public As getTypeInclusion() { return As.EXISTING_PROPERTY; }
 
     @Override
-    public void writeTypePrefixForObject(Object value, JsonGenerator gen) throws IOException
+    public void writeTypePrefixForObject(Object value, JsonGenerator g) throws IOException
     {
-        if (gen.canWriteTypeId()) { // only write explicitly if native type id
+        if (g.canWriteTypeId()) { // only write explicitly if native type id
             final String typeId = idFromValue(value);
             if (typeId != null) {
-                gen.writeTypeId(typeId);
+                g.writeTypeId(typeId);
             }
         }
-        gen.writeStartObject();
+        g.writeStartObject();
     }
 
     @Override
-    public void writeTypePrefixForObject(Object value, JsonGenerator gen, Class<?> type) throws IOException
+    public void writeTypePrefixForObject(Object value, JsonGenerator g, Class<?> type) throws IOException
     {
-        if (gen.canWriteTypeId()) { // only write explicitly if native type id
+        if (g.canWriteTypeId()) { // only write explicitly if native type id
             final String typeId = idFromValueAndType(value, type);
             if (typeId != null) {
-                gen.writeTypeId(typeId);
+                g.writeTypeId(typeId);
             }
         }
-        gen.writeStartObject();
+        g.writeStartObject();
     }
 
     @Override
-    public void writeCustomTypePrefixForObject(Object value, JsonGenerator gen, String typeId) throws IOException
+    public void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException
     {
-        if ((typeId != null) && gen.canWriteTypeId()) {
-            gen.writeTypeId(typeId);
+        if ((typeId != null) && g.canWriteTypeId()) {
+            g.writeTypeId(typeId);
         }
-        gen.writeStartObject();
+        g.writeStartObject();
     }
 }

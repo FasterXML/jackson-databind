@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Simple serializer for {@link InetSocketAddress}.
@@ -40,11 +41,14 @@ public class InetSocketAddressSerializer
     }
 
     @Override
-    public void serializeWithType(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer) throws IOException, JsonGenerationException
+    public void serializeWithType(InetSocketAddress value, JsonGenerator g,
+            SerializerProvider provider, TypeSerializer typeSer) throws IOException
     {
         // Better ensure we don't use specific sub-classes...
-        typeSer.writeTypePrefixForScalar(value, jgen, InetSocketAddress.class);
-        serialize(value, jgen, provider);
-        typeSer.writeTypeSuffixForScalar(value, jgen);
+        WritableTypeId typeIdDef = new WritableTypeId(value,
+                InetSocketAddress.class, JsonToken.VALUE_STRING);
+        typeSer.writeTypePrefix(g, typeIdDef);
+        serialize(value, g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 }

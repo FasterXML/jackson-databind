@@ -190,41 +190,21 @@ public abstract class TypeSerializer
     /**********************************************************
      */
 
-    /**
-     * Method called to write initial part of type information for given
-     * value, when it will be output as scalar JSON value (not as JSON
-     * Object or Array),
-     * using specified custom type id instead of calling {@link TypeIdResolver}.
-     * This means that the context after call can not be that of JSON Object;
-     * it may be Array or root context.
-     * 
-     * @param value Value that will be serialized, for which type information is
-     *   to be written
-     * @param g Generator to use for writing type information
-     * @param typeId Exact type id to use
-     */
-    public abstract void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException;
+//    @Deprecated // since 2.9
+    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator g, String typeId) throws IOException { }
 
-    /**
-     * Method called to write initial part of type information for given
-     * value, when it will be output as JSON Object value (not as JSON
-     * Array or scalar),
-     * using specified custom type id instead of calling {@link TypeIdResolver}.
-     * This means that context after call must be JSON Object, meaning that
-     * caller can then proceed to output field entries.
-     * 
-     * @param value Value that will be serialized, for which type information is
-     *   to be written
-     * @param g Generator to use for writing type information
-     * @param typeId Exact type id to use
-     */
-    public abstract void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException;
-    
-    public abstract void writeCustomTypePrefixForArray(Object value, JsonGenerator g, String typeId) throws IOException;
+//    @Deprecated // since 2.9
+    public void writeCustomTypePrefixForObject(Object value, JsonGenerator g, String typeId) throws IOException { }
 
-    public abstract void writeCustomTypeSuffixForScalar(Object value, JsonGenerator g, String typeId) throws IOException;
+//    @Deprecated // since 2.9
+    public void writeCustomTypePrefixForArray(Object value, JsonGenerator g, String typeId) throws IOException { }
 
-    public abstract void writeCustomTypeSuffixForObject(Object value, JsonGenerator g, String typeId) throws IOException;
+//    @Deprecated // since 2.9
+    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator g, String typeId) throws IOException { }
 
-    public abstract void writeCustomTypeSuffixForArray(Object value, JsonGenerator g, String typeId) throws IOException;
+//    @Deprecated // since 2.9
+    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator g, String typeId) throws IOException { }
+
+//    @Deprecated // since 2.9
+    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator g, String typeId) throws IOException { }
 }

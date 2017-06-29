@@ -595,7 +595,7 @@ public abstract class BeanSerializerBase
             return;
         }
 
-        WritableTypeId typeIdDef = _typeIdDef(bean);
+        WritableTypeId typeIdDef = _typeIdDef(bean, JsonToken.START_OBJECT);
         gen.setCurrentValue(bean); // [databind#631]
         typeSer.writeTypePrefix(gen, typeIdDef);
 
@@ -658,7 +658,7 @@ public abstract class BeanSerializerBase
             TypeSerializer typeSer, WritableObjectId objectId) throws IOException
     {
         final ObjectIdWriter w = _objectIdWriter;
-        WritableTypeId typeIdDef = _typeIdDef(bean);
+        WritableTypeId typeIdDef = _typeIdDef(bean, JsonToken.START_OBJECT);
 
         typeSer.writeTypePrefix(gen, typeIdDef);
         objectId.writeAsField(gen, provider, w);
@@ -673,16 +673,16 @@ public abstract class BeanSerializerBase
     /**
      * @since 2.9
      */
-    protected final WritableTypeId _typeIdDef(Object bean) {
+    protected final WritableTypeId _typeIdDef(Object bean, JsonToken valueShape) {
         if (_typeId == null) {
-            return new WritableTypeId(bean, JsonToken.START_OBJECT);
+            return new WritableTypeId(bean, valueShape);
         }
         Object typeId = _typeId.getValue(bean);
         if (typeId == null) {
             // 28-Jun-2017, tatu: Is this really needed? Unchanged from 2.8 but...
             typeId = "";
         }
-        return new WritableTypeId(bean, JsonToken.START_OBJECT, typeId);
+        return new WritableTypeId(bean, valueShape, typeId);
     }
 
     @Deprecated // since 2.9

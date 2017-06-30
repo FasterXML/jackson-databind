@@ -1,6 +1,12 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -17,6 +23,12 @@ public abstract class TypeSerializerBase extends TypeSerializer
         _property = property;
     }
 
+    /*
+    /**********************************************************
+    /* Base implementations, simple accessors
+    /**********************************************************
+     */
+
     @Override
     public abstract JsonTypeInfo.As getTypeInclusion();
 
@@ -25,6 +37,38 @@ public abstract class TypeSerializerBase extends TypeSerializer
     
     @Override
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
+
+    @Override
+    public WritableTypeId writeTypePrefix(JsonGenerator g,
+            WritableTypeId idMetadata) throws IOException
+    {
+        _generateTypeId(idMetadata);
+        return g.writeTypePrefix(idMetadata);
+    }
+
+    @Override
+    public WritableTypeId writeTypeSuffix(JsonGenerator g,
+            WritableTypeId idMetadata) throws IOException
+    {
+        return g.writeTypeSuffix(idMetadata);
+    }
+
+    /**
+     * Helper method that will generate type id to use, if not already passed.
+     */
+    protected final void _generateTypeId(WritableTypeId idMetadata) {
+        Object id = idMetadata.id;
+        if (id == null) {
+            final Object value = idMetadata.forValue;
+            Class<?> typeForId = idMetadata.forValueType;
+            if (typeForId == null) {
+                id = idFromValue(value);
+            } else {
+                id = idFromValueAndType(value, typeForId);
+            }
+            idMetadata.id = id;
+        }
+    }
 
     /*
     /**********************************************************

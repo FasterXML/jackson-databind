@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -165,11 +166,12 @@ public class ArrayNode
     public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForArray(this, g);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(this, JsonToken.START_ARRAY));
         for (JsonNode n : _children) {
             ((BaseJsonNode)n).serialize(g, provider);
         }
-        typeSer.writeTypeSuffixForArray(this, g);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     /*

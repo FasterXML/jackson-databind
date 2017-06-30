@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -82,9 +83,10 @@ public final class IndexedStringListSerializer
             TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForArray(value, g);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, g, provider, value.size());
-        typeSer.writeTypeSuffixForArray(value, g);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     private final void serializeContents(List<String> value, JsonGenerator g,

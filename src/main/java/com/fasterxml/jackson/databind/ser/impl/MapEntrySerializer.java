@@ -7,7 +7,8 @@ import java.util.Map.Entry;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -341,14 +342,15 @@ public class MapEntrySerializer
     }
 
     @Override
-    public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+    public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator g,
+            SerializerProvider provider, TypeSerializer typeSer) throws IOException
     {
-        typeSer.writeTypePrefixForObject(value, gen);
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
-        serializeDynamic(value, gen, provider);
-        typeSer.writeTypeSuffixForObject(value, gen);
+        g.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.START_OBJECT));
+        serializeDynamic(value, g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     protected void serializeDynamic(Map.Entry<?, ?> value, JsonGenerator gen,

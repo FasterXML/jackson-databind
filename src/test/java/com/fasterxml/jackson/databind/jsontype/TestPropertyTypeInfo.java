@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Testing to verify that {@link JsonTypeInfo} works
- * for properties as well as types (see [JACKSON-280] for details)
+ * for properties as well as types.
  */
 @SuppressWarnings("serial")
 public class TestPropertyTypeInfo extends BaseMapTest

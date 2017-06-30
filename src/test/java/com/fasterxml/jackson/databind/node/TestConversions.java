@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -237,11 +238,13 @@ public class TestConversions extends BaseMapTest
         }
 
         @Override
-        public void serializeWithType(JsonGenerator jgen,
-                SerializerProvider provider, TypeSerializer typeSer) throws IOException {
-            typeSer.writeTypePrefixForObject(this, jgen);
-            serialize(jgen, provider);
-            typeSer.writeTypeSuffixForObject(this, jgen);
+        public void serializeWithType(JsonGenerator g,
+                SerializerProvider provider, TypeSerializer typeSer) throws IOException
+        {
+            WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.START_OBJECT);
+            typeSer.writeTypePrefix(g, typeIdDef);
+            serialize(g, provider);
+            typeSer.writeTypePrefix(g, typeIdDef);
         }    
     }
 

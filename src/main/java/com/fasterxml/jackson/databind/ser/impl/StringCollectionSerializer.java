@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -63,38 +64,40 @@ public class StringCollectionSerializer
      */
     
     @Override
-    public void serialize(Collection<String> value, JsonGenerator gen,
+    public void serialize(Collection<String> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {
+        g.setCurrentValue(value);
         final int len = value.size();
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, gen, provider);
+                serializeContents(value, g, provider);
                 return;
             }
         }
-        gen.writeStartArray(len);
-        serializeContents(value, gen, provider);
-        gen.writeEndArray();
+        g.writeStartArray(len);
+        serializeContents(value, g, provider);
+        g.writeEndArray();
     }
 
     @Override
-    public void serializeWithType(Collection<String> value, JsonGenerator g, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException
-    {
-        typeSer.writeTypePrefixForArray(value, g);
-        serializeContents(value, g, provider);
-        typeSer.writeTypeSuffixForArray(value, g);
-    }
-
-    private final void serializeContents(Collection<String> value, JsonGenerator g, SerializerProvider provider)
+    public void serializeWithType(Collection<String> value, JsonGenerator g,
+            SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
         g.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
+        serializeContents(value, g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
+    }
 
+    private final void serializeContents(Collection<String> value, JsonGenerator g,
+            SerializerProvider provider)
+        throws IOException
+    {
         int i = 0;
 
         try {

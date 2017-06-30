@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -24,7 +25,7 @@ public abstract class ValueNode
         // (base class checks for direct match)
         return MissingNode.getInstance();
     }
-    
+
     /**
      * All current value nodes are immutable, so we can just return
      * them as is.
@@ -36,13 +37,14 @@ public abstract class ValueNode
     @Override public abstract JsonToken asToken();
 
     @Override
-    public void serializeWithType(JsonGenerator jg, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
-        typeSer.writeTypePrefixForScalar(this, jg);
-        serialize(jg, provider);
-        typeSer.writeTypeSuffixForScalar(this, jg);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(this, asToken()));
+        serialize(g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     /*

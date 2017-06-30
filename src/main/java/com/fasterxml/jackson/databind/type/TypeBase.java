@@ -5,6 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -162,13 +164,14 @@ public abstract class TypeBase
      */
 
     @Override
-    public void serializeWithType(JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
-        typeSer.writeTypePrefixForScalar(this, gen);
-        this.serialize(gen, provider);
-        typeSer.writeTypeSuffixForScalar(this, gen);
+        WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.VALUE_STRING);
+        typeSer.writeTypePrefix(g, typeIdDef);
+        this.serialize(g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     @Override

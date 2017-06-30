@@ -5,6 +5,7 @@ import java.net.InetAddress;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -85,12 +86,13 @@ public class InetAddressSerializer
     }
 
     @Override
-    public void serializeWithType(InetAddress value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException, JsonGenerationException
+    public void serializeWithType(InetAddress value, JsonGenerator g,
+            SerializerProvider provider, TypeSerializer typeSer) throws IOException
     {
         // Better ensure we don't use specific sub-classes...
-        typeSer.writeTypePrefixForScalar(value, jgen, InetAddress.class);
-        serialize(value, jgen, provider);
-        typeSer.writeTypeSuffixForScalar(value, jgen);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, InetAddress.class, JsonToken.VALUE_STRING));
+        serialize(value, g, provider);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,12 +54,21 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
             TypeSerializer typeSer)
         throws IOException
     {
+        // most likely scalar
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
+        g.writeBinary(provider.getConfig().getBase64Variant(),
+                value, 0, value.length);
+        typeSer.writeTypeSuffix(g, typeIdDef);
+
+        /* OLD impl
         typeSer.writeTypePrefixForScalar(value, g);
         g.writeBinary(provider.getConfig().getBase64Variant(),
                 value, 0, value.length);
         typeSer.writeTypeSuffixForScalar(value, g);
+        */
     }
-    
+
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {

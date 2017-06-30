@@ -115,7 +115,7 @@ public class TestDefaultForLists
         inputList.add(Locale.CHINESE);
         input.values = inputList;
         String json = m.writeValueAsString(input);
-        
+
         ObjectListBean output = m.readValue(json, ObjectListBean.class);
         List<Object> outputList = output.values;
         assertEquals(2, outputList.size());

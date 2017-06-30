@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,9 +40,11 @@ public abstract class StdScalarSerializer<T>
     public void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
-        typeSer.writeTypePrefixForScalar(value, g);
+        // NOTE: need not really be string; just indicates "scalar of some kind"
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                typeSer.typeId(value, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
-        typeSer.writeTypeSuffixForScalar(value, g);
+        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     @Override

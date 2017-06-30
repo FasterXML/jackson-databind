@@ -93,6 +93,7 @@ Project: jackson-databind
 #1655: `@JsonAnyGetter` uses different `bean` parameter in `SimpleBeanPropertyFilter`
  (reported by georgeflugq@github)
 #1678: Rewrite `StdDateFormat` ISO-8601 handling functionality
+#1684: Rewrite handling of type ids to let `JsonGenerator` handle (more of) details
 
 2.8.9.1 (not yet released)
 

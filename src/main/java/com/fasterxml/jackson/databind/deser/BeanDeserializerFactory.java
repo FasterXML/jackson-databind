@@ -56,6 +56,8 @@ public class BeanDeserializerFactory
         s.add("org.springframework.beans.factory.ObjectFactory");
         s.add("com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl");
         s.add("org.apache.xalan.xsltc.trax.TemplatesImpl");
+        // [databind#1680]: may or may not be problem, take no chance
+        s.add("com.sun.rowset.JdbcRowSetImpl");
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

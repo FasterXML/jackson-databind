@@ -28,20 +28,19 @@ public final class TypeWrappedSerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        _serializer.serializeWithType(value, jgen, provider, _typeSerializer);
+    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+        _serializer.serializeWithType(value, g, provider, _typeSerializer);
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
-        /* Is this an erroneous call? For now, let's assume it is not, and
-         * that type serializer is just overridden if so
-         */
-        _serializer.serializeWithType(value, jgen, provider, typeSer);
+        // Is this an erroneous call? For now, let's assume it is not, and
+        // that type serializer is just overridden if so
+        _serializer.serializeWithType(value, g, provider, typeSer);
     }
-    
+
     @Override
     public Class<Object> handledType() { return Object.class; }
 

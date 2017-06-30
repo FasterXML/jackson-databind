@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
@@ -29,6 +28,12 @@ public class AsExistingPropertyTypeSerializer
 
     @Override
     public As getTypeInclusion() { return As.EXISTING_PROPERTY; }
+
+    /*
+    /**********************************************************
+    /* Legacy write methods
+    /**********************************************************
+     */
 
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator g) throws IOException

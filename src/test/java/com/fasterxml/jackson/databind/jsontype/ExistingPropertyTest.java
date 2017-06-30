@@ -12,18 +12,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ExistingPropertyTest extends BaseMapTest {
-
+public class ExistingPropertyTest extends BaseMapTest
+{
     /**
      * Polymorphic base class - existing property as simple property on subclasses
      */
-	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type",
-	        visible=true)
-	@JsonSubTypes({
-		@Type(value = Apple.class, name = "apple") ,
-		@Type(value = Orange.class, name = "orange") 
-		})
-	static abstract class Fruit {
+    @JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type",
+            visible=true)
+    @JsonSubTypes({
+        @Type(value = Apple.class, name = "apple") ,
+        @Type(value = Orange.class, name = "orange") 
+    })
+    static abstract class Fruit {
         public String name;
         protected Fruit(String n)  { name = n; }
     }
@@ -34,20 +34,20 @@ public class ExistingPropertyTest extends BaseMapTest {
         public int seedCount;
         public String type;
 
-        private Apple() { super(null);; }
+        private Apple() { super(null); }
         public Apple(String name, int b) {
             super(name);
             seedCount = b;
             type = "apple";
         }
     }
-    
+
     @JsonTypeName("orange")
     static class Orange extends Fruit
     {
         public String color;
         public String type;
-        
+
         private Orange() { super(null); }
         public Orange(String name, String c) {
             super(name);
@@ -61,7 +61,7 @@ public class ExistingPropertyTest extends BaseMapTest {
         public FruitWrapper() {}
         public FruitWrapper(Fruit f) { fruit = f; }
     }
-    
+
     /**
      * Polymorphic base class - existing property forced by abstract method
      */
@@ -94,7 +94,7 @@ public class ExistingPropertyTest extends BaseMapTest {
         	return "doggie";
         }        
     }
-    
+
     @JsonTypeName("kitty")
     static class Cat extends Animal
     {
@@ -117,7 +117,6 @@ public class ExistingPropertyTest extends BaseMapTest {
         public AnimalWrapper() {}
         public AnimalWrapper(Animal a) { animal = a; }
     }
-
 
     /**
      * Polymorphic base class - existing property NOT forced by abstract method on base class
@@ -147,7 +146,7 @@ public class ExistingPropertyTest extends BaseMapTest {
         	return "accord";
         }        
     }
-    
+
     @JsonTypeName("camry")
     static class Camry extends Car
     {
@@ -230,7 +229,7 @@ public class ExistingPropertyTest extends BaseMapTest {
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     /**
      * Fruits - serialization tests for simple property on sub-classes
      */
@@ -374,10 +373,10 @@ public class ExistingPropertyTest extends BaseMapTest {
         assertEquals(accord.name, result.get("name"));
         assertEquals(accord.speakerCount, result.get("speakerCount"));
         assertEquals(accord.getType(), result.get("type"));
-        
+
         String camrySerialized = MAPPER.writeValueAsString(camry);
         assertEquals(camrySerialized, camryJson);
-        
+
         String accordSerialized = MAPPER.writeValueAsString(accord);
         assertEquals(accordSerialized, accordJson);
         

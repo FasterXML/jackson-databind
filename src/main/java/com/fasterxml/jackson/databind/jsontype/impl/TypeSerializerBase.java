@@ -3,8 +3,9 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -41,53 +42,32 @@ public abstract class TypeSerializerBase extends TypeSerializer
     public WritableTypeId writeTypePrefix(JsonGenerator g,
             WritableTypeId idMetadata) throws IOException
     {
-        final Object value = idMetadata.forValue;
-        // First: generate id if not passed
-        final Object id = _idFor(idMetadata);
-        // just for now...
-        final String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
-        // Then dispatch to proper method (... for now)
-        if (idMetadata.valueShape == JsonToken.START_OBJECT) {
-            writeCustomTypePrefixForObject(value, g, idStr);
-        } else if (idMetadata.valueShape == JsonToken.START_ARRAY) {
-            writeCustomTypePrefixForArray(value, g, idStr);
-        } else { // scalar
-            writeCustomTypePrefixForScalar(value, g, idStr);
-        }
-        return idMetadata;
+        _generateTypeId(idMetadata);
+        return g.writeTypePrefix(idMetadata);
     }
 
     @Override
-    public void writeTypeSuffix(JsonGenerator g,
+    public WritableTypeId writeTypeSuffix(JsonGenerator g,
             WritableTypeId idMetadata) throws IOException
     {
-        final Object value = idMetadata.forValue;
-        final Object id = idMetadata.id;
-        // just for now...
-        final String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
-        // Then dispatch to proper method (... for now)
-        if (idMetadata.valueShape == JsonToken.START_OBJECT) {
-            writeCustomTypeSuffixForObject(value, g, idStr);
-        } else if (idMetadata.valueShape == JsonToken.START_ARRAY) {
-            writeCustomTypeSuffixForArray(value, g, idStr);
-        } else { // scalar
-            writeCustomTypeSuffixForScalar(value, g, idStr);
-        }
+        return g.writeTypeSuffix(idMetadata);
     }
 
-    protected Object _idFor(WritableTypeId idParams) {
-        Object id = idParams.id;
+    /**
+     * Helper method that will generate type id to use, if not already passed.
+     */
+    protected final void _generateTypeId(WritableTypeId idMetadata) {
+        Object id = idMetadata.id;
         if (id == null) {
-            final Object value = idParams.forValue;
-            Class<?> typeForId = idParams.forValueType;
+            final Object value = idMetadata.forValue;
+            Class<?> typeForId = idMetadata.forValueType;
             if (typeForId == null) {
                 id = idFromValue(value);
             } else {
                 id = idFromValueAndType(value, typeForId);
             }
-            idParams.id = id;
+            idMetadata.id = id;
         }
-        return id;
     }
 
     /*

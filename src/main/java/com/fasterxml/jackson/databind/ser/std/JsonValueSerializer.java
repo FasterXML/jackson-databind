@@ -382,10 +382,10 @@ public class JsonValueSerializer
         }
 
         @Override // since 2.9
-        public void writeTypeSuffix(JsonGenerator g,
+        public WritableTypeId writeTypeSuffix(JsonGenerator g,
                 WritableTypeId typeId) throws IOException {
             // NOTE: already overwrote value object so:
-            _typeSerializer.writeTypeSuffix(g, typeId);
+            return _typeSerializer.writeTypeSuffix(g, typeId);
         }
 
         // // // Old Write API, pre-2.9

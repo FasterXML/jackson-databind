@@ -131,7 +131,7 @@ public abstract class TypeSerializer
     /**
      * @since 2.9
      */
-    public abstract void writeTypeSuffix(JsonGenerator g,
+    public abstract WritableTypeId writeTypeSuffix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;
 
     /*

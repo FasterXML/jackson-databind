@@ -304,6 +304,7 @@ public class AnySetterTest
     {
         PolyAnyBean input = new PolyAnyBean();
         input.props.put("a", new Impl("xyz"));
+
         String json = MAPPER.writeValueAsString(input);
         
 //        System.err.println("JSON: "+json);

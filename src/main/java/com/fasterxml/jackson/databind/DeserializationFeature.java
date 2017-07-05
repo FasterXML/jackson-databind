@@ -459,7 +459,24 @@ public enum DeserializationFeature implements ConfigFeature
      * 
      * @since 2.1
      */
-    EAGER_DESERIALIZER_FETCH(true)
+    EAGER_DESERIALIZER_FETCH(true),
+
+    /**
+     * Feature that determines whether JSON string mapping are valid
+     * values to be used to map to ordinal() of matching enumeration value
+     * for deserializing Java enum values when string itself is a number.
+     * If set to 'false' string are acceptable as ordinal values when
+     * and are used to map to
+     * ordinal() of matching enumeration value; if 'true', strings are
+     * not allowed to be ordinal mapping and
+     * a {@link JsonMappingException} will be thrown.
+     * Latter behavior makes sense if there is concern that accidental
+     * mapping from string values to enums ordinal might happen (and when enums
+     * are always serialized as JSON Strings)
+     *<p>
+     * Feature is disabled by default.
+     */
+    FAIL_ON_ORDINAL_STRING_MAPPING_FOR_ENUMS(false)
     
     ;
 

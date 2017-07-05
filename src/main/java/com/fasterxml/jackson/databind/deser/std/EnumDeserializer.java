@@ -234,6 +234,11 @@ public class EnumDeserializer
                     try {
                         int index = Integer.parseInt(name);
                         if (index >= 0 && index < _enumsByIndex.length) {
+                            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_ORDINAL_STRING_MAPPING_FOR_ENUMS)) {
+                                return ctxt.handleWeirdStringValue(_enumClass(), name,
+                                        "not allowed to deserialize Enum value by ordinal out of string: disable DeserializationConfig.DeserializationFeature.FAIL_ON_ORDINAL_STRING_MAPPING_FOR_ENUMS to allow"
+                                );
+                            }
                             return _enumsByIndex[index];
                         }
                     } catch (NumberFormatException e) {

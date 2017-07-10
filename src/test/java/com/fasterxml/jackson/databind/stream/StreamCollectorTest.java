@@ -15,6 +15,10 @@ public class StreamCollectorTest extends BaseMapTest {
                 .collect(JacksonCollector.toJsonList());
         assertNotNull(jsonArray);
         assertEquals(0, jsonArray.size());
+        assertEquals(
+                "[]",
+                jsonArray.toString()
+        );
     }
 
     public void testOneElementStream() throws JsonProcessingException {
@@ -23,12 +27,12 @@ public class StreamCollectorTest extends BaseMapTest {
                 objectMapper.valueToTree(new Point(1, 2))
         ).collect(JacksonCollector.toJsonList());
 
+        assertNotNull(jsonArray);
+        assertEquals(1, jsonArray.size());
         assertEquals(
                 "[{\"x\":1,\"y\":2}]",
                 jsonArray.toString()
         );
-        assertNotNull(jsonArray);
-        assertEquals(1, jsonArray.size());
     }
 
     public void testManyElementsStream() {
@@ -39,11 +43,11 @@ public class StreamCollectorTest extends BaseMapTest {
                 objectMapper.valueToTree(new Point(5, 6))
         ).collect(JacksonCollector.toJsonList());
 
+        assertNotNull(jsonArray);
+        assertEquals(3, jsonArray.size());
         assertEquals(
                 "[{\"x\":1,\"y\":2},{\"x\":3,\"y\":4},{\"x\":5,\"y\":6}]",
                 jsonArray.toString()
         );
-        assertNotNull(jsonArray);
-        assertEquals(3, jsonArray.size());
     }
 }

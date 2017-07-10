@@ -204,12 +204,12 @@ public class JDKAtomicTypesTest
         ObjectMapper mapper = MAPPER;
 
         // by default, include as null
-        assertEquals("{\"value\":null}", mapper.writeValueAsString(input));
+        assertEquals(aposToQuotes("{'value':null}"), mapper.writeValueAsString(input));
 
         // ditto with "no nulls"
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude
                 .Include.NON_NULL);
-        assertEquals("{\"value\":null}", mapper.writeValueAsString(input));
+        assertEquals(aposToQuotes("{'value':null}"), mapper.writeValueAsString(input));
 
         // but not with "non empty"
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude

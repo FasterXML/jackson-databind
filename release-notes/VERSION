@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.7.1 (10-Jul-2017)
+
+#1599: Backport the extra safety checks for polymorphic deserialization to 2.6.x release.
+
 2.6.7 (05-Jun-2016)
 
 #1194: Incorrect signature for generic type via `JavaType.getGenericSignature
@@ -57,7 +61,7 @@ Project: jackson-databind
  (reported by scubasau@github)
 #938: Regression: `StackOverflowError` with recursive types that contain `Map.Entry`
  (reported by jloisel@github)
-#939: Regression: DateConversionError in 2.6.x 
+#939: Regression: DateConversionError in 2.6.x
  (reported by Andreas P, anpieber@github)
 #940: Add missing `hashCode()` implementations for `JsonNode` types that did not have them
  (contributed by Sergio M)
@@ -262,7 +266,7 @@ Project: jackson-databind
 
 2.5.0 (01-Jan-2015)
 
-#47: Support `@JsonValue` for (Map) key serialization 
+#47: Support `@JsonValue` for (Map) key serialization
 #113: Problem deserializing polymorphic types with @JsonCreator
 #165: Add `DeserializationContext.getContextualType()` to let deserializer
   known the expected type.
@@ -590,7 +594,7 @@ Special one-off "micro patch" for:
  (suggested by Miguel C)
 #305: Add support for accessing `TypeFactory` via `TypeIdResolverBase`
  (not yet via `TypeIdResolver` interface), other configuration
-#306: Allow use of `@JsonFilter` for properties, not just classes 
+#306: Allow use of `@JsonFilter` for properties, not just classes
 #307: Allow use of `@JsonFilter` for Maps in addition to POJOs
 #308: Improve serialization and deserialization speed of `java.util.UUID` by 4x
  (suggested by David P)
@@ -628,7 +632,7 @@ Special one-off "micro patch" for:
 
 2.2.3 (22-Aug-2013)
 
-#234: Problems with serializing types for deeply nested generic Maps, default typing 
+#234: Problems with serializing types for deeply nested generic Maps, default typing
 #251: SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN ignored with JsonNode
   serialization
  (reported by fge@github)
@@ -826,7 +830,7 @@ Improvements:
 * [Issue#33]: Simplified/clarified definition of 'ObjectReader.readValues()';
   minor change in behavior for JSON Array "wrapped" sequences
 * [Issue#60]: Add 'JsonNode.hasNonNull(...)' method(s)
- (suggested by Jeff S on mailing list) 
+ (suggested by Jeff S on mailing list)
 * [Issue#64]: Add new "standard" PropertyNamingStrategy, PascalCaseStrategy
   (PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
  (contributed by Sean B)

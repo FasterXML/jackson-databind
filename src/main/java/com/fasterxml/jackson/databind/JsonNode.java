@@ -881,7 +881,7 @@ public abstract class JsonNode
      */
     public JsonNode with(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), can not call with() on it");
+                +getClass().getName()+"), cannot call with() on it");
     }
 
     /**
@@ -894,7 +894,7 @@ public abstract class JsonNode
      */
     public JsonNode withArray(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), can not call withArray() on it");
+                +getClass().getName()+"), cannot call withArray() on it");
     }
 
     /*

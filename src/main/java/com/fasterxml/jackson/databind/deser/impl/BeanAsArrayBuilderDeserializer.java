@@ -307,7 +307,7 @@ public class BeanAsArrayBuilderDeserializer
                          *   but make explicitly non-supported for now.
                          */
                         return ctxt.reportBadDefinition(_beanType, String.format(
-"Can not support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
+"Cannot support implicit polymorphic deserialization for POJOs-as-Arrays style: nominal type %s, actual type %s",
                                 _beanType.getRawClass().getName(), builder.getClass().getName()));
                     }
                 }
@@ -343,7 +343,7 @@ public class BeanAsArrayBuilderDeserializer
     {
         // Let's start with failure
         return ctxt.handleUnexpectedToken(handledType(), p.getCurrentToken(), p,
-                "Can not deserialize a POJO (of type %s) from non-Array representation (token: %s): "
+                "Cannot deserialize a POJO (of type %s) from non-Array representation (token: %s): "
                 +"type/property designed to be serialized as JSON Array",
                 _beanType.getRawClass().getName(),
                 p.getCurrentToken());

@@ -36,7 +36,7 @@ public final class AnnotatedMethod
     {
         super(ctxt, classAnn, paramAnnotations);
         if (method == null) {
-            throw new IllegalArgumentException("Can not construct AnnotatedMethod with null Method");
+            throw new IllegalArgumentException("Cannot construct AnnotatedMethod with null Method");
         }
         _method = method;
     }

@@ -220,7 +220,7 @@ public class StdDelegatingDeserializer<T>
         throws IOException
     {
         throw new UnsupportedOperationException(String.format
-                ("Can not update object of type %s (using deserializer for type %s)"
+                ("Cannot update object of type %s (using deserializer for type %s)"
                         +intoValue.getClass().getName(), _delegateType));
     }
     

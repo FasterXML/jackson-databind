@@ -471,7 +471,7 @@ public class BeanPropertyMap
     public SettableBeanProperty find(String key)
     {
         if (key == null) {
-            throw new IllegalArgumentException("Can not pass null property name");
+            throw new IllegalArgumentException("Cannot pass null property name");
         }
         if (_caseInsensitive) {
             key = key.toLowerCase();

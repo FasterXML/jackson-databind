@@ -179,7 +179,7 @@ public class MapEntryDeserializer
         if (t != JsonToken.FIELD_NAME) {
             if (t == JsonToken.END_OBJECT) {
                 return ctxt.reportInputMismatch(this,
-                        "Can not deserialize a Map.Entry out of empty JSON Object");
+                        "Cannot deserialize a Map.Entry out of empty JSON Object");
             }
             return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(handledType(), p);
         }
@@ -227,7 +227,7 @@ public class MapEntryDeserializer
     public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Map.Entry<Object,Object> result) throws IOException
     {
-        throw new IllegalStateException("Can not update Map.Entry values");
+        throw new IllegalStateException("Cannot update Map.Entry values");
     }
 
     @Override

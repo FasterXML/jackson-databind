@@ -154,7 +154,7 @@ public abstract class DeserializationContext
             DeserializerCache cache)
     {
         if (df == null) {
-            throw new IllegalArgumentException("Can not pass null DeserializerFactory");
+            throw new IllegalArgumentException("Cannot pass null DeserializerFactory");
         }
         _factory = df;
         if (cache == null) {
@@ -377,7 +377,7 @@ public abstract class DeserializationContext
     {
         if (_injectableValues == null) {
             reportBadDefinition(ClassUtil.classOf(valueId), String.format(
-"No 'injectableValues' configured, can not inject value with id [%s]", valueId));
+"No 'injectableValues' configured, cannot inject value with id [%s]", valueId));
         }
         return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
     }
@@ -1000,11 +1000,11 @@ public abstract class DeserializationContext
         //   exists), or input mismatch problem (otherwise) since none of existing creators
         //   match with token.
         if ((valueInst != null) && !valueInst.canInstantiate()) {
-            msg = String.format("Can not construct instance of %s (no Creators, like default construct, exist): %s",
+            msg = String.format("Cannot construct instance of %s (no Creators, like default construct, exist): %s",
                     ClassUtil.nameOf(instClass), msg);
             return reportBadDefinition(constructType(instClass), msg);
         }
-        msg = String.format("Can not construct instance of %s (although at least one Creator exists): %s",
+        msg = String.format("Cannot construct instance of %s (although at least one Creator exists): %s",
                 ClassUtil.nameOf(instClass), msg);
         return reportInputMismatch(instClass, msg);
     }
@@ -1109,7 +1109,7 @@ public abstract class DeserializationContext
                 msg = String.format("Unexpected end-of-input when binding data into %s",
                         _calcName(instClass));
             } else {
-                msg = String.format("Can not deserialize instance of %s out of %s token",
+                msg = String.format("Cannot deserialize instance of %s out of %s token",
                         _calcName(instClass), t);
             }
         }
@@ -1424,7 +1424,7 @@ public abstract class DeserializationContext
             return null;
         }
         JavaType type = constructType(deser.handledType());
-        String msg = String.format("Invalid configuration: values of type %s can not be merged", type);
+        String msg = String.format("Invalid configuration: values of type %s cannot be merged", type);
         throw InvalidDefinitionException.from(getParser(), msg, type);
     }
 
@@ -1481,7 +1481,7 @@ public abstract class DeserializationContext
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue,
             String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not deserialize Map key of type %s from String %s: %s",
+                String.format("Cannot deserialize Map key of type %s from String %s: %s",
                         ClassUtil.nameOf(keyClass), _quotedString(keyValue), msg),
                 keyValue, keyClass);
     }
@@ -1502,7 +1502,7 @@ public abstract class DeserializationContext
     public JsonMappingException weirdStringException(String value, Class<?> instClass,
             String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not deserialize value of type %s from String %s: %s",
+                String.format("Cannot deserialize value of type %s from String %s: %s",
                         ClassUtil.nameOf(instClass), _quotedString(value), msg),
                 value, instClass);
     }
@@ -1517,7 +1517,7 @@ public abstract class DeserializationContext
     public JsonMappingException weirdNumberException(Number value, Class<?> instClass,
             String msg) {
         return InvalidFormatException.from(_parser,
-                String.format("Can not deserialize value of type %s from number %s: %s",
+                String.format("Cannot deserialize value of type %s from number %s: %s",
                         ClassUtil.nameOf(instClass), String.valueOf(value), msg),
                 value, instClass);
     }
@@ -1534,7 +1534,7 @@ public abstract class DeserializationContext
     public JsonMappingException instantiationException(Class<?> instClass, Throwable cause) {
         // Most likely problem with Creator definition, right?
         JavaType type = constructType(instClass);
-        String msg = String.format("Can not construct instance of %s, problem: %s",
+        String msg = String.format("Cannot construct instance of %s, problem: %s",
                 ClassUtil.nameOf(instClass), cause.getMessage());
         InvalidDefinitionException e = InvalidDefinitionException.from(_parser, msg, type);
         e.initCause(cause);
@@ -1553,7 +1553,7 @@ public abstract class DeserializationContext
     public JsonMappingException instantiationException(Class<?> instClass, String msg0) {
         // Most likely problem with Creator definition, right?
         JavaType type = constructType(instClass);
-        String msg = String.format("Can not construct instance of %s: %s",
+        String msg = String.format("Cannot construct instance of %s: %s",
                 ClassUtil.nameOf(instClass), msg0);
         return InvalidDefinitionException.from(_parser, msg, type);
     }
@@ -1681,7 +1681,7 @@ public abstract class DeserializationContext
     @Deprecated
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
         return JsonMappingException.from(_parser,
-                String.format("Can not deserialize instance of %s out of %s token",
+                String.format("Cannot deserialize instance of %s out of %s token",
                         _calcName(targetClass), token));
     }
 

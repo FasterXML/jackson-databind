@@ -83,7 +83,7 @@ public class TestTypeBindings
             TypeBindings.create(AbstractType.class, unknown);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not create TypeBindings");
+            verifyException(e, "Cannot create TypeBindings");
             verifyException(e, "class expects 2");
         }
     }

@@ -46,7 +46,7 @@ public final class EnumValues
         Class<? extends Enum<?>> enumCls = ClassUtil.findEnumType(enumClass);
         Enum<?>[] enumValues = enumCls.getEnumConstants();
         if (enumValues == null) {
-            throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
+            throw new IllegalArgumentException("Cannot determine enum constants for Class "+enumClass.getName());
         }
         String[] names = config.getAnnotationIntrospector().findEnumValues(enumCls, enumValues, new String[enumValues.length]);
         SerializableString[] textual = new SerializableString[enumValues.length];
@@ -72,7 +72,7 @@ public final class EnumValues
             }
             return new EnumValues(enumClass, textual);
         }
-        throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
+        throw new IllegalArgumentException("Cannot determine enum constants for Class "+enumClass.getName());
     }
 
     public SerializableString serializedValueFor(Enum<?> key) {

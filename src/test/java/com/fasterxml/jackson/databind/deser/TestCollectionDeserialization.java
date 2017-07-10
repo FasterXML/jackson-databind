@@ -226,7 +226,7 @@ public class TestCollectionDeserialization
             MAPPER.readValue(OBJECTS_JSON, Key[].class);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not deserialize");
+            verifyException(e, "Cannot deserialize");
             List<JsonMappingException.Reference> refs = e.getPath();
             assertEquals(1, refs.size());
             assertEquals(1, refs.get(0).getIndex());
@@ -236,7 +236,7 @@ public class TestCollectionDeserialization
             MAPPER.readValue("[ \"xyz\", { } ]", String[].class);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not deserialize");
+            verifyException(e, "Cannot deserialize");
             List<JsonMappingException.Reference> refs = e.getPath();
             assertEquals(1, refs.size());
             assertEquals(1, refs.get(0).getIndex());
@@ -246,7 +246,7 @@ public class TestCollectionDeserialization
             MAPPER.readValue("{\"keys\":"+OBJECTS_JSON+"}", KeyListBean.class);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not deserialize");
+            verifyException(e, "Cannot deserialize");
             List<JsonMappingException.Reference> refs = e.getPath();
             assertEquals(2, refs.size());
             // Bean has no index, but has name:

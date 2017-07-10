@@ -312,7 +312,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                     }
                     if (str.length() != 1) {
                         ctxt.reportInputMismatch(this,
-"Can not convert a JSON String of length %d into a char element of char array", str.length());
+"Cannot convert a JSON String of length %d into a char element of char array", str.length());
                     }
                     sb.append(str.charAt(0));
                 }

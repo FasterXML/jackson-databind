@@ -435,7 +435,7 @@ public class TokenBuffer
                         gen.writeNumber((String) n);
                     } else {
                         throw new JsonGenerationException(String.format(
-                                "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, can not serialize",
+                                "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize",
                                 n.getClass().getName()), gen);
                     }
                 }
@@ -1649,7 +1649,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 // fall through to error case
             }
             if (_currToken != JsonToken.VALUE_STRING) {
-                throw _constructError("Current token ("+_currToken+") not VALUE_STRING (or VALUE_EMBEDDED_OBJECT with byte[]), can not access as binary");
+                throw _constructError("Current token ("+_currToken+") not VALUE_STRING (or VALUE_EMBEDDED_OBJECT with byte[]), cannot access as binary");
             }
             final String str = getText();
             if (str == null) {
@@ -1715,7 +1715,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected final void _checkIsNumber() throws JsonParseException
         {
             if (_currToken == null || !_currToken.isNumeric()) {
-                throw _constructError("Current token ("+_currToken+") not numeric, can not use numeric value accessors");
+                throw _constructError("Current token ("+_currToken+") not numeric, cannot use numeric value accessors");
             }
         }
 

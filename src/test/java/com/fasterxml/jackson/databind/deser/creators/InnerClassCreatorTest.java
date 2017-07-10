@@ -64,7 +64,7 @@ public class InnerClassCreatorTest extends BaseMapTest
             MAPPER.readValue(ser, Something1501.class);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not construct instance");
+            verifyException(e, "Cannot construct instance");
             verifyException(e, "InnerSomething1501");
             verifyException(e, "can only instantiate non-static inner class by using default");
         }
@@ -77,7 +77,7 @@ public class InnerClassCreatorTest extends BaseMapTest
             MAPPER.readValue(ser, Something1502.class);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not construct instance");
+            verifyException(e, "Cannot construct instance");
             verifyException(e, "InnerSomething1502");
             verifyException(e, "can only instantiate non-static inner class by using default");
         }

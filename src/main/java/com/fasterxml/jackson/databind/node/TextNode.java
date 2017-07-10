@@ -69,7 +69,7 @@ public class TextNode
         } catch (IllegalArgumentException e) {
             throw InvalidFormatException.from(null,
                     String.format(
-"Can not access contents of TextNode as binary due to broken Base64 encoding: %s",
+"Cannot access contents of TextNode as binary due to broken Base64 encoding: %s",
 e.getMessage()),
                     str, byte[].class);
         }

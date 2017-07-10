@@ -492,7 +492,7 @@ public abstract class BeanSerializerBase
                     for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
                             provider.reportBadDefinition(_beanType, String.format(
-                                    "Invalid Object Id definition for %s: can not find property with name '%s'",
+                                    "Invalid Object Id definition for %s: cannot find property with name '%s'",
                                     handledType().getName(), propName));
                         }
                         BeanPropertyWriter prop = _props[i];

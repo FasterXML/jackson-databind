@@ -190,7 +190,7 @@ public class PropertyMergeTest extends BaseMapTest
                 .readValue("\"blob\"");
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not deserialize");
+            verifyException(e, "Cannot deserialize");
             verifyException(e, "from non-Array representation");
         }
     }
@@ -223,7 +223,7 @@ public class PropertyMergeTest extends BaseMapTest
             mapper.readValue("{\"value\":3}", CantMergeInts.class);
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "can not be merged");
+            verifyException(e, "cannot be merged");
         }
     }
 }

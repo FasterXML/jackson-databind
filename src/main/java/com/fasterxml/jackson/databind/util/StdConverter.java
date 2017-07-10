@@ -36,7 +36,7 @@ public abstract class StdConverter<IN,OUT>
         JavaType thisType = tf.constructType(getClass());
         JavaType convType = thisType.findSuperType(Converter.class);
         if (convType == null || convType.containedTypeCount() < 2) {
-            throw new IllegalStateException("Can not find OUT type parameter for Converter of type "+getClass().getName());
+            throw new IllegalStateException("Cannot find OUT type parameter for Converter of type "+getClass().getName());
         }
         return convType;
     }

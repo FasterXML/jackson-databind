@@ -227,7 +227,7 @@ public class JDKScalarsTest
             mapper.readValue("{\"v\":null}", CharacterBean.class);
             fail("Attempting to deserialize a 'null' JSON reference into a 'char' property did not throw an exception");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not map `null`");
+            verifyException(e, "cannot map `null`");
             //Exception thrown as required
         }
 
@@ -542,7 +542,7 @@ public class JDKScalarsTest
                 .readValue("\"\"");
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not coerce empty String");
+            verifyException(e, "Cannot coerce empty String");
         }
     }
 
@@ -662,7 +662,7 @@ public class JDKScalarsTest
             reader.readValue(aposToQuotes("{'"+propName+"':''}"));
             fail("Expected failure for boolean + empty String");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not coerce empty String (\"\")");
+            verifyException(e, "Cannot coerce empty String (\"\")");
             verifyException(e, "to Null value");
         }
     }
@@ -713,38 +713,38 @@ public class JDKScalarsTest
             reader.readValue("{\"booleanValue\":null}");
             fail("Expected failure for boolean + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type boolean");
+            verifyException(e, "Cannot map `null` into type boolean");
         }
         // byte/char/short/int/long
         try {
             reader.readValue("{\"byteValue\":null}");
             fail("Expected failure for byte + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type byte");
+            verifyException(e, "Cannot map `null` into type byte");
         }
         try {
             reader.readValue("{\"charValue\":null}");
             fail("Expected failure for char + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type char");
+            verifyException(e, "Cannot map `null` into type char");
         }
         try {
             reader.readValue("{\"shortValue\":null}");
             fail("Expected failure for short + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type short");
+            verifyException(e, "Cannot map `null` into type short");
         }
         try {
             reader.readValue("{\"intValue\":null}");
             fail("Expected failure for int + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type int");
+            verifyException(e, "Cannot map `null` into type int");
         }
         try {
             reader.readValue("{\"longValue\":null}");
             fail("Expected failure for long + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type long");
+            verifyException(e, "Cannot map `null` into type long");
         }
 
         // float/double
@@ -752,13 +752,13 @@ public class JDKScalarsTest
             reader.readValue("{\"floatValue\":null}");
             fail("Expected failure for float + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type float");
+            verifyException(e, "Cannot map `null` into type float");
         }
         try {
             reader.readValue("{\"doubleValue\":null}");
             fail("Expected failure for double + null");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not map `null` into type double");
+            verifyException(e, "Cannot map `null` into type double");
         }
     }
 
@@ -795,7 +795,7 @@ public class JDKScalarsTest
             readerNoCoerce.readValue(JSON_WITH_NULL);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not coerce `null`");
+            verifyException(e, "Cannot coerce `null`");
             verifyException(e, "as content of type `"+SIMPLE_NAME+"`");
         }
         
@@ -808,7 +808,7 @@ public class JDKScalarsTest
                 readerNoCoerce.readValue(EMPTY_STRING_JSON);
                 fail("Should not pass");
             } catch (JsonMappingException e) {
-                verifyException(e, "Can not coerce empty String (\"\")");
+                verifyException(e, "Cannot coerce empty String (\"\")");
                 verifyException(e, "as content of type `"+SIMPLE_NAME+"`");
             }
         }
@@ -843,7 +843,7 @@ public class JDKScalarsTest
             MAPPER.readerFor(cls).readValue(JSON);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not deserialize value of type "+SIMPLE_NAME+" from String \"foobar\"");
+            verifyException(e, "Cannot deserialize value of type "+SIMPLE_NAME+" from String \"foobar\"");
         }
     }
 }

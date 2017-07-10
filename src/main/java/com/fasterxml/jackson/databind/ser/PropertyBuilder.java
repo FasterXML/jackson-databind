@@ -317,7 +317,7 @@ public class PropertyBuilder
                 // 06-Nov-2015, tatu: As per [databind#998], do not fail.
                 /*
                 Class<?> cls = _beanDesc.getClassInfo().getAnnotated();
-                throw new IllegalArgumentException("Class "+cls.getName()+" has no default constructor; can not instantiate default bean value to support 'properties=JsonSerialize.Inclusion.NON_DEFAULT' annotation");
+                throw new IllegalArgumentException("Class "+cls.getName()+" has no default constructor; cannot instantiate default bean value to support 'properties=JsonSerialize.Inclusion.NON_DEFAULT' annotation");
                  */
 
                 // And use a marker

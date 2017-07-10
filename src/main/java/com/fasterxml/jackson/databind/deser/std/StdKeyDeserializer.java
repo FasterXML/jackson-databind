@@ -157,7 +157,7 @@ public class StdKeyDeserializer extends KeyDeserializer
                 int value = _parseInt(key);
                 // allow range up to 255, inclusive (to support "unsigned" byte)
                 if (value < Byte.MIN_VALUE || value > 255) {
-                    return ctxt.handleWeirdKey(_keyClass, key, "overflow, value can not be represented as 8-bit value");
+                    return ctxt.handleWeirdKey(_keyClass, key, "overflow, value cannot be represented as 8-bit value");
                 }
                 return Byte.valueOf((byte) value);
             }
@@ -165,7 +165,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             {
                 int value = _parseInt(key);
                 if (value < Short.MIN_VALUE || value > Short.MAX_VALUE) {
-                    return ctxt.handleWeirdKey(_keyClass, key, "overflow, value can not be represented as 16-bit value");
+                    return ctxt.handleWeirdKey(_keyClass, key, "overflow, value cannot be represented as 16-bit value");
                     // fall-through and truncate if need be
                 }
                 return Short.valueOf((short) value);

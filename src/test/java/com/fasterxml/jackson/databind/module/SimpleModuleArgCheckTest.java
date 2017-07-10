@@ -25,14 +25,14 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
             mod.addDeserializer(String.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as deserializer");
+            verifyException(e, "Cannot pass `null` as deserializer");
         }
 
         try {
             mod.addKeyDeserializer(String.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as key deserializer");
+            verifyException(e, "Cannot pass `null` as key deserializer");
         }
     }
 
@@ -51,21 +51,21 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
             mod.addSerializer(String.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as serializer");
+            verifyException(e, "Cannot pass `null` as serializer");
         }
 
         try {
             mod.addSerializer((JsonSerializer<?>) null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as serializer");
+            verifyException(e, "Cannot pass `null` as serializer");
         }
         
         try {
             mod.addKeySerializer(String.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as key serializer");
+            verifyException(e, "Cannot pass `null` as key serializer");
         }
     }
 
@@ -87,13 +87,13 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
             mod.addAbstractTypeMapping(null, String.class);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as abstract type to map");
+            verifyException(e, "Cannot pass `null` as abstract type to map");
         }
         try {
             mod.addAbstractTypeMapping(String.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as concrete type to map to");
+            verifyException(e, "Cannot pass `null` as concrete type to map to");
         }
     }
 
@@ -105,14 +105,14 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
             mod.registerSubtypes(String.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as subtype to register");
+            verifyException(e, "Cannot pass `null` as subtype to register");
         }
 
         try {
             mod.registerSubtypes(new NamedType(Integer.class), (NamedType) null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as subtype to register");
+            verifyException(e, "Cannot pass `null` as subtype to register");
         }
     }
 
@@ -124,13 +124,13 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
             mod.addValueInstantiator(null, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as class to register value instantiator for");
+            verifyException(e, "Cannot pass `null` as class to register value instantiator for");
         }
         try {
             mod.addValueInstantiator(CharSequence.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as value instantiator");
+            verifyException(e, "Cannot pass `null` as value instantiator");
         }
     }
 
@@ -142,13 +142,13 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
             mod.setMixInAnnotation(null, String.class);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as target type");
+            verifyException(e, "Cannot pass `null` as target type");
         }
         try {
             mod.setMixInAnnotation(String.class, null);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not pass `null` as mixin class");
+            verifyException(e, "Cannot pass `null` as mixin class");
         }
     }
 }

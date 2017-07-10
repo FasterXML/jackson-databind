@@ -99,7 +99,7 @@ public class DeserializerFactoryConfig
     public DeserializerFactoryConfig withAdditionalDeserializers(Deserializers additional)
     {
         if (additional == null) {
-            throw new IllegalArgumentException("Can not pass null Deserializers");
+            throw new IllegalArgumentException("Cannot pass null Deserializers");
         }
         Deserializers[] all = ArrayBuilders.insertInListNoDup(_additionalDeserializers, additional);
         return new DeserializerFactoryConfig(all, _additionalKeyDeserializers, _modifiers,
@@ -115,7 +115,7 @@ public class DeserializerFactoryConfig
     public DeserializerFactoryConfig withAdditionalKeyDeserializers(KeyDeserializers additional)
     {
         if (additional == null) {
-            throw new IllegalArgumentException("Can not pass null KeyDeserializers");
+            throw new IllegalArgumentException("Cannot pass null KeyDeserializers");
         }
         KeyDeserializers[] all = ArrayBuilders.insertInListNoDup(_additionalKeyDeserializers, additional);
         return new DeserializerFactoryConfig(_additionalDeserializers, all, _modifiers,
@@ -131,7 +131,7 @@ public class DeserializerFactoryConfig
     public DeserializerFactoryConfig withDeserializerModifier(BeanDeserializerModifier modifier)
     {
         if (modifier == null) {
-            throw new IllegalArgumentException("Can not pass null modifier");
+            throw new IllegalArgumentException("Cannot pass null modifier");
         }
         BeanDeserializerModifier[] all = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
         return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers, all,
@@ -148,7 +148,7 @@ public class DeserializerFactoryConfig
     public DeserializerFactoryConfig withAbstractTypeResolver(AbstractTypeResolver resolver)
     {
         if (resolver == null) {
-            throw new IllegalArgumentException("Can not pass null resolver");
+            throw new IllegalArgumentException("Cannot pass null resolver");
         }
         AbstractTypeResolver[] all = ArrayBuilders.insertInListNoDup(_abstractTypeResolvers, resolver);
         return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers, _modifiers,
@@ -168,7 +168,7 @@ public class DeserializerFactoryConfig
     public DeserializerFactoryConfig withValueInstantiators(ValueInstantiators instantiators) 
     {
         if (instantiators == null) {
-            throw new IllegalArgumentException("Can not pass null resolver");
+            throw new IllegalArgumentException("Cannot pass null resolver");
         }
         ValueInstantiators[] all = ArrayBuilders.insertInListNoDup(_valueInstantiators, instantiators);
         return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers, _modifiers,

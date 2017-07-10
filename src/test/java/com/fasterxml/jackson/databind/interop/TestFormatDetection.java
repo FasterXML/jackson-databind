@@ -80,7 +80,7 @@ public class TestFormatDetection extends BaseMapTest
             detecting.readValue(utf8Bytes("<POJO><x>1</x></POJO>"));
             fail("Should have failed");
         } catch (JsonProcessingException e) {
-            verifyException(e, "Can not detect format from input");
+            verifyException(e, "Cannot detect format from input");
         }
     }
 }

@@ -125,7 +125,7 @@ public final class ArrayType
     }
 
     private JavaType _reportUnsupported() {
-        throw new UnsupportedOperationException("Can not narrow or widen array types");
+        throw new UnsupportedOperationException("Cannot narrow or widen array types");
     }
 
     /*

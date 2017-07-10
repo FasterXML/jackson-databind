@@ -1519,7 +1519,7 @@ public class ObjectMapper
          *   use "As.EXTERNAL_PROPERTY", since that will not work (with 2.5+)
          */
         if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
-            throw new IllegalArgumentException("Can not use includeAs of "+includeAs);
+            throw new IllegalArgumentException("Cannot use includeAs of "+includeAs);
         }
         
         TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(applicability);
@@ -4157,7 +4157,7 @@ public class ObjectMapper
         deser = ctxt.findRootValueDeserializer(valueType);
         if (deser == null) { // can this happen?
             return ctxt.reportBadDefinition(valueType,
-                    "Can not find a deserializer for type "+valueType);
+                    "Cannot find a deserializer for type "+valueType);
         }
         _rootDeserializers.put(valueType, deser);
         return deser;
@@ -4170,7 +4170,7 @@ public class ObjectMapper
     {
         if (schema != null) {
             if (!_jsonFactory.canUseSchema(schema)) {
-                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                    throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
                             +" for format "+_jsonFactory.getFormatName());
             }
         }

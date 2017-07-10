@@ -53,14 +53,14 @@ public class SimpleAbstractTypeResolver
     {
         // Sanity checks, just in case someone tries to force typing...
         if (superType == subType) {
-            throw new IllegalArgumentException("Can not add mapping from class to itself");
+            throw new IllegalArgumentException("Cannot add mapping from class to itself");
         }
         if (!superType.isAssignableFrom(subType)) {
-            throw new IllegalArgumentException("Can not add mapping from class "+superType.getName()
+            throw new IllegalArgumentException("Cannot add mapping from class "+superType.getName()
                     +" to "+subType.getName()+", as latter is not a subtype of former");
         }
         if (!Modifier.isAbstract(superType.getModifiers())) {
-            throw new IllegalArgumentException("Can not add mapping from class "+superType.getName()
+            throw new IllegalArgumentException("Cannot add mapping from class "+superType.getName()
                     +" since it is not abstract");
         }
         _mappings.put(new ClassKey(superType), subType);

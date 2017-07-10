@@ -194,7 +194,7 @@ public class ObjectWriterTest
             newW = w.with(schema);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not use FormatSchema");
+            verifyException(e, "Cannot use FormatSchema");
         }
     }
 
@@ -294,7 +294,7 @@ public class ObjectWriterTest
                 .writeValueAsBytes("foo");
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not use FormatSchema");
+            verifyException(e, "Cannot use FormatSchema");
         }
     }
 }

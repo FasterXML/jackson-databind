@@ -573,7 +573,7 @@ public class MapSerializer
             }
             try {
                 valueSer = _findSerializer(prov, elemValue);
-            } catch (JsonMappingException e) { // Ugh... can not just throw as-is, so...
+            } catch (JsonMappingException e) { // Ugh... cannot just throw as-is, so...
                 // 05-Nov-2015, tatu: For now, probably best not to assume empty then
                 return false;
             }

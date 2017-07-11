@@ -55,8 +55,10 @@ public abstract class TypeSerializerBase extends TypeSerializer
 
     /**
      * Helper method that will generate type id to use, if not already passed.
+     *
+     * @since 2.9
      */
-    protected final void _generateTypeId(WritableTypeId idMetadata) {
+    protected void _generateTypeId(WritableTypeId idMetadata) {
         Object id = idMetadata.id;
         if (id == null) {
             final Object value = idMetadata.forValue;

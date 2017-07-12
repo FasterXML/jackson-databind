@@ -37,8 +37,7 @@ public class StackTraceElementDeserializer
                     if (t.isNumeric()) {
                         lineNumber = p.getIntValue();
                     } else {
-                        return (StackTraceElement) ctxt.handleUnexpectedToken(handledType(), t, p,
-"Non-numeric token (%s) for property 'lineNumber'", t);
+                        lineNumber = _parseIntPrimitive(p, ctxt);
                     }
                 } else if ("methodName".equals(propName)) {
                     methodName = p.getText();

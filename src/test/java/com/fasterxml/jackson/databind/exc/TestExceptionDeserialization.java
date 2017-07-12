@@ -157,7 +157,17 @@ public class TestExceptionDeserialization
             mapper.readValue(value, IOException.class);
             fail("Exception not thrown when attempting to deserialize an IOException wrapped in a single value array with UNWRAP_SINGLE_VALUE_ARRAYS disabled");
         } catch (JsonMappingException exp2) {
-            //Exception thrown correctly
+            verifyException(exp2, "out of START_ARRAY");
         }
+    }
+
+    // mostly to help with XML module (and perhaps CSV)
+    public void testLineNumberAsString() throws IOException
+    {
+        Exception exc = MAPPER.readValue(aposToQuotes(
+                "{'message':'Test',\n'stackTrace': "
+                +"[ { 'lineNumber':'50' } ] }"
+        ), IOException.class);
+        assertNotNull(exc);
     }
 }

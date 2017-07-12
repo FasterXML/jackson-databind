@@ -689,3 +689,7 @@ Chris Plummer (strmer15@github)
   * Reported #1637: `ObjectReader.at()` with `JsonPointer` stops after first collection
    (2.9.0)
 
+Christian Basler (Dissem@github)
+  * Reported #1688: Deserialization fails for `java.nio.file.Path` implementations when
+    default typing enabled
+   (2.9.0)

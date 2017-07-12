@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.*;
 /**
  * Unit tests for verifying that simple exceptions can be deserialized.
  */
-public class TestExceptionDeserialization
+public class ExceptionDeserializationTest
     extends BaseMapTest
 {
     @SuppressWarnings("serial")

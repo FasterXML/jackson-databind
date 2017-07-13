@@ -476,8 +476,8 @@ public final class ClassUtil
      *
      * @since 2.8
      */
-    public static void closeOnFailAndThrowAsIAE(JsonGenerator g, Exception fail)
-            throws IOException
+    public static void closeOnFailAndThrowAsIOE(JsonGenerator g, Exception fail)
+        throws IOException
     {
         /* 04-Mar-2014, tatu: Let's try to prevent auto-closing of
          *    structures, which typically causes more damage.
@@ -502,7 +502,7 @@ public final class ClassUtil
      *
      * @since 2.8
      */
-    public static void closeOnFailAndThrowAsIAE(JsonGenerator g,
+    public static void closeOnFailAndThrowAsIOE(JsonGenerator g,
             Closeable toClose, Exception fail)
         throws IOException
     {

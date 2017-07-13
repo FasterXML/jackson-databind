@@ -3892,7 +3892,7 @@ public class ObjectMapper
         try {
             _serializerProvider(cfg).serializeValue(g, value);
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIAE(g, e);
+            ClassUtil.closeOnFailAndThrowAsIOE(g, e);
             return;
         }
         g.close();
@@ -3912,7 +3912,7 @@ public class ObjectMapper
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIAE(g, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsIOE(g, toClose, e);
             return;
         }
         g.close();
@@ -3932,7 +3932,7 @@ public class ObjectMapper
                 g.flush();
             }
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIAE(null, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
             return;
         }
         toClose.close();

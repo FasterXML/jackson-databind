@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -365,8 +366,8 @@ public class EnumDeserializationTest
          try {
              MAPPER.readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}", ClassWithEnumMapKey.class);
              fail("Expected an exception for bogus enum value...");
-         } catch (JsonMappingException jex) {
-             verifyException(jex, "Cannot deserialize Map key of type com.fasterxml.jackson.databind.deser");
+         } catch (InvalidFormatException jex) {
+             verifyException(jex, "Cannot deserialize Map key of type `com.fasterxml.jackson.databind.deser.jdk.EnumDeserializationTest$TestEnum`");
          }
     }
 

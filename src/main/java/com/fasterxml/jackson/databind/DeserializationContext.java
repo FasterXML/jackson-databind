@@ -1320,6 +1320,15 @@ public abstract class DeserializationContext
         throw MismatchedInputException.from(getParser(), targetType, msg);
     }
 
+    public <T> T reportTrailingTokens(Class<?> targetType,
+            JsonParser p, JsonToken trailingToken) throws JsonMappingException
+    {
+        throw MismatchedInputException.from(p, targetType, String.format(
+"Trailing token (of type %s) found after value (bound as %s): not allowed as per `DeserializationFeature.FAIL_ON_TRAILING_TOKENS`",
+trailingToken, ClassUtil.nameOf(targetType)
+                ));
+    }
+
     @Deprecated // since 2.9
     public void reportWrongTokenException(JsonParser p,
             JsonToken expToken, String msg, Object... msgArgs)

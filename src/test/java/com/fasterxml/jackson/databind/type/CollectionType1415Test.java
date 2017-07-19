@@ -72,7 +72,7 @@ public class CollectionType1415Test extends BaseMapTest
                 .constructCollectionType(LongList.class, String.class);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "LongList did not resolve to something");
+            verifyException(e, "`"+getClass().getName()+"$LongList` did not resolve to something");
             verifyException(e, "element type");
         }
     }
@@ -85,7 +85,7 @@ public class CollectionType1415Test extends BaseMapTest
                 .constructMapType(StringLongMap.class, Boolean.class, Long.class);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "StringLongMap did not resolve to something");
+            verifyException(e, "`"+getClass().getName()+"$StringLongMap` did not resolve to something");
             verifyException(e, "key type");
         }
         // then, mismatched value type
@@ -94,7 +94,7 @@ public class CollectionType1415Test extends BaseMapTest
                 .constructMapType(StringLongMap.class, String.class, Class.class);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "StringLongMap did not resolve to something");
+            verifyException(e, "`"+getClass().getName()+"$StringLongMap` did not resolve to something");
             verifyException(e, "value type");
         }
     }

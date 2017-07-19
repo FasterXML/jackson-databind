@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class FullStreamReadTest extends BaseMapTest
@@ -19,7 +21,7 @@ public class FullStreamReadTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newObjectMapper();
 
-    public void XXXtestViaMapper() throws Exception
+    public void testMapperAcceptTrailing() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
@@ -32,35 +34,60 @@ public class FullStreamReadTest extends BaseMapTest
         _verifyCollection(MAPPER.readValue(JSON_OK_ARRAY, List.class));
         _verifyCollection(MAPPER.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));
         _verifyCollection(MAPPER.readValue(JSON_FAIL_ARRAY, List.class));
+    }
 
+    public void testMapperFailOnTrailing() throws Exception
+    {
         // but things change if we enforce checks
         ObjectMapper strict = newObjectMapper()
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+                .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+        assertTrue(strict.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
 
         // some still ok
         _verifyArray(strict.readTree(JSON_OK_ARRAY));
-        _verifyArray(strict.readTree(JSON_OK_ARRAY_WITH_COMMENT));
-
         _verifyCollection(strict.readValue(JSON_OK_ARRAY, List.class));
-        _verifyCollection(strict.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));
 
-        // but not all
+        // but if real content exists, will fail
         try {
             strict.readTree(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "foo");
+            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "value (bound as `com.fasterxml.jackson.databind.JsonNode`)");
         }
 
         try {
             strict.readValue(JSON_FAIL_ARRAY, List.class);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "foo");
+            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "value (bound as `java.util.List`)");
         }
+
+        // others fail conditionally: will fail on comments unless enabled
+
+        try {
+            strict.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class);
+            fail("Should not have passed");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character");
+            verifyException(e, "maybe a (non-standard) comment");
+        }
+        try {
+            strict.readTree(JSON_OK_ARRAY_WITH_COMMENT);
+            fail("Should not have passed");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character");
+            verifyException(e, "maybe a (non-standard) comment");
+        }
+
+        ObjectMapper strictWithComments = strict.copy();
+        strictWithComments.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        _verifyArray(strictWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
+        _verifyCollection(strictWithComments.readValue(JSON_OK_ARRAY_WITH_COMMENT, List.class));
     }
 
-    public void testViaReader() throws Exception
+    public void testReaderAcceptTrailing() throws Exception
     {
         ObjectReader R = MAPPER.reader();
         assertFalse(R.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS));
@@ -72,23 +99,64 @@ public class FullStreamReadTest extends BaseMapTest
         _verifyCollection((List<?>)rColl.readValue(JSON_OK_ARRAY));
         _verifyCollection((List<?>)rColl.readValue(JSON_OK_ARRAY_WITH_COMMENT));
         _verifyCollection((List<?>)rColl.readValue(JSON_FAIL_ARRAY));
+    }
 
-        /*
-        ObjectReader strictR = R.with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+    public void testReaderFailOnTrailing() throws Exception
+    {
+        ObjectReader strictR = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+        ObjectReader strictRForList = strictR.forType(List.class);
+        _verifyArray(strictR.readTree(JSON_OK_ARRAY));
+        _verifyCollection((List<?>)strictRForList.readValue(JSON_OK_ARRAY));
+
+        // Will fail hard if there is a trailing token
+        try {
+            strictRForList.readValue(JSON_FAIL_ARRAY);
+            fail("Should not have passed");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "value (bound as `java.util.List`)");
+        }
         try {
             strictR.readTree(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "foo");
+            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "value (bound as `com.fasterxml.jackson.databind.JsonNode`)");
         }
 
+        // ... also verify that same happens with "value to update"
         try {
-            strictR.forType(List.class).readValue(JSON_FAIL_ARRAY);
+            strictR.withValueToUpdate(new ArrayList<Object>())
+                .readValue(JSON_FAIL_ARRAY);
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
-            verifyException(e, "foo");
+            verifyException(e, "Trailing token (of type START_ARRAY)");
+            verifyException(e, "value (bound as `java.util.ArrayList`)");
         }
-        */
+
+        // others conditionally: will fail on comments unless enabled
+
+        try {
+            strictRForList.readValue(JSON_OK_ARRAY_WITH_COMMENT);
+            fail("Should not have passed");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character");
+            verifyException(e, "maybe a (non-standard) comment");
+        }
+        try {
+            strictR.readTree(JSON_OK_ARRAY_WITH_COMMENT);
+            fail("Should not have passed");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character");
+            verifyException(e, "maybe a (non-standard) comment");
+        }
+
+        // but works if comments enabled etc
+
+        ObjectReader strictRWithComments = strictR.with(JsonParser.Feature.ALLOW_COMMENTS);
+        
+        _verifyCollection((List<?>)strictRWithComments.forType(List.class).readValue(JSON_OK_ARRAY_WITH_COMMENT));
+        _verifyArray(strictRWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
     }
 
     private void _verifyArray(JsonNode n) throws Exception

@@ -601,6 +601,16 @@ public final class ClassUtil
     /**
      * @since 2.9
      */
+    public static Class<?> rawClass(JavaType t) {
+        if (t == null) {
+            return null;
+        }
+        return t.getRawClass();
+    }
+
+    /**
+     * @since 2.9
+     */
     public static <T> T nonNull(T valueOrNull, T defaultValue) {
         return (valueOrNull == null) ? defaultValue : valueOrNull;
     }
@@ -640,7 +650,7 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Type name handling methods
+    /* Type name, name, desc handling methods
     /**********************************************************
      */
     
@@ -656,17 +666,21 @@ public final class ClassUtil
         }
         Class<?> cls = (classOrInstance instanceof Class<?>) ?
             (Class<?>) classOrInstance : classOrInstance.getClass();
-        return cls.getName();
+        return nameOf(cls);
     }
-    
+
     /**
+     * Helper method used to construct appropriate description
+     * when passed either type (Class) or an instance; in latter
+     * case, class of instance is to be used.
+     *
      * @since 2.9
      */
     public static String classNameOf(Object inst) {
         if (inst == null) {
             return "[null]";
         }
-        return inst.getClass().getName();
+        return nameOf(inst.getClass());
     }
 
     /**
@@ -679,17 +693,24 @@ public final class ClassUtil
         if (cls == null) {
             return "[null]";
         }
-        if (cls.isArray()) {
-            return nameOf(cls.getComponentType())+"[]";
+        int index = 0;
+        while (cls.isArray()) {
+            ++index;
+            cls = cls.getComponentType();
         }
-        if (cls.isPrimitive()) {
-            cls.getSimpleName();
+        String base = cls.isPrimitive() ? cls.getSimpleName() : cls.getName();
+        if (index > 0) {
+            StringBuilder sb = new StringBuilder(base);
+            do {
+                sb.append("[]");
+            } while (--index > 0);
+            base = sb.toString();
         }
-        return cls.getName();
+        return backticked(base);
     }
-    
+
     /**
-     * Returns either (double-)quoted `named.getName()` (if `named` not null),
+     * Returns either backtick-quoted `named.getName()` (if `named` not null),
      * or "[null]" if `named` is null.
      *
      * @since 2.9
@@ -698,7 +719,19 @@ public final class ClassUtil
         if (named == null) {
             return "[null]";
         }
-        return String.format("'%s'", named.getName());
+        return backticked(named.getName());
+    }
+
+    /**
+     * Returns either `text` or [null].
+     *
+     * @since 2.9
+     */
+    public static String backticked(String text) {
+        if (text == null) {
+            return "[null]";
+        }
+        return new StringBuilder(text.length()+2).append('`').append(text).append('`').toString();
     }
 
     /*

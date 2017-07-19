@@ -211,14 +211,14 @@ public abstract class BasicDeserializerFactory
         if (_factoryConfig.hasAbstractTypeResolvers()) {
             for (AbstractTypeResolver resolver : _factoryConfig.abstractTypeResolvers()) {
                 JavaType concrete = resolver.findTypeMapping(config, type);
-                if (concrete != null && concrete.getRawClass() != currClass) {
+                if (ClassUtil.rawClass(concrete) != currClass) {
                     return concrete;
                 }
             }
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializerFactory impl (partial): ValueInstantiators
@@ -953,7 +953,8 @@ public abstract class BasicDeserializerFactory
                 Class<?> raw = elemType.getRawClass();
                 if (elemType.isPrimitive()) {
                     return PrimitiveArrayDeserializers.forType(raw);
-                } else if (raw == String.class) {
+                }
+                if (raw == String.class) {
                     return StringArrayDeserializer.instance;
                 }
             }
@@ -1031,12 +1032,12 @@ public abstract class BasicDeserializerFactory
                 ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
                 if (!inst.canCreateUsingDefault()) {
                     // [databind#161]: No default constructor for ArrayBlockingQueue...
-                    if (type.getRawClass() == ArrayBlockingQueue.class) {
+                    if (type.hasRawClass(ArrayBlockingQueue.class)) {
                         return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst);
                     }
                 }
                 // Can use more optimal deserializer if content type is String, so:
-                if (contentType.getRawClass() == String.class) {
+                if (contentType.hasRawClass(String.class)) {
                     // no value type deserializer because Strings are one of natural/native types:
                     deser = new StringCollectionDeserializer(type, contentDeser, inst);
                 } else {
@@ -1387,7 +1388,7 @@ public abstract class BasicDeserializerFactory
         // (note: check for abstract type is not 100% mandatory, more of an optimization)
         if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
             JavaType defaultType = mapAbstractType(config, baseType);
-            if (defaultType != null && defaultType.getRawClass() != baseType.getRawClass()) {
+            if ((defaultType != null) && !defaultType.hasRawClass(baseType.getRawClass())) {
                 b = b.defaultImpl(defaultType.getRawClass());
             }
         }

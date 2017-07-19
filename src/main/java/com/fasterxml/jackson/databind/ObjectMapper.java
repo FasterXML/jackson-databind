@@ -3945,16 +3945,6 @@ public class ObjectMapper
      */
 
     /**
-     * Internal helper method called to create an instance of {@link DeserializationContext}
-     * for deserializing a single root value.
-     * Can be overridden if a custom context is needed.
-     */
-    protected DefaultDeserializationContext createDeserializationContext(JsonParser p,
-            DeserializationConfig cfg) {
-        return _deserializationContext.createInstance(cfg, p, _injectableValues);
-    }
-    
-    /**
      * Actual implementation of value reading+binding operation.
      */
     protected Object _readValue(DeserializationConfig cfg, JsonParser p,
@@ -3967,14 +3957,13 @@ public class ObjectMapper
          */
         Object result;
         JsonToken t = _initForReading(p, valueType);
+        final DeserializationContext ctxt = createDeserializationContext(p, cfg);
         if (t == JsonToken.VALUE_NULL) {
             // Ask JsonDeserializer what 'null value' to use:
-            DeserializationContext ctxt = createDeserializationContext(p, cfg);
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
-            DeserializationContext ctxt = createDeserializationContext(p, cfg);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
             // ok, let's get the value
             if (cfg.useRootWrapping()) {
@@ -3985,6 +3974,9 @@ public class ObjectMapper
         }
         // Need to consume the token too
         p.clearCurrentToken();
+        if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, valueType);
+        }
         return result;
     }
 
@@ -3994,16 +3986,14 @@ public class ObjectMapper
         try (JsonParser p = p0) {
             Object result;
             JsonToken t = _initForReading(p, valueType);
+            final DeserializationConfig cfg = getDeserializationConfig();
+            final DeserializationContext ctxt = createDeserializationContext(p, cfg);
             if (t == JsonToken.VALUE_NULL) {
                 // Ask JsonDeserializer what 'null value' to use:
-                DeserializationContext ctxt = createDeserializationContext(p,
-                        getDeserializationConfig());
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {
-                DeserializationConfig cfg = getDeserializationConfig();
-                DeserializationContext ctxt = createDeserializationContext(p, cfg);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
                 if (cfg.useRootWrapping()) {
                     result = _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
@@ -4011,6 +4001,9 @@ public class ObjectMapper
                     result = deser.deserialize(p, ctxt);
                 }
                 ctxt.checkUnresolvedObjectId();
+            }
+            if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                _verifyNoTrailingTokens(p, ctxt, valueType);
             }
             return result;
         }
@@ -4027,10 +4020,11 @@ public class ObjectMapper
         try (JsonParser p = p0) {
             final JavaType valueType = JSON_NODE_TYPE;
 
+            DeserializationConfig cfg = getDeserializationConfig();
             // 27-Oct-2016, tatu: Need to inline `_initForReading()` due to
             //   special requirements by tree reading (no fail on eof)
             
-            _deserializationConfig.initialize(p); // since 2.5
+            cfg.initialize(p); // since 2.5
             JsonToken t = p.getCurrentToken();
             if (t == null) {
                 t = p.nextToken();
@@ -4039,9 +4033,8 @@ public class ObjectMapper
                 }
             }
             if (t == JsonToken.VALUE_NULL) {
-                return _deserializationConfig.getNodeFactory().nullNode();
+                return cfg.getNodeFactory().nullNode();
             }
-            DeserializationConfig cfg = getDeserializationConfig();
             DeserializationContext ctxt = createDeserializationContext(p, cfg);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
             Object result;
@@ -4049,53 +4042,14 @@ public class ObjectMapper
                 result = _unwrapAndDeserialize(p, ctxt, cfg, valueType, deser);
             } else {
                 result = deser.deserialize(p, ctxt);
+                if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                    _verifyNoTrailingTokens(p, ctxt, valueType);
+                }
             }
             // No ObjectIds so can ignore
 //            ctxt.checkUnresolvedObjectId();
             return (JsonNode) result;
         }
-    }
-
-    /**
-     * Method called to ensure that given parser is ready for reading
-     * content for data binding.
-     *
-     * @return First token to be used for data binding after this call:
-     *  can never be null as exception will be thrown if parser cannot
-     *  provide more tokens.
-     *
-     * @throws IOException if the underlying input source has problems during
-     *   parsing
-     * @throws JsonParseException if parser has problems parsing content
-     * @throws JsonMappingException if the parser does not have any more
-     *   content to map (note: Json "null" value is considered content;
-     *   enf-of-stream not)
-     */
-    protected JsonToken _initForReading(JsonParser p, JavaType targetType) throws IOException
-    {
-        _deserializationConfig.initialize(p); // since 2.5
-
-        /* First: must point to a token; if not pointing to one, advance.
-         * This occurs before first read from JsonParser, as well as
-         * after clearing of current token.
-         */
-        JsonToken t = p.getCurrentToken();
-        if (t == null) {
-            // and then we must get something...
-            t = p.nextToken();
-            if (t == null) {
-                // Throw mapping exception, since it's failure to map,
-                //   not an actual parsing problem
-                throw MismatchedInputException.from(p, targetType,
-                        "No content to map due to end-of-input");
-            }
-        }
-        return t;
-    }
-
-    @Deprecated // since 2.9, use method that takes JavaType too
-    protected JsonToken _initForReading(JsonParser p) throws IOException {
-        return _initForReading(p, null);
     }
 
     protected Object _unwrapAndDeserialize(JsonParser p, DeserializationContext ctxt, 
@@ -4132,7 +4086,75 @@ public class ObjectMapper
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
                     expSimpleName, p.getCurrentToken());
         }
+        if (config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, rootType);
+        }
         return result;
+    }
+
+    /**
+     * Internal helper method called to create an instance of {@link DeserializationContext}
+     * for deserializing a single root value.
+     * Can be overridden if a custom context is needed.
+     */
+    protected DefaultDeserializationContext createDeserializationContext(JsonParser p,
+            DeserializationConfig cfg) {
+        return _deserializationContext.createInstance(cfg, p, _injectableValues);
+    }
+
+    /**
+     * Method called to ensure that given parser is ready for reading
+     * content for data binding.
+     *
+     * @return First token to be used for data binding after this call:
+     *  can never be null as exception will be thrown if parser cannot
+     *  provide more tokens.
+     *
+     * @throws IOException if the underlying input source has problems during
+     *   parsing
+     * @throws JsonParseException if parser has problems parsing content
+     * @throws JsonMappingException if the parser does not have any more
+     *   content to map (note: Json "null" value is considered content;
+     *   enf-of-stream not)
+     */
+    protected JsonToken _initForReading(JsonParser p, JavaType targetType) throws IOException
+    {
+        _deserializationConfig.initialize(p); // since 2.5
+
+        // First: must point to a token; if not pointing to one, advance.
+        // This occurs before first read from JsonParser, as well as
+        // after clearing of current token.
+        JsonToken t = p.getCurrentToken();
+        if (t == null) {
+            // and then we must get something...
+            t = p.nextToken();
+            if (t == null) {
+                // Throw mapping exception, since it's failure to map,
+                //   not an actual parsing problem
+                throw MismatchedInputException.from(p, targetType,
+                        "No content to map due to end-of-input");
+            }
+        }
+        return t;
+    }
+
+    @Deprecated // since 2.9, use method that takes JavaType too
+    protected JsonToken _initForReading(JsonParser p) throws IOException {
+        return _initForReading(p, null);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected final void _verifyNoTrailingTokens(JsonParser p, DeserializationContext ctxt,
+            JavaType bindType)
+        throws IOException
+    {
+        JsonToken t = p.nextToken();
+        if (t != null) {
+            Class<?> bt = ClassUtil.rawClass(bindType);
+            ctxt.reportTrailingTokens(bt, p, t);
+        }
     }
 
     /*

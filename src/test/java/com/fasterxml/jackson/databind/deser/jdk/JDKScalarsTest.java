@@ -783,7 +783,7 @@ public class JDKScalarsTest
     {
         final String EMPTY_STRING_JSON = "[ \"\" ]";
         final String JSON_WITH_NULL = "[ null ]";
-        final String SIMPLE_NAME = cls.getSimpleName();
+        final String SIMPLE_NAME = "`"+cls.getSimpleName()+"`";
         final ObjectReader readerCoerceOk = MAPPER.readerFor(cls);
         final ObjectReader readerNoCoerce = readerCoerceOk
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
@@ -843,7 +843,7 @@ public class JDKScalarsTest
             MAPPER.readerFor(cls).readValue(JSON);
             fail("Should not pass");
         } catch (JsonMappingException e) {
-            verifyException(e, "Cannot deserialize value of type "+SIMPLE_NAME+" from String \"foobar\"");
+            verifyException(e, "Cannot deserialize value of type `"+SIMPLE_NAME+"` from String \"foobar\"");
         }
     }
 }

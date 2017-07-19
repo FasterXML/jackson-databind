@@ -33,14 +33,14 @@ public final class DeserializationConfig
     /* Configured helper objects
     /**********************************************************
      */
-    
+
     /**
      * Linked list that contains all registered problem handlers.
      * Implementation as front-added linked list allows for sharing
      * of the list (tail) without copying the list.
      */
     protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
-    
+
     /**
      * Factory used for constructing {@link com.fasterxml.jackson.databind.JsonNode} instances.
      */
@@ -56,13 +56,13 @@ public final class DeserializationConfig
      * Set of {@link DeserializationFeature}s enabled.
      */
     protected final int _deserFeatures;
-    
+
     /*
     /**********************************************************
     /* Parser features: generic, format-specific
     /**********************************************************
      */
-    
+
     /**
      * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
      */
@@ -684,6 +684,18 @@ public final class DeserializationConfig
         return _deserFeatures;
     }
 
+    /**
+     * Convenience method equivalant to:
+     *<code>
+     *   isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+     *</code>
+     *
+     * @since 2.9
+     */
+    public final boolean requiresFullValue() {
+        return DeserializationFeature.FAIL_ON_TRAILING_TOKENS.enabledIn(_deserFeatures);
+    }
+
     /*
     /**********************************************************
     /* Other configuration
@@ -768,19 +780,6 @@ public final class DeserializationConfig
         } else {
             subtypes = getSubtypeResolver().collectAndResolveSubtypesByTypeId(this, ac);
         }
-        /* 04-May-2014, tatu: When called from DeserializerFactory, additional code like
-         *   this is invoked. But here we do not actually have access to mappings, so not
-         *   quite sure what to do, if anything. May need to revisit if the underlying
-         *   problem re-surfaces...
-         */
-        /*
-        if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
-            JavaType defaultType = mapAbstractType(config, baseType);
-            if (defaultType != null && defaultType.getRawClass() != baseType.getRawClass()) {
-                b = b.defaultImpl(defaultType.getRawClass());
-            }
-        }
-        */
         return b.buildTypeDeserializer(this, baseType, subtypes);
     }
 }

@@ -307,6 +307,22 @@ public class EnumDeserializationTest
         e = MAPPER.readValue(quote("bar"), EnumWithJsonValue.class);
         assertSame(EnumWithJsonValue.B, e);
 
+        // then, enum as string ordinal
+        EnumWithJsonValue enumByStringOrdinal = MAPPER.readValue(quote("0"), EnumWithJsonValue.class);
+        assertSame(EnumWithJsonValue.A, enumByStringOrdinal);
+        enumByStringOrdinal = MAPPER.readValue(quote("1"), EnumWithJsonValue.class);
+        assertSame(EnumWithJsonValue.B, enumByStringOrdinal);
+
+        // but can also be changed to errors:
+        ObjectReader r = MAPPER.readerFor(EnumWithJsonValue.class)
+                .with(DeserializationFeature.FAIL_ON_ORDINAL_STRING_MAPPING_FOR_ENUMS);;
+        try {
+            enumByStringOrdinal = r.readValue(quote("0"));
+            fail("Expected an error");
+        } catch (JsonMappingException exc) {
+            verifyException(exc, "Can not deserialize");
+            verifyException(exc, "not allowed to deserialize Enum value by ordinal out of string");
+        }
         // then in EnumSet
         EnumSet<EnumWithJsonValue> set = MAPPER.readValue("[\"bar\"]",
                 new TypeReference<EnumSet<EnumWithJsonValue>>() { });

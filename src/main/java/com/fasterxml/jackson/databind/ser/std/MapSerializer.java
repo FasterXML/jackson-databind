@@ -108,7 +108,7 @@ public class MapSerializer
      * Set of entries to omit during serialization, if any
      */
     protected final Set<String> _ignoredEntries;
-    
+
     /**
      * Id of the property filter to use, if any; null if none.
      *

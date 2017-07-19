@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -1012,6 +1013,96 @@ public abstract class BasicSerializerFactory
              }
          }
          return ser;
+    }
+
+    /*
+    /**********************************************************
+    /* Factory methods for Reference types
+    /* (demoted from BeanSF down here in 2.9)
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.7
+     */
+    public JsonSerializer<?> findReferenceSerializer(SerializerProvider prov, ReferenceType refType,
+            BeanDescription beanDesc, boolean staticTyping)
+        throws JsonMappingException
+    {
+        JavaType contentType = refType.getContentType(); 
+        TypeSerializer contentTypeSerializer = contentType.getTypeHandler();
+        final SerializationConfig config = prov.getConfig();
+        if (contentTypeSerializer == null) {
+            contentTypeSerializer = createTypeSerializer(config, contentType);
+        }
+        JsonSerializer<Object> contentSerializer = contentType.getValueHandler();
+        for (Serializers serializers : customSerializers()) {
+            JsonSerializer<?> ser = serializers.findReferenceSerializer(config, refType, beanDesc,
+                    contentTypeSerializer, contentSerializer);
+            if (ser != null) {
+                return ser;
+            }
+        }
+        if (refType.isTypeOrSubTypeOf(AtomicReference.class)) {
+            return buildAtomicReferenceSerializer(prov, refType, beanDesc, staticTyping,
+                    contentTypeSerializer, contentSerializer);
+        }
+        return null;
+    }
+
+    protected JsonSerializer<?> buildAtomicReferenceSerializer(SerializerProvider prov,
+            ReferenceType refType, BeanDescription beanDesc, boolean staticTyping,
+            TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentSerializer)
+        throws JsonMappingException
+    {
+        final JavaType contentType = refType.getReferencedType();
+        JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
+                contentType, AtomicReference.class);
+        
+        // Need to support global legacy setting, for now:
+        JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
+        Object valueToSuppress;
+        boolean suppressNulls;
+
+        if (incl == JsonInclude.Include.USE_DEFAULTS
+                || incl == JsonInclude.Include.ALWAYS) {
+            valueToSuppress = null;
+            suppressNulls = false;
+        } else {
+            suppressNulls = true;
+            switch (incl) {
+            case NON_DEFAULT:
+                valueToSuppress = BeanUtil.getDefaultValue(contentType);
+                if (valueToSuppress != null) {
+                    if (valueToSuppress.getClass().isArray()) {
+                        valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
+                    }
+                }
+                break;
+            case NON_ABSENT:
+                valueToSuppress = contentType.isReferenceType()
+                        ? MapSerializer.MARKER_FOR_EMPTY : null;
+                break;
+            case NON_EMPTY:
+                valueToSuppress = MapSerializer.MARKER_FOR_EMPTY;
+                break;
+            case CUSTOM:
+                valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
+                if (valueToSuppress == null) { // is this legal?
+                    suppressNulls = true;
+                } else {
+                    suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+                }
+                break;
+            case NON_NULL:
+            default: // should not matter but...
+                valueToSuppress = null;
+                break;
+            }
+        }
+        AtomicReferenceSerializer ser = new AtomicReferenceSerializer(refType, staticTyping,
+                contentTypeSerializer, contentSerializer);
+        return ser.withContentInclusion(valueToSuppress, suppressNulls);
     }
 
     /*

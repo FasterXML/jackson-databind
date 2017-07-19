@@ -438,7 +438,7 @@ public abstract class BeanSerializerBase
                 // 16-Oct-2016, tatu: Ditto for `Map`, `Map.Entry` subtypes
                 } else if (shape == JsonFormat.Shape.NATURAL) {
                     if (_beanType.isMapLikeType() && Map.class.isAssignableFrom(_handledType)) {
-;
+                        ;
                     } else if (Map.Entry.class.isAssignableFrom(_handledType)) {
                         JavaType mapEntryType = _beanType.findSuperType(Map.Entry.class);
 
@@ -726,10 +726,9 @@ public abstract class BeanSerializerBase
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
-            /* 04-Sep-2009, tatu: Dealing with this is tricky, since we do not
-             *   have many stack frames to spare... just one or two; can't
-             *   make many calls.
-             */
+            // 04-Sep-2009, tatu: Dealing with this is tricky, since we don't have many
+            //   stack frames to spare... just one or two; can't make many calls.
+
             // 10-Dec-2015, tatu: and due to above, avoid "from" method, call ctor directly:
             //JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
             JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);

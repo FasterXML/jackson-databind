@@ -107,10 +107,9 @@ public class PropertyBuilder
 
         // Container types can have separate type serializers for content (value / element) type
         if (contentTypeSer != null) {
-            /* 04-Feb-2010, tatu: Let's force static typing for collection, if there is
-             *    type information for contents. Should work well (for JAXB case); can be
-             *    revisited if this causes problems.
-             */
+            // 04-Feb-2010, tatu: Let's force static typing for collection, if there is
+            //    type information for contents. Should work well (for JAXB case); can be
+            //    revisited if this causes problems.
             if (serializationType == null) {
 //                serializationType = TypeFactory.type(am.getGenericType(), _beanDesc.getType());
                 serializationType = declaredType;
@@ -149,6 +148,7 @@ public class PropertyBuilder
         // property annotation override
         
         inclV = inclV.withOverrides(propDef.findInclusion());
+
         JsonInclude.Include inclusion = inclV.getValueInclusion();
         if (inclusion == JsonInclude.Include.USE_DEFAULTS) { // should not occur but...
             inclusion = JsonInclude.Include.ALWAYS;

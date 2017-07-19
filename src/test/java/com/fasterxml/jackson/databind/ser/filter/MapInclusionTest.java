@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
@@ -41,7 +40,7 @@ public class MapInclusionTest extends BaseMapTest
             return this;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -67,7 +66,7 @@ public class MapInclusionTest extends BaseMapTest
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'stuff':{'b':''}}"), json);
     }
-    
+
     public void testNonEmptyNoNullsMap() throws IOException
     {
         NoNullsNotEmptyMapContainer input = new NoNullsNotEmptyMapContainer()

@@ -210,12 +210,12 @@ public class TextNode
      */
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider) throws IOException
+    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
     {
         if (_value == null) {
-            jg.writeNull();
+            g.writeNull();
         } else {
-            jg.writeString(_value);
+            g.writeString(_value);
         }
     }
 
@@ -264,7 +264,7 @@ public class TextNode
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected void _reportInvalidBase64(Base64Variant b64variant, char ch, int bindex)
         throws JsonParseException
     {

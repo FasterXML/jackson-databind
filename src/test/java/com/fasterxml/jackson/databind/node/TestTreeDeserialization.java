@@ -20,6 +20,14 @@ public class TestTreeDeserialization
         public void setNode(JsonNode n) { _node = n; }
     }
 
+    final static class CovarianceBean {
+        ObjectNode _object;
+        ArrayNode _array;
+
+        public void setObject(ObjectNode n) { _object = n; }
+        public void setArray(ArrayNode n) { _array = n; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -97,7 +105,7 @@ public class TestTreeDeserialization
         assertNotNull(value);
     }
 
-    // Issue#186
+    // [databind#186]
     public void testNullHandling() throws Exception
     {
         // First, a stand-alone null
@@ -115,14 +123,6 @@ public class TestTreeDeserialization
         n = root.get("x");
         assertNotNull(n);
         assertTrue(n.isNull());
-    }
-
-    final static class CovarianceBean {
-        ObjectNode _object;
-        ArrayNode _array;
-
-        public void setObject(ObjectNode n) { _object = n; }
-        public void setArray(ArrayNode n) { _array = n; }
     }
 
     public void testNullHandlingCovariance() throws Exception

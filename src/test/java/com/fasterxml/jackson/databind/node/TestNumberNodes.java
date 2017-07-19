@@ -196,11 +196,9 @@ public class TestNumberNodes extends NodeTestBase
 
     public void testDecimalNodeEqualsHashCode()
     {
-        /*
-         * We want DecimalNodes with equivalent _numeric_ values to be equal;
-         * this is not the case for BigDecimal where "1.0" and "1" are not
-         * equal!
-         */
+        // We want DecimalNodes with equivalent _numeric_ values to be equal;
+        // this is not the case for BigDecimal where "1.0" and "1" are not
+        // equal!
         BigDecimal b1 = BigDecimal.ONE;
         BigDecimal b2 = new BigDecimal("1.0");
         BigDecimal b3 = new BigDecimal("0.01e2");
@@ -236,8 +234,6 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals(1L, n.longValue());
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
-        
-        // 1.6:
         assertNodeNumbers(n, 1, 1.0);
 
         BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);
@@ -284,7 +280,7 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals("100", mapper.writeValueAsString(tree));
     }
 
-    // Related to [Issue#333]
+    // Related to [databind#333]
     public void testCanonicalNumbers() throws Exception
     {
         JsonNodeFactory f = new JsonNodeFactory();

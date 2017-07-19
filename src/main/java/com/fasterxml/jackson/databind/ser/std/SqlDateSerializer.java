@@ -40,34 +40,21 @@ public class SqlDateSerializer
     }
     
     @Override
-    public void serialize(java.sql.Date value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(java.sql.Date value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
         if (_asTimestamp(provider)) {
-            gen.writeNumber(_timestamp(value));
-        } else if (_customFormat != null) {
-            // 11-Oct-2016, tatu: As per [databind#219], same as with `java.util.Date`
-            synchronized (_customFormat) {
-                gen.writeString(_customFormat.format(value));
-            }
-        } else {
+            g.writeNumber(_timestamp(value));
+            return;
+        }
+        // Alas, can't just call `_serializeAsString()`....
+        if (_customFormat == null) {
             // 11-Oct-2016, tatu: For backwards-compatibility purposes, we shall just use
             //    the awful standard JDK serialization via `sqlDate.toString()`... this
             //    is problematic in multiple ways (including using arbitrary timezone...)
-            gen.writeString(value.toString());
+            g.writeString(value.toString());
+            return;
         }
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        //todo: (ryan) add a format for the date in the schema?
-        return createSchemaNode("string", true);
-    }
-    
-    @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
-    {
-        _acceptJsonFormatVisitor(visitor, typeHint, _useTimestamp);
+        _serializeAsString(value, g, provider);
     }
 }

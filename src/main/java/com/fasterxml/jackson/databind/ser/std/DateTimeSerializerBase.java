@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -35,12 +37,23 @@ public abstract class DateTimeSerializerBase<T>
      */
     protected final DateFormat _customFormat;
 
+    /**
+     * If {@link #_customFormat} is used, we will try to reuse instances in simplest
+     * possible form; thread-safe, but without overhead of <code>ThreadLocal</code>
+     * (not from code, but wrt retaining of possibly large number of format instances
+     * over all threads, properties with custom formats).
+     *
+     * @since 2.9
+     */
+    protected final AtomicReference<DateFormat> _reusedCustomFormat;
+
     protected DateTimeSerializerBase(Class<T> type,
             Boolean useTimestamp, DateFormat customFormat)
     {
         super(type);
         _useTimestamp = useTimestamp;
         _customFormat = customFormat;
+        _reusedCustomFormat = (customFormat == null) ? null : new AtomicReference<DateFormat>();
     }
 
     public abstract DateTimeSerializerBase<T> withFormat(Boolean timestamp, DateFormat customFormat);
@@ -188,5 +201,30 @@ df0.getClass().getName()));
         } else {
             visitStringFormat(visitor, typeHint, JsonValueFormat.DATE_TIME);
         }
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected void _serializeAsString(Date value, JsonGenerator g, SerializerProvider provider) throws IOException
+    {
+        if (_customFormat == null) {
+            provider.defaultSerializeDateValue(value, g);
+            return;
+        }
+
+        // 19-Jul-2017, tatu: Here we will try a simple but (hopefully) effective mechanism for
+        //    reusing formatter instance. This is our second attempt, after initially trying simple
+        //    synchronization (which turned out to be bottleneck for some users in production...).
+        //    While `ThreadLocal` could alternatively be used, it is likely that it would lead to
+        //    higher memory footprint, but without much upside -- if we can not reuse, we'll just
+        //    clone(), which has some overhead but not drastic one.
+        
+        DateFormat f = _reusedCustomFormat.getAndSet(null);
+        if (f == null) {
+            f = (DateFormat) _customFormat.clone();
+        }
+        g.writeString(f.format(value));
+        _reusedCustomFormat.compareAndSet(null, f);
     }
 }

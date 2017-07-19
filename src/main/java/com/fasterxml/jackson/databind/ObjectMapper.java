@@ -3840,7 +3840,7 @@ public class ObjectMapper
     {
         acceptJsonFormatVisitor(_typeFactory.constructType(type), visitor);
     }
-    
+
     /**
      * Method for visiting type hierarchy for given type, using specified visitor.
      * Visitation uses <code>Serializer</code> hierarchy and related properties
@@ -3861,7 +3861,7 @@ public class ObjectMapper
         }
         _serializerProvider(getSerializationConfig()).acceptJsonFormatVisitor(type, visitor);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods for serialization, overridable

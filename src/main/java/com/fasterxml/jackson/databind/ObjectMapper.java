@@ -1466,7 +1466,7 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableObjectTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
+     *  enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
      *</pre>
      *<p>
      * NOTE: use of Default Typing can be a potential security risk if incoming
@@ -1482,7 +1482,7 @@ public class ObjectMapper
     /**
      * Convenience method that is equivalent to calling
      *<pre>
-     *  enableObjectTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+     *  enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
      *</pre>
      *<p>
      * NOTE: use of Default Typing can be a potential security risk if incoming

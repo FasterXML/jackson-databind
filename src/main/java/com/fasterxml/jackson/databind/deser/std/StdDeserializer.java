@@ -708,7 +708,7 @@ public abstract class StdDeserializer<T>
             String type) throws IOException
     {
         ctxt.reportInputMismatch(handledType(),
-                "Cannot coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
+"Cannot coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
                 p.getValueAsString(), type);
     }
 
@@ -800,7 +800,7 @@ public abstract class StdDeserializer<T>
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             ctxt.reportInputMismatch(this,
-                    "Cannot coerce `null` %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+"Cannot coerce `null` %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
                     _coercedTypeDesc());
         }
     }
@@ -871,6 +871,8 @@ public abstract class StdDeserializer<T>
      * is (most likely) being applied, to be used for constructing exception messages
      * on coerce failure.
      *
+     * @return Message with backtick-enclosed name of type this deserializer supports
+     *
      * @since 2.9
      */
     protected String _coercedTypeDesc() {
@@ -878,9 +880,10 @@ public abstract class StdDeserializer<T>
         String typeDesc;
 
         JavaType t = getValueType();
-        if (t != null) {
+        if ((t != null) && !t.isPrimitive()) {
             structured = (t.isContainerType() || t.isReferenceType());
-            typeDesc = t.toString();
+            // 21-Jul-2017, tatu: Probably want to change this (JavaType.toString() not very good) but...
+            typeDesc = "'"+t.toString()+"'";
         } else {
             Class<?> cls = handledType();
             structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
@@ -888,9 +891,9 @@ public abstract class StdDeserializer<T>
             typeDesc = ClassUtil.nameOf(cls);
         }
         if (structured) {
-            return String.format("as content of type `%s`", typeDesc);
+            return "as content of type "+typeDesc;
         }
-        return String.format("for type `%s`", typeDesc);
+        return "for type "+typeDesc;
     }
 
     /*

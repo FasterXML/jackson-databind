@@ -796,7 +796,7 @@ public class JDKScalarsTest
             fail("Should not pass");
         } catch (JsonMappingException e) {
             verifyException(e, "Cannot coerce `null`");
-            verifyException(e, "as content of type `"+SIMPLE_NAME+"`");
+            verifyException(e, "as content of type "+SIMPLE_NAME);
         }
         
         if (testEmptyString) {
@@ -809,7 +809,7 @@ public class JDKScalarsTest
                 fail("Should not pass");
             } catch (JsonMappingException e) {
                 verifyException(e, "Cannot coerce empty String (\"\")");
-                verifyException(e, "as content of type `"+SIMPLE_NAME+"`");
+                verifyException(e, "as content of type "+SIMPLE_NAME);
             }
         }
     }

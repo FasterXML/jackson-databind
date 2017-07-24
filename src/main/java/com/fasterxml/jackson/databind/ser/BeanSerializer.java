@@ -156,7 +156,7 @@ public class BeanSerializer
         }
         gen.writeEndObject();
     }
-    
+
     /*
     /**********************************************************
     /* Standard methods

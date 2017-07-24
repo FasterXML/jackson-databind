@@ -196,7 +196,7 @@ public abstract class TypeSerializer
      */
     @Deprecated // since 2.9
     public void writeTypeSuffixForScalar(Object value, JsonGenerator g) throws IOException {
-        writeTypeSuffix(g, typeId(value, JsonToken.VALUE_STRING));
+        _writeLegacySuffix(g, typeId(value, JsonToken.VALUE_STRING));
     }
 
     /**
@@ -207,7 +207,7 @@ public abstract class TypeSerializer
      */
     @Deprecated // since 2.9
     public void writeTypeSuffixForObject(Object value, JsonGenerator g) throws IOException {
-        writeTypeSuffix(g, typeId(value, JsonToken.START_OBJECT));
+        _writeLegacySuffix(g, typeId(value, JsonToken.START_OBJECT));
     }
 
     /**
@@ -218,7 +218,7 @@ public abstract class TypeSerializer
      */
     @Deprecated // since 2.9
     public void writeTypeSuffixForArray(Object value, JsonGenerator g) throws IOException {
-        writeTypeSuffix(g, typeId(value, JsonToken.START_ARRAY));
+        _writeLegacySuffix(g, typeId(value, JsonToken.START_ARRAY));
     }
 
     /**
@@ -274,16 +274,31 @@ public abstract class TypeSerializer
 
     @Deprecated // since 2.9
     public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator g, String typeId) throws IOException {
-        writeTypeSuffix(g, typeId(value, JsonToken.VALUE_STRING, typeId));
+        _writeLegacySuffix(g, typeId(value, JsonToken.VALUE_STRING, typeId));
     }
 
     @Deprecated // since 2.9
     public void writeCustomTypeSuffixForObject(Object value, JsonGenerator g, String typeId) throws IOException {
-        writeTypeSuffix(g, typeId(value, JsonToken.START_OBJECT, typeId));
+        _writeLegacySuffix(g, typeId(value, JsonToken.START_OBJECT, typeId));
     }
 
     @Deprecated // since 2.9
     public void writeCustomTypeSuffixForArray(Object value, JsonGenerator g, String typeId) throws IOException {
-        writeTypeSuffix(g, typeId(value, JsonToken.START_ARRAY, typeId));
+        _writeLegacySuffix(g, typeId(value, JsonToken.START_ARRAY, typeId));
+    }
+
+    /**
+     * Helper method needed for backwards compatibility: since original type id
+     * can not be routed through completely, we have to reverse-engineer likely
+     * setting before calling suffix.
+     *
+     * @since 2.9
+     */
+    protected final void _writeLegacySuffix(JsonGenerator g,
+            WritableTypeId typeId) throws IOException
+    {
+        // most likely logic within generator is this:
+        typeId.wrapperWritten = !g.canWriteTypeId();
+        writeTypeSuffix(g, typeId);
     }
 }

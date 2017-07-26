@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.9.1 (not yet released)
+2.8.10 (not yet released)
 
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of
   configured timezone
@@ -12,6 +12,8 @@ Project: jackson-databind
   with a recursive value type
  (reported by Kevin G)
 #1679: `StackOverflowError` in Dynamic `StdKeySerializer`
+#1711: Delegating creator fails to work for binary data (`byte[]`) with
+ binary formats (CBOR, Smile)
 
 2.8.9 (12-Jun-2017)
 

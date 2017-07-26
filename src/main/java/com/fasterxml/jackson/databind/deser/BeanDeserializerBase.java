@@ -1459,10 +1459,19 @@ public abstract class BeanDeserializerBase
                 return bean;
             }
         }
-
         // TODO: maybe add support for ValueInstantiator, embedded?
-        
-        return p.getEmbeddedObject();
+
+        // 26-Jul-2017, tatu: related to [databind#1711], let's actually verify assignment
+        //    compatibility before returning. Bound to catch misconfigured cases and produce
+        //    more meaningful exceptions.
+        Object value = p.getEmbeddedObject();
+        if (value != null) {
+            if (!_beanType.getClass().isInstance(value)) {
+                // allow this to be handled...
+                value = ctxt.handleWeirdNativeValue(_beanType, value, p);
+            }
+        }
+        return value;
     }
 
     /**

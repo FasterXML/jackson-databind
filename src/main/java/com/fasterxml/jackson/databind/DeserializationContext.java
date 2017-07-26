@@ -944,13 +944,35 @@ public abstract class DeserializationContext
                 if ((key == null) || targetClass.isInstance(key)) {
                     return key;
                 }
-                throw weirdNumberException(value, targetClass, String.format(
+                throw weirdNumberException(value, targetClass, _format(
                         "DeserializationProblemHandler.handleWeirdNumberValue() for type %s returned value of type %s",
                         targetClass, key.getClass()));
             }
             h = h.next();
         }
         throw weirdNumberException(value, targetClass, msg);
+    }
+
+    public Object handleWeirdNativeValue(JavaType targetType, Object badValue,
+            JsonParser p)
+        throws IOException
+    {
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        final Class<?> raw = targetType.getRawClass();
+        for (; h != null; h = h.next()) {
+            // Can bail out if it's handled
+            Object goodValue = h.value().handleWeirdNativeValue(this, targetType, badValue, p);
+            if (goodValue != DeserializationProblemHandler.NOT_HANDLED) {
+                // Sanity check for broken handlers, otherwise nasty to debug:
+                if ((goodValue == null) || raw.isInstance(goodValue)) {
+                    return goodValue;
+                }
+                throw JsonMappingException.from(p, _format(
+"DeserializationProblemHandler.handleWeirdNativeValue() for type %s returned value of type %s",
+targetType, goodValue.getClass()));
+            }
+        }
+        throw weirdNativeValueException(badValue, raw);
     }
 
     /**
@@ -1528,6 +1550,24 @@ trailingToken, ClassUtil.nameOf(targetType)
         return InvalidFormatException.from(_parser,
                 String.format("Cannot deserialize value of type %s from number %s: %s",
                         ClassUtil.nameOf(instClass), String.valueOf(value), msg),
+                value, instClass);
+    }
+
+    /**
+     * Helper method for constructing exception to indicate that input JSON
+     * token of type "native value" (see {@link JsonToken#VALUE_EMBEDDED_OBJECT})
+     * is of incompatible type (and there is no delegating creator or such to use)
+     * and can not be used to construct value of specified type (usually POJO).
+     * Note that most of the time this method should NOT be called; instead,
+     * {@link #handleWeirdNativeValue} should be called which will call this method
+     *
+     * @since 2.9
+     */
+    public JsonMappingException weirdNativeValueException(Object value, Class<?> instClass)
+    {
+        return InvalidFormatException.from(_parser, String.format(
+"Cannot deserialize value of type %s from native value (`JsonToken.VALUE_EMBEDDED_OBJECT`) of type %s: incompatible types",
+            ClassUtil.nameOf(instClass), ClassUtil.classNameOf(value)),
                 value, instClass);
     }
 

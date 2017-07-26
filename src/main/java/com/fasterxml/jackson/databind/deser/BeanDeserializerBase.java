@@ -1335,9 +1335,8 @@ public abstract class BeanDeserializerBase
         if (_objectIdReader != null) {
             return deserializeFromObjectId(p, ctxt);
         }
-        /* Bit complicated if we have delegating creator; may need to use it,
-         * or might not...
-         */
+        // Bit complicated if we have delegating creator; may need to use it,
+        // or might not...
         JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
             if (!_valueInstantiator.canCreateFromString()) {
@@ -1447,6 +1446,18 @@ public abstract class BeanDeserializerBase
         // true for UUIDs when written as binary (with Smile, other binary formats)
         if (_objectIdReader != null) {
             return deserializeFromObjectId(p, ctxt);
+        }
+        // 26-Jul-2017, tatu: as per [databind#1711] need to support delegating case too
+        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        if (delegateDeser != null) {
+            if (!_valueInstantiator.canCreateFromString()) {
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                        delegateDeser.deserialize(p, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
+            }
         }
 
         // TODO: maybe add support for ValueInstantiator, embedded?

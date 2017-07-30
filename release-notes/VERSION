@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.0 (not yet released)
+2.9.0 (30-Jul-2017)
 
 #219: SqlDateSerializer does not obey SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS
  (reported by BrentDouglas@github)

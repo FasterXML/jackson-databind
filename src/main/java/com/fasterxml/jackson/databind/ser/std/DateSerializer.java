@@ -42,17 +42,12 @@ public class DateSerializer
     }
 
     @Override
-    public void serialize(Date value, JsonGenerator gen, SerializerProvider provider) throws IOException
+    public void serialize(Date value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         if (_asTimestamp(provider)) {
-            gen.writeNumber(_timestamp(value));
-        } else if (_customFormat != null) {
-            // 21-Feb-2011, tatu: not optimal, but better than alternatives:
-            synchronized (_customFormat) {
-                gen.writeString(_customFormat.format(value));
-            }
-        } else {
-            provider.defaultSerializeDateValue(value, gen);
+            g.writeNumber(_timestamp(value));
+            return;
         }
+        _serializeAsString(value, g, provider);
     }
 }

@@ -508,9 +508,24 @@ public abstract class JsonNode
      */
     public double doubleValue() { return 0.0; }
 
+    /**
+     * Returns floating point value for this node (as {@link BigDecimal}), <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns <code>BigDecimal.ZERO</code>.
+     *
+     * @return {@link BigDecimal} value this node contains, if numeric node; <code>BigDecimal.ZERO</code> for non-number nodes.
+     */
     public BigDecimal decimalValue() { return BigDecimal.ZERO; }
+
+    /**
+     * Returns integer value for this node (as {@link BigDecimal}), <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns <code>BigInteger.ZERO</code>.
+     *
+     * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
+     */
     public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
-    
+
     /*
     /**********************************************************
     /* Public API, value access with conversion(s)/coercion(s)
@@ -649,13 +664,13 @@ public abstract class JsonNode
     public boolean asBoolean(boolean defaultValue) {
         return defaultValue;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, value find / existence check methods
     /**********************************************************
      */
-    
+
     /**
      * Method that allows checking whether this node is JSON Object node
      * and contains value for specified property. If this is the case
@@ -881,7 +896,7 @@ public abstract class JsonNode
      */
     public JsonNode with(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), can not call with() on it");
+                +getClass().getName()+"), cannot call with() on it");
     }
 
     /**
@@ -894,7 +909,7 @@ public abstract class JsonNode
      */
     public JsonNode withArray(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), can not call withArray() on it");
+                +getClass().getName()+"), cannot call withArray() on it");
     }
 
     /*

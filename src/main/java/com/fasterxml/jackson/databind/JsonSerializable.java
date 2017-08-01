@@ -31,12 +31,10 @@ public interface JsonSerializable
      * Serialization method called when additional type information is
      * expected to be included in serialization, for deserialization to use.
      *<p>
-     * Usually implementation consists of a call to one of methods
-     * in {@link TypeSerializer} (such as {@link TypeSerializer#writeTypePrefixForObject(Object, JsonGenerator)})
+     * Usually implementation consists of a call to {@link TypeSerializer#writeTypePrefix}
      * followed by serialization of contents,
-     * followed by another call to {@link TypeSerializer}
-     * (such as {@link TypeSerializer#writeTypeSuffixForObject(Object, JsonGenerator)}).
-     * Exact methods to call in {@link TypeSerializer} depend on shape of JSON Object used
+     * followed by a call to {@link TypeSerializer#writeTypeSuffix}).
+     * Details of the type id argument to pass depend on shape of JSON Object used
      * (Array, Object or scalar like String/Number/Boolean).
      *<p>
      * Note that some types (most notably, "natural" types: String, Integer,

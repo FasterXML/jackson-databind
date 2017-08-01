@@ -136,7 +136,7 @@ public class TestDefaultForObject
             fail("Should have failed");
         } catch (JsonMappingException e) {
             // let's use whatever is currently thrown exception... may change tho
-            verifyException(e, "can not construct");
+            verifyException(e, "cannot construct");
         }
         
         // and then that we will succeed with default type info
@@ -348,7 +348,7 @@ public class TestDefaultForObject
                     JsonTypeInfo.As.EXTERNAL_PROPERTY);
             fail("Should not have passed");
         } catch (IllegalArgumentException e) {
-            verifyException(e, "Can not use includeAs of EXTERNAL_PROPERTY");
+            verifyException(e, "Cannot use includeAs of EXTERNAL_PROPERTY");
         }
     }
     

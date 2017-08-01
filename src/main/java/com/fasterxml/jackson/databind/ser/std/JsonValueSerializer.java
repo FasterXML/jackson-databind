@@ -389,79 +389,100 @@ public class JsonValueSerializer
         }
 
         // // // Old Write API, pre-2.9
-        
+
         @Override
+        @Deprecated
         public void writeTypePrefixForScalar(Object value, JsonGenerator gen) throws IOException {
             _typeSerializer.writeTypePrefixForScalar(_forObject, gen);
         }
 
         @Override
+        @Deprecated
         public void writeTypePrefixForObject(Object value, JsonGenerator gen) throws IOException {
             _typeSerializer.writeTypePrefixForObject(_forObject, gen);
         }
 
         @Override
+        @Deprecated
         public void writeTypePrefixForArray(Object value, JsonGenerator gen) throws IOException {
             _typeSerializer.writeTypePrefixForArray(_forObject, gen);
         }
 
         @Override
+        @Deprecated
         public void writeTypeSuffixForScalar(Object value, JsonGenerator gen) throws IOException {
             _typeSerializer.writeTypeSuffixForScalar(_forObject, gen);
         }
 
         @Override
+        @Deprecated
         public void writeTypeSuffixForObject(Object value, JsonGenerator gen) throws IOException {
             _typeSerializer.writeTypeSuffixForObject(_forObject, gen);
         }
 
         @Override
+        @Deprecated
         public void writeTypeSuffixForArray(Object value, JsonGenerator gen) throws IOException {
             _typeSerializer.writeTypeSuffixForArray(_forObject, gen);
         }
 
         @Override
+        @Deprecated
         public void writeTypePrefixForScalar(Object value, JsonGenerator gen, Class<?> type) throws IOException {
             _typeSerializer.writeTypePrefixForScalar(_forObject, gen, type);
         }
 
         @Override
+        @Deprecated
         public void writeTypePrefixForObject(Object value, JsonGenerator gen, Class<?> type) throws IOException {
             _typeSerializer.writeTypePrefixForObject(_forObject, gen, type);
         }
 
         @Override
+        @Deprecated
         public void writeTypePrefixForArray(Object value, JsonGenerator gen, Class<?> type) throws IOException {
             _typeSerializer.writeTypePrefixForArray(_forObject, gen, type);
         }
 
+        /*
+        /**********************************************************
+        /* Deprecated methods (since 2.9)
+        /**********************************************************
+         */
+
         @Override
+        @Deprecated
         public void writeCustomTypePrefixForScalar(Object value, JsonGenerator gen, String typeId)
                 throws IOException {
             _typeSerializer.writeCustomTypePrefixForScalar(_forObject, gen, typeId);
         }
 
         @Override
+        @Deprecated
         public void writeCustomTypePrefixForObject(Object value, JsonGenerator gen, String typeId) throws IOException {
             _typeSerializer.writeCustomTypePrefixForObject(_forObject, gen, typeId);
         }
 
         @Override
+        @Deprecated
         public void writeCustomTypePrefixForArray(Object value, JsonGenerator gen, String typeId) throws IOException {
             _typeSerializer.writeCustomTypePrefixForArray(_forObject, gen, typeId);
         }
 
         @Override
+        @Deprecated
         public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator gen, String typeId) throws IOException {
             _typeSerializer.writeCustomTypeSuffixForScalar(_forObject, gen, typeId);
         }
 
         @Override
+        @Deprecated
         public void writeCustomTypeSuffixForObject(Object value, JsonGenerator gen, String typeId) throws IOException {
             _typeSerializer.writeCustomTypeSuffixForObject(_forObject, gen, typeId);
         }
 
         @Override
+        @Deprecated
         public void writeCustomTypeSuffixForArray(Object value, JsonGenerator gen, String typeId) throws IOException {
             _typeSerializer.writeCustomTypeSuffixForArray(_forObject, gen, typeId);
         }

@@ -589,7 +589,7 @@ public class TestValueInstantiator extends BaseMapTest
             MAPPER.readValue("{ }", MyBean.class);
             fail("Should not succeed");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not construct instance of");
+            verifyException(e, "Cannot construct instance of");
             verifyException(e, "no Creators");
             // as per [databind#1414], is definition problem
             assertEquals(InvalidDefinitionException.class, e.getClass());
@@ -604,7 +604,7 @@ public class TestValueInstantiator extends BaseMapTest
             MAPPER.readValue("\"foo\"", MyBean.class);
             fail("Should not succeed");
         } catch (JsonMappingException e) {
-            verifyException(e, "Can not construct instance of");
+            verifyException(e, "Cannot construct instance of");
             verifyException(e, "no String-argument constructor/factory");
             // as per [databind#1414], is definition problem
             assertEquals(InvalidDefinitionException.class, e.getClass());

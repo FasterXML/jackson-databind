@@ -537,7 +537,7 @@ public abstract class SettableBeanProperty
         // 20-Oct-2016, tatu: Also tricky -- for now, report an error
         if (_valueTypeDeserializer != null) {
             ctxt.reportBadDefinition(getType(),
-                    String.format("Can not merge polymorphic property '%s'",
+                    String.format("Cannot merge polymorphic property '%s'",
                             getName()));
 //            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }

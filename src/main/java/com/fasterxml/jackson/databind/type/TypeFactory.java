@@ -1082,7 +1082,7 @@ public final class TypeFactory
                 vt = typeParams.get(1);
                 break;
             default:
-                throw new IllegalArgumentException("Strange Map type "+rawClass.getName()+": can not determine type parameters");
+                throw new IllegalArgumentException("Strange Map type "+rawClass.getName()+": cannot determine type parameters");
             }
         }
         return MapType.construct(rawClass, bindings, superClass, superInterfaces, kt, vt);
@@ -1099,7 +1099,7 @@ public final class TypeFactory
         } else if (typeParams.size() == 1) {
             ct = typeParams.get(0);
         } else {
-            throw new IllegalArgumentException("Strange Collection type "+rawClass.getName()+": can not determine type parameters");
+            throw new IllegalArgumentException("Strange Collection type "+rawClass.getName()+": cannot determine type parameters");
         }
         return CollectionType.construct(rawClass, bindings, superClass, superInterfaces, ct);
     }
@@ -1115,7 +1115,7 @@ public final class TypeFactory
         } else if (typeParams.size() == 1) {
             ct = typeParams.get(0);
         } else {
-            throw new IllegalArgumentException("Strange Reference type "+rawClass.getName()+": can not determine type parameters");
+            throw new IllegalArgumentException("Strange Reference type "+rawClass.getName()+": cannot determine type parameters");
         }
         return ReferenceType.construct(rawClass, bindings, superClass, superInterfaces, ct);
     }
@@ -1294,7 +1294,7 @@ public final class TypeFactory
                 superClass = null;
                 superInterfaces = _resolveSuperInterfaces(context, rawType, bindings);
             } else {
-                // Note: even Enums can implement interfaces, so can not drop those
+                // Note: even Enums can implement interfaces, so cannot drop those
                 superClass = _resolveSuperClass(context, rawType, bindings);
                 superInterfaces = _resolveSuperInterfaces(context, rawType, bindings);
             }

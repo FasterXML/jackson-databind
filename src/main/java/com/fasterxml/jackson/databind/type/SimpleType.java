@@ -104,14 +104,14 @@ public class SimpleType // note: until 2.6 was final
          * Map/Collection entries are constructed
          */
         if (Map.class.isAssignableFrom(cls)) {
-            throw new IllegalArgumentException("Can not construct SimpleType for a Map (class: "+cls.getName()+")");
+            throw new IllegalArgumentException("Cannot construct SimpleType for a Map (class: "+cls.getName()+")");
         }
         if (Collection.class.isAssignableFrom(cls)) {
-            throw new IllegalArgumentException("Can not construct SimpleType for a Collection (class: "+cls.getName()+")");
+            throw new IllegalArgumentException("Cannot construct SimpleType for a Collection (class: "+cls.getName()+")");
         }
         // ... and while we are at it, not array types either
         if (cls.isArray()) {
-            throw new IllegalArgumentException("Can not construct SimpleType for an array (class: "+cls.getName()+")");
+            throw new IllegalArgumentException("Cannot construct SimpleType for an array (class: "+cls.getName()+")");
         }
         TypeBindings b = TypeBindings.emptyBindings();
         return new SimpleType(cls, b,
@@ -162,13 +162,13 @@ public class SimpleType // note: until 2.6 was final
             }
         }
         // should not get here but...
-        throw new IllegalArgumentException("Internal error: Can not resolve sub-type for Class "+subclass.getName()+" to "
+        throw new IllegalArgumentException("Internal error: Cannot resolve sub-type for Class "+subclass.getName()+" to "
                 +_class.getName());
     }
     
     @Override
     public JavaType withContentType(JavaType contentType) {
-        throw new IllegalArgumentException("Simple types have no content types; can not call withContentType()");
+        throw new IllegalArgumentException("Simple types have no content types; cannot call withContentType()");
     }
     
     @Override
@@ -182,7 +182,7 @@ public class SimpleType // note: until 2.6 was final
     @Override
     public JavaType withContentTypeHandler(Object h) {
         // no content type, so:
-        throw new IllegalArgumentException("Simple types have no content types; can not call withContenTypeHandler()");
+        throw new IllegalArgumentException("Simple types have no content types; cannot call withContenTypeHandler()");
     }
 
     @Override
@@ -196,7 +196,7 @@ public class SimpleType // note: until 2.6 was final
     @Override
     public  SimpleType withContentValueHandler(Object h) {
         // no content type, so:
-        throw new IllegalArgumentException("Simple types have no content types; can not call withContenValueHandler()");
+        throw new IllegalArgumentException("Simple types have no content types; cannot call withContenValueHandler()");
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -280,9 +282,9 @@ public class ObjectReader
 
     /*
     /**********************************************************
-    /* Methods sub-classes MUST override, used for constructing
-    /* reader instances, (re)configuring parser instances
-    /* Added in 2.5
+    /* Helper methods used internally for invoking constructors
+    /* Need to be overridden if sub-classing (not recommended)
+    /* is used.
     /**********************************************************
      */
 
@@ -1540,7 +1542,7 @@ public class ObjectReader
     /* Helper methods, data-binding
     /**********************************************************
      */
-    
+
     /**
      * Actual implementation of value reading+binding operation.
      */
@@ -1576,19 +1578,12 @@ public class ObjectReader
         }
         // Need to consume the token too
         p.clearCurrentToken();
+        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, _valueType);
+        }
         return result;
     }
-    
-    /**
-     * Consider filter when creating JsonParser.  
-     */
-    protected JsonParser _considerFilter(final JsonParser p, boolean multiValue) {
-        // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
-        //    have a multiple-value read (that is, "readValues()").
-        return ((_filter == null) || FilteringParserDelegate.class.isInstance(p))
-                ? p : new FilteringParserDelegate(p, _filter, false, multiValue);
-    }
-    
+
     protected Object _bindAndClose(JsonParser p0) throws IOException
     {
         try (JsonParser p = p0) {
@@ -1617,6 +1612,9 @@ public class ObjectReader
                     }
                 }
             }
+            if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                _verifyNoTrailingTokens(p, ctxt, _valueType);
+            }
             return result;
         }
     }
@@ -1626,7 +1624,7 @@ public class ObjectReader
             return _bindAsTree(p);
         }
     }
-    
+
     protected final JsonNode _bindAsTree(JsonParser p) throws IOException
     {
         // 27-Oct-2016, tatu: Need to inline `_initForReading()` due to
@@ -1654,6 +1652,9 @@ public class ObjectReader
             result = _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
         } else {
             result = deser.deserialize(p, ctxt);
+            if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+                _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+            }
         }
         return (JsonNode) result;
     }
@@ -1707,7 +1708,39 @@ public class ObjectReader
                     "Current token not END_OBJECT (to match wrapper object with root name '%s'), but %s",
                     expSimpleName, p.getCurrentToken());
         }
+        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, _valueType);
+        }
         return result;
+    }
+
+    /**
+     * Consider filter when creating JsonParser.  
+     */
+    protected JsonParser _considerFilter(final JsonParser p, boolean multiValue) {
+        // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
+        //    have a multiple-value read (that is, "readValues()").
+        return ((_filter == null) || FilteringParserDelegate.class.isInstance(p))
+                ? p : new FilteringParserDelegate(p, _filter, false, multiValue);
+    }
+
+    /**
+     * @since 2.9
+     */
+    protected final void _verifyNoTrailingTokens(JsonParser p, DeserializationContext ctxt,
+            JavaType bindType)
+        throws IOException
+    {
+        JsonToken t = p.nextToken();
+        if (t != null) {
+            Class<?> bt = ClassUtil.rawClass(bindType);
+            if (bt == null) {
+                if (_valueToUpdate != null) {
+                    bt = _valueToUpdate.getClass();
+                }
+            }
+            ctxt.reportTrailingTokens(bt, p, t);
+        }
     }
 
     /*
@@ -1781,7 +1814,7 @@ public class ObjectReader
         throws JsonProcessingException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
-        throw new JsonParseException(null, "Can not detect format from input, does not look like any of detectable formats "
+        throw new JsonParseException(null, "Cannot detect format from input, does not look like any of detectable formats "
                 +detector.toString());
     }
 
@@ -1798,7 +1831,7 @@ public class ObjectReader
     {
         if (schema != null) {
             if (!_parserFactory.canUseSchema(schema)) {
-                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                    throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
                             +" for format "+_parserFactory.getFormatName());
             }
         }
@@ -1824,7 +1857,7 @@ public class ObjectReader
     protected void _reportUndetectableSource(Object src) throws JsonProcessingException
     {
         // 17-Aug-2015, tatu: Unfortunately, no parser/generator available so:
-        throw new JsonParseException(null, "Can not use source of type "
+        throw new JsonParseException(null, "Cannot use source of type "
                 +src.getClass().getName()+" with format auto-detection: must be byte- not char-based");
     }
 
@@ -1858,7 +1891,7 @@ public class ObjectReader
         // Nope: need to ask provider to resolve it
         deser = ctxt.findRootValueDeserializer(t);
         if (deser == null) { // can this happen?
-            ctxt.reportBadDefinition(t, "Can not find a deserializer for type "+t);
+            ctxt.reportBadDefinition(t, "Cannot find a deserializer for type "+t);
         }
         _rootDeserializers.put(t, deser);
         return deser;
@@ -1876,7 +1909,7 @@ public class ObjectReader
             deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
             if (deser == null) { // can this happen?
                 ctxt.reportBadDefinition(JSON_NODE_TYPE,
-                        "Can not find a deserializer for type "+JSON_NODE_TYPE);
+                        "Cannot find a deserializer for type "+JSON_NODE_TYPE);
             }
             _rootDeserializers.put(JSON_NODE_TYPE, deser);
         }
@@ -1890,7 +1923,7 @@ public class ObjectReader
      */
     protected JsonDeserializer<Object> _prefetchRootDeserializer(JavaType valueType)
     {
-        if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
+        if ((valueType == null) || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
             return null;
         }
         // already cached?

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * General exception type used as the base class for all {@link JsonMappingException}s
@@ -45,7 +46,7 @@ public class MismatchedInputException
 
     protected MismatchedInputException(JsonParser p, String msg, JavaType targetType) {
         super(p, msg);
-        _targetType = (targetType == null) ? null : targetType.getRawClass();
+        _targetType = ClassUtil.rawClass(targetType);
     }
 
     // Only to prevent super-class static method from getting called
@@ -61,7 +62,7 @@ public class MismatchedInputException
     public static MismatchedInputException from(JsonParser p, Class<?> targetType, String msg) {
         return new MismatchedInputException(p, msg, targetType);
     }
-    
+
     public MismatchedInputException setTargetType(JavaType t) {
         _targetType = t.getRawClass();
         return this;

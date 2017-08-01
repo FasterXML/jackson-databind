@@ -414,7 +414,7 @@ public enum MapperFeature implements ConfigFeature
     /* Coercion features
     /******************************************************
      */
-    
+
     /**
      * Feature that determines whether coercions from secondary representations are allowed
      * for simple non-textual scalar types: numbers and booleans. This includes `primitive`

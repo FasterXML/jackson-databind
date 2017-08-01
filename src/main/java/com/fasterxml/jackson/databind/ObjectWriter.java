@@ -905,7 +905,7 @@ public class ObjectWriter
                     gen.flush();
                 }
             } catch (Exception e) {
-                ClassUtil.closeOnFailAndThrowAsIAE(null, toClose, e);
+                ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
                 return;
             }
             toClose.close();
@@ -1099,7 +1099,7 @@ public class ObjectWriter
     {
         if (schema != null) {
             if (!_generatorFactory.canUseSchema(schema)) {
-                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                    throw new IllegalArgumentException("Cannot use FormatSchema of type "+schema.getClass().getName()
                             +" for format "+_generatorFactory.getFormatName());
             }
         }
@@ -1119,7 +1119,7 @@ public class ObjectWriter
         try {
             _prefetch.serialize(gen, value, _serializerProvider());
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIAE(gen, e);
+            ClassUtil.closeOnFailAndThrowAsIOE(gen, e);
             return;
         }
         gen.close();
@@ -1139,7 +1139,7 @@ public class ObjectWriter
             toClose = null;
             tmpToClose.close();
         } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIAE(gen, toClose, e);
+            ClassUtil.closeOnFailAndThrowAsIOE(gen, toClose, e);
             return;
         }
         gen.close();

@@ -56,7 +56,7 @@ public class BuilderBasedDeserializer
         _buildMethod = builder.getBuildMethod();
         // 05-Mar-2012, tatu: Cannot really make Object Ids work with builders, not yet anyway
         if (_objectIdReader != null) {
-            throw new IllegalArgumentException("Can not use Object Id with Builder-based deserialization (type "
+            throw new IllegalArgumentException("Cannot use Object Id with Builder-based deserialization (type "
                     +beanDesc.getType()+")");
         }
     }

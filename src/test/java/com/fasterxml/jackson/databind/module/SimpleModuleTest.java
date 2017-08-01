@@ -205,7 +205,7 @@ public class SimpleModuleTest extends BaseMapTest
             mapper.readValue("{\"str\":\"ab\",\"num\":2}", CustomBean.class);
             fail("Should have caused an exception");
         } catch (IOException e) {
-            verifyException(e, "Can not construct");
+            verifyException(e, "Cannot construct");
             verifyException(e, "no creators");
         }
     }

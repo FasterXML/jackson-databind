@@ -331,7 +331,7 @@ public class TestObjectIdSerialization extends BaseMapTest
             MAPPER.writeValueAsString(new Broken());
             fail("Should have thrown an exception");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find property with name 'id'");
+            verifyException(e, "cannot find property with name 'id'");
         }
     }
 }

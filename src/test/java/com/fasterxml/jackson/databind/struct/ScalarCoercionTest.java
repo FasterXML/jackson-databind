@@ -92,7 +92,7 @@ public class ScalarCoercionTest extends BaseMapTest
             NOT_COERCING_MAPPER.readerFor(type).readValue("\"\"");
             fail("Should have failed for "+type);
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not coerce empty String");
+            verifyException(e, "Cannot coerce empty String");
             verifyException(e, "Null value for");
         }
     }
@@ -187,7 +187,7 @@ public class ScalarCoercionTest extends BaseMapTest
                 .readValue(input);
             fail("Should not have allowed coercion");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Can not coerce ");
+            verifyException(e, "Cannot coerce ");
             verifyException(e, " for type `");
             verifyException(e, "enable `MapperFeature.ALLOW_COERCION_OF_SCALARS` to allow");
         }

@@ -116,7 +116,7 @@ public abstract class TypeDeserializerBase
 
     @Override    
     public Class<?> getDefaultImpl() {
-        return (_defaultImpl == null) ? null : _defaultImpl.getRawClass();
+        return ClassUtil.rawClass(_defaultImpl);
     }
 
     /**

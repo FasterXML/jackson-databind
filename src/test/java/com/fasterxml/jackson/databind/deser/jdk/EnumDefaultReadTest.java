@@ -222,7 +222,7 @@ public class EnumDefaultReadTest extends BaseMapTest
             reader.forType(toValueType).readValue(quote(fromValue));
             fail("Deserialization should have failed");
         } catch (InvalidFormatException e) {
-            verifyException(e, "Can not deserialize value of type");
+            verifyException(e, "Cannot deserialize value of type");
             /* Expected. */
         }
     }

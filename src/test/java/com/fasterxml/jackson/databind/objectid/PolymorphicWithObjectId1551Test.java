@@ -71,7 +71,7 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
             // on serialization, reported for different type
             assertEquals(Car.class, e.getType().getRawClass());
             verifyException(e, "Invalid Object Id definition");
-            verifyException(e, "can not find property with name 'bogus'");
+            verifyException(e, "cannot find property with name 'bogus'");
         }
 
         // and same for deser
@@ -85,7 +85,7 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
         } catch (InvalidDefinitionException e) {
             assertEquals(Vehicle.class, e.getType().getRawClass());
             verifyException(e, "Invalid Object Id definition");
-            verifyException(e, "can not find property with name 'bogus'");
+            verifyException(e, "cannot find property with name 'bogus'");
         }
     }
 }

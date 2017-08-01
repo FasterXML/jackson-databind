@@ -256,7 +256,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             mapper.readValue("[\""+value+"\"]", String.class);
             fail("Exception not thrown when attempting to unwrap a single value 'String' array into a simple String");
         } catch (MismatchedInputException exp) {
-            verifyException(exp, "Can not deserialize");
+            verifyException(exp, "Cannot deserialize");
             verifyException(exp, "out of START_ARRAY");
         }
         
@@ -284,7 +284,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             mapper.readValue("[" + value.toString() + "]", BigDecimal.class);
             fail("Exception was not thrown when attempting to read a single value array of BigDecimal when UNWRAP_SINGLE_VALUE_ARRAYS feature is disabled");
         } catch (MismatchedInputException exp) {
-            verifyException(exp, "Can not deserialize");
+            verifyException(exp, "Cannot deserialize");
             verifyException(exp, "out of START_ARRAY");
         }
         
@@ -313,7 +313,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
             mapper.readValue("[" + value.toString() + "]", BigInteger.class);
             fail("Exception was not thrown when attempting to read a single value array of BigInteger when UNWRAP_SINGLE_VALUE_ARRAYS feature is disabled");
         } catch (MismatchedInputException exp) {
-            verifyException(exp, "Can not deserialize");
+            verifyException(exp, "Cannot deserialize");
             verifyException(exp, "out of START_ARRAY");
         }
         

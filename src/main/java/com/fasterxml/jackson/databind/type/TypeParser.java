@@ -83,7 +83,7 @@ public class TypeParser
             return _factory.findClass(className);
         } catch (Exception e) {
             ClassUtil.throwIfRTE(e);
-            throw _problem(tokens, "Can not locate class '"+className+"', problem: "+e.getMessage());
+            throw _problem(tokens, "Cannot locate class '"+className+"', problem: "+e.getMessage());
         }
     }
 

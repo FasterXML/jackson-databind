@@ -84,12 +84,12 @@ public class VirtualAnnotatedMember extends AnnotatedMember
 
     @Override
     public void setValue(Object pojo, Object value) throws IllegalArgumentException {
-        throw new IllegalArgumentException("Can not set virtual property '"+_name+"'");
+        throw new IllegalArgumentException("Cannot set virtual property '"+_name+"'");
     }
 
     @Override
     public Object getValue(Object pojo) throws IllegalArgumentException {
-        throw new IllegalArgumentException("Can not get virtual property '"+_name+"'");
+        throw new IllegalArgumentException("Cannot get virtual property '"+_name+"'");
     }
     
     /*

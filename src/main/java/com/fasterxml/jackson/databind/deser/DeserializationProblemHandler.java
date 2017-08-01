@@ -127,8 +127,8 @@ public abstract class DeserializationProblemHandler
      *    to indicate type of failure unless handler produces key to use
      *
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
-     *    what to do (and exception may be thrown), or value to use as key (possibly
-     *    <code>null</code>
+     *    what to do (and exception may be thrown), or value to use as (possibly
+     *    <code>null</code>)
      *
      * @since 2.8
      */
@@ -161,14 +161,41 @@ public abstract class DeserializationProblemHandler
      *    to indicate type of failure unless handler produces key to use
      *
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
-     *    what to do (and exception may be thrown), or value to use as key (possibly
-     *    <code>null</code>
+     *    what to do (and exception may be thrown), or value to use as (possibly
+     *    <code>null</code>)
      *
      * @since 2.8
      */
     public Object handleWeirdNumberValue(DeserializationContext ctxt,
-            Class<?> targetType, Number valueToConvert,
-            String failureMsg)
+            Class<?> targetType, Number valueToConvert, String failureMsg)
+        throws IOException
+    {
+        return NOT_HANDLED;
+    }
+
+    /**
+     * Method called when an embedded (native) value ({@link JsonToken#VALUE_EMBEDDED_OBJECT})
+     * cannot be converted directly into expected value type (usually POJO).
+     * Handler may choose to do one of 3 things:
+     *<ul>
+     * <li>Indicate it does not know what to do by returning {@link #NOT_HANDLED}
+     *  </li>
+     * <li>Throw a {@link IOException} to indicate specific fail message (instead of
+     *    standard exception caller would throw
+     *  </li>
+     * <li>Return actual converted value (of type <code>targetType</code>) to use as
+     *    replacement, and continue processing.
+     *  </li>
+     * </ul>
+     *
+     * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
+     *    what to do (and exception may be thrown), or value to use (possibly
+     *    <code>null</code>)
+     *
+     * @since 2.9
+     */
+    public Object handleWeirdNativeValue(DeserializationContext ctxt,
+            JavaType targetType, Object valueToConvert, JsonParser p)
         throws IOException
     {
         return NOT_HANDLED;

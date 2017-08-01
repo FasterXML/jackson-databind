@@ -66,7 +66,7 @@ public class MapLikeType extends TypeBase {
             return new MapLikeType((TypeBase) baseType, keyT, valueT);
         }
         throw new IllegalArgumentException(
-                "Can not upgrade from an instance of " + baseType.getClass());
+                "Cannot upgrade from an instance of " + baseType.getClass());
     }
 
     @Deprecated

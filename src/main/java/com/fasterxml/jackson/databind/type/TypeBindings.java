@@ -110,7 +110,7 @@ public class TypeBindings
         }
         // Check here to give better error message
         if (names.length != types.length) {
-            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+            throw new IllegalArgumentException("Cannot create TypeBindings for class "+erasedType.getName()
                    +" with "+types.length+" type parameter"
                    +((types.length == 1) ? "" : "s")+": class expects "+names.length);
         }
@@ -123,7 +123,7 @@ public class TypeBindings
         TypeVariable<?>[] vars = TypeParamStash.paramsFor1(erasedType);
         int varLen = (vars == null) ? 0 : vars.length;
         if (varLen != 1) {
-            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+            throw new IllegalArgumentException("Cannot create TypeBindings for class "+erasedType.getName()
                     +" with 1 type parameter: class expects "+varLen);
         }
         return new TypeBindings(new String[] { vars[0].getName() },
@@ -136,7 +136,7 @@ public class TypeBindings
         TypeVariable<?>[] vars = TypeParamStash.paramsFor2(erasedType);
         int varLen = (vars == null) ? 0 : vars.length;
         if (varLen != 2) {
-            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+            throw new IllegalArgumentException("Cannot create TypeBindings for class "+erasedType.getName()
                     +" with 2 type parameters: class expects "+varLen);
         }
         return new TypeBindings(new String[] { vars[0].getName(), vars[1].getName() },
@@ -156,7 +156,7 @@ public class TypeBindings
             return EMPTY;
         }
         if (varLen != 1) {
-            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+            throw new IllegalArgumentException("Cannot create TypeBindings for class "+erasedType.getName()
                     +" with 1 type parameter: class expects "+varLen);
         }
         return new TypeBindings(new String[] { vars[0].getName() },
@@ -184,7 +184,7 @@ public class TypeBindings
         }
         // Check here to give better error message
         if (names.length != types.length) {
-            throw new IllegalArgumentException("Can not create TypeBindings for class "+erasedType.getName()
+            throw new IllegalArgumentException("Cannot create TypeBindings for class "+erasedType.getName()
                    +" with "+types.length+" type parameter"
                    +((types.length == 1) ? "" : "s")+": class expects "+names.length);
         }

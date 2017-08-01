@@ -272,7 +272,7 @@ public abstract class SerializerProvider
     public void setDefaultKeySerializer(JsonSerializer<Object> ks)
     {
         if (ks == null) {
-            throw new IllegalArgumentException("Can not pass null JsonSerializer");
+            throw new IllegalArgumentException("Cannot pass null JsonSerializer");
         }
         _keySerializer = ks;
     }
@@ -289,7 +289,7 @@ public abstract class SerializerProvider
     public void setNullValueSerializer(JsonSerializer<Object> nvs)
     {
         if (nvs == null) {
-            throw new IllegalArgumentException("Can not pass null JsonSerializer");
+            throw new IllegalArgumentException("Cannot pass null JsonSerializer");
         }
         _nullValueSerializer = nvs;
     }
@@ -306,7 +306,7 @@ public abstract class SerializerProvider
     public void setNullKeySerializer(JsonSerializer<Object> nks)
     {
         if (nks == null) {
-            throw new IllegalArgumentException("Can not pass null JsonSerializer");
+            throw new IllegalArgumentException("Cannot pass null JsonSerializer");
         }
         _nullKeySerializer = nks;
     }
@@ -1422,7 +1422,7 @@ public abstract class SerializerProvider
         if (_dateFormat != null) {
             return _dateFormat;
         }
-        /* At this point, all timezone configuration should have occured, with respect
+        /* At this point, all timezone configuration should have occurred, with respect
          * to default dateformat configuration. But we still better clone
          * an instance as formatters are stateful, not thread-safe.
          */

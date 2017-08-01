@@ -510,7 +510,7 @@ public class SimpleModule
     {
         if (thingy == null) {
             throw new IllegalArgumentException(String.format(
-                    "Can not pass `null` as %s", type));
+                    "Cannot pass `null` as %s", type));
         }
     }
 }

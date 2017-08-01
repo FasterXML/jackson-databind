@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.0 (not yet released)
+2.9.0 (30-Jul-2017)
 
 #219: SqlDateSerializer does not obey SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS
  (reported by BrentDouglas@github)
@@ -82,6 +82,8 @@ Project: jackson-databind
 #1554: Support deserialization of `Shape.OBJECT` ("as POJO") for `Map`s (and map-like types)
 #1556: Add `ObjectMapper.updateValue()` method to update instance with given overrides
  (suggested by syncer@github)
+#1583: Add a `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` to force reading of the
+  whole input as single value
 #1592: Add support for handling primitive/discrepancy problem with type refinements
 #1605: Allow serialization of `InetAddress` as simple numeric host address
  (requested by Jared J)
@@ -94,8 +96,14 @@ Project: jackson-databind
  (reported by georgeflugq@github)
 #1678: Rewrite `StdDateFormat` ISO-8601 handling functionality
 #1684: Rewrite handling of type ids to let `JsonGenerator` handle (more of) details
+#1688: Deserialization fails for `java.nio.file.Path` implementations when default typing
+  enabled
+ (reported by Christian B)
+#1690: Prevent use of quoted number (index) for Enum deserialization via
+  `MapperFeature.ALLOW_COERCION_OF_SCALARS`
+ (requested by magdel@github)
 
-2.8.9.1 (not yet released)
+2.8.10 (not yet released)
 
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of
   configured timezone
@@ -104,6 +112,8 @@ Project: jackson-databind
   with a recursive value type
  (reported by Kevin G)
 #1679: `StackOverflowError` in Dynamic `StdKeySerializer`
+#1711: Delegating creator fails to work for binary data (`byte[]`) with
+ binary formats (CBOR, Smile)
 
 2.8.9 (12-Jun-2017)
 

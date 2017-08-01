@@ -766,7 +766,7 @@ public class JacksonAnnotationIntrospector
                         type = type.withStaticTyping();
                     } else {
                         throw new JsonMappingException(null,
-                                String.format("Can not refine serialization type %s into %s; types not related",
+                                String.format("Cannot refine serialization type %s into %s; types not related",
                                         type, serClass.getName()));
                     }
                 } catch (IllegalArgumentException iae) {
@@ -801,7 +801,7 @@ public class JacksonAnnotationIntrospector
                             keyType = keyType.withStaticTyping();
                         } else {
                             throw new JsonMappingException(null,
-                                    String.format("Can not refine serialization key type %s into %s; types not related",
+                                    String.format("Cannot refine serialization key type %s into %s; types not related",
                                             keyType, keyClass.getName()));
                         }
                     } catch (IllegalArgumentException iae) {
@@ -837,7 +837,7 @@ public class JacksonAnnotationIntrospector
                            contentType = contentType.withStaticTyping();
                        } else {
                            throw new JsonMappingException(null,
-                                   String.format("Can not refine serialization content type %s into %s; types not related",
+                                   String.format("Cannot refine serialization content type %s into %s; types not related",
                                            contentType, contentClass.getName()));
                        }
                    } catch (IllegalArgumentException iae) { // shouldn't really happen

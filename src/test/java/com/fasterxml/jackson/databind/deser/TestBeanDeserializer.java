@@ -251,7 +251,7 @@ public class TestBeanDeserializer extends BaseMapTest
             MAPPER.readValue("{ \"x\" : 3 }", Abstract.class);
             fail("Should fail on trying to deserialize abstract type");
         } catch (JsonProcessingException e) {
-            verifyException(e, "can not construct");
+            verifyException(e, "cannot construct");
         }
     }    
     public void testPropertyRemoval() throws Exception

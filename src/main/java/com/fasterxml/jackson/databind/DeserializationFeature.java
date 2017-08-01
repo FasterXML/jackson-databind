@@ -21,7 +21,7 @@ public enum DeserializationFeature implements ConfigFeature
 {
     /*
     /******************************************************
-    /* Type conversion features
+    /* Value (mostly scalar) conversion features
     /******************************************************
      */
 
@@ -95,7 +95,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /*
     /******************************************************
-     *  Error handling features
+    /* Error handling features
     /******************************************************
      */
 
@@ -245,6 +245,26 @@ public enum DeserializationFeature implements ConfigFeature
      */
     FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY(true),
 
+    /**
+     * Feature that determines behaviour for data-binding after binding the root value.
+     * If feature is enabled, one more call to
+     * {@link com.fasterxml.jackson.core.JsonParser#nextToken} is made to ensure that
+     * no more tokens are found (and if any is found,
+     * {@link com.fasterxml.jackson.databind.exc.MismatchedInputException} is thrown); if
+     * disabled, no further checks are made.
+     *<p>
+     * Feature could alternatively be called <code>READ_FULL_STREAM</code>, since it
+     * effectively verifies that input stream contains only as much data as is needed
+     * for binding the full value, and nothing more (except for possible ignorable
+     * white space or comments, if supported by data format).
+     *<p>
+     * Feature is disabled by default (so that no check is made for possible trailing
+     * token(s)) for backwards compatibility reasons.
+     *
+     * @since 2.9
+     */
+    FAIL_ON_TRAILING_TOKENS(false),
+    
     /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)

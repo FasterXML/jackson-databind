@@ -14,7 +14,7 @@ public class AccessFixTest extends BaseMapTest
         @Override
         public void checkPermission(Permission perm) throws SecurityException {
             if ("suppressAccessChecks".equals(perm.getName())) {
-                throw new SecurityException("Can not force permission: "+perm);
+                throw new SecurityException("Cannot force permission: "+perm);
             }
         }
     }

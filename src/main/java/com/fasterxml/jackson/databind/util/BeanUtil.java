@@ -165,8 +165,8 @@ public class BeanUtil
      */
 
     /**
-     * This method was added to address [JACKSON-53]: need to weed out
-     * CGLib-injected "getCallbacks". 
+     * This method was added to address the need to weed out
+     * CGLib-injected "getCallbacks" method. 
      * At this point caller has detected a potential getter method
      * with name "getCallbacks" and we need to determine if it is
      * indeed injectect by Cglib. We do this by verifying that the
@@ -199,7 +199,7 @@ public class BeanUtil
 
     /**
      * Similar to {@link #isCglibGetCallbacks}, need to suppress
-     * a cyclic reference to resolve [JACKSON-103]
+     * a cyclic reference.
      */
     protected static boolean isGroovyMetaClassSetter(AnnotatedMethod am)
     {
@@ -209,7 +209,7 @@ public class BeanUtil
     }
 
     /**
-     * Another helper method to deal with rest of [JACKSON-103]
+     * Another helper method to deal with Groovy's problematic metadata accessors
      */
     protected static boolean isGroovyMetaClassGetter(AnnotatedMethod am)
     {

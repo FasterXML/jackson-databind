@@ -206,7 +206,7 @@ public abstract class StdDeserializer<T>
         // So far so good: but does it fit?
         if (_byteOverflow(value)) {
             Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, String.valueOf(value),
-                    "overflow, value can not be represented as 8-bit value");
+                    "overflow, value cannot be represented as 8-bit value");
             return _nonNullNumber(v).byteValue();
         }
         return (byte) value;
@@ -219,7 +219,7 @@ public abstract class StdDeserializer<T>
         // So far so good: but does it fit?
         if (_shortOverflow(value)) {
             Number v = (Number) ctxt.handleWeirdStringValue(_valueClass, String.valueOf(value),
-                    "overflow, value can not be represented as 16-bit value");
+                    "overflow, value cannot be represented as 16-bit value");
             return _nonNullNumber(v).shortValue();
         }
         return (short) value;
@@ -688,7 +688,7 @@ public abstract class StdDeserializer<T>
         //   either supporting nested arrays, or to cause infinite looping.
         if (p.hasToken(JsonToken.START_ARRAY)) {
             String msg = String.format(
-"Can not deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
+"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
                     ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
                     "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
             @SuppressWarnings("unchecked")
@@ -708,7 +708,7 @@ public abstract class StdDeserializer<T>
             String type) throws IOException
     {
         ctxt.reportInputMismatch(handledType(),
-                "Can not coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
+"Cannot coerce a floating-point value ('%s') into %s (enable `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to allow)",
                 p.getValueAsString(), type);
     }
 
@@ -800,7 +800,7 @@ public abstract class StdDeserializer<T>
     {
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
             ctxt.reportInputMismatch(this,
-                    "Can not coerce `null` %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
+"Cannot coerce `null` %s (disable `DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES` to allow)",
                     _coercedTypeDesc());
         }
     }
@@ -840,7 +840,7 @@ public abstract class StdDeserializer<T>
     {
         MapperFeature feat = MapperFeature.ALLOW_COERCION_OF_SCALARS;
         if (!ctxt.isEnabled(feat)) {
-            ctxt.reportInputMismatch(this, "Can not coerce String \"%s\" %s (enable `%s.%s` to allow)",
+            ctxt.reportInputMismatch(this, "Cannot coerce String \"%s\" %s (enable `%s.%s` to allow)",
                 str, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
         }
     }
@@ -853,7 +853,7 @@ public abstract class StdDeserializer<T>
             // 31-Mar-2017, tatu: Since we don't know (or this deep, care) about exact type,
             //   access as a String: may require re-encoding by parser which should be fine
             String valueDesc = p.getText();
-            ctxt.reportInputMismatch(this, "Can not coerce Number (%s) %s (enable `%s.%s` to allow)",
+            ctxt.reportInputMismatch(this, "Cannot coerce Number (%s) %s (enable `%s.%s` to allow)",
                 valueDesc, _coercedTypeDesc(), feat.getClass().getSimpleName(), feat.name());
         }
     }
@@ -862,7 +862,7 @@ public abstract class StdDeserializer<T>
             String inputDesc) throws JsonMappingException
     {
         String enableDesc = state ? "enable" : "disable";
-        ctxt.reportInputMismatch(this, "Can not coerce %s to Null value %s (%s `%s.%s` to allow)",
+        ctxt.reportInputMismatch(this, "Cannot coerce %s to Null value %s (%s `%s.%s` to allow)",
             inputDesc, _coercedTypeDesc(), enableDesc, feature.getClass().getSimpleName(), feature.name());
     }
     
@@ -871,6 +871,8 @@ public abstract class StdDeserializer<T>
      * is (most likely) being applied, to be used for constructing exception messages
      * on coerce failure.
      *
+     * @return Message with backtick-enclosed name of type this deserializer supports
+     *
      * @since 2.9
      */
     protected String _coercedTypeDesc() {
@@ -878,9 +880,10 @@ public abstract class StdDeserializer<T>
         String typeDesc;
 
         JavaType t = getValueType();
-        if (t != null) {
+        if ((t != null) && !t.isPrimitive()) {
             structured = (t.isContainerType() || t.isReferenceType());
-            typeDesc = t.toString();
+            // 21-Jul-2017, tatu: Probably want to change this (JavaType.toString() not very good) but...
+            typeDesc = "'"+t.toString()+"'";
         } else {
             Class<?> cls = handledType();
             structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
@@ -888,9 +891,9 @@ public abstract class StdDeserializer<T>
             typeDesc = ClassUtil.nameOf(cls);
         }
         if (structured) {
-            return String.format("as content of type `%s`", typeDesc);
+            return "as content of type "+typeDesc;
         }
-        return String.format("for type `%s`", typeDesc);
+        return "for type "+typeDesc;
     }
 
     /*
@@ -1082,7 +1085,7 @@ public abstract class StdDeserializer<T>
             return NullsFailProvider.constructForProperty(prop);
         }
         if (nulls == Nulls.AS_EMPTY) {
-            // can not deal with empty values if there is no value deserializer that
+            // cannot deal with empty values if there is no value deserializer that
             // can indicate what "empty value" is:
             if (valueDeser == null) {
                 return null;
@@ -1096,7 +1099,7 @@ public abstract class StdDeserializer<T>
                 if (!vi.canCreateUsingDefault()) {
                     final JavaType type = prop.getType();
                     ctxt.reportBadDefinition(type,
-                            String.format("Can not create empty instance of %s, no default Creator", type));
+                            String.format("Cannot create empty instance of %s, no default Creator", type));
                 }
             }
             // Second: can with pre-fetch value?
@@ -1135,7 +1138,7 @@ public abstract class StdDeserializer<T>
      * @param instanceOrClass Instance that is being populated by this
      *   deserializer, or if not known, Class that would be instantiated.
      *   If null, will assume type is what {@link #getValueClass} returns.
-     * @param propName Name of the property that can not be mapped
+     * @param propName Name of the property that cannot be mapped
      */
     protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt,
             Object instanceOrClass, String propName)

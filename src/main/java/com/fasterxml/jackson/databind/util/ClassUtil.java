@@ -476,8 +476,8 @@ public final class ClassUtil
      *
      * @since 2.8
      */
-    public static void closeOnFailAndThrowAsIAE(JsonGenerator g, Exception fail)
-            throws IOException
+    public static void closeOnFailAndThrowAsIOE(JsonGenerator g, Exception fail)
+        throws IOException
     {
         /* 04-Mar-2014, tatu: Let's try to prevent auto-closing of
          *    structures, which typically causes more damage.
@@ -502,7 +502,7 @@ public final class ClassUtil
      *
      * @since 2.8
      */
-    public static void closeOnFailAndThrowAsIAE(JsonGenerator g,
+    public static void closeOnFailAndThrowAsIOE(JsonGenerator g,
             Closeable toClose, Exception fail)
         throws IOException
     {
@@ -570,7 +570,7 @@ public final class ClassUtil
             } else {
                 // Has to be public...
                 if (!Modifier.isPublic(ctor.getModifiers())) {
-                    throw new IllegalArgumentException("Default constructor for "+cls.getName()+" is not accessible (non-public?): not allowed to try modify access via Reflection: can not instantiate type");
+                    throw new IllegalArgumentException("Default constructor for "+cls.getName()+" is not accessible (non-public?): not allowed to try modify access via Reflection: cannot instantiate type");
                 }
             }
             return ctor;
@@ -598,6 +598,16 @@ public final class ClassUtil
         return inst.getClass();
     }
     
+    /**
+     * @since 2.9
+     */
+    public static Class<?> rawClass(JavaType t) {
+        if (t == null) {
+            return null;
+        }
+        return t.getRawClass();
+    }
+
     /**
      * @since 2.9
      */
@@ -640,7 +650,7 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Type name handling methods
+    /* Type name, name, desc handling methods
     /**********************************************************
      */
     
@@ -656,17 +666,21 @@ public final class ClassUtil
         }
         Class<?> cls = (classOrInstance instanceof Class<?>) ?
             (Class<?>) classOrInstance : classOrInstance.getClass();
-        return cls.getName();
+        return nameOf(cls);
     }
-    
+
     /**
+     * Helper method used to construct appropriate description
+     * when passed either type (Class) or an instance; in latter
+     * case, class of instance is to be used.
+     *
      * @since 2.9
      */
     public static String classNameOf(Object inst) {
         if (inst == null) {
             return "[null]";
         }
-        return inst.getClass().getName();
+        return nameOf(inst.getClass());
     }
 
     /**
@@ -679,17 +693,24 @@ public final class ClassUtil
         if (cls == null) {
             return "[null]";
         }
-        if (cls.isArray()) {
-            return nameOf(cls.getComponentType())+"[]";
+        int index = 0;
+        while (cls.isArray()) {
+            ++index;
+            cls = cls.getComponentType();
         }
-        if (cls.isPrimitive()) {
-            cls.getSimpleName();
+        String base = cls.isPrimitive() ? cls.getSimpleName() : cls.getName();
+        if (index > 0) {
+            StringBuilder sb = new StringBuilder(base);
+            do {
+                sb.append("[]");
+            } while (--index > 0);
+            base = sb.toString();
         }
-        return cls.getName();
+        return backticked(base);
     }
-    
+
     /**
-     * Returns either (double-)quoted `named.getName()` (if `named` not null),
+     * Returns either backtick-quoted `named.getName()` (if `named` not null),
      * or "[null]" if `named` is null.
      *
      * @since 2.9
@@ -698,7 +719,19 @@ public final class ClassUtil
         if (named == null) {
             return "[null]";
         }
-        return String.format("'%s'", named.getName());
+        return backticked(named.getName());
+    }
+
+    /**
+     * Returns either `text` or [null].
+     *
+     * @since 2.9
+     */
+    public static String backticked(String text) {
+        if (text == null) {
+            return "[null]";
+        }
+        return new StringBuilder(text.length()+2).append('`').append(text).append('`').toString();
     }
 
     /*
@@ -862,7 +895,7 @@ public final class ClassUtil
             // Google App Engine); so let's only fail if we really needed it...
             if (!ao.isAccessible()) {
                 Class<?> declClass = member.getDeclaringClass();
-                throw new IllegalArgumentException("Can not access "+member+" (from class "+declClass.getName()+"; failed to set access: "+se.getMessage());
+                throw new IllegalArgumentException("Cannot access "+member+" (from class "+declClass.getName()+"; failed to set access: "+se.getMessage());
             }
         }
     }
@@ -1153,7 +1186,7 @@ public final class ClassUtil
             if (enumSetTypeField != null) {
                 return (Class<? extends Enum<?>>) get(set, enumSetTypeField);
             }
-            throw new IllegalStateException("Can not figure out type for EnumSet (odd JDK platform?)");
+            throw new IllegalStateException("Cannot figure out type for EnumSet (odd JDK platform?)");
         }
 
         @SuppressWarnings("unchecked")
@@ -1162,7 +1195,7 @@ public final class ClassUtil
             if (enumMapTypeField != null) {
                 return (Class<? extends Enum<?>>) get(set, enumMapTypeField);
             }
-            throw new IllegalStateException("Can not figure out type for EnumMap (odd JDK platform?)");
+            throw new IllegalStateException("Cannot figure out type for EnumMap (odd JDK platform?)");
         }
     	
         private Object get(Object bean, Field field)

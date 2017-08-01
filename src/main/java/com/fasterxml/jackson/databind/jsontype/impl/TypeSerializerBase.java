@@ -55,8 +55,10 @@ public abstract class TypeSerializerBase extends TypeSerializer
 
     /**
      * Helper method that will generate type id to use, if not already passed.
+     *
+     * @since 2.9
      */
-    protected final void _generateTypeId(WritableTypeId idMetadata) {
+    protected void _generateTypeId(WritableTypeId idMetadata) {
         Object id = idMetadata.id;
         if (id == null) {
             final Object value = idMetadata.forValue;
@@ -96,7 +98,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
     protected void handleMissingId(Object value) {
         /*
         String typeDesc = ClassUtil.classNameOf(value, "NULL");
-        throw new IllegalArgumentException("Can not resolve type id for "
+        throw new IllegalArgumentException("Cannot resolve type id for "
                 +typeDesc+" (using "+_idResolver.getClass().getName()+")");
                 */
     }

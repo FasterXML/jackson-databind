@@ -196,7 +196,7 @@ public class ClassUtilTest extends BaseMapTest
 
     public void testDescs()
     {
-        final String exp = String.class.getName();
+        final String exp = "`java.lang.String`";
         assertEquals(exp, ClassUtil.getClassDescription("foo"));
         assertEquals(exp, ClassUtil.getClassDescription(String.class));
     }

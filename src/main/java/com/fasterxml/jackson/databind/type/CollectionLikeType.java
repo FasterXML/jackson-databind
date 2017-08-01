@@ -86,7 +86,7 @@ public class CollectionLikeType extends TypeBase
         if (baseType instanceof TypeBase) {
             return new CollectionLikeType((TypeBase) baseType, elementType);
         }
-        throw new IllegalArgumentException("Can not upgrade from an instance of "+baseType.getClass());
+        throw new IllegalArgumentException("Cannot upgrade from an instance of "+baseType.getClass());
     }
 
     @Override

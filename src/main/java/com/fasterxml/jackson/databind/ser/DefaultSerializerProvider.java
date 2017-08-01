@@ -306,7 +306,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         final Class<?> cls = value.getClass();
         // true, since we do want to cache root-level typed serializers (ditto for null property)
         final JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);
-
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {

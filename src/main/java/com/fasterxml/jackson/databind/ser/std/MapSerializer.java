@@ -108,7 +108,7 @@ public class MapSerializer
      * Set of entries to omit during serialization, if any
      */
     protected final Set<String> _ignoredEntries;
-    
+
     /**
      * Id of the property filter to use, if any; null if none.
      *
@@ -573,7 +573,7 @@ public class MapSerializer
             }
             try {
                 valueSer = _findSerializer(prov, elemValue);
-            } catch (JsonMappingException e) { // Ugh... can not just throw as-is, so...
+            } catch (JsonMappingException e) { // Ugh... cannot just throw as-is, so...
                 // 05-Nov-2015, tatu: For now, probably best not to assume empty then
                 return false;
             }

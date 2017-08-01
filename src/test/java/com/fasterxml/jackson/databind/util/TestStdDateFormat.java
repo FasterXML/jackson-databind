@@ -122,7 +122,7 @@ public class TestStdDateFormat
             f.parse("2015-11-32");
             fail("Should not pass");
         } catch (ParseException e) {
-            verifyException(e, "can not parse date");
+            verifyException(e, "Cannot parse date");
         }
 
         // ... yet, with lenient, do allow
@@ -136,7 +136,7 @@ public class TestStdDateFormat
         try {
             std.parse("foobar");
         } catch (java.text.ParseException e) {
-            verifyException(e, "Can not parse");
+            verifyException(e, "Cannot parse");
         }
     }
 }

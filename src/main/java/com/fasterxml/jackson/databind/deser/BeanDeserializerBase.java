@@ -684,7 +684,7 @@ public abstract class BeanDeserializerBase
                     idProp = findProperty(propName);
                     if (idProp == null) {
                         ctxt.reportBadDefinition(_beanType, String.format(
-                                "Invalid Object Id definition for %s: can not find property with name '%s'",
+                                "Invalid Object Id definition for %s: cannot find property with name '%s'",
                                 handledType().getName(), propName));
                     }
                     idType = idProp.getType();
@@ -764,7 +764,7 @@ public abstract class BeanDeserializerBase
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
             ctxt.reportBadDefinition(_beanType, String.format(
-"Can not handle managed/back reference '%s': no back reference property found from type %s",
+"Cannot handle managed/back reference '%s': no back reference property found from type %s",
                     refName, prop.getType()));
         }
         // also: verify that type is compatible
@@ -773,7 +773,7 @@ public abstract class BeanDeserializerBase
         boolean isContainer = prop.getType().isContainerType();
         if (!backRefType.getRawClass().isAssignableFrom(referredType.getRawClass())) {
             ctxt.reportBadDefinition(_beanType, String.format(
-"Can not handle managed/back reference '%s': back reference type (%s) not compatible with managed type (%s)",
+"Cannot handle managed/back reference '%s': back reference type (%s) not compatible with managed type (%s)",
                     refName, backRefType.getRawClass().getName(),
                     referredType.getRawClass().getName()));
         }
@@ -812,7 +812,7 @@ public abstract class BeanDeserializerBase
                 //   of unwrapped values through creator properties, so fail fast
                 if (prop instanceof CreatorProperty) {
                     ctxt.reportBadDefinition(getValueType(), String.format(
-                            "Can not define Creator property \"%s\" as `@JsonUnwrapped`: combination not yet supported",
+                            "Cannot define Creator property \"%s\" as `@JsonUnwrapped`: combination not yet supported",
                             prop.getName()));
                 }
                 return unwrapper;
@@ -1273,7 +1273,7 @@ public abstract class BeanDeserializerBase
 "can only instantiate non-static inner class by using default, no-argument constructor");
         }
         return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
-                "can not deserialize from Object value (no delegate- or property-based Creator)");
+                "cannot deserialize from Object value (no delegate- or property-based Creator)");
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser p,
@@ -1335,9 +1335,8 @@ public abstract class BeanDeserializerBase
         if (_objectIdReader != null) {
             return deserializeFromObjectId(p, ctxt);
         }
-        /* Bit complicated if we have delegating creator; may need to use it,
-         * or might not...
-         */
+        // Bit complicated if we have delegating creator; may need to use it,
+        // or might not...
         JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
             if (!_valueInstantiator.canCreateFromString()) {
@@ -1448,10 +1447,31 @@ public abstract class BeanDeserializerBase
         if (_objectIdReader != null) {
             return deserializeFromObjectId(p, ctxt);
         }
-
+        // 26-Jul-2017, tatu: as per [databind#1711] need to support delegating case too
+        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        if (delegateDeser != null) {
+            if (!_valueInstantiator.canCreateFromString()) {
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt,
+                        delegateDeser.deserialize(p, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
+            }
+        }
         // TODO: maybe add support for ValueInstantiator, embedded?
-        
-        return p.getEmbeddedObject();
+
+        // 26-Jul-2017, tatu: related to [databind#1711], let's actually verify assignment
+        //    compatibility before returning. Bound to catch misconfigured cases and produce
+        //    more meaningful exceptions.
+        Object value = p.getEmbeddedObject();
+        if (value != null) {
+            if (!_beanType.getClass().isInstance(value)) {
+                // allow this to be handled...
+                value = ctxt.handleWeirdNativeValue(_beanType, value, p);
+            }
+        }
+        return value;
     }
 
     /**

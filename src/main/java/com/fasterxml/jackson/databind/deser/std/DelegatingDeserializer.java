@@ -34,7 +34,7 @@ public abstract class DelegatingDeserializer
 
     public DelegatingDeserializer(JsonDeserializer<?> d)
     {
-        super(d.getClass());
+        super(d.handledType());
         _delegatee = d;
     }
 

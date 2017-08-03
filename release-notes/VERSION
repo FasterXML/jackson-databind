@@ -3,6 +3,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.1 (not yet released)
+
+- Fix `DelegatingDeserializer` constructor to pass `handledType()` (and
+  not type of deserializer being delegated to!)
+
 2.9.0 (30-Jul-2017)
 
 #219: SqlDateSerializer does not obey SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS

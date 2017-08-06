@@ -350,7 +350,7 @@ public final class TypeFactory
         // also: if we start from untyped, not much to save
         do { // bogus loop to be able to break
             if (rawBase == Object.class) {
-                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());
+                newType = _fromClass(null, subclass, EMPTY_BINDINGS);
                 break;
             }
             if (!rawBase.isAssignableFrom(subclass)) {
@@ -361,7 +361,7 @@ public final class TypeFactory
 
             // (1) Original target type has no generics -- just resolve subtype
             if (baseType.getBindings().isEmpty()) {
-                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
+                newType = _fromClass(null, subclass, EMPTY_BINDINGS);
                 break;
             }
             // (2) A small set of "well-known" List/Map subtypes where can take a short-cut
@@ -394,10 +394,10 @@ public final class TypeFactory
             // (3) Sub-class does not take type parameters -- just resolve subtype
             int typeParamCount = subclass.getTypeParameters().length;
             if (typeParamCount == 0) {
-                newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
+                newType = _fromClass(null, subclass, EMPTY_BINDINGS);
                 break;
             }
-            
+ 
             // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
 
             // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
@@ -427,7 +427,7 @@ public final class TypeFactory
         return newType;
 
         // 20-Oct-2015, tatu: Old simplistic approach
-        
+
         /*
         // Currently mostly SimpleType instances can become something else
         if (baseType instanceof SimpleType) {
@@ -440,7 +440,7 @@ public final class TypeFactory
                     throw new IllegalArgumentException("Class "+subclass.getClass().getName()+" not subtype of "+baseType);
                 }
                 // this _should_ work, right?
-                JavaType subtype = _fromClass(null, subclass, TypeBindings.emptyBindings());
+                JavaType subtype = _fromClass(null, subclass, EMPTY_BINDINGS);
                 // one more thing: handlers to copy?
                 Object h = baseType.getValueHandler();
                 if (h != null) {
@@ -492,7 +492,7 @@ public final class TypeFactory
             return TypeBindings.create(subclass, types);
         }
         // Otherwise, two choices: match N first, or empty. Do latter, for now
-        return TypeBindings.emptyBindings();
+        return EMPTY_BINDINGS;
     }
 
     /**
@@ -660,7 +660,7 @@ public final class TypeFactory
     public JavaType constructType(Type type, JavaType contextType) {
         TypeBindings bindings;
         if (contextType == null) {
-            bindings = TypeBindings.emptyBindings();
+            bindings = EMPTY_BINDINGS;
         } else {
             bindings = contextType.getBindings();
             // 16-Nov-2016, tatu: Unfortunately as per [databind#1456] this can't
@@ -928,7 +928,7 @@ public final class TypeFactory
         int len = parameterClasses.length;
         JavaType[] pt = new JavaType[len];
         for (int i = 0; i < len; ++i) {
-            pt[i] = _fromClass(null, parameterClasses[i], null);
+            pt[i] = _fromClass(null, parameterClasses[i], EMPTY_BINDINGS);
         }
         return constructParametricType(parametrized, pt);
     }
@@ -1363,7 +1363,7 @@ public final class TypeFactory
             JavaType superClass, JavaType[] superInterfaces)
     {
         if (bindings == null) {
-            bindings = TypeBindings.emptyBindings();
+            bindings = EMPTY_BINDINGS;
         }
         
         // Quite simple when we resolving exact class/interface; start with that
@@ -1452,6 +1452,7 @@ public final class TypeFactory
     {
         // ideally should find it via bindings:
         final String name = var.getName();
+if (bindings == null) throw new Error("No Bindings!");
         JavaType type = bindings.findBoundType(name);
         if (type != null) {
             return type;

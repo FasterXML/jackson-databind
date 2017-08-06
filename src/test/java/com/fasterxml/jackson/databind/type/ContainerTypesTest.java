@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.util.LRUMap;
 
 // for [databind#1415]
-public class CollectionType1415Test extends BaseMapTest
+public class ContainerTypesTest extends BaseMapTest
 {
     static abstract class LongList implements List<Long> { }
 
@@ -38,6 +39,16 @@ public class CollectionType1415Test extends BaseMapTest
         assertEquals(CollectionType.class, t.getClass());
         assertEquals(List.class, t.getRawClass());
         assertEquals(Long.class, t.getContentType().getRawClass());
+    }
+
+    // [databind#1725]
+    public void testMissingCollectionType() throws Exception
+    {
+        TypeFactory tf = MAPPER.getTypeFactory().withCache(new LRUMap<Object,JavaType>(4, 8));
+        JavaType t = tf.constructParametricType(List.class, HashMap.class);
+        assertEquals(CollectionType.class, t.getClass());
+        assertEquals(List.class, t.getRawClass());
+        assertEquals(HashMap.class, t.getContentType().getRawClass());
     }
 
     public void testExplicitMapType() throws Exception

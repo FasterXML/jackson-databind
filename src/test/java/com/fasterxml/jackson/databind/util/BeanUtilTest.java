@@ -86,9 +86,9 @@ public class BeanUtilTest extends BaseMapTest
     
     public void testOkNameForSetter() throws Exception
     {
-        _testOkNameForSetter("setFoo", "foo");
-        _testOkNameForSetter("notSetter", null);
-        _testOkNameForSetter("set", null);
+        _testOkNameForMutator("setFoo", "foo");
+        _testOkNameForMutator("notSetter", null);
+        _testOkNameForMutator("set", null);
     }
 
     /*
@@ -126,21 +126,20 @@ public class BeanUtilTest extends BaseMapTest
         }
     }
 
-    private void _testOkNameForSetter(String name, String expName) throws Exception {
-        _testOkNameForSetter(name, expName, true);
-        _testOkNameForSetter(name, expName, false);
+    private void _testOkNameForMutator(String name, String expName) throws Exception {
+        _testOkNameForMutator(name, expName, true);
+        _testOkNameForMutator(name, expName, false);
     }
 
-    @SuppressWarnings("deprecation")
-    private void _testOkNameForSetter(String name, String expName, boolean useStd) throws Exception {
+    private void _testOkNameForMutator(String name, String expName, boolean useStd) throws Exception {
         AnnotatedMethod m = _method(Setters.class, name);
         if (expName == null) {
-            assertNull(BeanUtil.okNameForSetter(m, useStd));
+            assertNull(BeanUtil.okNameForMutator(m, "set", useStd));
         } else {
-            assertEquals(expName, BeanUtil.okNameForSetter(m, useStd));
+            assertEquals(expName, BeanUtil.okNameForMutator(m, "set", useStd));
         }
     }
-    
+
     private AnnotatedMethod _method(Class<?> cls, String name, Class<?>...parameterTypes) throws Exception {
         return new AnnotatedMethod(null, cls.getMethod(name, parameterTypes), null, null);
     }

@@ -20,9 +20,6 @@ public class BeanUtil
     /**********************************************************
      */
 
-    /**
-     * @since 2.5
-     */
     public static String okNameForGetter(AnnotatedMethod am, boolean stdNaming) {
         String name = am.getName();
         String str = okNameForIsGetter(am, name, stdNaming);
@@ -31,10 +28,7 @@ public class BeanUtil
         }
         return str;
     }
-    
-    /**
-     * @since 2.5
-     */
+
     public static String okNameForRegularGetter(AnnotatedMethod am, String name,
             boolean stdNaming)
     {
@@ -80,25 +74,9 @@ public class BeanUtil
         return null;
     }
 
-    /**
-     * @since 2.5
-     */
-    @Deprecated // since 2.9, not used any more
-    public static String okNameForSetter(AnnotatedMethod am, boolean stdNaming) {
-        String name = okNameForMutator(am, "set", stdNaming);
-        if ((name != null) 
-            // 26-Nov-2009, tatu: need to suppress this internal groovy method
-                && (!"metaClass".equals(name) || !isGroovyMetaClassSetter(am))) {
-            return name;
-        }
-        return null;
-    }
-
-    /**
-     * @since 2.5
-     */
     public static String okNameForMutator(AnnotatedMethod am, String prefix,
-            boolean stdNaming) {
+            boolean stdNaming)
+    {
         String name = am.getName();
         if (name.startsWith(prefix)) {
             return stdNaming
@@ -124,8 +102,6 @@ public class BeanUtil
      * and for structured (Maps, Collections, arrays) and reference types, criteria
      * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}
      * is used.
-     *
-     * @since 2.7
      */
     public static Object getDefaultValue(JavaType type)
     {

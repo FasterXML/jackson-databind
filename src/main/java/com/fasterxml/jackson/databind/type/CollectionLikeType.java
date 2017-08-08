@@ -90,14 +90,6 @@ public class CollectionLikeType extends TypeBase
     }
 
     @Override
-    @Deprecated // since 2.7
-    protected JavaType _narrow(Class<?> subclass) {
-        return new CollectionLikeType(subclass, _bindings,
-                _superClass, _superInterfaces, _elementType,
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
-    @Override
     public JavaType withContentType(JavaType contentType) {
         if (_elementType == contentType) {
             return this;

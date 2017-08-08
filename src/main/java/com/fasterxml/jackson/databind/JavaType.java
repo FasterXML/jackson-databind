@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 public abstract class JavaType
     extends ResolvedType
-    implements java.io.Serializable, // 2.1
-        java.lang.reflect.Type // 2.2
+    implements java.io.Serializable,
+        java.lang.reflect.Type
 {
     private static final long serialVersionUID = 1;
 
@@ -196,26 +196,6 @@ public abstract class JavaType
      */
     public abstract JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces);
-    
-    /**
-     * Legacy method used for forcing sub-typing of this type into
-     * type specified by specific type erasure.
-     * Deprecated as of 2.7 as such specializations really ought to
-     * go through {@link TypeFactory}, not directly via {@link JavaType}.
-     *
-     * @since 2.7
-     */
-    @Deprecated
-    public JavaType forcedNarrowBy(Class<?> subclass)
-    {
-        if (subclass == _class) { // can still optimize for simple case
-            return this;
-        }
-        return  _narrow(subclass);
-    }
-
-    @Deprecated // since 2.7
-    protected abstract JavaType _narrow(Class<?> subclass);
 
     /*
     /**********************************************************
@@ -238,23 +218,15 @@ public abstract class JavaType
      * Accessor that allows determining whether {@link #getContentType()} should
      * return a non-null value (that is, there is a "content type") or not.
      * True if {@link #isContainerType()} or {@link #isReferenceType()} return true.
-     *
-     * @since 2.8
      */
     public boolean hasContentType() {
         return true;
     }
 
-    /**
-     * @since 2.6
-     */
     public final boolean isTypeOrSubTypeOf(Class<?> clz) {
         return (_class == clz) || clz.isAssignableFrom(_class);
     }
 
-    /**
-     * @since 2.9
-     */
     public final boolean isTypeOrSuperTypeOf(Class<?> clz) {
         return (_class == clz) || _class.isAssignableFrom(clz);
     }

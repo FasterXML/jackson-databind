@@ -86,18 +86,6 @@ public class MapLikeType extends TypeBase {
                 null, keyT, valueT, null, null, false);
     }
 
-    @Deprecated
-    // since 2.7
-    @Override
-    protected JavaType _narrow(Class<?> subclass) {
-        return new MapLikeType(subclass, _bindings, _superClass,
-                _superInterfaces, _keyType, _valueType, _valueHandler,
-                _typeHandler, _asStatic);
-    }
-
-    /**
-     * @since 2.7
-     */
     public MapLikeType withKeyType(JavaType keyType) {
         if (keyType == _keyType) {
             return this;

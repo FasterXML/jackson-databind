@@ -189,7 +189,7 @@ public class NumberDeserializers
         @Override
         public Boolean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_TRUE) {
                 return Boolean.TRUE;
             }
@@ -206,7 +206,7 @@ public class NumberDeserializers
                 TypeDeserializer typeDeserializer)
             throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_TRUE) {
                 return Boolean.TRUE;
             }
@@ -219,7 +219,7 @@ public class NumberDeserializers
         protected final Boolean _parseBoolean(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_NULL) {
                 return (Boolean) _coerceNullToken(ctxt, _primitive);
             }
@@ -288,7 +288,7 @@ public class NumberDeserializers
 
         protected Byte _parseByte(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
                 String text = p.getText().trim();
                 if (_hasTextualNull(text)) {
@@ -358,7 +358,7 @@ public class NumberDeserializers
 
         protected Short _parseShort(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return p.getShortValue();
             }
@@ -420,7 +420,7 @@ public class NumberDeserializers
         public Character deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT: // ok iff ascii value
                 _verifyNumberForScalarCoercion(ctxt, p);
                 int value = p.getIntValue();
@@ -488,7 +488,7 @@ public class NumberDeserializers
 
         protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
             case JsonTokenId.ID_NUMBER_INT:
                 return Integer.valueOf(p.getIntValue());
@@ -559,7 +559,7 @@ public class NumberDeserializers
 
         protected final Long _parseLong(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             // NOTE: caller assumed to usually check VALUE_NUMBER_INT in fast path
             case JsonTokenId.ID_NUMBER_INT:
                 return p.getLongValue();
@@ -617,7 +617,7 @@ public class NumberDeserializers
             throws IOException
         {
             // We accept couple of different types; obvious ones first:
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             
             if (t == JsonToken.VALUE_NUMBER_FLOAT || t == JsonToken.VALUE_NUMBER_INT) { // coercing should work too
                 return p.getFloatValue();
@@ -695,7 +695,7 @@ public class NumberDeserializers
 
         protected final Double _parseDouble(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
                 return p.getDoubleValue();
             }
@@ -766,7 +766,7 @@ public class NumberDeserializers
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
                 if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
                     return _coerceIntegral(p, ctxt);
@@ -844,7 +844,7 @@ public class NumberDeserializers
                 TypeDeserializer typeDeserializer)
             throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
             case JsonTokenId.ID_NUMBER_FLOAT:
             case JsonTokenId.ID_STRING:
@@ -884,7 +884,7 @@ public class NumberDeserializers
         @Override
         public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
                 switch (p.getNumberType()) {
                 case INT:
@@ -937,7 +937,7 @@ public class NumberDeserializers
         public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            switch (p.getCurrentTokenId()) {
+            switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
             case JsonTokenId.ID_NUMBER_FLOAT:
                 return p.getDecimalValue();

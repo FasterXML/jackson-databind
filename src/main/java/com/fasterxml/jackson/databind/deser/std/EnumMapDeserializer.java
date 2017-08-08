@@ -235,7 +235,7 @@ public class EnumMapDeserializer
                     _delegateDeserializer.deserialize(p, ctxt));
         }
         // Ok: must point to START_OBJECT
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
             // (empty) String may be ok however; or single-String-arg ctor
             if (t == JsonToken.VALUE_STRING) {

@@ -72,7 +72,7 @@ public final class InnerClassProperty
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object bean)
         throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         Object value;
         if (t == JsonToken.VALUE_NULL) {
             value = _valueDeserializer.getNullValue(ctxt);

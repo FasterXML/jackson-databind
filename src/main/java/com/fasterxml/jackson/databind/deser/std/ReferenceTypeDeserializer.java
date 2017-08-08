@@ -218,7 +218,7 @@ public abstract class ReferenceTypeDeserializer<T>
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer) throws IOException
     {
-        final JsonToken t = p.getCurrentToken();
+        final JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) { // can this actually happen?
             return getNullValue(ctxt);
         }

@@ -253,7 +253,7 @@ public class ArrayNodeTest
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         p.skipChildren();
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         p.close();
 
         p = new TreeTraversingParser(n, null);

@@ -477,14 +477,13 @@ public class TokenBuffer
      */
     public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        if (p.getCurrentTokenId() != JsonToken.FIELD_NAME.id()) {
+        if (!p.hasToken(JsonToken.FIELD_NAME)) {
             copyCurrentStructure(p);
             return this;
         }
-        /* 28-Oct-2014, tatu: As per [databind#592], need to support a special case of starting from
-         *    FIELD_NAME, which is taken to mean that we are missing START_OBJECT, but need
-         *    to assume one did exist.
-         */
+        // 28-Oct-2014, tatu: As per [databind#592], need to support a special case of starting from
+        //    FIELD_NAME, which is taken to mean that we are missing START_OBJECT, but need
+        //    to assume one did exist.
         JsonToken t;
         writeStartObject();
         do {
@@ -1001,7 +1000,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         if (_mayHaveNativeIds) {
             _checkNativeIds(p);
         }
-        switch (p.getCurrentToken()) {
+        switch (p.currentToken()) {
         case START_OBJECT:
             writeStartObject();
             break;
@@ -1077,7 +1076,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public void copyCurrentStructure(JsonParser p) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
 
         // Let's handle field-name separately first
         if (t == JsonToken.FIELD_NAME) {

@@ -134,109 +134,109 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    protected void verifyJsonSpecSampleDoc(JsonParser jp, boolean verifyContents)
+    protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents)
         throws IOException
     {
-        verifyJsonSpecSampleDoc(jp, verifyContents, true);
+        verifyJsonSpecSampleDoc(p, verifyContents, true);
     }
 
-    protected void verifyJsonSpecSampleDoc(JsonParser jp, boolean verifyContents,
+    protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents,
             boolean requireNumbers)
         throws IOException
     {
-        if (!jp.hasCurrentToken()) {
-            jp.nextToken();
+        if (!p.hasCurrentToken()) {
+            p.nextToken();
         }
-        assertToken(JsonToken.START_OBJECT, jp.getCurrentToken()); // main object
+        assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Image'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Image'
         if (verifyContents) {
-            verifyFieldName(jp, "Image");
-        }
-
-        assertToken(JsonToken.START_OBJECT, jp.nextToken()); // 'image' object
-
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Width'
-        if (verifyContents) {
-            verifyFieldName(jp, "Width");
+            verifyFieldName(p, "Image");
         }
 
-        verifyIntToken(jp.nextToken(), requireNumbers);
+        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'image' object
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_WIDTH);
+            verifyFieldName(p, "Width");
         }
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Height'
+        verifyIntToken(p.nextToken(), requireNumbers);
         if (verifyContents) {
-            verifyFieldName(jp, "Height");
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_WIDTH);
         }
 
-        verifyIntToken(jp.nextToken(), requireNumbers);
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_HEIGHT);
-        }
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Title'
-        if (verifyContents) {
-            verifyFieldName(jp, "Title");
-        }
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(jp));
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Thumbnail'
-        if (verifyContents) {
-            verifyFieldName(jp, "Thumbnail");
+            verifyFieldName(p, "Height");
         }
 
-        assertToken(JsonToken.START_OBJECT, jp.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Url'
+        verifyIntToken(p.nextToken(), requireNumbers);
         if (verifyContents) {
-            verifyFieldName(jp, "Url");
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_HEIGHT);
         }
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Title'
         if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(jp));
+            verifyFieldName(p, "Title");
         }
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Height'
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(p));
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Thumbnail'
         if (verifyContents) {
-            verifyFieldName(jp, "Height");
+            verifyFieldName(p, "Thumbnail");
         }
-        verifyIntToken(jp.nextToken(), requireNumbers);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'thumbnail' object
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Url'
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_HEIGHT);
+            verifyFieldName(p, "Url");
         }
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Width'
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         if (verifyContents) {
-            verifyFieldName(jp, "Width");
+            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(p));
+        }
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
+        if (verifyContents) {
+            verifyFieldName(p, "Height");
+        }
+        verifyIntToken(p.nextToken(), requireNumbers);
+        if (verifyContents) {
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_HEIGHT);
+        }
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
+        if (verifyContents) {
+            verifyFieldName(p, "Width");
         }
         // Width value is actually a String in the example
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, getAndVerifyText(jp));
+            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, getAndVerifyText(p));
         }
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'IDs'
-        assertToken(JsonToken.START_ARRAY, jp.nextToken()); // 'ids' array
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[0]
+        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'thumbnail' object
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'IDs'
+        assertToken(JsonToken.START_ARRAY, p.nextToken()); // 'ids' array
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[0]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID1);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID1);
         }
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[1]
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[1]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID2);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID2);
         }
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[2]
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[2]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID3);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID3);
         }
-        verifyIntToken(jp.nextToken(), requireNumbers); // ids[3]
+        verifyIntToken(p.nextToken(), requireNumbers); // ids[3]
         if (verifyContents) {
-            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID4);
+            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID4);
         }
-        assertToken(JsonToken.END_ARRAY, jp.nextToken()); // 'ids' array
+        assertToken(JsonToken.END_ARRAY, p.nextToken()); // 'ids' array
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // 'image' object
+        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'image' object
 
-        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // main object
+        assertToken(JsonToken.END_OBJECT, p.nextToken()); // main object
     }
 
     private void verifyIntToken(JsonToken t, boolean requireNumbers)
@@ -253,18 +253,18 @@ public abstract class BaseTest
         }
     }
     
-    protected void verifyFieldName(JsonParser jp, String expName)
+    protected void verifyFieldName(JsonParser p, String expName)
         throws IOException
     {
-        assertEquals(expName, jp.getText());
-        assertEquals(expName, jp.getCurrentName());
+        assertEquals(expName, p.getText());
+        assertEquals(expName, p.getCurrentName());
     }
 
-    protected void verifyIntValue(JsonParser jp, long expValue)
+    protected void verifyIntValue(JsonParser p, long expValue)
         throws IOException
     {
         // First, via textual
-        assertEquals(String.valueOf(expValue), jp.getText());
+        assertEquals(String.valueOf(expValue), p.getText());
     }
 
     /*
@@ -323,9 +323,9 @@ public abstract class BaseTest
         }
     }
 
-    protected void assertToken(JsonToken expToken, JsonParser jp)
+    protected void assertToken(JsonToken expToken, JsonParser p)
     {
-        assertToken(expToken, jp.getCurrentToken());
+        assertToken(expToken, p.currentToken());
     }
 
     protected void assertType(Object ob, Class<?> expType)
@@ -362,17 +362,17 @@ public abstract class BaseTest
      * available methods, and ensures results are consistent, before
      * returning them
      */
-    protected String getAndVerifyText(JsonParser jp)
+    protected String getAndVerifyText(JsonParser p)
         throws IOException, JsonParseException
     {
         // Ok, let's verify other accessors
-        int actLen = jp.getTextLength();
-        char[] ch = jp.getTextCharacters();
-        String str2 = new String(ch, jp.getTextOffset(), actLen);
-        String str = jp.getText();
+        int actLen = p.getTextLength();
+        char[] ch = p.getTextCharacters();
+        String str2 = new String(ch, p.getTextOffset(), actLen);
+        String str = p.getText();
 
         if (str.length() !=  actLen) {
-            fail("Internal problem (jp.token == "+jp.getCurrentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);
+            fail("Internal problem (p.token == "+p.currentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);
         }
         assertEquals("String access via getText(), getTextXxx() must be the same", str, str2);
 

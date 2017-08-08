@@ -1439,7 +1439,7 @@ public class JacksonAnnotationIntrospector
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
         //   valid use (cannot instantiate as default)
-        if (defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
+        if (!defaultImpl.isAnnotation()) {
             b = b.defaultImpl(defaultImpl);
         }
         b = b.typeIdVisibility(info.visible());

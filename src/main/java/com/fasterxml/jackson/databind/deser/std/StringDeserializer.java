@@ -34,7 +34,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
         }
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         // [databind#381]
         if (t == JsonToken.START_ARRAY) {
             return _deserializeFromArray(p, ctxt);

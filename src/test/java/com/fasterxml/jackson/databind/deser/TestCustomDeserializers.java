@@ -70,7 +70,7 @@ public class TestCustomDeserializers
         public CustomBean deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             int a = 0, b = 0;
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.START_OBJECT) {
                 t = p.nextToken();
             } else if (t != JsonToken.FIELD_NAME) {

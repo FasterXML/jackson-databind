@@ -144,7 +144,7 @@ public final class StringArrayDeserializer
             while (true) {
                 String value = p.nextTextValue();
                 if (value == null) {
-                    JsonToken t = p.getCurrentToken();
+                    JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }
@@ -200,7 +200,7 @@ public final class StringArrayDeserializer
                  */
                 String value;
                 if (p.nextTextValue() == null) {
-                    JsonToken t = p.getCurrentToken();
+                    JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }
@@ -264,7 +264,7 @@ public final class StringArrayDeserializer
             while (true) {
                 String value = p.nextTextValue();
                 if (value == null) {
-                    JsonToken t = p.getCurrentToken();
+                    JsonToken t = p.currentToken();
                     if (t == JsonToken.END_ARRAY) {
                         break;
                     }

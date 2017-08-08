@@ -337,7 +337,7 @@ _containerType,
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
 
         Object value;
 

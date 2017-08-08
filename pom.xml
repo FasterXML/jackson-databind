@@ -10,7 +10,7 @@
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.9.1-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -25,14 +25,10 @@
   </scm>
 
   <properties>
-    <!-- With Jackson 2.9 we will require JDK 7 (except for annotations/streaming),
-         and new language features (diamond pattern) may be used.
-         JDK classes are still loaded dynamically since there isn't much downside
-         (small number of types); this allows use on JDK 6 platforms still (including
-         Android)
+    <!-- Jackson 3.x requires Java 8
       -->
-    <javac.src.version>1.7</javac.src.version>
-    <javac.target.version>1.7</javac.target.version>
+    <javac.src.version>1.8</javac.src.version>
+    <javac.target.version>1.8</javac.target.version>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
@@ -52,12 +48,18 @@
              usage seems to benefit from actually specifying version here in case
              it is dependent on transitively
         -->
+<!--
       <version>${jackson.version.annotations}</version>
+-->
+      <version>3.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+      <version>3.0.0-SNAPSHOT</version>
+<!--
       <version>${jackson.version.core}</version>
+-->
     </dependency>
 
     <!-- and for testing we need a few libraries

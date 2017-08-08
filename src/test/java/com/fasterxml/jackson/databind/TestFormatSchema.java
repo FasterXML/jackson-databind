@@ -77,9 +77,6 @@ public class TestFormatSchema extends BaseMapTest
         }
 
         @Override
-        protected void _finishString() throws IOException, JsonParseException { }
-
-        @Override
         public byte[] getBinaryValue(Base64Variant b64variant) {
             return null;
         }

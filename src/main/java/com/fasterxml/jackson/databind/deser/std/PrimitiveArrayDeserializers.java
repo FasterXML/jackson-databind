@@ -281,7 +281,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
              * convert other tokens to Strings... but let's not bother
              * yet, doesn't seem to make sense)
              */
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_STRING) {
                 // note: can NOT return shared internal buffer, must copy:
                 char[] buffer = p.getTextCharacters();
@@ -468,7 +468,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         @Override
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             
             // Most likely case: base64 encoded String?
             if (t == JsonToken.VALUE_STRING) {
@@ -538,7 +538,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
                 DeserializationContext ctxt) throws IOException
         {
             byte value;
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
                 // should we catch overflow exceptions?
                 value = p.getByteValue();

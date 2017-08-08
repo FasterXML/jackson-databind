@@ -366,16 +366,6 @@ public abstract class JavaType
 
     @Override
     public abstract JavaType containedType(int index);
-       
-    @Deprecated // since 2.7
-    @Override
-    public abstract String containedTypeName(int index);
-
-    @Deprecated // since 2.7
-    @Override
-    public Class<?> getParameterSource() {
-        return null;
-    }
 
     /*
     /**********************************************************

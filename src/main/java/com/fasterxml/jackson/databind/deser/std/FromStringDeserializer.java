@@ -158,7 +158,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             throw e;
             // nothing to do here, yet? We'll fail anyway
         }
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         // [databind#381]
         if (t == JsonToken.START_ARRAY) {
             return _deserializeFromArray(p, ctxt);

@@ -1136,7 +1136,7 @@ public abstract class BeanDeserializerBase
                 }
             }
             // or, Object Ids Jackson explicitly sets
-            JsonToken t = p.getCurrentToken();
+            JsonToken t = p.currentToken();
             if (t != null) {
                 // Most commonly, a scalar (int id, uuid String, ...)
                 if (t.isScalarValue()) {
@@ -1400,7 +1400,7 @@ public abstract class BeanDeserializerBase
                 return bean;
             }
         }
-        boolean value = (p.getCurrentToken() == JsonToken.VALUE_TRUE);
+        boolean value = p.hasToken(JsonToken.VALUE_TRUE);
         return _valueInstantiator.createFromBoolean(ctxt, value);
     }
 

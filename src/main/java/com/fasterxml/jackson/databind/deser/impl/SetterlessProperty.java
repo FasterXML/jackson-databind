@@ -101,7 +101,7 @@ public final class SetterlessProperty
     public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.VALUE_NULL) {
             // Hmmh. Is this a problem? We won't be setting anything, so it's
             // equivalent of empty Collection/Map in this case

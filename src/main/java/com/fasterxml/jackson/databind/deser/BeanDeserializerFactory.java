@@ -51,6 +51,8 @@ public class BeanDeserializerFactory
         s.add("org.apache.commons.collections.functors.InstantiateTransformer");
         s.add("org.apache.commons.collections4.functors.InvokerTransformer");
         s.add("org.apache.commons.collections4.functors.InstantiateTransformer");
+        // 05-Aug-2017, tatu: as per [https://github.com/mbechler/marshalsec/blob/master/marshalsec.pdf]
+        //    this is NOT likely to  be exploitable via Jackson. But keep excluded just in case.
         s.add("org.codehaus.groovy.runtime.ConvertedClosure");
         s.add("org.codehaus.groovy.runtime.MethodClosure");
         s.add("org.springframework.beans.factory.ObjectFactory");

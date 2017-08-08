@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -51,9 +50,6 @@ public abstract class BeanDescription
 
     public Class<?> getBeanClass() { return _type.getRawClass(); }
 
-    /**
-     * @since 2.9
-     */
     public boolean isNonStaticInnerClass() {
         return getClassInfo().isNonStaticInnerClass();
     }
@@ -75,26 +71,6 @@ public abstract class BeanDescription
      * annotations recognized by registered annotation introspector.
      */
     public abstract boolean hasKnownClassAnnotations();
-
-    /**
-     * Accessor for type bindings that may be needed to fully resolve
-     * types of member object, such as return and argument types of
-     * methods and constructors, and types of fields.
-     *
-     * @deprecated Since 2.7, should not need to access bindings directly
-     */
-    @Deprecated
-    public abstract TypeBindings bindingsForBeanType();
-
-    /**
-     * Method for resolving given JDK type, using this bean as the
-     * generic type resolution context.
-     *
-     * @deprecated Since 2.8, should simply call <code>getType</code> of
-     *    property accessor directly.
-     */
-    @Deprecated
-    public abstract JavaType resolveType(java.lang.reflect.Type jdkType);
 
     /**
      * Method for accessing collection of annotations the bean
@@ -122,14 +98,6 @@ public abstract class BeanDescription
      * @since 2.9
      */
     public abstract List<BeanPropertyDefinition> findBackReferences();
-
-    /**
-     * Method for locating all back-reference properties (setters, fields) bean has
-     *
-     * @deprecated Since 2.9 use {@link #findBackReferences()} instead
-     */
-    @Deprecated
-    public abstract Map<String,AnnotatedMember> findBackReferenceProperties();
 
     /*
     /**********************************************************
@@ -202,33 +170,6 @@ public abstract class BeanDescription
 
     public abstract AnnotatedMethod findMethod(String name, Class<?>[] paramTypes);
 
-    @Deprecated // since 2.9
-    public abstract AnnotatedMethod findJsonValueMethod();
-    
-    /**
-     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
-     */
-    @Deprecated
-    public AnnotatedMethod findAnySetter() {
-        AnnotatedMember m = findAnySetterAccessor();
-        if (m instanceof AnnotatedMethod) {
-            return (AnnotatedMethod) m;
-        }
-        return null;
-    }
-
-    /**
-     * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
-     */
-    @Deprecated
-    public AnnotatedMember findAnySetterField() {
-        AnnotatedMember m = findAnySetterAccessor();
-        if (m instanceof AnnotatedField) {
-            return m;
-        }
-        return null;
-    }
-
     /*
     /**********************************************************
     /* Basic API, class configuration
@@ -241,8 +182,6 @@ public abstract class BeanDescription
      *<p>
      * NOTE: does NOT use global inclusion default settings as the base, unless
      * passed as `defValue`.
-     *
-     * @since 2.7
      */
     public abstract JsonInclude.Value findPropertyInclusion(JsonInclude.Value defValue);
 
@@ -250,32 +189,24 @@ public abstract class BeanDescription
      * Method for checking what is the expected format for POJO, as
      * defined by defaults and possible annotations.
      * Note that this may be further refined by per-property annotations.
-     * 
-     * @since 2.1
      */
     public abstract JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue);
 
     /**
      * Method for finding {@link Converter} used for serializing instances
      * of this class.
-     * 
-     * @since 2.2
      */
     public abstract Converter<Object,Object> findSerializationConverter();
 
     /**
      * Method for finding {@link Converter} used for serializing instances
      * of this class.
-     * 
-     * @since 2.2
      */
     public abstract Converter<Object,Object> findDeserializationConverter();
 
     /**
      * Accessor for possible description for the bean type, used for constructing
      * documentation.
-     *
-     * @since 2.7
      */
     public String findClassDescription() { return null; }
 
@@ -318,8 +249,6 @@ public abstract class BeanDescription
      * Method for finding out if the POJO specifies default view(s) to
      * use for properties, considering both per-type annotations and
      * global default settings.
-     *
-     * @since 2.9
      */
     public abstract Class<?>[] findDefaultViews();
 }

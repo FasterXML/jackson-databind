@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -239,13 +238,6 @@ public class BasicBeanDescription extends BeanDescription
         return _properties();
     }
 
-    @Override
-    @Deprecated // since 2.9
-    public AnnotatedMethod findJsonValueMethod() {
-        return (_propCollector == null) ? null
-                : _propCollector.getJsonValueMethod();
-    }
-
     @Override // since 2.9
     public AnnotatedMember findJsonValueAccessor() {
         return (_propCollector == null) ? null
@@ -270,21 +262,6 @@ public class BasicBeanDescription extends BeanDescription
     @Override
     public Annotations getClassAnnotations() {
         return _classInfo.getAnnotations();
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    public TypeBindings bindingsForBeanType() {
-        return _type.getBindings();
-    }
-
-    @Override
-    @Deprecated // since 2.8
-    public JavaType resolveType(java.lang.reflect.Type jdkType) {
-        if (jdkType == null) {
-            return null;
-        }
-        return _config.getTypeFactory().constructType(jdkType, _type.getBindings());
     }
 
     @Override
@@ -500,21 +477,6 @@ anyField.getName()));
                 }
             }
             result.add(property);
-        }
-        return result;
-    }
-
-    @Deprecated // since 2.9
-    @Override
-    public Map<String,AnnotatedMember> findBackReferenceProperties()
-    {
-        List<BeanPropertyDefinition> props = findBackReferences();
-        if (props == null) {
-            return null;
-        }
-        Map<String,AnnotatedMember> result = new HashMap<>();
-        for (BeanPropertyDefinition prop : props) {
-            result.put(prop.getName(), prop.getMutator());
         }
         return result;
     }

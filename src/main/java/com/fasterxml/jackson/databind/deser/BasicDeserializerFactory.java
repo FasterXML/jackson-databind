@@ -1824,9 +1824,6 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
-    /**
-     * @since 2.9
-     */
     protected JsonDeserializer<Object> findContentDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
         throws JsonMappingException
@@ -1846,9 +1843,6 @@ public abstract class BasicDeserializerFactory
      * like type overrides, or handler (serializer, deserializer) overrides,
      * so that from declared field, property or constructor parameter type
      * is used as the base and modified based on annotations, if any.
-     * 
-     * @since 2.8 Combines functionality of <code>modifyTypeByAnnotation</code>
-     *     and <code>resolveType</code>
      */
     protected JavaType resolveMemberAndTypeAnnotations(DeserializationContext ctxt,
             AnnotatedMember member, JavaType type)
@@ -1917,9 +1911,6 @@ public abstract class BasicDeserializerFactory
         return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
     }
 
-    /**
-     * @since 2.9
-     */
     protected boolean _hasCreatorAnnotation(DeserializationContext ctxt,
             Annotated ann) {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -1928,83 +1919,5 @@ public abstract class BasicDeserializerFactory
             return (mode != null) && (mode != JsonCreator.Mode.DISABLED); 
         }
         return false;
-    }
-    
-    /*
-    /**********************************************************
-    /* Deprecated helper methods
-    /**********************************************************
-     */
-    
-    /**
-     * Method called to see if given method has annotations that indicate
-     * a more specific type than what the argument specifies.
-     *
-     * @deprecated Since 2.8; call {@link #resolveMemberAndTypeAnnotations} instead
-     */
-    @Deprecated
-    protected JavaType modifyTypeByAnnotation(DeserializationContext ctxt,
-            Annotated a, JavaType type)
-        throws JsonMappingException
-    {
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (intr == null) {
-            return type;
-        }
-
-        // First, deserializers for key/value types?
-        /*
-        if (type.isMapLikeType()) {
-            JavaType keyType = type.getKeyType();
-            // 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
-            //  (not 100% why or how, but this does seem to get called more than once, which
-            //   is not good: for now, let's just avoid errors)
-            if (keyType != null && keyType.getValueHandler() == null) {
-                Object kdDef = intr.findKeyDeserializer(a);
-                KeyDeserializer kd = ctxt.keyDeserializerInstance(a, kdDef);
-                if (kd != null) {
-                    type = (T) ((MapLikeType) type).withKeyValueHandler(kd);
-                    keyType = type.getKeyType(); // just in case it's used below
-                }
-            }            
-        }
-        JavaType contentType = type.getContentType();
-        if (contentType != null) {
-           // ... as well as deserializer for contents:
-           if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
-               Object cdDef = intr.findContentDeserializer(a);
-                JsonDeserializer<?> cd = ctxt.deserializerInstance(a, cdDef);
-                if (cd != null) {
-                    type = (T) type.withContentValueHandler(cd);
-                }
-            }
-        }
-        */
-        // then: type refinement(s)?
-        return intr.refineDeserializationType(ctxt.getConfig(), a, type);
-    }
-
-    /**
-     * @deprecated since 2.8 call {@link #resolveMemberAndTypeAnnotations} instead.
-     */
-    @Deprecated // since 2.8
-    protected JavaType resolveType(DeserializationContext ctxt,
-            BeanDescription beanDesc, JavaType type, AnnotatedMember member)
-        throws JsonMappingException
-    {
-        return resolveMemberAndTypeAnnotations(ctxt, member, type);
-    }
-
-    /**
-     * @deprecated since 2.8 call <code>findJsonValueMethod</code> on {@link BeanDescription} instead
-     */
-    @Deprecated // not used, possibly remove as early as 2.9
-    protected AnnotatedMethod _findJsonValueFor(DeserializationConfig config, JavaType enumType)
-    {
-        if (enumType == null) {
-            return null;
-        }
-        BeanDescription beanDesc = config.introspect(enumType);
-        return beanDesc.findJsonValueMethod();
     }
 }

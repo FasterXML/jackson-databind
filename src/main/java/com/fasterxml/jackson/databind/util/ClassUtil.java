@@ -27,9 +27,6 @@ public final class ClassUtil
     /**********************************************************
      */
 
-    /**
-     * @since 2.7
-     */
     @SuppressWarnings("unchecked")
     public static <T> Iterator<T> emptyIterator() {
         return (Iterator<T>) EMPTY_ITERATOR;
@@ -52,8 +49,6 @@ public final class ClassUtil
      *
      * @param endBefore Super-type to NOT include in results, if any; when
      *    encountered, will be ignored (and no super types are checked).
-     *
-     * @since 2.7
      */
     public static List<JavaType> findSuperTypes(JavaType type, Class<?> endBefore,
             boolean addClassItself) {
@@ -98,17 +93,6 @@ public final class ClassUtil
                 result.add(cls);
             }
         }
-        return result;
-    }
-
-    @Deprecated // since 2.7
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore) {
-        return findSuperTypes(cls, endBefore, new ArrayList<Class<?>>(8));
-    }
-
-    @Deprecated // since 2.7
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result) {
-        _addRawSuperTypes(cls, endBefore, result, false);
         return result;
     }
 
@@ -313,35 +297,6 @@ public final class ClassUtil
 
     /*
     /**********************************************************
-    /* Method type detection methods
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 2.6 not used; may be removed before 3.x
-     */
-    @Deprecated // since 2.6
-    public static boolean hasGetterSignature(Method m)
-    {
-        // First: static methods can't be getters
-        if (Modifier.isStatic(m.getModifiers())) {
-            return false;
-        }
-        // Must take no args
-        Class<?>[] pts = m.getParameterTypes();
-        if (pts != null && pts.length != 0) {
-            return false;
-        }
-        // Can't be a void method
-        if (Void.TYPE == m.getReturnType()) {
-            return false;
-        }
-        // Otherwise looks ok:
-        return true;
-    }
-
-    /*
-    /**********************************************************
     /* Exception handling; simple re-throw
     /**********************************************************
      */
@@ -349,8 +304,6 @@ public final class ClassUtil
     /**
      * Helper method that will check if argument is an {@link Error},
      * and if so, (re)throw it; otherwise just return
-     *
-     * @since 2.9
      */
     public static Throwable throwIfError(Throwable t) {
         if (t instanceof Error) {
@@ -362,8 +315,6 @@ public final class ClassUtil
     /**
      * Helper method that will check if argument is an {@link RuntimeException},
      * and if so, (re)throw it; otherwise just return
-     *
-     * @since 2.9
      */
     public static Throwable throwIfRTE(Throwable t) {
         if (t instanceof RuntimeException) {
@@ -375,8 +326,6 @@ public final class ClassUtil
     /**
      * Helper method that will check if argument is an {@link IOException},
      * and if so, (re)throw it; otherwise just return
-     *
-     * @since 2.9
      */
     public static Throwable throwIfIOE(Throwable t) throws IOException {
         if (t instanceof IOException) {
@@ -852,19 +801,6 @@ public final class ClassUtil
      */
 
     /**
-     * Equivalent to call:
-     *<pre>
-     *   checkAndFixAccess(member, false);
-     *</pre>
-     *
-     * @deprecated Since 2.7 call variant that takes boolean flag.
-     */
-    @Deprecated
-    public static void checkAndFixAccess(Member member) {
-        checkAndFixAccess(member, false);
-    }
-
-    /**
      * Method that is called if a {@link Member} may need forced access,
      * to force a field, method or constructor to be accessible: this
      * is done by calling {@link AccessibleObject#setAccessible(boolean)}.
@@ -872,8 +808,6 @@ public final class ClassUtil
      * @param member Accessor to call <code>setAccessible()</code> on.
      * @param force Whether to always try to make accessor accessible (true),
      *   or only if needed as per access rights (false)
-     *
-     * @since 2.7
      */
     public static void checkAndFixAccess(Member member, boolean force)
     {

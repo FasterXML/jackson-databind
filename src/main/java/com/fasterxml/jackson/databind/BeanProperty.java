@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**
@@ -49,8 +48,6 @@ public interface BeanProperty extends Named
      * Method for getting full name definition, including possible
      * format-specific additional properties (such as namespace when
      * using XML backend).
-     * 
-     * @since 2.3
      */
     public PropertyName getFullName();
 
@@ -133,25 +130,8 @@ public interface BeanProperty extends Named
     public AnnotatedMember getMember();
 
     /**
-     * Convenience method that is roughly equivalent to
-     *<pre>
-     *   return intr.findFormat(getMember());
-     *</pre>
-     * and specifically does NOT try to find per-type format defaults to merge;
-     * use {@link #findPropertyFormat} if such defaults would be useful.
-     *
-     * @since 2.6
-     * 
-     * @deprecated since 2.8 use {@link #findPropertyFormat} instead.
-     */
-    @Deprecated
-    public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr);
-
-    /**
      * Helper method used to look up format settings applicable to this property,
      * considering both possible per-type configuration settings
-     *
-     * @since 2.7
      */
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType);
     
@@ -161,8 +141,6 @@ public interface BeanProperty extends Named
      *   return config.getAnnotationIntrospector().findPropertyInclusion(getMember());
      *</pre>
      * but also considers global default settings for inclusion
-     *
-     * @since 2.7
      */
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
 
@@ -171,8 +149,6 @@ public interface BeanProperty extends Named
      * during deserialization.
      *
      * @return List (possibly empty) of alternate names; never null
-     *
-     * @since 2.9
      */
     public List<PropertyName> findAliases(MapperConfig<?> config);
 
@@ -239,20 +215,6 @@ public interface BeanProperty extends Named
             _member = member;
         }
 
-        /**
-         * @deprecated Since 2.9
-         */
-        @Deprecated
-        public Std(PropertyName name, JavaType type, PropertyName wrapperName,
-                Annotations contextAnnotations,
-                AnnotatedMember member, PropertyMetadata metadata)
-        {
-            this(name, type, wrapperName, member, metadata);
-        }
-
-        /**
-         * @since 2.6
-         */
         public Std(Std base, JavaType newType) {
             this(base._name, newType, base._wrapperName, base._member, base._metadata);
         }
@@ -269,18 +231,6 @@ public interface BeanProperty extends Named
         @Override
         public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
             return null;
-        }
-
-        @Override
-        @Deprecated
-        public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-            if ((_member != null) && (intr != null)) {
-                JsonFormat.Value v = intr.findFormat(_member);
-                if (v != null) {
-                    return v;
-                }
-            }
-            return EMPTY_FORMAT;
         }
 
         @Override
@@ -399,12 +349,6 @@ public interface BeanProperty extends Named
         @Override
         public AnnotatedMember getMember() {
             return null;
-        }
-
-        @Override
-        @Deprecated
-        public Value findFormatOverrides(AnnotationIntrospector intr) {
-            return Value.empty();
         }
 
         @Override

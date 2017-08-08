@@ -55,18 +55,8 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * @deprecated Since 2.8, use {@link #constructUsingToString(Class, AnnotationIntrospector)} instead
-     */
-    @Deprecated
-    public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls) {
-        return constructUsingToString(enumCls, null);
-    }
-
-    /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value
-     *
-     * @since 2.8
      */
     public static EnumResolver constructUsingToString(Class<Enum<?>> enumCls,
             AnnotationIntrospector ai)
@@ -82,9 +72,6 @@ public class EnumResolver implements java.io.Serializable
         return new EnumResolver(enumCls, enumValues, map, defaultEnum);
     }
 
-    /**
-     * @since 2.9
-     */
     public static EnumResolver constructUsingMethod(Class<Enum<?>> enumCls,
             AnnotatedMember accessor,
             AnnotationIntrospector ai)

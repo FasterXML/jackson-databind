@@ -561,30 +561,12 @@ public final class TypeFactory
     }
 
     /**
-     * @deprecated Since 2.7 resolve raw type first, then find type parameters
-     */
-    @Deprecated // since 2.7    
-    public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType, TypeBindings bindings) {
-        return findTypeParameters(constructType(clz, bindings), expType);
-    }
-    
-    /**
-     * @deprecated Since 2.7 resolve raw type first, then find type parameters
-     */
-    @Deprecated // since 2.7    
-    public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
-        return findTypeParameters(constructType(clz), expType);
-    }
-
-    /**
      * Method that can be called to figure out more specific of two
      * types (if they are related; that is, one implements or extends the
      * other); or if not related, return the primary type.
      * 
      * @param type1 Primary type to consider
      * @param type2 Secondary type to consider
-     * 
-     * @since 2.2
      */
     public JavaType moreSpecificType(JavaType type1, JavaType type2)
     {
@@ -645,42 +627,21 @@ public final class TypeFactory
     }
 
     /**
-     * @deprecated Since 2.7 (accidentally removed in 2.7.0; added back in 2.7.1)
+     * Method that use by core Databind functionality, and that should NOT be called
+     * by application code outside databind package.
+     *<p> 
+     * Unchecked here not only means that no checks are made as to whether given class
+     * might be non-simple type (like {@link CollectionType}) but also that most of supertype
+     * information is not gathered. This means that unless called on primitive types or
+     * {@link java.lang.String}, results are probably not what you want to use.
+     *
+     * @deprecated Since 2.8, to indicate users should never call this method.
      */
-    @Deprecated
-    public JavaType constructType(Type type, Class<?> contextClass) {
-        JavaType contextType = (contextClass == null) ? null : constructType(contextClass);
-        return constructType(type, contextType);
-    }
-
-    /**
-     * @deprecated Since 2.7 (accidentally removed in 2.7.0; added back in 2.7.1)
-     */
-    @Deprecated
-    public JavaType constructType(Type type, JavaType contextType) {
-        TypeBindings bindings;
-        if (contextType == null) {
-            bindings = EMPTY_BINDINGS;
-        } else {
-            bindings = contextType.getBindings();
-            // 16-Nov-2016, tatu: Unfortunately as per [databind#1456] this can't
-            //   be made to work for some cases used to work (even if accidentally);
-            //   however, we can try a simple heuristic to increase chances of
-            //   compatibility from 2.6 code
-            if (type.getClass() != Class.class) {
-                // Ok: so, ideally we would test super-interfaces if necessary;
-                // but let's assume most if not all cases are for classes.
-                while (bindings.isEmpty()) {
-                    contextType = contextType.getSuperClass();
-                    if (contextType == null) {
-                        break;
-                    }
-                    bindings = contextType.getBindings();
-                }
-            }
-        }
-        return _fromAny(null, type, bindings);
-    }
+    @Deprecated // since 2.8
+    public JavaType uncheckedSimpleType(Class<?> cls) {
+        // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
+        return _constructSimple(cls, EMPTY_BINDINGS, null, null);
+    }    
 
     /*
     /**********************************************************
@@ -856,45 +817,11 @@ public final class TypeFactory
         return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
     }
 
-    /**
-     * Method for constructing a type instance with specified parameterization.
-     *
-     * @since 2.6
-     *
-     * @deprecated Since 2.7
-     */
-    @Deprecated
-    public JavaType constructSimpleType(Class<?> rawType, Class<?> parameterTarget,
-            JavaType[] parameterTypes)
-    {
-        return constructSimpleType(rawType, parameterTypes);
-    } 
-
-    /**
-     * @since 2.6
-     */
     public JavaType constructReferenceType(Class<?> rawType, JavaType referredType)
     {
         return ReferenceType.construct(rawType, null, // no bindings
                 null, null, // or super-class, interfaces?
                 referredType);
-    }
-
-    /**
-     * Method that use by core Databind functionality, and that should NOT be called
-     * by application code outside databind package.
-     *<p> 
-     * Unchecked here not only means that no checks are made as to whether given class
-     * might be non-simple type (like {@link CollectionType}) but also that most of supertype
-     * information is not gathered. This means that unless called on primitive types or
-     * {@link java.lang.String}, results are probably not what you want to use.
-     *
-     * @deprecated Since 2.8, to indicate users should never call this method.
-     */
-    @Deprecated // since 2.8
-    public JavaType uncheckedSimpleType(Class<?> cls) {
-        // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
-        return _constructSimple(cls, EMPTY_BINDINGS, null, null);
     }
 
     /**
@@ -963,30 +890,6 @@ public final class TypeFactory
     public JavaType constructParametricType(Class<?> rawType, JavaType... parameterTypes)
     {
         return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
-    }
-
-    /**
-     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
-     *
-     * @deprecated since 2.9 Use {@link #constructParametricType(Class,JavaType...)} instead
-     */
-    @Deprecated
-    public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
-            JavaType... parameterTypes)
-    {
-        return constructParametricType(parametrized, parameterTypes);
-    }
-
-    /**
-     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
-     *
-     * @deprecated since 2.9 Use {@link #constructParametricType(Class,Class...)} instead
-     */
-    @Deprecated
-    public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
-            Class<?>... parameterClasses)
-    {
-        return constructParametricType(parametrized, parameterClasses);
     }
 
     /*

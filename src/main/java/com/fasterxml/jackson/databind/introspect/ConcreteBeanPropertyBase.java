@@ -60,22 +60,6 @@ public abstract class ConcreteBeanPropertyBase
     public boolean isVirtual() { return false; }
 
     @Override
-    @Deprecated
-    public final JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-        JsonFormat.Value f = null;
-        if (intr != null) {
-            AnnotatedMember member = getMember();
-            if (member != null) {
-                f = intr.findFormat(member);
-            }
-        }
-        if (f == null) {
-            f = EMPTY_FORMAT;
-        }
-        return f;
-    }
-
-    @Override
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType)
     {
         // 15-Apr-2016, tatu: Let's calculate lazily, retain; assumption being however that

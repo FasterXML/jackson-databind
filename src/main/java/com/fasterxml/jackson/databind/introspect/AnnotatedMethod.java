@@ -87,12 +87,6 @@ public final class AnnotatedMethod
         return _method.getReturnType();
     }
 
-    @Deprecated
-    @Override
-    public Type getGenericType() {
-        return _method.getGenericReturnType();
-    }
-
     /*
     /*****************************************************
     /* AnnotatedWithParams
@@ -149,16 +143,6 @@ public final class AnnotatedMethod
         return _typeContext.resolveType(types[index]);
     }
 
-    @Override
-    @Deprecated // since 2.7
-    public Type getGenericParameterType(int index) {
-        Type[] types = getGenericParameterTypes();
-        if (index >= types.length) {
-            return null;
-        }
-        return types[index];
-    }
-    
     @Override
     public Class<?> getDeclaringClass() { return _method.getDeclaringClass(); }
 

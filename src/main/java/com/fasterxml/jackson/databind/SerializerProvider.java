@@ -336,12 +336,6 @@ public abstract class SerializerProvider
 
     @Override
     public final Class<?> getActiveView() { return _serializationView; }
-    
-    /**
-     * @deprecated Since 2.2, use {@link #getActiveView} instead.
-     */
-    @Deprecated
-    public final Class<?> getSerializationView() { return _serializationView; }
 
     @Override
     public final boolean canOverrideAccessModifiers() {
@@ -358,9 +352,6 @@ public abstract class SerializerProvider
         return _config.getDefaultPropertyFormat(baseType);
     }
 
-    /**
-     * @since 2.8
-     */
     public final JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType) {
         return _config.getDefaultPropertyInclusion();
     }
@@ -1141,8 +1132,8 @@ public abstract class SerializerProvider
      *
      * @since 2.8
      */
-    public void reportMappingProblem(String message, Object... args) throws JsonMappingException {
-        throw mappingException(message, args);
+    public void reportMappingProblem(String message, Object... msgArgs) throws JsonMappingException {
+        throw JsonMappingException.from(getGenerator(), _format(message, msgArgs));
     }
 
     /**
@@ -1153,7 +1144,8 @@ public abstract class SerializerProvider
      * @since 2.9
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
-            String msg, Object... msgArgs) throws JsonMappingException {
+            String msg, Object... msgArgs) throws JsonMappingException
+    {
         String beanDesc = "N/A";
         if (bean != null) {
             beanDesc = ClassUtil.nameOf(bean.getBeanClass());
@@ -1229,40 +1221,6 @@ public abstract class SerializerProvider
         String msg = String.format("Could not resolve type id '%s' as a subtype of %s",
                 typeId, baseType);
         return InvalidTypeIdException.from(null, _colonConcat(msg, extraDesc), baseType, typeId);
-    }
-
-    /*
-    /********************************************************
-    /* Error reporting, deprecated methods
-    /********************************************************
-     */
-
-    /**
-     * Factory method for constructing a {@link JsonMappingException};
-     * usually only indirectly used by calling
-     * {@link #reportMappingProblem(String, Object...)}.
-     *
-     * @since 2.6
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public JsonMappingException mappingException(String message, Object... msgArgs) {
-        return JsonMappingException.from(getGenerator(), _format(message, msgArgs));
-    }
-
-    /**
-     * Factory method for constructing a {@link JsonMappingException};
-     * usually only indirectly used by calling
-     * {@link #reportMappingProblem(Throwable, String, Object...)}
-     * 
-     * @since 2.8
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    protected JsonMappingException mappingException(Throwable t, String message, Object... msgArgs) {
-        return JsonMappingException.from(getGenerator(), _format(message, msgArgs), t);
     }
 
     /*
@@ -1369,9 +1327,6 @@ public abstract class SerializerProvider
         return ser;
     }
 
-    /**
-     * @since 2.1
-     */
     protected JsonSerializer<Object> _createUntypedSerializer(JavaType type)
         throws JsonMappingException
     {
@@ -1381,7 +1336,6 @@ public abstract class SerializerProvider
          *   Perhaps not-yet-resolved instance might be exposed too early to callers.
          */
         synchronized (_serializerCache) {
-            // 17-Feb-2013, tatu: Used to call deprecated method (that passed property)
             return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);
         }
     }

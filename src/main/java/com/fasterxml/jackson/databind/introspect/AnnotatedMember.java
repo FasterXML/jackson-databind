@@ -22,8 +22,6 @@ public abstract class AnnotatedMember
     /**
      * Context object needed for resolving generic type associated with this
      * member (method parameter or return value, or field type).
-     *
-     * @since 2.7
      */
     protected final transient TypeResolutionContext _typeContext;
 
@@ -39,8 +37,6 @@ public abstract class AnnotatedMember
 
     /**
      * Copy-constructor.
-     *
-     * @since 2.5
      */
     protected AnnotatedMember(AnnotatedMember base) {
         _typeContext = base._typeContext;
@@ -50,8 +46,6 @@ public abstract class AnnotatedMember
     /**
      * Fluent factory method that will construct a new instance that uses specified
      * instance annotations instead of currently configured ones.
-     *
-     * @since 2.9 (promoted from `Annotated`)
      */
     public abstract Annotated withAnnotations(AnnotationMap fallback);
 
@@ -64,19 +58,6 @@ public abstract class AnnotatedMember
 
     public String getFullName() {
         return getDeclaringClass().getName() + "#" + getName();
-    }
-
-    /**
-     * Accessor for {@link TypeResolutionContext} that is used for resolving
-     * full generic type of this member.
-     * 
-     * @since 2.7
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated
-    public TypeResolutionContext getTypeContext() {
-        return _typeContext;
     }
 
     @Override
@@ -103,10 +84,6 @@ public abstract class AnnotatedMember
         return _annotations.hasOneOf(annoClasses);
     }
 
-    /**
-     *<p>
-     * NOTE: promoted in 2.9 from `Annotated` up
-     */
     public AnnotationMap getAllAnnotations() { // alas, used by at least one module, hence public
         return _annotations;
     }
@@ -120,8 +97,6 @@ public abstract class AnnotatedMember
      * {@link com.fasterxml.jackson.databind.MapperFeature#CAN_OVERRIDE_ACCESS_MODIFIERS}
      * is enabled before calling this method; as well as pass
      * <code>force</code> flag appropriately.
-     * 
-     * @since 2.7
      */
     public final void fixAccess(boolean force) {
         Member m = getMember();

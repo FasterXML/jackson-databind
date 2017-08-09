@@ -51,7 +51,7 @@ public abstract class DeserializationContext
     extends DatabindContext
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L; // 2.6
+    private static final long serialVersionUID = 3L;
 
     /*
     /**********************************************************
@@ -1351,49 +1351,6 @@ trailingToken, ClassUtil.nameOf(targetType)
                 ));
     }
 
-    @Deprecated // since 2.9
-    public void reportWrongTokenException(JsonParser p,
-            JsonToken expToken, String msg, Object... msgArgs)
-        throws JsonMappingException
-    {
-        msg = _format(msg, msgArgs);
-        throw wrongTokenException(p, expToken, msg);
-    }
-    
-    /**
-     * Helper method for reporting a problem with unhandled unknown property.
-     * 
-     * @param instanceOrClass Either value being populated (if one has been
-     *   instantiated), or Class that indicates type that would be (or
-     *   have been) instantiated
-     * @param deser Deserializer that had the problem, if called by deserializer
-     *   (or on behalf of one)
-     *
-     * @deprecated Since 2.8 call {@link #handleUnknownProperty} instead
-     */
-    @Deprecated
-    public void reportUnknownProperty(Object instanceOrClass, String fieldName,
-            JsonDeserializer<?> deser)
-        throws JsonMappingException
-    {
-        if (isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            // Do we know properties that are expected instead?
-            Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
-            throw UnrecognizedPropertyException.from(_parser,
-                    instanceOrClass, fieldName, propIds);
-        }
-    }
-
-    /**
-     * @since 2.8
-     *
-     * @deprecated Since 2.9: not clear this ever occurs
-     */
-    @Deprecated // since 2.9
-    public void reportMissingContent(String msg, Object... msgArgs) throws JsonMappingException {
-        throw MismatchedInputException.from(getParser(), (JavaType) null, "No content to map due to end-of-input");
-    }
-
     /*
     /**********************************************************
     /* Methods for problem reporting, in cases where recovery
@@ -1405,8 +1362,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
-     *
-     * @since 2.9
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs) throws JsonMappingException {
@@ -1420,8 +1375,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific property (of a type), unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
-     *
-     * @since 2.9
      */
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
             String msg, Object... msgArgs) throws JsonMappingException {
@@ -1493,13 +1446,6 @@ trailingToken, ClassUtil.nameOf(targetType)
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
     }
-    
-    @Deprecated // since 2.9
-    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken,
-            String msg)
-    {
-        return wrongTokenException(p, (JavaType) null, expToken, msg);
-    }
 
     /**
      * Helper method for constructing exception to indicate that given JSON
@@ -1527,8 +1473,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * @param value String value from input being deserialized
      * @param instClass Type that String should be deserialized into
      * @param msg Message that describes specific problem
-     * 
-     * @since 2.1
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass,
             String msg) {

@@ -1,22 +1,20 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
@@ -36,7 +34,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        JsonFormatVisitable, SchemaAware
+        JsonFormatVisitable
 {
     protected final static PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
 
@@ -787,45 +785,6 @@ public abstract class BeanSerializerBase
         }
     }
 
-    @Deprecated
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
-        ObjectNode o = createSchemaNode("object", true);
-        // [JACKSON-813]: Add optional JSON Schema id attribute, if found
-        // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
-        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
-        if (ann != null) {
-            String id = ann.id();
-            if (id != null && id.length() > 0) {
-                o.put("id", id);
-            }
-        }
- 
-        //todo: should the classname go in the title?
-        //o.put("title", _className);
-        ObjectNode propertiesNode = o.objectNode();
-        final PropertyFilter filter;
-        if (_propertyFilterId != null) {
-            filter = findPropertyFilter(provider, _propertyFilterId, null);
-        } else {
-            filter = null;
-        }
-        		
-        for (int i = 0; i < _props.length; i++) {
-            BeanPropertyWriter prop = _props[i];
-            if (filter == null) {
-                prop.depositSchemaProperty(propertiesNode, provider);
-            } else {
-                filter.depositSchemaProperty(prop, propertiesNode, provider);
-            }
-
-        }
-        o.set("properties", propertiesNode);
-        return o;
-    }
-    
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

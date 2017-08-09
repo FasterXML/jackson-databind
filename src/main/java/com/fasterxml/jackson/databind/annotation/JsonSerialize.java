@@ -69,8 +69,6 @@ public @interface JsonSerialize
      * default null serializer.
      * Note that using this property when annotation types (classes) has
      * no effect currently (it is possible this could be improved in future).
-     * 
-     * @since 2.3
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
     public Class<? extends JsonSerializer> nullsUsing()
@@ -125,14 +123,12 @@ public @interface JsonSerialize
      */
     public Typing typing() default Typing.DEFAULT_TYPING;
 
-    // // // Annotations for specifying intermediate Converters (2.2+)
-    
+    // // // Annotations for specifying intermediate Converters
+
     /**
      * Which helper object is to be used to convert type into something
      * that Jackson knows how to serialize; either because base type
      * cannot be serialized easily, or just to alter serialization.
-     *
-     * @since 2.2
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
     public Class<? extends Converter> converter() default Converter.None.class;
@@ -144,100 +140,9 @@ public @interface JsonSerialize
      * it can only be used as property annotation: this because association between
      * container and value types is loose and as such converters seldom make sense
      * for such usage.
-     *
-     * @since 2.2
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
     public Class<? extends Converter> contentConverter() default Converter.None.class;
-    
-    // // // Annotation(s) for inclusion criteria
-
-    /**
-     * Which properties of annotated Bean are
-     * to be included in serialization (has no effect on other types
-     * like enums, primitives or collections).
-     * Choices are "all", "properties that have value other than null"
-     * and "properties that have non-default value" (i.e. default value
-     * being property setting for a Bean constructed with default no-arg
-     * constructor, often null).
-     *<p>
-     * This property has been replaced by special-purpose {@link com.fasterxml.jackson.annotation.JsonInclude}
-     * annotation, introduced in Jackson 2.0.
-     *<p>
-     * Note that Jackson 2.3 changed default to <code>DEFAULT_INCLUSION</code>,
-     * which is roughly same as saying "whatever". This is important because
-     * it allows hierarchic default values to be used.
-     *
-     * @deprecated As of Jackson 2.0, this annotation has been replaced
-     *    by {@link com.fasterxml.jackson.annotation.JsonInclude}
-     */
-    @Deprecated
-    public Inclusion include() default Inclusion.DEFAULT_INCLUSION;
-    
-    /*
-    /**********************************************************
-    /* Value enumerations needed
-    /**********************************************************
-     */
-
-    /**
-     * Enumeration used with {@link JsonSerialize#include} property
-     * to define which properties
-     * of Java Beans are to be included in serialization
-     */
-    @Deprecated // since 2.0, marked deprecated in 2.6
-    public enum Inclusion
-    {
-        /**
-         * Value that indicates that properties are to be always included,
-         * independent of value
-         */
-        ALWAYS,
-
-        /**
-         * Value that indicates that only properties with non-null
-         * values are to be included.
-         */
-        NON_NULL,
-
-        /**
-         * Value that indicates that only properties that have values
-         * that differ from default settings (meaning values they have
-         * when Bean is constructed with its no-arguments constructor)
-         * are to be included. Value is generally not useful with
-         * {@link java.util.Map}s, since they have no default values;
-         * and if used, works same as {@link #ALWAYS}.
-         */
-        NON_DEFAULT,
-
-        /**
-         * Value that indicates that only properties that have values
-         * that values that are null or what is considered empty are
-         * not to be included.
-         * Emptiness is defined for following type:
-         *<ul>
-         * <li>For {@link java.util.Collection}s and {@link java.util.Map}s,
-         *    method <code>isEmpty()</code> is called;
-         *   </li>
-         * <li>For Java arrays, empty arrays are ones with length of 0
-         *   </li>
-         * <li>For Java {@link java.lang.String}s, <code>length()</code> is called,
-         *   and return value of 0 indicates empty String
-         *   </li>
-         * </ul>
-         *  For other types, non-null values are to be included.
-         */
-        NON_EMPTY,
-
-        /**
-         * Pseudo-value that is used to indicate
-         * "use whatever is default used at higher level".
-         * 
-         * @since 2.3
-         */
-        DEFAULT_INCLUSION
-        ;
-    }
 
     /**
      * Enumeration used with {@link JsonSerialize#typing} property
@@ -261,8 +166,6 @@ public @interface JsonSerialize
         /**
          * Pseudo-value that is used to indicate
          * "use whatever is default used at higher level".
-         * 
-         * @since 2.3
          */
         DEFAULT_TYPING
         ;

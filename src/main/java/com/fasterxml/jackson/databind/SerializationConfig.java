@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind;
 
 import java.text.DateFormat;
 
-import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
@@ -28,12 +26,10 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  */
 public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
-    // since 2.5
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 3L;
 
-    // since 2.6
     protected final static PrettyPrinter DEFAULT_PRETTY_PRINTER = new DefaultPrettyPrinter();
 
     /*
@@ -51,8 +47,6 @@ public final class SerializationConfig
     /**
      * If "default pretty-printing" is enabled, it will create the instance
      * from this blueprint object.
-     *
-     * @since 2.6
      */
     protected final PrettyPrinter _defaultPrettyPrinter;
 
@@ -597,23 +591,6 @@ public final class SerializationConfig
         return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
     }
 
-    /**
-     * Mutant factory method for constructing a new instance with different
-     * default inclusion criteria configuration.
-     *
-     * @since 2.7
-     *
-     * @deprecated Since 2.9; not needed any more
-     */
-    @Deprecated
-    public SerializationConfig withPropertyInclusion(JsonInclude.Value incl) {
-        _configOverrides.setDefaultInclusion(incl);
-        return this;
-    }
-
-    /**
-     * @since 2.6
-     */
     public SerializationConfig withDefaultPrettyPrinter(PrettyPrinter pp) {
         return (_defaultPrettyPrinter == pp) ? this:  new SerializationConfig(this, pp);
     }
@@ -642,8 +619,6 @@ public final class SerializationConfig
      * Method called by {@link ObjectMapper} and {@link ObjectWriter}
      * to modify those {@link com.fasterxml.jackson.core.JsonGenerator.Feature} settings
      * that have been configured via this config instance.
-     * 
-     * @since 2.5
      */
     public void initialize(JsonGenerator g)
     {
@@ -656,39 +631,14 @@ public final class SerializationConfig
                 }
             }
         }
-        @SuppressWarnings("deprecation")
-        boolean useBigDec = SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_serFeatures);
-
         int mask = _generatorFeaturesToChange;
-        if ((mask != 0) || useBigDec) {
+        if (mask != 0) {
             int newFlags = _generatorFeatures;
-            // although deprecated, needs to be supported for now
-            if (useBigDec) {
-                int f = JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN.getMask();
-                newFlags |= f;
-                mask |= f;
-            }
             g.overrideStdFeatures(newFlags, mask);
         }
         if (_formatWriteFeaturesToChange != 0) {
             g.overrideFormatFeatures(_formatWriteFeatures, _formatWriteFeaturesToChange);
         }
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration: default settings with per-type overrides
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 2.7 use {@link #getDefaultPropertyInclusion} instead
-     */
-    @Deprecated
-    public JsonInclude.Include getSerializationInclusion()
-    {
-        JsonInclude.Include incl = getDefaultPropertyInclusion().getValueInclusion();
-        return (incl == JsonInclude.Include.USE_DEFAULTS) ? JsonInclude.Include.ALWAYS : incl;
     }
 
     /*
@@ -714,8 +664,6 @@ public final class SerializationConfig
      * Accessor method that first checks if we have any overrides
      * for feature, and only if not, checks state of passed-in
      * factory.
-     * 
-     * @since 2.5
      */
     public final boolean isEnabled(JsonGenerator.Feature f, JsonFactory factory) {
         int mask = f.getMask();
@@ -728,8 +676,6 @@ public final class SerializationConfig
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
-     * @since 2.3
      */
     public final boolean hasSerializationFeatures(int featureMask) {
         return (_serFeatures & featureMask) == featureMask;

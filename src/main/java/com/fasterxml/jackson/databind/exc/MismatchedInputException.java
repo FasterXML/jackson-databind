@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * NOTE: name chosen to differ from `java.util.InputMismatchException` since while that
  * would have been better name, use of same overlapping name causes nasty issues
  * with IDE auto-completion, so slightly less optimal chosen.
- *
- * @since 2.9
  */
 @SuppressWarnings("serial")
 public class MismatchedInputException
@@ -47,12 +45,6 @@ public class MismatchedInputException
     protected MismatchedInputException(JsonParser p, String msg, JavaType targetType) {
         super(p, msg);
         _targetType = ClassUtil.rawClass(targetType);
-    }
-
-    // Only to prevent super-class static method from getting called
-    @Deprecated // as of 2.9
-    public static MismatchedInputException from(JsonParser p, String msg) {
-        return from(p, (Class<?>) null, msg);
     }
 
     public static MismatchedInputException from(JsonParser p, JavaType targetType, String msg) {

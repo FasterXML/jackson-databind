@@ -421,35 +421,9 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
-     * 
-     * @since 2.5
      */
     public ObjectWriter forType(TypeReference<?> rootType) {
         return forType(_config.getTypeFactory().constructType(rootType.getType()));
-    }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
-     */
-    @Deprecated // since 2.5
-    public ObjectWriter withType(JavaType rootType) {
-        return forType(rootType);
-    }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(Class)} instead
-     */
-    @Deprecated // since 2.5
-    public ObjectWriter withType(Class<?> rootType) {
-        return forType(rootType);
-    }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(TypeReference)} instead
-     */
-    @Deprecated // since 2.5
-    public ObjectWriter withType(TypeReference<?> rootType) {
-        return forType(rootType);
     }
 
     /*
@@ -546,14 +520,6 @@ public class ObjectWriter
     }
 
     /**
-     * @deprecated Since 2.5 use {@link #with(FormatSchema)} instead
-     */
-    @Deprecated
-    public ObjectWriter withSchema(FormatSchema schema) {
-        return with(schema);
-    }
-
-    /**
      * Method that will construct a new instance that uses specified
      * serialization view for serialization (with null basically disables
      * view processing)
@@ -583,9 +549,6 @@ public class ObjectWriter
         return _new(this, _config.with(b64variant));
     }
 
-    /**
-     * @since 2.3
-     */
     public ObjectWriter with(CharacterEscapes escapes) {
         return _new(_generatorSettings.with(escapes), _prefetch);
     }
@@ -830,31 +793,14 @@ public class ObjectWriter
         return _config.isEnabled(f);
     }
 
-    /**
-     * @since 2.9
-     */
-    @Deprecated
-    public boolean isEnabled(JsonParser.Feature f) {
-        return _generatorFactory.isEnabled(f);
-    }
-
-    /**
-     * @since 2.9
-     */
     public boolean isEnabled(JsonGenerator.Feature f) {
         return _generatorFactory.isEnabled(f);
     }
-    
-    /**
-     * @since 2.2
-     */
+
     public SerializationConfig getConfig() {
         return _config;
     }
 
-    /**
-     * @since 2.2
-     */
     public JsonFactory getFactory() {
         return _generatorFactory;
     }
@@ -868,16 +814,11 @@ public class ObjectWriter
      * has pre-fetched serializer to use: pre-fetching improves performance
      * when writer instances are reused as it avoids a per-call serializer
      * lookup.
-     * 
-     * @since 2.2
      */
     public boolean hasPrefetchedSerializer() {
         return _prefetch.hasSerializer();
     }
 
-    /**
-     * @since 2.3
-     */
     public ContextAttributes getAttributes() {
         return _config.getAttributes();
     }

@@ -105,16 +105,6 @@ public final class AnnotatedConstructor
     }
 
     @Override
-    @Deprecated // since 2.7
-    public Type getGenericParameterType(int index) {
-        Type[] types = _constructor.getGenericParameterTypes();
-        if (index >= types.length) {
-            return null;
-        }
-        return types[index];
-    }
-    
-    @Override
     public final Object call() throws Exception {
         return _constructor.newInstance();
     }

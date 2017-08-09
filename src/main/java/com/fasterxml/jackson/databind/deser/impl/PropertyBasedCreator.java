@@ -136,15 +136,6 @@ public final class PropertyBasedCreator
                 caseInsensitive, false);
     }
 
-    @Deprecated // since 2.9
-    public static PropertyBasedCreator construct(DeserializationContext ctxt,
-            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps)
-        throws JsonMappingException
-    {
-        return construct(ctxt, valueInstantiator, srcCreatorProps,
-                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-    }
-
     /*
     /**********************************************************
     /* Accessors

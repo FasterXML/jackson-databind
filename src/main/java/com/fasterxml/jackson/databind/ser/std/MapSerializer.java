@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -324,60 +325,8 @@ public class MapSerializer
         return ser;
     }
 
-    /**
-     * @since 2.9
-     */
     protected void _ensureOverride(String method) {
         ClassUtil.verifyMustOverride(MapSerializer.class, this, method);
-    }
-
-    /**
-     * @since 2.5
-     */
-    @Deprecated // since 2.9
-    protected void _ensureOverride() {
-        _ensureOverride("N/A");
-    }
-
-    /*
-    /**********************************************************
-    /* Deprecated creators
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.5
-     * @deprecated // since 2.9
-     */
-    @Deprecated // since 2.9
-    protected MapSerializer(MapSerializer src, TypeSerializer vts,
-            Object suppressableValue)
-    {
-        this(src, vts, suppressableValue, false);
-    }
-
-    /**
-     * @deprecated since 2.9
-     */
-    @Deprecated // since 2.9
-    public MapSerializer withContentInclusion(Object suppressableValue) {
-        return new MapSerializer(this, _valueTypeSerializer, suppressableValue, _suppressNulls);
-    }                
-
-    /**
-     * @since 2.3
-     *
-     * @deprecated Since 2.8 use the other overload
-     */
-    @Deprecated // since 2.8
-    public static MapSerializer construct(String[] ignoredList, JavaType mapType,
-            boolean staticValueType, TypeSerializer vts,
-            JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
-            Object filterId)
-    {
-        Set<String> ignoredEntries = ArrayBuilders.arrayToSet(ignoredList);
-        return construct(ignoredEntries, mapType, staticValueType, vts,
-                keySerializer, valueSerializer, filterId);
     }
 
     /*
@@ -1006,14 +955,6 @@ public class MapSerializer
     /* Schema related functionality
     /**********************************************************
      */
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        // even though it's possible to statically determine the "value" type of the map,
-        // there's no way to statically determine the keys, so the "Entries" can't be determined.
-        return createSchemaNode("object", true);
-    }
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)

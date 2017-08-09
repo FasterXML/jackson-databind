@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 
 /**
@@ -149,13 +148,6 @@ public class MapProperty extends PropertyWriter
         throws JsonMappingException
     {
         _property.depositSchemaProperty(objectVisitor, provider);
-    }
-
-    @Override
-    @Deprecated
-    public void depositSchemaProperty(ObjectNode propertiesNode,
-            SerializerProvider provider) throws JsonMappingException {
-        // nothing to do here
     }
 
     @Override

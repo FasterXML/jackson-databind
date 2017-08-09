@@ -272,23 +272,6 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_ENUMS_USING_INDEX(false),
 
     /**
-     * Feature that determines whether Map entries with null values are
-     * to be serialized (true) or not (false).
-     *<p>
-     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>cannot</b> be
-     * dynamically changed on per-call basis, because its effect is considered during
-     * construction of serializers and property handlers.
-     *<p>
-     * Feature is enabled by default.
-     *
-     * @deprecated Since 2.9 there are better mechanism for specifying filtering; specifically
-     *   using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides
-     *   (see {@link ObjectMapper#configOverride(Class)}}).
-     */
-    @Deprecated // since 2.9
-    WRITE_NULL_MAP_VALUES(true),
-
-    /**
      * Feature that determines whether Container properties (POJO properties
      * with declared value of Collection or array; i.e. things that produce JSON
      * arrays) that are empty (have no elements)
@@ -331,25 +314,6 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default, so that no special handling is done.
      */
     WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED(false),
-
-    /**
-     * Feature that determines whether {@link java.math.BigDecimal} entries are
-     * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
-     * values to be written using scientific notation.
-     *<p>
-     * NOTE: since this feature typically requires use of
-     * {@link com.fasterxml.jackson.core.JsonGenerator#writeNumber(String)}
-     * it may cause compatibility problems since not all {@link com.fasterxml.jackson.core.JsonGenerator}
-     * implementations support such mode of output: usually only text-based formats
-     * support it.
-     *<p>
-     * Feature is disabled by default.
-     * 
-     * @deprecated Since 2.5: use {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} instead
-     *    (using {@link ObjectWriter#with(com.fasterxml.jackson.core.JsonGenerator.Feature)}).
-     */
-    @Deprecated // since 2.5
-    WRITE_BIGDECIMAL_AS_PLAIN(false),
 
     /**
      * Feature that controls whether numeric timestamp values are

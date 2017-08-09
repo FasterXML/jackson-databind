@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.*;
 
@@ -17,9 +16,8 @@ import com.fasterxml.jackson.databind.ser.*;
  * because it can provide default implementation for any methods that may
  * be added in {@link PropertyFilter} (as unfortunate as additions may be).
  */
-@SuppressWarnings("deprecation")
 public class SimpleBeanPropertyFilter
-    implements BeanPropertyFilter, PropertyFilter
+    implements PropertyFilter
         // sub-classes must also implement java.io.Serializable
 {
     /*
@@ -77,47 +75,6 @@ public class SimpleBeanPropertyFilter
         return new SerializeExceptFilter(properties);
     }
 
-    /**
-     * Helper method to ease transition from {@link BeanPropertyWriter} into
-     * {@link PropertyWriter}
-     * 
-     * @since 2.3
-     */
-    public static PropertyFilter from(final BeanPropertyFilter src)
-    {
-        return new PropertyFilter() {
-            @Override
-            public void serializeAsField(Object pojo, JsonGenerator jgen,
-                    SerializerProvider prov, PropertyWriter writer)
-                throws Exception {
-                src.serializeAsField(pojo, jgen, prov, (BeanPropertyWriter) writer);
-            }
-
-            @Override
-            public void depositSchemaProperty(PropertyWriter writer,
-                    ObjectNode propertiesNode, SerializerProvider provider)
-                throws JsonMappingException {
-                src.depositSchemaProperty((BeanPropertyWriter) writer, propertiesNode, provider);
-            }
-
-            @Override
-            public void depositSchemaProperty(PropertyWriter writer,
-                    JsonObjectFormatVisitor objectVisitor,
-                SerializerProvider provider) throws JsonMappingException {
-                src.depositSchemaProperty((BeanPropertyWriter) writer, objectVisitor, provider);
-            }
-
-            @Override
-            public void serializeAsElement(Object elementValue,
-                    JsonGenerator jgen, SerializerProvider prov,
-                    PropertyWriter writer) throws Exception {
-                // not needed; element filtering only available through new interfaces
-                throw new UnsupportedOperationException();
-            }
-            
-        };
-    }
-
     /*
     /**********************************************************
     /* Methods for sub-classes
@@ -152,46 +109,6 @@ public class SimpleBeanPropertyFilter
     protected boolean includeElement(Object elementValue) {
         return true;
     }
-    
-    /*
-    /**********************************************************
-    /* BeanPropertyFilter (deprecated) implementation
-    /**********************************************************
-     */
-    
-    @Deprecated
-    @Override
-    public void serializeAsField(Object bean, JsonGenerator jgen,
-            SerializerProvider provider, BeanPropertyWriter writer) throws Exception
-    {
-        if (include(writer)) {
-            writer.serializeAsField(bean, jgen, provider);
-        } else if (!jgen.canOmitFields()) { // since 2.3
-            writer.serializeAsOmittedField(bean, jgen, provider);
-        }
-    }
-
-    @Deprecated
-    @Override
-    public void depositSchemaProperty(BeanPropertyWriter writer,
-            ObjectNode propertiesNode, SerializerProvider provider)
-        throws JsonMappingException
-    {
-        if (include(writer)) {
-            writer.depositSchemaProperty(propertiesNode, provider);
-        }
-    }
-
-    @Deprecated
-    @Override
-    public void depositSchemaProperty(BeanPropertyWriter writer,
-            JsonObjectFormatVisitor objectVisitor, SerializerProvider provider)
-        throws JsonMappingException
-    {
-        if (include(writer)) {
-            writer.depositSchemaProperty(objectVisitor, provider);
-        }
-    }
 
     /*
     /**********************************************************
@@ -218,17 +135,6 @@ public class SimpleBeanPropertyFilter
     {
         if (includeElement(elementValue)) {
             writer.serializeAsElement(elementValue, jgen, provider);
-        }
-    }
-    
-    @Deprecated
-    @Override
-    public void depositSchemaProperty(PropertyWriter writer,
-            ObjectNode propertiesNode, SerializerProvider provider)
-            throws JsonMappingException
-    {
-        if (include(writer)) {
-            writer.depositSchemaProperty(propertiesNode, provider);
         }
     }
 

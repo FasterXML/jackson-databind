@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -13,8 +12,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
@@ -138,25 +135,6 @@ public class EnumSerializer
     /**********************************************************
      */
 
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        if (_serializeAsIndex(provider)) {
-            return createSchemaNode("integer", true);
-        }
-        ObjectNode objectNode = createSchemaNode("string", true);
-        if (typeHint != null) {
-            JavaType type = provider.constructType(typeHint);
-            if (type.isEnumType()) {
-                ArrayNode enumNode = objectNode.putArray("enum");
-                for (SerializableString value : _values.values()) {
-                    enumNode.add(value.getValue());
-                }
-            }
-        }
-        return objectNode;
-    }
-    
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

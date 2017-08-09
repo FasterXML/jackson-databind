@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -17,8 +16,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Container class for storing information on creators (based on annotations,
  * visibility), to be able to build actual instantiator later on.
  */
-public class CreatorCollector {
-    // Since 2.5
+public class CreatorCollector
+{
     protected final static int C_DEFAULT = 0;
     protected final static int C_STRING = 1;
     protected final static int C_INT = 2;
@@ -38,15 +37,10 @@ public class CreatorCollector {
 
     final protected boolean _canFixAccess;
 
-    /**
-     * @since 2.7
-     */
     final protected boolean _forceAccess;
 
     /**
      * Set of creators we have collected so far
-     * 
-     * @since 2.5
      */
     protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[9];
 
@@ -54,8 +48,6 @@ public class CreatorCollector {
      * Bitmask of creators that were explicitly marked as creators; false for
      * auto-detected (ones included base on naming and/or visibility, not
      * annotation)
-     * 
-     * @since 2.5
      */
     protected int _explicitCreators = 0;
 
@@ -408,12 +400,6 @@ public class CreatorCollector {
         @Override
         public JavaType getParameterType(int index) {
             return _base.getParameterType(index);
-        }
-
-        @Override
-        @Deprecated
-        public Type getGenericParameterType(int index) {
-            return _base.getGenericParameterType(index);
         }
 
         @Override

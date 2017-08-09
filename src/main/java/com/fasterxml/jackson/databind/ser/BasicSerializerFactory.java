@@ -796,7 +796,6 @@ public abstract class BasicSerializerFactory
      *
      * @since 2.9
      */
-    @SuppressWarnings("deprecation")
     protected MapSerializer _checkMapContentInclusion(SerializerProvider prov,
             BeanDescription beanDesc, MapSerializer mapSer)
         throws JsonMappingException
@@ -809,9 +808,6 @@ public abstract class BasicSerializerFactory
         JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
         if (incl == JsonInclude.Include.USE_DEFAULTS
                 || incl == JsonInclude.Include.ALWAYS) {
-            if (!prov.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
-                return mapSer.withContentInclusion(null, true);
-            }
             return mapSer;
         }
 

@@ -26,8 +26,8 @@ import com.fasterxml.jackson.databind.util.*;
 public abstract class BeanDeserializerBase
     extends StdDeserializer<Object>
     implements ContextualDeserializer, ResolvableDeserializer,
-        ValueInstantiator.Gettable, // since 2.9
-        java.io.Serializable // since 2.1
+        ValueInstantiator.Gettable,
+        java.io.Serializable
 {
     private static final long serialVersionUID = 1;
 
@@ -983,12 +983,6 @@ public abstract class BeanDeserializerBase
         return names;
     }
 
-    /**
-     * @deprecated Since 2.3, use {@link #handledType()} instead
-     */
-    @Deprecated
-    public final Class<?> getBeanClass() { return _beanType.getRawClass(); }
-
     @Override
     public JavaType getValueType() { return _beanType; }
 
@@ -1011,8 +1005,6 @@ public abstract class BeanDeserializerBase
      * Accessor for finding properties that represents values to pass
      * through property-based creator method (constructor or
      * factory method)
-     * 
-     * @since 2.0
      */
     public Iterator<SettableBeanProperty> creatorProperties()
     {

@@ -32,9 +32,6 @@ public class BeanPropertyMap
 {
     private static final long serialVersionUID = 2L;
 
-    /**
-     * @since 2.5
-     */
     protected final boolean _caseInsensitive;
 
     private int _hashMask;
@@ -75,10 +72,7 @@ public class BeanPropertyMap
      * @since 2.9
      */
     private final Map<String,String> _aliasMapping;
-    
-    /**
-     * @since 2.9
-     */
+
     public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
             Map<String,List<PropertyName>> aliasDefs)
     {
@@ -89,15 +83,6 @@ public class BeanPropertyMap
         init(props);
     }
 
-    @Deprecated // since 2.8
-    public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props)
-    {
-        this(caseInsensitive, props, Collections.<String,List<PropertyName>>emptyMap());
-    }
-
-    /**
-     * @since 2.8
-     */
     protected BeanPropertyMap(BeanPropertyMap base, boolean caseInsensitive)
     {
         _caseInsensitive = caseInsensitive;
@@ -113,8 +98,6 @@ public class BeanPropertyMap
      * Mutant factory method that constructs a new instance if desired case-insensitivity
      * state differs from the state of this instance; if states are the same, returns
      * <code>this</code>.
-     *
-     * @since 2.8
      */
     public BeanPropertyMap withCaseInsensitivity(boolean state) {
         if (_caseInsensitive == state) {
@@ -187,19 +170,10 @@ public class BeanPropertyMap
         }
         return result;
     }
-    
-    /**
-     * @since 2.6
-     */
+
     public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
             boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping) {
         return new BeanPropertyMap(caseInsensitive, props, aliasMapping);
-    }
-
-    @Deprecated // since 2.9
-    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props, boolean caseInsensitive) {
-        return construct(props, caseInsensitive,
-                Collections.<String,List<PropertyName>>emptyMap());
     }
 
     /**

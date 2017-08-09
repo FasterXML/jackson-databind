@@ -37,8 +37,6 @@ public abstract class StdDeserializer<T>
      * Bitmask that covers {@link DeserializationFeature#USE_BIG_INTEGER_FOR_INTS}
      * and {@link DeserializationFeature#USE_LONG_FOR_INTS}, used for more efficient
      * cheks when coercing integral values for untyped deserialization.
-     *
-     * @since 2.6
      */
     protected final static int F_MASK_INT_COERCIONS = 
             DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
@@ -90,12 +88,6 @@ public abstract class StdDeserializer<T>
     /* Extended API
     /**********************************************************
      */
-
-    /**
-     * @deprecated Since 2.3 use {@link #handledType} instead
-     */
-    @Deprecated
-    public final Class<?> getValueClass() { return _valueClass; }
 
     /**
      * Exact structured type this deserializer handles, if known.
@@ -1132,7 +1124,7 @@ public abstract class StdDeserializer<T>
      *    error reporting functionality
      * @param instanceOrClass Instance that is being populated by this
      *   deserializer, or if not known, Class that would be instantiated.
-     *   If null, will assume type is what {@link #getValueClass} returns.
+     *   If null, will assume type is what {@link #handledType} returns.
      * @param propName Name of the property that cannot be mapped
      */
     protected void handleUnknownProperty(JsonParser p, DeserializationContext ctxt,

@@ -31,17 +31,11 @@ public class ArrayNode
         _children = new ArrayList<JsonNode>();
     }
 
-    /**
-     * @since 2.8
-     */
     public ArrayNode(JsonNodeFactory nf, int capacity) {
         super(nf);
         _children = new ArrayList<JsonNode>(capacity);
     }
 
-    /**
-     * @since 2.7
-     */
     public ArrayNode(JsonNodeFactory nf, List<JsonNode> children) {
         super(nf);
         _children = children;

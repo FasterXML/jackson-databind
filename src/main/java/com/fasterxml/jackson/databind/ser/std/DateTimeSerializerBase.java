@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -148,12 +147,6 @@ df0.getClass().getName()));
     }
 
     protected abstract long _timestamp(T value);
-
-    @Override
-    public JsonNode getSchema(SerializerProvider serializers, Type typeHint) {
-        //todo: (ryan) add a format for the date in the schema?
-        return createSchemaNode(_asTimestamp(serializers) ? "number" : "string", true);
-    }
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException

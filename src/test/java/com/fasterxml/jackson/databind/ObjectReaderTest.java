@@ -128,21 +128,6 @@ public class ObjectReaderTest extends BaseMapTest
         r = newR;
     }
 
-    @SuppressWarnings("deprecation")
-    public void testDeprecatedSettings() throws Exception
-    {
-        ObjectReader r = MAPPER.reader();
-
-        // and deprecated variants
-        ObjectReader newR = r.forType(MAPPER.constructType(String.class));
-        assertSame(newR, newR.withType(String.class));
-        assertSame(newR, newR.withType(MAPPER.constructType(String.class)));
-
-        newR = newR.withRootName(PropertyName.construct("foo"));
-        assertNotSame(r, newR);
-        assertSame(newR, newR.withRootName(PropertyName.construct("foo")));
-    }
-
     public void testNoPrefetch() throws Exception
     {
         ObjectReader r = MAPPER.reader()

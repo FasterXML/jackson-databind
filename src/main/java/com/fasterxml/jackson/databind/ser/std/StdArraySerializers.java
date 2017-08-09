@@ -1,17 +1,16 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -157,14 +156,6 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            o.set("items", createSchemaNode("boolean"));
-            return o;
-        }
-
-        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
@@ -236,14 +227,6 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            //no "short" type defined by json
-            ObjectNode o = createSchemaNode("array", true);
-            return o.set("items", createSchemaNode("integer"));
-        }
-        
-        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
@@ -311,15 +294,6 @@ public class StdArraySerializers
             }
         }
 
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            ObjectNode itemSchema = createSchemaNode("string");
-            itemSchema.put("type", "string");
-            return o.set("items", itemSchema);
-        }
-        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
@@ -403,11 +377,6 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("array", true).set("items", createSchemaNode("integer"));
-        }
-        
-        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             visitArrayFormat(visitor, typeHint, JsonFormatTypes.INTEGER);
@@ -473,13 +442,6 @@ public class StdArraySerializers
             for (int i = 0, len = value.length; i < len; ++i) {
                 g.writeNumber(value[i]);
             }
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            return createSchemaNode("array", true)
-                .set("items", createSchemaNode("number", true));
         }
 
         @Override
@@ -554,11 +516,6 @@ public class StdArraySerializers
             }
         }
 
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("array", true).set("items", createSchemaNode("number"));
-        }
-        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
@@ -639,11 +596,6 @@ public class StdArraySerializers
             }
         }
 
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("array", true).set("items", createSchemaNode("number"));
-        }
-        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException

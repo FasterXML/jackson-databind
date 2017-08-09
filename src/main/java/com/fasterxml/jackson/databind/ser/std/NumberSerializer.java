@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -60,11 +59,6 @@ public class NumberSerializer
             // We'll have to use fallback "untyped" number write method
             g.writeNumber(value.toString());
         }
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode(_isInt ? "integer" : "number", true);
     }
 
     @Override

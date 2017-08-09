@@ -51,23 +51,6 @@ public class BasicExceptionTest extends BaseMapTest
         g.close();
     }
 
-    @SuppressWarnings("deprecation")
-    public void testInvalidFormat() throws Exception
-    {
-        // deprecated methods should still work:
-        InvalidFormatException e = new InvalidFormatException("Testing", Boolean.TRUE,
-                String.class);
-        assertSame(Boolean.TRUE, e.getValue());
-        assertNull(e.getProcessor());
-        assertNotNull(e);
-
-        e = new InvalidFormatException("Testing", JsonLocation.NA,
-                Boolean.TRUE, String.class);
-        assertSame(Boolean.TRUE, e.getValue());
-        assertNull(e.getProcessor());
-        assertNotNull(e);
-    }
-
     public void testIgnoredProperty() throws Exception
     {
         // first just construct valid instance with some variations

@@ -1,19 +1,17 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
 
 /**
  * Serializer implementation where given Java type is first converted
@@ -29,7 +27,7 @@ import java.lang.reflect.Type;
 public class StdDelegatingSerializer
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        JsonFormatVisitable, SchemaAware
+        JsonFormatVisitable
 {
     protected final Converter<Object,?> _converter;
 
@@ -203,26 +201,6 @@ public class StdDelegatingSerializer
      */
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
-        if (_delegateSerializer instanceof SchemaAware) {
-            return ((SchemaAware) _delegateSerializer).getSchema(provider, typeHint);
-        }
-        return super.getSchema(provider, typeHint);
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint,
-        boolean isOptional) throws JsonMappingException
-    {
-        if (_delegateSerializer instanceof SchemaAware) {
-            return ((SchemaAware) _delegateSerializer).getSchema(provider, typeHint, isOptional);
-        }
-        return super.getSchema(provider, typeHint);
-    }
-
-    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
@@ -261,8 +239,6 @@ public class StdDelegatingSerializer
      * actual type value gets converted to is not specified beyond basic
      * {@link java.lang.Object}, and where serializer needs to be located dynamically
      * based on actual value type.
-     *
-     * @since 2.6
      */
     protected JsonSerializer<Object> _findSerializer(Object value, SerializerProvider serializers)
         throws JsonMappingException

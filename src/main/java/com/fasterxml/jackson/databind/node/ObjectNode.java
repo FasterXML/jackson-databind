@@ -345,10 +345,7 @@ public class ObjectNode
      * Method that will set specified field, replacing old value, if any.
      * Note that this is identical to {@link #replace(String, JsonNode)},
      * except for return value.
-     *<p>
-     * NOTE: added to replace those uses of {@link #put(String, JsonNode)}
-     * where chaining with 'this' is desired.
-     *
+     * 
      * @param value to set field to; if null, will be converted
      *   to a {@link NullNode} first  (to remove field entry, call
      *   {@link #remove} instead)
@@ -459,28 +456,7 @@ public class ObjectNode
     /* Extended ObjectNode API, mutators, generic
     /**********************************************************
      */
-    
-    /**
-     * Method that will set specified field, replacing old value, if any.
-     *
-     * @param value to set field to; if null, will be converted
-     *   to a {@link NullNode} first  (to remove field entry, call
-     *   {@link #remove} instead)
-     *   
-     * @return Old value of the field, if any; null if there was no
-     *   old value.
-     *   
-     * @deprecated Since 2.4 use either {@link #set(String,JsonNode)} or {@link #replace(String,JsonNode)},
-     */
-    @Deprecated
-    public JsonNode put(String fieldName, JsonNode value)
-    {
-        if (value == null) { // let's not store 'raw' nulls but nodes
-            value = nullNode();
-        }
-        return _children.put(fieldName, value);
-    }
-    
+
     /**
      * Method for removing field entry from this ObjectNode.
      * Will return value of the field, if such field existed;
@@ -517,36 +493,6 @@ public class ObjectNode
     {
         _children.clear();
         return this;
-    }
-
-    /**
-     * Method for adding given properties to this object node, overriding
-     * any existing values for those properties.
-     * 
-     * @param properties Properties to add
-     * 
-     * @return This node after adding/replacing property values (to allow chaining)
-     * 
-     * @deprecated Since 2.4 use {@link #setAll(Map)},
-     */
-    @Deprecated
-    public JsonNode putAll(Map<String,? extends JsonNode> properties) {
-        return setAll(properties);
-    }
-
-    /**
-     * Method for adding all properties of the given Object, overriding
-     * any existing values for those properties.
-     * 
-     * @param other Object of which properties to add to this object
-     * 
-     * @return This node (to allow chaining)
-     * 
-     * @deprecated Since 2.4 use {@link #setAll(ObjectNode)},
-     */
-    @Deprecated
-    public JsonNode putAll(ObjectNode other) {
-        return setAll(other);
     }
 
     /**

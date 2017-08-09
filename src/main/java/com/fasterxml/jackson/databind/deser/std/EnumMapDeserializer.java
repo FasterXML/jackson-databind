@@ -41,10 +41,7 @@ public class EnumMapDeserializer
     protected final TypeDeserializer _valueTypeDeserializer;
 
     // // Instance construction settings:
-    
-    /**
-     * @since 2.9
-     */
+
     protected final ValueInstantiator _valueInstantiator;
 
     /**
@@ -100,13 +97,6 @@ public class EnumMapDeserializer
         _propertyBasedCreator = base._propertyBasedCreator;
     }
 
-    @Deprecated // since 2.9
-    public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer vtd)
-    {
-        this(mapType, null, keyDeser, valueDeser, vtd, null);
-    }
-    
     public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
             JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)

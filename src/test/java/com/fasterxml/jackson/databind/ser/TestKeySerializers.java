@@ -223,7 +223,6 @@ public class TestKeySerializers extends BaseMapTest
     }
 
     // [databind#838]
-    @SuppressWarnings("deprecation")
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -231,7 +230,6 @@ public class TestKeySerializers extends BaseMapTest
             .registerModule(mod)
             .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .disable(SerializationFeature.WRITE_NULL_MAP_VALUES)
             .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             ;
 

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link ValueInstantiator} implementation, which supports
@@ -28,9 +27,6 @@ public class StdValueInstantiator
      */
     protected final String _valueTypeDesc;
 
-    /**
-     * @since 2.8
-     */
     protected final Class<?> _valueClass;
 
     // // // Default (no-args) construction
@@ -74,15 +70,6 @@ public class StdValueInstantiator
     /* Life-cycle
     /**********************************************************
      */
-
-    /**
-     * @deprecated Since 2.7 use constructor that takes {@link JavaType} instead
-     */
-    @Deprecated
-    public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
-        _valueTypeDesc = ClassUtil.nameOf(valueType);
-        _valueClass = (valueType == null) ? Object.class : valueType;
-    }
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
@@ -429,27 +416,6 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.7 call either {@link #unwrapAndWrapException} or
-     *  {@link #wrapAsJsonMappingException}
-     */
-    @Deprecated // since 2.7
-    protected JsonMappingException wrapException(Throwable t)
-    {
-        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
-        //   does so if and until `JsonMappingException` is found.
-        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
-            if (curr instanceof JsonMappingException) {
-                return (JsonMappingException) curr;
-            }
-        }
-        return new JsonMappingException(null,
-                "Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
-    }
-
-    /**
-     * @since 2.7
-     */
     protected JsonMappingException unwrapAndWrapException(DeserializationContext ctxt, Throwable t)
     {
         // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
@@ -462,9 +428,6 @@ public class StdValueInstantiator
         return ctxt.instantiationException(getValueClass(), t);
     }
 
-    /**
-     * @since 2.7
-     */
     protected JsonMappingException wrapAsJsonMappingException(DeserializationContext ctxt,
             Throwable t)
     {
@@ -475,9 +438,6 @@ public class StdValueInstantiator
         return ctxt.instantiationException(getValueClass(), t);
     }
 
-    /**
-     * @since 2.7
-     */
     protected JsonMappingException rewrapCtorProblem(DeserializationContext ctxt,
             Throwable t)
     {

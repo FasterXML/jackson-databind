@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -101,11 +100,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     @Override
     public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null) || (value.size() == 0);
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-        return createSchemaNode("array", true).set("items", contentSchema());
     }
 
     @Override

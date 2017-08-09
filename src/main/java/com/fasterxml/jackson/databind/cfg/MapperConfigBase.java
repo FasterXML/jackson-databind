@@ -24,16 +24,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     extends MapperConfig<T>
     implements java.io.Serializable
 {
-    /**
-     * @since 2.9
-     */
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
-    /**
-     * @since 2.9
-     */
     private final static int AUTO_DETECT_MASK =
             MapperFeature.AUTO_DETECT_FIELDS.getMask()
             | MapperFeature.AUTO_DETECT_GETTERS.getMask()
@@ -51,8 +45,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Mix-in annotation mappings to use, if any: immutable,
      * cannot be changed once defined.
-     * 
-     * @since 2.6
      */
     protected final SimpleMixInResolver _mixIns;
 
@@ -562,17 +554,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _subtypeResolver;
     }
 
-    /**
-     * @deprecated Since 2.6 use {@link #getFullRootName} instead.
-     */
-    @Deprecated // since 2.6
-    public final String getRootName() {
-        return (_rootName == null) ? null : _rootName.getSimpleName();
-    }
-
-    /**
-     * @since 2.6
-     */
     public final PropertyName getFullRootName() {
         return _rootName;
     }

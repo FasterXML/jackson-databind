@@ -11,9 +11,7 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -566,33 +564,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
     }
 
-    /**
-     * The method to be called by {@link ObjectMapper}
-     * to generate <a href="http://json-schema.org/">JSON schema</a> for
-     * given type.
-     *
-     * @param type The type for which to generate schema
-     * 
-     * @deprecated Should not be used any more
-     */
-    @Deprecated // since 2.6
-    public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> type)
-        throws JsonMappingException
-    {
-        /* no need for embedded type information for JSON schema generation (all
-         * type information it needs is accessible via "untyped" serializer)
-         */
-        JsonSerializer<Object> ser = findValueSerializer(type, null);
-        JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                ((SchemaAware) ser).getSchema(this, null) : com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
-        if (!(schemaNode instanceof ObjectNode)) {
-            throw new IllegalArgumentException("Class " + type.getName()
-                    +" would not be serialized as a JSON object and therefore has no schema");
-        }
-        return new com.fasterxml.jackson.databind.jsonschema.JsonSchema((ObjectNode) schemaNode);
-    }
-    
-    
     /*
     /**********************************************************
     /* Helper classes

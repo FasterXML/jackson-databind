@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -88,12 +88,6 @@ public class TestMapFiltering extends BaseMapTest
                 throws Exception {
             // not needed for testing
         }
-
-        @Override
-        @Deprecated
-        public void depositSchemaProperty(PropertyWriter writer,
-                ObjectNode propertiesNode, SerializerProvider provider)
-            throws JsonMappingException { }
 
         @Override
         public void depositSchemaProperty(PropertyWriter writer,
@@ -234,21 +228,6 @@ public class TestMapFiltering extends BaseMapTest
             .add("a", "foo")
             .add("b", null));
         assertEquals(aposToQuotes("{'a':'foo'}"), json);
-    }
-
-    @SuppressWarnings("deprecation")
-    public void testMapNullSerialization() throws IOException
-    {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,String> map = new HashMap<String,String>();
-        map.put("a", null);
-        // by default, should output null-valued entries:
-        assertEquals("{\"a\":null}", m.writeValueAsString(map));
-        // but not if explicitly asked not to (note: config value is dynamic here)
-
-        m = new ObjectMapper();        
-        m.disable(SerializationFeature.WRITE_NULL_MAP_VALUES);
-        assertEquals("{}", m.writeValueAsString(map));
     }
 
     // [databind#527]

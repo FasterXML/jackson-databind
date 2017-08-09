@@ -118,9 +118,9 @@ Simplest usage is of form:
 public class ObjectMapper
     extends ObjectCodec
     implements Versioned,
-        java.io.Serializable // as of 2.1
+        java.io.Serializable
 {
-    private static final long serialVersionUID = 2L; // as of 2.9
+    private static final long serialVersionUID = 3L;
 
     /*
     /**********************************************************
@@ -1193,22 +1193,6 @@ public class ObjectMapper
         return _mixIns.localSize();
     }
 
-    /**
-     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #setMixIns}.
-     */
-    @Deprecated
-    public void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins) {
-        setMixIns(sourceMixins);
-    }
-
-    /**
-     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #addMixIn(Class, Class)}.
-     */
-    @Deprecated
-    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource) {
-        addMixIn(target, mixinSource);
-    }
-
     /*
     /**********************************************************
     /* Configuration, introspection
@@ -1231,8 +1215,6 @@ public class ObjectMapper
      * This default checker is used as the base visibility:
      * per-class overrides (both via annotations and per-type config overrides)
      * can further change these settings.
-     * 
-     * @since 2.6
      */
     public ObjectMapper setVisibility(VisibilityChecker<?> vc) {
         _configOverrides.setDefaultVisibility(vc);
@@ -1358,14 +1340,6 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * @deprecated Since 2.6 use {@link #setVisibility(VisibilityChecker)} instead.
-     */
-    @Deprecated
-    public void setVisibilityChecker(VisibilityChecker<?> vc) {
-        setVisibility(vc);
-    }
-
     /*
     /**********************************************************
     /* Configuration: global-default/per-type override settings
@@ -1377,30 +1351,15 @@ public class ObjectMapper
      *<pre>
      *  setPropertyInclusion(JsonInclude.Value.construct(incl, incl));
      *</pre>
-     *<p>
-     * NOTE: behavior differs slightly from 2.8, where second argument was
-     * implied to be <code>JsonInclude.Include.ALWAYS</code>.
      */
     public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
-        setPropertyInclusion(JsonInclude.Value.construct(incl, incl));
-        return this;
-    }
-
-    /**
-     * @since 2.7
-     * @deprecated Since 2.9 use {@link #setDefaultPropertyInclusion}
-     */
-    @Deprecated
-    public ObjectMapper setPropertyInclusion(JsonInclude.Value incl) {
-        return setDefaultPropertyInclusion(incl);
+        return setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
     }
 
     /**
      * Method for setting default POJO property inclusion strategy for serialization,
      * applied for all properties for which there are no per-type or per-property
      * overrides (via annotations or config overrides).
-     *
-     * @since 2.9 (basically rename of <code>setPropertyInclusion</code>)
      */
     public ObjectMapper setDefaultPropertyInclusion(JsonInclude.Value incl) {
         _configOverrides.setDefaultInclusion(incl);
@@ -1412,8 +1371,6 @@ public class ObjectMapper
      *<pre>
      *  setDefaultPropertyInclusion(JsonInclude.Value.construct(incl, incl));
      *</pre>
-     *
-     * @since 2.9 (basically rename of <code>setPropertyInclusion</code>)
      */
     public ObjectMapper setDefaultPropertyInclusion(JsonInclude.Include incl) {
         _configOverrides.setDefaultInclusion(JsonInclude.Value.construct(incl, incl));
@@ -1424,8 +1381,6 @@ public class ObjectMapper
      * Method for setting default Setter configuration, regarding things like
      * merging, null-handling; used for properties for which there are
      * no per-type or per-property overrides (via annotations or config overrides).
-     *
-     * @since 2.9
      */
     public ObjectMapper setDefaultSetterInfo(JsonSetter.Value v) {
         _configOverrides.setDefaultSetterInfo(v);
@@ -1749,14 +1704,6 @@ public class ObjectMapper
      */
 
     /**
-     * @deprecated Since 2.6, use {@link #setFilterProvider} instead (allows chaining)
-     */
-    @Deprecated
-    public void setFilters(FilterProvider filterProvider) {
-        _serializationConfig = _serializationConfig.withFilters(filterProvider);
-    }
-
-    /**
      * Method for configuring this mapper to use specified {@link FilterProvider} for
      * mapping Filter Ids to actual filter instances.
      *<p>
@@ -1764,8 +1711,6 @@ public class ObjectMapper
      * however, sometimes
      * this method is more convenient. For example, some frameworks only allow configuring
      * of ObjectMapper instances and not {@link ObjectWriter}s.
-     * 
-     * @since 2.6
      */
     public ObjectMapper setFilterProvider(FilterProvider filterProvider) {
         _serializationConfig = _serializationConfig.withFilters(filterProvider);
@@ -1779,8 +1724,6 @@ public class ObjectMapper
      * @param v Base64 variant to use
      * 
      * @return This mapper, for convenience to allow chaining
-     * 
-     * @since 2.1
      */
     public ObjectMapper setBase64Variant(Base64Variant v) {
         _serializationConfig = _serializationConfig.with(v);
@@ -3397,43 +3340,11 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * use specified default attributes.
-     * 
-     * @since 2.3
      */
     public ObjectWriter writer(ContextAttributes attrs) {
         return _newWriter(getSerializationConfig().with(attrs));
     }
 
-    /**
-     * @deprecated Since 2.5, use {@link #writerFor(Class)} instead
-     */
-    @Deprecated
-    public ObjectWriter writerWithType(Class<?> rootType) {
-        return _newWriter(getSerializationConfig(),
-                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-                ((rootType == null) ? null :_typeFactory.constructType(rootType)),
-                /*PrettyPrinter*/null);
-    }
-
-    /**
-     * @deprecated Since 2.5, use {@link #writerFor(TypeReference)} instead
-     */
-    @Deprecated
-    public ObjectWriter writerWithType(TypeReference<?> rootType) {
-        return _newWriter(getSerializationConfig(),
-                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-                ((rootType == null) ? null : _typeFactory.constructType(rootType)),
-                /*PrettyPrinter*/null);
-    }
-
-    /**
-     * @deprecated Since 2.5, use {@link #writerFor(JavaType)} instead
-     */
-    @Deprecated
-    public ObjectWriter writerWithType(JavaType rootType) {
-        return _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
-    }
-    
     /*
     /**********************************************************
     /* Extended Public API: constructing ObjectReaders
@@ -3575,38 +3486,9 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * use specified default attributes.
-     * 
-     * @since 2.3
      */
     public ObjectReader reader(ContextAttributes attrs) {
         return _newReader(getDeserializationConfig().with(attrs));
-    }
-
-    /**
-     * @deprecated Since 2.5, use {@link #readerFor(JavaType)} instead
-     */
-    @Deprecated
-    public ObjectReader reader(JavaType type) {
-        return _newReader(getDeserializationConfig(), type, null,
-                null, _injectableValues);
-    }
-
-    /**
-     * @deprecated Since 2.5, use {@link #readerFor(Class)} instead
-     */
-    @Deprecated
-    public ObjectReader reader(Class<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
-                null, _injectableValues);
-    }
-
-    /**
-     * @deprecated Since 2.5, use {@link #readerFor(TypeReference)} instead
-     */
-    @Deprecated
-    public ObjectReader reader(TypeReference<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
-                null, _injectableValues);
     }
 
     /*
@@ -3802,22 +3684,6 @@ public class ObjectMapper
      */
 
     /**
-     * Generate <a href="http://json-schema.org/">Json-schema</a>
-     * instance for specified class.
-     *
-     * @param t The class to generate schema for
-     * @return Constructed JSON schema.
-     * 
-     * @deprecated Since 2.6 use external JSON Schema generator (https://github.com/FasterXML/jackson-module-jsonSchema)
-     *    (which under the hood calls {@link #acceptJsonFormatVisitor(JavaType, JsonFormatVisitorWrapper)})
-     */
-    @Deprecated
-    public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> t)
-            throws JsonMappingException {
-        return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);
-    }
-
-    /**
      * Method for visiting type hierarchy for given type, using specified visitor.
      *<p>
      * This method can be used for things like
@@ -3825,8 +3691,6 @@ public class ObjectMapper
      * instance for specified type.
      *
      * @param type Type to generate schema for (possibly with generic signature)
-     * 
-     * @since 2.1
      */
     public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException
@@ -3843,8 +3707,6 @@ public class ObjectMapper
      * instance for specified type.
      *
      * @param type Type to generate schema for (possibly with generic signature)
-     * 
-     * @since 2.1
      */
     public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException
@@ -4131,14 +3993,6 @@ public class ObjectMapper
         return t;
     }
 
-    @Deprecated // since 2.9, use method that takes JavaType too
-    protected JsonToken _initForReading(JsonParser p) throws IOException {
-        return _initForReading(p, null);
-    }
-
-    /**
-     * @since 2.9
-     */
     protected final void _verifyNoTrailingTokens(JsonParser p, DeserializationContext ctxt,
             JavaType bindType)
         throws IOException

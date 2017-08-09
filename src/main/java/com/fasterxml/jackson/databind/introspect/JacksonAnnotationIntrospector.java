@@ -130,8 +130,6 @@ public class JacksonAnnotationIntrospector
      * without explicit use of <code>JsonCreator</code> annotation.
      *<p>
      * Default setting is `true`
-     *
-     * @since 2.7.4
      */
     public JacksonAnnotationIntrospector setConstructorPropertiesImpliesCreator(boolean b)
     {
@@ -644,31 +642,6 @@ public class JacksonAnnotationIntrospector
     {
         JsonInclude inc = _findAnnotation(a, JsonInclude.class);
         JsonInclude.Value value = (inc == null) ? JsonInclude.Value.empty() : JsonInclude.Value.from(inc);
-
-        // only consider deprecated variant if we didn't have non-deprecated one:
-        if (value.getValueInclusion() == JsonInclude.Include.USE_DEFAULTS) {
-            value = _refinePropertyInclusion(a, value);
-        }
-        return value;
-    }
-
-    @SuppressWarnings("deprecation")
-    private JsonInclude.Value _refinePropertyInclusion(Annotated a, JsonInclude.Value value) {
-        JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
-        if (ann != null) {
-            switch (ann.include()) {
-            case ALWAYS:
-                return value.withValueInclusion(JsonInclude.Include.ALWAYS);
-            case NON_NULL:
-                return value.withValueInclusion(JsonInclude.Include.NON_NULL);
-            case NON_DEFAULT:
-                return value.withValueInclusion(JsonInclude.Include.NON_DEFAULT);
-            case NON_EMPTY:
-                return value.withValueInclusion(JsonInclude.Include.NON_EMPTY);
-            case DEFAULT_INCLUSION:
-            default:
-            }
-        }
         return value;
     }
 

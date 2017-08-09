@@ -42,9 +42,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class ObjectReader
     extends ObjectCodec
-    implements Versioned, java.io.Serializable // since 2.1
+    implements Versioned, java.io.Serializable
 {
-    private static final long serialVersionUID = 2L; // since 2.9
+    private static final long serialVersionUID = 3L;
 
     private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
@@ -703,44 +703,10 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     *
-     * @since 2.5
      */
     public ObjectReader forType(TypeReference<?> valueTypeRef) {
         return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
-    }    
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
-     */
-    @Deprecated
-    public ObjectReader withType(JavaType valueType) {
-        return forType(valueType);
     }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(Class)} instead
-     */
-    @Deprecated
-    public ObjectReader withType(Class<?> valueType) {
-        return forType(_config.constructType(valueType));
-    }    
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(Class)} instead
-     */
-    @Deprecated
-    public ObjectReader withType(java.lang.reflect.Type valueType) {
-        return forType(_config.getTypeFactory().constructType(valueType));
-    }
-
-    /**
-     * @deprecated since 2.5 Use {@link #forType(TypeReference)} instead
-     */
-    @Deprecated
-    public ObjectReader withType(TypeReference<?> valueTypeRef) {
-        return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
-    }    
 
     /**
      * Method for constructing a new instance with configuration that

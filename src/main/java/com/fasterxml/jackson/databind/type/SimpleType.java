@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -41,8 +39,6 @@ public class SimpleType // note: until 2.6 was final
     /**
      * Simple copy-constructor, usually used when upgrading/refining a simple type
      * into more specialized type.
-     *
-     * @since 2.7
      */
     protected SimpleType(TypeBase base) {
         super(base);
@@ -84,7 +80,7 @@ public class SimpleType // note: until 2.6 was final
                 null, null, null, null, false);
     }
 
-    /**
+    /*
      * Method that should NOT to be used by application code:
      * it does NOT properly handle inspection of super-types, so neither parent
      * Classes nor implemented Interfaces are accessible with resulting type
@@ -95,14 +91,11 @@ public class SimpleType // note: until 2.6 was final
      * have worked acceptably: the problem comes from inability to resolve super-type
      * information, for which {@link TypeFactory} is needed.
      * 
-     * @deprecated Since 2.7
-     */
     @Deprecated
     public static SimpleType construct(Class<?> cls)
     {
-        /* Let's add sanity checks, just to ensure no
-         * Map/Collection entries are constructed
-         */
+        // Let's add sanity checks, just to ensure no
+        // Map/Collection entries are constructed
         if (Map.class.isAssignableFrom(cls)) {
             throw new IllegalArgumentException("Cannot construct SimpleType for a Map (class: "+cls.getName()+")");
         }
@@ -117,6 +110,7 @@ public class SimpleType // note: until 2.6 was final
         return new SimpleType(cls, b,
                 _buildSuperClass(cls.getSuperclass(), b), null, null, null, false);
     }
+    */
 
     @Override
     public JavaType withContentType(JavaType contentType) {

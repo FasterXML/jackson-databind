@@ -137,12 +137,6 @@ public class StdDateFormat
         _locale = DEFAULT_LOCALE;
     }
 
-    @Deprecated // since 2.7
-    public StdDateFormat(TimeZone tz, Locale loc) {
-        _timezone = tz;
-        _locale = loc;
-    }
-
     protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
         _timezone = tz;
         _locale = loc;
@@ -189,35 +183,6 @@ public class StdDateFormat
         // Although there is that much state to share, we do need to
         // orchestrate a bit, mostly since timezones may be changed
         return new StdDateFormat(_timezone, _locale, _lenient);
-    }
-
-    /**
-     * Method for getting a non-shared DateFormat instance
-     * that uses specified timezone and can handle simple ISO-8601
-     * compliant date format.
-     * 
-     * @since 2.4
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc, null);
-    }
-
-    /**
-     * Method for getting a non-shared DateFormat instance
-     * that uses specific timezone and can handle RFC-1123
-     * compliant date format.
-     * 
-     * @since 2.4
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public static DateFormat getRFC1123Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
-                tz, loc, null);
     }
 
     /*

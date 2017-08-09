@@ -30,8 +30,6 @@ public class BuilderBasedDeserializer
     /**
      * Type that the builder will produce, target type; as opposed to
      * `handledType()` which refers to Builder class.
-     *
-     * @since 2.9
      */
     protected final JavaType _targetType;
 
@@ -59,21 +57,6 @@ public class BuilderBasedDeserializer
             throw new IllegalArgumentException("Cannot use Object Id with Builder-based deserialization (type "
                     +beanDesc.getType()+")");
         }
-    }
-
-    /**
-     * @deprecated Since 2.9
-     */
-    @Deprecated
-    public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc,
-            BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
-            Set<String> ignorableProps, boolean ignoreAllUnknown,
-            boolean hasViews)
-    {
-        this(builder, beanDesc,
-                beanDesc.getType(), // Wrong! But got no access via `BeanDeserializerBuilder`
-                properties, backRefs, ignorableProps, ignoreAllUnknown, hasViews);
     }
 
     /**

@@ -32,25 +32,11 @@ public class SimpleBeanPropertyFilter
      * Convenience factory method that will return a "no-op" filter that will
      * simply just serialize all properties that are given, and filter out
      * nothing.
-     *
-     * @since 2.6
      */
     public static SimpleBeanPropertyFilter serializeAll() {
         return SerializeExceptFilter.INCLUDE_ALL;
     }
 
-    /**
-     * Factory method that was accidentally added in 2.5 with arguments; basically
-     * works just as an alias of {@link #filterOutAllExcept(Set)} which is not
-     * very useful. Instead, see {@link #serializeAll()} for intended signature.
-     *
-     * @deprecated Since 2.6; to be removed from 2.7
-     */
-    @Deprecated
-    public static SimpleBeanPropertyFilter serializeAll(Set<String> properties) {
-        return new FilterExceptFilter(properties);
-    }
-    
     /**
      * Factory method to construct filter that filters out all properties <b>except</b>
      * ones includes in set

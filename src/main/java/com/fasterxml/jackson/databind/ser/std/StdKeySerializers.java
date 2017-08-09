@@ -14,9 +14,6 @@ import com.fasterxml.jackson.databind.util.EnumValues;
 @SuppressWarnings("serial")
 public abstract class StdKeySerializers
 {
-    @SuppressWarnings("deprecation")
-    protected final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
-
     protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
 
     /**
@@ -105,14 +102,6 @@ public abstract class StdKeySerializers
         }
         // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
         return new Default(Default.TYPE_TO_STRING, rawKeyType);
-    }
-
-    /**
-     * @deprecated since 2.7
-     */
-    @Deprecated
-    public static JsonSerializer<Object> getDefault() {
-        return DEFAULT_KEY_SERIALIZER;
     }
 
     /*

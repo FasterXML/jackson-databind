@@ -25,10 +25,7 @@ public abstract class TypeBase
     
     /**
      * Bindings in effect for this type instance; possibly empty.
-     * Needed when resolving types declared in members of this type
-     * (if any).
-     *
-     * @since 2.7
+     * Needed when resolving types declared in members of this type (if any).
      */
     protected final TypeBindings _bindings;
     
@@ -52,8 +49,6 @@ public abstract class TypeBase
 
     /**
      * Copy-constructor used when refining/upgrading type instances.
-     *
-     * @since 2.7
      */
     protected TypeBase(TypeBase base) {
         super(base);
@@ -95,12 +90,6 @@ public abstract class TypeBase
     @Override
     public JavaType containedType(int index) {
         return _bindings.getBoundType(index);
-    }
-
-    @Override
-    @Deprecated
-    public String containedTypeName(int index) {
-        return _bindings.getBoundName(index);
     }
 
     @Override
@@ -236,22 +225,5 @@ public abstract class TypeBase
             }
         }
         return sb;
-    }
-
-    /**
-     * Internal helper method used to figure out nominal super-class for
-     * deprecated factory methods / constructors, where we are not given
-     * properly resolved supertype hierarchy.
-     * Will basically give `JavaType` for `java.lang.Object` for classes
-     * other than `java.lafgn.Object`; null for others.
-     *
-     * @since 2.7
-     */
-    protected static JavaType _bogusSuperClass(Class<?> cls) {
-        Class<?> parent = cls.getSuperclass();
-        if (parent == null) {
-            return null;
-        }
-        return TypeFactory.unknownType();
     }
 }

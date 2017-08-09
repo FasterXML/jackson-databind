@@ -73,12 +73,6 @@ public class AbstractDeserializer
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
 
-    @Deprecated // since 2.9
-    public AbstractDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps) {
-        this(builder, beanDesc, backRefProps, null);
-    }
-
     protected AbstractDeserializer(BeanDescription beanDesc)
     {
         _baseType = beanDesc.getType();

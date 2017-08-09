@@ -63,23 +63,10 @@ public class UntypedObjectDeserializer
     /**
      * If {@link java.util.Map} has been mapped to non-default implementation,
      * we'll store type here
-     *
-     * @since 2.6
      */
     protected JavaType _mapType;
 
-    /**
-     * @since 2.9
-     */
     protected final boolean _nonMerging;
-    
-    /**
-     * @deprecated Since 2.6 use variant takes type arguments
-     */
-    @Deprecated
-    public UntypedObjectDeserializer() {
-        this(null, null);
-    }
 
     public UntypedObjectDeserializer(JavaType listType, JavaType mapType) {
         super(Object.class);
@@ -103,9 +90,6 @@ public class UntypedObjectDeserializer
         _nonMerging = base._nonMerging;
     }
 
-    /**
-     * @since 2.9
-     */
     protected UntypedObjectDeserializer(UntypedObjectDeserializer base,
             boolean nonMerging)
     {

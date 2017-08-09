@@ -182,9 +182,6 @@ public class TestTypeFactory
         assertEquals(strC, custom.containedType(0));
         assertNull(custom.containedType(1));
 
-        // should also be able to access variable name:
-        assertEquals("X", custom.containedTypeName(0));
-
         // And finally, ensure that we can't create invalid combinations
         try {
             // Maps must take 2 type parameters, not just one

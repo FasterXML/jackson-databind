@@ -378,8 +378,6 @@ public abstract class StdSerializer<T>
     /**
      * Helper method used to locate filter that is needed, based on filter id
      * this serializer was constructed with.
-     * 
-     * @since 2.3
      */
     protected PropertyFilter findPropertyFilter(SerializerProvider provider,
             Object filterId, Object valueToFilter)
@@ -401,8 +399,6 @@ public abstract class StdSerializer<T>
      * defaulting.
      *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
-     *
-     * @since 2.7
      */
     protected JsonFormat.Value findFormatOverrides(SerializerProvider provider,
             BeanProperty prop, Class<?> typeForDefaults)

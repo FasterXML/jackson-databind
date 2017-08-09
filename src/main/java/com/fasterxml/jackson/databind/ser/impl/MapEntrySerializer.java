@@ -27,9 +27,6 @@ public class MapEntrySerializer
     extends ContainerSerializer<Map.Entry<?,?>>
     implements ContextualSerializer
 {
-    /**
-     * @since 2.9
-     */
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
 
     /**
@@ -120,15 +117,6 @@ public class MapEntrySerializer
         _suppressNulls = false;
     }
 
-    @Deprecated // since 2.9
-    protected MapEntrySerializer(MapEntrySerializer src, BeanProperty property,
-            TypeSerializer vts,
-            JsonSerializer<?> keySer, JsonSerializer<?> valueSer)
-    {
-        this(src, property, vts, keySer, valueSer,
-                src._suppressableValue, src._suppressNulls);
-    }
-        
     @SuppressWarnings("unchecked")
     protected MapEntrySerializer(MapEntrySerializer src, BeanProperty property,
             TypeSerializer vts,

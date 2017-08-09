@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -166,12 +165,6 @@ public abstract class BeanSerializerBase
         _serializationShape = src._serializationShape;
     }
 
-    @Deprecated // since 2.8, remove soon
-    protected BeanSerializerBase(BeanSerializerBase src, String[] toIgnore)
-    {
-        this(src, ArrayBuilders.arrayToSet(toIgnore));
-    }
-    
     protected BeanSerializerBase(BeanSerializerBase src, Set<String> toIgnore)
     {
         super(src._handledType);
@@ -216,36 +209,19 @@ public abstract class BeanSerializerBase
     /**
      * Mutant factory used for creating a new instance with additional
      * set of properties to ignore (from properties this instance otherwise has)
-     * 
-     * @since 2.8
      */
     protected abstract BeanSerializerBase withIgnorals(Set<String> toIgnore);
-    
-    /**
-     * Mutant factory used for creating a new instance with additional
-     * set of properties to ignore (from properties this instance otherwise has)
-     * 
-     * @deprecated since 2.8
-     */
-    @Deprecated
-    protected BeanSerializerBase withIgnorals(String[] toIgnore) {
-        return withIgnorals(ArrayBuilders.arrayToSet(toIgnore));
-    }
 
     /**
      * Mutant factory for creating a variant that output POJO as a
      * JSON Array. Implementations may ignore this request if output
      * as array is not possible (either at all, or reliably).
-     * 
-     * @since 2.1
      */
     protected abstract BeanSerializerBase asArraySerializer();
 
     /**
      * Mutant factory used for creating a new instance with different
      * filter id (used with <code>JsonFilter</code> annotation)
-     * 
-     * @since 2.3
      */
     @Override
     public abstract BeanSerializerBase withFilterId(Object filterId);
@@ -668,9 +644,6 @@ public abstract class BeanSerializerBase
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
-    /**
-     * @since 2.9
-     */
     protected final WritableTypeId _typeIdDef(TypeSerializer typeSer,
             Object bean, JsonToken valueShape) {
         if (_typeId == null) {
@@ -682,16 +655,6 @@ public abstract class BeanSerializerBase
             typeId = "";
         }
         return typeSer.typeId(bean, valueShape, typeId);
-    }
-
-    @Deprecated // since 2.9
-    protected final String _customTypeId(Object bean)
-    {
-        final Object typeId = _typeId.getValue(bean);
-        if (typeId == null) {
-            return "";
-        }
-        return (typeId instanceof String) ? (String) typeId : typeId.toString();
     }
 
     /*

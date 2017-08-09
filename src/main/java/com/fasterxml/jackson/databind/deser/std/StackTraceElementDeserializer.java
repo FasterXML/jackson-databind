@@ -67,18 +67,8 @@ public class StackTraceElementDeserializer
         return (StackTraceElement) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
-    @Deprecated // since 2.9
-    protected StackTraceElement constructValue(DeserializationContext ctxt,
-            String className, String methodName, String fileName, int lineNumber,
-            String moduleName, String moduleVersion) {
-        return constructValue(ctxt, className, methodName, fileName, lineNumber,
-                moduleName, moduleVersion, null);
-    }
-
     /**
      * Overridable factory method used for constructing {@link StackTraceElement}s.
-     *
-     * @since 2.8
      */
     protected StackTraceElement constructValue(DeserializationContext ctxt,
             String className, String methodName, String fileName, int lineNumber,

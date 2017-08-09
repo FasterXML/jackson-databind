@@ -810,9 +810,7 @@ public final class TypeFactory
 
     /**
      * Method for constructing a type instance with specified parameterization.
-     *<p>
-     * NOTE: was briefly deprecated for 2.6.
-     */
+s     */
     public JavaType constructSimpleType(Class<?> rawType, JavaType[] parameterTypes) {
         return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
     }
@@ -848,8 +846,6 @@ public final class TypeFactory
      * 
      * @param parametrized Actual full type
      * @param parameterClasses Type parameters to apply
-     *
-     * @since 2.5 NOTE: was briefly deprecated for 2.6
      */
     public JavaType constructParametricType(Class<?> parametrized, Class<?>... parameterClasses) {
         int len = parameterClasses.length;
@@ -884,8 +880,6 @@ public final class TypeFactory
      * 
      * @param rawType Actual type-erased type
      * @param parameterTypes Type parameters to apply
-     * 
-     * @since 2.5 NOTE: was briefly deprecated for 2.6
      */
     public JavaType constructParametricType(Class<?> rawType, JavaType... parameterTypes)
     {
@@ -1355,7 +1349,6 @@ public final class TypeFactory
     {
         // ideally should find it via bindings:
         final String name = var.getName();
-if (bindings == null) throw new Error("No Bindings!");
         JavaType type = bindings.findBoundType(name);
         if (type != null) {
             return type;

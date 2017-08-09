@@ -39,8 +39,6 @@ public class BeanDeserializerFactory
     /**
      * Set of well-known "nasty classes", deserialization of which is considered dangerous
      * and should (and is) prevented by default.
-     *
-     * @since 2.8.9
      */
     protected final static Set<String> DEFAULT_NO_DESER_CLASS_NAMES;
     static {
@@ -702,14 +700,6 @@ name, ((AnnotatedParameter) m).getIndex());
                         beanDesc, refProp, refProp.getPrimaryType()));
             }
         }
-    }
-
-    @Deprecated // since 2.9 (rename)
-    protected void addReferenceProperties(DeserializationContext ctxt,
-            BeanDescription beanDesc, BeanDeserializerBuilder builder)
-        throws JsonMappingException
-    {
-        addBackReferenceProperties(ctxt, beanDesc, builder);
     }
 
     /**

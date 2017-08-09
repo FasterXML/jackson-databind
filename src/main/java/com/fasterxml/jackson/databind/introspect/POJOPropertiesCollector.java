@@ -178,18 +178,6 @@ public class POJOPropertiesCollector
         return _injectables;
     }
 
-    @Deprecated // since 2.9
-    public AnnotatedMethod getJsonValueMethod() {
-        AnnotatedMember m = getJsonValueAccessor();
-        if (m instanceof AnnotatedMethod) {
-            return (AnnotatedMethod) m;
-        }
-        return null;
-    }
-
-    /**
-     * @since 2.9
-     */
     public AnnotatedMember getJsonValueAccessor()
     {
         if (!_collected) {
@@ -1036,7 +1024,7 @@ public class POJOPropertiesCollector
         }
         return prop;
     }
-    
+
     // !!! TODO: deprecate, require use of PropertyName
     protected POJOPropertyBuilder _property(Map<String, POJOPropertyBuilder> props,
             String implName)

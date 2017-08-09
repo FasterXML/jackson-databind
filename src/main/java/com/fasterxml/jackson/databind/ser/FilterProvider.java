@@ -13,12 +13,7 @@ public abstract class FilterProvider
      * Note that id is typically a {@link java.lang.String}, but is not necessarily
      * limited to that; that is, while standard components use String, custom
      * implementation can choose other kinds of keys.
-     *<p>
-     * Note that the default implementation is designed to support short-term
-     * backwards compatibility, and will call the deprecated <code>findFilter</code>
-     * method, then wrap filter if one found as {@link PropertyFilter}.
-     * It should be overridden by up-to-date implementations
-     * 
+     *
      * @param filterId Id of the filter to fetch
      * @param valueToFilter Object being filtered (usually POJO, but may be a {@link java.util.Map},
      *   or in future a container), <b>if available</b>; not available when generating

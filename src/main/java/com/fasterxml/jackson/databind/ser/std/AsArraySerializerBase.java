@@ -84,26 +84,6 @@ public abstract class AsArraySerializerBase<T>
         _unwrapSingle = null;
     }
 
-    /**
-     * @deprecated Since 2.6 Use variants that either take 'src', or do NOT pass
-     *    BeanProperty
-     */
-    @Deprecated
-    protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
-            TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
-    {
-        // typing with generics is messy... have to resort to this:
-        super(cls, false);
-        _elementType = et;
-        // static if explicitly requested, or if element type is final
-        _staticTyping = staticTyping || (et != null && et.isFinal());
-        _valueTypeSerializer = vts;
-        _property = property;
-        _elementSerializer = elementSerializer;
-        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
-        _unwrapSingle = null;
-    }
-
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
             BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,
@@ -119,28 +99,6 @@ public abstract class AsArraySerializerBase<T>
         _unwrapSingle = unwrapSingle;
     }
 
-    /**
-     * @deprecated since 2.6: use the overloaded method that takes 'unwrapSingle'
-     */
-    @Deprecated
-    protected AsArraySerializerBase(AsArraySerializerBase<?> src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
-    {
-        this(src, property, vts, elementSerializer, src._unwrapSingle);
-    }
-    
-    /**
-     * @deprecated since 2.6: use the overloaded method that takes 'unwrapSingle'
-     */
-    @Deprecated
-    public final AsArraySerializerBase<T> withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
-        return withResolved(property, vts, elementSerializer, _unwrapSingle);
-    }
-
-    /**
-     * @since 2.6
-     */
     public abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
             TypeSerializer vts, JsonSerializer<?> elementSerializer,
             Boolean unwrapSingle);

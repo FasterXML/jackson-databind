@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * Base implementation for values of {@link ReferenceType}.
  * Implements most of functionality, only leaving couple of abstract
  * methods for sub-classes to implement
- *
- * @since 2.8
  */
 public abstract class ReferenceTypeSerializer<T>
     extends StdSerializer<T>

@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * to ensure that registration works as expected.
  */
 public class SimpleModule
-    extends Module
+    extends com.fasterxml.jackson.databind.Module
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L; // 2.5.0

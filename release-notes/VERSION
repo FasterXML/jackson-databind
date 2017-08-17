@@ -11,6 +11,7 @@ Project: jackson-databind
 #1628: Don't print to error stream about failure to load JDK 7 types
  (reported by Villane@github)
 #1680: Blacklist couple more types for deserialization
+#1737: Block more JDK types from polymorphic deserialization
 
 2.7.9.1 (18-Apr-2017)
 

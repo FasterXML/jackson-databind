@@ -347,8 +347,8 @@ public class ArrayNode
      */
 
     /**
-     * Method that will construct an ArrayNode and add it as a
-     * field of this ObjectNode, replacing old value, if any.
+     * Method that will construct an ArrayNode and add it at the end
+     * of this array node.
      *
      * @return Newly constructed ArrayNode
      */

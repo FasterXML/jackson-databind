@@ -14,6 +14,7 @@ Project: jackson-databind
 #1679: `StackOverflowError` in Dynamic `StdKeySerializer`
 #1711: Delegating creator fails to work for binary data (`byte[]`) with
  binary formats (CBOR, Smile)
+#1735: Missing type checks when using polymorphic type ids
 
 2.8.9 (12-Jun-2017)
 

@@ -364,7 +364,9 @@ public abstract class BaseTest
                 return;
             }
         }
-        fail("Expected an exception with one of substrings ("+Arrays.asList(matches)+"): got one with message \""+msg+"\"");
+        fail("Expected an exception with one of substrings ("
+                +Arrays.asList(matches)+"): got one (of type "+e.getClass().getName()
+                +") with message \""+msg+"\"");
     }
 
     /**

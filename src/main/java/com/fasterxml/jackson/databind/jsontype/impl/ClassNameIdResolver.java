@@ -51,7 +51,16 @@ public class ClassNameIdResolver
         TypeFactory tf = ctxt.getTypeFactory();
         if (id.indexOf('<') > 0) {
             // note: may want to try combining with specialization (esp for EnumMap)?
-            return tf.constructFromCanonical(id);
+            // 17-Aug-2017, tatu: As per [databind#1735] need to ensure assignment
+            //    compatibility -- needed later anyway, and not doing so may open
+            //    security issues.
+            JavaType t = tf.constructFromCanonical(id);
+            if (!t.isTypeOrSubTypeOf(_baseType.getRawClass())) {
+                // Probably cleaner to have a method in `TypeFactory` but can't add in patch
+                throw new IllegalArgumentException(String.format(
+                        "Class %s not subtype of %s", t.getRawClass().getName(), _baseType));
+            }
+            return t;
         }
         Class<?> cls;
         try {

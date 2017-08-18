@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class TestPOJOPropertiesCollector
+public class POJOPropertiesCollectorTest
     extends BaseMapTest
 {
     static class Simple {
@@ -229,6 +229,39 @@ public class TestPOJOPropertiesCollector
         public boolean isBloop() { return true; }
 
         public boolean getBloop() { return true; }
+    }
+
+    // for [databind#1739]
+    static class Bean1739 {
+        private int value;
+
+        public int getValue() { return value; }
+    }
+
+    public void testDisablingGetter1739() throws Exception
+    {
+        // by default, should find private getter just fine
+        POJOPropertiesCollector coll = collector(MAPPER,
+                Bean1739.class, false);
+        Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
+        assertEquals(1, props.size());
+        POJOPropertyBuilder prop = props.get("value");
+        assertNotNull(prop);
+        assertTrue(prop.hasGetter());
+        assertTrue(prop.hasField());
+        assertFalse(prop.hasSetter());
+
+        // but even if disabling getter access, should find field
+        ObjectMapper mapper = new ObjectMapper()
+                .disable(MapperFeature.AUTO_DETECT_GETTERS);
+        coll = collector(mapper, Bean1739.class, false);
+        props = coll.getPropertyMap();
+        assertEquals(1, props.size());
+        prop = props.get("value");
+        assertNotNull(prop);
+        assertFalse(prop.hasGetter());
+        assertTrue(prop.hasSetter());
+        assertTrue(prop.hasField());
     }
 
     /*

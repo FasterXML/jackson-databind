@@ -564,40 +564,30 @@ public class StdDateFormat
                 int minute = _parse2D(dateStr, 14);
 
                 // Seconds are actually optional... so
-                int seconds;
+                int seconds = 0;
                 if ((totalLen > 16) && dateStr.charAt(16) == ':') {
                     seconds = _parse2D(dateStr, 17);
-                } else {
-                    seconds = 0;
                 }
                 cal.set(year, month, day, hour, minute, seconds);
 
                 // Optional milliseconds
-                start = m.start(1) + 1;
-                end = m.end(1);
                 int msecs = 0;
-                if (start >= end) { // no fractional
-                    cal.set(Calendar.MILLISECOND, 0);
-                } else {
-                    // first char is '.', but rest....
-                    msecs = 0;
-                    switch (end-start) {
+                if( m.start(1) != -1 ) {
+	                start = m.start(1) + 1;
+	                end = m.end(1);
+
+                    int millisLen = Math.min(3, end-start);
+                    switch (millisLen) {
                     case 3:
                         msecs += (dateStr.charAt(start+2) - '0');
                     case 2:
                         msecs += 10 * (dateStr.charAt(start+1) - '0');
                     case 1:
                         msecs += 100 * (dateStr.charAt(start) - '0');
-                        break;
-                    default:
-                        throw new ParseException(String.format(
-"Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 3 digits",
-                                       dateStr, m.group(1).substring(1)
-                                       ),
-                                pos.getErrorIndex());
                     }
-                    cal.set(Calendar.MILLISECOND, msecs);
                 }
+                cal.set(Calendar.MILLISECOND, msecs);
+                
                 return cal.getTime();
             }
             formatStr = DATE_FORMAT_STR_ISO8601;

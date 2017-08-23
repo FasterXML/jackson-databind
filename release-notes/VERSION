@@ -5,6 +5,8 @@ Project: jackson-databind
 
 2.9.1 (not yet released)
 
+#1705: Non-generic interface method hides type resolution info from generic base class
+ (reported by Tim B)
 #1725: `NPE` In `TypeFactory. constructParametricType(...)`
  (reported by ctytgat@github)
 - Fix `DelegatingDeserializer` constructor to pass `handledType()` (and

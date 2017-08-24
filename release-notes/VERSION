@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.10 (not yet released)
+2.8.10 (24-Aug-2017)
 
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of
   configured timezone

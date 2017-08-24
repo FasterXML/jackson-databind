@@ -50,7 +50,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.8.9</version>
+      <version>2.8.10</version>
     </dependency>
 
     <!-- and for testing we need a few libraries

@@ -9,6 +9,8 @@ Project: jackson-databind
  (reported by Tim B)
 #1725: `NPE` In `TypeFactory. constructParametricType(...)`
  (reported by ctytgat@github)
+#1749: StdDateFormat: performance improvement of '_format(..)' method 
+ (contributed by Bertrand R)
 - Fix `DelegatingDeserializer` constructor to pass `handledType()` (and
   not type of deserializer being delegated to!)
 

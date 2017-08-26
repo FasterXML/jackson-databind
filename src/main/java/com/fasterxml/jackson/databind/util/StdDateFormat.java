@@ -103,23 +103,19 @@ public class StdDateFormat
     }
 
     /**
-     * Blueprint "Calendar" instance for use during formatting. Cannot be used as is,
-     * due to thread-safety issues, but can be used for constructing actual instances 
-     * more cheaply by cloning.
-     */
-    protected static final Calendar CALENDAR = new GregorianCalendar(DEFAULT_TIMEZONE, DEFAULT_LOCALE);
-    
-    /**
-     * The calendar used by this instance.
-     */
-    private transient Calendar _calendar;
-
-    
-    /**
      * A singleton instance can be used for cloning purposes, as a blueprint of sorts.
      */
     public final static StdDateFormat instance = new StdDateFormat();
-    
+
+    /**
+     * Blueprint "Calendar" instance for use during formatting. Cannot be used as is,
+     * due to thread-safety issues, but can be used for constructing actual instances 
+     * more cheaply by cloning.
+     *
+     * @since 2.9.1
+     */
+    protected static final Calendar CALENDAR = new GregorianCalendar(DEFAULT_TIMEZONE, DEFAULT_LOCALE);
+
     /**
      * Caller may want to explicitly override timezone to use; if so,
      * we will have non-null value here.
@@ -137,6 +133,13 @@ public class StdDateFormat
      * @since 2.7
      */
     protected Boolean _lenient;
+
+    /**
+     * Lazily instantiated calendar used by this instance for serialization ({@link #format(Date)}).
+     *
+     * @since 2.9.1
+     */
+    private transient Calendar _calendar;
     
     private transient DateFormat _formatRFC1123;
 
@@ -365,30 +368,31 @@ public class StdDateFormat
     protected void _format(TimeZone tz, Locale loc, Date date,
             StringBuffer buffer)
     {
-    		if( _calendar==null ) {
-    			_calendar = (Calendar)CALENDAR.clone();
-    		}
-        if( !_calendar.getTimeZone().equals(tz) ) {
-        		_calendar.setTimeZone(tz);
+        Calendar cal = _calendar;
+        if (cal == null ) {
+            _calendar = cal = (Calendar)CALENDAR.clone();
+        }
+        if (!cal.getTimeZone().equals(tz) ) {
+            cal.setTimeZone(tz);
         }
         // Note: Calendar locale not updated since we don't need it here...
-        _calendar.setTime(date);
+        cal.setTime(date);
 
-        pad4(buffer, _calendar.get(Calendar.YEAR));
+        pad4(buffer, cal.get(Calendar.YEAR));
         buffer.append('-');
-        pad2(buffer, _calendar.get(Calendar.MONTH) + 1);
+        pad2(buffer, cal.get(Calendar.MONTH) + 1);
         buffer.append('-');
-        pad2(buffer, _calendar.get(Calendar.DAY_OF_MONTH));
+        pad2(buffer, cal.get(Calendar.DAY_OF_MONTH));
         buffer.append('T');
-        pad2(buffer, _calendar.get(Calendar.HOUR_OF_DAY));
+        pad2(buffer, cal.get(Calendar.HOUR_OF_DAY));
         buffer.append(':');
-        pad2(buffer, _calendar.get(Calendar.MINUTE));
+        pad2(buffer, cal.get(Calendar.MINUTE));
         buffer.append(':');
-        pad2(buffer, _calendar.get(Calendar.SECOND));
+        pad2(buffer, cal.get(Calendar.SECOND));
         buffer.append('.');
-        pad3(buffer, _calendar.get(Calendar.MILLISECOND));
+        pad3(buffer, cal.get(Calendar.MILLISECOND));
 
-        int offset = tz.getOffset(_calendar.getTimeInMillis());
+        int offset = tz.getOffset(cal.getTimeInMillis());
         if (offset != 0) {
             int hours = Math.abs((offset / (60 * 1000)) / 60);
             int minutes = Math.abs((offset / (60 * 1000)) % 60);

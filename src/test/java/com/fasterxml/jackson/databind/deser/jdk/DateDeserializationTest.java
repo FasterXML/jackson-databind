@@ -223,6 +223,31 @@ public class DateDeserializationTest
         assertEquals(450, c.get(Calendar.MILLISECOND));
     }
 
+    // [Databind#1745]
+    public void testISO8601FractSecondsLong() throws Exception
+    {
+        String inputStr;
+        Date inputDate;
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+
+        inputStr = "2014-10-03T18:00:00.3456-05:00";
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        c.setTime(inputDate);
+        assertEquals(2014, c.get(Calendar.YEAR));
+        assertEquals(Calendar.OCTOBER, c.get(Calendar.MONTH));
+        assertEquals(3, c.get(Calendar.DAY_OF_MONTH));
+        // should truncate; not error or round
+        assertEquals(345, c.get(Calendar.MILLISECOND));
+
+        // But! Still limit to 9 digits (nanoseconds)
+        try {
+            MAPPER.readValue(quote("2014-10-03T18:00:00.1234567890-05:00"), java.util.Date.class);
+        } catch (InvalidFormatException e) {
+            verifyException(e, "invalid fractional seconds");
+            verifyException(e, "can use at most 9 digits");
+        }
+    }
+
     public void testISO8601MissingSeconds() throws Exception
     {
         String inputStr;

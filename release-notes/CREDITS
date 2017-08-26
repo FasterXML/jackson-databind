@@ -632,6 +632,8 @@ Bertrand Renuart (brenuart@github)
    (2.8.9)
   * Reported #1651: `StdDateFormat` fails to parse 'zulu' date when TimeZone other than UTC
    (2.8.9)
+  * Suggested #1745: StdDateFormat: accept and truncate millis larger than 3 digits
+   (2.9.1)
   * Contributed #1749: StdDateFormat: performance improvement of '_format(..)' method
    (2.9.1)
 

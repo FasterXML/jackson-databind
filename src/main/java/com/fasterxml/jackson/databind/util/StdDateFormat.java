@@ -556,8 +556,7 @@ public class StdDateFormat
         } else {
             Matcher m = PATTERN_ISO8601.matcher(dateStr);
             if (m.matches()) {
-                // Important! START with optional timezone; otherwise
-                // Calendar will implode.
+                // Important! START with optional time zone; otherwise Calendar will explode
                 
                 int start = m.start(2);
                 int end = m.end(2);
@@ -604,7 +603,18 @@ public class StdDateFormat
                 } else {
                     // first char is '.', but rest....
                     msecs = 0;
-                    switch (end-start) {
+                    final int fractLen = end-start;
+                    switch (fractLen) {
+                    default: // [databind#1745] Allow longer fractions... for now, cap at nanoseconds tho
+
+                        if (fractLen > 9) { // only allow up to nanos
+                            throw new ParseException(String.format(
+"Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
+                                       dateStr, m.group(1).substring(1)
+                                       ),
+                                pos.getErrorIndex());
+                        }
+                        // fall through
                     case 3:
                         msecs += (dateStr.charAt(start+2) - '0');
                     case 2:
@@ -612,12 +622,8 @@ public class StdDateFormat
                     case 1:
                         msecs += 100 * (dateStr.charAt(start) - '0');
                         break;
-                    default:
-                        throw new ParseException(String.format(
-"Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 3 digits",
-                                       dateStr, m.group(1).substring(1)
-                                       ),
-                                pos.getErrorIndex());
+                    case 0:
+                        break;
                     }
                     cal.set(Calendar.MILLISECOND, msecs);
                 }

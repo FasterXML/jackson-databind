@@ -101,6 +101,19 @@ public class StdDateFormat
         DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, DEFAULT_LOCALE);
         DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);
     }
+
+    /**
+     * Blueprint "Calendar" instance for use during formatting. Cannot be used as is,
+     * due to thread-safety issues, but can be used for constructing actual instances 
+     * more cheaply by cloning.
+     */
+    protected static final Calendar CALENDAR = new GregorianCalendar(DEFAULT_TIMEZONE, DEFAULT_LOCALE);
+    
+    /**
+     * The calendar used by this instance.
+     */
+    private transient Calendar _calendar;
+
     
     /**
      * A singleton instance can be used for cloning purposes, as a blueprint of sorts.
@@ -348,28 +361,34 @@ public class StdDateFormat
         _format(tz, _locale, date, toAppendTo);
         return toAppendTo;
     }
-
-    protected static void _format(TimeZone tz, Locale loc, Date date,
+    
+    protected void _format(TimeZone tz, Locale loc, Date date,
             StringBuffer buffer)
     {
-        Calendar calendar = new GregorianCalendar(tz, loc);
-        calendar.setTime(date);
+    		if( _calendar==null ) {
+    			_calendar = (Calendar)CALENDAR.clone();
+    		}
+        if( !_calendar.getTimeZone().equals(tz) ) {
+        		_calendar.setTimeZone(tz);
+        }
+        // Note: Calendar locale not updated since we don't need it here...
+        _calendar.setTime(date);
 
-        pad4(buffer, calendar.get(Calendar.YEAR));
+        pad4(buffer, _calendar.get(Calendar.YEAR));
         buffer.append('-');
-        pad2(buffer, calendar.get(Calendar.MONTH) + 1);
+        pad2(buffer, _calendar.get(Calendar.MONTH) + 1);
         buffer.append('-');
-        pad2(buffer, calendar.get(Calendar.DAY_OF_MONTH));
+        pad2(buffer, _calendar.get(Calendar.DAY_OF_MONTH));
         buffer.append('T');
-        pad2(buffer, calendar.get(Calendar.HOUR_OF_DAY));
+        pad2(buffer, _calendar.get(Calendar.HOUR_OF_DAY));
         buffer.append(':');
-        pad2(buffer, calendar.get(Calendar.MINUTE));
+        pad2(buffer, _calendar.get(Calendar.MINUTE));
         buffer.append(':');
-        pad2(buffer, calendar.get(Calendar.SECOND));
+        pad2(buffer, _calendar.get(Calendar.SECOND));
         buffer.append('.');
-        pad3(buffer, calendar.get(Calendar.MILLISECOND));
+        pad3(buffer, _calendar.get(Calendar.MILLISECOND));
 
-        int offset = tz.getOffset(calendar.getTimeInMillis());
+        int offset = tz.getOffset(_calendar.getTimeInMillis());
         if (offset != 0) {
             int hours = Math.abs((offset / (60 * 1000)) / 60);
             int minutes = Math.abs((offset / (60 * 1000)) % 60);

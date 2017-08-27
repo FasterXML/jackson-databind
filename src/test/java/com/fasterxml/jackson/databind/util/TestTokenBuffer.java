@@ -15,6 +15,10 @@ public class TestTokenBuffer extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 
+    static class Base1730 { }
+
+    static class Sub1730 extends Base1730 { }
+
     /*
     /**********************************************************
     /* Basic TokenBuffer tests
@@ -573,7 +577,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf2.close();
         buf3.close();
         buf4.close();
-    }    
+    }
 
     // [databind#743]
     public void testRawValues() throws Exception
@@ -591,5 +595,21 @@ public class TestTokenBuffer extends BaseMapTest
 
         // then verify it would be serialized just fine
         assertEquals(RAW, MAPPER.writeValueAsString(buf));
+    }
+
+    // [databind#1730]
+    public void testEmbeddedObjectCoerceCheck() throws Exception
+    {
+        TokenBuffer buf = new TokenBuffer(null, false);
+        Object inputPojo = new Sub1730();
+        buf.writeEmbeddedObject(inputPojo);
+
+        // first: raw value won't be transformed in any way:
+        JsonParser p = buf.asParser();
+        Base1730 out = MAPPER.readValue(p, Base1730.class);
+
+        assertSame(inputPojo, out);
+        p.close();
+        buf.close();
     }
 }

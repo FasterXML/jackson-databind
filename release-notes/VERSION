@@ -5,8 +5,16 @@ Project: jackson-databind
 
 2.9.1 (not yet released)
 
+#1705: Non-generic interface method hides type resolution info from generic base class
+ (reported by Tim B)
 #1725: `NPE` In `TypeFactory. constructParametricType(...)`
  (reported by ctytgat@github)
+#1730: InvalidFormatException` for `JsonToken.VALUE_EMBEDDED_OBJECT`
+ (reported by zigzago@github)
+#1745: StdDateFormat: accept and truncate millis larger than 3 digits
+ (suggested by Bertrand R)
+#1749: StdDateFormat: performance improvement of '_format(..)' method 
+ (contributed by Bertrand R)
 - Fix `DelegatingDeserializer` constructor to pass `handledType()` (and
   not type of deserializer being delegated to!)
 
@@ -110,7 +118,7 @@ Project: jackson-databind
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
 
-2.8.10 (not yet released)
+2.8.10 (24-Aug-2017)
 
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of
   configured timezone

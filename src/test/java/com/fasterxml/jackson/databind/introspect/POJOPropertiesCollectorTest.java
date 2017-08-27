@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class TestPOJOPropertiesCollector
+public class POJOPropertiesCollectorTest
     extends BaseMapTest
 {
     static class Simple {

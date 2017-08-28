@@ -1466,7 +1466,7 @@ public abstract class BeanDeserializerBase
         //    more meaningful exceptions.
         Object value = p.getEmbeddedObject();
         if (value != null) {
-            if (!_beanType.getClass().isInstance(value)) {
+            if (!_beanType.isTypeOrSuperTypeOf(value.getClass())) {
                 // allow this to be handled...
                 value = ctxt.handleWeirdNativeValue(_beanType, value, p);
             }

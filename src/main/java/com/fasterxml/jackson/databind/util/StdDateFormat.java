@@ -101,12 +101,21 @@ public class StdDateFormat
         DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, DEFAULT_LOCALE);
         DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);
     }
-    
+
     /**
      * A singleton instance can be used for cloning purposes, as a blueprint of sorts.
      */
     public final static StdDateFormat instance = new StdDateFormat();
-    
+
+    /**
+     * Blueprint "Calendar" instance for use during formatting. Cannot be used as is,
+     * due to thread-safety issues, but can be used for constructing actual instances 
+     * more cheaply by cloning.
+     *
+     * @since 2.9.1
+     */
+    protected static final Calendar CALENDAR = new GregorianCalendar(DEFAULT_TIMEZONE, DEFAULT_LOCALE);
+
     /**
      * Caller may want to explicitly override timezone to use; if so,
      * we will have non-null value here.
@@ -124,6 +133,13 @@ public class StdDateFormat
      * @since 2.7
      */
     protected Boolean _lenient;
+
+    /**
+     * Lazily instantiated calendar used by this instance for serialization ({@link #format(Date)}).
+     *
+     * @since 2.9.1
+     */
+    private transient Calendar _calendar;
     
     private transient DateFormat _formatRFC1123;
 
@@ -348,28 +364,35 @@ public class StdDateFormat
         _format(tz, _locale, date, toAppendTo);
         return toAppendTo;
     }
-
-    protected static void _format(TimeZone tz, Locale loc, Date date,
+    
+    protected void _format(TimeZone tz, Locale loc, Date date,
             StringBuffer buffer)
     {
-        Calendar calendar = new GregorianCalendar(tz, loc);
-        calendar.setTime(date);
+        Calendar cal = _calendar;
+        if (cal == null ) {
+            _calendar = cal = (Calendar)CALENDAR.clone();
+        }
+        if (!cal.getTimeZone().equals(tz) ) {
+            cal.setTimeZone(tz);
+        }
+        // Note: Calendar locale not updated since we don't need it here...
+        cal.setTime(date);
 
-        pad4(buffer, calendar.get(Calendar.YEAR));
+        pad4(buffer, cal.get(Calendar.YEAR));
         buffer.append('-');
-        pad2(buffer, calendar.get(Calendar.MONTH) + 1);
+        pad2(buffer, cal.get(Calendar.MONTH) + 1);
         buffer.append('-');
-        pad2(buffer, calendar.get(Calendar.DAY_OF_MONTH));
+        pad2(buffer, cal.get(Calendar.DAY_OF_MONTH));
         buffer.append('T');
-        pad2(buffer, calendar.get(Calendar.HOUR_OF_DAY));
+        pad2(buffer, cal.get(Calendar.HOUR_OF_DAY));
         buffer.append(':');
-        pad2(buffer, calendar.get(Calendar.MINUTE));
+        pad2(buffer, cal.get(Calendar.MINUTE));
         buffer.append(':');
-        pad2(buffer, calendar.get(Calendar.SECOND));
+        pad2(buffer, cal.get(Calendar.SECOND));
         buffer.append('.');
-        pad3(buffer, calendar.get(Calendar.MILLISECOND));
+        pad3(buffer, cal.get(Calendar.MILLISECOND));
 
-        int offset = tz.getOffset(calendar.getTimeInMillis());
+        int offset = tz.getOffset(cal.getTimeInMillis());
         if (offset != 0) {
             int hours = Math.abs((offset / (60 * 1000)) / 60);
             int minutes = Math.abs((offset / (60 * 1000)) % 60);
@@ -533,8 +556,7 @@ public class StdDateFormat
         } else {
             Matcher m = PATTERN_ISO8601.matcher(dateStr);
             if (m.matches()) {
-                // Important! START with optional timezone; otherwise
-                // Calendar will implode.
+                // Important! START with optional time zone; otherwise Calendar will explode
                 
                 int start = m.start(2);
                 int end = m.end(2);
@@ -564,30 +586,47 @@ public class StdDateFormat
                 int minute = _parse2D(dateStr, 14);
 
                 // Seconds are actually optional... so
-                int seconds = 0;
+                int seconds;
                 if ((totalLen > 16) && dateStr.charAt(16) == ':') {
                     seconds = _parse2D(dateStr, 17);
+                } else {
+                    seconds = 0;
                 }
                 cal.set(year, month, day, hour, minute, seconds);
 
                 // Optional milliseconds
+                start = m.start(1) + 1;
+                end = m.end(1);
                 int msecs = 0;
-                if( m.start(1) != -1 ) {
-	                start = m.start(1) + 1;
-	                end = m.end(1);
+                if (start >= end) { // no fractional
+                    cal.set(Calendar.MILLISECOND, 0);
+                } else {
+                    // first char is '.', but rest....
+                    msecs = 0;
+                    final int fractLen = end-start;
+                    switch (fractLen) {
+                    default: // [databind#1745] Allow longer fractions... for now, cap at nanoseconds tho
 
-                    int millisLen = Math.min(3, end-start);
-                    switch (millisLen) {
+                        if (fractLen > 9) { // only allow up to nanos
+                            throw new ParseException(String.format(
+"Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
+                                       dateStr, m.group(1).substring(1)
+                                       ),
+                                pos.getErrorIndex());
+                        }
+                        // fall through
                     case 3:
                         msecs += (dateStr.charAt(start+2) - '0');
                     case 2:
                         msecs += 10 * (dateStr.charAt(start+1) - '0');
                     case 1:
                         msecs += 100 * (dateStr.charAt(start) - '0');
+                        break;
+                    case 0:
+                        break;
                     }
+                    cal.set(Calendar.MILLISECOND, msecs);
                 }
-                cal.set(Calendar.MILLISECOND, msecs);
-                
                 return cal.getTime();
             }
             formatStr = DATE_FORMAT_STR_ISO8601;

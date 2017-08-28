@@ -144,6 +144,12 @@
         <version>4.3.0</version>
       </plugin>
 
+      <!-- 08-Aug-2017, tatu: Need newer version of cobertura... -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.7</version>
+      </plugin>
     </plugins>
   </build>
 

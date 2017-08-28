@@ -632,6 +632,10 @@ Bertrand Renuart (brenuart@github)
    (2.8.9)
   * Reported #1651: `StdDateFormat` fails to parse 'zulu' date when TimeZone other than UTC
    (2.8.9)
+  * Suggested #1745: StdDateFormat: accept and truncate millis larger than 3 digits
+   (2.9.1)
+  * Contributed #1749: StdDateFormat: performance improvement of '_format(..)' method
+   (2.9.1)
 
 Kevin Gallardo (newkek@github)
   * Reported #1658: Infinite recursion when deserializing a class extending a Map,
@@ -693,3 +697,8 @@ Christian Basler (Dissem@github)
   * Reported #1688: Deserialization fails for `java.nio.file.Path` implementations when
     default typing enabled
    (2.9.0)
+
+Tim Bartley (tbartley@github)
+  * Reported, suggested fix for #1705: Non-generic interface method hides type resolution info
+    from generic base class
+   (2.9.1)

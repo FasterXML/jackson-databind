@@ -76,6 +76,16 @@ public abstract class Annotated
      */
     public abstract Class<?> getRawType();
 
+    /**
+     * Accessor that can be used to iterate over all the annotations
+     * associated with annotated component.
+     *
+     * @since 2.3
+     * @deprecated Since 2.9 should instead use {@link #getAnnotated()}
+     */
+    @Deprecated
+    public abstract Iterable<Annotation> annotations();
+
     // Also: ensure we can use #equals, #hashCode
     
     @Override

@@ -143,6 +143,11 @@ public class StdDateFormat
     
     private transient DateFormat _formatRFC1123;
 
+    /** 
+     * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
+     */
+    private boolean _formatTzOffsetWithColumn = false;
+    
     /*
     /**********************************************************
     /* Life cycle, accessing singleton "standard" formats
@@ -159,10 +164,11 @@ public class StdDateFormat
         _locale = loc;
     }
 
-    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
+    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient, boolean formatTzOffsetWithColumn) {
         _timezone = tz;
         _locale = loc;
         _lenient = lenient;
+        _formatTzOffsetWithColumn = formatTzOffsetWithColumn;
     }
     
     public static TimeZone getDefaultTimeZone() {
@@ -180,14 +186,14 @@ public class StdDateFormat
         if ((tz == _timezone) || tz.equals(_timezone)) {
             return this;
         }
-        return new StdDateFormat(tz, _locale, _lenient);
+        return new StdDateFormat(tz, _locale, _lenient, _formatTzOffsetWithColumn);
     }
 
     public StdDateFormat withLocale(Locale loc) {
         if (loc.equals(_locale)) {
             return this;
         }
-        return new StdDateFormat(_timezone, loc, _lenient);
+        return new StdDateFormat(_timezone, loc, _lenient, _formatTzOffsetWithColumn);
     }
 
     /**
@@ -197,14 +203,14 @@ public class StdDateFormat
         if (_equals(b, _lenient)) {
             return this;
         }
-        return new StdDateFormat(_timezone, _locale, b);
+        return new StdDateFormat(_timezone, _locale, b, _formatTzOffsetWithColumn);
     }
 
     @Override
     public StdDateFormat clone() {
         // Although there is that much state to share, we do need to
         // orchestrate a bit, mostly since timezones may be changed
-        return new StdDateFormat(_timezone, _locale, _lenient);
+        return new StdDateFormat(_timezone, _locale, _lenient, _formatTzOffsetWithColumn);
     }
 
     /**
@@ -280,6 +286,27 @@ public class StdDateFormat
         return (_lenient == null) || _lenient.booleanValue();
     }
 
+    /**
+     * If {@code true}), format TZ offset with a colon ({@code HH:mm}).
+     * 
+     * @param formatTzOffsetWithColumn whether to include a colon in the formatted TZ
+     */
+    public void setFormatTzOffsetWithColumn(boolean formatTzOffsetWithColumn) {
+		this._formatTzOffsetWithColumn = formatTzOffsetWithColumn;
+	}
+    
+    /** 
+     * Return {@code true} if a colon is to be inserted between the hours and minutes 
+     * of the TZ offset.
+     * 
+     * @return {@code true} if a colon is to be inserted between the hours and minutes 
+     * of the TZ offset
+     */
+    public boolean isFormatTzOffsetWithColumn() {
+		return _formatTzOffsetWithColumn;
+	}
+    
+    
     /*
     /**********************************************************
     /* Public API, parsing
@@ -398,15 +425,20 @@ public class StdDateFormat
             int minutes = Math.abs((offset / (60 * 1000)) % 60);
             buffer.append(offset < 0 ? '-' : '+');
             pad2(buffer, hours);
-            // 24-Jun-2017, tatu: To add colon or not to add colon? Both are legal...
-            //   tests appear to expect no colon so let's go with that.
-//            formatted.append(':');
+            if( _formatTzOffsetWithColumn ) {
+            		buffer.append(':');
+            }
             pad2(buffer, minutes);
         } else {
             // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
             //   mandate use of full `+0000`
 //            formatted.append('Z');
-            buffer.append("+0000");
+	        	if( _formatTzOffsetWithColumn ) {
+	            buffer.append("+00:00");
+	        	}
+	        	else {
+	        		buffer.append("+0000");
+	        	}
         }
     }
 

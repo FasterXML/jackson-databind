@@ -118,6 +118,7 @@ public class DateDeserializationTZTest
     public void testDateUtilISO8601_DateTimeMillis() throws Exception 
     {    
         // WITH timezone (from 4 to 0 digits)
+    		failure(MAPPER, "2000-01-02T03:04:05.0123456789+01:00");	// at most 9 digits for the millis
         verify( MAPPER, "2000-01-02T03:04:05.6789+01:00", judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
         verify( MAPPER, "2000-01-02T03:04:05.678+01:00",  judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
         verify( MAPPER, "2000-01-02T03:04:05.67+01:00",   judate(2000, 1, 2,   3, 4, 5, 670, "GMT+1"));
@@ -126,6 +127,7 @@ public class DateDeserializationTZTest
 
 
         // WITH timezone Z (from 4 to 0 digits)
+		failure(MAPPER, "2000-01-02T03:04:05.0123456789Z");	// at most 9 digits for the millis
         verify( MAPPER, "2000-01-02T03:04:05.6789Z",      judate(2000, 1, 2,   3, 4, 5, 678, "UTC"));
         verify( MAPPER, "2000-01-02T03:04:05.678Z",       judate(2000, 1, 2,   3, 4, 5, 678, "UTC"));
         verify( MAPPER, "2000-01-02T03:04:05.67Z",        judate(2000, 1, 2,   3, 4, 5, 670, "UTC"));
@@ -134,6 +136,7 @@ public class DateDeserializationTZTest
         
 
         // WITHOUT timezone (from 4 to 0 digits)
+		failure(MAPPER, "2000-01-02T03:04:05.0123456789");	// at most 9 digits for the millis
         verify( MAPPER, "2000-01-02T03:04:05.6789",       judate(2000, 1, 2,   3, 4,  5, 678, LOCAL_TZ));
         verify( MAPPER, "2000-01-02T03:04:05.678",        judate(2000, 1, 2,   3, 4,  5, 678, LOCAL_TZ));
         verify( MAPPER, "2000-01-02T03:04:05.67",         judate(2000, 1, 2,   3, 4,  5, 670, LOCAL_TZ));

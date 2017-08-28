@@ -97,19 +97,16 @@ public class DateDeserializationTZTest
         //   According to ISO8601, hours and minutes of the offset must be expressed with 2 digits 
         //   (not more, not less), i.e. Z or +hh:mm or -hh:mm. See https://www.w3.org/TR/NOTE-datetime. 
         //
-        //   The forms below should be refused but some are accepted by the StdDateFormat. They are 
-        //   included in the test to detect any change in behavior in futur releases...
+        //   The forms below are therefore ILLEGAL and must be refused.
         // ---------------------------------------------------------------------------------------------
 
-        // Interpreted as if there was no timezone, therefore producing a date with the TZ set on the mapper
-        // FIXME it is probably better to refuse these cases instead of silently creating dates in local tz...
-        failure( MAPPER, "2000-01-02T03:04:05.678+"); //        judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-        failure( MAPPER, "2000-01-02T03:04:05.678+1"); //       judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
+        failure( MAPPER, "2000-01-02T03:04:05.678+"); 
+        failure( MAPPER, "2000-01-02T03:04:05.678+1");
 
-        failure( MAPPER, "2000-01-02T03:04:05.678+001"); //   judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-        failure( MAPPER, "2000-01-02T03:04:05.678+00:"); //     judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-        failure( MAPPER, "2000-01-02T03:04:05.678+00:001"); //  judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
-        failure( MAPPER, "2000-01-02T03:04:05.678+001:001"); // judate(2000, 1, 2,   3, 4, 5, 678, LOCAL_TZ));
+        failure( MAPPER, "2000-01-02T03:04:05.678+001"); 
+        failure( MAPPER, "2000-01-02T03:04:05.678+00:");
+        failure( MAPPER, "2000-01-02T03:04:05.678+00:001");
+        failure( MAPPER, "2000-01-02T03:04:05.678+001:001");
 
         failure( MAPPER, "2000-01-02T03:04:05.678+1:");
         failure( MAPPER, "2000-01-02T03:04:05.678+00:1");
@@ -121,36 +118,30 @@ public class DateDeserializationTZTest
     public void testDateUtilISO8601_DateTimeMillis() throws Exception 
     {    
         // WITH timezone (from 4 to 0 digits)
-        verify( MAPPER, "2000-01-02T03:04:05.678+01:00", judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
-        verify( MAPPER, "2000-01-02T03:04:05.67+01:00",  judate(2000, 1, 2,   3, 4, 5, 670, "GMT+1"));
-        verify( MAPPER, "2000-01-02T03:04:05.6+01:00",   judate(2000, 1, 2,   3, 4, 5, 600, "GMT+1"));
-        verify( MAPPER, "2000-01-02T03:04:05+01:00",     judate(2000, 1, 2,   3, 4, 5, 000, "GMT+1"));
+    		failure(MAPPER, "2000-01-02T03:04:05.0123456789+01:00");	// at most 9 digits for the millis
+        verify( MAPPER, "2000-01-02T03:04:05.6789+01:00", judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05.678+01:00",  judate(2000, 1, 2,   3, 4, 5, 678, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05.67+01:00",   judate(2000, 1, 2,   3, 4, 5, 670, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05.6+01:00",    judate(2000, 1, 2,   3, 4, 5, 600, "GMT+1"));
+        verify( MAPPER, "2000-01-02T03:04:05+01:00",      judate(2000, 1, 2,   3, 4, 5, 000, "GMT+1"));
 
 
-//        failure(MAPPER, "2000-01-02T03:04:05.6789+01:00");
-//        failure( MAPPER, "2000-01-02T03:04:05.6789Z"); // , judate(2000, 1, 2,   3, 4, 11, 789, "UTC"));
-        
         // WITH timezone Z (from 4 to 0 digits)
-            // FIXME the .6789 millis are interpreted as 6789 millisecondes or 6.789 seconds!
-        verify( MAPPER, "2000-01-02T03:04:05.678Z", judate(2000, 1, 2,   3, 4, 5, 678, "UTC"));
-        verify( MAPPER, "2000-01-02T03:04:05.67Z",  judate(2000, 1, 2,   3, 4, 5, 670, "UTC"));
-           // FIXME should be 670 millis instead of 67
-        verify( MAPPER, "2000-01-02T03:04:05.6Z",   judate(2000, 1, 2,   3, 4, 5, 600, "UTC"));
-           // FIXME should be 600 millis instead of 6
-        verify( MAPPER, "2000-01-02T03:04:05Z",     judate(2000, 1, 2,   3, 4, 5,   0, "UTC"));
+		failure(MAPPER, "2000-01-02T03:04:05.0123456789Z");	// at most 9 digits for the millis
+        verify( MAPPER, "2000-01-02T03:04:05.6789Z",      judate(2000, 1, 2,   3, 4, 5, 678, "UTC"));
+        verify( MAPPER, "2000-01-02T03:04:05.678Z",       judate(2000, 1, 2,   3, 4, 5, 678, "UTC"));
+        verify( MAPPER, "2000-01-02T03:04:05.67Z",        judate(2000, 1, 2,   3, 4, 5, 670, "UTC"));
+        verify( MAPPER, "2000-01-02T03:04:05.6Z",         judate(2000, 1, 2,   3, 4, 5, 600, "UTC"));
+        verify( MAPPER, "2000-01-02T03:04:05Z",           judate(2000, 1, 2,   3, 4, 5,   0, "UTC"));
         
 
         // WITHOUT timezone (from 4 to 0 digits)
-            // FIXME: the .6789 millis are interpreted as 6789 millisecondes or 6.789 seconds!
-        
-        verify( MAPPER, "2000-01-02T03:04:05.678",       judate(2000, 1, 2,   3, 4,  5, 678, LOCAL_TZ));
-        verify( MAPPER, "2000-01-02T03:04:05.67",        judate(2000, 1, 2,   3, 4,  5, 670, LOCAL_TZ));
-            // FIXME: the .67 millis are interpreted as 67 seconds.
-        
-        verify( MAPPER, "2000-01-02T03:04:05.6",         judate(2000, 1, 2,   3, 4,  5, 600, LOCAL_TZ));
-        verify( MAPPER, "2000-01-02T03:04:05",           judate(2000, 1, 2,   3, 4,  5, 000, LOCAL_TZ));
-
-//        failure(MAPPER, "2000-01-02T03:04:05.6789"); //       judate(2000, 1, 2,   3, 4, 11, 789, LOCAL_TZ));
+		failure(MAPPER, "2000-01-02T03:04:05.0123456789");	// at most 9 digits for the millis
+        verify( MAPPER, "2000-01-02T03:04:05.6789",       judate(2000, 1, 2,   3, 4,  5, 678, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05.678",        judate(2000, 1, 2,   3, 4,  5, 678, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05.67",         judate(2000, 1, 2,   3, 4,  5, 670, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05.6",          judate(2000, 1, 2,   3, 4,  5, 600, LOCAL_TZ));
+        verify( MAPPER, "2000-01-02T03:04:05",            judate(2000, 1, 2,   3, 4,  5, 000, LOCAL_TZ));
         
         
         // ---------------------------------------------------------------------------------------------
@@ -165,17 +156,16 @@ public class DateDeserializationTZTest
         //      time-secfrac    = "." 1*DIGIT
         //      partial-time    = time-hour ":" time-minute ":" time-second [time-secfrac]
         //
-        //   The second fraction (ie the millis) is optional and can be ommitted. However, a fraction
+        //   The second fraction (ie the millis) is optional and can be omitted. However, a fraction
         //   with only a dot (.) and no digit is not allowed.
         //
-        //   The forms below should be refused but some are accepted by the StdDateFormat. They are 
-           //   included in the test to detect any change in behavior in futur releases...
+        //   The forms below are therefore ILLEGAL and must be refused.
         // ---------------------------------------------------------------------------------------------
         
         // millis part with only a dot (.) and no digits
-        failure( MAPPER, "2000-01-02T03:04:05.+01:00"); //    judate(2000, 1, 2,   3, 4, 5, 000, "GMT+1"));
-        failure( MAPPER, "2000-01-02T03:04:05.");       //   judate(2000, 1, 2,   3, 4, 5, 000, LOCAL_TZ));
-        failure(MAPPER, "2000-01-02T03:04:05.Z");	      // FIXME this one fails, but not the others...
+        failure( MAPPER, "2000-01-02T03:04:05.+01:00");
+        failure( MAPPER, "2000-01-02T03:04:05.");
+        failure( MAPPER, "2000-01-02T03:04:05.Z");
     }
 
 
@@ -192,26 +182,24 @@ public class DateDeserializationTZTest
         // No timezone --> the one configured on the ObjectMapper must be used
         verify(MAPPER, "2000-01-02T03:04:05",        judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
 
-        // Hours, minutes and seconds are mandatory when time is specified
+        // Hours, minutes are mandatory but seconds are optional
         failure(MAPPER, "2000-01-02T");
         failure(MAPPER, "2000-01-02T03");
         failure(MAPPER, "2000-01-02T03:");
         verify(MAPPER, "2000-01-02T03:04", judate(2000, 1, 2,  3, 4, 0, 0, LOCAL_TZ));
         failure(MAPPER, "2000-01-02T03:04:");
         
-        // Although hours, minutes and seconds are mandatory, they can sometimes be omitted 
-        // if a TZ is specified... !!??
+        // Hours, minutes are mandatory but seconds are optional - test with a TZ
         failure(MAPPER, "2000-01-02T+01:00");
         failure(MAPPER, "2000-01-02T03+01:00");
         failure(MAPPER, "2000-01-02T03:+01:00");
-        verify( MAPPER, "2000-01-02T03:04+01:00",   judate(2000, 1, 2,   3, 4, 0, 0, "GMT+1"));    // FIXME should be refused
+        verify( MAPPER, "2000-01-02T03:04+01:00", judate(2000, 1, 2,   3, 4, 0, 0, "GMT+1"));
         failure(MAPPER, "2000-01-02T03:04:+01:00");
         
         failure(MAPPER, "2000-01-02TZ");
         failure(MAPPER, "2000-01-02T03Z");
         failure(MAPPER, "2000-01-02T03:Z");
         verify(MAPPER, "2000-01-02T03:04Z", judate(2000, 1, 2,  3, 4, 0, 0, "UTC"));
-
         failure(MAPPER, "2000-01-02T03:04:Z");
 
         
@@ -233,8 +221,8 @@ public class DateDeserializationTZTest
         // Behavior should be the SAME whatever the timezone and/or the millis.
         
         // seconds (no TZ)
-        failure( MAPPER, "2000-01-02T03:04:5"); //           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-        failure( MAPPER, "2000-01-02T03:04:5.000"); //       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        failure( MAPPER, "2000-01-02T03:04:5");
+        failure( MAPPER, "2000-01-02T03:04:5.000");
         failure(MAPPER, "2000-01-02T03:04:005");
         
         // seconds (+01:00)
@@ -244,13 +232,13 @@ public class DateDeserializationTZTest
         
         // seconds (Z)
         failure(MAPPER, "2000-01-02T03:04:5Z");
-        failure( MAPPER, "2000-01-02T03:04:5.000Z"); //      judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        failure( MAPPER, "2000-01-02T03:04:5.000Z");
         failure(MAPPER, "2000-01-02T03:04:005Z");
         
 
         // minutes (no TZ)
-        failure( MAPPER, "2000-01-02T03:4:05"); //           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-        failure( MAPPER, "2000-01-02T03:4:05.000"); //      judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        failure( MAPPER, "2000-01-02T03:4:05");
+        failure( MAPPER, "2000-01-02T03:4:05.000");
         failure(MAPPER, "2000-01-02T03:004:05");
         
         // minutes (+01:00)
@@ -259,13 +247,13 @@ public class DateDeserializationTZTest
         failure(MAPPER, "2000-01-02T03:004:05+01:00");
         
         // minutes (Z)
-        failure( MAPPER, "2000-01-02T03:4:05Z"); //          judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
-        failure( MAPPER, "2000-01-02T03:4:05.000Z"); //      judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
-        failure( MAPPER, "2000-01-02T03:004:05Z"); //       judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        failure( MAPPER, "2000-01-02T03:4:05Z");
+        failure( MAPPER, "2000-01-02T03:4:05.000Z");
+        failure( MAPPER, "2000-01-02T03:004:05Z");
 
         // hour (no TZ)
-        failure( MAPPER, "2000-01-02T3:04:05"); //           judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
-        failure( MAPPER, "2000-01-02T3:04:05.000"); //       judate(2000, 1, 2,   3, 4, 5, 0, LOCAL_TZ));
+        failure( MAPPER, "2000-01-02T3:04:05");
+        failure( MAPPER, "2000-01-02T3:04:05.000");
         failure(MAPPER, "2000-01-02T003:04:05");
 
         // hour (+01:00)
@@ -274,9 +262,9 @@ public class DateDeserializationTZTest
         failure(MAPPER, "2000-01-02T003:04:05+01:00");
 
         // hour (Z)
-        failure( MAPPER, "2000-01-02T3:04:05Z"); //         judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
-        failure( MAPPER, "2000-01-02T3:04:05.000Z"); //     judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
-        failure( MAPPER, "2000-01-02T003:04:05Z"); //       judate(2000, 1, 2,   3, 4, 5, 0, "UTC"));
+        failure( MAPPER, "2000-01-02T3:04:05Z");
+        failure( MAPPER, "2000-01-02T3:04:05.000Z");
+        failure( MAPPER, "2000-01-02T003:04:05Z");
     }
 
     /**
@@ -302,18 +290,18 @@ public class DateDeserializationTZTest
         // ---------------------------------------------------------------------------------------------
 
         // day
-        failure(  MAPPER, "2000-01-2"); //      judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
+        failure( MAPPER, "2000-01-2"); 
         failure( MAPPER, "2000-01-002");
         
         // month
-        failure(  MAPPER, "2000-1-02"); //     judate(2000, 1, 2,   0, 0, 0, 0, LOCAL_TZ));
+        failure( MAPPER, "2000-1-02");
         failure( MAPPER, "2000-001-02");
         
         // year
         failure( MAPPER, "20000-01-02");
         failure( MAPPER, "200-01-02"  );
         failure( MAPPER, "20-01-02"   );
-        failure(  MAPPER, "2-01-02"); // judate(2, 1, 2,   0, 0, 0, 0, LOCAL_TZ));    // FIXME Why accept 1 digit and refuse they other cases??
+        failure(  MAPPER, "2-01-02");
     }
 
     /**
@@ -559,7 +547,6 @@ public class DateDeserializationTZTest
         catch(Exception e) {
             // Is it the expected exception ?
             if (!exceptionType.isAssignableFrom(e.getClass()) ) {
-e.printStackTrace();
                 fail("Wrong exception thrown when reading "+input+", actual: "+e.getClass().getName() + "("+e.getMessage()+"), expected: "+exceptionType.getName());
             }
         }

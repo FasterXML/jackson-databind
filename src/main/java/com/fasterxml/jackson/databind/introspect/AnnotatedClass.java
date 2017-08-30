@@ -248,6 +248,18 @@ public final class AnnotatedClass
     }
 
     @Override
+    @Deprecated
+    public Iterable<Annotation> annotations() {
+        if (_classAnnotations instanceof AnnotationMap) {
+            return ((AnnotationMap) _classAnnotations).annotations();
+        } else if (_classAnnotations instanceof AnnotationCollector.OneAnnotation ||
+           _classAnnotations instanceof AnnotationCollector.TwoAnnotations) {
+            throw new UnsupportedOperationException("please use getAnnotations/ hasAnnotation to check for Annotations");
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
     public JavaType getType() {
         return _type;
     }

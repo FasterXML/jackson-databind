@@ -136,19 +136,24 @@ public class DateSerializationTest
 
     /**
      * Configure the StdDateFormat to serialize TZ offset with a colon between hours and minutes
+     *
+     * See [databind#1744]
      */
-    public void testDateISO8601_colonInTZ() throws IOException {
-	    	StdDateFormat dateFormat = new StdDateFormat();
-	    	dateFormat.setFormatTzOffsetWithColumn(true);
+    public void testDateISO8601_colonInTZ() throws IOException
+    {
+        StdDateFormat dateFormat = new StdDateFormat();
+        assertFalse(dateFormat.isColonIncludedInTimeZone());
+        dateFormat = dateFormat.withColonInTimeZone(true);
+        assertTrue(dateFormat.isColonIncludedInTimeZone());
 
-	    	ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.setDateFormat(dateFormat);
         
         serialize( mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+00:00");
-		serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+00:00");
+        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+00:00");
     }
-    
+
     public void testDateOther() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

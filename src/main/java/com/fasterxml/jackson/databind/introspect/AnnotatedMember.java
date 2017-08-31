@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
+import java.util.Collections;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -84,6 +85,10 @@ public abstract class AnnotatedMember
         return _annotations.hasOneOf(annoClasses);
     }
 
+    /**
+     * @deprecated Since 3.0
+     */
+    @Deprecated
     public AnnotationMap getAllAnnotations() { // alas, used by at least one module, hence public
         return _annotations;
     }

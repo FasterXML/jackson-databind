@@ -945,7 +945,7 @@ public class ObjectMapper
      * 
      * @since 2.2
      */
-    public ObjectMapper registerModules(Iterable<Module> modules)
+    public ObjectMapper registerModules(Iterable<? extends Module> modules)
     {
         for (Module module : modules) {
             registerModule(module);

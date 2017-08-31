@@ -11,6 +11,8 @@ Project: jackson-databind
  (reported by ctytgat@github)
 #1730: InvalidFormatException` for `JsonToken.VALUE_EMBEDDED_OBJECT`
  (reported by zigzago@github)
+#1744: StdDateFormat: add option to serialize timezone offset with a colon
+ (contributed by Bertrand R)
 #1745: StdDateFormat: accept and truncate millis larger than 3 digits
  (suggested by Bertrand R)
 #1749: StdDateFormat: performance improvement of '_format(..)' method 

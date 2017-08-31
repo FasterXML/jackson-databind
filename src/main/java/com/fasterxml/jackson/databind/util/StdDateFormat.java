@@ -145,8 +145,10 @@ public class StdDateFormat
 
     /** 
      * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
+     *
+     * @since 2.9.1
      */
-    private boolean _formatTzOffsetWithColumn = false;
+    private boolean _tzSerializedWithColon = false;
     
     /*
     /**********************************************************
@@ -164,11 +166,19 @@ public class StdDateFormat
         _locale = loc;
     }
 
-    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient, boolean formatTzOffsetWithColumn) {
+    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
+        this(tz, loc, lenient, false);
+    }
+
+    /**
+     * @since 2.9.1
+     */
+    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient,
+            boolean formatTzOffsetWithColon) {
         _timezone = tz;
         _locale = loc;
         _lenient = lenient;
-        _formatTzOffsetWithColumn = formatTzOffsetWithColumn;
+        _tzSerializedWithColon = formatTzOffsetWithColon;
     }
     
     public static TimeZone getDefaultTimeZone() {
@@ -186,31 +196,61 @@ public class StdDateFormat
         if ((tz == _timezone) || tz.equals(_timezone)) {
             return this;
         }
-        return new StdDateFormat(tz, _locale, _lenient, _formatTzOffsetWithColumn);
+        return new StdDateFormat(tz, _locale, _lenient, _tzSerializedWithColon);
     }
 
+    /**
+     * "Mutant factory" method that will return an instance that uses specified
+     * {@code Locale}:
+     * either {@code this} instance (if setting would not change), or newly
+     * constructed instance with different {@code Locale} to use.
+     */
     public StdDateFormat withLocale(Locale loc) {
         if (loc.equals(_locale)) {
             return this;
         }
-        return new StdDateFormat(_timezone, loc, _lenient, _formatTzOffsetWithColumn);
+        return new StdDateFormat(_timezone, loc, _lenient, _tzSerializedWithColon);
     }
 
     /**
+     * "Mutant factory" method that will return an instance that has specified leniency
+     * setting: either {@code this} instance (if setting would not change), or newly
+     * constructed instance.
+     *
      * @since 2.9
      */
     public StdDateFormat withLenient(Boolean b) {
         if (_equals(b, _lenient)) {
             return this;
         }
-        return new StdDateFormat(_timezone, _locale, b, _formatTzOffsetWithColumn);
+        return new StdDateFormat(_timezone, _locale, b, _tzSerializedWithColon);
     }
 
+    /**
+     * "Mutant factory" method that will return an instance that has specified
+     * handling of colon when serializing timezone (timezone either written
+     * like {@code +0500} or {@code +05:00}):
+     * either {@code this} instance (if setting would not change), or newly
+     * constructed instance with desired setting for colon inclusion.
+     *<p>
+     * NOTE: does NOT affect deserialization as colon is optional accepted
+     * but not required -- put another way, either serialization is accepted
+     * by this class.
+     *
+     * @since 2.9.1
+     */
+    public StdDateFormat withColonInTimeZone(boolean b) {
+        if (_tzSerializedWithColon == b) {
+            return this;
+        }
+        return new StdDateFormat(_timezone, _locale, _lenient, b);
+     }
+    
     @Override
     public StdDateFormat clone() {
         // Although there is that much state to share, we do need to
         // orchestrate a bit, mostly since timezones may be changed
-        return new StdDateFormat(_timezone, _locale, _lenient, _formatTzOffsetWithColumn);
+        return new StdDateFormat(_timezone, _locale, _lenient, _tzSerializedWithColon);
     }
 
     /**
@@ -287,26 +327,23 @@ public class StdDateFormat
     }
 
     /**
-     * If {@code true}), format TZ offset with a colon ({@code HH:mm}).
-     * 
-     * @param formatTzOffsetWithColumn whether to include a colon in the formatted TZ
-     */
-    public void setFormatTzOffsetWithColumn(boolean formatTzOffsetWithColumn) {
-		this._formatTzOffsetWithColumn = formatTzOffsetWithColumn;
-	}
-    
-    /** 
-     * Return {@code true} if a colon is to be inserted between the hours and minutes 
-     * of the TZ offset.
-     * 
+     * Accessor for checking whether this instance would include colon
+     * within timezone serialization or not: if {code true}, timezone offset
+     * is serialized like {@code -06:00}; if {code false} as {@code -0600}.
+     *<p>
+     * NOTE: only relevant for serialization (formatting), as deserialization
+     * (parsing) always accepts optional colon but does not require it, regardless
+     * of this setting.
+     *
      * @return {@code true} if a colon is to be inserted between the hours and minutes 
-     * of the TZ offset
+     * of the TZ offset when serializing as String; otherwise {@code false}
+     *
+     * @since 2.9.1
      */
-    public boolean isFormatTzOffsetWithColumn() {
-		return _formatTzOffsetWithColumn;
-	}
-    
-    
+    public boolean isColonIncludedInTimeZone() {
+        return _tzSerializedWithColon;
+    }
+
     /*
     /**********************************************************
     /* Public API, parsing
@@ -425,7 +462,7 @@ public class StdDateFormat
             int minutes = Math.abs((offset / (60 * 1000)) % 60);
             buffer.append(offset < 0 ? '-' : '+');
             pad2(buffer, hours);
-            if( _formatTzOffsetWithColumn ) {
+            if( _tzSerializedWithColon ) {
             		buffer.append(':');
             }
             pad2(buffer, minutes);
@@ -433,7 +470,7 @@ public class StdDateFormat
             // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
             //   mandate use of full `+0000`
 //            formatted.append('Z');
-	        	if( _formatTzOffsetWithColumn ) {
+	        	if( _tzSerializedWithColon ) {
 	            buffer.append("+00:00");
 	        	}
 	        	else {

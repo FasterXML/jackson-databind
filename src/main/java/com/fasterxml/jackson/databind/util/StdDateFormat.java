@@ -596,7 +596,7 @@ public class StdDateFormat
         }
     }
 
-    protected Date _parseAsISO8601(String dateStr, ParsePosition pos)
+    protected Date _parseAsISO8601(String dateStr, ParsePosition bogus)
         throws IllegalArgumentException, ParseException
     {
         final int totalLen = dateStr.length();
@@ -680,8 +680,7 @@ public class StdDateFormat
                             throw new ParseException(String.format(
 "Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
                                        dateStr, m.group(1).substring(1)
-                                       ),
-                                pos.getErrorIndex());
+                                       ), start);
                         }
                         // fall through
                     case 3:
@@ -704,7 +703,9 @@ public class StdDateFormat
         throw new ParseException
         (String.format("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
                        dateStr, formatStr, _lenient),
-           pos.getErrorIndex());
+                // [databind#1742]: Might be able to give actual location, some day, but for now
+                //  we can't give anything more indicative
+                0);
     }
 
     private static int _parse4D(String str, int index) {

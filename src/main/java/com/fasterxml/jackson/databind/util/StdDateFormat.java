@@ -143,6 +143,13 @@ public class StdDateFormat
     
     private transient DateFormat _formatRFC1123;
 
+    /** 
+     * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
+     *
+     * @since 2.9.1
+     */
+    private boolean _tzSerializedWithColon = false;
+    
     /*
     /**********************************************************
     /* Life cycle, accessing singleton "standard" formats
@@ -160,9 +167,18 @@ public class StdDateFormat
     }
 
     protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
+        this(tz, loc, lenient, false);
+    }
+
+    /**
+     * @since 2.9.1
+     */
+    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient,
+            boolean formatTzOffsetWithColon) {
         _timezone = tz;
         _locale = loc;
         _lenient = lenient;
+        _tzSerializedWithColon = formatTzOffsetWithColon;
     }
     
     public static TimeZone getDefaultTimeZone() {
@@ -180,31 +196,61 @@ public class StdDateFormat
         if ((tz == _timezone) || tz.equals(_timezone)) {
             return this;
         }
-        return new StdDateFormat(tz, _locale, _lenient);
+        return new StdDateFormat(tz, _locale, _lenient, _tzSerializedWithColon);
     }
 
+    /**
+     * "Mutant factory" method that will return an instance that uses specified
+     * {@code Locale}:
+     * either {@code this} instance (if setting would not change), or newly
+     * constructed instance with different {@code Locale} to use.
+     */
     public StdDateFormat withLocale(Locale loc) {
         if (loc.equals(_locale)) {
             return this;
         }
-        return new StdDateFormat(_timezone, loc, _lenient);
+        return new StdDateFormat(_timezone, loc, _lenient, _tzSerializedWithColon);
     }
 
     /**
+     * "Mutant factory" method that will return an instance that has specified leniency
+     * setting: either {@code this} instance (if setting would not change), or newly
+     * constructed instance.
+     *
      * @since 2.9
      */
     public StdDateFormat withLenient(Boolean b) {
         if (_equals(b, _lenient)) {
             return this;
         }
-        return new StdDateFormat(_timezone, _locale, b);
+        return new StdDateFormat(_timezone, _locale, b, _tzSerializedWithColon);
     }
 
+    /**
+     * "Mutant factory" method that will return an instance that has specified
+     * handling of colon when serializing timezone (timezone either written
+     * like {@code +0500} or {@code +05:00}):
+     * either {@code this} instance (if setting would not change), or newly
+     * constructed instance with desired setting for colon inclusion.
+     *<p>
+     * NOTE: does NOT affect deserialization as colon is optional accepted
+     * but not required -- put another way, either serialization is accepted
+     * by this class.
+     *
+     * @since 2.9.1
+     */
+    public StdDateFormat withColonInTimeZone(boolean b) {
+        if (_tzSerializedWithColon == b) {
+            return this;
+        }
+        return new StdDateFormat(_timezone, _locale, _lenient, b);
+     }
+    
     @Override
     public StdDateFormat clone() {
         // Although there is that much state to share, we do need to
         // orchestrate a bit, mostly since timezones may be changed
-        return new StdDateFormat(_timezone, _locale, _lenient);
+        return new StdDateFormat(_timezone, _locale, _lenient, _tzSerializedWithColon);
     }
 
     /**
@@ -278,6 +324,24 @@ public class StdDateFormat
     public boolean isLenient() {
         // default is, I believe, true
         return (_lenient == null) || _lenient.booleanValue();
+    }
+
+    /**
+     * Accessor for checking whether this instance would include colon
+     * within timezone serialization or not: if {code true}, timezone offset
+     * is serialized like {@code -06:00}; if {code false} as {@code -0600}.
+     *<p>
+     * NOTE: only relevant for serialization (formatting), as deserialization
+     * (parsing) always accepts optional colon but does not require it, regardless
+     * of this setting.
+     *
+     * @return {@code true} if a colon is to be inserted between the hours and minutes 
+     * of the TZ offset when serializing as String; otherwise {@code false}
+     *
+     * @since 2.9.1
+     */
+    public boolean isColonIncludedInTimeZone() {
+        return _tzSerializedWithColon;
     }
 
     /*
@@ -398,15 +462,20 @@ public class StdDateFormat
             int minutes = Math.abs((offset / (60 * 1000)) % 60);
             buffer.append(offset < 0 ? '-' : '+');
             pad2(buffer, hours);
-            // 24-Jun-2017, tatu: To add colon or not to add colon? Both are legal...
-            //   tests appear to expect no colon so let's go with that.
-//            formatted.append(':');
+            if( _tzSerializedWithColon ) {
+            		buffer.append(':');
+            }
             pad2(buffer, minutes);
         } else {
             // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
             //   mandate use of full `+0000`
 //            formatted.append('Z');
-            buffer.append("+0000");
+	        	if( _tzSerializedWithColon ) {
+	            buffer.append("+00:00");
+	        	}
+	        	else {
+	        		buffer.append("+0000");
+	        	}
         }
     }
 
@@ -527,7 +596,7 @@ public class StdDateFormat
         }
     }
 
-    protected Date _parseAsISO8601(String dateStr, ParsePosition pos)
+    protected Date _parseAsISO8601(String dateStr, ParsePosition bogus)
         throws IllegalArgumentException, ParseException
     {
         final int totalLen = dateStr.length();
@@ -611,8 +680,7 @@ public class StdDateFormat
                             throw new ParseException(String.format(
 "Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
                                        dateStr, m.group(1).substring(1)
-                                       ),
-                                pos.getErrorIndex());
+                                       ), start);
                         }
                         // fall through
                     case 3:
@@ -635,7 +703,9 @@ public class StdDateFormat
         throw new ParseException
         (String.format("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
                        dateStr, formatStr, _lenient),
-           pos.getErrorIndex());
+                // [databind#1742]: Might be able to give actual location, some day, but for now
+                //  we can't give anything more indicative
+                0);
     }
 
     private static int _parse4D(String str, int index) {

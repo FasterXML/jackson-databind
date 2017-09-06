@@ -63,7 +63,7 @@ public class RaceCondition738Test extends BaseMapTest
     }
     
     void runOnce(int round, int max) throws Exception {
-        final ObjectMapper mapper = getObjectMapper();
+        final ObjectMapper mapper = newObjectMapper();
         Callable<String> writeJson = new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -91,9 +91,5 @@ public class RaceCondition738Test extends BaseMapTest
                 throw new IllegalStateException("Round #"+round+"/"+max+" ; missing property 'one', source: "+json);
             }
         }
-    }
-
-    private static ObjectMapper getObjectMapper() {
-        return new ObjectMapper();
     }
 }

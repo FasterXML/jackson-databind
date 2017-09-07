@@ -432,14 +432,7 @@ public class StdDateFormat
     protected void _format(TimeZone tz, Locale loc, Date date,
             StringBuffer buffer)
     {
-        Calendar cal = _calendar;
-        if (cal == null ) {
-            _calendar = cal = (Calendar)CALENDAR.clone();
-        }
-        if (!cal.getTimeZone().equals(tz) ) {
-            cal.setTimeZone(tz);
-        }
-        // Note: Calendar locale not updated since we don't need it here...
+        Calendar cal = _getCalendar(tz);
         cal.setTime(date);
 
         pad4(buffer, cal.get(Calendar.YEAR));
@@ -605,10 +598,7 @@ public class StdDateFormat
         if ((_timezone != null) && ('Z' != dateStr.charAt(totalLen-1))) {
             tz = _timezone;
         }
-        Calendar cal = new GregorianCalendar(tz, _locale);
-        if (_lenient != null) {
-            cal.setLenient(_lenient.booleanValue());
-        }
+        Calendar cal = _getCalendar(tz);
         String formatStr;
         if (totalLen <= 10) {
             Matcher m = PATTERN_PLAIN.matcher(dateStr);
@@ -757,6 +747,20 @@ public class StdDateFormat
         _formatRFC1123 = null;
     }
 
+    protected Calendar _getCalendar(TimeZone tz) {
+        Calendar cal = _calendar;
+        if (cal == null ) {
+            _calendar = cal = (Calendar)CALENDAR.clone();
+        }
+        if (!cal.getTimeZone().equals(tz) ) {
+            cal.setTimeZone(tz);
+        }
+        cal.setLenient(isLenient());
+        cal.clear();
+        
+        return cal;
+    }
+    
     protected static <T> boolean _equals(T value1, T value2) {
         if (value1 == value2) {
             return true;

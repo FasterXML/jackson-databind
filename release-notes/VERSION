@@ -17,6 +17,8 @@ Project: jackson-databind
  (suggested by Bertrand R)
 #1749: StdDateFormat: performance improvement of '_format(..)' method 
  (contributed by Bertrand R)
+#1759: Reuse `Calendar` instance during parsing by `StdDateFormat`
+ (contributed by Bertrand R)
 - Fix `DelegatingDeserializer` constructor to pass `handledType()` (and
   not type of deserializer being delegated to!)
 

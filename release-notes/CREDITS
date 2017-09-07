@@ -636,6 +636,8 @@ Bertrand Renuart (brenuart@github)
    (2.9.1)
   * Contributed #1749: StdDateFormat: performance improvement of '_format(..)' method
    (2.9.1)
+  * Contributed #1759: Reuse `Calendar` instance during parsing by `StdDateFormat`
+   (2.9.1)
 
 Kevin Gallardo (newkek@github)
   * Reported #1658: Infinite recursion when deserializing a class extending a Map,

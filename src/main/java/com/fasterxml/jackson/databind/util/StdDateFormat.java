@@ -397,14 +397,7 @@ public class StdDateFormat
     protected void _format(TimeZone tz, Locale loc, Date date,
             StringBuffer buffer)
     {
-        Calendar cal = _calendar;
-        if (cal == null ) {
-            _calendar = cal = (Calendar)CALENDAR.clone();
-        }
-        if (!cal.getTimeZone().equals(tz) ) {
-            cal.setTimeZone(tz);
-        }
-        // Note: Calendar locale not updated since we don't need it here...
+        Calendar cal = _getCalendar(tz);
         cal.setTime(date);
 
         pad4(buffer, cal.get(Calendar.YEAR));
@@ -561,7 +554,7 @@ public class StdDateFormat
         }
     }
 
-    protected Date _parseAsISO8601(String dateStr, ParsePosition pos)
+    protected Date _parseAsISO8601(String dateStr, ParsePosition bogus)
         throws IllegalArgumentException, ParseException
     {
         final int totalLen = dateStr.length();
@@ -570,10 +563,8 @@ public class StdDateFormat
         if ((_timezone != null) && ('Z' != dateStr.charAt(totalLen-1))) {
             tz = _timezone;
         }
-        Calendar cal = new GregorianCalendar(tz, _locale);
-        if (_lenient != null) {
-            cal.setLenient(_lenient.booleanValue());
-        }
+        Calendar cal = _getCalendar(tz);
+        cal.clear();
         String formatStr;
         if (totalLen <= 10) {
             Matcher m = PATTERN_PLAIN.matcher(dateStr);
@@ -645,8 +636,7 @@ public class StdDateFormat
                             throw new ParseException(String.format(
 "Cannot parse date \"%s\": invalid fractional seconds '%s'; can use at most 9 digits",
                                        dateStr, m.group(1).substring(1)
-                                       ),
-                                pos.getErrorIndex());
+                                       ), start);
                         }
                         // fall through
                     case 3:
@@ -669,7 +659,9 @@ public class StdDateFormat
         throw new ParseException
         (String.format("Cannot parse date \"%s\": while it seems to fit format '%s', parsing fails (leniency? %s)",
                        dateStr, formatStr, _lenient),
-           pos.getErrorIndex());
+                // [databind#1742]: Might be able to give actual location, some day, but for now
+                //  we can't give anything more indicative
+                0);
     }
 
     private static int _parse4D(String str, int index) {
@@ -721,6 +713,18 @@ public class StdDateFormat
         _formatRFC1123 = null;
     }
 
+    protected Calendar _getCalendar(TimeZone tz) {
+        Calendar cal = _calendar;
+        if (cal == null ) {
+            _calendar = cal = (Calendar)CALENDAR.clone();
+        }
+        if (!cal.getTimeZone().equals(tz) ) {
+            cal.setTimeZone(tz);
+        }
+        cal.setLenient(isLenient());
+        return cal;
+    }
+    
     protected static <T> boolean _equals(T value1, T value2) {
         if (value1 == value2) {
             return true;

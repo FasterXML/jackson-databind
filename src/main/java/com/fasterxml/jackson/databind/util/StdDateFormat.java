@@ -599,6 +599,7 @@ public class StdDateFormat
             tz = _timezone;
         }
         Calendar cal = _getCalendar(tz);
+        cal.clear();
         String formatStr;
         if (totalLen <= 10) {
             Matcher m = PATTERN_PLAIN.matcher(dateStr);
@@ -756,8 +757,6 @@ public class StdDateFormat
             cal.setTimeZone(tz);
         }
         cal.setLenient(isLenient());
-        cal.clear();
-        
         return cal;
     }
     

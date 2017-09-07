@@ -176,6 +176,7 @@ public class UntypedDeserializationTest
         // and that's all folks!
     }
 
+    @SuppressWarnings("unlikely-arg-type")
     public void testUntypedMap() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object.class

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class TestNoTypeInfo extends BaseMapTest
+public class NoTypeInfoTest extends BaseMapTest
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NONE)
     @JsonDeserialize(as=NoType.class)
@@ -15,17 +15,16 @@ public class TestNoTypeInfo extends BaseMapTest
     final static class NoType implements NoTypeInterface {
         public int a = 3;
     }
-    
+
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
-    // for [JACKSON-746]
     public void testWithIdNone() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newObjectMapper();
         mapper.enableDefaultTyping();
         // serialize without type info
         String json = mapper.writeValueAsString(new NoType());

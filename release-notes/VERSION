@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.1 (not yet released)
+2.9.1 (07-Sep-2017)
 
 #1705: Non-generic interface method hides type resolution info from generic base class
  (reported by Tim B)
@@ -21,6 +21,7 @@ Project: jackson-databind
  (contributed by Bertrand R)
 - Fix `DelegatingDeserializer` constructor to pass `handledType()` (and
   not type of deserializer being delegated to!)
+- Add `Automatic-Module-Name` ("com.fasterxml.jackson.databind") for JDK 9 module system
 
 2.9.0 (30-Jul-2017)
 

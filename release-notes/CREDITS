@@ -644,6 +644,9 @@ Kevin Gallardo (newkek@github)
     with a recursive value type
    (2.8.10)
 
+Lukas Euler
+  * Reported #1735: Missing type checks when using polymorphic type ids
+
 Connor Kuhn (ckuhn@github)
   * Contributed #1341: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY
    (2.9.0)

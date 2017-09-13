@@ -7,4 +7,4 @@ Versions: 3.x (for earlier see VERSION-2.x)
 
 3.0.0 (not yet released)
 
-
+#1762: `StdDateFormat`: serialize time offset using colon

@@ -129,8 +129,6 @@ public class StdDateFormat
      *<p>
      * Cannot be `final` because {@link #setLenient(boolean)} returns
      * `void`.
-     *
-     * @since 2.7
      */
     protected Boolean _lenient;
 
@@ -145,10 +143,10 @@ public class StdDateFormat
 
     /** 
      * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
-     *
-     * @since 2.9.1
+     *<p>
+     * NOTE: default changed to `true` in Jackson 3.0; was `false` earlier.
      */
-    private boolean _tzSerializedWithColon = false;
+    protected boolean _tzSerializedWithColon = true;
     
     /*
     /**********************************************************
@@ -428,12 +426,11 @@ public class StdDateFormat
             // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
             //   mandate use of full `+0000`
 //            formatted.append('Z');
-	        	if( _tzSerializedWithColon ) {
-	            buffer.append("+00:00");
-	        	}
-	        	else {
-	        		buffer.append("+0000");
-	        	}
+            if (_tzSerializedWithColon ) {
+                buffer.append("+00:00");
+            } else {
+                buffer.append("+0000");
+            }
         }
     }
 
@@ -496,12 +493,12 @@ public class StdDateFormat
         return sb.toString();
     }
 
-    @Override // since 2.7[.2], as per [databind#1130]
+    @Override
     public boolean equals(Object o) {
         return (o == this);
     }
 
-    @Override // since 2.7[.2], as per [databind#1130]
+    @Override
     public int hashCode() {
         return System.identityHashCode(this);
     }

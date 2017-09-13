@@ -1,49 +1,74 @@
 package com.fasterxml.jackson.databind.ext;
 
+import java.beans.ConstructorProperties;
+import java.beans.Transient;
+import java.nio.file.Path;
+
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
 /**
- * To support Java7-incomplete platforms, we will offer support for JDK 7
- * annotations through this class, loaded dynamically; if loading fails,
- * support will be missing. This class is the non-JDK-7-dependent API,
- * and {@link Java7SupportImpl} is JDK7-dependent implementation of
- * functionality.
+ * Due to historical reasons, Java 7 type support has been separate.
  */
-public abstract class Java7Support
+public class Java7Support
 {
-    private final static Java7Support IMPL;
-    
-    static {
-        Java7Support impl = null;
-        try {
-            Class<?> cls = Class.forName("com.fasterxml.jackson.databind.ext.Java7SupportImpl");
-            impl = (Java7Support) ClassUtil.createInstance(cls, false);
-        } catch (Throwable t) {
-            // 24-Nov-2015, tatu: Should we log or not?
-            java.util.logging.Logger.getLogger(Java7Support.class.getName())
-                .warning("Unable to load JDK7 types (annotations, java.nio.file.Path): no Java7 support added");
-        }
-        IMPL = impl;
-    }
-
     public static Java7Support instance() {
-        return IMPL;
+        return new Java7Support();
+    }
+
+    public Class<?> getClassJavaNioFilePath() {
+        return Path.class;
+    }
+
+    public JsonDeserializer<?> getDeserializerForJavaNioFilePath(Class<?> rawType) {
+        if (rawType == Path.class) {
+            return new NioPathDeserializer();
+        }
+        return null;
+    }
+
+    public JsonSerializer<?> getSerializerForJavaNioFilePath(Class<?> rawType) {
+        if (Path.class.isAssignableFrom(rawType)) {
+            return new NioPathSerializer();
+        }
+        return null;
+    }
+
+    public Boolean findTransient(Annotated a) {
+        Transient t = a.getAnnotation(Transient.class);
+        if (t != null) {
+            return t.value();
+        }
+        return null;
     }
     
-    public abstract Boolean findTransient(Annotated a);
+    public Boolean hasCreatorAnnotation(Annotated a) {
+        ConstructorProperties props = a.getAnnotation(ConstructorProperties.class);
+        // 08-Nov-2015, tatu: One possible check would be to ensure there is at least
+        //    one name iff constructor has arguments. But seems unnecessary for now.
+        if (props != null) {
+            return Boolean.TRUE;
+        }
+        return null;
+    }
 
-    public abstract Boolean hasCreatorAnnotation(Annotated a);
-
-    public abstract PropertyName findConstructorName(AnnotatedParameter p);
-
-    public abstract Class<?> getClassJavaNioFilePath();
-
-    public abstract JsonDeserializer<?> getDeserializerForJavaNioFilePath(Class<?> rawType);
-
-    public abstract JsonSerializer<?> getSerializerForJavaNioFilePath(Class<?> rawType);
+    public PropertyName findConstructorName(AnnotatedParameter p)
+    {
+        AnnotatedWithParams ctor = p.getOwner();
+        if (ctor != null) {
+            ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
+            if (props != null) {
+                String[] names = props.value();
+                int ix = p.getIndex();
+                if (ix < names.length) {
+                    return PropertyName.construct(names[ix]);
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -102,8 +102,6 @@ public class ObjectReader
      * is known, and if so, reuse it afterwards.
      * This allows avoiding further deserializer lookups and increases
      * performance a bit on cases where readers are reused.
-     * 
-     * @since 2.1
      */
     protected final JsonDeserializer<Object> _rootDeserializer;
     
@@ -268,15 +266,6 @@ public class ObjectReader
      */
 
     /**
-     * Overridable factory method called by various "withXxx()" methods
-     * 
-     * @since 2.5
-     */
-    protected ObjectReader _new(ObjectReader base, JsonFactory f) {
-        return new ObjectReader(base, f);
-    }
-
-    /**
      * Factory method called by various "withXxx()" methods
      */
     protected ObjectReader _new(ObjectReader base, DeserializationConfig config) {
@@ -316,7 +305,7 @@ public class ObjectReader
         if (_schema != null) {
             p.setSchema(_schema);
         }
-        _config.initialize(p); // since 2.5
+        _config.initialize(p);
 
         /* First: must point to a token; if not pointing to one, advance.
          * This occurs before first read from JsonParser, as well as
@@ -340,8 +329,6 @@ public class ObjectReader
      * but need to do other initialization.
      *<p>
      * Base implementation only sets configured {@link FormatSchema}, if any, on parser.
-     * 
-     * @since 2.8
      */
     protected void _initForMultiRead(DeserializationContext ctxt, JsonParser p)
         throws IOException
@@ -456,8 +443,6 @@ public class ObjectReader
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
-     *
-     * @since 2.7
      */
     public ObjectReader with(FormatFeature feature) {
         return _with(_config.with(feature));
@@ -466,8 +451,6 @@ public class ObjectReader
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
-     *
-     * @since 2.7
      */
     public ObjectReader withFeatures(FormatFeature... features) {
         return _with(_config.withFeatures(features));
@@ -476,8 +459,6 @@ public class ObjectReader
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
-     *
-     * @since 2.7
      */
     public ObjectReader without(FormatFeature feature) {
         return _with(_config.without(feature)); 
@@ -486,8 +467,6 @@ public class ObjectReader
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
-     *
-     * @since 2.7
      */
     public ObjectReader withoutFeatures(FormatFeature... features) {
         return _with(_config.withoutFeatures(features));
@@ -502,18 +481,16 @@ public class ObjectReader
     /**
      * Convenience method to bind from {@link JsonPointer}.  
      * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
-     * @since 2.6
      */
-    public ObjectReader at(final String value) {
+    public ObjectReader at(String value) {
         return new ObjectReader(this, new JsonPointerBasedFilter(value));
     }
 
     /**
      * Convenience method to bind from {@link JsonPointer}
       * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
-     * @since 2.6
      */
-    public ObjectReader at(final JsonPointer pointer) {
+    public ObjectReader at(JsonPointer pointer) {
         return new ObjectReader(this, new JsonPointerBasedFilter(pointer));
     }
 
@@ -558,29 +535,6 @@ public class ObjectReader
     }
 
     /**
-     * Method for constructing a new reader instance with configuration that uses
-     * passed {@link JsonFactory} for constructing underlying Readers.
-     *<p>
-     * NOTE: only factories that <b>DO NOT REQUIRE SPECIAL MAPPERS</b>
-     * (that is, ones that return <code>false</code> for
-     * {@link JsonFactory#requiresCustomCodec()}) can be used: trying
-     * to use one that requires custom codec will throw exception
-     * 
-     * @since 2.1
-     */
-    public ObjectReader with(JsonFactory f) {
-        if (f == _parserFactory) {
-            return this;
-        }
-        ObjectReader r = _new(this, f);
-        // Also, try re-linking, if possible...
-        if (f.getCodec() == null) {
-            f.setCodec(r);
-        }
-        return r;
-    }
-    
-    /**
      * Method for constructing a new instance with configuration that
      * specifies what root name to expect for "root name unwrapping".
      * See {@link DeserializationConfig#withRootName(String)} for
@@ -593,9 +547,6 @@ public class ObjectReader
         return _with(_config.withRootName(rootName));
     }
 
-    /**
-     * @since 2.6
-     */
     public ObjectReader withRootName(PropertyName rootName) {
         return _with(_config.withRootName(rootName));
     }
@@ -607,8 +558,6 @@ public class ObjectReader
      *</code>
      * which will forcibly prevent use of root name wrapping when writing
      * values with this {@link ObjectReader}.
-     * 
-     * @since 2.6
      */
     public ObjectReader withoutRootName() {
         return _with(_config.withRootName(PropertyName.NO_NAME));
@@ -638,8 +587,6 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
-     * @since 2.5
      */
     public ObjectReader forType(JavaType valueType)
     {
@@ -657,8 +604,6 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     *
-     * @since 2.5
      */
     public ObjectReader forType(Class<?> valueType) {
         return forType(_config.constructType(valueType));
@@ -781,16 +726,10 @@ public class ObjectReader
         return _parserFactory.isEnabled(f);
     }
 
-    /**
-     * @since 2.2
-     */
     public DeserializationConfig getConfig() {
         return _config;
     }
-    
-    /**
-     * @since 2.1
-     */
+
     @Override
     public JsonFactory getFactory() {
         return _parserFactory;
@@ -800,16 +739,10 @@ public class ObjectReader
         return _config.getTypeFactory();
     }
 
-    /**
-     * @since 2.3
-     */
     public ContextAttributes getAttributes() {
         return _config.getAttributes();
     }
 
-    /**
-     * @since 2.6
-     */
     public InjectableValues getInjectableValues() {
         return _injectableValues;
     }
@@ -1133,9 +1066,6 @@ public class ObjectReader
         return (T) _bindAndClose(_considerFilter(treeAsTokens(src), false));
     }
 
-    /**
-     * @since 2.8
-     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput src) throws IOException
     {
@@ -1301,9 +1231,6 @@ public class ObjectReader
         return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
     }
 
-    /**
-     * @since 2.8
-     */
     public <T> MappingIterator<T> readValues(DataInput src) throws IOException
     {
         return _bindAndReadValues(_considerFilter(_parserFactory.createParser(src), true));
@@ -1454,9 +1381,6 @@ public class ObjectReader
         return (JsonNode) result;
     }
 
-    /**
-     * @since 2.1
-     */
     protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p) throws IOException
     {
         DeserializationContext ctxt = createDeserializationContext(p);
@@ -1519,9 +1443,6 @@ public class ObjectReader
                 ? p : new FilteringParserDelegate(p, _filter, false, multiValue);
     }
 
-    /**
-     * @since 2.9
-     */
     protected final void _verifyNoTrailingTokens(JsonParser p, DeserializationContext ctxt,
             JavaType bindType)
         throws IOException
@@ -1614,9 +1535,6 @@ public class ObjectReader
         return deser;
     }
 
-    /**
-     * @since 2.6
-     */
     protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
         throws JsonMappingException
     {

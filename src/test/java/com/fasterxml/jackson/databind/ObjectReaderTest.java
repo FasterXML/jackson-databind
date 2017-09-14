@@ -102,11 +102,6 @@ public class ObjectReaderTest extends BaseMapTest
         ObjectReader r = MAPPER.reader();
         assertSame(MAPPER.getFactory(), r.getFactory());
 
-        JsonFactory f = new JsonFactory();
-        r = r.with(f);
-        assertSame(f, r.getFactory());
-        assertSame(r, r.with(f));
-
         assertNotNull(r.getTypeFactory());
         assertNull(r.getInjectableValues());
 

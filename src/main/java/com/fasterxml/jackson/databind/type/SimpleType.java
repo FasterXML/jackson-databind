@@ -215,31 +215,6 @@ public class SimpleType // note: until 2.6 was final
 
     /*
     /**********************************************************
-    /* Internal methods
-    /**********************************************************
-     */
-
-    /**
-     * Helper method we need to recursively build skeletal representations
-     * of superclasses.
-     * 
-     * @since 2.7 -- remove when not needed (2.8?)
-     */
-    private static JavaType _buildSuperClass(Class<?> superClass, TypeBindings b)
-    {
-        if (superClass == null) {
-            return null;
-        }
-        if (superClass == Object.class) {
-            return TypeFactory.unknownType();
-        }
-        JavaType superSuper = _buildSuperClass(superClass.getSuperclass(), b);
-        return new SimpleType(superClass, b,
-                superSuper, null, null, null, false);
-    }
-
-    /*
-    /**********************************************************
     /* Standard methods
     /**********************************************************
      */

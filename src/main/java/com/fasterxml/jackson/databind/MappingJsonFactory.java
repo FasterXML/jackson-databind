@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.format.InputAccessor;
-import com.fasterxml.jackson.core.format.MatchStrength;
 
 /**
  * Sub-class of {@link JsonFactory} that will create a proper
@@ -47,7 +45,6 @@ public class MappingJsonFactory
     @Override
     public final ObjectMapper getCodec() { return (ObjectMapper) _objectCodec; }
 
-    // @since 2.1
     @Override
     public JsonFactory copy()
     {
@@ -72,17 +69,5 @@ public class MappingJsonFactory
          * let's just always return JSON as name.
          */
         return FORMAT_NAME_JSON;
-    }
-
-    /**
-     * Sub-classes need to override this method
-     */
-    @Override
-    public MatchStrength hasFormat(InputAccessor acc) throws IOException
-    {
-        if (getClass() == MappingJsonFactory.class) {
-            return hasJSONFormat(acc);
-        }
-        return null;
     }
 }

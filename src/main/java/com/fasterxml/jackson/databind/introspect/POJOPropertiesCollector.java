@@ -363,7 +363,6 @@ public class POJOPropertiesCollector
         final boolean transientAsIgnoral = _config.isEnabled(MapperFeature.PROPAGATE_TRANSIENT_MARKER);
         
         for (AnnotatedField f : _classDef.fields()) {
-            String implName = ai.findImplicitPropertyName(f);
             // @JsonValue?
             if (Boolean.TRUE.equals(ai.hasAsValue(f))) {
                 if (_jsonValueAccessors == null) {
@@ -380,6 +379,7 @@ public class POJOPropertiesCollector
                 _anySetterField.add(f);
                 continue;
             }
+            String implName = ai.findImplicitPropertyName(f);
             if (implName == null) {
                 implName = f.getName();
             }

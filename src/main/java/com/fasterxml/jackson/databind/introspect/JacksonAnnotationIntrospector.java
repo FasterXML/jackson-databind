@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.beans.ConstructorProperties;
+import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -10,7 +12,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.ext.Java7Support;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -59,25 +60,12 @@ public class JacksonAnnotationIntrospector
         JsonMerge.class // since 2.9
     };
 
-    // NOTE: loading of Java7 dependencies is encapsulated by handlers in Java7Support,
-    //  here we do not really need any handling; but for extra-safety use try-catch
-    private static final Java7Support _java7Helper;
-    static {
-        Java7Support x = null;
-        try {
-            x = Java7Support.instance();
-        } catch (Throwable t) { }
-        _java7Helper = x;
-    }
-    
     /**
      * Since introspection of annotation types is a performance issue in some
      * use cases (rare, but do exist), let's try a simple cache to reduce
      * need for actual meta-annotation introspection.
      *<p>
      * Non-final only because it needs to be re-created after deserialization.
-     *
-     * @since 2.7
      */
     protected transient LRUMap<Class<?>,Boolean> _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
 
@@ -92,8 +80,6 @@ public class JacksonAnnotationIntrospector
      * explanation.
      *<p>
      * Defaults to true.
-     * 
-     * @since 2.7.4
      */
     protected boolean _cfgConstructorPropertiesImpliesCreator = true;
 
@@ -298,9 +284,26 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findImplicitPropertyName(AnnotatedMember m) {
-        PropertyName n = _findConstructorName(m);
-        return (n == null) ? null : n.getSimpleName();
+    public String findImplicitPropertyName(AnnotatedMember m)
+    {
+        if (m instanceof AnnotatedField) {
+            return m.getName();
+        }
+        if (m instanceof AnnotatedParameter) {
+            AnnotatedParameter p = (AnnotatedParameter) m;
+            AnnotatedWithParams ctor = p.getOwner();
+            if (ctor != null) {
+                ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
+                if (props != null) {
+                    String[] names = props.value();
+                    int ix = p.getIndex();
+                    if (ix < names.length) {
+                        return names[ix];
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -1153,15 +1156,10 @@ public class JacksonAnnotationIntrospector
         if (_cfgConstructorPropertiesImpliesCreator
                 && config.isEnabled(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES)
             ) {
-            if (a instanceof AnnotatedConstructor) {
-                if (_java7Helper != null) {
-                    Boolean b = _java7Helper.hasCreatorAnnotation(a);
-                    if ((b != null) && b.booleanValue()) {
-                        // 13-Sep-2016, tatu: Judgment call, but I don't think JDK ever implies
-                        //    use of delegate; assumes as-properties implicitly
-                        return JsonCreator.Mode.PROPERTIES;
-                    }
-                }
+            if (_hasAnnotation(a, ConstructorProperties.class)) {
+                // 13-Sep-2016, tatu: Judgment call, but I don't think JDK ever implies
+                //    use of delegate; assumes as-properties implicitly
+                return JsonCreator.Mode.PROPERTIES;
             }
         }
         return null;
@@ -1179,11 +1177,10 @@ public class JacksonAnnotationIntrospector
         if (ann != null) {
             return ann.value();
         }
-        if (_java7Helper != null) {
-            Boolean b = _java7Helper.findTransient(a);
-            if (b != null) {
-                return b.booleanValue();
-            }
+        // From JDK 7:
+        Transient t = a.getAnnotation(Transient.class);
+        if (t != null) {
+            return t.value();
         }
         return false;
     }
@@ -1208,24 +1205,6 @@ public class JacksonAnnotationIntrospector
             return PropertyName.construct(localName);
         }
         return PropertyName.construct(localName, namespace);
-    }
-
-    protected PropertyName _findConstructorName(Annotated a)
-    {
-        if (a instanceof AnnotatedParameter) {
-            AnnotatedParameter p = (AnnotatedParameter) a;
-            AnnotatedWithParams ctor = p.getOwner();
-
-            if (ctor != null) {
-                if (_java7Helper != null) {
-                    PropertyName name = _java7Helper.findConstructorName(p);
-                    if (name != null) {
-                        return name;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     /**

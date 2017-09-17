@@ -38,24 +38,6 @@ public class Java7Support
         return null;
     }
 
-    public Boolean findTransient(Annotated a) {
-        Transient t = a.getAnnotation(Transient.class);
-        if (t != null) {
-            return t.value();
-        }
-        return null;
-    }
-    
-    public Boolean hasCreatorAnnotation(Annotated a) {
-        ConstructorProperties props = a.getAnnotation(ConstructorProperties.class);
-        // 08-Nov-2015, tatu: One possible check would be to ensure there is at least
-        //    one name iff constructor has arguments. But seems unnecessary for now.
-        if (props != null) {
-            return Boolean.TRUE;
-        }
-        return null;
-    }
-
     public PropertyName findConstructorName(AnnotatedParameter p)
     {
         AnnotatedWithParams ctor = p.getOwner();

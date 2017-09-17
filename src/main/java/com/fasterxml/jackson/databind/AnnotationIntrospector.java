@@ -165,8 +165,6 @@ public abstract class AnnotationIntrospector
      * Method for checking whether given annotation is considered an
      * annotation bundle: if so, all meta-annotations it has will
      * be used instead of annotation ("bundle") itself.
-     * 
-     * @since 2.0
      */
     public boolean isAnnotationBundle(Annotation ann) {
         return false;
@@ -185,8 +183,6 @@ public abstract class AnnotationIntrospector
      * values referenced by annotated property; latter
      * having precedence) should include Object Identifier,
      * and if so, specify details of Object Identity used.
-     * 
-     * @since 2.0
      */
     public ObjectIdInfo findObjectIdInfo(Annotated ann) {
         return null;
@@ -194,8 +190,6 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for figuring out additional properties of an Object Identity reference
-     * 
-     * @since 2.1
      */
     public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
         return objectIdInfo;
@@ -260,8 +254,6 @@ public abstract class AnnotationIntrospector
      * 
      * @return Sub-class or instance of {@link PropertyNamingStrategy}, if one
      *   is specified for given class; null if not.
-     * 
-     * @since 2.1
      */
     public Object findNamingStrategy(AnnotatedClass ac) { return null; }
 
@@ -273,8 +265,6 @@ public abstract class AnnotationIntrospector
      * is not defined.
      * 
      * @return Human-readable description, if any.
-     * 
-     * @since 2.7
      */
     public String findClassDescription(AnnotatedClass ac) { return null; }
 
@@ -465,8 +455,6 @@ public abstract class AnnotationIntrospector
      * Return value is typically used by serializers and/or
      * deserializers to customize presentation aspects of the
      * serialized value.
-     * 
-     * @since 2.1
      */
     public JsonFormat.Value findFormat(Annotated memberOrClass) {
         return JsonFormat.Value.empty();
@@ -476,12 +464,10 @@ public abstract class AnnotationIntrospector
      * Method used to check if specified property has annotation that indicates
      * that it should be wrapped in an element; and if so, name to use.
      * Note that not all serializers and deserializers support use this method:
-     * currently (2.1) it is only used by XML-backed handlers.
+     * currently (3.0) it is only used by XML-backed handlers.
      * 
      * @return Wrapper name to use, if any, or {@link PropertyName#USE_DEFAULT}
      *   to indicate that no wrapper element should be used.
-     * 
-     * @since 2.1
      */
     public PropertyName findWrapperName(Annotated ann) { return null; }
 
@@ -490,8 +476,6 @@ public abstract class AnnotationIntrospector
      * for the property. While core databind does not make any use of it, it is exposed
      * for extension modules to use: an expected use is generation of schema representations
      * and documentation.
-     *
-     * @since 2.5
      */
     public String findPropertyDefaultValue(Annotated ann) { return null; }
 
@@ -502,8 +486,6 @@ public abstract class AnnotationIntrospector
      * these may be marked up using HTML is not defined.
      * 
      * @return Human-readable description, if any.
-     * 
-     * @since 2.3
      */
     public String findPropertyDescription(Annotated ann) { return null; }
 
@@ -514,8 +496,6 @@ public abstract class AnnotationIntrospector
      * (some binary formats mandate use of index instead of name) and ordering
      * of properties (for documentation, or during serialization).
      * 
-     * @since 2.4
-     * 
      * @return Explicitly specified index for the property, if any
      */
     public Integer findPropertyIndex(Annotated ann) { return null; }
@@ -524,14 +504,12 @@ public abstract class AnnotationIntrospector
      * Method for finding implicit name for a property that given annotated
      * member (field, method, creator parameter) may represent.
      * This is different from explicit, annotation-based property name, in that
-     * it is "weak" and does not either proof that a property exists (for example,
+     * it is "weak" and does not either prove that a property exists (for example,
      * if visibility is not high enough), or override explicit names.
      * In practice this method is used to introspect optional names for creator
      * parameters (which may or may not be available and cannot be detected
      * by standard databind); or to provide alternate name mangling for
      * fields, getters and/or setters.
-     * 
-     * @since 2.4
      */
     public String findImplicitPropertyName(AnnotatedMember member) { return null; }
 
@@ -540,8 +518,6 @@ public abstract class AnnotationIntrospector
      * 
      * @return `null` if member has no information; otherwise a `List` (possibly
      *   empty) of aliases to use.
-     *
-     * @since 2.9
      */
     public List<PropertyName> findPropertyAliases(Annotated ann) { return null; }
 
@@ -551,8 +527,6 @@ public abstract class AnnotationIntrospector
      * or read-write cases, visibility rules may be modified. Note, however,
      * that even more specific annotations (like one for ignoring specific accessor)
      * may further override behavior of the access definition.
-     *
-     * @since 2.6
      */
     public JsonProperty.Access findPropertyAccess(Annotated ann) { return null; }
 
@@ -561,8 +535,6 @@ public abstract class AnnotationIntrospector
      * for the same logical property, and default logic is not enough to figure
      * out clear precedence. Introspector may try to choose one to use; or, if
      * unable, return `null` to indicate it cannot resolve the problem.
-     *
-     * @since 2.7
      */
     public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
             AnnotatedMethod setter1, AnnotatedMethod setter2) {
@@ -612,8 +584,6 @@ public abstract class AnnotationIntrospector
     /**
      * Method for getting a serializer definition for serializer to use
      * for nulls (null values) of associated property or type.
-     * 
-     * @since 2.3
      */
     public Object findNullSerializer(Annotated am) {
         return null;
@@ -647,10 +617,7 @@ public abstract class AnnotationIntrospector
      * type handling, or object identity handling; if such features are needed
      * an explicit serializer is usually better way to handle serialization.
      * 
-     * @param a Annotated property (field, method) or class to check for
-     *   annotations
-     *   
-     * @since 2.2
+     * @param a Annotated property (field, method) or class to check for annotations
      */
     public Object findSerializationConverter(Annotated a) {
         return null;
@@ -671,8 +638,6 @@ public abstract class AnnotationIntrospector
      * Other notes are same as those for {@link #findSerializationConverter}
      * 
      * @param a Annotated property (field, method) to check.
-     *   
-     * @since 2.2
      */
     public Object findSerializationContentConverter(AnnotatedMember a) {
         return null;
@@ -731,8 +696,6 @@ public abstract class AnnotationIntrospector
     /**
      * Method for adding possible virtual properties to be serialized along
      * with regular properties.
-     * 
-     * @since 2.5
      */
     public void findAndAddVirtualProperties(MapperConfig<?> config, AnnotatedClass ac,
             List<BeanPropertyWriter> properties) { }
@@ -754,8 +717,6 @@ public abstract class AnnotationIntrospector
      * @param a Property accessor to check
      * 
      * @return Name to use if found; null if not.
-     * 
-     * @since 2.1
      */
     public PropertyName findNameForSerialization(Annotated a) {
         return null;
@@ -868,10 +829,7 @@ public abstract class AnnotationIntrospector
      * type handling, or object identity handling; if such features are needed
      * an explicit deserializer is usually better way to handle deserialization.
      * 
-     * @param a Annotated property (field, method) or class to check for
-     *   annotations
-     *   
-     * @since 2.2
+     * @param a Annotated property (field, method) or class to check for annotations
      */
     public Object findDeserializationConverter(Annotated a) {
         return null;
@@ -892,8 +850,6 @@ public abstract class AnnotationIntrospector
      * Other notes are same as those for {@link #findDeserializationConverter}
      * 
      * @param a Annotated property (field, method) to check.
-     *   
-     * @since 2.2
      */
     public Object findDeserializationContentConverter(AnnotatedMember a) {
         return null;
@@ -908,8 +864,6 @@ public abstract class AnnotationIntrospector
     /**
      * Method called to find out possible type refinements to use
      * for deserialization.
-     *
-     * @since 2.7
      */
     public JavaType refineDeserializationType(final MapperConfig<?> config,
             final Annotated a, final JavaType baseType) throws JsonMappingException
@@ -968,8 +922,6 @@ public abstract class AnnotationIntrospector
      * @param a Property accessor to check
      * 
      * @return Name to use if found; null if not.
-     * 
-     * @since 2.1
      */
     public PropertyName findNameForDeserialization(Annotated a) {
         return null;
@@ -983,8 +935,6 @@ public abstract class AnnotationIntrospector
      *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
-     *   
-     * @since 2.9
      */
     public Boolean hasAnySetter(Annotated a) {
         return null;
@@ -993,8 +943,6 @@ public abstract class AnnotationIntrospector
     /**
      * Method for finding possible settings for property, given annotations
      * on an accessor.
-     *
-     * @since 2.9
      */
     public JsonSetter.Value findSetterInfo(Annotated a) {
         return JsonSetter.Value.empty();
@@ -1058,8 +1006,6 @@ public abstract class AnnotationIntrospector
      *<code>
      *  return annotated.hasAnnotation(annoClass);
      *</code>
-     * 
-     * @since 2.5
      */
     protected boolean _hasAnnotation(Annotated annotated, Class<? extends Annotation> annoClass) {
         return annotated.hasAnnotation(annoClass);
@@ -1068,8 +1014,6 @@ public abstract class AnnotationIntrospector
     /**
      * Alternative lookup method that is used to see if annotation has at least one of
      * annotations of types listed in second argument.
-     *
-     * @since 2.7
      */
     protected boolean _hasOneOf(Annotated annotated, Class<? extends Annotation>[] annoClasses) {
         return annotated.hasOneOf(annoClasses);

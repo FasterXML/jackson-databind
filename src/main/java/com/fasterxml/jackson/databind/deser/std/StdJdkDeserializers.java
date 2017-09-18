@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.*;
  * Container class that contains serializers for JDK types that
  * require special handling for some reason.
  */
-public class JdkDeserializers
+public class StdJdkDeserializers
 {
     private final static HashSet<String> _classNames = new HashSet<String>();
     static {

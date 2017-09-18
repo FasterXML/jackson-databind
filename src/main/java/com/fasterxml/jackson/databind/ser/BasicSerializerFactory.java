@@ -99,8 +99,6 @@ public abstract class BasicSerializerFactory
                 @SuppressWarnings("unchecked")
                 Class<? extends JsonSerializer<?>> cls = (Class<? extends JsonSerializer<?>>) value;
                 concLazy.put(en.getKey().getName(), cls);
-System.err.println("-> "+en.getKey()+" -> "+cls);
-
             }
         }
 

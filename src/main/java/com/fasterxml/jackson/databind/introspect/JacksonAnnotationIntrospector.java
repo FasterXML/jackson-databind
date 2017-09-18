@@ -4,6 +4,8 @@ import java.beans.ConstructorProperties;
 import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.MalformedParametersException;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -286,13 +288,16 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findImplicitPropertyName(AnnotatedMember m)
     {
+        // Always get name for fields so why not
         if (m instanceof AnnotatedField) {
             return m.getName();
         }
         if (m instanceof AnnotatedParameter) {
             AnnotatedParameter p = (AnnotatedParameter) m;
             AnnotatedWithParams ctor = p.getOwner();
-            if (ctor != null) {
+            if ((ctor instanceof AnnotatedConstructor)) {
+                // 17-Sep-2017, tatu: Two possibilities; either `@ConstructorProperties` (JDK6)
+                //   or parameter names from bytecode (JDK8)
                 ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
                 if (props != null) {
                     String[] names = props.value();
@@ -301,7 +306,24 @@ public class JacksonAnnotationIntrospector
                         return names[ix];
                     }
                 }
+//                return _findImplicitName(ctor, p.getIndex());
             }
+        }
+        return null;
+    }
+
+    protected String _findImplicitName(AnnotatedWithParams m, int index)
+    {
+        try {
+            Parameter[] params = m.getNativeParameters();
+            Parameter p = params[index];
+            if (p.isNamePresent()) {
+                return p.getName();
+            }
+        } catch (MalformedParametersException e) {
+            // 17-Sep-2017, tatu: I don't usually add defensive handling like this without
+            //    having clear examples of problems, but this seems like something that
+            //    can still crop up unexpectedly and be a PITA so...
         }
         return null;
     }

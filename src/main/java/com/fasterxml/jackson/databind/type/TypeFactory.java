@@ -67,6 +67,7 @@ public final class TypeFactory
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
     private final static Class<?> CLS_LONG = Long.TYPE;
+    private final static Class<?> CLS_DOUBLE = Double.TYPE;
 
     /*
     /**********************************************************
@@ -78,6 +79,7 @@ public final class TypeFactory
     protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
     protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
+    protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
 
     // and as to String... well, for now, ignore its super types
     protected final static SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);
@@ -1001,7 +1003,7 @@ s     */
         return CollectionType.construct(rawClass, bindings, superClass, superInterfaces, ct);
     }
 
-    private JavaType _referenceType(Class<?> rawClass, TypeBindings bindings,
+    protected JavaType _referenceType(Class<?> rawClass, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces)
     {
         List<JavaType> typeParams = bindings.getTypeParameters();
@@ -1071,6 +1073,7 @@ s     */
             if (clz == CLS_BOOL) return CORE_TYPE_BOOL;
             if (clz == CLS_INT) return CORE_TYPE_INT;
             if (clz == CLS_LONG) return CORE_TYPE_LONG;
+            if (clz == CLS_DOUBLE) return CORE_TYPE_DOUBLE;
         } else {
             if (clz == CLS_STRING) return CORE_TYPE_STRING;
             if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT; // since 2.7
@@ -1271,14 +1274,28 @@ s     */
             return _collectionType(rawType, bindings, superClass, superInterfaces);
         }
         // and since 2.6 one referential type
-        if (rawType == AtomicReference.class) {
+        if ((rawType == AtomicReference.class)
+                || (rawType == Optional.class)) {
+            // 17-Sep-2017, tatu: Jackson 3.x brings Java 8 optional types in...
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
-        // 01-Nov-2015, tatu: As of 2.7, couple of potential `CollectionLikeType`s (like
-        //    `Iterable`, `Iterator`), and `MapLikeType`s (`Map.Entry`) are not automatically
-        //    detected, related to difficulties in propagating type upwards (Iterable, for
-        //    example, is a weak, tag-on type). They may be detectable in future.
-        return null;
+        // 17-Sep-2017, tatu: Jackson 3.x brings Java 8 optional types in...
+        JavaType refd;
+        if (rawType == OptionalInt.class) {
+            refd = CORE_TYPE_INT;
+        } else if (rawType == OptionalLong.class) {
+            refd = CORE_TYPE_LONG;
+        } else if (rawType == OptionalDouble.class) {
+            refd = CORE_TYPE_DOUBLE;
+        } else {
+            // 01-Nov-2015, tatu: As of 2.7, couple of potential `CollectionLikeType`s (like
+            //    `Iterable`, `Iterator`), and `MapLikeType`s (`Map.Entry`) are not automatically
+            //    detected, related to difficulties in propagating type upwards (Iterable, for
+            //    example, is a weak, tag-on type). They may be detectable in future.
+            return null;
+        }
+        JavaType base = _newSimpleType(rawType, bindings, superClass, superInterfaces);
+        return ReferenceType.upgradeFrom(base, refd);
     }
 
     protected JavaType _fromWellKnownInterface(ClassStack context, Class<?> rawType, TypeBindings bindings,

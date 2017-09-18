@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -98,6 +99,8 @@ public abstract class BasicSerializerFactory
                 @SuppressWarnings("unchecked")
                 Class<? extends JsonSerializer<?>> cls = (Class<? extends JsonSerializer<?>>) value;
                 concLazy.put(en.getKey().getName(), cls);
+System.err.println("-> "+en.getKey()+" -> "+cls);
+
             }
         }
 
@@ -423,6 +426,11 @@ public abstract class BasicSerializerFactory
         }
         if (Enum.class.isAssignableFrom(raw)) {
             return buildEnumSerializer(prov.getConfig(), type, beanDesc);
+        }
+        // 17-Sep-2017, tatu: With 3.0, this JDK7 type may be added here too.
+        // NOTE: not concrete, can not just add via StdJdkSerializers.
+        if (Path.class.isAssignableFrom(raw)) {
+            return new NioPathSerializer();
         }
         return null;
     }

@@ -1631,7 +1631,7 @@ public abstract class BasicDeserializerFactory
         if (deser != null) {
             return deser;
         }
-        return JdkDeserializers.find(rawType, clsName);
+        return StdJdkDeserializers.find(rawType, clsName);
     }
 
     protected JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType) throws JsonMappingException {

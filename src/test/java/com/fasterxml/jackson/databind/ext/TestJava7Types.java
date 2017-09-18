@@ -14,9 +14,7 @@ public class TestJava7Types extends BaseMapTest
     public void testPathRoundtrip() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-
         Path input = Paths.get("/tmp", "foo.txt");
-
         String json = mapper.writeValueAsString(input);
         assertNotNull(json);
 

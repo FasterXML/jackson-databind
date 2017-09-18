@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
-import java.util.Collections;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
 

@@ -4,8 +4,6 @@ import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ext.CoreXMLDeserializers;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Core XML types (javax.xml) are considered "external" (or more precisely "optional")
@@ -82,16 +80,6 @@ public class TestCoreXMLTypes
     /* Deserializer tests
     /**********************************************************
      */
-    
-    // First things first: must be able to load the deserializers...
-    public void testDeserializerLoading()
-    {
-        CoreXMLDeserializers sers = new CoreXMLDeserializers();
-        TypeFactory f = TypeFactory.defaultInstance();
-        sers.findBeanDeserializer(f.constructType(Duration.class), null, null);
-        sers.findBeanDeserializer(f.constructType(XMLGregorianCalendar.class), null, null);
-        sers.findBeanDeserializer(f.constructType(QName.class), null, null);
-    }
 
     public void testQNameDeser() throws Exception
     {

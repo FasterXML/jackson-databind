@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -400,6 +401,11 @@ public class CreatorCollector
         @Override
         public JavaType getParameterType(int index) {
             return _base.getParameterType(index);
+        }
+
+        @Override
+        public Parameter[] getNativeParameters() {
+            return _base.getNativeParameters();
         }
 
         @Override

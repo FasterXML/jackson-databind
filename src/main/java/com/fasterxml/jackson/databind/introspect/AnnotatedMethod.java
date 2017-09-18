@@ -141,6 +141,11 @@ public final class AnnotatedMethod
     }
 
     @Override
+    public Parameter[] getNativeParameters() {
+        return _method.getParameters();
+    }
+
+    @Override
     public Class<?> getDeclaringClass() { return _method.getDeclaringClass(); }
 
     @Override

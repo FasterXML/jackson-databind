@@ -113,6 +113,20 @@
         <artifactId>replacer</artifactId>
       </plugin>
 
+      <!-- 17-Sep-2017, tatu: With 3.0 need to ensure parameter names compiled in
+        -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <optimize>true</optimize>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
       <!-- 18-Oct-2016, tatu: Try to make coveralls work -->
       <plugin>
         <groupId>org.eluder.coveralls</groupId>

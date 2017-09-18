@@ -1022,7 +1022,7 @@ targetType, goodValue.getClass()));
         //   exists), or input mismatch problem (otherwise) since none of existing creators
         //   match with token.
         if ((valueInst != null) && !valueInst.canInstantiate()) {
-            msg = String.format("Cannot construct instance of %s (no Creators, like default construct, exist): %s",
+            msg = String.format("Cannot construct instance of %s (no Creators, like default constructor, exist): %s",
                     ClassUtil.nameOf(instClass), msg);
             return reportBadDefinition(constructType(instClass), msg);
         }

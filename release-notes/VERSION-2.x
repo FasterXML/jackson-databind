@@ -1,7 +1,16 @@
 Project: jackson-databind
+
 ------------------------------------------------------------------------
 === Releases === 
 ------------------------------------------------------------------------
+
+2.9.2 (not yet released)
+
+#1767: Allow `DeserializationProblemHandler` to respond to primitive types
+ (reported by nhtzr@github)
+#1768: Improve `TypeFactory.constructFromCanonical()` to work with
+  `java.lang.reflect.Type.getTypeName()' format
+ (suggested by Luís C)
 
 2.9.1 (07-Sep-2017)
 

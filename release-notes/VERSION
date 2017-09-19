@@ -3,6 +3,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.11 (not yet released)
+
+#1768: Improve `TypeFactory.constructFromCanonical()` to work with
+  `java.lang.reflect.Type.getTypeName()` format
+
 2.8.10 (24-Aug-2017)
 
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of

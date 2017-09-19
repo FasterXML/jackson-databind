@@ -854,7 +854,7 @@ public abstract class DeserializationContext
             Object key = h.value().handleWeirdKey(this, keyClass, keyValue, msg);
             if (key != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((key == null) || keyClass.isInstance(key)) {
+                if (isHandleSane(keyClass, key)) {
                     return key;
                 }
                 throw weirdStringException(keyValue, keyClass, String.format(
@@ -898,7 +898,7 @@ public abstract class DeserializationContext
             Object instance = h.value().handleWeirdStringValue(this, targetClass, value, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((instance == null) || targetClass.isInstance(instance)) {
+                if (isHandleSane(targetClass, instance)) {
                     return instance;
                 }
                 throw weirdStringException(value, targetClass, String.format(
@@ -941,7 +941,7 @@ public abstract class DeserializationContext
             Object key = h.value().handleWeirdNumberValue(this, targetClass, value, msg);
             if (key != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((key == null) || targetClass.isInstance(key)) {
+                if (isHandleSane(targetClass, key)) {
                     return key;
                 }
                 throw weirdNumberException(value, targetClass, _format(
@@ -964,7 +964,7 @@ public abstract class DeserializationContext
             Object goodValue = h.value().handleWeirdNativeValue(this, targetType, badValue, p);
             if (goodValue != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((goodValue == null) || raw.isInstance(goodValue)) {
+                if (isHandleSane(raw, goodValue)) {
                     return goodValue;
                 }
                 throw JsonMappingException.from(p, _format(
@@ -1008,7 +1008,7 @@ targetType, goodValue.getClass()));
                     instClass, valueInst, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((instance == null) || instClass.isInstance(instance)) {
+                if (isHandleSane(instClass, instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
@@ -1058,7 +1058,7 @@ targetType, goodValue.getClass()));
             Object instance = h.value().handleInstantiationProblem(this, instClass, argument, t);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((instance == null) || instClass.isInstance(instance)) {
+                if (isHandleSane(instClass, instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
@@ -1117,7 +1117,7 @@ targetType, goodValue.getClass()));
             Object instance = h.value().handleUnexpectedToken(this,
                     instClass, t, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
-                if ((instance == null) || instClass.isInstance(instance)) {
+                if (isHandleSane(instClass, instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
@@ -1589,4 +1589,20 @@ trailingToken, ClassUtil.nameOf(targetType)
         _dateFormat = df = (DateFormat) df.clone();
         return df;
     }
+
+    private boolean isHandleSane(Class<?> targetClass, Object instance) {
+        return (instance == null) || targetClass.isInstance(instance) || isWrapper(targetClass, instance.getClass());
+    }
+
+    private boolean isWrapper(Class<?> targetClass, Class<?> instanceClass) {
+        return targetClass == Byte.TYPE && instanceClass == Byte.class
+                || targetClass == Short.TYPE && instanceClass == Short.class
+                || targetClass == Integer.TYPE && instanceClass == Integer.class
+                || targetClass == Long.TYPE && instanceClass == Long.class
+                || targetClass == Float.TYPE && instanceClass == Float.class
+                || targetClass == Double.TYPE && instanceClass == Double.class
+                || targetClass == Character.TYPE && instanceClass == Character.class
+                || targetClass == Boolean.TYPE && instanceClass == Boolean.class;
+    }
+
 }

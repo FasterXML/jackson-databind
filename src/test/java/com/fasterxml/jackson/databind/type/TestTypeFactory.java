@@ -239,7 +239,7 @@ public class TestTypeFactory
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         Object objects = new TreeMap<Object, Object>() { }; // to get subtype
-        String reflectTypeName = objects.getClass().getGenericSuperclass().getTypeName();
+        String reflectTypeName = objects.getClass().getGenericSuperclass().toString();
         JavaType t1 = tf.constructType(objects.getClass().getGenericSuperclass());
         // This will throw an Exception if you don't remove all white spaces from the String.
         JavaType t2 = tf.constructFromCanonical(reflectTypeName);

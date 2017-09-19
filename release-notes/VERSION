@@ -5,6 +5,8 @@ Project: jackson-databind
 
 2.9.2 (not yet released)
 
+#1767: Allow `DeserializationProblemHandler` to respond to primitive types
+ (reported by nhtzr@github)
 #1768: Improve `TypeFactory.constructFromCanonical()` to work with
   `java.lang.reflect.Type.getTypeName()' format
  (suggested by Luís C)
@@ -128,6 +130,8 @@ Project: jackson-databind
 #1690: Prevent use of quoted number (index) for Enum deserialization via
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
+
+2.8.11 (not yet released)
 
 2.8.10 (24-Aug-2017)
 

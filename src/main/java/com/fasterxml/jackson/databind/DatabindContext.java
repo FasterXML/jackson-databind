@@ -361,16 +361,6 @@ public abstract class DatabindContext
         }
         return msgBase + ": " + extra;
     }
-    
-    /**
-     * @since 2.9
-     */
-    protected String _calcName(Class<?> cls) {
-        if (cls.isArray()) {
-            return _calcName(cls.getComponentType())+"[]";
-        }
-        return cls.getName();
-    }
 
     /**
      * @since 2.9

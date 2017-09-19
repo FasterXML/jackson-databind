@@ -707,3 +707,8 @@ Tim Bartley (tbartley@github)
   * Reported, suggested fix for #1705: Non-generic interface method hides type resolution info
     from generic base class
    (2.9.1)
+
+Luís Cleto (luiscleto@github)
+  * Suggested 1768: Improve `TypeFactory.constructFromCanonical()` to work with
+   `java.lang.reflect.Type.getTypeName()` format
+   (2.9.2)

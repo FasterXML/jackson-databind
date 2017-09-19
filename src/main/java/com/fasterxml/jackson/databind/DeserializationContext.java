@@ -898,7 +898,7 @@ public abstract class DeserializationContext
             Object instance = h.value().handleWeirdStringValue(this, targetClass, value, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((instance == null) || targetClass.isInstance(instance)) {
+                if (_isCompatible(targetClass, instance)) {
                     return instance;
                 }
                 throw weirdStringException(value, targetClass, String.format(
@@ -941,7 +941,7 @@ public abstract class DeserializationContext
             Object key = h.value().handleWeirdNumberValue(this, targetClass, value, msg);
             if (key != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((key == null) || targetClass.isInstance(key)) {
+                if (_isCompatible(targetClass, key)) {
                     return key;
                 }
                 throw weirdNumberException(value, targetClass, _format(
@@ -1008,7 +1008,7 @@ targetType, goodValue.getClass()));
                     instClass, valueInst, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((instance == null) || instClass.isInstance(instance)) {
+                if (_isCompatible(instClass, instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
@@ -1058,7 +1058,7 @@ targetType, goodValue.getClass()));
             Object instance = h.value().handleInstantiationProblem(this, instClass, argument, t);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
                 // Sanity check for broken handlers, otherwise nasty to debug:
-                if ((instance == null) || instClass.isInstance(instance)) {
+                if (_isCompatible(instClass, instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
@@ -1117,22 +1117,22 @@ targetType, goodValue.getClass()));
             Object instance = h.value().handleUnexpectedToken(this,
                     instClass, t, p, msg);
             if (instance != DeserializationProblemHandler.NOT_HANDLED) {
-                if ((instance == null) || instClass.isInstance(instance)) {
+                if (_isCompatible(instClass, instance)) {
                     return instance;
                 }
                 reportBadDefinition(constructType(instClass), String.format(
                         "DeserializationProblemHandler.handleUnexpectedToken() for type %s returned value of type %s",
-                        instance.getClass()));
+                        ClassUtil.nameOf(instClass), ClassUtil.classNameOf(instance)));
             }
             h = h.next();
         }
         if (msg == null) {
             if (t == null) {
                 msg = String.format("Unexpected end-of-input when binding data into %s",
-                        _calcName(instClass));
+                        ClassUtil.nameOf(instClass));
             } else {
                 msg = String.format("Cannot deserialize instance of %s out of %s token",
-                        _calcName(instClass), t);
+                        ClassUtil.nameOf(instClass), t);
             }
         }
         reportInputMismatch(instClass, msg);
@@ -1215,6 +1215,19 @@ targetType, goodValue.getClass()));
 //            return null;
 //        }
         throw missingTypeIdException(baseType, extraDesc);
+    }
+
+    /**
+     * @since 2.9.2
+     */
+    protected boolean _isCompatible(Class<?> target, Object value)
+    {
+        if ((value == null) || target.isInstance(value)) {
+            return true;
+        }
+        // [databind#1767]: Make sure to allow wrappers for primitive fields
+        return target.isPrimitive()
+                && ClassUtil.wrapperType(target).isInstance(value);
     }
 
     /*
@@ -1731,7 +1744,7 @@ trailingToken, ClassUtil.nameOf(targetType)
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
         return JsonMappingException.from(_parser,
                 String.format("Cannot deserialize instance of %s out of %s token",
-                        _calcName(targetClass), token));
+                        ClassUtil.nameOf(targetClass), token));
     }
 
     /*

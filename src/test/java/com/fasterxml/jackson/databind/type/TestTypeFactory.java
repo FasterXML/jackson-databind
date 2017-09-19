@@ -231,7 +231,20 @@ public class TestTypeFactory
         assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
                 can);
         assertEquals(t, tf.constructFromCanonical(can));
-        
+    }
+
+    // [databind#1768]
+    @SuppressWarnings("serial")
+    public void testCanonicalWithSpaces()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        Object objects = new TreeMap<Object, Object>() { }; // to get subtype
+        String reflectTypeName = objects.getClass().getGenericSuperclass().getTypeName();
+        JavaType t1 = tf.constructType(objects.getClass().getGenericSuperclass());
+        // This will throw an Exception if you don't remove all white spaces from the String.
+        JavaType t2 = tf.constructFromCanonical(reflectTypeName);
+        assertNotNull(t2);
+        assertEquals(t2, t1);
     }
 
     /*

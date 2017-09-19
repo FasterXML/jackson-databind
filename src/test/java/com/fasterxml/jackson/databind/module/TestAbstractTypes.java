@@ -29,6 +29,15 @@ public class TestAbstractTypes extends BaseMapTest
         public CharSequence subSequence(int arg0, int arg1) { return this; }
     }
 
+    public interface Abstract {
+        public int getValue();
+    }
+
+    public static class AbstractImpl implements Abstract {
+        @Override
+        public int getValue() { return 3; }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -97,5 +106,13 @@ public class TestAbstractTypes extends BaseMapTest
         Object result = mapper.readValue(quote("abc"), CharSequence.class);
         assertEquals(MyString.class, result.getClass());
         assertEquals("abc", ((MyString) result).value);
+
+        // and ditto for POJOs
+        mod = new SimpleModule();
+        mod.addAbstractTypeMapping(Abstract.class, AbstractImpl.class);
+        mapper = new ObjectMapper()
+                .registerModule(mod);
+        Abstract a = mapper.readValue("{}", Abstract.class);
+        assertNotNull(a);
     }
 }

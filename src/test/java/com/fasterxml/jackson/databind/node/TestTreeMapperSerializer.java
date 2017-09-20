@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import static org.junit.Assert.*;
-
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
@@ -113,13 +111,13 @@ public class TestTreeMapperSerializer extends NodeTestBase
             String doc = sw.toString();
             JsonParser p = new JsonFactory().createParser(new StringReader(doc));
             
-            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = -20; i <= 20; ++i) {
-                assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(i, p.getIntValue());
                 assertEquals(""+i, p.getText());
             }
-            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
     }
@@ -153,29 +151,29 @@ public class TestTreeMapperSerializer extends NodeTestBase
     {
         JsonParser p = new JsonFactory().createParser(new StringReader(input));
         
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         
-        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(TEXT1, getAndVerifyText(p));
-        
-        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
         
-        assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD1, getAndVerifyText(p));
         
-        assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD2, getAndVerifyText(p));
         
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals(JsonToken.END_ARRAY, p.nextToken());
-        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
         
-        assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
-        
-        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
         p.close();
     }
@@ -184,28 +182,28 @@ public class TestTreeMapperSerializer extends NodeTestBase
         throws Exception
     {
         JsonParser p = new JsonFactory().createParser(input);
-        assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD4, getAndVerifyText(p));
-        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(TEXT2, getAndVerifyText(p));
         
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD3, getAndVerifyText(p));
-        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(-1, p.getIntValue());
         
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD2, getAndVerifyText(p));
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
         
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(FIELD1, getAndVerifyText(p));
-        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(DOUBLE_VALUE, p.getDoubleValue(), 0);
         
-        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
         
         assertNull(p.nextToken());
         p.close();

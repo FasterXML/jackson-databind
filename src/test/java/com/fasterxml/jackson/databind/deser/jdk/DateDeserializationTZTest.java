@@ -55,19 +55,14 @@ public class DateDeserializationTZTest
         public Date date;
     }
 
-    private ObjectMapper MAPPER;
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    private final static ObjectMapper MAPPER;
+    static {
         // Create an ObjectMapper with its timezone set to something other than the default (UTC).
         // This way we can verify that serialization and deserialization actually consider the time
         // zone set on the mapper.
         ObjectMapper m = new ObjectMapper();
         m.setTimeZone(TimeZone.getTimeZone(LOCAL_TZ));
         MAPPER = m;
-        
         FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 

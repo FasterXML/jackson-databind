@@ -202,7 +202,7 @@ public class TestConfig
         assertEquals(tz1, tz1);
         assertEquals(tz2, tz2);
         if (tz1.equals(tz2)) {
-            fail();
+            fail("Should not be equal");
         }
 
         mapper.setTimeZone(tz1);

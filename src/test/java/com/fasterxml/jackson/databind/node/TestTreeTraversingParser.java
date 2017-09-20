@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.node;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;

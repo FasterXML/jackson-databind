@@ -3,14 +3,13 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;
 
-//import static org.junit.Assert.*;
-
 public abstract class BaseTest
-    extends TestCase
+// 19-Sep-2017, tatu: Remove eventually from 3.x, but needs addition of metric ton of `@Test`s
+    extends junit.framework.TestCase
 {
     /*
     /**********************************************************
@@ -127,7 +126,48 @@ public abstract class BaseTest
             return true;
         }
     }
+
+    /*
+    /**********************************************************
+    /* Pass-through to remove need for static import
+    /**********************************************************
+     */
+
+    public static void fail(String msg) { Assert.fail(msg); }
     
+    public static void assertNull(Object v) { Assert.assertNull(v); }
+    public static void assertNull(String msg, Object v) { Assert.assertNull(msg, v); }
+    public static void assertNotNull(Object v) { Assert.assertNotNull(v); }
+    public static void assertNotNull(String msg, Object v) { Assert.assertNotNull(msg, v); }
+
+    public static void assertSame(Object ob1, Object ob2) { Assert.assertSame(ob1, ob2); }
+    public static void assertNotSame(Object ob1, Object ob2) { Assert.assertNotSame(ob1, ob2); }
+
+    public static void assertTrue(boolean b) { Assert.assertTrue(b); }
+    public static void assertTrue(String msg, boolean b) { Assert.assertTrue(msg, b); }
+    public static void assertFalse(boolean b) { Assert.assertFalse(b); }
+    public static void assertFalse(String msg, boolean b) { Assert.assertFalse(msg, b); }
+
+    public static void assertEquals(int exp, int act) { Assert.assertEquals(exp, act); }
+    public static void assertEquals(String msg, int exp, int act) { Assert.assertEquals(msg, exp, act); }
+
+    public static void assertEquals(double exp, double act, double diff) { Assert.assertEquals(exp, act, diff); }
+//    protected static void assertEquals(String msg, double exp, double act) { Assert.assertEquals(msg, exp, act); }
+
+    public static void assertEquals(String exp, String act) { Assert.assertEquals(exp, act); }
+    public static void assertEquals(String msg, String exp, String act) { Assert.assertEquals(msg, exp, act); }
+
+    public static void assertEquals(Object exp, Object act) { Assert.assertEquals(exp, act); }
+    public static void assertEquals(String msg, Object exp, Object act) { Assert.assertEquals(msg, exp, act); }
+
+    public static void assertArrayEquals(byte[] exp, byte[] act) { Assert.assertArrayEquals(exp, act); }
+    public static void assertArrayEquals(String msg, byte[] exp, byte[] act) { Assert.assertArrayEquals(msg, exp, act); }
+    public static void assertArrayEquals(char[] exp, char[] act) { Assert.assertArrayEquals(exp, act); }
+    public static void assertArrayEquals(int[] exp, int[] act) { Assert.assertArrayEquals(exp, act); }
+    public static void assertArrayEquals(long[] exp, long[] act) { Assert.assertArrayEquals(exp, act); }
+
+    public static void assertArrayEquals(Object[] exp, Object[] act) { Assert.assertArrayEquals(exp, act); }
+
     /*
     /**********************************************************
     /* High-level helpers

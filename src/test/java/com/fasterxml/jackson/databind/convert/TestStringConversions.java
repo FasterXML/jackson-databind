@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.convert;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

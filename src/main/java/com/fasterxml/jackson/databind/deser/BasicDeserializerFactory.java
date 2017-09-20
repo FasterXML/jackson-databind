@@ -14,6 +14,10 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
+import com.fasterxml.jackson.databind.ext.jdk8.Jdk8OptionalDeserializer;
+import com.fasterxml.jackson.databind.ext.jdk8.OptionalDoubleDeserializer;
+import com.fasterxml.jackson.databind.ext.jdk8.OptionalIntDeserializer;
+import com.fasterxml.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -1329,20 +1333,29 @@ public abstract class BasicDeserializerFactory
                 contentTypeDeser, contentDeser);
 
         if (deser == null) {
-            // Just one referential type as of JDK 1.7 / Java 7: AtomicReference (Java 8 adds Optional)
+            // 19-Sep-2017, tatu: Java 8 Optional directly supported in 3.x:
+            if (type.isTypeOrSubTypeOf(Optional.class)) {
+                // Not sure this can really work but let's try:
+                ValueInstantiator inst = type.hasRawClass(Optional.class) ? null
+                        : findValueInstantiator(ctxt, beanDesc);
+                return new Jdk8OptionalDeserializer(type, inst, contentTypeDeser, contentDeser);
+            }
             if (type.isTypeOrSubTypeOf(AtomicReference.class)) {
-                Class<?> rawType = type.getRawClass();
-                ValueInstantiator inst;
-                if (rawType == AtomicReference.class) {
-                    inst = null;
-                } else {
-                    /* 23-Oct-2016, tatu: Note that subtypes are probably not supportable
-                     *    without either forcing merging (to avoid having to create instance)
-                     *    or something else...
-                     */
-                    inst = findValueInstantiator(ctxt, beanDesc);
-                }
+                // 23-Oct-2016, tatu: Note that subtypes are probably not supportable
+                //    without either forcing merging (to avoid having to create instance)
+                //    or something else...
+                ValueInstantiator inst = type.hasRawClass(AtomicReference.class) ? null
+                        : findValueInstantiator(ctxt, beanDesc);
                 return new AtomicReferenceDeserializer(type, inst, contentTypeDeser, contentDeser);
+            }
+            if (type.hasRawClass(OptionalInt.class)) {
+                return new OptionalIntDeserializer();
+            }
+            if (type.hasRawClass(OptionalLong.class)) {
+                return new OptionalLongDeserializer();
+            }
+            if (type.hasRawClass(OptionalDouble.class)) {
+                return new OptionalDoubleDeserializer();
             }
         }
         if (deser != null) {

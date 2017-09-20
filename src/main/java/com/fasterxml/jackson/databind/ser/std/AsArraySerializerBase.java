@@ -37,8 +37,6 @@ public abstract class AsArraySerializerBase<T>
      * Setting for specific local override for "unwrap single element arrays":
      * true for enable unwrapping, false for preventing it, `null` for using
      * global configuration.
-     *
-     * @since 2.6
      */
     protected final Boolean _unwrapSingle;
 
@@ -67,8 +65,6 @@ public abstract class AsArraySerializerBase<T>
     /**
      * Non-contextual, "blueprint" constructor typically called when the first
      * instance is created, without knowledge of property it was used via.
-     *
-     * @since 2.6
      */
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, JsonSerializer<Object> elementSerializer)
@@ -187,7 +183,7 @@ public abstract class AsArraySerializerBase<T>
     /**********************************************************
      */
 
-    // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
+    // NOTE: as of 2.5, sub-classes SHOULD override
     // at least if they can provide access to actual size of value and use `writeStartArray()`
     // variant that passes size of array to output, which is helpful with some data formats
     @Override

@@ -563,6 +563,23 @@ public final class TypeFactory
     }
 
     /**
+     * Specialized alternative to {@link #findTypeParameters}
+     *
+     * @since 3.0
+     */
+    public JavaType findFirstTypeParameter(JavaType type, Class<?> expType)
+    {
+        JavaType match = type.findSuperType(expType);
+        if (match != null) {
+            JavaType t = match.getBindings().getBoundType(0);
+            if (t != null) {
+                return t;
+            }
+        }
+        return _unknownType();
+    }
+
+    /**
      * Method that can be called to figure out more specific of two
      * types (if they are related; that is, one implements or extends the
      * other); or if not related, return the primary type.

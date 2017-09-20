@@ -98,7 +98,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${version.plugin.javadoc}</version>
         <configuration>
           <links combine.children="append">
             <link>http://fasterxml.github.com/jackson-annotations/javadoc/3.0</link>

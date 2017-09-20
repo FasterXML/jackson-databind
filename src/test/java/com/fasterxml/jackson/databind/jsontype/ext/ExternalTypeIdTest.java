@@ -399,7 +399,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         Base base = new Derived1("derived1 prop val", "base prop val");
         BaseContainer baseContainer = new BaseContainer("bc prop val", base);
         String generatedJson = MAPPER.writeValueAsString(baseContainer);
-        BaseContainer baseContainer2 = MAPPER.readValue(generatedJson,BaseContainer.class);
+        BaseContainer baseContainer2 = MAPPER.readValue(generatedJson, BaseContainer.class);
         assertEquals("bc prop val", baseContainer.getBaseContainerProperty());
 
         Base b = baseContainer2.getBase();

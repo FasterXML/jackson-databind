@@ -77,7 +77,9 @@ public class MapDeserializationTest
     }
 
     static class ClassStringMap extends HashMap<Class<?>,String> { }
-    
+
+    static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
+
     /*
     /**********************************************************
     /* Test methods, untyped (Object valued) maps
@@ -151,14 +153,12 @@ public class MapDeserializationTest
             "{ \"double\":42.0, \"string\":\"string\","
             +"\"boolean\":true, \"list\":[\"list0\"],"
             +"\"null\":null }";
-    
-    static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
-    
+
     public void testSpecialMap() throws IOException
     {
-       final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
-       assertNotNull(map);
-       _doTestUntyped(map);
+        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
+        assertNotNull(map);
+        _doTestUntyped(map);
     }
 
     public void testGenericMap() throws IOException

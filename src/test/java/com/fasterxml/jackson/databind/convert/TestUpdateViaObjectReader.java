@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import static org.junit.Assert.assertArrayEquals;
-
 /**
  * Unit tests for verifying that "updating reader" works as
  * expected.

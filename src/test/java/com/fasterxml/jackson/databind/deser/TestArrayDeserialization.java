@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;

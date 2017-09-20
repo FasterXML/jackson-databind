@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.BeforeClass;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -170,12 +172,12 @@ public class TestNamingStrategyStd extends BaseMapTest
                 {"uId", "u_id" },
     });
     
-    private ObjectMapper _lcWithUndescoreMapper;
+    private static ObjectMapper _lcWithUndescoreMapper;
     
+    @BeforeClass
     @Override
     public void setUp() throws Exception
     {
-        super.setUp();
         _lcWithUndescoreMapper = new ObjectMapper();
         _lcWithUndescoreMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
     }

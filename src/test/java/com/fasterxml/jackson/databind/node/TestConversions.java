@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;

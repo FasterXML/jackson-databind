@@ -3923,14 +3923,14 @@ public class ObjectMapper
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
             ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
-                    "Current token not FIELD_NAME (to contain expected root name '"
-                    +expSimpleName+"'), but "+p.currentToken());
+                    "Current token not FIELD_NAME (to contain expected root name '%s'), but %s",
+                    expSimpleName, p.currentToken());
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
             ctxt.reportInputMismatch(rootType,
                     "Root name '%s' does not match expected ('%s') for type %s",
-                    actualName, expSimpleName);
+                    actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
         p.nextToken();

@@ -4064,18 +4064,17 @@ public class ObjectMapper
             ctxt.reportWrongTokenException(rootType, JsonToken.START_OBJECT,
                     "Current token not START_OBJECT (needed to unwrap root name '%s'), but %s",
                     expSimpleName, p.getCurrentToken());
-            
         }
         if (p.nextToken() != JsonToken.FIELD_NAME) {
             ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
-                    "Current token not FIELD_NAME (to contain expected root name '"
-                    +expSimpleName+"'), but "+p.getCurrentToken());
+                    "Current token not FIELD_NAME (to contain expected root name '%s'), but %s",
+                    expSimpleName, p.getCurrentToken());
         }
         String actualName = p.getCurrentName();
         if (!expSimpleName.equals(actualName)) {
             ctxt.reportInputMismatch(rootType,
                     "Root name '%s' does not match expected ('%s') for type %s",
-                    actualName, expSimpleName);
+                    actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
         p.nextToken();

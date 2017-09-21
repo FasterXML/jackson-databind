@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -85,15 +86,20 @@ public abstract class AnnotatedWithParams
     }
 
     public abstract int getParameterCount();
-
     public abstract Class<?> getRawParameterType(int index);
-
     public abstract JavaType getParameterType(int index);
 
     /**
      * @since 3.0
      */
     public abstract Parameter[] getNativeParameters();
+
+    /**
+     * @since 3.0
+     */
+    public boolean isStatic() {
+        return Modifier.isStatic(getModifiers());
+    }
 
     public final int getAnnotationCount() { return _annotations.size(); }
 

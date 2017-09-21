@@ -384,6 +384,17 @@ public abstract class BaseTest
         assertTrue("Should have positive line number", location.getLineNr() > 0);
     }
 
+    protected void verifyException(Exception e, Class<?> expType, String expMsg)
+        throws Exception
+    {
+        if (e.getClass() != expType) {
+            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
+        }
+        if (expMsg != null) {
+            verifyException(e, expMsg);
+        }
+    }
+
     protected void verifyException(Throwable e, String... matches)
     {
         String msg = e.getMessage();

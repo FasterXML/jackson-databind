@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 /**
@@ -42,14 +41,6 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
             }
         }
     }
-
-    /**
-     * Note: <code>NoClass</code> here has special meaning, of mapping invalid
-     * types into null instances.
-     */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
-            defaultImpl = NoClass.class)
-    public static class DefaultWithNoClass { }
 
     /**
      * Also another variant to verify that from 2.5 on, can use non-deprecated
@@ -178,15 +169,6 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     }
 
     // [databind#148]
-    public void testDefaultAsNoClass() throws Exception
-    {
-        Object ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ }");
-        assertNull(ob);
-        ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
-        assertNull(ob);
-    }
-
-    // same, with 2.5 and Void.class
     public void testDefaultAsVoid() throws Exception
     {
         Object ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ }");

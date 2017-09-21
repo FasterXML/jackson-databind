@@ -149,8 +149,10 @@ public class CreatorCollector
     }
 
     public void addDelegatingCreator(AnnotatedWithParams creator,
-            boolean explicit, SettableBeanProperty[] injectables) {
-        if (creator.getParameterType(0).isCollectionLikeType()) {
+            boolean explicit, SettableBeanProperty[] injectables)
+    {
+        int delegateIndex = 0; // !!! TO FIX !!!
+        if (creator.getParameterType(delegateIndex).isCollectionLikeType()) {
             if (verifyNonDup(creator, C_ARRAY_DELEGATE, explicit)) {
                 _arrayDelegateArgs = injectables;
             }
@@ -318,8 +320,6 @@ public class CreatorCollector
 
     /**
      * Helper method for recognizing `Enum.valueOf()` factory method
-     *
-     * @since 2.8.1
      */
     protected boolean _isEnumValueOf(AnnotatedWithParams creator) {
         return creator.getDeclaringClass().isEnum()

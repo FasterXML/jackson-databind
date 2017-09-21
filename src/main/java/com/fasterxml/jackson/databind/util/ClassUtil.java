@@ -257,8 +257,7 @@ public final class ClassUtil
     }
 
     public static boolean isBogusClass(Class<?> cls) {
-        return (cls == Void.class || cls == Void.TYPE
-                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
+        return (cls == Void.class || cls == Void.TYPE);
     }
 
     public static boolean isNonStaticInnerClass(Class<?> cls) {
@@ -266,25 +265,16 @@ public final class ClassUtil
                 && (getEnclosingClass(cls) != null);
     }
 
-    /**
-     * @since 2.7
-     */
     public static boolean isObjectOrPrimitive(Class<?> cls) {
         return (cls == CLS_OBJECT) || cls.isPrimitive();
     }
 
-    /**
-     * @since 2.9
-     */
     public static boolean hasClass(Object inst, Class<?> raw) {
         // 10-Nov-2016, tatu: Could use `Class.isInstance()` if we didn't care
         //    about being exactly that type
         return (inst != null) && (inst.getClass() == raw);
     }
 
-    /**
-     * @since 2.9
-     */
     public static void verifyMustOverride(Class<?> expType, Object instance,
             String method)
     {

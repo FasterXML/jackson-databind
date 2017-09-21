@@ -129,17 +129,6 @@ public class TestExceptionsDuringWriting
     /**********************************************************
      */
 
-    void verifyException(Exception e, Class<?> expType, String expMsg)
-        throws Exception
-    {
-        if (e.getClass() != expType) {
-            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
-        }
-        if (expMsg != null) {
-            verifyException(e, expMsg);
-        }
-    }
-
     Object createLongObject()
     {
         List<Object> leaf = new ArrayList<Object>();

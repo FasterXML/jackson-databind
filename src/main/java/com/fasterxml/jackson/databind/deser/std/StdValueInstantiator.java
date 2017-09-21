@@ -72,8 +72,13 @@ public class StdValueInstantiator
      */
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
-        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
-        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        if (valueType == null) {
+            _valueTypeDesc = "UNKNOWN TYPE";
+            _valueClass = Object.class;
+        } else {
+            _valueTypeDesc = valueType.toString();
+            _valueClass = valueType.getRawClass();
+        }
     }
 
     /**
@@ -460,12 +465,10 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
-    private Object _createUsingDelegate(
-            AnnotatedWithParams delegateCreator,
+    private Object _createUsingDelegate(AnnotatedWithParams delegateCreator,
             SettableBeanProperty[] delegateArguments,
-            DeserializationContext ctxt,
-            Object delegate)
-            throws IOException
+            DeserializationContext ctxt, Object delegate)
+                    throws IOException
     {
         if (delegateCreator == null) { // sanity-check; caller should check
             throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());

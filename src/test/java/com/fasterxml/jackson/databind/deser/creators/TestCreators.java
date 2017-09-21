@@ -99,16 +99,6 @@ public class TestCreators
     }
 
     /**
-     * Simple demonstration of INVALID construtor annotation (only
-     * defining name for first arg)
-     */
-    static class BrokenBean {
-        @JsonCreator protected BrokenBean(@JsonProperty("a") int a,
-                                          int b) {
-        }
-    }
-
-    /**
      * Bean that defines both creator and factory methor as
      * creators. Constructors have priority; but it is possible
      * to hide it using mix-in annotations.
@@ -158,7 +148,14 @@ public class TestCreators
         @JsonCreator public MultiBean(boolean v) { value = v; }
     }
 
-    // for [JACKSON-850]
+    // 19-Sep-2017, tatu: Used to be broken when parameter names could
+    //   not be discovered; but with 3.x, different reasons....
+    static class BrokenBean {
+        @JsonCreator protected BrokenBean(@JsonProperty("a") int a,
+                                          int b) {
+        }
+    }
+
     static class NoArgFactoryBean {
         public int x;
         public int y;
@@ -169,7 +166,7 @@ public class TestCreators
         public static NoArgFactoryBean create() { return new NoArgFactoryBean(123); }
     }
 
-    // [Issue#208]
+    // [databind#208]
     static class FromStringBean {
         protected String value;
 
@@ -494,7 +491,10 @@ public class TestCreators
         try {
             /*BrokenBean bean =*/ MAPPER.readValue("{ \"x\" : 42 }", BrokenBean.class);
         } catch (JsonMappingException je) {
-            verifyException(je, "has no property name");
+            // 19-Sep-2017, tatu: Used to be broken when parameter names could
+            //   not be discovered; but with 3.x, different reasons....
+//            verifyException(je, "has no property name"); // jackson 2.x
+            verifyException(je, "unrecognized field \"x\""); // jackson 3.x
         }
     }
 }

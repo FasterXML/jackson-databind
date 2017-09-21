@@ -276,7 +276,10 @@ public class JacksonAnnotationIntrospector
         VisibilityChecker<?> checker)
     {
         JsonAutoDetect ann = _findAnnotation(ac, JsonAutoDetect.class);
-        return (ann == null) ? checker : checker.with(ann);
+        if (ann == null) {
+            return checker;
+        }
+        return checker.withOverrides(JsonAutoDetect.Value.from(ann));
     }
 
     /*
@@ -294,11 +297,10 @@ public class JacksonAnnotationIntrospector
         }
         if (m instanceof AnnotatedParameter) {
             AnnotatedParameter p = (AnnotatedParameter) m;
-            AnnotatedWithParams ctor = p.getOwner();
-            if ((ctor instanceof AnnotatedConstructor)) {
+            AnnotatedWithParams owner = p.getOwner();
+            if (owner instanceof AnnotatedConstructor) {
                 // 17-Sep-2017, tatu: Two possibilities; either `@ConstructorProperties` (JDK6)
-                //   or parameter names from bytecode (JDK8)
-                ConstructorProperties props = ctor.getAnnotation(ConstructorProperties.class);
+                ConstructorProperties props = owner.getAnnotation(ConstructorProperties.class);
                 if (props != null) {
                     String[] names = props.value();
                     int ix = p.getIndex();
@@ -306,7 +308,15 @@ public class JacksonAnnotationIntrospector
                         return names[ix];
                     }
                 }
-//                return _findImplicitName(ctor, p.getIndex());
+                // ... or parameter names from bytecode (JDK8)
+                return _findImplicitName(owner, p.getIndex());
+            }
+            if (owner instanceof AnnotatedMethod) {
+                // For now let's only bother discovering names for static methods as they
+                // (only) may be creators
+                if (owner.isStatic()) {
+                    return _findImplicitName(owner, p.getIndex());
+                }
             }
         }
         return null;

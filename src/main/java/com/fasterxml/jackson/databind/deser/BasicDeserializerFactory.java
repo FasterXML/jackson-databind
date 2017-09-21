@@ -318,10 +318,10 @@ public abstract class BasicDeserializerFactory
                 beanDesc);
         // Important: first add factory methods; then constructors, so
         // latter can override former!
-        _addDeserializerFactoryMethods(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
+        _addFactoryCreators(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
-            _addDeserializerConstructors(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
+            _addConstructorCreators(ctxt, beanDesc, vchecker, intr, creators, creatorDefs);
         }
         return creators.constructValueInstantiator(config);
     }
@@ -393,7 +393,7 @@ public abstract class BasicDeserializerFactory
                 config.canOverrideAccessModifiers());
     }
 
-    protected void _addDeserializerConstructors
+    protected void _addConstructorCreators
         (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators,
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
@@ -418,14 +418,14 @@ public abstract class BasicDeserializerFactory
             return;
         }
 
-        // may need to keep track for [#725]
+        // may need to keep track for [databind#725]
         List<AnnotatedConstructor> implicitCtors = null;
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
             final boolean isCreator = (creatorMode != null) && (creatorMode != JsonCreator.Mode.DISABLED);
+
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
             final int argCount = ctor.getParameterCount();
-
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
@@ -441,7 +441,7 @@ public abstract class BasicDeserializerFactory
                 } else {
                     /*boolean added = */ _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
                             ctor, isCreator,
-                            vchecker.isCreatorVisible(ctor));
+                            vchecker.isScalarConstructorVisible(ctor));
                     // one more thing: sever link to creator property, to avoid possible later
                     // problems with "unresolved" constructor property
                     if (argDef != null) {
@@ -499,6 +499,7 @@ public abstract class BasicDeserializerFactory
             }
 
             final int namedCount = explicitNameCount + implicitWithCreatorCount;
+
             // Ok: if named or injectable, we have more work to do
             if (isCreator || (explicitNameCount > 0) || (injectCount > 0)) {
                 // simple case; everything covered:
@@ -560,6 +561,8 @@ public abstract class BasicDeserializerFactory
 
         main_loop:
         for (AnnotatedConstructor ctor : implicitCtors) {
+            // 21-Sep-2017, tatu: Note that "scalar constructors" are always delegating,
+            //    so use regular creator visibility here.
             if (!vchecker.isCreatorVisible(ctor)) {
                 continue;
             }
@@ -646,7 +649,7 @@ public abstract class BasicDeserializerFactory
         return false;
     }
 
-    protected void _addDeserializerFactoryMethods
+    protected void _addFactoryCreators
         (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators,
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
@@ -769,6 +772,9 @@ public abstract class BasicDeserializerFactory
     {
         Class<?> type = factory.getRawParameterType(0);
         
+        // 21-Sep-2017, tatu: Note that factory methods are never considered
+        //   "single scalar constructors" (that is, we do not use more lax visibility
+        //   for factories, ever, unlike constructors)
         if (type == String.class || type == CharSequence.class) {
             if (isCreator || vchecker.isCreatorVisible(factory)) {
                 creators.addStringCreator(factory, isCreator);
@@ -898,6 +904,10 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
+    /**
+     * Method called on a single-arg Creator method to see whether it should be
+     * considered property-based or not (if not, it's to be taken as delegate)
+     */
     protected boolean _checkIfCreatorPropertyBased(AnnotationIntrospector intr,
             AnnotatedWithParams creator, BeanPropertyDefinition propDef,
             JsonCreator.Mode creatorMode)

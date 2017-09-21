@@ -26,7 +26,7 @@ public class DeserExceptionTypeTest
         public int x;
 
         // Constructor that is not detectable as Creator
-        public NoCreatorsBean(boolean foo, int foo2) { }
+        protected NoCreatorsBean(boolean foo, int foo2) { }
     }
     
     /*
@@ -117,23 +117,6 @@ public class DeserExceptionTypeTest
             fail("Should not succeed, got: "+b);
         } catch (JsonMappingException e) {
             verifyException(e, InvalidDefinitionException.class, "no Creators");
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    void verifyException(Exception e, Class<?> expType, String expMsg)
-        throws Exception
-    {
-        if (e.getClass() != expType) {
-            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
-        }
-        if (expMsg != null) {
-            verifyException(e, expMsg);
         }
     }
 }

@@ -3930,7 +3930,7 @@ public class ObjectMapper
         if (!expSimpleName.equals(actualName)) {
             ctxt.reportInputMismatch(rootType,
                     "Root name '%s' does not match expected ('%s') for type %s",
-                    actualName, expSimpleName);
+                    actualName, expSimpleName, rootType);
         }
         // ok, then move to value itself....
         p.nextToken();

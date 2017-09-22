@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Unit tests for verifying that it is possible to annotate
@@ -147,14 +146,6 @@ public class TestCreators
         @JsonCreator public MultiBean(double v) { value = v; }
         @JsonCreator public MultiBean(String v) { value = v; }
         @JsonCreator public MultiBean(boolean v) { value = v; }
-    }
-
-    // 19-Sep-2017, tatu: Used to be broken when parameter names could
-    //   not be discovered; but with 3.x, different reasons....
-    static class BrokenBean {
-        @JsonCreator protected BrokenBean(@JsonProperty("a") int a,
-                                          int b) {
-        }
     }
 
     static class NoArgFactoryBean {
@@ -486,16 +477,4 @@ public class TestCreators
     /* Test methods, invalid/broken cases
     /**********************************************************
      */
-
-    public void testBrokenConstructor() throws Exception
-    {
-        try {
-            /*BrokenBean bean =*/ MAPPER.readValue("{ \"x\" : 42 }", BrokenBean.class);
-        } catch (InvalidDefinitionException je) {
-            // 19-Sep-2017, tatu: Used to be broken when parameter names could
-            //   not be discovered; but with 3.x, different reasons....
-//            verifyException(je, "has no property name"); // jackson 2.x
-            verifyException(je, "unrecognized field \"x\""); // jackson 3.x
-        }
-    }
 }

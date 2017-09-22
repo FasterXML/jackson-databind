@@ -149,8 +149,10 @@ public class CreatorCollector
     }
 
     public void addDelegatingCreator(AnnotatedWithParams creator,
-            boolean explicit, SettableBeanProperty[] injectables) {
-        if (creator.getParameterType(0).isCollectionLikeType()) {
+            boolean explicit, SettableBeanProperty[] injectables,
+            int delegateeIndex)
+    {
+        if (creator.getParameterType(delegateeIndex).isCollectionLikeType()) {
             if (verifyNonDup(creator, C_ARRAY_DELEGATE, explicit)) {
                 _arrayDelegateArgs = injectables;
             }

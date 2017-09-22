@@ -19,14 +19,16 @@ public class Core384Test extends BaseMapTest
 
         Fleet fleet = initVehicle();
 
+        /*
 for (Vehicle v : fleet.vehicles) {
     System.out.println("Vehicle, type: "+v.getClass());
 }
+*/
         String serializedFleet = mapper
                 .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(fleet);
 
-System.out.println(serializedFleet);
+//System.out.println(serializedFleet);
 
         Fleet deserializedFleet = mapper.readValue(serializedFleet, Fleet.class);
 

@@ -436,7 +436,10 @@ index, owner, defs[index], propDef);
             }
             if (creatorMode == null) {
                 // let's check Visibility here, to avoid further processing for non-visible?
-                if (vchecker.isCreatorVisible(ctor)) {
+                boolean visible = (ctor.getParameterCount() == 1)
+                        ? vchecker.isScalarConstructorVisible(ctor)
+                        : vchecker.isCreatorVisible(ctor);
+                if (visible) {
                     nonAnnotated.add(CreatorCandidate.construct(intr, ctor, creatorParams.get(ctor)));
                 }
                 continue;
@@ -462,6 +465,7 @@ index, owner, defs[index], propDef);
             return;
         }
         List<AnnotatedWithParams> implicitCtors = null;
+
         for (CreatorCandidate candidate : nonAnnotated) {
             final int argCount = candidate.paramCount();
             final AnnotatedWithParams ctor = candidate.creator();
@@ -469,7 +473,6 @@ index, owner, defs[index], propDef);
             if (argCount == 1) {
                 BeanPropertyDefinition propDef = candidate.propertyDef(0);
                 boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, propDef);
-
                 if (useProps) {
                     SettableBeanProperty[] properties = new SettableBeanProperty[1];
                     PropertyName name = candidate.paramName(0);
@@ -478,8 +481,7 @@ index, owner, defs[index], propDef);
                     creators.addPropertyCreator(ctor, false, properties);
                 } else {
                     /*boolean added = */ _handleSingleArgumentCreator(creators,
-                            ctor, false,
-                            vchecker.isCreatorVisible(ctor));
+                            ctor, false, true); // not-annotated, yes, visible
                     // one more thing: sever link to creator property, to avoid possible later
                     // problems with "unresolved" constructor property
                     if (propDef != null) {
@@ -800,58 +802,10 @@ nonAnnotatedParamIndex, ctor);
         }
     }
 
-    /*
-    protected boolean _handleSingleArgumentConstructor(DeserializationContext ctxt,
+    protected void _addFactoryCreators (DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
-            AnnotatedConstructor ctor, boolean isCreator, boolean isVisible)
-        throws JsonMappingException
-    {
-        // otherwise either 'simple' number, String, or general delegate:
-        Class<?> type = ctor.getRawParameterType(0);
-        if (type == String.class || type == CharSequence.class) {
-            if (isCreator || isVisible) {
-                creators.addStringCreator(ctor, isCreator);
-            }
-            return true;
-        }
-        if (type == int.class || type == Integer.class) {
-            if (isCreator || isVisible) {
-                creators.addIntCreator(ctor, isCreator);
-            }
-            return true;
-        }
-        if (type == long.class || type == Long.class) {
-            if (isCreator || isVisible) {
-                creators.addLongCreator(ctor, isCreator);
-            }
-            return true;
-        }
-        if (type == double.class || type == Double.class) {
-            if (isCreator || isVisible) {
-                creators.addDoubleCreator(ctor, isCreator);
-            }
-            return true;
-        }
-        if (type == boolean.class || type == Boolean.class) {
-            if (isCreator || isVisible) {
-                creators.addBooleanCreator(ctor, isCreator);
-            }
-            return true;
-        }
-        // Delegating Creator ok iff it has @JsonCreator (etc)
-        if (isCreator) {
-            creators.addDelegatingCreator(ctor, isCreator, null, 0);
-            return true;
-        }
-        return false;
-    }
-*/
-
-    protected void _addFactoryCreators
-        (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
-         AnnotationIntrospector intr, CreatorCollector creators,
-         Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
         List<CreatorCandidate> nonAnnotated = new LinkedList<>();
@@ -1004,15 +958,7 @@ nonAnnotatedParamIndex, ctor);
         return vchecker.isCreatorVisible(ctor);
     }
     */
-/*    
-    protected boolean _handleSingleArgumentFactory(DeserializationConfig config,
-            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
-            AnnotationIntrospector intr, CreatorCollector creators,
-            AnnotatedMethod factory, boolean isCreator)
-        throws JsonMappingException
-    {
-        Class<?> type = factory.getRawParameterType(0);
-*/
+
     protected boolean _handleSingleArgumentCreator(CreatorCollector creators,
             AnnotatedWithParams ctor, boolean isCreator, boolean isVisible)
     {

@@ -45,22 +45,30 @@ public class TestInjectables extends BaseMapTest
         }
     }
 
-    static class IssueGH471Bean {
+    // [databind#77]
+    static class TransientBean {
+        @JacksonInject("transient")
+        transient Object injected;
+
+        public int value;
+    }
+    
+    static class Bean471 {
 
         protected final Object constructorInjected;
         protected final String constructorValue;
 
         @JacksonInject("field_injected") protected Object fieldInjected;
-        @JsonProperty("field_value")     protected String fieldValue;
+        @JsonProperty("field_value") protected String fieldValue;
 
         protected Object methodInjected;
         protected String methodValue;
 
         public int x;
-        
+
         @JsonCreator
-        private IssueGH471Bean(@JacksonInject("constructor_injected") Object constructorInjected,
-                               @JsonProperty("constructor_value") String constructorValue) {
+        private Bean471(@JacksonInject("constructor_injected") Object constructorInjected,
+                @JsonProperty("constructor_value") String constructorValue) {
             this.constructorInjected = constructorInjected;
             this.constructorValue = constructorValue;
         }
@@ -74,14 +82,6 @@ public class TestInjectables extends BaseMapTest
         public void setMethodValue(String methodValue) {
             this.methodValue = methodValue;
         }
-    }
-
-    // [databind#77]
-    static class TransientBean {
-        @JacksonInject("transient")
-        transient Object injected;
-
-        public int value;
     }
 
     /*
@@ -128,8 +128,8 @@ public class TestInjectables extends BaseMapTest
         assertEquals("Bob", bean.name);
     }
 
-
-    public void testIssueGH471() throws Exception
+    // [databind#471]
+    public void testIssue471() throws Exception
     {
         final Object constructorInjected = "constructorInjected";
         final Object methodInjected = "methodInjected";
@@ -141,8 +141,9 @@ public class TestInjectables extends BaseMapTest
                                 .addValue("method_injected", methodInjected)
                                 .addValue("field_injected", fieldInjected));
 
-        IssueGH471Bean bean = mapper.readValue("{\"x\":13,\"constructor_value\":\"constructor\",\"method_value\":\"method\",\"field_value\":\"field\"}",
-                IssueGH471Bean.class);
+        Bean471 bean = mapper.readValue(aposToQuotes(
+"{'x':13,'constructor_value':'constructor','method_value':'method','field_value':'field'}"),
+                Bean471.class);
 
         /* Assert *SAME* instance */
         assertSame(constructorInjected, bean.constructorInjected);

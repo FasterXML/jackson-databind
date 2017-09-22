@@ -533,11 +533,17 @@ anyField.getName()));
         if (candidates.isEmpty()) {
             return candidates;
         }
-        ArrayList<AnnotatedMethod> result = new ArrayList<AnnotatedMethod>();
+        List<AnnotatedMethod> result = null;
         for (AnnotatedMethod am : candidates) {
             if (isFactoryMethod(am)) {
+                if (result == null) {
+                    result = new ArrayList<AnnotatedMethod>();
+                }
                 result.add(am);
             }
+        }
+        if (result == null) {
+            return Collections.emptyList();
         }
         return result;
     }
@@ -594,7 +600,7 @@ anyField.getName()));
          * (a) marked with @JsonCreator annotation, or
          * (b) "valueOf" (at this point, need not be public)
          */
-        JsonCreator.Mode mode = _annotationIntrospector.findCreatorAnnotation(this._config, am);
+        JsonCreator.Mode mode = _annotationIntrospector.findCreatorAnnotation(_config, am);
         if ((mode != null) && (mode != JsonCreator.Mode.DISABLED)) {
             return true;
         }

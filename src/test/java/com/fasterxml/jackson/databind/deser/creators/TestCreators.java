@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Unit tests for verifying that it is possible to annotate
@@ -493,7 +494,7 @@ public class TestCreators
     {
         try {
             /*BrokenBean bean =*/ MAPPER.readValue("{ \"x\" : 42 }", BrokenBean.class);
-        } catch (JsonMappingException je) {
+        } catch (InvalidDefinitionException je) {
             verifyException(je, "has no property name");
         }
     }

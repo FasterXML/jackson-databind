@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -393,10 +394,10 @@ public abstract class BasicDeserializerFactory
                 config.canOverrideAccessModifiers());
     }
 
-    protected void _addConstructorCreators
-        (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
-         AnnotationIntrospector intr, CreatorCollector creators,
-         Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
+    protected void _addConstructorCreators(DeserializationContext ctxt,
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            AnnotationIntrospector intr, CreatorCollector creators,
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
         // First things first: the "default constructor" (zero-arg
@@ -418,18 +419,47 @@ public abstract class BasicDeserializerFactory
             return;
         }
 
-        // may need to keep track for [databind#725]
-        List<AnnotatedConstructor> implicitCtors = null;
+        // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
+        List<AnnotatedConstructor> nonAnnotated = new LinkedList<>();
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
-            final boolean isCreator = (creatorMode != null) && (creatorMode != JsonCreator.Mode.DISABLED);
+            if (creatorMode == null) {
+                // let's check Visibility here, to avoid further processing for non-visible?
+                if (_constructorVisible(vchecker, ctor)) {
+                    nonAnnotated.add(ctor);
+                }
+                continue;
+            }
+            switch (creatorMode) {
+            case DISABLED: // to be ignored completely
+                break;
+            case DELEGATING:
+                _addDelegatingCreator(ctxt, beanDesc, vchecker, intr, creators, ctor);
+                break;
+            case PROPERTIES:
+                _addPropertyCreator(ctxt, beanDesc, vchecker, intr, creators, ctor, creatorParams);
+                break;
+            case DEFAULT:
+//                _addAnyCreator(ctxt, beanDesc, vchecker, intr, creators, ctor, creatorParams);
+                // !!! NOT YET RIGHT
+                nonAnnotated.add(ctor);
+                break;
+            }
+        }
 
+        // And only if and when those handled, consider potentially visible ones
+
+        // may need to keep track for [#725]
+        List<AnnotatedConstructor> implicitCtors = null;
+        for (AnnotatedConstructor ctor : nonAnnotated) {
+            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
+            final boolean isCreator = (creatorMode != null); // disabled excluded earlier
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
             final int argCount = ctor.getParameterCount();
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
-                boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef, creatorMode);
+                boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
 
                 if (useProps) {
                     SettableBeanProperty[] properties = new SettableBeanProperty[1];
@@ -509,7 +539,7 @@ public abstract class BasicDeserializerFactory
                 }
                 if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
                     // Secondary: all but one injectable, one un-annotated (un-named)
-                    creators.addDelegatingCreator(ctor, isCreator, properties);
+                    creators.addDelegatingCreator(ctor, isCreator, properties, 0);
                     continue;
                 }
                 // otherwise, epic fail?
@@ -547,6 +577,105 @@ public abstract class BasicDeserializerFactory
         }
     }
 
+    /**
+     * Helper method called when there is the explicit "is-creator" with mode of "delegating"
+     *
+     * @since 2.9.2
+     */
+    protected void _addDelegatingCreator(DeserializationContext ctxt,
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker, AnnotationIntrospector intr,
+            CreatorCollector creators, AnnotatedWithParams creator)
+        throws JsonMappingException
+    {
+        // Somewhat simple: find injectable values, if any, ensure there is one
+        // and just one delegated argument; report violations if any
+
+        int ix = -1;
+        final int argCount = creator.getParameterCount();
+        SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+        for (int i = 0; i < argCount; ++i) {
+            AnnotatedParameter param = creator.getParameter(i);
+            JacksonInject.Value injectId = intr.findInjectableValue(param);
+            if (injectId != null) {
+                properties[i] = constructCreatorProperty(ctxt, beanDesc, null, i, param, injectId);
+                continue;
+            }
+            if (ix < 0) {
+                ix = i;
+                continue;
+            }
+            // Illegal to have more than one value to delegate to
+            throw new IllegalArgumentException(String.format(
+                    "More than one argument (#%d amd #%d) left as delegating for Creator %s: only one allowed",
+                    ix, i, creator));
+        }
+        // Also, let's require that one Delegating argument does eixt
+        if (ix < 0) {
+            throw new IllegalArgumentException(String.format(
+                    "No argument left as delegating for Creator %s: exactly one required",
+                    creator));
+        }
+        creators.addDelegatingCreator(creator, true, properties, ix);
+    }
+
+    /**
+     * Helper method called when there is the explicit "is-creator" with mode of "properties-based"
+     *
+     * @since 2.9.2
+     */
+    protected void _addPropertyCreator(DeserializationContext ctxt,
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker, AnnotationIntrospector intr,
+            CreatorCollector creators, AnnotatedWithParams creator,
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
+        throws JsonMappingException
+    {
+        final int argCount = creator.getParameterCount();
+        SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
+        BeanPropertyDefinition[] propDefs = creatorParams.get(creator);
+        for (int i = 0; i < argCount; ++i) {
+            AnnotatedParameter param = creator.getParameter(i);
+            BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[i];
+            JacksonInject.Value injectId = intr.findInjectableValue(param);
+            PropertyName name = (propDef == null) ? null : propDef.getFullName();
+            if (name == null) {
+                // 21-Sep-2017, tatu: Looks like we want to block accidental use of Unwrapped,
+                //   as that will not work with Creators well at all
+                NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
+                if (unwrapper != null) {
+                    _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
+                    /*
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    ++explicitNameCount;
+                    */
+                }
+                name = _findImplicitParamName(param, intr);
+                // Must be injectable or have name; without either won't work
+                if ((name == null) && (injectId == null)) {
+                    throw new IllegalArgumentException(String.format(
+                            "Argument #%d has no name, is not Injectable: can not use Creator %s", i, creator));
+                }
+            }
+            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+        }
+        creators.addPropertyCreator(creator, true, properties);
+    }
+
+    /**
+     * Helper method called when there is the explicit "is-creator", but no mode declaration.
+     *
+     * @since 2.9.2
+     */
+    protected void _addAnyCreator(DeserializationContext ctxt,
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker, AnnotationIntrospector intr,
+            CreatorCollector creators, AnnotatedWithParams creator,
+            Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
+        throws JsonMappingException
+    {
+        final int argCount = creator.getParameterCount();
+        // First things first: only ambiguity may be wrt 1-argument case
+        
+    }
+    
     protected void _checkImplicitlyNamedConstructors(DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
@@ -563,7 +692,7 @@ public abstract class BasicDeserializerFactory
         for (AnnotatedConstructor ctor : implicitCtors) {
             // 21-Sep-2017, tatu: Note that "scalar constructors" are always delegating,
             //    so use regular creator visibility here.
-            if (!vchecker.isCreatorVisible(ctor)) {
+            if (!_constructorVisible(vchecker, ctor)) {
                 continue;
             }
             // as per earlier notes, only end up here if no properties associated with creator
@@ -643,7 +772,7 @@ public abstract class BasicDeserializerFactory
         }
         // Delegating Creator ok iff it has @JsonCreator (etc)
         if (isCreator) {
-            creators.addDelegatingCreator(ctor, isCreator, null);
+            creators.addDelegatingCreator(ctor, isCreator, null, 0);
             return true;
         }
         return false;
@@ -656,26 +785,58 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
+        List<AnnotatedMethod> nonAnnotated = new LinkedList<>();
+
+        // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), factory);
-            final boolean isCreator = (creatorMode != null) && (creatorMode != JsonCreator.Mode.DISABLED);
             final int argCount = factory.getParameterCount();
-            // zero-arg methods must be annotated; if so, are "default creators" [JACKSON-850]
-            if (argCount == 0) {
-                if (isCreator) {
-                    creators.setDefaultCreator(factory);
+            if (creatorMode == null) {
+                // Only potentially accept 1-argument factory methods
+                if ((argCount == 1) && vchecker.isCreatorVisible(factory)) {
+                    nonAnnotated.add(factory);
                 }
                 continue;
             }
+            if (creatorMode == Mode.DISABLED) {
+                continue;
+            }
+            
+            // zero-arg method factory methods fine, as long as explicit
+            if (argCount == 0) {
+                creators.setDefaultCreator(factory);
+                continue;
+            }
 
+            switch (creatorMode) {
+            case DELEGATING:
+                _addDelegatingCreator(ctxt, beanDesc, vchecker, intr, creators, factory);
+                break;
+            case PROPERTIES:
+                _addPropertyCreator(ctxt, beanDesc, vchecker, intr, creators, factory, creatorParams);
+                break;
+            case DEFAULT:
+            default:
+//                    _addAnyCreator(ctxt, beanDesc, vchecker, intr, creators, ctor, creatorParams);
+                    // !!! NOT YET RIGHT
+                nonAnnotated.add(factory);
+                break;
+            }
+        }
+        // And then implicitly found
+        for (AnnotatedMethod factory : nonAnnotated) {
+            final int argCount = factory.getParameterCount();
+            JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), factory);
+            final boolean isCreator = (creatorMode != null); // disabled excluded earlier
             final BeanPropertyDefinition[] propDefs = creatorParams.get(factory);
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
+                // more than 2 args, must have @JsonCreator (and 0-args handled earlier
                 BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
-                boolean useProps = _checkIfCreatorPropertyBased(intr, factory, argDef, creatorMode);
+                boolean useProps = _checkIfCreatorPropertyBased(intr, factory, argDef);
                 if (!useProps) { // not property based but delegating
                     /*boolean added=*/ _handleSingleArgumentFactory(config, beanDesc, vchecker, intr, creators,
-                            factory, isCreator);
+                            factory, true);
                     // 23-Sep-2016, tatu: [databind#1383]: Need to also sever link to avoid possible
                     //    later problems with "unresolved" constructor property
                     if (argDef != null) {
@@ -684,8 +845,7 @@ public abstract class BasicDeserializerFactory
                     continue;
                 }
                 // fall through if there's name
-            } else {
-                // more than 2 args, must have @JsonCreator
+            } else { // 2 and more args? Must be explicit
                 if (!isCreator) {
                     continue;
                 }
@@ -755,7 +915,7 @@ public abstract class BasicDeserializerFactory
                     creators.addPropertyCreator(factory, isCreator, properties);
                 } else if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
                     // [712] secondary: all but one injectable, one un-annotated (un-named)
-                    creators.addDelegatingCreator(factory, isCreator, properties);
+                    creators.addDelegatingCreator(factory, isCreator, properties, 0);
                 } else { // otherwise, epic fail
                     throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
                             +" of factory method "+factory+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
@@ -764,6 +924,13 @@ public abstract class BasicDeserializerFactory
         }
     }
 
+    protected boolean _constructorVisible(VisibilityChecker<?> vchecker, AnnotatedConstructor ctor) {
+        if (ctor.getParameterCount() == 1) {
+            return vchecker.isScalarConstructorVisible(ctor);
+        }
+        return vchecker.isCreatorVisible(ctor);
+    }
+    
     protected boolean _handleSingleArgumentFactory(DeserializationConfig config,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
@@ -806,7 +973,7 @@ public abstract class BasicDeserializerFactory
             return true;
         }
         if (isCreator) {
-            creators.addDelegatingCreator(factory, isCreator, null);
+            creators.addDelegatingCreator(factory, isCreator, null, 0);
             return true;
         }
         return false;
@@ -909,15 +1076,8 @@ public abstract class BasicDeserializerFactory
      * considered property-based or not (if not, it's to be taken as delegate)
      */
     protected boolean _checkIfCreatorPropertyBased(AnnotationIntrospector intr,
-            AnnotatedWithParams creator, BeanPropertyDefinition propDef,
-            JsonCreator.Mode creatorMode)
+            AnnotatedWithParams creator, BeanPropertyDefinition propDef)
     {
-        if (creatorMode == JsonCreator.Mode.PROPERTIES) {
-            return true;
-        }
-        if (creatorMode == JsonCreator.Mode.DELEGATING) {
-            return false;
-        }
         // If explicit name, or inject id, property-based
         if (((propDef != null) && propDef.isExplicitlyNamed())
                 || (intr.findInjectableValue(creator.getParameter(0)) != null)) {

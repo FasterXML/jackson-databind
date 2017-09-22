@@ -396,22 +396,18 @@ index, owner, defs[index], propDef);
                 config.canOverrideAccessModifiers());
     }
 
+    /*
+    /**********************************************************
+    /* Creator introspection
+    /**********************************************************
+     */
+
     protected void _addDeserializerConstructors(DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators,
          Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorParams)
         throws JsonMappingException
     {
-        // First things first: the "default constructor" (zero-arg
-        // constructor; whether implicit or explicit) is NOT included
-        // in list of constructors, so needs to be handled separately.
-        AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
-        if (defaultCtor != null) {
-            if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(ctxt, defaultCtor)) {
-                creators.setDefaultCreator(defaultCtor);
-            }
-        }
-
         // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
         //     for now to skip attempts at using anything but no-args constructor (see
         //     `InnerClassProperty` construction for that)
@@ -421,8 +417,18 @@ index, owner, defs[index], propDef);
             return;
         }
 
+        // First things first: the "default constructor" (zero-arg
+        // constructor; whether implicit or explicit) is NOT included
+        // in list of constructors, so needs to be handled separately.
+        AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
+        if (defaultCtor != null) {
+            if (!creators.hasDefaultCreator() || _hasCreatorAnnotation(ctxt, defaultCtor)) {
+                creators.setDefaultCreator(defaultCtor);
+            }
+        }
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         List<CreatorCandidate> nonAnnotated = new LinkedList<>();
+        int explCount = 0;
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             JsonCreator.Mode creatorMode = intr.findCreatorAnnotation(ctxt.getConfig(), ctor);
             if (Mode.DISABLED == creatorMode) {
@@ -449,11 +455,12 @@ index, owner, defs[index], propDef);
                         CreatorCandidate.construct(intr, ctor, creatorParams.get(ctor)));
                 break;
             }
+            ++explCount;
         }
-
         // And only if and when those handled, consider potentially visible ones
-
-        // may need to keep track for [#725]
+        if (explCount > 0) { // TODO: split method into two since we could have expl factories
+            return;
+        }
         List<AnnotatedWithParams> implicitCtors = null;
         for (CreatorCandidate candidate : nonAnnotated) {
             final int argCount = candidate.paramCount();
@@ -797,6 +804,7 @@ nonAnnotatedParamIndex, ctor);
         throws JsonMappingException
     {
         List<CreatorCandidate> nonAnnotated = new LinkedList<>();
+        int explCount = 0;
 
         // 21-Sep-2017, tatu: First let's handle explicitly annotated ones
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
@@ -834,6 +842,11 @@ nonAnnotatedParamIndex, ctor);
                         CreatorCandidate.construct(intr, factory, creatorParams.get(factory)));
                 break;
             }
+            ++explCount;
+        }
+        // And only if and when those handled, consider potentially visible ones
+        if (explCount > 0) { // TODO: split method into two since we could have expl factories
+            return;
         }
         // And then implicitly found
         for (CreatorCandidate candidate : nonAnnotated) {
@@ -841,25 +854,21 @@ nonAnnotatedParamIndex, ctor);
             AnnotatedWithParams factory = candidate.creator();
             final BeanPropertyDefinition[] propDefs = creatorParams.get(factory);
             // some single-arg factory methods (String, number) are auto-detected
-            if (argCount == 1) {
-                // more than 2 args, must have @JsonCreator (and 0-args handled earlier
-                BeanPropertyDefinition argDef = candidate.propertyDef(0);
-                boolean useProps = _checkIfCreatorPropertyBased(intr, factory, argDef);
-                if (!useProps) { // not property based but delegating
-                    /*boolean added=*/ _handleSingleArgumentCreator(creators,
-                            factory, false, vchecker.isCreatorVisible(factory));
-                    // 23-Sep-2016, tatu: [databind#1383]: Need to also sever link to avoid possible
-                    //    later problems with "unresolved" constructor property
-                    if (argDef != null) {
-                        ((POJOPropertyBuilder) argDef).removeConstructors();
-                    }
-                    continue;
-                }
-                // fall through if there's name
-            } else {
+            if (argCount != 1) {
                 continue; // 2 and more args? Must be explicit, handled earlier
             }
-            // 1 or more args; all params must have name annotations
+            BeanPropertyDefinition argDef = candidate.propertyDef(0);
+            boolean useProps = _checkIfCreatorPropertyBased(intr, factory, argDef);
+            if (!useProps) { // not property based but delegating
+                /*boolean added=*/ _handleSingleArgumentCreator(creators,
+                        factory, false, vchecker.isCreatorVisible(factory));
+                // 23-Sep-2016, tatu: [databind#1383]: Need to also sever link to avoid possible
+                //    later problems with "unresolved" constructor property
+                if (argDef != null) {
+                    ((POJOPropertyBuilder) argDef).removeConstructors();
+                }
+                continue;
+            }
             AnnotatedParameter nonAnnotatedParam = null;            
             SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             int implicitNameCount = 0;

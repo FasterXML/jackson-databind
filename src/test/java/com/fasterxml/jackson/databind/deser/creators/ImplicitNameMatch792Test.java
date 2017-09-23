@@ -54,11 +54,14 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     {
         private int value;
 
-        private ReadWriteBean(@JsonProperty(value="value",
+        // 22-Sep-2017, tatu: Note that must be either `public`; annotated with JsonCreator,
+        //    or visibility min level for creator auto-detection needs to be raised
+        public ReadWriteBean(@JsonProperty(value="value",
                 access=JsonProperty.Access.READ_WRITE) int v) {
             value = v;
         }
 
+        @JsonProperty("value")
         public int testValue() { return value; }
 
         // Let's also add setter to ensure conflict resolution works

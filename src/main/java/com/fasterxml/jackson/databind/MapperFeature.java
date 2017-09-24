@@ -383,22 +383,6 @@ public enum MapperFeature implements ConfigFeature
     USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
 
     /**
-     * Feature that may be enabled to enforce strict compatibility with
-     * Bean name introspection, instead of slightly different mechanism
-     * Jackson defaults to.
-     * Specific difference is that Jackson always lower cases leading upper-case
-     * letters, so "getURL()" becomes "url" property; whereas standard Bean
-     * naming <b>only</b> lower-cases the first letter if it is NOT followed by
-     * another upper-case letter (so "getURL()" would result in "URL" property).
-     *<p>
-     * Feature is disabled by default for backwards compatibility purposes: earlier
-     * Jackson versions used Jackson's own mechanism.
-     *
-     * @since 2.5
-     */
-    USE_STD_BEAN_NAMING(false),
-
-    /**
      * Feature that when enabled will allow explicitly named properties (i.e., fields or methods
      * annotated with {@link com.fasterxml.jackson.annotation.JsonProperty}("explicitName")) to
      * be re-named by a {@link PropertyNamingStrategy}, if one is configured.

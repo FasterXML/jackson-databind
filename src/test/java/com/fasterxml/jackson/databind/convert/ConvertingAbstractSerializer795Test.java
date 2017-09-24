@@ -34,7 +34,7 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
         @JsonDeserialize(converter = AbstractCustomTypeDeserializationConverter.class)
         protected AbstractCustomType customField;
 
-        AbstractCustomTypeUser(@JsonProperty("customField") AbstractCustomType cf) {
+        public AbstractCustomTypeUser(@JsonProperty("customField") AbstractCustomType cf) {
             this.customField = cf;
         }
     }

@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.Base64Variant;
 
 import com.fasterxml.jackson.databind.*;
@@ -27,14 +26,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
-
-    private final static int AUTO_DETECT_MASK =
-            MapperFeature.AUTO_DETECT_FIELDS.getMask()
-            | MapperFeature.AUTO_DETECT_GETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_IS_GETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_SETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_CREATORS.getMask()
-            ;
 
     /*
     /**********************************************************
@@ -651,29 +642,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final VisibilityChecker<?> getDefaultVisibilityChecker()
     {
-        VisibilityChecker<?> vchecker = _configOverrides.getDefaultVisibility();
-        // then global overrides (disabling)
-        if ((_mapperFeatures & AUTO_DETECT_MASK) != 0) {
-            if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-                vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
-                vchecker = vchecker.withGetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
-                vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
-                vchecker = vchecker.withSetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-                vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
-            }
-        }
-        return vchecker;
+        return _configOverrides.getDefaultVisibility();
     }
 
-    @Override // since 2.9
+    @Override
     public final VisibilityChecker<?> getDefaultVisibilityChecker(Class<?> baseType,
             AnnotatedClass actualClass) {
         VisibilityChecker<?> vc = getDefaultVisibilityChecker();

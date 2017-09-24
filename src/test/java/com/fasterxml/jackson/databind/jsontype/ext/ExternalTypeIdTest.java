@@ -147,7 +147,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         protected BaseContainer() { throw new IllegalStateException("wrong constructor called"); }
 
         @JsonCreator
-        public BaseContainer(@JsonProperty("baseContainerProperty") String bcp, @JsonProperty("base") Base b) {
+        BaseContainer(@JsonProperty("baseContainerProperty") String bcp, @JsonProperty("base") Base b) {
             baseContainerProperty = bcp;
             base = b;
         }

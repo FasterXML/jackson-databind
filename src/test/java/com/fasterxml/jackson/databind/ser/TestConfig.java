@@ -72,22 +72,14 @@ public class TestConfig
 
         // First, defaults:
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
-        assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
         assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
 
         assertTrue(cfg.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
 
         assertFalse(cfg.isEnabled(SerializationFeature.INDENT_OUTPUT));
         assertFalse(cfg.isEnabled(MapperFeature.USE_STATIC_TYPING));
-
-        // since 1.3:
-        assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS));
-        // since 1.4
-        
         assertTrue(cfg.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
-        // since 1.5
         assertTrue(cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
-
     }
 
     public void testOverrideIntrospectors()

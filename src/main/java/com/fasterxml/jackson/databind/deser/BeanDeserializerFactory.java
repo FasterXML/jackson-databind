@@ -530,8 +530,10 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
-                && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS);
+        final boolean useGettersAsSetters = ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS);
+        // 24-Sep-2017, tatu: Legacy setting removed from 3.x, not sure if other visibility checks
+        //    should be checked?
+        // && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS);
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,

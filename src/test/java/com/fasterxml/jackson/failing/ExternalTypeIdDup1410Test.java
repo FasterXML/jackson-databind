@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class KevinFail1410Test extends BaseMapTest
+// [databind#1410]
+// Problem with External Type Id, existing regular property: should not write
+// twice, but currently does.
+public class ExternalTypeIdDup1410Test extends BaseMapTest
 {
     enum EnvironmentEventSource { BACKEND; }
     

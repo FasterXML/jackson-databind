@@ -63,7 +63,8 @@ public abstract class StdDeserializer<T>
     }
 
     protected StdDeserializer(JavaType valueType) {
-        _valueClass = valueType.getRawClass();
+        // 26-Sep-2017, tatu: [databind#1764] need to add null-check back until 3.x
+        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
     }
 
     /**

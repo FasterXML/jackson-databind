@@ -317,16 +317,18 @@ public class POJOPropertiesCollector
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
-
-        // then merge annotations, to simplify further processing
-        for (POJOPropertyBuilder property : props.values()) {
-            property.mergeAnnotations(_forSerialization);
-        }
         // and then remove unneeded accessors (wrt read-only, read-write)
         _removeUnwantedAccessor(props);
 
         // Rename remaining properties
         _renameProperties(props);
+
+        // then merge annotations, to simplify further processing
+        // 26-Sep-2017, tatu: Before 2.9.2 was done earlier but that prevented some of
+        //   annotations from getting properly merged
+        for (POJOPropertyBuilder property : props.values()) {
+            property.mergeAnnotations(_forSerialization);
+        }
 
         // And use custom naming strategy, if applicable...
         PropertyNamingStrategy naming = _findNamingStrategy();
@@ -348,7 +350,7 @@ public class POJOPropertiesCollector
         if (_config.isEnabled(MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME)) {
             _renameWithWrappers(props);
         }
-        
+
         // well, almost last: there's still ordering...
         _sortProperties(props);
         _properties = props;

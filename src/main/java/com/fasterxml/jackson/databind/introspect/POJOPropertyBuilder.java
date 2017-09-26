@@ -23,8 +23,6 @@ public class POJOPropertyBuilder
     /**
      * Marker value used to denote that no reference-property information found for
      * this property
-     *
-     * @since 2.9
      */
     private final static AnnotationIntrospector.ReferenceProperty NOT_REFEFERENCE_PROP =
             AnnotationIntrospector.ReferenceProperty.managed("");
@@ -400,9 +398,8 @@ public class POJOPropertyBuilder
         }
         // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
-             *   is in super-class from the other
-             */
+            // Allow masking, i.e. do not report exception if one
+            // is in super-class from the other
             Class<?> currClass = curr.value.getDeclaringClass();
             Class<?> nextClass = next.value.getDeclaringClass();
             if (currClass != nextClass) {

@@ -279,8 +279,6 @@ public class POJOPropertiesCollector
 
     /**
      * Internal method that will collect actual property information.
-     *
-     * @since 2.6
      */
     protected void collectAll()
     {
@@ -299,17 +297,14 @@ public class POJOPropertiesCollector
         // Remove ignored properties, first; this MUST precede annotation merging
         // since logic relies on knowing exactly which accessor has which annotation
         _removeUnwantedProperties(props);
-
+        // and then remove unneeded accessors (wrt read-only, read-write)
+        _removeUnwantedAccessor(props);
+        // Rename remaining properties
+        _renameProperties(props);
         // then merge annotations, to simplify further processing
         for (POJOPropertyBuilder property : props.values()) {
             property.mergeAnnotations(_forSerialization);
         }
-        // and then remove unneeded accessors (wrt read-only, read-write)
-        _removeUnwantedAccessor(props);
-
-        // Rename remaining properties
-        _renameProperties(props);
-
         // And use custom naming strategy, if applicable...
         PropertyNamingStrategy naming = _findNamingStrategy();
         if (naming != null) {

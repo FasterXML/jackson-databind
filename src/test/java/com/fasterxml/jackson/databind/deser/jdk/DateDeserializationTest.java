@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
+import java.beans.ConstructorProperties;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -49,6 +51,37 @@ public class DateDeserializationTest
     static class StrictCalendarBean {
         @JsonFormat(lenient=OptBoolean.FALSE)
         public Calendar value;
+    }
+
+    // [databind#1722]
+    public static class Date1722 {
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+        private Date date;
+
+        @JsonIgnore
+        private String foo;
+
+        @ConstructorProperties({"date", "foo"})
+        public Date1722(Date date, String foo) {
+            this.date = date;
+            this.foo = foo;
+        }
+
+        public Date getDate() {
+            return this.date;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
+        }
+
+        public String getFoo() {
+            return this.foo;
+        }
+
+        public void setFoo(String foo) {
+            this.foo = foo;
+        }
     }
 
     /*
@@ -325,6 +358,16 @@ public class DateDeserializationTest
         assertEquals(Calendar.JANUARY, c.get(Calendar.MONTH));
         assertEquals(1, c.get(Calendar.DAY_OF_MONTH));
         assertEquals(2, c.get(Calendar.HOUR_OF_DAY));
+    }
+
+    // [databind#1722]: combination of `@ConstructorProperties` and `@JsonIgnore`
+    //  should work fine.
+    public void testFormatAndCtors1722() throws Exception
+    {
+        Date1722 input = new Date1722(new Date(0L), "bogus");
+        String json = MAPPER.writeValueAsString(input);
+        Date1722 result = MAPPER.readValue(json, Date1722.class);
+        assertNotNull(result);
     }
 
     // [databind#338]

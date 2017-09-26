@@ -5,6 +5,8 @@ Project: jackson-databind
 
 2.9.2 (not yet released)
 
+(possibly) #1756: Deserialization error with custom `AnnotationIntrospector`
+ (reported by Daniel N)
 #1767: Allow `DeserializationProblemHandler` to respond to primitive types
  (reported by nhtzr@github)
 #1768: Improve `TypeFactory.constructFromCanonical()` to work with

@@ -5,14 +5,13 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerBase;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.NullsAsEmptyProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;
@@ -42,7 +41,6 @@ public abstract class StdDeserializer<T>
             DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.getMask()
             | DeserializationFeature.USE_LONG_FOR_INTS.getMask();
 
-    // @since 2.9
     protected final static int F_MASK_ACCEPT_ARRAYS =
             DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS.getMask() |
             DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT.getMask();
@@ -57,19 +55,19 @@ public abstract class StdDeserializer<T>
     final protected Class<?> _valueClass;
 
     protected StdDeserializer(Class<?> vc) {
+        if (vc == null) {
+            throw new IllegalArgumentException("`null` not accepted as handled type");
+        }
         _valueClass = vc;
     }
 
     protected StdDeserializer(JavaType valueType) {
-        // 26-Sep-2017, tatu: [databind#1764] need to add null-check back until 3.x
-        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        this(ClassUtil.rawClass(valueType));
     }
 
     /**
      * Copy-constructor for sub-classes to use, most often when creating
      * new instances for {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}.
-     * 
-     * @since 2.5
      */
     protected StdDeserializer(StdDeserializer<?> src) {
         _valueClass = src._valueClass;

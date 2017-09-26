@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.objectid;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -31,6 +31,9 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
     
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    // 26-Sep-2017, tatu: With Jackson 3.x and inclusion of parameter-names for creators
+    //   we face a new failure since explicit name of injectables is sort of ignored.
+    //   Needs to be fixed as part of rewrite of the whole property introspection.
     public void testWithInjectables538() throws Exception
     {
         A a = new A("a");

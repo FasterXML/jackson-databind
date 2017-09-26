@@ -301,7 +301,6 @@ public class POJOPropertiesCollector
         _removeUnwantedAccessor(props);
         // Rename remaining properties
         _renameProperties(props);
-
         // then merge annotations, to simplify further processing: has to be done AFTER
         // preceding renaming step to get right propagation
         for (POJOPropertyBuilder property : props.values()) {
@@ -325,7 +324,7 @@ public class POJOPropertiesCollector
         if (_config.isEnabled(MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME)) {
             _renameWithWrappers(props);
         }
-        
+
         // well, almost last: there's still ordering...
         _sortProperties(props);
         _properties = props;

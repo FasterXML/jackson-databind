@@ -21,10 +21,4 @@ public class ConfigObjectsTest extends BaseMapTest
         mapper.setSubtypeResolver(repl);
         assertSame(repl, mapper.getSubtypeResolver());
     }
-
-    public void testMics() throws Exception
-    {
-        assertFalse(MapperFeature.AUTO_DETECT_FIELDS.enabledIn(0));
-        assertTrue(MapperFeature.AUTO_DETECT_FIELDS.enabledIn(-1));
-    }
 }

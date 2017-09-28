@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestDuplicateRegistration extends BaseMapTest
 {
-    static class MyModule extends Module {
+    static class MyModule extends com.fasterxml.jackson.databind.Module {
         public int regCount;
         
         public MyModule() {

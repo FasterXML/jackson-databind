@@ -7,6 +7,9 @@ Project: jackson-databind
 
 (possibly) #1756: Deserialization error with custom `AnnotationIntrospector`
  (reported by Daniel N)
+#1705: Non-generic interface method hides type resolution info from generic base class
+  (reported by Tim B)
+ NOTE: was originally reported fixed in 2.9.1 -- turns out it wasn't.
 #1767: Allow `DeserializationProblemHandler` to respond to primitive types
  (reported by nhtzr@github)
 #1768: Improve `TypeFactory.constructFromCanonical()` to work with
@@ -17,8 +20,6 @@ Project: jackson-databind
 
 2.9.1 (07-Sep-2017)
 
-#1705: Non-generic interface method hides type resolution info from generic base class
- (reported by Tim B)
 #1725: `NPE` In `TypeFactory. constructParametricType(...)`
  (reported by ctytgat@github)
 #1730: InvalidFormatException` for `JsonToken.VALUE_EMBEDDED_OBJECT`

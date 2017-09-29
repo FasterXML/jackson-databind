@@ -133,7 +133,7 @@ public class AnnotatedMethodCollector
                     b.method = m;
                     // 23-Aug-2017, tatu: [databind#1705] Also need to change the type resolution context if so
                     //    (note: mix-over case above shouldn't need it)
-//                    b.typeContext = tc;
+                    b.typeContext = tc;
                 }
             }
         }

@@ -44,28 +44,19 @@ public class MappingJsonFactory
     public final ObjectMapper getCodec() { return (ObjectMapper) _objectCodec; }
 
     @Override
-    public JsonFactory copy()
+    public MappingJsonFactory copy()
     {
-        _checkInvalidCopy(MappingJsonFactory.class);
-        // note: as with base class, must NOT copy mapper reference
         return new MappingJsonFactory(this, null);
     }
-    
-    /*
-    /**********************************************************
-    /* Format detection functionality (since 1.8)
-    /**********************************************************
-     */
-    
+
     /**
      * Sub-classes need to override this method
      */
     @Override
     public String getFormatName()
     {
-        /* since non-JSON factories typically should not extend this class,
-         * let's just always return JSON as name.
-         */
+        // since non-JSON factories typically should not extend this class,
+        // let's just always return JSON as name.
         return FORMAT_NAME_JSON;
     }
 }

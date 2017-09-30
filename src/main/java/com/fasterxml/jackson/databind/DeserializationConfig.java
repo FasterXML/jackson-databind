@@ -25,7 +25,6 @@ public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
     implements java.io.Serializable // since 2.1
 {
-    // since 2.9
     private static final long serialVersionUID = 2;
 
     /*
@@ -648,7 +647,7 @@ public final class DeserializationConfig
         return (_deserFeatures & f.getMask()) != 0;
     }
 
-    public final boolean isEnabled(JsonParser.Feature f, JsonFactory factory) {
+    public final boolean isEnabled(JsonParser.Feature f, TokenStreamFactory factory) {
         int mask = f.getMask();
         if ((_parserFeaturesToChange & mask) != 0) {
             return (_parserFeatures & f.getMask()) != 0;

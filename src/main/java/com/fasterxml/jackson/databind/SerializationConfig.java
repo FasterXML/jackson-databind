@@ -665,7 +665,7 @@ public final class SerializationConfig
      * for feature, and only if not, checks state of passed-in
      * factory.
      */
-    public final boolean isEnabled(JsonGenerator.Feature f, JsonFactory factory) {
+    public final boolean isEnabled(JsonGenerator.Feature f, TokenStreamFactory factory) {
         int mask = f.getMask();
         if ((_generatorFeaturesToChange & mask) != 0) {
             return (_generatorFeatures & f.getMask()) != 0;

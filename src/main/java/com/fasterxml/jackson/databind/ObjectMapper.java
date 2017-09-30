@@ -314,7 +314,7 @@ public class ObjectMapper
      * Factory used to create {@link JsonParser} and {@link JsonGenerator}
      * instances as necessary.
      */
-    protected final JsonFactory _jsonFactory;
+    protected final TokenStreamFactory _jsonFactory;
 
     /**
      * Specific factory used for creating {@link JavaType} instances;
@@ -337,8 +337,6 @@ public class ObjectMapper
     /**
      * Currently active per-type configuration overrides, accessed by
      * declared type of property.
-     *
-     * @since 2.9
      */
     protected final ConfigOverrides _configOverrides;
 
@@ -466,7 +464,7 @@ public class ObjectMapper
 
     /**
      * Default constructor, which will construct the default
-     * {@link JsonFactory} as necessary, use
+     * {@link TokenStreamFactory} as necessary, use
      * {@link SerializerProvider} as its
      * {@link SerializerProvider}, and
      * {@link BeanSerializerFactory} as its
@@ -481,11 +479,11 @@ public class ObjectMapper
     }
 
     /**
-     * Constructs instance that uses specified {@link JsonFactory}
+     * Constructs instance that uses specified {@link TokenStreamFactory}
      * for constructing necessary {@link JsonParser}s and/or
      * {@link JsonGenerator}s.
      */
-    public ObjectMapper(JsonFactory jf) {
+    public ObjectMapper(TokenStreamFactory jf) {
         this(jf, null, null);
     }
 
@@ -525,18 +523,18 @@ public class ObjectMapper
     }
 
     /**
-     * Constructs instance that uses specified {@link JsonFactory}
+     * Constructs instance that uses specified {@link TokenStreamFactory}
      * for constructing necessary {@link JsonParser}s and/or
      * {@link JsonGenerator}s, and uses given providers for accessing
      * serializers and deserializers.
      * 
-     * @param jf JsonFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
+     * @param jf TokenStreamFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
      * @param sp SerializerProvider to use: if null, a {@link SerializerProvider} will be constructed
      * @param dc Blueprint deserialization context instance to use for creating
      *    actual context objects; if null, will construct standard
      *    {@link DeserializationContext}
      */
-    public ObjectMapper(JsonFactory jf,
+    public ObjectMapper(TokenStreamFactory jf,
             DefaultSerializerProvider sp, DefaultDeserializationContext dc)
     {
         /* 02-Mar-2009, tatu: Important: we MUST default to using
@@ -600,7 +598,7 @@ public class ObjectMapper
     /**
      * Method for creating a new {@link ObjectMapper} instance that
      * has same initial configuration as this instance. Note that this
-     * also requires making a copy of the underlying {@link JsonFactory}
+     * also requires making a copy of the underlying {@link TokenStreamFactory}
      * instance.
      *<p>
      * Method is typically
@@ -1757,24 +1755,24 @@ public class ObjectMapper
      */
 
     /**
-     * Method that can be used to get hold of {@link JsonFactory} that this
+     * Method that can be used to get hold of {@link TokenStreamFactory} that this
      * mapper uses if it needs to construct {@link JsonParser}s
      * and/or {@link JsonGenerator}s.
      *<p>
      * WARNING: note that all {@link ObjectReader} and {@link ObjectWriter}
      * instances created by this mapper usually share the same configured
-     * {@link JsonFactory}, so changes to its configuration will "leak".
+     * {@link TokenStreamFactory}, so changes to its configuration will "leak".
      * To avoid such observed changes you should always use "with()" and
      * "without()" method of {@link ObjectReader} and {@link ObjectWriter}
      * for changing {@link com.fasterxml.jackson.core.JsonParser.Feature}
      * and {@link com.fasterxml.jackson.core.JsonGenerator.Feature}
      * settings to use on per-call basis.
      *
-     * @return {@link JsonFactory} that this mapper uses when it needs to
+     * @return {@link TokenStreamFactory} that this mapper uses when it needs to
      *   construct Json parser and generators
      */
     @Override
-    public JsonFactory getFactory() { return _jsonFactory; }
+    public TokenStreamFactory getFactory() { return _jsonFactory; }
 
     /**
      * Method for configuring the default {@link DateFormat} to use when serializing time
@@ -2038,7 +2036,7 @@ public class ObjectMapper
      * Note that this is equivalent to directly calling same method
      * on {@link #getFactory}.
      *<p>
-     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
      * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
      * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
      */
@@ -2053,7 +2051,7 @@ public class ObjectMapper
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
      *<p>
-     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
      * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
      * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
      *
@@ -2072,7 +2070,7 @@ public class ObjectMapper
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
      *<p>
-     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
      * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
      * this, use {@link ObjectReader#without(JsonParser.Feature)} instead.
      *
@@ -2102,7 +2100,7 @@ public class ObjectMapper
      * Note that this is equivalent to directly calling same method
      * on {@link #getFactory}.
      *<p>
-     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
      * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
      * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
      */
@@ -2117,7 +2115,7 @@ public class ObjectMapper
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
      *<p>
-     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
      * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
      * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
      *
@@ -2136,7 +2134,7 @@ public class ObjectMapper
      *<p>
      * Note that this is equivalent to directly calling same method on {@link #getFactory}.
      *<p>
-     * WARNING: since this method directly modifies state of underlying {@link JsonFactory},
+     * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
      * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
      * this, use {@link ObjectWriter#without(JsonGenerator.Feature)} instead.
      *
@@ -3089,7 +3087,7 @@ public class ObjectMapper
      * {@link JsonEncoding#UTF8}).
      *<p>
      * Note: method does not close the underlying stream explicitly
-     * here; however, {@link JsonFactory} this mapper uses may choose
+     * here; however, {@link TokenStreamFactory} this mapper uses may choose
      * to close the stream depending on its settings (by default,
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
@@ -3114,7 +3112,7 @@ public class ObjectMapper
      * JSON output, using Writer provided.
      *<p>
      * Note: method does not close the underlying stream explicitly
-     * here; however, {@link JsonFactory} this mapper uses may choose
+     * here; however, {@link TokenStreamFactory} this mapper uses may choose
      * to close the stream depending on its settings (by default,
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).

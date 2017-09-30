@@ -31,9 +31,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class ObjectWriter
     implements Versioned,
-        java.io.Serializable // since 2.1
+        java.io.Serializable
 {
-    private static final long serialVersionUID = 1; // since 2.5
+    private static final long serialVersionUID = 1;
 
     /**
      * We need to keep track of explicit disabling of pretty printing;
@@ -59,7 +59,7 @@ public class ObjectWriter
     /**
      * Factory used for constructing {@link JsonGenerator}s
      */
-    protected final JsonFactory _generatorFactory;
+    protected final TokenStreamFactory _generatorFactory;
 
     /*
     /**********************************************************
@@ -70,8 +70,6 @@ public class ObjectWriter
     /**
      * Container for settings that need to be passed to {@link JsonGenerator}
      * constructed for serializing values.
-     *
-     * @since 2.5
      */
     protected final GeneratorSettings _generatorSettings;
 
@@ -80,8 +78,6 @@ public class ObjectWriter
      * is known (has been explicitly declared), and if so, reuse it afterwards.
      * This allows avoiding further serializer lookups and increases
      * performance a bit on cases where readers are reused.
-     *
-     * @since 2.5
      */
     protected final Prefetch _prefetch;
     
@@ -175,10 +171,7 @@ public class ObjectWriter
         _prefetch = base._prefetch;
     }
 
-    /**
-     * @since 2.3
-     */
-    protected ObjectWriter(ObjectWriter base, JsonFactory f)
+    protected ObjectWriter(ObjectWriter base, TokenStreamFactory f)
     {
         // may need to override ordering, based on data format capabilities
         _config = base._config
@@ -205,23 +198,18 @@ public class ObjectWriter
     /**********************************************************
     /* Methods sub-classes MUST override, used for constructing
     /* writer instances, (re)configuring parser instances.
-    /* Added in 2.5
     /**********************************************************
      */
 
     /**
      * Overridable factory method called by various "withXxx()" methods
-     * 
-     * @since 2.5
      */
-    protected ObjectWriter _new(ObjectWriter base, JsonFactory f) {
+    protected ObjectWriter _new(ObjectWriter base, TokenStreamFactory f) {
         return new ObjectWriter(base, f);
     }
 
     /**
      * Overridable factory method called by various "withXxx()" methods
-     * 
-     * @since 2.5
      */
     protected ObjectWriter _new(ObjectWriter base, SerializationConfig config) {
         if (config == _config) {
@@ -234,8 +222,6 @@ public class ObjectWriter
      * Overridable factory method called by various "withXxx()" methods.
      * It assumes `this` as base for settings other than those directly
      * passed in.
-     * 
-     * @since 2.5
      */
     protected ObjectWriter _new(GeneratorSettings genSettings, Prefetch prefetch) {
         if ((_generatorSettings == genSettings) && (_prefetch == prefetch)) {
@@ -553,16 +539,10 @@ public class ObjectWriter
         return _new(_generatorSettings.with(escapes), _prefetch);
     }
 
-    /**
-     * @since 2.3
-     */
-    public ObjectWriter with(JsonFactory f) {
+    public ObjectWriter with(TokenStreamFactory f) {
         return (f == _generatorFactory) ? this : _new(this, f);
     }    
 
-    /**
-     * @since 2.3
-     */
     public ObjectWriter with(ContextAttributes attrs) {
         return _new(this, _config.with(attrs));
     }
@@ -570,23 +550,15 @@ public class ObjectWriter
     /**
      * Mutant factory method that allows construction of a new writer instance
      * that uses specified set of default attribute values.
-     *
-     * @since 2.3
      */
     public ObjectWriter withAttributes(Map<?,?> attrs) {
         return _new(this, _config.withAttributes(attrs));
     }
 
-    /**
-     * @since 2.3
-     */
     public ObjectWriter withAttribute(Object key, Object value) {
         return _new(this, _config.withAttribute(key, value));
     }
 
-    /**
-     * @since 2.3
-     */
     public ObjectWriter withoutAttribute(Object key) {
         return _new(this, _config.withoutAttribute(key));
     }
@@ -801,7 +773,7 @@ public class ObjectWriter
         return _config;
     }
 
-    public JsonFactory getFactory() {
+    public TokenStreamFactory getFactory() {
         return _generatorFactory;
     }
     
@@ -880,7 +852,7 @@ public class ObjectWriter
      * {@link JsonEncoding#UTF8}).
      *<p>
      * Note: method does not close the underlying stream explicitly
-     * here; however, {@link JsonFactory} this mapper uses may choose
+     * here; however, {@link TokenStreamFactory} this mapper uses may choose
      * to close the stream depending on its settings (by default,
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).
@@ -896,7 +868,7 @@ public class ObjectWriter
      * JSON output, using Writer provided.
      *<p>
      * Note: method does not close the underlying stream explicitly
-     * here; however, {@link JsonFactory} this mapper uses may choose
+     * here; however, {@link TokenStreamFactory} this mapper uses may choose
      * to close the stream depending on its settings (by default,
      * it will try to close it when {@link JsonGenerator} we construct
      * is closed).

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class BasicExceptionTest extends BaseMapTest
 {
     final ObjectMapper MAPPER = new ObjectMapper();
-    final JsonFactory JSON_F = MAPPER.getFactory();
+    final TokenStreamFactory JSON_F = MAPPER.getFactory();
 
     public void testBadDefinition() throws Exception
     {

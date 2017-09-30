@@ -50,7 +50,7 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
     protected final double _testRawDeser(int reps, String json, ObjectReader reader) throws IOException
     {
         long start = System.nanoTime();
-        final JsonFactory f = reader.getFactory();
+        final TokenStreamFactory f = reader.getFactory();
         while (--reps >= 0) {
             JsonParser p = f.createParser(json);
             JsonToken t;

@@ -51,7 +51,7 @@ public class TestArraySerialization
         // Let's try couple of times, to ensure that state is handled
         // correctly by ObjectMapper (wrt buffer recycling used
         // with 'writeAsBytes()')
-        JsonFactory f = MAPPER.getFactory();
+        TokenStreamFactory f = MAPPER.getFactory();
         for (int round = 0; round < 3; ++round) {
             byte[] data = MAPPER.writeValueAsBytes(ints);
             JsonParser jp = f.createParser(data);

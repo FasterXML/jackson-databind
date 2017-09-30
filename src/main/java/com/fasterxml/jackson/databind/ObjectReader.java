@@ -66,9 +66,9 @@ public class ObjectReader
     protected final DefaultDeserializationContext _context;
 
     /**
-     * Factory used for constructing {@link JsonGenerator}s
+     * Factory used for constructing {@link JsonParser}s
      */
-    protected final JsonFactory _parserFactory;
+    protected final TokenStreamFactory _parserFactory;
 
     /**
      * Flag that indicates whether root values are expected to be unwrapped or not
@@ -215,7 +215,7 @@ public class ObjectReader
         _filter = base._filter;
     }
     
-    protected ObjectReader(ObjectReader base, JsonFactory f)
+    protected ObjectReader(ObjectReader base, TokenStreamFactory f)
     {
         // may need to override ordering, based on data format capabilities
         _config = base._config
@@ -731,7 +731,7 @@ public class ObjectReader
     }
 
     @Override
-    public JsonFactory getFactory() {
+    public TokenStreamFactory getFactory() {
         return _parserFactory;
     }
 

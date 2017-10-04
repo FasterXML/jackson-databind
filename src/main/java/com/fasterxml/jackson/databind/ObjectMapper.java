@@ -3514,7 +3514,7 @@ public class ObjectMapper
      * the goal is just to allow efficient value conversions for structurally
      * compatible Objects, according to standard Jackson configuration.
      *<p>
-     * Further note that functianality is not designed to support "advanced" use
+     * Further note that this functionality is not designed to support "advanced" use
      * cases, such as conversion of polymorphic values, or cases where Object Identity
      * is used.
      *      

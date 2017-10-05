@@ -3183,7 +3183,7 @@ public class ObjectMapper
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
+    protected final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
         throws IOException
     {
         Closeable toClose = (Closeable) value;

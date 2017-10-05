@@ -412,15 +412,12 @@ public final class ClassUtil
      * error conditions tend to be hard to diagnose. However, it is often the
      * case that output state may be corrupt so we need to be prepared for
      * secondary exception without masking original one.
-     *
-     * @since 2.8
      */
     public static void closeOnFailAndThrowAsIOE(JsonGenerator g, Exception fail)
         throws IOException
     {
-        /* 04-Mar-2014, tatu: Let's try to prevent auto-closing of
-         *    structures, which typically causes more damage.
-         */
+        // 04-Mar-2014, tatu: Let's try to prevent auto-closing of
+        //    structures, which typically causes more damage.
         g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         try {
             g.close();
@@ -438,8 +435,6 @@ public final class ClassUtil
      * error conditions tend to be hard to diagnose. However, it is often the
      * case that output state may be corrupt so we need to be prepared for
      * secondary exception without masking original one.
-     *
-     * @since 2.8
      */
     public static void closeOnFailAndThrowAsIOE(JsonGenerator g,
             Closeable toClose, Exception fail)

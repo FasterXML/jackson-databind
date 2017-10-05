@@ -560,22 +560,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public int getFeatureMask() {
+    public int getGeneratorFeatures() {
         return _generatorFeatures;
-    }
-
-    @Override
-    @Deprecated
-    public JsonGenerator setFeatureMask(int mask) {
-        _generatorFeatures = mask;
-        return this;
-    }
-
-    @Override
-    public JsonGenerator overrideStdFeatures(int values, int mask) {
-        int oldState = getFeatureMask();
-        _generatorFeatures = (oldState & ~mask) | (values & mask);
-        return this;
     }
 
     @Override
@@ -1162,11 +1148,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
     }
 
-    @Override
-    protected void _reportUnsupportedOperation() {
-        throw new UnsupportedOperationException("Called operation not supported for TokenBuffer");
-    }
-    
     /*
     /**********************************************************
     /* Supporting classes

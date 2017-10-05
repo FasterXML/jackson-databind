@@ -5,6 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -34,8 +35,10 @@ public class NullSerializationTest
     static class MyNullProvider extends DefaultSerializerProvider
     {
         public MyNullProvider() { super(); }
-        public MyNullProvider(MyNullProvider base, SerializationConfig config, SerializerFactory jsf) {
-            super(base, config, jsf);
+        public MyNullProvider(MyNullProvider base, SerializationConfig config, 
+                GeneratorSettings genSettings,
+                SerializerFactory jsf) {
+            super(base, config, genSettings, jsf);
         }
 
         // not really a proper impl, but has to do
@@ -45,8 +48,9 @@ public class NullSerializationTest
         }
         
         @Override
-        public DefaultSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
-            return new MyNullProvider(this, config, jsf);
+        public DefaultSerializerProvider createInstance(SerializationConfig config,
+                GeneratorSettings genSettings, SerializerFactory jsf) {
+            return new MyNullProvider(this, config, genSettings, jsf);
         }
 
         @Override

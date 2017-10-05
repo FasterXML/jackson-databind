@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.util;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 

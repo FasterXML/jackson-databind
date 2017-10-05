@@ -108,14 +108,12 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
 
         strw = new StringWriter();
-        JsonGenerator gen = WRITER.getFactory().createGenerator(strw);
         w = WRITER
                 .withRootValueSeparator(new SerializedString("/"))
-                .writeValues(gen);
+                .writeValues(strw);
         w.write(new Bean(1))
             .write(new Bean(2));
         w.close();
-        gen.close();
         assertEquals(aposToQuotes("{'a':1}/{'a':2}"),
                 strw.toString());
     }

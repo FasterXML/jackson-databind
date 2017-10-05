@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 /**
  * Unit tests for checking handling of SerializationConfig.
  */
-public class TestConfig
+public class TestSerConfig
     extends BaseMapTest
 {
     /*
@@ -150,7 +150,6 @@ public class TestConfig
         assertEquals(0, prov.cachedSerializersCount());
     }
 
-    // Test for [Issue#12]
     public void testIndentWithPassedGenerator() throws Exception
     {
         Indentable input = new Indentable();
@@ -160,20 +159,15 @@ public class TestConfig
         final ObjectWriter indentWriter = MAPPER.writer().with(SerializationFeature.INDENT_OUTPUT);
         assertEquals(INDENTED, indentWriter.writeValueAsString(input));
 
-        // [Issue#12]
         StringWriter sw = new StringWriter();
-        JsonGenerator jgen = MAPPER.getFactory().createGenerator(sw);
-        indentWriter.writeValue(jgen, input);
-        jgen.close();
+        indentWriter.writeValue(sw, input);
         assertEquals(INDENTED, sw.toString());
 
         // and also with ObjectMapper itself
         sw = new StringWriter();
         ObjectMapper m2 = new ObjectMapper();
         m2.enable(SerializationFeature.INDENT_OUTPUT);
-        jgen = m2.getFactory().createGenerator(sw);
-        m2.writeValue(jgen, input);
-        jgen.close();
+        m2.writeValue(sw, input);
         assertEquals(INDENTED, sw.toString());
     }
 

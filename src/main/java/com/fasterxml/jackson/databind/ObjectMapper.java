@@ -137,7 +137,7 @@ public class ObjectMapper
      * Since 2.4 there are special exceptions for JSON Tree model
      * types (sub-types of {@link TreeNode}: default typing is never
      * applied to them.
-     * Since 2.8(.4) additional checks are made to avoid attempts at default
+     * Since 2.8 additional checks are made to avoid attempts at default
      * typing primitive-valued properties.
      *<p>
      * NOTE: use of Default Typing can be a potential security risk if incoming
@@ -345,7 +345,7 @@ public class ObjectMapper
     /* Configuration settings: mix-in annotations
     /**********************************************************
      */
-    
+
     /**
      * Mapping that defines how to apply mix-in annotations: key is
      * the type to received additional annotations, and value is the
@@ -356,8 +356,6 @@ public class ObjectMapper
      * same field or method. They can be further masked by sub-classes:
      * you can think of it as injecting annotations between the target
      * class and its sub-classes (or interfaces)
-     * 
-     * @since 2.6 (earlier was a simple {@link java.util.Map}
      */
     protected SimpleMixInResolver _mixIns;
 
@@ -420,8 +418,6 @@ public class ObjectMapper
      * registered; kept track of iff {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
      * is enabled, so that duplicate registration calls can be ignored
      * (to avoid adding same handlers multiple times, mostly).
-     * 
-     * @since 2.5
      */
     protected Set<Object> _registeredModuleTypes;
     
@@ -489,8 +485,6 @@ public class ObjectMapper
 
     /**
      * Copy-constructor, mostly used to support {@link #copy}.
-     * 
-     * @since 2.1
      */
     protected ObjectMapper(ObjectMapper src)
     {
@@ -582,8 +576,6 @@ public class ObjectMapper
     /**
      * Overridable helper method used to construct default {@link ClassIntrospector}
      * to use.
-     * 
-     * @since 2.5
      */
     protected ClassIntrospector defaultClassIntrospector() {
         return new BasicClassIntrospector();
@@ -607,17 +599,12 @@ public class ObjectMapper
      * are NOT shared, which means that the new instance may be re-configured
      * before use; meaning that it behaves the same way as if an instance
      * was constructed from scratch.
-     * 
-     * @since 2.1
      */
     public ObjectMapper copy() {
         _checkInvalidCopy(ObjectMapper.class);
         return new ObjectMapper(this);
     }
 
-    /**
-     * @since 2.1
-     */
     protected void _checkInvalidCopy(Class<?> exp)
     {
         if (getClass() != exp) {
@@ -637,8 +624,6 @@ public class ObjectMapper
     /**
      * Factory method sub-classes must override, to produce {@link ObjectReader}
      * instances of proper sub-type
-     * 
-     * @since 2.5
      */
     protected ObjectReader _newReader(DeserializationConfig config) {
         return new ObjectReader(this, config);
@@ -647,8 +632,6 @@ public class ObjectMapper
     /**
      * Factory method sub-classes must override, to produce {@link ObjectReader}
      * instances of proper sub-type
-     * 
-     * @since 2.5
      */
     protected ObjectReader _newReader(DeserializationConfig config,
             JavaType valueType, Object valueToUpdate,
@@ -659,8 +642,6 @@ public class ObjectMapper
     /**
      * Factory method sub-classes must override, to produce {@link ObjectWriter}
      * instances of proper sub-type
-     * 
-     * @since 2.5
      */
     protected ObjectWriter _newWriter(SerializationConfig config) {
         return new ObjectWriter(this, config);
@@ -669,8 +650,6 @@ public class ObjectMapper
     /**
      * Factory method sub-classes must override, to produce {@link ObjectWriter}
      * instances of proper sub-type
-     * 
-     * @since 2.5
      */
     protected ObjectWriter _newWriter(SerializationConfig config, FormatSchema schema) {
         return new ObjectWriter(this, config, schema);
@@ -679,8 +658,6 @@ public class ObjectMapper
     /**
      * Factory method sub-classes must override, to produce {@link ObjectWriter}
      * instances of proper sub-type
-     * 
-     * @since 2.5
      */
     protected ObjectWriter _newWriter(SerializationConfig config,
             JavaType rootType, PrettyPrinter pp) {
@@ -921,8 +898,6 @@ public class ObjectMapper
      *      registerModule(module);
      *   }
      *</pre>
-     * 
-     * @since 2.2
      */
     public ObjectMapper registerModules(Module... modules)
     {
@@ -940,8 +915,6 @@ public class ObjectMapper
      *      registerModule(module);
      *   }
      *</pre>
-     * 
-     * @since 2.2
      */
     public ObjectMapper registerModules(Iterable<? extends Module> modules)
     {
@@ -957,8 +930,6 @@ public class ObjectMapper
      *<p>
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
-     * 
-     * @since 2.2
      */
     public static List<Module> findModules() {
         return findModules(null);
@@ -970,8 +941,6 @@ public class ObjectMapper
      *<p>
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
-     * 
-     * @since 2.2
      */
     public static List<Module> findModules(ClassLoader classLoader)
     {
@@ -1007,8 +976,6 @@ public class ObjectMapper
      * As with {@link #findModules()}, no caching is done for modules, so care
      * needs to be taken to either create and share a single mapper instance;
      * or to cache introspected set of modules.
-     *
-     * @since 2.2
      */
     public ObjectMapper findAndRegisterModules() {
         return registerModules(findModules());
@@ -1106,10 +1073,7 @@ public class ObjectMapper
     /**
      * Accessor for constructing and returning a {@link SerializerProvider}
      * instance that may be used for accessing serializers. This is same as
-     * calling {@link #getSerializerProvider}, and calling <code>createInstance</code>
-     * on it.
-     *
-     * @since 2.7
+     * calling {@link #getSerializerProvider}, and calling <code>createInstance</code> on it.
      */
     public SerializerProvider getSerializerProviderInstance() {
         return _serializerProvider(_serializationConfig);
@@ -2559,18 +2523,15 @@ public class ObjectMapper
         throws IOException, JsonGenerationException, JsonMappingException
     {
         SerializationConfig config = getSerializationConfig();
-
-        /* 12-May-2015/2.6, tatu: Looks like we do NOT want to call the usual
-         *    'config.initialize(g)` here, since it is assumed that generator
-         *    has been configured by caller. But for some reason we don't
-         *    trust indentation settings...
-         */
-        // 10-Aug-2012, tatu: as per [Issue#12], must handle indentation:
+        // 04-Oct-2017, tatu: Generator should come properly configured and we should not
+        //   change its state in any way, I think (at least with Jackson 3.0)
+        /*
         if (config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             if (g.getPrettyPrinter() == null) {
                 g.setPrettyPrinter(config.constructDefaultPrettyPrinter());
             }
         }
+        */
         if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(g, value, config);
         } else {
@@ -3078,7 +3039,9 @@ public class ObjectMapper
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createGenerator(resultFile, JsonEncoding.UTF8), value);
+        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        _configAndWriteValue(prov,
+                _jsonFactory.createGenerator(prov, resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -3095,16 +3058,17 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
+        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        _configAndWriteValue(prov,
+                _jsonFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
     }
 
-    /**
-     * @since 2.8
-     */
     public void writeValue(DataOutput out, Object value)
         throws IOException
     {
-        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
+        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        _configAndWriteValue(prov,
+                _jsonFactory.createGenerator(prov, out), value);
     }
 
     /**
@@ -3120,7 +3084,8 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createGenerator(w), value);
+        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        _configAndWriteValue(prov, _jsonFactory.createGenerator(prov, w), value);
     }
 
     /**
@@ -3128,8 +3093,6 @@ public class ObjectMapper
      * a String. Functionally equivalent to calling
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
-     *<p>
-     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     @SuppressWarnings("resource")
     public String writeValueAsString(Object value)
@@ -3137,8 +3100,9 @@ public class ObjectMapper
     {
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
+        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
         try {
-            _configAndWriteValue(_jsonFactory.createGenerator(sw), value);
+            _configAndWriteValue(prov, _jsonFactory.createGenerator(prov, sw), value);
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -3153,17 +3117,17 @@ public class ObjectMapper
      * {@link #writeValue(Writer,Object)} with {@link java.io.ByteArrayOutputStream}
      * and getting bytes, but more efficient.
      * Encoding used will be UTF-8.
-     *<p>
-     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {
+        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createGenerator(bb, JsonEncoding.UTF8), value);
-        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+            _configAndWriteValue(prov,
+                    _jsonFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
+        } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
             throw JsonMappingException.fromUnexpectedIOE(e);
@@ -3171,6 +3135,68 @@ public class ObjectMapper
         byte[] result = bb.toByteArray();
         bb.release();
         return result;
+    }
+
+    /**
+     * Method called to configure the generator as necessary and then
+     * call write functionality
+     */
+    protected final void _configAndWriteValue(DefaultSerializerProvider prov,
+            JsonGenerator g, Object value)
+        throws IOException
+    {
+        if (prov.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+            _configAndWriteCloseable(prov, g, value);
+            return;
+        }
+        try {
+            prov.serializeValue(g, value);
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIOE(g, e);
+            return;
+        }
+        g.close();
+    }
+
+    /**
+     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * method is to be called right after serialization has been called
+     */
+    private final void _configAndWriteCloseable(DefaultSerializerProvider prov,
+            JsonGenerator g, Object value)
+        throws IOException
+    {
+        Closeable toClose = (Closeable) value;
+        try {
+            prov.serializeValue(g, value);
+            Closeable tmpToClose = toClose;
+            toClose = null;
+            tmpToClose.close();
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIOE(g, toClose, e);
+            return;
+        }
+        g.close();
+    }
+
+    /**
+     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * method is to be called right after serialization has been called
+     */
+    private final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
+        throws IOException
+    {
+        Closeable toClose = (Closeable) value;
+        try {
+            _serializerProvider(cfg).serializeValue(g, value);
+            if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
+                g.flush();
+            }
+        } catch (Exception e) {
+            ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
+            return;
+        }
+        toClose.close();
     }
 
     /*
@@ -3232,8 +3258,6 @@ public class ObjectMapper
      * Main reason for using this method is performance, as writer is able
      * to pre-fetch serializer to use before write, and if writer is used
      * more than once this avoids addition per-value serializer lookups.
-     * 
-     * @since 2.5
      */
     public ObjectWriter writerFor(Class<?> rootType) {
         return _newWriter(getSerializationConfig(),
@@ -3249,8 +3273,6 @@ public class ObjectMapper
      * Main reason for using this method is performance, as writer is able
      * to pre-fetch serializer to use before write, and if writer is used
      * more than once this avoids addition per-value serializer lookups.
-     * 
-     * @since 2.5
      */
     public ObjectWriter writerFor(TypeReference<?> rootType) {
         return _newWriter(getSerializationConfig(),
@@ -3266,25 +3288,11 @@ public class ObjectMapper
      * Main reason for using this method is performance, as writer is able
      * to pre-fetch serializer to use before write, and if writer is used
      * more than once this avoids addition per-value serializer lookups.
-     * 
-     * @since 2.5
      */
     public ObjectWriter writerFor(JavaType rootType) {
         return _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
     }
 
-    /**
-     * Factory method for constructing {@link ObjectWriter} that will
-     * serialize objects using specified pretty printer for indentation
-     * (or if null, no pretty printer)
-     */
-    public ObjectWriter writer(PrettyPrinter pp) {
-        if (pp == null) { // need to use a marker to indicate explicit disabling of pp
-            pp = ObjectWriter.NULL_PRETTY_PRINTER;
-        }
-        return _newWriter(getSerializationConfig(), /*root type*/ null, pp);
-    }
-    
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using the default pretty printer for indentation
@@ -3401,8 +3409,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
-     * 
-     * @since 2.6
      */
     public ObjectReader readerFor(JavaType type) {
         return _newReader(getDeserializationConfig(), type, null,
@@ -3412,8 +3418,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
-     * 
-     * @since 2.6
      */
     public ObjectReader readerFor(Class<?> type) {
         return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
@@ -3423,8 +3427,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
-     * 
-     * @since 2.6
      */
     public ObjectReader readerFor(TypeReference<?> type) {
         return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
@@ -3474,8 +3476,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * use specified Base64 encoding variant for Base64-encoded binary data.
-     * 
-     * @since 2.1
      */
     public ObjectReader reader(Base64Variant defaultBase64) {
         return _newReader(getDeserializationConfig().with(defaultBase64));
@@ -3644,8 +3644,6 @@ public class ObjectMapper
      *     Java array will create a new array)
      *
      * @throws JsonMappingException if there are structural incompatibilities that prevent update.
-     * 
-     * @since 2.9
      */
     @SuppressWarnings("resource")
     public <T> T updateValue(T valueToUpdate, Object overrides)
@@ -3726,69 +3724,9 @@ public class ObjectMapper
      * {@link SerializerProvider} to use for serialization.
      */
     protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
-        return _serializerProvider.createInstance(config, _serializerFactory);
-    }
-
-    /**
-     * Method called to configure the generator as necessary and then
-     * call write functionality
-     */
-    protected final void _configAndWriteValue(JsonGenerator g, Object value)
-        throws IOException
-    {
-        SerializationConfig cfg = getSerializationConfig();
-        cfg.initialize(g); // since 2.5
-        if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _configAndWriteCloseable(g, value, cfg);
-            return;
-        }
-        try {
-            _serializerProvider(cfg).serializeValue(g, value);
-        } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(g, e);
-            return;
-        }
-        g.close();
-    }
-
-    /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
-     * method is to be called right after serialization has been called
-     */
-    private final void _configAndWriteCloseable(JsonGenerator g, Object value, SerializationConfig cfg)
-        throws IOException
-    {
-        Closeable toClose = (Closeable) value;
-        try {
-            _serializerProvider(cfg).serializeValue(g, value);
-            Closeable tmpToClose = toClose;
-            toClose = null;
-            tmpToClose.close();
-        } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(g, toClose, e);
-            return;
-        }
-        g.close();
-    }
-
-    /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
-     * method is to be called right after serialization has been called
-     */
-    private final void _writeCloseableValue(JsonGenerator g, Object value, SerializationConfig cfg)
-        throws IOException
-    {
-        Closeable toClose = (Closeable) value;
-        try {
-            _serializerProvider(cfg).serializeValue(g, value);
-            if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                g.flush();
-            }
-        } catch (Exception e) {
-            ClassUtil.closeOnFailAndThrowAsIOE(null, toClose, e);
-            return;
-        }
-        toClose.close();
+        // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
+        return _serializerProvider.createInstance(config,
+                GeneratorSettings.empty(), _serializerFactory);
     }
 
     /*
@@ -3863,10 +3801,7 @@ public class ObjectMapper
     }
 
     /**
-     * Similar to {@link #_readMapAndClose} but specialized for <code>JsonNode</code>
-     * reading.
-     *
-     * @since 2.9
+     * Similar to {@link #_readMapAndClose} but specialized for <code>JsonNode</code> reading.
      */
     protected JsonNode _readTreeAndClose(JsonParser p0) throws IOException
     {
@@ -4030,9 +3965,6 @@ public class ObjectMapper
         return deser;
     }
 
-    /**
-     * @since 2.2
-     */
     protected void _verifySchemaType(FormatSchema schema)
     {
         if (schema != null) {

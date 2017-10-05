@@ -116,6 +116,13 @@ public class TokenBuffer
     /**********************************************************
      */
 
+    // 05-Oct-2017, tatu: need to consider if this needs to  be properly linked...
+    //   especially for "convertValue()" use case
+    /**
+     * @since 3.0
+     */
+    protected ObjectWriteContext _objectWriteContext = ObjectWriteContext.empty();
+
     protected JsonWriteContext _writeContext;
 
     /*
@@ -149,9 +156,6 @@ public class TokenBuffer
         this(p, null);
     }
 
-    /**
-     * @since 2.7
-     */
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
         _objectCodec = p.getCodec();
@@ -533,7 +537,28 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             sb.append("[typeId=").append(String.valueOf(typeId)).append(']');
         }
     }
-    
+
+    /*
+    /**********************************************************
+    /* JsonGenerator implementation: context
+    /**********************************************************
+     */
+
+    @Override
+    public JsonGenerator setCodec(ObjectCodec oc) {
+        _objectCodec = oc;
+        return this;
+    }
+
+    @Override
+    public ObjectCodec getCodec() { return _objectCodec; }
+
+    @Override
+    public JsonWriteContext getOutputContext() { return _writeContext; }
+
+    @Override
+    public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }
+
     /*
     /**********************************************************
     /* JsonGenerator implementation: configuration
@@ -569,18 +594,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         // No-op: we don't indent
         return this;
     }
-
-    @Override
-    public JsonGenerator setCodec(ObjectCodec oc) {
-        _objectCodec = oc;
-        return this;
-    }
-
-    @Override
-    public ObjectCodec getCodec() { return _objectCodec; }
-
-    @Override
-    public final JsonWriteContext getOutputContext() { return _writeContext; }
 
     /*
     /**********************************************************

@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
@@ -29,7 +30,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class DefaultSerializerProvider
     extends SerializerProvider
-    implements java.io.Serializable // since 2.1; only because ObjectWriter needs it
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -50,8 +51,6 @@ public abstract class DefaultSerializerProvider
     /**
      * Generator used for serialization. Needed mostly for error reporting
      * purposes.
-     *
-     * @since 2.8
      */
     protected transient JsonGenerator _generator;
 
@@ -64,8 +63,9 @@ public abstract class DefaultSerializerProvider
     protected DefaultSerializerProvider() { super(); }
 
     protected DefaultSerializerProvider(SerializerProvider src,
-            SerializationConfig config,SerializerFactory f) {
-        super(src, config, f);
+            SerializationConfig config, GeneratorSettings genSettings,
+            SerializerFactory f) {
+        super(src, config, genSettings, f);
     }
 
     protected DefaultSerializerProvider(DefaultSerializerProvider src) {
@@ -78,15 +78,13 @@ public abstract class DefaultSerializerProvider
      * This is needed to retain state during serialization.
      */
     public abstract DefaultSerializerProvider createInstance(SerializationConfig config,
-            SerializerFactory jsf);
+            GeneratorSettings genSettings, SerializerFactory jsf);
 
     /**
      * Method needed to ensure that {@link ObjectMapper#copy} will work
      * properly; specifically, that caches are cleared, but settings
      * will otherwise remain identical; and that no sharing of state
      * occurs.
-     *
-     * @since 2.5
      */
     public DefaultSerializerProvider copy() {
         throw new IllegalStateException("DefaultSerializerProvider sub-class not overriding copy()");
@@ -216,8 +214,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      * Overridable helper method used for creating {@link java.util.Map}
      * used for storing mappings from serializable objects to their
      * Object Ids.
-     * 
-     * @since 2.3
      */
     protected Map<Object,WritableObjectId> _createObjectIdMap()
     {
@@ -363,8 +359,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type, if no serializer is passed
      * @param ser Root Serializer to use, if not null
-     * 
-     * @since 2.1
      */
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType,
             JsonSerializer<Object> ser) throws IOException
@@ -581,8 +575,8 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         public Impl(Impl src) { super(src); }
 
         protected Impl(SerializerProvider src, SerializationConfig config,
-                SerializerFactory f) {
-            super(src, config, f);
+                GeneratorSettings genSettings, SerializerFactory f) {
+            super(src, config, genSettings, f);
         }
 
         @Override
@@ -595,8 +589,9 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
         }
         
         @Override
-        public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
-            return new Impl(this, config, jsf);
+        public Impl createInstance(SerializationConfig config,
+                GeneratorSettings genSettings, SerializerFactory jsf) {
+            return new Impl(this, config, genSettings, jsf);
         }
     }
 }

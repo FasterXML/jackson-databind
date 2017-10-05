@@ -9,8 +9,14 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.core.FormatSchema;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.ObjectWriteContext;
+import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -46,6 +52,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class SerializerProvider
     extends DatabindContext
+    implements ObjectWriteContext // 3.0, for use by jackson-core
 {
     /**
      * Setting for determining whether mappings for "unknown classes" should be
@@ -63,8 +70,6 @@ public abstract class SerializerProvider
      *<br>
      * NOTE: starting with 2.6, this instance is NOT used for any other types, and
      * separate instances are constructed for "empty" Beans.
-     *<p>
-     * NOTE: changed to <code>protected</code> for 2.3; no need to be publicly available.
      */
     protected final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
 
@@ -84,7 +89,14 @@ public abstract class SerializerProvider
      * Only set for non-blueprint instances.
      */
     final protected Class<?> _serializationView;
-    
+
+    /**
+     * Configuration to be used by streaming generator when it is constructed.
+     *
+     * @since 3.0
+     */
+    final protected GeneratorSettings _generatorConfig;
+
     /*
     /**********************************************************
     /* Configuration, factories
@@ -111,8 +123,6 @@ public abstract class SerializerProvider
     /**
      * Lazily-constructed holder for per-call attributes.
      * Only set for non-blueprint instances.
-     * 
-     * @since 2.3
      */
     protected transient ContextAttributes _attributes;
     
@@ -173,8 +183,6 @@ public abstract class SerializerProvider
 
     /**
      * Flag set to indicate that we are using vanilla null value serialization
-     * 
-     * @since 2.3
      */
     protected final boolean _stdNullValueSerializer;
     
@@ -192,6 +200,7 @@ public abstract class SerializerProvider
     public SerializerProvider()
     {
         _config = null;
+        _generatorConfig = null;
         _serializerFactory = null;
         _serializerCache = new SerializerCache();
         // Blueprints doesn't have access to any serializers...
@@ -211,10 +220,12 @@ public abstract class SerializerProvider
      * @param src Blueprint object used as the baseline for this instance
      */
     protected SerializerProvider(SerializerProvider src,
-            SerializationConfig config, SerializerFactory f)
+            SerializationConfig config, GeneratorSettings generatorConfig,
+            SerializerFactory f)
     {
         _serializerFactory = f;
         _config = config;
+        _generatorConfig = generatorConfig;
 
         _serializerCache = src._serializerCache;
         _unknownTypeSerializer = src._unknownTypeSerializer;
@@ -235,13 +246,12 @@ public abstract class SerializerProvider
 
     /**
      * Copy-constructor used when making a copy of a blueprint instance.
-     * 
-     * @since 2.5
      */
     protected SerializerProvider(SerializerProvider src)
     {
         // since this is assumed to be a blue-print instance, many settings missing:
         _config = null;
+        _generatorConfig = null;
         _serializationView = null;
         _serializerFactory = null;
         _knownSerializers = null;
@@ -256,7 +266,45 @@ public abstract class SerializerProvider
 
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }
-    
+
+    /*
+    /**********************************************************
+    /* ObjectWriteContext impl
+    /**********************************************************
+     */
+
+    @Override
+    public FormatSchema getSchema() { return _generatorConfig.getSchema(); }
+
+    @Override
+    public CharacterEscapes getCharacterEscapes() { return _generatorConfig.getCharacterEscapes(); }
+
+    @Override
+    public PrettyPrinter getPrettyPrinter() {
+        PrettyPrinter pp = _generatorConfig.getPrettyPrinter();
+        if (pp == null) {
+            if (isEnabled(SerializationFeature.INDENT_OUTPUT)) {
+                pp = _config.constructDefaultPrettyPrinter();
+            }
+        }
+        return pp;
+    }
+
+    @Override
+    public SerializableString getRootValueSeparator(SerializableString defaultSeparator) {
+        return _generatorConfig.getRootValueSeparator(defaultSeparator);
+    }
+
+    @Override
+    public int getGeneratorFeatures(int defaults) {
+        return _config.getGeneratorFeatures(defaults);
+    }
+
+    @Override
+    public int getFormatWriteFeatures(int defaults) {
+        return _config.getFormatWriteFeatures(defaults);
+    }
+
     /*
     /**********************************************************
     /* Methods for configuring default settings
@@ -417,8 +465,6 @@ public abstract class SerializerProvider
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
-     * @since 2.3
      */
     public final boolean hasSerializationFeatures(int featureMask) {
         return _config.hasSerializationFeatures(featureMask);
@@ -556,8 +602,6 @@ public abstract class SerializerProvider
      * Method variant used when we do NOT want contextualization to happen; it will need
      * to be handled at a later point, but caller wants to be able to do that
      * as needed; sometimes to avoid infinite loops
-     * 
-     * @since 2.5
      */
     public JsonSerializer<Object> findValueSerializer(Class<?> valueType) throws JsonMappingException
     {

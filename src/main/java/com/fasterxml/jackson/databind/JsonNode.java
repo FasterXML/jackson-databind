@@ -59,9 +59,7 @@ public abstract class JsonNode
      * Note: return type is guaranteed to have same type as the
      * node method is called on; which is why method is declared
      * with local generic type.
-     * 
-     * @since 2.0
-     * 
+     *
      * @return Node that is either a copy of this node (and all non-leaf
      *    children); or, for immutable leaf nodes, node itself.
      */
@@ -96,11 +94,6 @@ public abstract class JsonNode
     public final boolean isContainerNode() {
         final JsonNodeType type = getNodeType();
         return type == JsonNodeType.OBJECT || type == JsonNodeType.ARRAY;
-    }
-
-    @Override
-    public final boolean isMissingNode() {
-        return getNodeType() == JsonNodeType.MISSING;
     }
 
     @Override
@@ -190,8 +183,6 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link #isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
     @Override
     public final JsonNode at(JsonPointer ptr)
@@ -222,8 +213,6 @@ public abstract class JsonNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
     @Override
     public final JsonNode at(String jsonPtrExpr) {

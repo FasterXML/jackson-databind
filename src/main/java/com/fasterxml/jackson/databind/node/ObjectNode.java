@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -13,11 +14,10 @@ import java.util.*;
 
 /**
  * Node that maps to JSON Object structures in JSON content.
- *<p>
- * Note: class was <code>final</code> temporarily for Jackson 2.2.
  */
 public class ObjectNode
     extends ContainerNode<ObjectNode>
+    implements ObjectTreeNode // since 3.0
 {
     // Note: LinkedHashMap for backwards compatibility
     protected final Map<String, JsonNode> _children;
@@ -27,9 +27,6 @@ public class ObjectNode
         _children = new LinkedHashMap<String, JsonNode>();
     }
 
-    /**
-     * @since 2.4
-     */
     public ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> kids) {
         super(nc);
         _children = kids;

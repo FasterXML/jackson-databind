@@ -16,6 +16,8 @@ import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.tree.ArrayTreeNode;
+import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -277,7 +279,7 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************
-    /* ObjectWriteContext impl
+    /* ObjectWriteContext impl, config access
     /**********************************************************
      */
 
@@ -315,7 +317,21 @@ public abstract class SerializerProvider
         return _config.getFormatWriteFeatures(defaults);
     }
 
-    // // // Active state
+    /*
+    /**********************************************************
+    /* ObjectWriteContext impl, databind integration
+    /**********************************************************
+     */
+
+    @Override
+    public ArrayTreeNode createArrayNode() {
+        return _config.getNodeFactory().arrayNode();
+    }
+
+    @Override
+    public ObjectTreeNode createObjectNode() {
+        return _config.getNodeFactory().objectNode();
+    }
 
     @Override
     public void writeValue(JsonGenerator gen, Object value) throws IOException

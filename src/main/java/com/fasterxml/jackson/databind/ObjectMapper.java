@@ -301,7 +301,8 @@ public class ObjectMapper
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC since Jackson 2.7)
-            Base64Variants.getDefaultVariant() // 2.1
+            Base64Variants.getDefaultVariant(),
+            JsonNodeFactory.instance
     );
 
     /*

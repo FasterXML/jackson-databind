@@ -39,6 +39,11 @@ public final class MissingNode
         return JsonNodeType.MISSING;
     }
 
+    @Override
+    public final boolean isMissingNode() {
+        return true;
+    }
+
     @Override public JsonToken asToken() { return JsonToken.NOT_AVAILABLE; }
 
     @Override public String asText() { return ""; }

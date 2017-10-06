@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
@@ -66,8 +67,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Contextual attributes accessible (get and set) during processing,
      * on per-call basis.
-     * 
-     * @since 2.3
      */
     protected final ContextAttributes _attributes;
 
@@ -77,15 +76,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      *<p>
      * Note that instances are stateful (for caching) and as such may need to be copied,
      * and may NOT be demoted down to {@link BaseSettings}.
-     *
-     * @since 2.6
      */
     protected final RootNameLookup _rootNames;
 
     /**
      * Configuration overrides to apply, keyed by type of property.
-     *
-     * @since 2.8
      */
     protected final ConfigOverrides _configOverrides;
 
@@ -98,8 +93,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
-     *
-     * @since 2.8
      */
     protected MapperConfigBase(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
@@ -116,9 +109,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = configOverrides;
     }
 
-    /**
-     * @since 2.8
-     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src,
             SimpleMixInResolver mixins, RootNameLookup rootNames,
             ConfigOverrides configOverrides)
@@ -207,9 +197,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = src._configOverrides;
     }
 
-    /**
-     * @since 2.1
-     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins)
     {
         super(src);
@@ -222,9 +209,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = src._configOverrides;
     }
 
-    /**
-     * @since 2.3
-     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
     {
         super(src);
@@ -243,14 +227,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**********************************************************
      */
 
-    /**
-     * @since 2.9 (in this case, demoted from sub-classes)
-     */
     protected abstract T _withBase(BaseSettings newBase);
 
-    /**
-     * @since 2.9 (in this case, demoted from sub-classes)
-     */
     protected abstract T _withMapperFeatures(int mapperFeatures);
 
     /*
@@ -356,6 +334,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _withBase(_base.withClassIntrospector(ci));
     }
 
+    /**
+     * Fluent factory method that will construct a new instance with
+     * specified {@link JsonNodeFactory}
+     */
+    public final T with(JsonNodeFactory f) {
+        return _withBase(_base.with(f));
+    }
+
     /*
     /**********************************************************
     /* Additional shared fluent factory methods; attributes
@@ -365,16 +351,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has specified
      * contextual attributes.
-     * 
-     * @since 2.3
      */
     public abstract T with(ContextAttributes attrs);
 
     /**
      * Method for constructing an instance that has only specified
      * attributes, removing any attributes that exist before the call.
-     * 
-     * @since 2.3
      */
     public T withAttributes(Map<?,?> attributes) {
         return with(getAttributes().withSharedAttributes(attributes));
@@ -383,8 +365,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has specified
      * value for attribute for given key.
-     * 
-     * @since 2.3
      */
     public T withAttribute(Object key, Object value) {
         return with(getAttributes().withSharedAttribute(key, value));
@@ -393,8 +373,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has no
      * value for attribute for given key.
-     * 
-     * @since 2.3
      */
     public T withoutAttribute(Object key) {
         return with(getAttributes().withoutSharedAttribute(key));

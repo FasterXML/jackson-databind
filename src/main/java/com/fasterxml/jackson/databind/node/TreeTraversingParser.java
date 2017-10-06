@@ -200,7 +200,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
     
     @Override
-    public JsonStreamContext getParsingContext() {
+    public TokenStreamContext getParsingContext() {
         return _nodeCursor;
     }
 

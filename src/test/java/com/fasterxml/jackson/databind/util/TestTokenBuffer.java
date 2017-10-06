@@ -406,7 +406,7 @@ public class TestTokenBuffer extends BaseMapTest
         _verifyOutputContext(gen1.getOutputContext(), gen2.getOutputContext());
     }
 
-    private void _verifyOutputContext(JsonStreamContext ctxt1, JsonStreamContext ctxt2)
+    private void _verifyOutputContext(TokenStreamContext ctxt1, TokenStreamContext ctxt2)
     {
         if (ctxt1 == null) {
             if (ctxt2 == null) {

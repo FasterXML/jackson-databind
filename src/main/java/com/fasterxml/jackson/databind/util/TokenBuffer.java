@@ -116,14 +116,14 @@ public class TokenBuffer
     /**********************************************************
      */
 
+    protected JsonWriteContext _tokenWriteContext;
+    
     // 05-Oct-2017, tatu: need to consider if this needs to  be properly linked...
     //   especially for "convertValue()" use case
     /**
      * @since 3.0
      */
-    protected ObjectWriteContext _objectWriteContext = ObjectWriteContext.empty();
-
-    protected JsonWriteContext _writeContext;
+    protected ObjectWriteContext _objectWriteContext; // = ObjectWriteContext.empty();
 
     /*
     /**********************************************************
@@ -142,7 +142,7 @@ public class TokenBuffer
     {
         _objectCodec = codec;
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
-        _writeContext = JsonWriteContext.createRootContext(null);
+        _tokenWriteContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -161,7 +161,7 @@ public class TokenBuffer
         _objectCodec = p.getCodec();
         _parentContext = p.getParsingContext();
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
-        _writeContext = JsonWriteContext.createRootContext(null);
+        _tokenWriteContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -551,10 +551,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public ObjectCodec getCodec() { return _objectCodec; }
-
-    @Override
-    public JsonWriteContext getOutputContext() { return _writeContext; }
+    public JsonWriteContext getOutputContext() { return _tokenWriteContext; }
 
     @Override
     public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }
@@ -635,9 +632,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public final void writeStartArray() throws IOException
     {
-        _writeContext.writeValue();
+        _tokenWriteContext.writeValue();
         _append(JsonToken.START_ARRAY);
-        _writeContext = _writeContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
     }
 
     @Override
@@ -645,27 +642,27 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _append(JsonToken.END_ARRAY);
         // Let's allow unbalanced tho... i.e. not run out of root level, ever
-        JsonWriteContext c = _writeContext.getParent();
+        JsonWriteContext c = _tokenWriteContext.getParent();
         if (c != null) {
-            _writeContext = c;
+            _tokenWriteContext = c;
         }
     }
 
     @Override
     public final void writeStartObject() throws IOException
     {
-        _writeContext.writeValue();
+        _tokenWriteContext.writeValue();
         _append(JsonToken.START_OBJECT);
-        _writeContext = _writeContext.createChildObjectContext();
+        _tokenWriteContext = _tokenWriteContext.createChildObjectContext();
     }
 
     @Override
     public void writeStartObject(Object forValue) throws IOException
     {
-        _writeContext.writeValue();
+        _tokenWriteContext.writeValue();
         _append(JsonToken.START_OBJECT);
-        JsonWriteContext ctxt = _writeContext.createChildObjectContext();
-        _writeContext = ctxt;
+        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext();
+        _tokenWriteContext = ctxt;
         if (forValue != null) {
             ctxt.setCurrentValue(forValue);
         }
@@ -676,23 +673,23 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _append(JsonToken.END_OBJECT);
         // Let's allow unbalanced tho... i.e. not run out of root level, ever
-        JsonWriteContext c = _writeContext.getParent();
+        JsonWriteContext c = _tokenWriteContext.getParent();
         if (c != null) {
-            _writeContext = c;
+            _tokenWriteContext = c;
         }
     }
 
     @Override
     public final void writeFieldName(String name) throws IOException
     {
-        _writeContext.writeFieldName(name);
+        _tokenWriteContext.writeFieldName(name);
         _append(JsonToken.FIELD_NAME, name);
     }
 
     @Override
     public void writeFieldName(SerializableString name) throws IOException
     {
-        _writeContext.writeFieldName(name.getValue());
+        _tokenWriteContext.writeFieldName(name.getValue());
         _append(JsonToken.FIELD_NAME, name);
     }
     
@@ -863,19 +860,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return;
         }
         Class<?> raw = value.getClass();
-        if (raw == byte[].class || (value instanceof RawValue)) {
+        if (raw == byte[].class || (value instanceof RawValue)
+                || (_objectWriteContext == null)) {
             _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, value);
             return;
         }
-        if (_objectCodec == null) {
-            /* 28-May-2014, tatu: Tricky choice here; if no codec, should we
-             *   err out, or just embed? For now, do latter.
-             */
-//          throw new JsonMappingException("No ObjectCodec configured for TokenBuffer, writeObject() called");
-            _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, value);
-        } else {
-            _objectCodec.writeValue(this, value);
-        }
+        _objectWriteContext.writeValue(this, value);
     }
 
     @Override
@@ -885,13 +875,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeNull();
             return;
         }
-
-        if (_objectCodec == null) {
-            // as with 'writeObject()', is codec optional?
+        if (_objectWriteContext == null) {
             _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, node);
-        } else {
-            _objectCodec.writeTree(this, node);
+            return;
         }
+        _objectWriteContext.writeTree(this, node);
     }
 
     /*
@@ -1131,7 +1119,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
     protected final void _appendValue(JsonToken type)
     {
-        _writeContext.writeValue();
+        _tokenWriteContext.writeValue();
         Segment next = _hasNativeId
                 ? _last.append(_appendAt, type, _objectId, _typeId)
                 : _last.append(_appendAt, type);
@@ -1149,7 +1137,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
     protected final void _appendValue(JsonToken type, Object value)
     {
-        _writeContext.writeValue();
+        _tokenWriteContext.writeValue();
         Segment next = _hasNativeId
                 ? _last.append(_appendAt, type, value, _objectId, _typeId)
                 : _last.append(_appendAt, type, value);

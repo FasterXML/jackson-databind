@@ -596,7 +596,7 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
-    /* JsonPJsonGeneratorarser initialization
+    /* Support for ObjectWriteContext
     /**********************************************************
      */
 
@@ -612,24 +612,6 @@ public final class SerializationConfig
      */
     public int getFormatWriteFeatures(int defaults) {
         return (defaults & ~_formatWriteFeaturesToChange) | _formatWriteFeatures;
-    }
-
-    /**
-     * Method called by {@link ObjectMapper} and {@link ObjectWriter}
-     * to modify those {@link com.fasterxml.jackson.core.JsonGenerator.Feature} settings
-     * that have been configured via this config instance.
-     */
-    public void initialize(JsonGenerator g)
-    {
-        if (SerializationFeature.INDENT_OUTPUT.enabledIn(_serFeatures)) {
-            // but do not override an explicitly set one
-            if (g.getPrettyPrinter() == null) {
-                PrettyPrinter pp = constructDefaultPrettyPrinter();
-                if (pp != null) {
-                    g.setPrettyPrinter(pp);
-                }
-            }
-        }
     }
 
     /*

@@ -1076,7 +1076,7 @@ public class ObjectMapper
      * calling {@link #getSerializerProvider}, and calling <code>createInstance</code> on it.
      */
     public SerializerProvider getSerializerProviderInstance() {
-        return _serializerProvider(_serializationConfig);
+        return _serializerProvider();
     }
 
     /*
@@ -2518,7 +2518,6 @@ public class ObjectMapper
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator}.
      */
-    @Override
     public void writeValue(JsonGenerator g, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
@@ -2549,13 +2548,13 @@ public class ObjectMapper
      */
 
     @Override
-    public void writeTree(JsonGenerator jgen, TreeNode rootNode)
+    public void writeTree(JsonGenerator g, TreeNode rootNode)
         throws IOException, JsonProcessingException
     {
         SerializationConfig config = getSerializationConfig();
-        _serializerProvider(config).serializeValue(jgen, rootNode);
+        _serializerProvider(config).serializeValue(g, rootNode);
         if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-            jgen.flush();
+            g.flush();
         }
     }
     
@@ -2563,13 +2562,13 @@ public class ObjectMapper
      * Method to serialize given JSON Tree, using generator
      * provided.
      */
-    public void writeTree(JsonGenerator jgen, JsonNode rootNode)
+    public void writeTree(JsonGenerator g, JsonNode rootNode)
         throws IOException, JsonProcessingException
     {
         SerializationConfig config = getSerializationConfig();
-        _serializerProvider(config).serializeValue(jgen, rootNode);
+        _serializerProvider(config).serializeValue(g, rootNode);
         if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-            jgen.flush();
+            g.flush();
         }
     }
     
@@ -2669,7 +2668,7 @@ public class ObjectMapper
     @SuppressWarnings({ "unchecked", "resource" })
     public <T extends JsonNode> T valueToTree(Object fromValue)
         throws IllegalArgumentException
-    {
+    { // !!!FIX!!!
         if (fromValue == null) return null;
         TokenBuffer buf = new TokenBuffer(this, false);
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -2709,18 +2708,16 @@ public class ObjectMapper
      *  serializable)
      */
     public boolean canSerialize(Class<?> type) {
-        return _serializerProvider(getSerializationConfig()).hasSerializerFor(type, null);
+        return _serializerProvider().hasSerializerFor(type, null);
     }
 
     /**
      * Method similar to {@link #canSerialize(Class)} but that can return
      * actual {@link Throwable} that was thrown when trying to construct
      * serializer: this may be useful in figuring out what the actual problem is.
-     * 
-     * @since 2.3
      */
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
-        return _serializerProvider(getSerializationConfig()).hasSerializerFor(type, cause);
+        return _serializerProvider().hasSerializerFor(type, cause);
     }
     
     /**
@@ -3039,7 +3036,7 @@ public class ObjectMapper
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
                 _jsonFactory.createGenerator(prov, resultFile, JsonEncoding.UTF8), value);
     }
@@ -3058,7 +3055,7 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
                 _jsonFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
     }
@@ -3066,7 +3063,7 @@ public class ObjectMapper
     public void writeValue(DataOutput out, Object value)
         throws IOException
     {
-        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov,
                 _jsonFactory.createGenerator(prov, out), value);
     }
@@ -3084,7 +3081,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        DefaultSerializerProvider prov = _serializerProvider();
         _configAndWriteValue(prov, _jsonFactory.createGenerator(prov, w), value);
     }
 
@@ -3100,7 +3097,7 @@ public class ObjectMapper
     {
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
-        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        DefaultSerializerProvider prov = _serializerProvider();
         try {
             _configAndWriteValue(prov, _jsonFactory.createGenerator(prov, sw), value);
         } catch (JsonProcessingException e) {
@@ -3122,7 +3119,7 @@ public class ObjectMapper
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {
-        DefaultSerializerProvider prov = _serializerProvider(getSerializationConfig());
+        DefaultSerializerProvider prov = _serializerProvider();
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
             _configAndWriteValue(prov,
@@ -3560,7 +3557,7 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
-    {
+    {// !!!FIX!!!
         // [databind#1433] Do not shortcut null values.
         // This defaults primitives and fires deserializer getNullValue hooks.
         if (fromValue != null) {
@@ -3584,7 +3581,8 @@ public class ObjectMapper
         try {
             // inlined 'writeValue' with minor changes:
             // first: disable wrapping when writing
-            SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
+            SerializationConfig config = getSerializationConfig()
+                    .without(SerializationFeature.WRAP_ROOT_VALUE);
             // no need to check for closing of TokenBuffer
             _serializerProvider(config).serializeValue(buf, fromValue);
 
@@ -3648,7 +3646,7 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     public <T> T updateValue(T valueToUpdate, Object overrides)
         throws JsonMappingException
-    {
+    {// !!!FIX!!!
         T result = valueToUpdate;
         if ((valueToUpdate != null) && (overrides != null)) {
             TokenBuffer buf = new TokenBuffer(this, false);
@@ -3710,7 +3708,7 @@ public class ObjectMapper
         if (type == null) {
             throw new IllegalArgumentException("type must be provided");
         }
-        _serializerProvider(getSerializationConfig()).acceptJsonFormatVisitor(type, visitor);
+        _serializerProvider().acceptJsonFormatVisitor(type, visitor);
     }
 
     /*
@@ -3726,6 +3724,12 @@ public class ObjectMapper
     protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializerProvider.createInstance(config,
+                GeneratorSettings.empty(), _serializerFactory);
+    }
+
+    protected DefaultSerializerProvider _serializerProvider() {
+        // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
+        return _serializerProvider.createInstance(getSerializationConfig(),
                 GeneratorSettings.empty(), _serializerFactory);
     }
 

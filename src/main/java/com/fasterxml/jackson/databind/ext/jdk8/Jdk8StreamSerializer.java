@@ -74,7 +74,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>> implements Co
             s.forEach(elem -> {
                 try {
                     if (elemSerializer == null) {
-                        provider.defaultSerializeValue(elem, g);
+                        provider.writeValue(g, elem);
                     } else {
                         elemSerializer.serialize(elem, g, provider);
                     }

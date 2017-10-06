@@ -1252,11 +1252,6 @@ public class ObjectReader
         } catch (IOException e) { // should not occur, no real i/o...
             throw JsonMappingException.fromUnexpectedIOE(e);
         }
-    }    
-
-    @Override
-    public void writeValue(JsonGenerator gen, Object value) throws IOException {
-        throw new UnsupportedOperationException("Not implemented for ObjectReader");
     }
 
     /*

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectWriteContext;
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
@@ -164,7 +165,7 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************
-    /* State, for non-blueprint instances: generic
+    /* State, for non-blueprint instances
     /**********************************************************
      */
 
@@ -185,7 +186,14 @@ public abstract class SerializerProvider
      * Flag set to indicate that we are using vanilla null value serialization
      */
     protected final boolean _stdNullValueSerializer;
-    
+
+    /**
+     * Token stream generator actively used.
+     *
+     * @since 3.0
+     */
+    protected transient JsonGenerator _generator;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -273,6 +281,8 @@ public abstract class SerializerProvider
     /**********************************************************
      */
 
+    // // // Configuration access
+    
     @Override
     public FormatSchema getSchema() { return _generatorConfig.getSchema(); }
 
@@ -303,6 +313,37 @@ public abstract class SerializerProvider
     @Override
     public int getFormatWriteFeatures(int defaults) {
         return _config.getFormatWriteFeatures(defaults);
+    }
+
+    // // // Active state
+
+    @Override
+    public void writeValue(JsonGenerator gen, Object value) throws IOException
+    {
+        // Let's keep track of active generator; useful mostly for error reporting...
+        JsonGenerator prevGen = _generator;
+        _generator = gen;
+        try {
+            if (value == null) {
+                if (_stdNullValueSerializer) { // minor perf optimization
+                    gen.writeNull();
+                } else {
+                    _nullValueSerializer.serialize(null, gen, this);
+                }
+                return;
+            }
+            Class<?> cls = value.getClass();
+            findTypedValueSerializer(cls, true, null).serialize(value, gen, this);
+        } finally {
+            _generator = prevGen;
+        }
+    }
+
+    @Override
+    public void writeTree(JsonGenerator gen, TreeNode tree) throws IOException
+    {
+        // 05-Oct-2017, tatu: Should probably optimize or something? Or not?
+        writeValue(gen, tree);
     }
 
     /*
@@ -481,17 +522,10 @@ public abstract class SerializerProvider
         return _config.getFilterProvider();
     }
 
-    /**
-     *<p>
-     * NOTE: current implementation simply returns `null` as generator is not yet
-     * assigned to this provider.
-     *
-     * @since 2.8
-     */
     public JsonGenerator getGenerator() {
-        return null;
+        return _generator;
     }
-    
+
     /*
     /**********************************************************
     /* Access to Object Id aspects
@@ -999,8 +1033,6 @@ public abstract class SerializerProvider
      * {@link ContextualSerializer} with given property context.
      * 
      * @param property Property for which the given primary serializer is used; never null.
-     * 
-     * @since 2.3
      */
     public JsonSerializer<?> handlePrimaryContextualization(JsonSerializer<?> ser,
             BeanProperty property)
@@ -1055,6 +1087,7 @@ public abstract class SerializerProvider
      * field values are best handled calling
      * {@link #defaultSerializeField} instead.
      */
+    @Deprecated // since 3.0 -- use `writeValue()` instead
     public final void defaultSerializeValue(Object value, JsonGenerator gen) throws IOException
     {
         if (value == null) {
@@ -1173,8 +1206,6 @@ public abstract class SerializerProvider
      * Helper method called to indicate problem; default behavior is to construct and
      * throw a {@link JsonMappingException}, but in future may collect more than one
      * and only throw after certain number, or at the end of serialization.
-     *
-     * @since 2.8
      */
     public void reportMappingProblem(String message, Object... msgArgs) throws JsonMappingException {
         throw JsonMappingException.from(getGenerator(), _format(message, msgArgs));
@@ -1184,8 +1215,6 @@ public abstract class SerializerProvider
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific Java type, unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
-     *
-     * @since 2.9
      */
     public <T> T reportBadTypeDefinition(BeanDescription bean,
             String msg, Object... msgArgs) throws JsonMappingException
@@ -1203,8 +1232,6 @@ public abstract class SerializerProvider
      * Helper method called to indicate problem in POJO (serialization) definitions or settings
      * regarding specific property (of a type), unrelated to actual JSON content to map.
      * Default behavior is to construct and throw a {@link JsonMappingException}.
-     *
-     * @since 2.9
      */
     public <T> T reportBadPropertyDefinition(BeanDescription bean, BeanPropertyDefinition prop,
             String message, Object... msgArgs) throws JsonMappingException {

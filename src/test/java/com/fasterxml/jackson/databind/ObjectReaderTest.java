@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectReaderTest extends BaseMapTest
 {
@@ -246,28 +244,6 @@ public class ObjectReaderTest extends BaseMapTest
         ObjectReader r = MAPPER.readerFor(String.class);
         List<?> list = r.treeToValue(n, List.class);
         assertEquals(1, list.size());
-    }
-    
-    public void testCodecUnsupportedWrites() throws Exception
-    {
-        ObjectReader r = MAPPER.readerFor(String.class);
-        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
-        ObjectNode n = MAPPER.createObjectNode();
-        try {
-            r.writeTree(g, n);
-            fail("Should not pass");
-        } catch (UnsupportedOperationException e) {
-            ;
-        }
-        try {
-            r.writeValue(g, "Foo");
-            fail("Should not pass");
-        } catch (UnsupportedOperationException e) {
-            ;
-        }
-        g.close();
-
-        g.close();
     }
 
     /*

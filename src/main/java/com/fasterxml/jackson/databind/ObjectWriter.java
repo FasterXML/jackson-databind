@@ -247,7 +247,7 @@ public class ObjectWriter
      * with specified feature enabled.
      */
     public ObjectWriter with(SerializationFeature feature)  {
-        return _new(this,  _config.with(feature));
+        return _new(this, _config.with(feature));
     }
 
     /**
@@ -292,68 +292,44 @@ public class ObjectWriter
 
     /*
     /**********************************************************
-    /* Life-cycle, fluent factories for JsonGenerator.Feature (2.5)
+    /* Life-cycle, fluent factories for JsonGenerator.Feature
     /**********************************************************
      */
 
-    /**
-     * @since 2.5
-     */
     public ObjectWriter with(JsonGenerator.Feature feature)  {
         return _new(this, _config.with(feature));
     }
 
-    /**
-     * @since 2.5
-     */
     public ObjectWriter withFeatures(JsonGenerator.Feature... features) {
         return _new(this, _config.withFeatures(features));
     }
 
-    /**
-     * @since 2.5
-     */
     public ObjectWriter without(JsonGenerator.Feature feature) {
         return _new(this, _config.without(feature));
     }
 
-    /**
-     * @since 2.5
-     */
     public ObjectWriter withoutFeatures(JsonGenerator.Feature... features) {
         return _new(this, _config.withoutFeatures(features));
     }
 
     /*
     /**********************************************************
-    /* Life-cycle, fluent factories for FormatFeature (2.7)
+    /* Life-cycle, fluent factories for FormatFeature
     /**********************************************************
      */
 
-    /**
-     * @since 2.7
-     */
     public ObjectWriter with(FormatFeature feature)  {
         return _new(this, _config.with(feature));
     }
 
-    /**
-     * @since 2.7
-     */
     public ObjectWriter withFeatures(FormatFeature... features) {
         return _new(this, _config.withFeatures(features));
     }
 
-    /**
-     * @since 2.7
-     */
     public ObjectWriter without(FormatFeature feature) {
         return _new(this, _config.without(feature));
     }
 
-    /**
-     * @since 2.7
-     */
     public ObjectWriter withoutFeatures(FormatFeature... features) {
         return _new(this, _config.withoutFeatures(features));
     }
@@ -371,8 +347,6 @@ public class ObjectWriter
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
-     * @since 2.5
      */
     public ObjectWriter forType(JavaType rootType) {
         return _new(_generatorSettings, _prefetch.forRootType(this, rootType));
@@ -382,8 +356,6 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
-     * 
-     * @since 2.5
      */
     public ObjectWriter forType(Class<?> rootType) {
         if (rootType == Object.class) {
@@ -461,9 +433,6 @@ public class ObjectWriter
         return _new(this, _config.withRootName(rootName));
     }
 
-    /**
-     * @since 2.6
-     */
     public ObjectWriter withRootName(PropertyName rootName) {
         return _new(this, _config.withRootName(rootName));
     }
@@ -603,7 +572,6 @@ public class ObjectWriter
      *   be used for actual writing of token stream.
      */
     public SequenceWriter writeValues(JsonGenerator gen) throws IOException {
-        _configureGenerator(gen);
         return _newSequenceWriter(_serializerProvider(), false, gen, false);
     }
 
@@ -955,17 +923,6 @@ public class ObjectWriter
             return;
         }
         gen.close();
-    }
-
-    /**
-     * Helper method called to set or override settings of passed-in
-     * {@link JsonGenerator}
-     */
-    private void _configureGenerator(JsonGenerator gen)
-    {
-        // order is slightly significant: both may change PrettyPrinter
-        // settings.
-        _config.initialize(gen); // since 2.5
     }
 
     /*

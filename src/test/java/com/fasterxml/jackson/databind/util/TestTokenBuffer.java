@@ -31,12 +31,8 @@ public class TestTokenBuffer extends BaseMapTest
 
         buf = new TokenBuffer(MAPPER, false);
         assertEquals(MAPPER.version(), buf.version());
-        assertSame(MAPPER, buf.getCodec());
         assertNotNull(buf.getOutputContext());
         assertFalse(buf.isClosed());
-
-        buf.setCodec(null);
-        assertNull(buf.getCodec());
 
         assertFalse(buf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
         buf.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);

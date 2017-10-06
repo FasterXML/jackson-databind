@@ -48,12 +48,6 @@ public abstract class DefaultSerializerProvider
     
     protected transient ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
 
-    /**
-     * Generator used for serialization. Needed mostly for error reporting
-     * purposes.
-     */
-    protected transient JsonGenerator _generator;
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -477,8 +471,6 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
 
     /**
      * Helper method called when root value to serialize is null
-     * 
-     * @since 2.3
      */
     protected void _serializeNull(JsonGenerator gen) throws IOException
     {

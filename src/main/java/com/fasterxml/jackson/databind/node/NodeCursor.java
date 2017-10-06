@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  * of current location within traversed JSON tree.
  */
 abstract class NodeCursor
-    extends JsonStreamContext
+    extends TokenStreamContext
 {
     /**
      * Parent cursor of this cursor, if any; null for root
@@ -116,7 +116,7 @@ abstract class NodeCursor
         protected boolean _done = false;
 
         public RootCursor(JsonNode n, NodeCursor p) {
-            super(JsonStreamContext.TYPE_ROOT, p);
+            super(TokenStreamContext.TYPE_ROOT, p);
             _node = n;
         }
 
@@ -156,7 +156,7 @@ abstract class NodeCursor
         protected JsonNode _currentNode;
 
         public ArrayCursor(JsonNode n, NodeCursor p) {
-            super(JsonStreamContext.TYPE_ARRAY, p);
+            super(TokenStreamContext.TYPE_ARRAY, p);
             _contents = n.elements();
         }
 
@@ -198,7 +198,7 @@ abstract class NodeCursor
         
         public ObjectCursor(JsonNode n, NodeCursor p)
         {
-            super(JsonStreamContext.TYPE_OBJECT, p);
+            super(TokenStreamContext.TYPE_OBJECT, p);
             _contents = ((ObjectNode) n).fields();
             _needEntry = true;
         }

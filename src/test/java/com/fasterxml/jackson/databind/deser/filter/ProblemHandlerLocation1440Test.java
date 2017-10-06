@@ -44,7 +44,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
                 JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
                         throws IOException
         {
-            final JsonStreamContext parsingContext = p.getParsingContext();
+            final TokenStreamContext parsingContext = p.getParsingContext();
             final List<String> pathList = new ArrayList<>();
             addParent(parsingContext, pathList);
             Collections.reverse(pathList);
@@ -67,7 +67,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
             return sb.toString();
         }
 
-        private void addParent(final JsonStreamContext streamContext, final List<String> pathList) {
+        private void addParent(final TokenStreamContext streamContext, final List<String> pathList) {
             if (streamContext != null && streamContext.getCurrentName() != null) {
                 pathList.add(streamContext.getCurrentName());
                 addParent(streamContext.getParent(), pathList);

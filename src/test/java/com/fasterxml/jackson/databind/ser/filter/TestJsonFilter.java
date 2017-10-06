@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.core.TokenStreamContext;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
@@ -42,7 +42,7 @@ public class TestJsonFilter extends BaseMapTest
     static class CheckSiblingContextFilter extends SimpleBeanPropertyFilter {
         @Override
         public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer) throws Exception {
-            JsonStreamContext sc = jgen.getOutputContext();
+            TokenStreamContext sc = jgen.getOutputContext();
 
             if (writer.getName() != null && writer.getName().equals("c")) {
                 //This assertion is failing as sc.getParent() incorrectly returns 'a'. If you comment out the member 'a'

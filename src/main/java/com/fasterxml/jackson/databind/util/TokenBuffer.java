@@ -46,7 +46,7 @@ public class TokenBuffer
      * context as if content was read from the original parser: this is useful
      * in error reporting and sometimes processing as well.
      */
-    protected JsonStreamContext _parentContext;
+    protected TokenStreamContext _parentContext;
 
     /**
      * Bit flag composed of bits that indicate which
@@ -192,7 +192,7 @@ public class TokenBuffer
      * based on given parser; but it is not always available, and may not contain
      * intended context.
      */
-    public TokenBuffer overrideParentContext(JsonStreamContext ctxt) {
+    public TokenBuffer overrideParentContext(TokenStreamContext ctxt) {
         _parentContext = ctxt;
         return this;
     }
@@ -1220,7 +1220,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         public Parser(Segment firstSeg, ObjectCodec codec,
                 boolean hasNativeTypeIds, boolean hasNativeObjectIds,
-                JsonStreamContext parentContext)
+                TokenStreamContext parentContext)
         {
             super(0);
             _segment = firstSeg;
@@ -1344,7 +1344,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          */
 
         @Override
-        public JsonStreamContext getParsingContext() { return _parsingContext; }
+        public TokenStreamContext getParsingContext() { return _parsingContext; }
 
         @Override
         public JsonLocation getTokenLocation() { return getCurrentLocation(); }
@@ -1358,7 +1358,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public String getCurrentName() {
             // 25-Jun-2015, tatu: as per [databind#838], needs to be same as ParserBase
             if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-                JsonStreamContext parent = _parsingContext.getParent();
+                TokenStreamContext parent = _parsingContext.getParent();
                 return parent.getCurrentName();
             }
             return _parsingContext.getCurrentName();
@@ -1368,7 +1368,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public void overrideCurrentName(String name)
         {
             // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
-            JsonStreamContext ctxt = _parsingContext;
+            TokenStreamContext ctxt = _parsingContext;
             if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
                 ctxt = ctxt.getParent();
             }

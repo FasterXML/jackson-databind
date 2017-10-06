@@ -531,14 +531,11 @@ public class ObjectMapper
     public ObjectMapper(TokenStreamFactory jf,
             DefaultSerializerProvider sp, DefaultDeserializationContext dc)
     {
-        /* 02-Mar-2009, tatu: Important: we MUST default to using
-         *   the mapping factory, otherwise tree serialization will
-         *   have problems with POJONodes.
-         * 03-Jan-2010, tatu: and obviously we also must pass 'this',
-         *    to create actual linking.
-         */
+        // 06-OCt-2017, tatu: Should probably change dependency one of these days...
+        //   but not today.
         if (jf == null) {
-            _jsonFactory = new MappingJsonFactory(this);
+            _jsonFactory = new JsonFactory();
+            _jsonFactory.setCodec(this);
         } else {
             _jsonFactory = jf;
             if (jf.getCodec() == null) { // as per [JACKSON-741]
@@ -2668,15 +2665,24 @@ public class ObjectMapper
     @SuppressWarnings({ "unchecked", "resource" })
     public <T extends JsonNode> T valueToTree(Object fromValue)
         throws IllegalArgumentException
-    { // !!!FIX!!!
-        if (fromValue == null) return null;
-        TokenBuffer buf = new TokenBuffer(this, false);
+    {
+        if (fromValue == null) {
+            return null;
+        }
+        // 06-Oct-2017, tatu: `convertValue()` disables root value wrapping so
+        //   do it here too
+        SerializationConfig config = getSerializationConfig()
+            .without(SerializationFeature.WRAP_ROOT_VALUE);
+        DefaultSerializerProvider prov = _serializerProvider(config);
+        TokenBuffer buf = TokenBuffer.forValueConversion(prov);
+        // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
         JsonNode result;
         try {
-            writeValue(buf, fromValue);
+            // Equivalent to `writeValue()`, basically:
+            prov.serializeValue(buf, fromValue);
             JsonParser p = buf.asParser();
             result = readTree(p);
             p.close();
@@ -2685,7 +2691,7 @@ public class ObjectMapper
         }
         return (T) result;
     } 
-    
+
     /*
     /**********************************************************
     /* Extended Public API, accessors
@@ -3557,7 +3563,7 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
-    {// !!!FIX!!!
+    {
         // [databind#1433] Do not shortcut null values.
         // This defaults primitives and fires deserializer getNullValue hooks.
         if (fromValue != null) {
@@ -3572,19 +3578,20 @@ public class ObjectMapper
                 return fromValue;
             }
         }
-        
-        // Then use TokenBuffer, which is a JsonGenerator:
-        TokenBuffer buf = new TokenBuffer(this, false);
+
+        // inlined 'writeValue' with minor changes:
+        // first: disable wrapping when writing
+        SerializationConfig config = getSerializationConfig()
+                .without(SerializationFeature.WRAP_ROOT_VALUE);
+        DefaultSerializerProvider prov = _serializerProvider(config);
+        TokenBuffer buf = TokenBuffer.forValueConversion(prov);
+        // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
         try {
-            // inlined 'writeValue' with minor changes:
-            // first: disable wrapping when writing
-            SerializationConfig config = getSerializationConfig()
-                    .without(SerializationFeature.WRAP_ROOT_VALUE);
             // no need to check for closing of TokenBuffer
-            _serializerProvider(config).serializeValue(buf, fromValue);
+            prov.serializeValue(buf, fromValue);
 
             // then matching read, inlined 'readValue' with minor mods:
             final JsonParser p = buf.asParser();
@@ -3646,27 +3653,30 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     public <T> T updateValue(T valueToUpdate, Object overrides)
         throws JsonMappingException
-    {// !!!FIX!!!
-        T result = valueToUpdate;
-        if ((valueToUpdate != null) && (overrides != null)) {
-            TokenBuffer buf = new TokenBuffer(this, false);
-            if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                buf = buf.forceUseOfBigDecimal(true);
+    {
+        if ((valueToUpdate == null) || (overrides == null)) {
+            return valueToUpdate;
+        }
+        SerializationConfig config = getSerializationConfig()
+                .without(SerializationFeature.WRAP_ROOT_VALUE);
+        DefaultSerializerProvider prov = _serializerProvider(config);
+        TokenBuffer buf = TokenBuffer.forValueConversion(prov);
+        // Would like to let buffer decide, but it won't have deser config to check so...
+        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+            buf = buf.forceUseOfBigDecimal(true);
+        }
+        T result;
+        try {
+            prov.serializeValue(buf, overrides);
+            JsonParser p = buf.asParser();
+            result = readerForUpdating(valueToUpdate).readValue(p);
+            p.close();
+        } catch (IOException e) { // should not occur, no real i/o...
+            if (e instanceof JsonMappingException) {
+                throw (JsonMappingException) e;
             }
-            try {
-                SerializationConfig config = getSerializationConfig().
-                        without(SerializationFeature.WRAP_ROOT_VALUE);
-                _serializerProvider(config).serializeValue(buf, overrides);
-                JsonParser p = buf.asParser();
-                result = readerForUpdating(valueToUpdate).readValue(p);
-                p.close();
-            } catch (IOException e) { // should not occur, no real i/o...
-                if (e instanceof JsonMappingException) {
-                    throw (JsonMappingException) e;
-                }
-                // 17-Mar-2017, tatu: Really ought not happen...
-                throw JsonMappingException.fromUnexpectedIOE(e);
-            }
+            // 17-Mar-2017, tatu: Really ought not happen...
+            throw JsonMappingException.fromUnexpectedIOE(e);
         }
         return result;
     }

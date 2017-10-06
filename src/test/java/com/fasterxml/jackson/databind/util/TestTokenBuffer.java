@@ -49,7 +49,7 @@ public class TestTokenBuffer extends BaseMapTest
      */
     public void testSimpleWrites() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+        TokenBuffer buf = TokenBuffer.forGeneration();
         
         // First, with empty buffer
         JsonParser p = buf.asParser();
@@ -82,7 +82,7 @@ public class TestTokenBuffer extends BaseMapTest
     // For 2.9, explicit "isNaN" check
     public void testSimpleNumberWrites() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
 
         double[] values1 = new double[] {
                 0.25, Double.NaN, -2.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY
@@ -123,7 +123,7 @@ public class TestTokenBuffer extends BaseMapTest
     
     public void testParentContext() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeStartObject();
         buf.writeFieldName("b");
         buf.writeStartObject();
@@ -138,7 +138,7 @@ public class TestTokenBuffer extends BaseMapTest
 
     public void testSimpleArray() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+        TokenBuffer buf = TokenBuffer.forGeneration();
 
         // First, empty array
         assertTrue(buf.getOutputContext().inRoot());
@@ -159,7 +159,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.close();
 
         // Then one with simple contents
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeStartArray();
         buf.writeBoolean(true);
         buf.writeNull();
@@ -175,7 +175,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.close();
 
         // And finally, with array-in-array
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeStartArray();
         buf.writeStartArray();
         buf.writeBinary(new byte[3]);
@@ -199,7 +199,7 @@ public class TestTokenBuffer extends BaseMapTest
     
     public void testSimpleObject() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
 
         // First, empty JSON Object
         assertTrue(buf.getOutputContext().inRoot());
@@ -220,7 +220,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.close();
 
         // Then one with simple contents
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeStartObject();
         buf.writeNumberField("num", 1.25);
         buf.writeEndObject();
@@ -255,7 +255,7 @@ public class TestTokenBuffer extends BaseMapTest
     {
         // First, copy events from known good source (StringReader)
         JsonParser p = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
-        TokenBuffer tb = new TokenBuffer(null, false);
+        TokenBuffer tb = TokenBuffer.forGeneration();
         while (p.nextToken() != null) {
             tb.copyCurrentEvent(p);
         }
@@ -276,12 +276,12 @@ public class TestTokenBuffer extends BaseMapTest
 
     public void testAppend() throws IOException
     {
-        TokenBuffer buf1 = new TokenBuffer(null, false);
+        TokenBuffer buf1 = TokenBuffer.forGeneration();
         buf1.writeStartObject();
         buf1.writeFieldName("a");
         buf1.writeBoolean(true);
         
-        TokenBuffer buf2 = new TokenBuffer(null, false);
+        TokenBuffer buf2 = TokenBuffer.forGeneration();
         buf2.writeFieldName("b");
         buf2.writeNumber(13);
         buf2.writeEndObject();
@@ -343,7 +343,7 @@ public class TestTokenBuffer extends BaseMapTest
     // for [databind#984]: ensure output context handling identical
     public void testOutputContext() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+        TokenBuffer buf = TokenBuffer.forGeneration();
         StringWriter w = new StringWriter();
         JsonGenerator gen = MAPPER.getFactory().createGenerator(w);
  
@@ -434,7 +434,7 @@ public class TestTokenBuffer extends BaseMapTest
     // [databind#1253]
     public void testParentSiblingContext() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
+        TokenBuffer buf = TokenBuffer.forGeneration();
 
         // {"a":{},"b":{"c":"cval"}}
         
@@ -496,7 +496,7 @@ public class TestTokenBuffer extends BaseMapTest
     public void testWithJsonParserSequenceSimple() throws IOException
     {
         // Let's join a TokenBuffer with JsonParser first
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeStartArray();
         buf.writeString("test");
         JsonParser p = createParserUsingReader("[ true, null ]");
@@ -545,13 +545,13 @@ public class TestTokenBuffer extends BaseMapTest
     @SuppressWarnings("resource")
     public void testWithMultipleJsonParserSequences() throws IOException
     {
-        TokenBuffer buf1 = new TokenBuffer(null, false);
+        TokenBuffer buf1 = TokenBuffer.forGeneration();
         buf1.writeStartArray();
-        TokenBuffer buf2 = new TokenBuffer(null, false);
+        TokenBuffer buf2 = TokenBuffer.forGeneration();
         buf2.writeString("a");
-        TokenBuffer buf3 = new TokenBuffer(null, false);
+        TokenBuffer buf3 = TokenBuffer.forGeneration();
         buf3.writeNumber(13);
-        TokenBuffer buf4 = new TokenBuffer(null, false);
+        TokenBuffer buf4 = TokenBuffer.forGeneration();
         buf4.writeEndArray();
 
         JsonParserSequence seq1 = JsonParserSequence.createFlattened(false, buf1.asParser(), buf2.asParser());
@@ -579,7 +579,7 @@ public class TestTokenBuffer extends BaseMapTest
     public void testRawValues() throws Exception
     {
         final String RAW = "{\"a\":1}";
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeRawValue(RAW);
         // first: raw value won't be transformed in any way:
         JsonParser p = buf.asParser();
@@ -596,7 +596,7 @@ public class TestTokenBuffer extends BaseMapTest
     // [databind#1730]
     public void testEmbeddedObjectCoerceCheck() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         Object inputPojo = new Sub1730();
         buf.writeEmbeddedObject(inputPojo);
 

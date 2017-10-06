@@ -127,7 +127,7 @@ public class TokenBuffer
 
     /*
     /**********************************************************
-    /* Life-cycle
+    /* Life-cycle: constructors
     /**********************************************************
      */
 
@@ -152,6 +152,24 @@ public class TokenBuffer
         _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
     }
 
+    /**
+     * @since 3.0
+     */
+    protected TokenBuffer(ObjectWriteContext writeContext, boolean hasNativeIds)
+    {
+        _objectWriteContext = writeContext;
+        _objectCodec = null;
+        _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
+        _tokenWriteContext = JsonWriteContext.createRootContext(null);
+        // at first we have just one segment
+        _first = _last = new Segment();
+        _appendAt = 0;
+        _hasNativeTypeIds = hasNativeIds;
+        _hasNativeObjectIds = hasNativeIds;
+
+        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
+    }
+    
     public TokenBuffer(JsonParser p) {
         this(p, null);
     }
@@ -172,6 +190,52 @@ public class TokenBuffer
                 : ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
     }
 
+    /*
+    /**********************************************************
+    /* Life-cycle: helper factory methods
+    /**********************************************************
+     */
+
+    /**
+     * Specialized factory method used when we are converting values and do not
+     * have or use "real" parsers or generators.
+     *
+     * @since 3.0
+     */
+    public static TokenBuffer forValueConversion(SerializerProvider prov)
+    {
+        // false -> no native Object Ids available (or rather not needed)
+        return new TokenBuffer(prov, false);
+    }
+
+    /**
+     * Specialized factory method used when we are buffering input being read from
+     * specified token stream and within specified {@link DeserializationContext}.
+     *
+     * @since 3.0
+     */
+    public static TokenBuffer forInputBuffering(JsonParser p, DeserializationContext ctxt)
+    {
+        return new TokenBuffer(p, ctxt);
+    }
+
+    /**
+     * Specialized factory method used when we are generating token stream for further processing
+     * without tokens coming from specific input token stream.
+     *
+     * @since 3.0
+     */
+    public static TokenBuffer forGeneration()
+    {
+        return new TokenBuffer((ObjectCodec) null, false);
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle: initialization
+    /**********************************************************
+     */
+    
     /**
      * Convenience method, equivalent to:
      *<pre>
@@ -202,11 +266,12 @@ public class TokenBuffer
         return this;
     }
 
-    @Override
-    public Version version() {
-        return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
-    }
-
+    /*
+    /**********************************************************
+    /* Parser construction
+    /**********************************************************
+     */
+    
     /**
      * Method used to create a {@link JsonParser} that can read contents
      * stored in this buffer. Will use default <code>_objectCodec</code> for
@@ -262,6 +327,17 @@ public class TokenBuffer
         Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
         p.setLocation(src.getTokenLocation());
         return p;
+    }
+
+    /*
+    /**********************************************************
+    /* Versioned (mostly since buffer is `JsonGenerator`
+    /**********************************************************
+     */
+
+    @Override
+    public Version version() {
+        return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
 
     /*

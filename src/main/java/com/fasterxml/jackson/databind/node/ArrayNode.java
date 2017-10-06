@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -18,11 +19,10 @@ import java.util.List;
 
 /**
  * Node class that represents Arrays mapped from JSON content.
- *<p>
- * Note: class was <code>final</code> temporarily for Jackson 2.2.
  */
 public class ArrayNode
     extends ContainerNode<ArrayNode>
+    implements ArrayTreeNode // since 3.0
 {
     private final List<JsonNode> _children;
 

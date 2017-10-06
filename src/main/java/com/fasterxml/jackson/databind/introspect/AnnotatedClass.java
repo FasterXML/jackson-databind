@@ -79,9 +79,6 @@ public final class AnnotatedClass
      */
     final protected Annotations _classAnnotations;
 
-    /**
-     * @since 2.9
-     */
     protected Creators _creators;
 
     /**
@@ -99,8 +96,6 @@ public final class AnnotatedClass
     /**
      * Lazily determined property to see if this is a non-static inner
      * class.
-     *
-     * @since 2.8.7
      */
     protected transient Boolean _nonStaticInnerClass;
 

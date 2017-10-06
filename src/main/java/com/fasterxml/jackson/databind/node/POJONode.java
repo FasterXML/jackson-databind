@@ -30,6 +30,9 @@ public class POJONode
         return JsonNodeType.POJO;
     }
 
+    @Override
+    public boolean isEmbeddedValue() { return true; }
+
     @Override public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
     /**

@@ -523,7 +523,7 @@ public class ObjectMapper
      * {@link JsonGenerator}s, and uses given providers for accessing
      * serializers and deserializers.
      * 
-     * @param jf TokenStreamFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
+     * @param jf TokenStreamFactory to use: if null, a new {@link JsonFactory} will be constructed
      * @param sp SerializerProvider to use: if null, a {@link SerializerProvider} will be constructed
      * @param dc Blueprint deserialization context instance to use for creating
      *    actual context objects; if null, will construct standard

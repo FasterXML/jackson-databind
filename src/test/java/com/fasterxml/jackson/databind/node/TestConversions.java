@@ -197,7 +197,7 @@ public class TestConversions extends BaseMapTest
 
     public void testEmbeddedByteArray() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(new byte[3]);
         JsonNode node = MAPPER.readTree(buf.asParser());
         buf.close();

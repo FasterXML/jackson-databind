@@ -35,12 +35,12 @@ public class TestJacksonTypes
     public void testTokenBuffer() throws Exception
     {
         // First, copy events from known good source (StringReader)
-        JsonParser jp = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
-        TokenBuffer tb = new TokenBuffer(null, false);
-        while (jp.nextToken() != null) {
-            tb.copyCurrentEvent(jp);
+        JsonParser p = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
+        TokenBuffer tb = TokenBuffer.forGeneration();
+        while (p.nextToken() != null) {
+            tb.copyCurrentEvent(p);
         }
-        jp.close();
+        p.close();
         // Then serialize as String
         String str = serializeAsString(tb);
         tb.close();

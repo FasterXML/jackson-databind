@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * {@link com.fasterxml.jackson.databind.node}.
  *<p>
  * Note that it is possible to "read" from nodes, using
- * method {@link TreeNode#traverse(ObjectCodec)}, which will result in
+ * method {@link TreeNode#traverse}, which will result in
  * a {@link JsonParser} being constructed. This can be used for (relatively)
  * efficient conversations between different representations; and it is what
  * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}

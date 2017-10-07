@@ -273,6 +273,12 @@ public class TokenBuffer
         return new Parser(_first, null, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
+    public JsonParser asParser(ObjectReadContext readCtxt)
+    {
+        // !!! TODO: pass context
+        return new Parser(_first, null, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+    }
+    
     /**
      * Same as:
      *<pre>
@@ -298,7 +304,7 @@ public class TokenBuffer
         p.setLocation(src.getTokenLocation());
         return p;
     }
-
+    
     /*
     /**********************************************************
     /* Versioned (mostly since buffer is `JsonGenerator`

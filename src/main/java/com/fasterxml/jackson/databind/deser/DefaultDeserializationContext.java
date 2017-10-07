@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 
+import com.fasterxml.jackson.core.FormatSchema;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class DefaultDeserializationContext
     extends DeserializationContext
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -45,8 +46,9 @@ public abstract class DefaultDeserializationContext
     }
     
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
-            DeserializationConfig config, JsonParser jp, InjectableValues values) {
-        super(src, config, jp, values);
+            DeserializationConfig config, FormatSchema schema,
+            InjectableValues values) {
+        super(src, config, schema, values);
     }
 
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
@@ -54,9 +56,6 @@ public abstract class DefaultDeserializationContext
         super(src, factory);
     }
 
-    /**
-     * @since 2.4.4
-     */
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
         super(src);
     }
@@ -66,11 +65,14 @@ public abstract class DefaultDeserializationContext
      * properly; specifically, that caches are cleared, but settings
      * will otherwise remain identical; and that no sharing of state
      * occurs.
-     * 
-     * @since 2.4.4
      */
     public DefaultDeserializationContext copy() {
         throw new IllegalStateException("DefaultDeserializationContext sub-class not overriding copy()");
+    }
+
+    public DefaultDeserializationContext assignParser(JsonParser p) {
+        _parser = p;
+        return this;
     }
 
     /*
@@ -82,9 +84,8 @@ public abstract class DefaultDeserializationContext
     @Override
     public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen, ObjectIdResolver resolverType)
     {
-        /* 02-Apr-2015, tatu: As per [databind#742] should allow 'null', similar to how
-         *   missing id already works.
-         */
+        // 02-Apr-2015, tatu: As per [databind#742] should allow 'null', similar to how
+        //   missing id already works.
         if (id == null) {
             return null;
         }
@@ -134,8 +135,6 @@ public abstract class DefaultDeserializationContext
      * 
      * @param key The key to associate with the new ReadableObjectId
      * @return New ReadableObjectId instance
-     *
-     * @since 2.7
      */
     protected ReadableObjectId createReadableObjectId(IdKey key) {
         return new ReadableObjectId(key);
@@ -182,8 +181,6 @@ public abstract class DefaultDeserializationContext
      *<p>
      * Default implementation simply calls {@link ReadableObjectId#tryToResolveUnresolved} and
      * returns whatever it returns.
-     *
-     * @since 2.6
      */
     protected boolean tryToResolveUnresolvedObjectId(ReadableObjectId roid)
     {
@@ -294,9 +291,9 @@ public abstract class DefaultDeserializationContext
      * Method called to create actual usable per-deserialization
      * context instance.
      */
-    public abstract DefaultDeserializationContext createInstance(
-            DeserializationConfig config, JsonParser jp, InjectableValues values);
-    
+    public abstract DefaultDeserializationContext createInstance(DeserializationConfig config,
+            FormatSchema schema, InjectableValues values);
+
     /*
     /**********************************************************
     /* And then the concrete implementation class
@@ -319,8 +316,9 @@ public abstract class DefaultDeserializationContext
         }
 
         protected Impl(Impl src,
-                DeserializationConfig config, JsonParser jp, InjectableValues values) {
-            super(src, config, jp, values);
+                DeserializationConfig config, FormatSchema schema,
+                InjectableValues values) {
+            super(src, config, schema, values);
         }
 
         protected Impl(Impl src) { super(src); }
@@ -337,13 +335,13 @@ public abstract class DefaultDeserializationContext
         
         @Override
         public DefaultDeserializationContext createInstance(DeserializationConfig config,
-                JsonParser p, InjectableValues values) {
-            return new Impl(this, config, p, values);
+                FormatSchema schema, InjectableValues values) {
+            return new Impl(this, config, schema, values);
         }
 
         @Override
         public DefaultDeserializationContext with(DeserializerFactory factory) {
             return new Impl(this, factory);
-        }        
+        }
     }
 }

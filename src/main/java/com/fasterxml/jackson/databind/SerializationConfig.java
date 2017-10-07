@@ -413,11 +413,10 @@ public final class SerializationConfig
     /* Factory methods for JsonGenerator.Feature (2.5)
     /**********************************************************
      */
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature enabled.
-     *
-     * @since 2.5
      */
     public SerializationConfig with(JsonGenerator.Feature feature)
     {
@@ -432,8 +431,6 @@ public final class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.5
      */
     public SerializationConfig withFeatures(JsonGenerator.Feature... features)
     {
@@ -453,8 +450,6 @@ public final class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
-     *
-     * @since 2.5
      */
     public SerializationConfig without(JsonGenerator.Feature feature)
     {
@@ -469,8 +464,6 @@ public final class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     *
-     * @since 2.5
      */
     public SerializationConfig withoutFeatures(JsonGenerator.Feature... features)
     {
@@ -489,14 +482,13 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
-    /* Factory methods for FormatFeature (2.7)
+    /* Factory methods for FormatFeature
     /**********************************************************
      */
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature enabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig with(FormatFeature feature)
     {
@@ -511,8 +503,6 @@ public final class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig withFeatures(FormatFeature... features)
     {
@@ -532,8 +522,6 @@ public final class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig without(FormatFeature feature)
     {
@@ -548,8 +536,6 @@ public final class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     *
-     * @since 2.7
      */
     public SerializationConfig withoutFeatures(FormatFeature... features)
     {

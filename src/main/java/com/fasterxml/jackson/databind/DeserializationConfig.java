@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  */
 public final class DeserializationConfig
     extends MapperConfigBase<DeserializationFeature, DeserializationConfig>
-    implements java.io.Serializable // since 2.1
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 2;
 
@@ -389,8 +389,6 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.5
      */
     public DeserializationConfig with(JsonParser.Feature feature)
     {
@@ -405,8 +403,6 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.5
      */
     public DeserializationConfig withFeatures(JsonParser.Feature... features)
     {
@@ -426,8 +422,6 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
-     *
-     * @since 2.5
      */
     public DeserializationConfig without(JsonParser.Feature feature)
     {
@@ -469,8 +463,6 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.7
      */
     public DeserializationConfig with(FormatFeature feature)
     {
@@ -485,8 +477,6 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     *
-     * @since 2.7
      */
     public DeserializationConfig withFeatures(FormatFeature... features)
     {
@@ -570,24 +560,22 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************
-    /* JsonParser initialization
+    /* Support for ObjectReadContext
     /**********************************************************
      */
 
     /**
-     * Method called by {@link ObjectMapper} and {@link ObjectReader}
-     * to modify those {@link com.fasterxml.jackson.core.JsonParser.Feature} settings
-     * that have been configured via this config instance.
-     * 
-     * @since 2.5
+     * @since 3.0
      */
-    public void initialize(JsonParser p) {
-        if (_parserFeaturesToChange != 0) {
-            p.overrideStdFeatures(_parserFeatures, _parserFeaturesToChange);
-        }
-        if (_formatReadFeaturesToChange != 0) {
-            p.overrideFormatFeatures(_formatReadFeatures, _formatReadFeaturesToChange);
-        }
+    public int getParserFeatures(int defaults) {
+        return (defaults & ~_parserFeaturesToChange) | _parserFeatures;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public int getFormatReadFeatures(int defaults) {
+        return (defaults & ~_formatReadFeaturesToChange) | _formatReadFeatures;
     }
 
     /*

@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -521,23 +523,31 @@ public class ObjectWriter
         return _new(this, _config.withoutAttribute(key));
     }
 
-    /**
-     * @since 2.5
-     */
     public ObjectWriter withRootValueSeparator(String sep) {
         return _new(_generatorSettings.withRootValueSeparator(sep), _prefetch);
     }
 
-    /**
-     * @since 2.5
-     */
     public ObjectWriter withRootValueSeparator(SerializableString sep) {
         return _new(_generatorSettings.withRootValueSeparator(sep), _prefetch);
     }
 
     /*
     /**********************************************************
-    /* Factory methods for sequence writers (2.5)
+    /* Convenience methods for JsonNode creation
+    /**********************************************************
+     */
+
+    public ObjectNode createObjectNode() {
+        return _config.getNodeFactory().objectNode();
+    }
+
+    public ArrayNode createArrayNode() {
+        return _config.getNodeFactory().arrayNode();
+    }
+
+    /*
+    /**********************************************************
+    /* Factory methods for sequence writers
     /**********************************************************
      */
 

@@ -34,13 +34,6 @@ public class TokenBuffer
      */
 
     /**
-     * Object codec to use for stream-based object
-     * conversion through parser/generator interfaces. If null,
-     * such methods cannot be used.
-     */
-    protected ObjectCodec _objectCodec;
-
-    /**
      * Parse context from "parent" parser (one from which content to buffer is read,
      * if specified). Used, if available, when reading content, to present full
      * context as if content was read from the original parser: this is useful
@@ -132,15 +125,11 @@ public class TokenBuffer
      */
 
     /**
-     * @param codec Object codec to use for stream-based object
-     *   conversion through parser/generator interfaces. If null,
-     *   such methods cannot be used.
      * @param hasNativeIds Whether resulting {@link JsonParser} (if created)
      *   is considered to support native type and object ids
      */
-    public TokenBuffer(ObjectCodec codec, boolean hasNativeIds)
+    public TokenBuffer(boolean hasNativeIds)
     {
-        _objectCodec = codec;
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
         _tokenWriteContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
@@ -158,7 +147,6 @@ public class TokenBuffer
     protected TokenBuffer(ObjectWriteContext writeContext, boolean hasNativeIds)
     {
         _objectWriteContext = writeContext;
-        _objectCodec = null;
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
         _tokenWriteContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
@@ -176,7 +164,6 @@ public class TokenBuffer
 
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
-        _objectCodec = p.getCodec();
         _parentContext = p.getParsingContext();
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
         _tokenWriteContext = JsonWriteContext.createRootContext(null);
@@ -227,7 +214,7 @@ public class TokenBuffer
      */
     public static TokenBuffer forGeneration()
     {
-        return new TokenBuffer((ObjectCodec) null, false);
+        return new TokenBuffer(false);
     }
 
     /*
@@ -283,7 +270,7 @@ public class TokenBuffer
      * @return Parser that can be used for reading contents stored in this buffer
      */
     public JsonParser asParser() {
-        return asParser(_objectCodec);
+        return new Parser(_first, null, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
     /**
@@ -295,27 +282,9 @@ public class TokenBuffer
      *</pre>
      */
     public JsonParser asParserOnFirstToken() throws IOException {
-        JsonParser p = asParser(_objectCodec);
+        JsonParser p = asParser();
         p.nextToken();
         return p;
-    }
-
-    /**
-     * Method used to create a {@link JsonParser} that can read contents
-     * stored in this buffer.
-     *<p>
-     * Note: instances are not synchronized, that is, they are not thread-safe
-     * if there are concurrent appends to the underlying buffer.
-     *
-     * @param codec Object codec to use for stream-based object
-     *   conversion through parser/generator interfaces. If null,
-     *   such methods cannot be used.
-     * 
-     * @return Parser that can be used for reading contents stored in this buffer
-     */
-    public JsonParser asParser(ObjectCodec codec)
-    {
-        return new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
     /**
@@ -324,7 +293,8 @@ public class TokenBuffer
      */
     public JsonParser asParser(JsonParser src)
     {
-        Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        ObjectCodec codec = (src == null) ? null : src.getCodec();
+        Parser p = new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
         p.setLocation(src.getTokenLocation());
         return p;
     }
@@ -619,12 +589,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     /* JsonGenerator implementation: context
     /**********************************************************
      */
-
-    @Override
-    public JsonGenerator setCodec(ObjectCodec oc) {
-        _objectCodec = oc;
-        return this;
-    }
 
     @Override
     public JsonWriteContext getOutputContext() { return _tokenWriteContext; }

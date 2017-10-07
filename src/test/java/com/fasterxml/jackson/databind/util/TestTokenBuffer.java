@@ -29,7 +29,7 @@ public class TestTokenBuffer extends BaseMapTest
     {
         TokenBuffer buf;
 
-        buf = new TokenBuffer(MAPPER, false);
+        buf = TokenBuffer.forGeneration();
         assertEquals(MAPPER.version(), buf.version());
         assertNotNull(buf.getOutputContext());
         assertFalse(buf.isClosed());
@@ -316,7 +316,7 @@ public class TestTokenBuffer extends BaseMapTest
                 "591b2869-146e-41d7-8048-e8131f1fdec5",
                 "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
         }) {
-            TokenBuffer buf = new TokenBuffer(MAPPER, false); // no ObjectCodec
+            TokenBuffer buf = TokenBuffer.forGeneration();
             UUID uuid = UUID.fromString(value);
             MAPPER.writeValue(buf, uuid);
             buf.close();
@@ -459,11 +459,11 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf;
 
         // let's see how empty works...
-        buf = new TokenBuffer(MAPPER, false);
+        buf = TokenBuffer.forGeneration();
         assertEquals("", MAPPER.writeValueAsString(buf));
         buf.close();
         
-        buf = new TokenBuffer(MAPPER, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeStartArray();
         buf.writeBoolean(true);
         buf.writeBoolean(false);
@@ -475,7 +475,7 @@ public class TestTokenBuffer extends BaseMapTest
         assertEquals(aposToQuotes("[true,false,"+l+",4,0.5]"), MAPPER.writeValueAsString(buf));
         buf.close();
 
-        buf = new TokenBuffer(MAPPER, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeStartObject();
         buf.writeFieldName(new SerializedString("foo"));
         buf.writeNull();

@@ -281,13 +281,13 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         assertEquals(exp, MAPPER.readValue("\""+exp.toString()+"\"", URL.class));
 
         // trivial case; null to null, embedded URL to URL
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
 
         // then, URLitself come as is:
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeObject(exp);
         assertSame(exp, MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
@@ -365,13 +365,13 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 
         // first, null should come as null
-        TokenBuffer buf = new TokenBuffer(null, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
         buf.close();
 
         // then, UUID itself come as is:
-        buf = new TokenBuffer(null, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeObject(value);
         assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
 

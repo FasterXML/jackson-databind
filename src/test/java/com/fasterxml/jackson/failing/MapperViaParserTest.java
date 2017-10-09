@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.failing;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -6,6 +6,7 @@ import java.io.StringReader;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MapperViaParserTest  extends BaseMapTest

@@ -716,7 +716,6 @@ public class ObjectMapper
                 return version();
             }
 
-            @SuppressWarnings("unchecked")
             @Override
             public Object getOwner() {
                 // why do we need the cast here?!?

@@ -232,17 +232,42 @@ public class ArrayNode
      */
 
     /**
-     * Method that will set specified field, replacing old value,
-     * if any.
+     * Method that will set specified element, replacing old value.
      *
-     * @param value to set field to; if null, will be converted
+     * @param value to set element to; if null, will be converted
      *   to a {@link NullNode} first  (to remove field entry, call
      *   {@link #remove} instead)
      *
-     * @return Old value of the field, if any; null if there was no
-     *   old value.
+     * @return This node after adding/replacing property value (to allow chaining)
+     *
+     * @throws IndexOutOfBoundsException If Array does not have specified element
+     *  (that is, index is outside valid range of elements in array)
      */
-    public JsonNode set(int index, JsonNode value)
+    public ArrayNode set(int index, JsonNode value)
+    {
+        if (value == null) { // let's not store 'raw' nulls but nodes
+            value = nullNode();
+        }
+        if (index < 0 || index >= _children.size()) {
+            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
+        }
+        _children.set(index, value);
+        return this;
+    }
+
+    /**
+     * Method that will set specified element, replacing old value.
+     *
+     * @param value to set element to; if null, will be converted
+     *   to a {@link NullNode} first  (to remove field entry, call
+     *   {@link #remove} instead)
+     *
+     * @return Old value of the element, if any; null if no such element existed.
+     *
+     * @throws IndexOutOfBoundsException If Array does not have specified element
+     *  (that is, index is outside valid range of elements in array)
+     */
+    public JsonNode replace(int index, JsonNode value)
     {
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
@@ -252,7 +277,7 @@ public class ArrayNode
         }
         return _children.set(index, value);
     }
-
+    
     /**
      * Method for adding specified node at the end of this array.
      *
@@ -390,8 +415,6 @@ public class ArrayNode
 
     /**
      * @return This array node, to allow chaining
-     *
-     * @since 2.6
      */
     public ArrayNode addRawValue(RawValue raw) {
         if (raw == null) {
@@ -516,8 +539,6 @@ public class ArrayNode
      * Method for adding specified number at the end of this array.
      *
      * @return This array node, to allow chaining
-     *
-     * @since 2.9
      */
     public ArrayNode add(BigInteger v) {
         if (v == null) {

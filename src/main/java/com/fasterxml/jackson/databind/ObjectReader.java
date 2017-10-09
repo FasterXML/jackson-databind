@@ -302,6 +302,8 @@ public class ObjectReader
     protected JsonToken _initForReading(DefaultDeserializationContext ctxt, JsonParser p)
         throws IOException
     {
+        ctxt.assignParser(p);
+
         // First: must point to a token; if not pointing to one, advance.
         // This occurs before first read from JsonParser, as well as
         // after clearing of current token.

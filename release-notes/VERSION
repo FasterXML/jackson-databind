@@ -14,4 +14,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #1773: Remove `MapperFeature.AUTO_DETECT_xxx` features
 #1774: Merge Java8 datatype (`Optional`, `Stream`) support (`jackson-datatype-jdk8`
 #1775: Merge Java8 parameter name support (`jackson-module-parameter-names`)
+#1781: Return `ObjectNode` from `ObjectNode` set-methods in order to allow better chaining
+ (reported by timo-schmid@github)
 - Remove `MappingJsonFactory`

@@ -2832,7 +2832,7 @@ public class ObjectMapper
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _readMapAndClose(ctxt,
-                _jsonFactory.createParser(src), valueType);
+                _jsonFactory.createParser(ctxt, src), valueType);
     } 
 
     /**

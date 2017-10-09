@@ -215,7 +215,7 @@ public class ExternalTypeHandler
                 // will be included.
                 JsonToken t = tokens.firstToken();
                 if (t.isScalarValue()) { // can't be null as we never store empty buffers
-                    JsonParser buffered = tokens.asParser(p);
+                    JsonParser buffered = tokens.asParser(ctxt, p);
                     buffered.nextToken();
                     SettableBeanProperty extProp = _properties[i].getProperty();
                     Object result = TypeDeserializer.deserializeIfNatural(buffered, ctxt, extProp.getType());
@@ -314,7 +314,7 @@ public class ExternalTypeHandler
     protected final Object _deserialize(JsonParser p, DeserializationContext ctxt,
             int index, String typeId) throws IOException
     {
-        JsonParser p2 = _tokens[index].asParser(p);
+        JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
@@ -327,7 +327,7 @@ public class ExternalTypeHandler
         merged.writeEndArray();
 
         // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(p);
+        JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }
@@ -339,7 +339,7 @@ public class ExternalTypeHandler
         /* Ok: time to mix type id, value; and we will actually use "wrapper-array"
          * style to ensure we can handle all kinds of JSON constructs.
          */
-        JsonParser p2 = _tokens[index].asParser(p);
+        JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
@@ -353,7 +353,7 @@ public class ExternalTypeHandler
         merged.copyCurrentStructure(p2);
         merged.writeEndArray();
         // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(p);
+        JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
         _properties[index].getProperty().deserializeAndSet(mp, ctxt, bean);
     }

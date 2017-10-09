@@ -35,18 +35,17 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * reused, shared, cached; both because of thread-safety and because
  * instances are relatively light-weight.
  *<p>
- * NOTE: this class is NOT meant as sub-classable (with Jackson 2.8 and
- * above) by users. It is left as non-final mostly to allow frameworks
- * that require bytecode generation for proxying and similar use cases,
- * but there is no expecation that functionality should be extended
- * by sub-classing.
+ * NOTE: this class is NOT meant as sub-classable by users. It is left as
+ * non-final mostly to allow frameworks  that require bytecode generation for proxying
+ * and similar use cases, but there is no expectation that functionality
+ * should be extended by sub-classing.
  */
 public class ObjectReader
     implements Versioned, java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
 
-    private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
+    protected final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
     /*
     /**********************************************************
@@ -1370,18 +1369,19 @@ public class ObjectReader
                 return null;
             }
         }
-        if (t == JsonToken.VALUE_NULL) {
-            return ctxt.getNodeFactory().nullNode();
-        }
-        JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
         Object result;
-        if (_unwrapRoot) {
-            result = _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
+        if (t == JsonToken.VALUE_NULL) {
+            result = ctxt.getNodeFactory().nullNode();
         } else {
-            result = deser.deserialize(p, ctxt);
-            if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
-                _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
+            JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
+            if (_unwrapRoot) {
+                // NOTE: will do "check if trailing" check in call
+                return (JsonNode) _unwrapAndDeserialize(p, ctxt, JSON_NODE_TYPE, deser);
             }
+            result = deser.deserialize(p, ctxt);
+        }
+        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
         }
         return (JsonNode) result;
     }

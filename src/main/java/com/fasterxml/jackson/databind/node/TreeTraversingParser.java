@@ -24,8 +24,6 @@ public class TreeTraversingParser extends ParserMinimalBase
     /**********************************************************
      */
 
-    protected ObjectReadContext _readContext;
-
     /**
      * Traversal context within tree
      */
@@ -66,8 +64,7 @@ public class TreeTraversingParser extends ParserMinimalBase
 
     public TreeTraversingParser(JsonNode n, ObjectReadContext readContext)
     {
-        super(0);
-        _readContext = readContext;
+        super(readContext, 0);
         if (n.isArray()) {
             _nextToken = JsonToken.START_ARRAY;
             _nodeCursor = new NodeCursor.ArrayCursor(n, null);
@@ -77,15 +74,6 @@ public class TreeTraversingParser extends ParserMinimalBase
         } else { // value node
             _nodeCursor = new NodeCursor.RootCursor(n, null);
         }
-    }
-
-    @Override
-    public void setCodec(ObjectCodec c) {
-    }
-
-    @Override
-    public ObjectCodec getCodec() {
-        return null;
     }
 
     @Override

@@ -59,8 +59,8 @@ public abstract class BaseJsonNode
      */
 
     @Override
-    public JsonParser traverse() {
-        return new TreeTraversingParser(this);
+    public JsonParser traverse(ObjectReadContext readCtxt) {
+        return new TreeTraversingParser(this, readCtxt);
     }
 
     /**

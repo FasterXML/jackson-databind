@@ -163,22 +163,6 @@ public class ReadValuesTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testRootBeansWithParser() throws Exception
-    {
-        final String JSON = "{\"a\":3}{\"a\":27}  ";
-        JsonParser jp = MAPPER.getFactory().createParser(JSON);
-        
-        Iterator<Bean> it = jp.readValuesAs(Bean.class);
-
-        assertTrue(it.hasNext());
-        Bean b = it.next();
-        assertEquals(3, b.a);
-        assertTrue(it.hasNext());
-        b = it.next();
-        assertEquals(27, b.a);
-        assertFalse(it.hasNext());
-    }
-
     public void testRootArraysWithParser() throws Exception
     {
         final String JSON = "[1][3]";

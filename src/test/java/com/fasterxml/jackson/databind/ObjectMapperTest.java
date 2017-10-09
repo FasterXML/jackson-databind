@@ -238,19 +238,6 @@ public class ObjectMapperTest extends BaseMapTest
         assertTrue(dc.shouldSortPropertiesAlphabetically());
     }
 
-
-    public void testJsonFactoryLinkage()
-    {
-        // first, implicit factory, giving implicit linkage
-        assertSame(MAPPER, MAPPER.getFactory().getCodec());
-
-        // and then explicit factory, which should also be implicitly linked
-        JsonFactory f = new JsonFactory();
-        ObjectMapper m = new ObjectMapper(f);
-        assertSame(f, m.getFactory());
-        assertSame(m, f.getCodec());
-    }
-
     public void testProviderConfig() throws Exception   
     {
         ObjectMapper m = new ObjectMapper();

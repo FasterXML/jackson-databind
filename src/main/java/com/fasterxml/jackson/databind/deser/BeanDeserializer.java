@@ -540,12 +540,12 @@ public class BeanDeserializer
     {
         // 17-Dec-2015, tatu: Highly specialized case, mainly to support polymorphic
         //   "empty" POJOs deserialized from XML, where empty XML tag synthesizes a
-        //   `VALUE_NULL` token.
-        if (p.requiresCustomCodec()) { // not only XML module, but mostly it...
+        //   `VALUE_NULL` token.s
+        if (p.canSynthesizeNulls()) {
             @SuppressWarnings("resource")
             TokenBuffer tb = new TokenBuffer(p, ctxt);
             tb.writeEndObject();
-            JsonParser p2 = tb.asParser(p);
+            JsonParser p2 = tb.asParser(ctxt, p);
             p2.nextToken(); // to point to END_OBJECT
             // note: don't have ObjectId to consider at this point, so:
             Object ob = _vanillaProcessing ? vanillaDeserialize(p2, ctxt, JsonToken.END_OBJECT)

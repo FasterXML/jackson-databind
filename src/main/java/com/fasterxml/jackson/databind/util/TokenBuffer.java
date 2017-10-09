@@ -270,13 +270,15 @@ public class TokenBuffer
      * @return Parser that can be used for reading contents stored in this buffer
      */
     public JsonParser asParser() {
-        return new Parser(_first, null, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        return new Parser(null,
+                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
 
     public JsonParser asParser(ObjectReadContext readCtxt)
     {
         // !!! TODO: pass context
-        return new Parser(_first, null, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        return new Parser(readCtxt,
+                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
     }
     
     /**
@@ -297,10 +299,9 @@ public class TokenBuffer
      * @param src Parser to use for accessing source information
      *    like location, configured codec
      */
-    public JsonParser asParser(JsonParser src)
+    public JsonParser asParser(ObjectReadContext readCtxt, JsonParser src)
     {
-        ObjectCodec codec = (src == null) ? null : src.getCodec();
-        Parser p = new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        Parser p = new Parser(readCtxt, _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
         p.setLocation(src.getTokenLocation());
         return p;
     }
@@ -1210,8 +1211,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**********************************************************
          */
 
-        protected ObjectCodec _codec;
-
         protected final boolean _hasNativeTypeIds;
 
         protected final boolean _hasNativeObjectIds;
@@ -1252,14 +1251,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**********************************************************
          */
 
-        public Parser(Segment firstSeg, ObjectCodec codec,
+        public Parser(ObjectReadContext readCtxt, Segment firstSeg,
                 boolean hasNativeTypeIds, boolean hasNativeObjectIds,
                 TokenStreamContext parentContext)
         {
-            super(0);
+            super(readCtxt, 0);
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
-            _codec = codec;
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
@@ -1269,12 +1267,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public void setLocation(JsonLocation l) {
             _location = l;
         }
-        
-        @Override
-        public ObjectCodec getCodec() { return _codec; }
-
-        @Override
-        public void setCodec(ObjectCodec c) { _codec = c; }
 
         @Override
         public Version version() {

@@ -67,13 +67,6 @@ Simplest usage is of form:
   // and find values by, for example, using a {@link com.fasterxml.jackson.core.JsonPointer} expression:
   int age = root.at("/personal/age").getValueAsInt(); 
 </pre>
- *<p>
- * The main conversion API is defined in {@link ObjectCodec}, so that
- * implementation details of this class need not be exposed to
- * streaming parser and generator classes. Usage via {@link ObjectCodec} is,
- * however, usually only for cases where dependency to {@link ObjectMapper} is
- * either not possible (from Streaming API), or undesireable (when only relying
- * on Streaming API).
  *<p> 
  * Mapper instances are fully thread-safe provided that ALL configuration of the
  * instance occurs before ANY read or write calls. If configuration of a mapper instance
@@ -116,7 +109,6 @@ Simplest usage is of form:
  * (using {@link #setDefaultTyping}).
  */
 public class ObjectMapper
-    extends ObjectCodec
     implements Versioned,
         java.io.Serializable
 {
@@ -490,7 +482,6 @@ public class ObjectMapper
     protected ObjectMapper(ObjectMapper src)
     {
         _jsonFactory = src._jsonFactory.copy();
-        _jsonFactory.setCodec(this);
         _subtypeResolver = src._subtypeResolver;
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
@@ -535,14 +526,9 @@ public class ObjectMapper
         // 06-OCt-2017, tatu: Should probably change dependency one of these days...
         //   but not today.
         if (jf == null) {
-            _jsonFactory = new JsonFactory();
-            _jsonFactory.setCodec(this);
-        } else {
-            _jsonFactory = jf;
-            if (jf.getCodec() == null) { // as per [JACKSON-741]
-                _jsonFactory.setCodec(this);
-            }
+            jf = new JsonFactory();
         }
+        _jsonFactory = jf;
         _subtypeResolver = new StdSubtypeResolver();
         RootNameLookup rootNames = new RootNameLookup();
         // and default type factory is shared one
@@ -732,9 +718,9 @@ public class ObjectMapper
 
             @SuppressWarnings("unchecked")
             @Override
-            public <C extends ObjectCodec> C getOwner() {
+            public Object getOwner() {
                 // why do we need the cast here?!?
-                return (C) ObjectMapper.this;
+                return ObjectMapper.this;
             }
 
             @Override
@@ -1733,7 +1719,6 @@ public class ObjectMapper
      * @return {@link TokenStreamFactory} that this mapper uses when it needs to
      *   construct Json parser and generators
      */
-    @Override
     public TokenStreamFactory getFactory() { return _jsonFactory; }
 
     /**
@@ -1753,9 +1738,6 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * @since 2.5
-     */
     public DateFormat getDateFormat() {
         // arbitrary choice but let's do:
         return _serializationConfig.getDateFormat();
@@ -2152,7 +2134,6 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
@@ -2177,7 +2158,6 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
@@ -2201,7 +2181,6 @@ public class ObjectMapper
      * @throws JsonMappingException if the input JSON structure does not match structure
      *   expected for result type (or has other mismatch issues)
      */
-    @Override
     @SuppressWarnings("unchecked")
     public final <T> T readValue(JsonParser p, ResolvedType valueType)
         throws IOException, JsonParseException, JsonMappingException
@@ -2250,7 +2229,6 @@ public class ObjectMapper
      * @throws JsonParseException if underlying input contains invalid content
      *    of type {@link JsonParser} supports (JSON for default case)
      */
-    @Override
     public <T extends TreeNode> T readTree(JsonParser p)
         throws IOException, JsonProcessingException
     {
@@ -2296,21 +2274,6 @@ public class ObjectMapper
      *<p>
      * Note that {@link ObjectReader} has more complete set of variants.
      */
-    @Override
-    public <T> MappingIterator<T> readValues(JsonParser p, ResolvedType valueType)
-        throws IOException, JsonProcessingException
-    {
-        return readValues(p, (JavaType) valueType);
-    }
-
-    /**
-     * Convenience method, equivalent in function to:
-     *<pre>
-     *   readerFor(valueType).readValues(p);
-     *</pre>
-     *<p>
-     * Type-safe overload of {@link #readValues(JsonParser, ResolvedType)}.
-     */
     public <T> MappingIterator<T> readValues(JsonParser p, JavaType valueType)
         throws IOException, JsonProcessingException
     {
@@ -2327,25 +2290,14 @@ public class ObjectMapper
      *   readerFor(valueType).readValues(p);
      *</pre>
      *<p>
-     * Type-safe overload of {@link #readValues(JsonParser, ResolvedType)}.
+     * Type-safe overload of {@link #readValues(JsonParser, JavaType)}.
      */
-    @Override
     public <T> MappingIterator<T> readValues(JsonParser p, Class<T> valueType)
         throws IOException, JsonProcessingException
     {
         return readValues(p, _typeFactory.constructType(valueType));
     }
 
-    /**
-     * Method for reading sequence of Objects from parser stream.
-     */
-    @Override
-    public <T> MappingIterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef)
-        throws IOException, JsonProcessingException
-    {
-        return readValues(p, _typeFactory.constructType(valueTypeRef));
-    }
-    
     /*
     /**********************************************************
     /* Public API not included in ObjectCodec: deserialization
@@ -2550,11 +2502,10 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Public API (from TreeCodec via ObjectCodec): Tree Model support
+    /* Public API: Tree Model support
     /**********************************************************
      */
 
-    @Override
     public void writeTree(JsonGenerator g, TreeNode rootNode)
         throws IOException, JsonProcessingException
     {
@@ -2586,7 +2537,6 @@ public class ObjectMapper
      * part of core package, whereas impls are part of mapper
      * package)
      */
-    @Override
     public ObjectNode createObjectNode() {
         return _deserializationConfig.getNodeFactory().objectNode();
     }
@@ -2598,7 +2548,6 @@ public class ObjectMapper
      * part of core package, whereas impls are part of mapper
      * package)
      */
-    @Override
     public ArrayNode createArrayNode() {
         return _deserializationConfig.getNodeFactory().arrayNode();
     }
@@ -2609,7 +2558,6 @@ public class ObjectMapper
      * 
      * @param n Root node of the tree that resulting parser will read from
      */
-    @Override
     public JsonParser treeAsTokens(TreeNode n) {
         DeserializationContext ctxt = createDeserializationContext();
         return new TreeTraversingParser((JsonNode) n, ctxt);
@@ -2625,7 +2573,6 @@ public class ObjectMapper
      *</pre>
      */
     @SuppressWarnings("unchecked")
-    @Override
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JsonProcessingException
     {

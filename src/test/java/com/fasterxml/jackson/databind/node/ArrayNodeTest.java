@@ -236,8 +236,7 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         n.add(123);
         TreeTraversingParser p = new TreeTraversingParser(n, null);
-        p.setCodec(null);
-        assertNull(p.getCodec());
+        assertNull(p.getObjectReadContext());
         assertNotNull(p.getParsingContext());
         assertNotNull(p.getTokenLocation());
         assertNotNull(p.getCurrentLocation());

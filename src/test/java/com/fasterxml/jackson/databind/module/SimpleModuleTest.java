@@ -145,11 +145,9 @@ public class SimpleModuleTest extends BaseMapTest
         @Override
         public void setupModule(SetupContext context)
         {
-            ObjectCodec c = context.getOwner();
+            Object c = context.getOwner();
             assertNotNull(c);
             assertTrue(c instanceof ObjectMapper);
-            ObjectMapper m = context.getOwner();
-            assertNotNull(m);
         }
     }
 

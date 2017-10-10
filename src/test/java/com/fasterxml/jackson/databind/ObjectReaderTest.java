@@ -100,7 +100,7 @@ public class ObjectReaderTest extends BaseMapTest
         ObjectReader r = MAPPER.reader();
         assertSame(MAPPER.tokenStreamFactory(), r.parserFactory());
 
-        assertNotNull(r.getTypeFactory());
+        assertNotNull(r.typeFactory());
         assertNull(r.getInjectableValues());
 
         r = r.withAttributes(Collections.emptyMap());

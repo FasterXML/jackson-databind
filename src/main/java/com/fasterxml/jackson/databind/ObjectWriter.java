@@ -533,6 +533,74 @@ public class ObjectWriter
 
     /*
     /**********************************************************
+    /* Public API: constructing Generator that are properly linked
+    /* to `ObjectWriteContext`
+    /**********************************************************
+     */
+
+    /**
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,OutputStream)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return _generatorFactory.createGenerator(_serializerProvider(), out);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,OutputStream,JsonEncoding)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+        return _generatorFactory.createGenerator(_serializerProvider(), out, enc);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,Writer)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(Writer w) throws IOException {
+        return _generatorFactory.createGenerator(_serializerProvider(), w);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,File,JsonEncoding)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(File f, JsonEncoding enc)
+        throws IOException {
+        return _generatorFactory.createGenerator(_serializerProvider(), f, enc);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,DataOutput)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(DataOutput out) throws IOException {
+        return _generatorFactory.createGenerator(_serializerProvider(), out);
+    }
+
+    /*
+    /**********************************************************
     /* Convenience methods for JsonNode creation
     /**********************************************************
      */

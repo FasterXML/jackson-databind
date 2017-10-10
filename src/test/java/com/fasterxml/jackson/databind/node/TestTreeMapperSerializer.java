@@ -88,7 +88,6 @@ public class TestTreeMapperSerializer extends NodeTestBase
     public void testSmallNumbers()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         ArrayNode root = mapper.createArrayNode();
         for (int i = -20; i <= 20; ++i) {
             JsonNode n = root.numberNode(i);
@@ -124,7 +123,6 @@ public class TestTreeMapperSerializer extends NodeTestBase
 
     public void testBinary() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LENGTH = 13045;
         byte[] data = new byte[LENGTH];
         for (int i = 0; i < LENGTH; ++i) {

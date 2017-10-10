@@ -70,7 +70,7 @@ public class ExceptionSerializationTest
     // to double-check [databind#1413]
     public void testSimpleOther() throws Exception
     {
-        JsonParser p = MAPPER.getFactory().createParser("{ }");
+        JsonParser p = MAPPER.createParser("{ }");
         InvalidFormatException exc = InvalidFormatException.from(p, "Test", getClass(), String.class);
         String json = MAPPER.writeValueAsString(exc);
         p.close();

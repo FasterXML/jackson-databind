@@ -563,7 +563,10 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
      * Concrete implementation that defines factory method(s),
      * defined as final.
      */
-    public final static class Impl extends DefaultSerializerProvider {
+    public final static class Impl
+        extends DefaultSerializerProvider
+        implements java.io.Serializable
+    {
         private static final long serialVersionUID = 1L;
 
         public Impl(TokenStreamFactory streamFactory) { super(streamFactory); }

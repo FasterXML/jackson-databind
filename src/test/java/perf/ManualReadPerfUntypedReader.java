@@ -50,9 +50,8 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
     protected final double _testRawDeser(int reps, String json, ObjectReader reader) throws IOException
     {
         long start = System.nanoTime();
-        final TokenStreamFactory f = reader.getFactory();
         while (--reps >= 0) {
-            JsonParser p = f.createParser(json);
+            JsonParser p = reader.createParser(json);
             JsonToken t;
             while ((t = p.nextToken()) != null) {
                 if (t == JsonToken.VALUE_STRING) {
@@ -64,7 +63,7 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
             }
             p.close();
         }
-        hash = f.hashCode();
+        hash = (int) start;
         return _msecsFromNanos(System.nanoTime() - start);
     }
 }

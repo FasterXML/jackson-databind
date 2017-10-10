@@ -129,6 +129,37 @@ public abstract class BaseTest
 
     /*
     /**********************************************************
+    /* Factory methods
+    /**********************************************************
+     */
+
+    private static ObjectMapper SHARED_MAPPER;
+
+    protected ObjectMapper objectMapper() {
+        if (SHARED_MAPPER == null) {
+            SHARED_MAPPER = newObjectMapper();
+        }
+        return SHARED_MAPPER;
+    }
+
+    protected ObjectWriter objectWriter() {
+        return objectMapper().writer();
+    }
+
+    protected ObjectReader objectReader() {
+        return objectMapper().reader();
+    }
+    
+    protected ObjectReader objectReader(Class<?> cls) {
+        return objectMapper().readerFor(cls);
+    }
+
+    protected static ObjectMapper newObjectMapper() {
+        return new ObjectMapper();
+    }
+    
+    /*
+    /**********************************************************
     /* Pass-through to remove need for static import
     /**********************************************************
      */
@@ -316,23 +347,10 @@ public abstract class BaseTest
     protected JsonParser createParserUsingReader(String input)
         throws IOException, JsonParseException
     {
-        return createParserUsingReader(new JsonFactory(), input);
-    }
-
-    protected JsonParser createParserUsingReader(JsonFactory f, String input)
-        throws IOException
-    {
-        return f.createParser(new StringReader(input));
+        return SHARED_MAPPER.createParser(new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
-        throws IOException
-    {
-        return createParserUsingStream(new JsonFactory(), input, encoding);
-    }
-
-    protected JsonParser createParserUsingStream(JsonFactory f,
-            String input, String encoding)
         throws IOException
     {
         /* 23-Apr-2008, tatus: UTF-32 is not supported by JDK, have to
@@ -347,7 +365,7 @@ public abstract class BaseTest
             data = input.getBytes(encoding);
         }
         InputStream is = new ByteArrayInputStream(data);
-        return f.createParser(is);
+        return SHARED_MAPPER.createParser(is);
     }
 
     /*

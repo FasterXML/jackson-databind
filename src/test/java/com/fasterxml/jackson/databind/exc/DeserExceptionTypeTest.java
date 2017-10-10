@@ -74,7 +74,7 @@ public class DeserExceptionTypeTest
         throws Exception
     {
         BrokenStringReader r = new BrokenStringReader("[ 1, ", "TEST");
-        JsonParser p = MAPPER.getFactory().createParser(r);
+        JsonParser p = MAPPER.createParser(r);
         try {
             @SuppressWarnings("unused")
             Object ob = MAPPER.readValue(p, Object.class);
@@ -89,7 +89,7 @@ public class DeserExceptionTypeTest
 
     public void testExceptionWithEOF() throws Exception
     {
-        JsonParser p = MAPPER.getFactory().createParser("  3");
+        JsonParser p = MAPPER.createParser("  3");
 
         Integer I = MAPPER.readValue(p, Integer.class);
         assertEquals(3, I.intValue());

@@ -67,10 +67,10 @@ public class TestArrayDeserialization
         }
 
         @Override
-        public void serialize(JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(JsonGenerator gen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            jgen.writeString(_desc);
+            gen.writeString(_desc);
         }
 
         @Override public String toString() { return _desc; }
@@ -82,7 +82,7 @@ public class TestArrayDeserialization
         }
 
         @Override
-        public void serializeWithType(JsonGenerator jgen,
+        public void serializeWithType(JsonGenerator gen,
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException, JsonProcessingException {
         }
@@ -248,13 +248,13 @@ public class TestArrayDeserialization
             "a", "b", "abcd", "", "???", "\"quoted\"", "lf: \n",
         };
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = MAPPER.getFactory().createGenerator(sw);
-        jg.writeStartArray();
+        JsonGenerator g = MAPPER.createGenerator(sw);
+        g.writeStartArray();
         for (String str : STRS) {
-            jg.writeString(str);
+            g.writeString(str);
         }
-        jg.writeEndArray();
-        jg.close();
+        g.writeEndArray();
+        g.close();
 
         String[] result = MAPPER.readValue(sw.toString(), String[].class);
         assertNotNull(result);
@@ -329,7 +329,6 @@ public class TestArrayDeserialization
          * get proper base64 encoding. Plus, not always using that
          * silly sample from Wikipedia.
          */
-        JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
 
         int LEN = 9000;
@@ -338,9 +337,9 @@ public class TestArrayDeserialization
             TEST[i] = (byte) i;
         }
 
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeBinary(TEST);
-        jg.close();
+        JsonGenerator g = MAPPER.createGenerator(sw);
+        g.writeBinary(TEST);
+        g.close();
         String inputData = sw.toString();
 
         byte[] result = MAPPER.readValue(inputData, byte[].class);
@@ -354,13 +353,12 @@ public class TestArrayDeserialization
      */
     public void testByteArraysAsBase64() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter(1000);
 
         final int entryCount = 15;
 
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeStartArray();
+        JsonGenerator g = MAPPER.createGenerator(sw);
+        g.writeStartArray();
 
         byte[][] entries = new byte[entryCount][];
         for (int i = 0; i < entryCount; ++i) {
@@ -369,10 +367,10 @@ public class TestArrayDeserialization
                 b[x] = (byte) (i + x);
             }
             entries[i] = b;
-            jg.writeBinary(b);
+            g.writeBinary(b);
         }
-        jg.writeEndArray();
-        jg.close();
+        g.writeEndArray();
+        g.close();
 
         String inputData = sw.toString();
 

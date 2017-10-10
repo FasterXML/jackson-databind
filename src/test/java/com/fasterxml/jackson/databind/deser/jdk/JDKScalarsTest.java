@@ -591,7 +591,7 @@ public class JDKScalarsTest
             sb.append(" ");
             sb.append(i);
         }
-        JsonParser p = MAPPER.getFactory().createParser(sb.toString());
+        JsonParser p = MAPPER.createParser(sb.toString());
         for (int i = 0; i < NR_OF_INTS; ++i) {
             Integer result = MAPPER.readValue(p, Integer.class);
             assertEquals(Integer.valueOf(i), result);

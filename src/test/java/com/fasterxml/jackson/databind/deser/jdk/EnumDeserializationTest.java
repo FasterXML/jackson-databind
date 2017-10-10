@@ -33,7 +33,7 @@ public class EnumDeserializationTest
     {
         public DummyDeserializer() { super(Object.class); }
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
         {
             return AnnotatedTestEnum.OK;
         }
@@ -43,9 +43,9 @@ public class EnumDeserializationTest
     {
         public LcEnumDeserializer() { super(TestEnum.class); }
         @Override
-        public TestEnum deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public TestEnum deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            return TestEnum.valueOf(jp.getText().toUpperCase());
+            return TestEnum.valueOf(p.getText().toUpperCase());
         }
     }
 
@@ -196,18 +196,18 @@ public class EnumDeserializationTest
         // First "good" case with Strings
         String JSON = "\"OK\" \"RULES\"  null";
         // multiple main-level mappings, need explicit parser:
-        JsonParser jp = MAPPER.getFactory().createParser(JSON);
+        JsonParser p = MAPPER.createParser(JSON);
 
-        assertEquals(TestEnum.OK, MAPPER.readValue(jp, TestEnum.class));
-        assertEquals(TestEnum.RULES, MAPPER.readValue(jp, TestEnum.class));
+        assertEquals(TestEnum.OK, MAPPER.readValue(p, TestEnum.class));
+        assertEquals(TestEnum.RULES, MAPPER.readValue(p, TestEnum.class));
 
         /* should be ok; nulls are typeless; handled by mapper, not by
          * deserializer
          */
-        assertNull(MAPPER.readValue(jp, TestEnum.class));
+        assertNull(MAPPER.readValue(p, TestEnum.class));
 
         // and no more content beyond that...
-        assertFalse(jp.hasCurrentToken());
+        assertFalse(p.hasCurrentToken());
 
         // Then alternative with index (0 means first entry)
         assertEquals(TestEnum.JACKSON, MAPPER.readValue(" 0 ", TestEnum.class));
@@ -219,7 +219,7 @@ public class EnumDeserializationTest
         } catch (MismatchedInputException jex) {
             verifyException(jex, "value not one of declared");
         }
-        jp.close();
+        p.close();
     }
 
     /**

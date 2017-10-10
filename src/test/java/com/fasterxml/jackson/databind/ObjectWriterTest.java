@@ -148,7 +148,7 @@ public class ObjectWriterTest
         input.close();
 
         // and via explicitly passed generator
-        JsonGenerator g = MAPPER.getFactory().createGenerator(new StringWriter());
+        JsonGenerator g = MAPPER.createGenerator(new StringWriter());
         input = new CloseableValue();
         assertFalse(input.closed);
         w.writeValue(g, input);
@@ -172,7 +172,7 @@ public class ObjectWriterTest
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertSame(MAPPER.getFactory(), w.getFactory());
+        assertSame(MAPPER.getTokenStreamFactory(), w.getFactory());
         assertFalse(w.hasPrefetchedSerializer());
         assertNotNull(w.getTypeFactory());
 

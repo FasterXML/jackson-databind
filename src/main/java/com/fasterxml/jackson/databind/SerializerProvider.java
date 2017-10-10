@@ -244,6 +244,7 @@ public abstract class SerializerProvider
             SerializerFactory f)
     {
         _streamFactory = src._streamFactory;
+if (f == null) throw new Error();
         _serializerFactory = f;
         _config = config;
         _generatorConfig = generatorConfig;

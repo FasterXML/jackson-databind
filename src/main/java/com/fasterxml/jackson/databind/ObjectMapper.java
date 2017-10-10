@@ -964,7 +964,7 @@ public class ObjectMapper
      * @deprecated Since 3.0 use {@link #getTokenStreamFactory()} instead.
      */
     @Deprecated // since 3.0
-    public TokenStreamFactory getFactory() { return _jsonFactory; }
+    public TokenStreamFactory getFactory() { return getTokenStreamFactory(); }
     
     /*
     /**********************************************************
@@ -2026,46 +2026,118 @@ public class ObjectMapper
     /**********************************************************
      */
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,java.io.File)}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(File src) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, src));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,java.net.URL)}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(URL src) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, src));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,InputStream)}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(InputStream in) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, in));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,Reader)}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(Reader r) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, r));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,byte[])}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(byte[] data) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, data));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,byte[],int,int)}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, data, offset, len));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,String)}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(String content) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,char[])}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(char[] content) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
     }
 
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,char[],int,int)}.
+     *
+     * @since 3.0
+     */
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content, offset, len));
@@ -2079,9 +2151,10 @@ public class ObjectMapper
      */
 
     /**
-     * Factory method for constructing {@link JsonGenerator}: basically
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
      * constructs a {@link ObjectWriteContext} and then calls
-     * {@link TokenStreamFactory#createGenerator(OutputStream)}.
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,OutputStream)}.
      *
      * @since 3.0
      */
@@ -2090,48 +2163,51 @@ public class ObjectMapper
     }
 
     /**
-     * Factory method for constructing {@link JsonGenerator}: basically
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
      * constructs a {@link ObjectWriteContext} and then calls
-     * {@link TokenStreamFactory#createGenerator(OutputStream,JsonEncoding)}.
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,OutputStream,JsonEncoding)}.
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
-            OutputStream out, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
         return _jsonFactory.createGenerator(_serializerProvider(), out, enc);
     }
 
     /**
-     * Factory method for constructing {@link JsonGenerator}: basically
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
      * constructs a {@link ObjectWriteContext} and then calls
-     * {@link TokenStreamFactory#createGenerator(Writer)}.
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,Writer)}.
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w) throws IOException {
+    public JsonGenerator createGenerator(Writer w) throws IOException {
         return _jsonFactory.createGenerator(_serializerProvider(), w);
     }
 
     /**
-     * Factory method for constructing {@link JsonGenerator}: basically
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
      * constructs a {@link ObjectWriteContext} and then calls
-     * {@link TokenStreamFactory#createGenerator(File,JsonEncoding)}.
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,File,JsonEncoding)}.
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, File f, JsonEncoding enc)
+    public JsonGenerator createGenerator(File f, JsonEncoding enc)
         throws IOException {
         return _jsonFactory.createGenerator(_serializerProvider(), f, enc);
     }
 
     /**
-     * Factory method for constructing {@link JsonGenerator}: basically
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
      * constructs a {@link ObjectWriteContext} and then calls
-     * {@link TokenStreamFactory#createGenerator(DataOutput)}.
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,DataOutput)}.
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out) throws IOException {
+    public JsonGenerator createGenerator(DataOutput out) throws IOException {
         return _jsonFactory.createGenerator(_serializerProvider(), out);
     }
 

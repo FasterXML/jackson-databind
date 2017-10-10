@@ -73,27 +73,27 @@ public class MapperViaParserTest  extends BaseMapTest
     /********************************************************
      */
 
+    private final ObjectMapper MAPPER = newObjectMapper();
+
     @SuppressWarnings("resource")
     public void testPojoReadingFailing()
         throws IOException
     {
-        // regular factory can't do it, without a call to setCodec()
-        JsonFactory jf = new JsonFactory();
         try {
             final String JSON = "{ \"x\" : 9 }";
-            JsonParser jp = jf.createParser(new StringReader(JSON));
+            JsonParser jp = MAPPER.createParser(new StringReader(JSON));
             Pojo p = jp.readValueAs(Pojo.class);
             fail("Expected an exception: got "+p);
         } catch (IllegalStateException e) {
             verifyException(e, "No ObjectCodec defined");
         }
     }
-    
-    // for [JACKSON-672]
+
     public void testEscapingUsingMapper() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
-        mapper.writeValueAsString(String.valueOf((char) 257));
+        final String json = mapper.writeValueAsString(String.valueOf((char) 257));
+        assertEquals(quote("\\u0102"), json);
     }
 }

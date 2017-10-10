@@ -623,9 +623,9 @@ public class StdDateFormat
                 int len = end-start;
                 if (len > 1) { // 0 -> none, 1 -> 'Z'
                     // NOTE: first char is sign; then 2 digits, then optional colon, optional 2 digits
-                    int offsetSecs = _parse2D(dateStr, start+1) * 3600;
+                    int offsetSecs = _parse2D(dateStr, start+1) * 3600; // hours
                     if (len >= 5) {
-                        offsetSecs += _parse2D(dateStr, end-2);
+                        offsetSecs += _parse2D(dateStr, end-2) * 60; // minutes
                     }
                     if (dateStr.charAt(start) == '-') {
                         offsetSecs *= -1000;

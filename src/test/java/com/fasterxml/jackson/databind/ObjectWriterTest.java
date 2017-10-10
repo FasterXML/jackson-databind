@@ -174,7 +174,7 @@ public class ObjectWriterTest
         ObjectWriter w = MAPPER.writer();
         assertSame(MAPPER.tokenStreamFactory(), w.generatorFactory());
         assertFalse(w.hasPrefetchedSerializer());
-        assertNotNull(w.getTypeFactory());
+        assertNotNull(w.typeFactory());
 
         JsonFactory f = new JsonFactory();
         w = w.with(f);

@@ -716,6 +716,8 @@ public class ObjectReader
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
+        // !!! 09-Oct-2017, tatu: Actually for full answer we really should check
+        //   what actual combined settings are....
         return _parserFactory.isEnabled(f);
     }
 
@@ -731,14 +733,9 @@ public class ObjectReader
     }
 
     /**
-     * @deprecated Since 3.0 use {@link #parserFactory}
+     * @since 3.0
      */
-    @Deprecated
-    public TokenStreamFactory getFactory() {
-        return parserFactory();
-    }
-
-    public TypeFactory getTypeFactory() {
+    public TypeFactory typeFactory() {
         return _config.getTypeFactory();
     }
 
@@ -748,6 +745,22 @@ public class ObjectReader
 
     public InjectableValues getInjectableValues() {
         return _injectableValues;
+    }
+
+    /**
+     * @deprecated Since 3.0 use {@link #parserFactory}
+     */
+    @Deprecated
+    public TokenStreamFactory getFactory() {
+        return parserFactory();
+    }
+
+    /**
+     * @deprecated Since 3.0 use {@link #typeFactory}
+     */
+    @Deprecated
+    public TypeFactory getTypeFactory() {
+        return typeFactory();
     }
 
     /*

@@ -789,6 +789,8 @@ public class ObjectWriter
     }
 
     public boolean isEnabled(JsonGenerator.Feature f) {
+        // !!! 09-Oct-2017, tatu: Actually for full answer we really should check
+        //   what actual combined settings are....
         return _generatorFactory.isEnabled(f);
     }
 
@@ -803,15 +805,7 @@ public class ObjectWriter
         return _generatorFactory;
     }
 
-    /**
-     * @deprecated Since 3.0 use {@link #generatorFactory()}
-     */
-    @Deprecated
-    public TokenStreamFactory getFactory() {
-        return generatorFactory();
-    }
-
-    public TypeFactory getTypeFactory() {
+    public TypeFactory typeFactory() {
         return _config.getTypeFactory();
     }
 
@@ -828,7 +822,23 @@ public class ObjectWriter
     public ContextAttributes getAttributes() {
         return _config.getAttributes();
     }
-    
+
+    /**
+     * @deprecated Since 3.0 use {@link #generatorFactory()}
+     */
+    @Deprecated
+    public TokenStreamFactory getFactory() {
+        return generatorFactory();
+    }
+
+    /**
+     * @deprecated Since 3.0 use {@link #typeFactory}
+     */
+    @Deprecated
+    public TypeFactory getTypeFactory() {
+        return typeFactory();
+    }
+
     /*
     /**********************************************************
     /* Serialization methods; ones from ObjectCodec first

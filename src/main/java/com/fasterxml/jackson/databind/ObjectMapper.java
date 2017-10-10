@@ -549,6 +549,8 @@ public class ObjectMapper
         _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl(_jsonFactory) : sp;
         _deserializationContext = (dc == null) ?
                 new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory) : dc;
+        // Default serializer factory is stateless, can just assign
+        _serializerFactory = BeanSerializerFactory.instance;
     }
 
     /**

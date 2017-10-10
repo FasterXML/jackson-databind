@@ -93,7 +93,7 @@ public class MapperViaParserTest  extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
-        final String json = mapper.writeValueAsString(String.valueOf((char) 257));
+        final String json = mapper.writeValueAsString(String.valueOf((char) 258));
         assertEquals(quote("\\u0102"), json);
     }
 }

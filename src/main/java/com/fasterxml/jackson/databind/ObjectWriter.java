@@ -799,16 +799,16 @@ public class ObjectWriter
     /**
      * @since 3.0
      */
-    public TokenStreamFactory getGeneratorFactory() {
+    public TokenStreamFactory generatorFactory() {
         return _generatorFactory;
     }
 
     /**
-     * @deprecated Since 3.0 use {@link #getGeneratorFactory()}
+     * @deprecated Since 3.0 use {@link #generatorFactory()}
      */
     @Deprecated
     public TokenStreamFactory getFactory() {
-        return getGeneratorFactory();
+        return generatorFactory();
     }
 
     public TypeFactory getTypeFactory() {

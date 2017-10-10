@@ -960,14 +960,14 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public TokenStreamFactory getTokenStreamFactory() { return _jsonFactory; }
+    public TokenStreamFactory tokenStreamFactory() { return _jsonFactory; }
 
     /**
-     * @deprecated Since 3.0 use {@link #getTokenStreamFactory()} instead.
+     * @deprecated Since 3.0 use {@link #tokenStreamFactory()} instead.
      */
     @Deprecated // since 3.0
-    public TokenStreamFactory getFactory() { return getTokenStreamFactory(); }
-    
+    public TokenStreamFactory getFactory() { return tokenStreamFactory(); }
+
     /*
     /**********************************************************
     /* Configuration: ser/deser factory, provider access

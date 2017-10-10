@@ -172,13 +172,13 @@ public class ObjectWriterTest
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertSame(MAPPER.getTokenStreamFactory(), w.getGeneratorFactory());
+        assertSame(MAPPER.tokenStreamFactory(), w.generatorFactory());
         assertFalse(w.hasPrefetchedSerializer());
         assertNotNull(w.getTypeFactory());
 
         JsonFactory f = new JsonFactory();
         w = w.with(f);
-        assertSame(f, w.getGeneratorFactory());
+        assertSame(f, w.generatorFactory());
         ObjectWriter newW = w.with(Base64Variants.MODIFIED_FOR_URL);
         assertNotSame(w, newW);
         assertSame(newW, newW.with(Base64Variants.MODIFIED_FOR_URL));

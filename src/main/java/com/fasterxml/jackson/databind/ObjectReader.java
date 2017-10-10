@@ -726,16 +726,16 @@ public class ObjectReader
     /**
      * @since 3.0
      */
-    public TokenStreamFactory getParserFactory() {
+    public TokenStreamFactory parserFactory() {
         return _parserFactory;
     }
 
     /**
-     * @deprecated Since 3.0 use {@link #getParserFactory}
+     * @deprecated Since 3.0 use {@link #parserFactory}
      */
     @Deprecated
     public TokenStreamFactory getFactory() {
-        return getParserFactory();
+        return parserFactory();
     }
 
     public TypeFactory getTypeFactory() {

@@ -2158,6 +2158,19 @@ public class ObjectMapper
         return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
     }
 
+    /**
+     * Factory method for constructing non-blocking {@link JsonParser} that is properly
+     * wired to allow configuration access (and, if relevant for parser, callbacks):
+     * essentially constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,DataInput)}.
+     *
+     * @since 3.0
+     */
+    public JsonParser createNonBlockingByteArrayParser() throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createNonBlockingByteArrayParser(ctxt));
+    }
+
     /*
     /**********************************************************
     /* Public API: constructing Generator that are properly linked

@@ -33,7 +33,7 @@ public class TestTreeSerialization
         ObjectNode n2 = n.putObject("ob");
         n2.putArray("arr");
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = mapper.getFactory().createGenerator(sw);
+        JsonGenerator jg = mapper.createGenerator(sw);
         mapper.writeTree(jg, n);
 
         Map<String,Object> result = (Map<String,Object>) mapper.readValue(sw.toString(), Map.class);

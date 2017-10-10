@@ -226,7 +226,6 @@ public abstract class BaseMapTest
         return objectMapper().readerFor(cls);
     }
 
-    // @since 2.9
     protected static ObjectMapper newObjectMapper() {
         return new ObjectMapper();
     }

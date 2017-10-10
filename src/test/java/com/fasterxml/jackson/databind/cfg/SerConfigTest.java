@@ -52,7 +52,7 @@ public class SerConfigTest extends BaseMapTest
     public void testGeneratorFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
-        TokenStreamFactory f = MAPPER.getFactory();
+        TokenStreamFactory f = MAPPER.getTokenStreamFactory();
         assertFalse(config.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII, f));
         assertNotSame(config, config.with(JsonGenerator.Feature.ESCAPE_NON_ASCII));
         SerializationConfig newConfig = config.withFeatures(JsonGenerator.Feature.ESCAPE_NON_ASCII,

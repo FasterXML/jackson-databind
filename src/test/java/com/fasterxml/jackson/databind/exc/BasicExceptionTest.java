@@ -13,12 +13,11 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class BasicExceptionTest extends BaseMapTest
 {
     final ObjectMapper MAPPER = new ObjectMapper();
-    final TokenStreamFactory JSON_F = MAPPER.getFactory();
 
     public void testBadDefinition() throws Exception
     {
         JavaType t = TypeFactory.defaultInstance().constructType(String.class);
-        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "[]");
+        JsonParser p = MAPPER.createParser("[]");
         InvalidDefinitionException e = new InvalidDefinitionException(p,
                "Testing", t);
         assertEquals("Testing", e.getOriginalMessage());
@@ -42,7 +41,7 @@ public class BasicExceptionTest extends BaseMapTest
         assertEquals(String.class, e.getType().getRawClass());
 
         // and factory
-        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), new StringWriter());
+        JsonGenerator g = MAPPER.createGenerator(new StringWriter());
         e = InvalidDefinitionException.from(g, "Testing",
                 beanDef, (BeanPropertyDefinition) null);
         assertEquals(beanDef.getType(), e.getType());
@@ -54,7 +53,7 @@ public class BasicExceptionTest extends BaseMapTest
     public void testIgnoredProperty() throws Exception
     {
         // first just construct valid instance with some variations
-        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "{ }");
+        JsonParser p = MAPPER.createParser("{ }");
         IgnoredPropertyException e = IgnoredPropertyException.from(p,
                 this, // to get class from
                 "testProp", Collections.<Object>singletonList("x"));
@@ -78,7 +77,7 @@ public class BasicExceptionTest extends BaseMapTest
 
     public void testUnrecognizedProperty() throws Exception
     {
-        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "{ }");
+        JsonParser p = MAPPER.createParser("{ }");
         UnrecognizedPropertyException e = UnrecognizedPropertyException.from(p, this,
                 "testProp", Collections.<Object>singletonList("y"));
         assertNotNull(e);

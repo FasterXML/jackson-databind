@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
@@ -22,7 +23,8 @@ public class TestSerializerProvider
         SerializationConfig config = mapper.getSerializationConfig();
         SerializerFactory f = new BeanSerializerFactory(null);
         GeneratorSettings genSettings =  GeneratorSettings.empty();
-        DefaultSerializerProvider prov = new DefaultSerializerProvider.Impl().createInstance(config, genSettings, f);
+        DefaultSerializerProvider prov = new DefaultSerializerProvider.Impl(new JsonFactory())
+                .createInstance(config, genSettings, f);
 
         // Should have working default key and null key serializers
         assertNotNull(prov.findKeySerializer(mapper.constructType(String.class), null));

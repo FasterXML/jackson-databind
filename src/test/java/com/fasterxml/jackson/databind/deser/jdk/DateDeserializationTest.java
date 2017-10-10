@@ -256,7 +256,23 @@ public class DateDeserializationTest
         assertEquals(450, c.get(Calendar.MILLISECOND));
     }
 
-    // [Databind#1745]
+    // Also: minutes-part of offset need not be all zeroes: [databind#1788]
+    public void testISO8601FractionalTimezoneOffset() throws Exception
+    {
+        String inputStr = "1997-07-16T19:20:30.45+01:30";
+        java.util.Date inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.setTime(inputDate);
+        assertEquals(1997, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(16, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(19 - 2, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(50, c.get(Calendar.MINUTE));
+        assertEquals(30, c.get(Calendar.SECOND));
+        assertEquals(450, c.get(Calendar.MILLISECOND));
+    }
+
+    // [databind#1745]
     public void testISO8601FractSecondsLong() throws Exception
     {
         String inputStr;

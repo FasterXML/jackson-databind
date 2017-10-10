@@ -152,8 +152,7 @@ public class ObjectMapper
          * properties with declared type of {@link java.lang.Object}
          * or an abstract type (abstract class or interface).
          * Note that this does <b>not</b> include array types.
-         *<p>
-         * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
+         * This does NOT apply to {@link TreeNode} and its subtypes.
          */
         OBJECT_AND_NON_CONCRETE,
 
@@ -161,8 +160,7 @@ public class ObjectMapper
          * Value that means that default typing will be used for
          * all types covered by {@link #OBJECT_AND_NON_CONCRETE}
          * plus all array types for them.
-         *<p>
-         * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
+         * This does NOT apply to {@link TreeNode} and its subtypes.
          */
         NON_CONCRETE_AND_ARRAYS,
         
@@ -172,8 +170,7 @@ public class ObjectMapper
          * "natural" types (String, Boolean, Integer, Double), which
          * can be correctly inferred from JSON; as well as for
          * all arrays of non-final types.
-         *<p>
-         * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
+         * This does NOT apply to {@link TreeNode} and its subtypes.
          */
         NON_FINAL
     }
@@ -549,12 +546,9 @@ public class ObjectMapper
             configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, needOrder);
         }
         
-        _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl() : sp;
+        _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl(_jsonFactory) : sp;
         _deserializationContext = (dc == null) ?
-                new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance) : dc;
-
-        // Default serializer factory is stateless, can just assign
-        _serializerFactory = BeanSerializerFactory.instance;
+                new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance, _jsonFactory) : dc;
     }
 
     /**
@@ -596,56 +590,6 @@ public class ObjectMapper
             throw new IllegalStateException("Failed copy(): "+getClass().getName()
                     +" (version: "+version()+") does not override copy(); it has to");
         }
-    }
-
-    /*
-    /**********************************************************
-    /* Methods sub-classes MUST override if providing custom
-    /* ObjectReader/ObjectWriter implementations
-    /**********************************************************
-     */
-    
-    /**
-     * Factory method sub-classes must override, to produce {@link ObjectReader}
-     * instances of proper sub-type
-     */
-    protected ObjectReader _newReader(DeserializationConfig config) {
-        return new ObjectReader(this, config);
-    }
-
-    /**
-     * Factory method sub-classes must override, to produce {@link ObjectReader}
-     * instances of proper sub-type
-     */
-    protected ObjectReader _newReader(DeserializationConfig config,
-            JavaType valueType, Object valueToUpdate,
-            FormatSchema schema, InjectableValues injectableValues) {
-        return new ObjectReader(this, config, valueType, valueToUpdate, schema, injectableValues);
-    }
-
-    /**
-     * Factory method sub-classes must override, to produce {@link ObjectWriter}
-     * instances of proper sub-type
-     */
-    protected ObjectWriter _newWriter(SerializationConfig config) {
-        return new ObjectWriter(this, config);
-    }
-
-    /**
-     * Factory method sub-classes must override, to produce {@link ObjectWriter}
-     * instances of proper sub-type
-     */
-    protected ObjectWriter _newWriter(SerializationConfig config, FormatSchema schema) {
-        return new ObjectWriter(this, config, schema);
-    }
-    
-    /**
-     * Factory method sub-classes must override, to produce {@link ObjectWriter}
-     * instances of proper sub-type
-     */
-    protected ObjectWriter _newWriter(SerializationConfig config,
-            JavaType rootType, PrettyPrinter pp) {
-        return new ObjectWriter(this, config, rootType, pp);
     }
 
     /*
@@ -994,18 +938,34 @@ public class ObjectMapper
     public DeserializationConfig getDeserializationConfig() {
         return _deserializationConfig;
     }
-    
-    /**
-     * Method for getting current {@link DeserializationContext}.
-      *<p>
-     * Note that since instances are immutable, you can NOT change settings
-     * by accessing an instance and calling methods: this will simply create
-     * new instance of context object.
-    */
-    public DeserializationContext getDeserializationContext() {
-        return _deserializationContext;
-    }
 
+    /**
+     * Method that can be used to get hold of {@link TokenStreamFactory} that this
+     * mapper uses if it needs to construct {@link JsonParser}s
+     * and/or {@link JsonGenerator}s.
+     *<p>
+     * WARNING: note that all {@link ObjectReader} and {@link ObjectWriter}
+     * instances created by this mapper usually share the same configured
+     * {@link TokenStreamFactory}, so changes to its configuration will "leak".
+     * To avoid such observed changes you should always use "with()" and
+     * "without()" method of {@link ObjectReader} and {@link ObjectWriter}
+     * for changing {@link com.fasterxml.jackson.core.JsonParser.Feature}
+     * and {@link com.fasterxml.jackson.core.JsonGenerator.Feature}
+     * settings to use on per-call basis.
+     *
+     * @return {@link TokenStreamFactory} that this mapper uses when it needs to
+     *   construct Json parser and generators
+     *
+     * @since 3.0
+     */
+    public TokenStreamFactory getTokenStreamFactory() { return _jsonFactory; }
+
+    /**
+     * @deprecated Since 3.0 use {@link #getTokenStreamFactory()} instead.
+     */
+    @Deprecated // since 3.0
+    public TokenStreamFactory getFactory() { return _jsonFactory; }
+    
     /*
     /**********************************************************
     /* Configuration: ser/deser factory, provider access
@@ -1082,8 +1042,6 @@ public class ObjectMapper
      *<p>
      * Note that this method will CLEAR any previously defined mix-ins
      * for this mapper.
-     *
-     * @since 2.5
      */
     public ObjectMapper setMixIns(Map<Class<?>, Class<?>> sourceMixins)
     {
@@ -1101,8 +1059,6 @@ public class ObjectMapper
      * @param target Class (or interface) whose annotations to effectively override
      * @param mixinSource Class (or interface) whose annotations are to
      *   be "added" to target's annotations, overriding as necessary
-     *
-     * @since 2.5
      */
     public ObjectMapper addMixIn(Class<?> target, Class<?> mixinSource)
     {
@@ -1115,8 +1071,6 @@ public class ObjectMapper
      * mix-in classes to use, overriding directly added mappings.
      * Note that direct mappings are not cleared, but they are only applied
      * if resolver does not provide mix-in matches.
-     *
-     * @since 2.6
      */
     public ObjectMapper setMixInResolver(ClassIntrospector.MixInResolver resolver)
     {
@@ -1237,8 +1191,6 @@ public class ObjectMapper
      * specifying them separately so that different introspection can be
      * used for different aspects
      * 
-     * @since 2.1
-     * 
      * @param serializerAI {@link AnnotationIntrospector} to use for configuring
      *    serialization
      * @param deserializerAI {@link AnnotationIntrospector} to use for configuring
@@ -1262,9 +1214,6 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * @since 2.5
-     */
     public PropertyNamingStrategy getPropertyNamingStrategy() {
         // arbitrary choice but let's do:
         return _serializationConfig.getPropertyNamingStrategy();
@@ -1277,8 +1226,6 @@ public class ObjectMapper
      * @param pp Pretty printer to use by default.
      * 
      * @return This mapper, useful for call-chaining
-     * 
-     * @since 2.6
      */
     public ObjectMapper setDefaultPrettyPrinter(PrettyPrinter pp) {
         _serializationConfig = _serializationConfig.withDefaultPrettyPrinter(pp);
@@ -1337,8 +1284,6 @@ public class ObjectMapper
      * defaults, which are in effect unless overridden by
      * annotations (like <code>JsonAutoDetect</code>) or per-type
      * visibility overrides.
-     *
-     * @since 2.9
      */
     public ObjectMapper setDefaultVisibility(JsonAutoDetect.Value vis) {
         _configOverrides.setDefaultVisibility(VisibilityChecker.Std.construct(vis));
@@ -1349,8 +1294,6 @@ public class ObjectMapper
      * Method for setting default Setter configuration, regarding things like
      * merging, null-handling; used for properties for which there are
      * no per-type or per-property overrides (via annotations or config overrides).
-     *
-     * @since 2.9
      */
     public ObjectMapper setDefaultMergeable(Boolean b) {
         _configOverrides.setDefaultMergeable(b);
@@ -1504,9 +1447,6 @@ public class ObjectMapper
         getSubtypeResolver().registerSubtypes(types);
     }
 
-    /**
-     * @since 2.9
-     */
     public void registerSubtypes(Collection<Class<?>> subtypes) {
         getSubtypeResolver().registerSubtypes(subtypes);
     }
@@ -1531,8 +1471,6 @@ public class ObjectMapper
      * to change the default format to use for properties of type
      * {@link java.util.Date} (possibly further overridden by per-property
      * annotations)
-     *
-     * @since 2.8
      */
     public MutableConfigOverride configOverride(Class<?> type) {
         return _configOverrides.findOrCreateOverride(type);
@@ -1634,8 +1572,6 @@ public class ObjectMapper
      * by-passing some of checks applied to other configuration methods.
      * Also keep in mind that as with all configuration of {@link ObjectMapper},
      * this is only thread-safe if done before calling any deserialization methods.
-     * 
-     * @since 2.4
      */
     public ObjectMapper setConfig(DeserializationConfig config) {
         _deserializationConfig = config;
@@ -1687,8 +1623,6 @@ public class ObjectMapper
      * by-passing some of checks applied to other configuration methods.
      * Also keep in mind that as with all configuration of {@link ObjectMapper},
      * this is only thread-safe if done before calling any serialization methods.
-     * 
-     * @since 2.4
      */
     public ObjectMapper setConfig(SerializationConfig config) {
         _serializationConfig = config;
@@ -1700,25 +1634,6 @@ public class ObjectMapper
     /* Configuration, other
     /**********************************************************
      */
-
-    /**
-     * Method that can be used to get hold of {@link TokenStreamFactory} that this
-     * mapper uses if it needs to construct {@link JsonParser}s
-     * and/or {@link JsonGenerator}s.
-     *<p>
-     * WARNING: note that all {@link ObjectReader} and {@link ObjectWriter}
-     * instances created by this mapper usually share the same configured
-     * {@link TokenStreamFactory}, so changes to its configuration will "leak".
-     * To avoid such observed changes you should always use "with()" and
-     * "without()" method of {@link ObjectReader} and {@link ObjectWriter}
-     * for changing {@link com.fasterxml.jackson.core.JsonParser.Feature}
-     * and {@link com.fasterxml.jackson.core.JsonGenerator.Feature}
-     * settings to use on per-call basis.
-     *
-     * @return {@link TokenStreamFactory} that this mapper uses when it needs to
-     *   construct Json parser and generators
-     */
-    public TokenStreamFactory getFactory() { return _jsonFactory; }
 
     /**
      * Method for configuring the default {@link DateFormat} to use when serializing time
@@ -2080,8 +1995,6 @@ public class ObjectMapper
      * WARNING: since this method directly modifies state of underlying {@link TokenStreamFactory},
      * it will change observed configuration by {@link ObjectWriter}s as well -- to avoid
      * this, use {@link ObjectWriter#without(JsonGenerator.Feature)} instead.
-     *
-     * @since 2.5
      */
     public ObjectMapper disable(JsonGenerator.Feature... features) {
         for (JsonGenerator.Feature f : features) {
@@ -2108,9 +2021,123 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Public API (from ObjectCodec): deserialization
-    /* (mapping from JSON to Java types);
-    /* main methods
+    /* Public API: constructing Parsers that are properly linked
+    /* to `ObjectReadContext`
+    /**********************************************************
+     */
+
+    public JsonParser createParser(File src) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, src));
+    }
+
+    public JsonParser createParser(URL src) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, src));
+    }
+
+    public JsonParser createParser(InputStream in) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, in));
+    }
+
+    public JsonParser createParser(Reader r) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, r));
+    }
+
+    public JsonParser createParser(byte[] data) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, data));
+    }
+
+    public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, data, offset, len));
+    }
+
+    public JsonParser createParser(String content) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
+    }
+
+    public JsonParser createParser(char[] content) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content));
+    }
+
+    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+        DefaultDeserializationContext ctxt = createDeserializationContext();
+        return ctxt.assignAndReturnParser(_jsonFactory.createParser(ctxt, content, offset, len));
+    }
+
+    /*
+    /**********************************************************
+    /* Public API: constructing Generator that are properly linked
+    /* to `ObjectWriteContext`
+    /**********************************************************
+     */
+
+    /**
+     * Factory method for constructing {@link JsonGenerator}: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(OutputStream)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return _jsonFactory.createGenerator(_serializerProvider(), out);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator}: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(OutputStream,JsonEncoding)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
+            OutputStream out, JsonEncoding enc) throws IOException {
+        return _jsonFactory.createGenerator(_serializerProvider(), out, enc);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator}: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(Writer)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w) throws IOException {
+        return _jsonFactory.createGenerator(_serializerProvider(), w);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator}: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(File,JsonEncoding)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, File f, JsonEncoding enc)
+        throws IOException {
+        return _jsonFactory.createGenerator(_serializerProvider(), f, enc);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator}: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(DataOutput)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out) throws IOException {
+        return _jsonFactory.createGenerator(_serializerProvider(), out);
+    }
+
+    /*
+    /**********************************************************
+    /* Public API deserialization, main methods
     /**********************************************************
      */
 
@@ -2299,8 +2326,8 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Public API not included in ObjectCodec: deserialization
-    /* (mapping from JSON to Java types)
+    /* Public API: deserialization
+    /* (mapping from token stream to Java types)
     /**********************************************************
      */
 
@@ -2467,8 +2494,8 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Public API (from ObjectCodec): serialization
-    /* (mapping from Java types to Json)
+    /* Public API serialization
+    /* (mapping from Java types to token streams)
     /**********************************************************
      */
 
@@ -2651,7 +2678,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Extended Public API, accessors
+    /* Public API, accessors
     /**********************************************************
      */
 
@@ -2717,8 +2744,7 @@ public class ObjectMapper
     
     /*
     /**********************************************************
-    /* Extended Public API, deserialization,
-    /* convenience methods
+    /* Public API, deserialization,
     /**********************************************************
      */
 
@@ -3027,7 +3053,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Extended Public API: serialization
+    /* Public API: serialization
     /* (mapping from Java types to JSON)
     /**********************************************************
      */
@@ -3201,7 +3227,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Extended Public API: constructing ObjectWriters
+    /* Public API: constructing ObjectWriters
     /* for more advanced configuration
     /**********************************************************
      */
@@ -3954,6 +3980,55 @@ public class ObjectMapper
         }
     }
 
+    /*
+    /**********************************************************
+    /* Internal factory methods for ObjectReaders/-Writers
+    /**********************************************************
+     */
+    
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectReader}
+     * instances of proper sub-type
+     */
+    protected ObjectReader _newReader(DeserializationConfig config) {
+        return new ObjectReader(this, config);
+    }
+
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectReader}
+     * instances of proper sub-type
+     */
+    protected ObjectReader _newReader(DeserializationConfig config,
+            JavaType valueType, Object valueToUpdate,
+            FormatSchema schema, InjectableValues injectableValues) {
+        return new ObjectReader(this, config, valueType, valueToUpdate, schema, injectableValues);
+    }
+
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectWriter}
+     * instances of proper sub-type
+     */
+    protected ObjectWriter _newWriter(SerializationConfig config) {
+        return new ObjectWriter(this, config);
+    }
+
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectWriter}
+     * instances of proper sub-type
+     */
+    protected ObjectWriter _newWriter(SerializationConfig config, FormatSchema schema) {
+        return new ObjectWriter(this, config, schema);
+    }
+    
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectWriter}
+     * instances of proper sub-type
+     */
+    protected ObjectWriter _newWriter(SerializationConfig config,
+            JavaType rootType, PrettyPrinter pp) {
+        return new ObjectWriter(this, config, rootType, pp);
+    }
+    
     /*
     /**********************************************************
     /* Internal methods, other

@@ -66,7 +66,13 @@ public abstract class DeserializationContext
     /**
      * Object that handle details of {@link JsonDeserializer} caching.
      */
-    protected final DeserializerCache _cache;
+    final protected DeserializerCache _cache;
+
+    /**
+     * Low-level {@link TokenStreamFactory} that may be used for constructing
+     * embedded parsers.
+     */
+    final protected TokenStreamFactory _streamFactory;
 
     /*
     /**********************************************************
@@ -79,7 +85,7 @@ public abstract class DeserializationContext
      * owners (<code>ObjectMapper</code>, <code>ObjectReader</code>)
      * access it.
      */
-    protected final DeserializerFactory _factory;
+    final protected DeserializerFactory _factory;
 
     /*
     /**********************************************************
@@ -91,28 +97,28 @@ public abstract class DeserializationContext
     /**
      * Generic deserialization processing configuration
      */
-    protected final DeserializationConfig _config;
+    final protected DeserializationConfig _config;
 
     /**
      * Bitmap of {@link DeserializationFeature}s that are enabled
      */
-    protected final int _featureFlags;
+    final protected int _featureFlags;
 
     /**
      * Currently active view, if any.
      */
-    protected final Class<?> _view;
+    final protected Class<?> _view;
 
     /**
      * Schema for underlying parser to use, if any.
      */
-    protected final FormatSchema _schema;
+    final protected FormatSchema _schema;
 
     /**
      * Object used for resolving references to injectable
      * values.
      */
-    protected final InjectableValues _injectableValues;
+    final protected InjectableValues _injectableValues;
 
     /*
     /**********************************************************
@@ -157,17 +163,17 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    protected DeserializationContext(DeserializerFactory df) {
-        this(df, null);
-    }
-    
     protected DeserializationContext(DeserializerFactory df,
-            DeserializerCache cache)
+            TokenStreamFactory streamFactory, DeserializerCache cache)
     {
         if (df == null) {
             throw new IllegalArgumentException("Cannot pass null DeserializerFactory");
         }
         _factory = df;
+        if (streamFactory == null) {
+            throw new IllegalArgumentException("Cannot pass null TokenStreamFactory");
+        }
+        _streamFactory = streamFactory;
         if (cache == null) {
             cache = new DeserializerCache();
         }
@@ -185,7 +191,8 @@ public abstract class DeserializationContext
     {
         _cache = src._cache;
         _factory = factory;
-        
+        _streamFactory = src._streamFactory;
+
         _config = src._config;
         _featureFlags = src._featureFlags;
         _view = src._view;
@@ -203,7 +210,8 @@ public abstract class DeserializationContext
     {
         _cache = src._cache;
         _factory = src._factory;
-        
+        _streamFactory = src._streamFactory;
+
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
         _view = config.getActiveView();
@@ -219,6 +227,7 @@ public abstract class DeserializationContext
     protected DeserializationContext(DeserializationContext src) {
         _cache = new DeserializerCache();
         _factory = src._factory;
+        _streamFactory = src._streamFactory;
 
         _config = src._config;
         _featureFlags = src._featureFlags;
@@ -227,7 +236,7 @@ public abstract class DeserializationContext
 
         _injectableValues = null;
     }
-    
+
     /*
     /**********************************************************
     /* DatabindContext implementation
@@ -325,7 +334,12 @@ public abstract class DeserializationContext
     /* ObjectReadContext impl, config access
     /**********************************************************
      */
-    
+
+    @Override
+    public TokenStreamFactory getParserFactory() {
+        return _streamFactory;
+    }
+
     @Override
     public FormatSchema getSchema() {
         return _schema;

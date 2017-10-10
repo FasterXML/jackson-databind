@@ -34,7 +34,7 @@ public class NullSerializationTest
     @SuppressWarnings("serial")
     static class MyNullProvider extends DefaultSerializerProvider
     {
-        public MyNullProvider() { super(); }
+        public MyNullProvider() { super(new JsonFactory()); }
         public MyNullProvider(MyNullProvider base, SerializationConfig config, 
                 GeneratorSettings genSettings,
                 SerializerFactory jsf) {
@@ -90,7 +90,7 @@ public class NullSerializationTest
 
     public void testOverriddenDefaultNulls() throws Exception
     {
-        DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
+        DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl(new JsonFactory());
         sp.setNullValueSerializer(new NullSerializer());
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(sp);

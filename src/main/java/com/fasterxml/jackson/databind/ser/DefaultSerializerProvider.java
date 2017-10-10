@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -54,7 +55,9 @@ public abstract class DefaultSerializerProvider
     /**********************************************************
      */
 
-    protected DefaultSerializerProvider() { super(); }
+    protected DefaultSerializerProvider(TokenStreamFactory streamFactory) {
+        super(streamFactory);
+    }
 
     protected DefaultSerializerProvider(SerializerProvider src,
             SerializationConfig config, GeneratorSettings genSettings,
@@ -563,7 +566,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
     public final static class Impl extends DefaultSerializerProvider {
         private static final long serialVersionUID = 1L;
 
-        public Impl() { super(); }
+        public Impl(TokenStreamFactory streamFactory) { super(streamFactory); }
         public Impl(Impl src) { super(src); }
 
         protected Impl(SerializerProvider src, SerializationConfig config,
@@ -579,7 +582,7 @@ filter.getClass().getName(), t.getClass().getName(), t.getMessage());
             }
             return new Impl(this);
         }
-        
+
         @Override
         public Impl createInstance(SerializationConfig config,
                 GeneratorSettings genSettings, SerializerFactory jsf) {

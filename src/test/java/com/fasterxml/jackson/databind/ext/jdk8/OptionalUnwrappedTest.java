@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -65,7 +66,8 @@ public class OptionalUnwrappedTest extends BaseMapTest
         final ObjectMapper mapper = newObjectMapper();
 
         final AtomicReference<String> propertyName = new AtomicReference<>();
-        mapper.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(new DefaultSerializerProvider.Impl()) {
+        mapper.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(
+                new DefaultSerializerProvider.Impl(new JsonFactory())) {
             @Override
             public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
                 return new JsonObjectFormatVisitor.Base(getProvider()) {

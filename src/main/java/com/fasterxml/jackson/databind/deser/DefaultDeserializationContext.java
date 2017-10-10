@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 
 import com.fasterxml.jackson.core.FormatSchema;
 import com.fasterxml.jackson.core.JsonParser;
-
+import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
@@ -41,8 +41,9 @@ public abstract class DefaultDeserializationContext
      * cache: cache may be null (in which case default implementation
      * will be used), factory cannot be null
      */
-    protected DefaultDeserializationContext(DeserializerFactory df, DeserializerCache cache) {
-        super(df, cache);
+    protected DefaultDeserializationContext(DeserializerFactory df,
+            TokenStreamFactory streamFactory, DeserializerCache cache) {
+        super(df, streamFactory, cache);
     }
     
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
@@ -73,6 +74,11 @@ public abstract class DefaultDeserializationContext
     public DefaultDeserializationContext assignParser(JsonParser p) {
         _parser = p;
         return this;
+    }
+
+    public JsonParser assignAndReturnParser(JsonParser p) {
+        _parser = p;
+        return p;
     }
 
     /*
@@ -311,8 +317,8 @@ public abstract class DefaultDeserializationContext
          * Default constructor for a blueprint object, which will use the standard
          * {@link DeserializerCache}, given factory.
          */
-        public Impl(DeserializerFactory df) {
-            super(df, null);
+        public Impl(DeserializerFactory df, TokenStreamFactory streamFactory) {
+            super(df, streamFactory, null);
         }
 
         protected Impl(Impl src,

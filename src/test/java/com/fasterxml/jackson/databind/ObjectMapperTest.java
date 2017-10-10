@@ -123,7 +123,7 @@ public class ObjectMapperTest extends BaseMapTest
 
         // // Also, underlying JsonFactory instances should be distinct
         
-        assertNotSame(m.getFactory(), m2.getFactory());
+        assertNotSame(m.getTokenStreamFactory(), m2.getTokenStreamFactory());
 
         // [databind#122]: Need to ensure mix-ins are not shared
         assertEquals(0, m.getSerializationConfig().mixInCount());

@@ -58,8 +58,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class SerializerProvider
     extends DatabindContext
-    implements ObjectWriteContext // 3.0, for use by jackson-core
+    implements java.io.Serializable,
+        ObjectWriteContext // 3.0, for use by jackson-core
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Setting for determining whether mappings for "unknown classes" should be
      * cached for faster resolution. Usually this isn't needed, but maybe it
@@ -244,7 +247,6 @@ public abstract class SerializerProvider
             SerializerFactory f)
     {
         _streamFactory = src._streamFactory;
-if (f == null) throw new Error();
         _serializerFactory = f;
         _config = config;
         _generatorConfig = generatorConfig;

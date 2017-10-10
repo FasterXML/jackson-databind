@@ -26,14 +26,13 @@ public class UntypedSerializationTest
         doc.add(struct);
         doc.add(Boolean.FALSE);
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonFactory f =  new JsonFactory();
+        ObjectMapper mapper = objectMapper();
 
         // loop more than once, just to ensure caching works ok (during second round)
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
             
-            JsonParser p = f.createParser(str);
+            JsonParser p = mapper.createParser(str);
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
             
             assertEquals(JsonToken.VALUE_STRING, p.nextToken());
@@ -67,16 +66,15 @@ public class UntypedSerializationTest
     public void testFromMap() throws Exception
     {
         LinkedHashMap<String,Object> doc = new LinkedHashMap<String,Object>();
-        JsonFactory f =  new JsonFactory();
 
         doc.put("a1", "\"text\"");
         doc.put("int", Integer.valueOf(137));
         doc.put("foo bar", Long.valueOf(1234567890L));
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapper();
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
-            JsonParser p = f.createParser(str);
+            JsonParser p = mapper.createParser(str);
             
             assertEquals(JsonToken.START_OBJECT, p.nextToken());
             

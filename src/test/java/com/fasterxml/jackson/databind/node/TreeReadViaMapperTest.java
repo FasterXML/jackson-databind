@@ -113,23 +113,22 @@ public class TreeReadViaMapperTest extends BaseMapTest
             +"},  \"type\": 3, \"url\": \"http://www.google.com\" } ],\n"
             +"\"name\": \"xyz\", \"type\": 1, \"url\" : null }\n  "
             ;
-        JsonFactory jf = new JsonFactory();
-        JsonParser p = jf.createParser(new StringReader(JSON));
-        JsonNode result = objectMapper().readTree(p);
+        final ObjectMapper mapper = objectMapper();
+        JsonParser p = mapper.createParser(new StringReader(JSON));
+        JsonNode result = mapper.readTree(p);
 
         assertTrue(result.isObject());
         assertEquals(4, result.size());
 
-        assertNull(objectMapper().readTree(p));
+        assertNull(mapper.readTree(p));
         p.close();
     }
 
     public void testMultiple() throws Exception
     {
-        String JSON = "12  \"string\" [ 1, 2, 3 ]";
-        JsonFactory jf = new JsonFactory();
-        JsonParser p = jf.createParser(new StringReader(JSON));
         final ObjectMapper mapper = objectMapper();
+        String JSON = "12  \"string\" [ 1, 2, 3 ]";
+        JsonParser p = mapper.createParser(new StringReader(JSON));
         JsonNode result = mapper.readTree(p);
 
         assertTrue(result.isIntegralNumber());

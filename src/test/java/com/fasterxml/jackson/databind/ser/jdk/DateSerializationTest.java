@@ -131,7 +131,7 @@ public class DateSerializationTest
         mapper.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 
         serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+0200");
-		serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T02:00:00.000+0200");
+        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T02:00:00.000+0200");
     }
 
     /**
@@ -318,20 +318,18 @@ public class DateSerializationTest
         String json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));
         assertEquals(aposToQuotes("{'date':'1970-01-01X01:00:00'}"), json);
     }
-    
-    
-    
-	private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) {
-		Calendar cal = Calendar.getInstance();
-		cal.set(year, month-1, day, hour, minutes, seconds);
-		cal.set(Calendar.MILLISECOND, millis);
-		cal.setTimeZone(TimeZone.getTimeZone(tz));
-		
-		return cal.getTime();
-	}
-	
-	private void serialize(ObjectMapper mapper, Object date, String expected) throws IOException {
-		String actual = mapper.writeValueAsString(date);
-		Assert.assertEquals(quote(expected), actual);
-	}
+
+    private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month-1, day, hour, minutes, seconds);
+        cal.set(Calendar.MILLISECOND, millis);
+        cal.setTimeZone(TimeZone.getTimeZone(tz));
+
+        return cal.getTime();
+    }
+
+    private void serialize(ObjectMapper mapper, Object date, String expected) throws IOException {
+        String actual = mapper.writeValueAsString(date);
+        Assert.assertEquals(quote(expected), actual);
+    }
 }

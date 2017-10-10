@@ -58,7 +58,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class SerializerProvider
     extends DatabindContext
-    implements java.io.Serializable,
+    implements java.io.Serializable, // because we don't have no-args constructor
         ObjectWriteContext // 3.0, for use by jackson-core
 {
     private static final long serialVersionUID = 1L;

@@ -98,7 +98,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void testMiscSettings() throws Exception
     {
         ObjectReader r = MAPPER.reader();
-        assertSame(MAPPER.getTokenStreamFactory(), r.getFactory());
+        assertSame(MAPPER.getTokenStreamFactory(), r.getParserFactory());
 
         assertNotNull(r.getTypeFactory());
         assertNull(r.getInjectableValues());

@@ -796,10 +796,21 @@ public class ObjectWriter
         return _config;
     }
 
-    public TokenStreamFactory getFactory() {
+    /**
+     * @since 3.0
+     */
+    public TokenStreamFactory getGeneratorFactory() {
         return _generatorFactory;
     }
-    
+
+    /**
+     * @deprecated Since 3.0 use {@link #getGeneratorFactory()}
+     */
+    @Deprecated
+    public TokenStreamFactory getFactory() {
+        return getGeneratorFactory();
+    }
+
     public TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
     }

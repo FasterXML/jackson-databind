@@ -136,8 +136,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
-     * @since 2.3
      */
     public final boolean hasMapperFeatures(int featureMask) {
         return (_mapperFeatures & featureMask) == featureMask;

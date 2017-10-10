@@ -468,8 +468,11 @@ public final class DeserializationConfig
     {
         int newSet = _formatReadFeatures | feature.getMask();
         int newMask = _formatReadFeaturesToChange | feature.getMask();
-        return ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) ? this :
-            new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
+
+        if ((_formatReadFeatures == newSet) && (_formatReadFeaturesToChange == newMask)) {
+            return this;
+        }
+        return new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     _parserFeatures, _parserFeaturesToChange,
                     newSet, newMask);
     }

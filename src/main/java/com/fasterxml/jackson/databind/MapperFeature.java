@@ -252,7 +252,7 @@ public enum MapperFeature implements ConfigFeature
      */
 
     /**
-     * Feature that will allow for more forgiving deserialization of incoming JSON.
+     * Feature that will allow for more forgiving serialization of incoming JSON.
      * If enabled, the bean properties will be matched using their lower-case equivalents,
      * meaning that any case-combination (incoming and matching names are canonicalized
      * by lower-casing) should work.

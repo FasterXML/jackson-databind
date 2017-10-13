@@ -249,7 +249,7 @@ public class JsonValueSerializer
                 return;
             }
         }
-        ser.acceptJsonFormatVisitor(visitor, null); 
+        ser.acceptJsonFormatVisitor(visitor, type);
     }
 
     /**

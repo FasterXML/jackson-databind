@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
@@ -85,6 +86,17 @@ public class NewSchemaTest extends BaseMapTest
         public AtomicReference<POJO> maybePOJO;
 
         public AtomicReference<String> maybeString;
+    }
+
+    // [databind#1793]
+    static class POJOWithJsonValue {
+        private Point[] value;
+
+        @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
+        public POJOWithJsonValue(Point[] v) { value = v; }
+
+        @JsonValue
+        public Point[] serialization() { return value; }
     }
 
     @JsonPropertyOrder({ "dec", "bigInt" })
@@ -201,6 +213,8 @@ public class NewSchemaTest extends BaseMapTest
         MAPPER.acceptJsonFormatVisitor(EnumSet.class, new BogusJsonFormatVisitorWrapper());
 
         MAPPER.acceptJsonFormatVisitor(POJOWithRefs.class, new BogusJsonFormatVisitorWrapper());
+
+        MAPPER.acceptJsonFormatVisitor(POJOWithJsonValue.class, new BogusJsonFormatVisitorWrapper());
     }
 
     public void testSimpleEnum() throws Exception

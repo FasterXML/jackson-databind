@@ -712,3 +712,8 @@ Luís Cleto (luiscleto@github)
   * Suggested 1768: Improve `TypeFactory.constructFromCanonical()` to work with
    `java.lang.reflect.Type.getTypeName()` format
    (2.9.2)
+
+Vincent Demay (vdemay@github)
+  * Reported #1793: `java.lang.NullPointerException` in `ObjectArraySerializer.acceptJsonFormatVisitor()`
+    for array value with `@JsonValue`
+   (2.9.2)

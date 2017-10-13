@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).
@@ -312,12 +311,17 @@ public class ObjectArraySerializer
     {
         JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
         if (arrayVisitor != null) {
+            JavaType contentType = _elementType;
+
+            // [databind#1793]: Was getting `null` for `typeHint`. But why would we even use it...
+/*
             TypeFactory tf = visitor.getProvider().getTypeFactory();
-            JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
+            contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
             if (contentType == null) {
                 visitor.getProvider().reportBadDefinition(_elementType,
                         "Could not resolve type: "+_elementType);
             }
+*/
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
                 valueSer = visitor.getProvider().findValueSerializer(contentType, _property);

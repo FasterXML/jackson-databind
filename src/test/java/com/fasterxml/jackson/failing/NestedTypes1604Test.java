@@ -74,7 +74,7 @@ public class NestedTypes1604Test extends BaseMapTest
             inners.add(new Inner(i));
         }
         BadOuter badOuter = new BadOuter(Data.of(inners));
-        GoodOuter goodOuter = new GoodOuter(new DataList<>(inners));
+//        GoodOuter goodOuter = new GoodOuter(new DataList<>(inners));
 //        String json = objectMapper.writeValueAsString(goodOuter);
 
         // 11-Oct-2017, tatu: Fails with exception wrt type specialization

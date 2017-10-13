@@ -18,6 +18,9 @@ Project: jackson-databind
 #1771: Pass missing argument for string formatting in `ObjectMapper`
  (reported by Nils B)
 #1788: `StdDateFormat._parseAsISO8601()` does not parse "fractional" timezone correctly
+#1793: `java.lang.NullPointerException` in `ObjectArraySerializer.acceptJsonFormatVisitor()`
+  for array value with `@JsonValue`
+ (reported by Vincent D)
 
 2.9.1 (07-Sep-2017)
 

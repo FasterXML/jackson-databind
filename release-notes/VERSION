@@ -3,7 +3,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.2 (not yet released)
+2.9.2 (14-Oct-2017)
 
 (possibly) #1756: Deserialization error with custom `AnnotationIntrospector`
  (reported by Daniel N)

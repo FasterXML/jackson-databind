@@ -175,12 +175,26 @@ public class TestTypeFactory
         assertEquals(t, t2.containedType(1));
         assertNull(t2.containedType(2));
 
-        // and then custom generic type as well
+        // Then using TypeBindings
+        JavaType t3 = tf.constructParametricType(HashSet.class, t.getBindings()); // HashSet<String>
+        assertEquals(CollectionType.class, t3.getClass());
+        assertEquals(1, t3.containedTypeCount());
+        assertEquals(strC, t3.containedType(0));
+        assertNull(t3.containedType(1));
+
+        // Then custom generic type as well
         JavaType custom = tf.constructParametricType(SingleArgGeneric.class, String.class);
         assertEquals(SimpleType.class, custom.getClass());
         assertEquals(1, custom.containedTypeCount());
         assertEquals(strC, custom.containedType(0));
         assertNull(custom.containedType(1));
+
+        // and then custom generic type from TypeBindings
+        JavaType custom2 = tf.constructParametricType(SingleArgGeneric.class, t.getBindings());
+        assertEquals(SimpleType.class, custom2.getClass());
+        assertEquals(1, custom2.containedTypeCount());
+        assertEquals(strC, custom2.containedType(0));
+        assertNull(custom2.containedType(1));
 
         // And finally, ensure that we can't create invalid combinations
         try {

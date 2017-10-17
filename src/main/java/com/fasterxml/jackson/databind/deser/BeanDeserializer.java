@@ -148,7 +148,7 @@ public class BeanDeserializer
         // common case first
         if (p.isExpectedStartObjectToken()) {
             if (_vanillaProcessing) {
-                return vanillaDeserialize(p, ctxt, p.nextToken());
+                return vanillaDeserialize(p, ctxt);
             }
             // 23-Sep-2015, tatu: This is wrong at some many levels, but for now... it is
             //    what it is, including "expected behavior".
@@ -262,6 +262,35 @@ public class BeanDeserializer
 
     /**
      * Streamlined version that is only used when no "special"
+     * features are enabled, and when current logical token
+     * is {@link JsonToken#START_OBJECT} (or equivalent).
+     */
+    private final Object vanillaDeserialize(JsonParser p,
+            DeserializationContext ctxt)
+        throws IOException
+    {
+        final Object bean = _valueInstantiator.createUsingDefault(ctxt);
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        p.setCurrentValue(bean);
+        String propName;
+        while ((propName = p.nextFieldName()) != null) {
+            SettableBeanProperty prop = _beanProperties.find(propName);
+            p.nextToken();
+            if (prop != null) { // normal case
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, propName, ctxt);
+                }
+                continue;
+            }
+            handleUnknownVanilla(p, ctxt, bean, propName);
+        }
+        return bean;
+    }
+
+    /**
+     * Streamlined version that is only used when no "special"
      * features are enabled.
      */
     private final Object vanillaDeserialize(JsonParser p,
@@ -271,7 +300,7 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
-        if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+        if (t == JsonToken.FIELD_NAME) {
             String propName = p.getCurrentName();
             do {
                 p.nextToken();

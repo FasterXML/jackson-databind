@@ -22,10 +22,30 @@ public class NestedTypes1604Test extends BaseMapTest
         public static <T> Data<List<T>> of(List<T> data) {
              return new DataList<>(data);
         }
+
+        public static <T> Data<List<T>> ofRefined(List<T> data) {
+            return new RefinedDataList<>(data);
+        }
+
+        public static <T> Data<List<T>> ofSneaky(List<T> data) {
+            return new SneakyDataList<String,T>(data);
+        }
     }
 
     public static class DataList<T> extends Data<List<T>> {
         public DataList(List<T> data) {
+            super(data);
+        }
+    }
+
+    public static class RefinedDataList<T> extends Data<List<T>> {
+        public RefinedDataList(List<T> data) {
+            super(data);
+        }
+    }
+
+    public static class SneakyDataList<BOGUS,T> extends Data<List<T>> {
+        public SneakyDataList(List<T> data) {
             super(data);
         }
     }
@@ -66,9 +86,10 @@ public class NestedTypes1604Test extends BaseMapTest
         }
     }
 
-    public void testIssue1604() throws Exception
+    private final ObjectMapper objectMapper = newObjectMapper();
+    
+    public void testIssue1604Simple() throws Exception
     {
-        final ObjectMapper objectMapper = newObjectMapper();
         List<Inner> inners = new ArrayList<>();
         for (int i = 0; i < 2; i++) {
             inners.add(new Inner(i));
@@ -78,6 +99,28 @@ public class NestedTypes1604Test extends BaseMapTest
 //        String json = objectMapper.writeValueAsString(goodOuter);
 
         // 11-Oct-2017, tatu: Fails with exception wrt type specialization
+        String json = objectMapper.writeValueAsString(badOuter);
+        assertNotNull(json);
+   }
+
+    public void testIssue1604Subtype() throws Exception
+    {
+        List<Inner> inners = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            inners.add(new Inner(i));
+        }
+        BadOuter badOuter = new BadOuter(Data.ofRefined(inners));
+        String json = objectMapper.writeValueAsString(badOuter);
+        assertNotNull(json);
+   }
+
+    public void testIssue1604Sneaky() throws Exception
+    {
+        List<Inner> inners = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            inners.add(new Inner(i));
+        }
+        BadOuter badOuter = new BadOuter(Data.ofSneaky(inners));
         String json = objectMapper.writeValueAsString(badOuter);
         assertNotNull(json);
    }

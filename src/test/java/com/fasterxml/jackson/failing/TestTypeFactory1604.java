@@ -15,7 +15,7 @@ public class TestTypeFactory1604 extends BaseMapTest
     static class DataList1604<T> extends Data1604<List<T>> {
     }
 
-    static class RefinedDataList1604<T> extends DataList1604<List<T>> {
+    static class RefinedDataList1604<T> extends DataList1604<T> {
     }
 
     public static class SneakyDataList1604<BOGUS,T> extends Data1604<List<T>> {

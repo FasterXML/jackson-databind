@@ -288,15 +288,9 @@ public class TestTypeFactory
         assertEquals(Long.class, subtype.getContentType().getRawClass());
 
         // but with refinement, should have non-null super class
-        // 20-Oct-2015, tatu: For now refinement does not faithfully replicate the
-        //    structure, it only retains most important information. Here it means
-        //    that actually existing super-classes are skipped, and only original
-        //    type is linked as expected
-        /*
         JavaType superType = subtype.getSuperClass();
         assertNotNull(superType);
         assertEquals(AbstractList.class, superType.getRawClass());
-        */
     }
 
     /*

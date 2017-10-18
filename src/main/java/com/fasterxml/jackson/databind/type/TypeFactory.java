@@ -480,21 +480,80 @@ public final class TypeFactory
         // (hopefully passing null Class for root is ok)
         int baseCount = baseType.containedTypeCount();
         if (baseCount == typeParamCount) {
-            if (typeParamCount == 1) {
-                return TypeBindings.create(subclass, baseType.containedType(0));
-            }
-            if (typeParamCount == 2) {
-                return TypeBindings.create(subclass, baseType.containedType(0),
-                        baseType.containedType(1));
-            }
-            List<JavaType> types = new ArrayList<JavaType>(baseCount);
+            // 2017-10-17 epollan [databind#1604]
+            // Given "stacks" of type bindings contained in `baseType`; e.g. {@code baseType : Foo<A<B>, X>},
+            // with bindings A[B] (indicating a type binding to the JavaType for `A` with a nested
+            // type binding to `B`) and X; pop off all type bindings that might be implied in the
+            // `subclass`'s definition relative to the `baseType`.
+            // E.g. {@code subclass : Bar<B, X>} where {@code Bar<T, U> extends Foo<A<T>, U>}, would
+            // inherit type bindings B and X.  It would _not_ inherit `baseType`'s type binding to A[B]
+            // -- it would only inherit the inner type binding to B.
+            // This is because {@code Bar<?, ?>} already _is a_ {@code Foo<A<?>, ?>}, and serialization config
+            // for the class itself already comprehends the types that the inheritance specification
+            // has structurally locked into the base type's bindings.
+            JavaType[] bindings = new JavaType[baseCount];
             for (int i = 0; i < baseCount; ++i) {
-                types.add(baseType.containedType(i));
+                bindings[i] = _bindingForSubtypeAtBindingPosition(baseType, i, subclass);
             }
-            return TypeBindings.create(subclass, types);
+            return TypeBindings.create(subclass, bindings);
         }
         // Otherwise, two choices: match N first, or empty. Do latter, for now
         return TypeBindings.emptyBindings();
+    }
+
+    private JavaType _bindingForSubtypeAtBindingPosition(JavaType baseType, int bindingPosition, Class<?> subclass) {
+        JavaType binding = baseType.containedType(bindingPosition);
+        // While the type binding is nested with exactly one inner binding, AND the subtype's definition
+        // itself already implies the outermost binding, then...
+        while (binding.containedTypeCount() == 1 && _subtypeImpliesBinding(baseType, binding, bindingPosition, subclass)) {
+            // ...peel the outer binding off
+            binding = binding.containedType(0);
+        }
+        return binding;
+    }
+
+    /**
+     * True if the subclass already implies the base type's binding at {@code bindingPosition}
+     * (see {@link JavaType#containedType}).  An example of an "implied" binding would be where
+     * the subclass is the erased class `C` (defined as {@code C<T> extends A<B<T>>}).  In this scenario, `A`
+     * would be the baseType and would be bound to `B` with a _nested_ inner binding to some type
+     * for `T`.  `C` structurally implies the `B` binding without it being present as a type parameter --
+     * it's part of the class definition, itself.
+     */
+    private boolean _subtypeImpliesBinding(JavaType baseType, JavaType baseTypeBinding, int bindingPosition, Class<?> subclass) {
+        // Should take a A<B<C>, D>, e.g., and make it A<B<?>, D> when bindingPosition == 0, e.g.
+        JavaType wildcardedBase = _fromClass(
+            null,
+            baseType.getRawClass(),
+            _wildcardedBindings(baseType, baseTypeBinding, bindingPosition)
+        );
+
+        JavaType[] wildcards = new JavaType[subclass.getTypeParameters().length];
+        Arrays.fill(wildcards, CORE_TYPE_OBJECT);
+        JavaType wildcardedSubclass = _fromClass(
+            null,
+            subclass,
+            TypeBindings.create(
+                subclass,
+                wildcards
+            )
+        );
+        return wildcardedSubclass.findSuperType(baseType.getRawClass()).equals(wildcardedBase);
+    }
+
+    /**
+     * Should take a {@code A<B<C>, D>}, e.g., and make it {@code A<B<?>, D>} when {@code bindingPosition == 0}, e.g.
+     * Basically, reconstruct the base type's bindings by "wildcarding" the binding at the given position.  All
+     * other bindings are used as-is.
+     */
+    private TypeBindings _wildcardedBindings(JavaType baseType, JavaType baseTypeBinding, int bindingPosition) {
+        JavaType[] bindingTypes = new JavaType[baseType.containedTypeCount()];
+        for (int i = 0; i < bindingTypes.length; i++) {
+            bindingTypes[i] = (i == bindingPosition) ?
+                _fromClass(null, baseTypeBinding.getRawClass(), TypeBindings.create(baseTypeBinding.getRawClass(), CORE_TYPE_OBJECT)) :
+                baseType.containedType(i);
+        }
+        return TypeBindings.create(baseType.getRawClass(), bindingTypes);
     }
 
     /**

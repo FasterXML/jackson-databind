@@ -29,14 +29,14 @@ public class TestTypeFactory1604 extends BaseMapTest
     public void testCustomTypesRefinedSimple()
     {
         TypeFactory tf = newTypeFactory();
-        JavaType type = tf.constructType(new TypeReference<Data1604<Long>>() { });
-        assertEquals(Data1604.class, type.getRawClass());
+        JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
+        assertEquals(Data1604.class, base.getRawClass());
+        assertEquals(1, base.containedTypeCount());
+        assertEquals(List.class, base.containedType(0).getRawClass());
 
-        JavaType subtype = tf.constructSpecializedType(type, DataList1604.class);
+        JavaType subtype = tf.constructSpecializedType(base, DataList1604.class);
         assertEquals(DataList1604.class, subtype.getRawClass());
         assertEquals(1, subtype.containedTypeCount());
-
-        // should properly resolve type parameter:
         JavaType paramType = subtype.containedType(0);
         assertEquals(Long.class, paramType.getRawClass());
     }
@@ -44,37 +44,32 @@ public class TestTypeFactory1604 extends BaseMapTest
     public void testCustomTypesRefinedNested()
     {
         TypeFactory tf = newTypeFactory();
-        JavaType type = tf.constructType(new TypeReference<Data1604<Long>>() { });
-        assertEquals(Data1604.class, type.getRawClass());
+        JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
+        assertEquals(Data1604.class, base.getRawClass());
 
-        JavaType subtype = tf.constructSpecializedType(type, RefinedDataList1604.class);
+        JavaType subtype = tf.constructSpecializedType(base, RefinedDataList1604.class);
         assertEquals(RefinedDataList1604.class, subtype.getRawClass());
-        assertEquals(1, subtype.containedTypeCount());
+        assertEquals(DataList1604.class, subtype.getSuperClass().getRawClass());
 
-        // should properly resolve type parameter:
+        assertEquals(1, subtype.containedTypeCount());
         JavaType paramType = subtype.containedType(0);
         assertEquals(Long.class, paramType.getRawClass());
-
-        // and have correct parent too
-        assertEquals(DataList1604.class, subtype.getSuperClass().getRawClass());
     }
 
     public void testCustomTypesRefinedSneaky()
     {
         TypeFactory tf = newTypeFactory();
-        JavaType type = tf.constructType(new TypeReference<Data1604<Long>>() { });
-        assertEquals(Data1604.class, type.getRawClass());
+        JavaType base = tf.constructType(new TypeReference<Data1604<List<Long>>>() { });
+        assertEquals(Data1604.class, base.getRawClass());
 
-        JavaType subtype = tf.constructSpecializedType(type, SneakyDataList1604.class);
+        JavaType subtype = tf.constructSpecializedType(base, SneakyDataList1604.class);
         assertEquals(SneakyDataList1604.class, subtype.getRawClass());
         assertEquals(1, subtype.containedTypeCount());
-
-        // should properly resolve type parameter:
         JavaType paramType = subtype.containedType(0);
         assertEquals(Long.class, paramType.getRawClass());
 
         // and have correct parent too
-        assertEquals(Data1604.class, subtype.getSuperClass().getRawClass());
+        assertEquals(DataList1604.class, subtype.getSuperClass().getRawClass());
     }
 
     public void testTwoParamSneakyCustom()

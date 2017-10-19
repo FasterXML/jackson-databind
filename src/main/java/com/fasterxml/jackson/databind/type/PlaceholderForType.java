@@ -84,11 +84,6 @@ public class PlaceholderForType extends TypeBase
     }
 
     @Override
-    protected JavaType _narrow(Class<?> subclass) {
-        return _unsupported();
-    }
-
-    @Override
     public boolean isContainerType() {
         return false;
     }

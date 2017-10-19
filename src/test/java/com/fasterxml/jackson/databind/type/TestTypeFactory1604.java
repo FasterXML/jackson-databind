@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
@@ -12,15 +12,11 @@ public class TestTypeFactory1604 extends BaseMapTest
 {
     static class Data1604<T> { }
 
-    static class DataList1604<T> extends Data1604<List<T>> {
-    }
+    static class DataList1604<T> extends Data1604<List<T>> { }
 
-    static class RefinedDataList1604<T> extends DataList1604<T> {
-    }
+    static class RefinedDataList1604<T> extends DataList1604<T> { }
 
-    public static class SneakyDataList1604<BOGUS,T> extends Data1604<List<T>> {
-        
-    }
+    public static class SneakyDataList1604<BOGUS,T> extends Data1604<List<T>> { }
 
     static class TwoParam1604<KEY,VALUE> { }
 
@@ -64,34 +60,59 @@ public class TestTypeFactory1604 extends BaseMapTest
 
         JavaType subtype = tf.constructSpecializedType(base, SneakyDataList1604.class);
         assertEquals(SneakyDataList1604.class, subtype.getRawClass());
-        assertEquals(1, subtype.containedTypeCount());
-        JavaType paramType = subtype.containedType(0);
-        assertEquals(Long.class, paramType.getRawClass());
+        assertEquals(2, subtype.containedTypeCount());
+        assertEquals(Long.class, subtype.containedType(1).getRawClass());
+        // first one, "bogus", has to be essentially "unknown"
+        assertEquals(Object.class, subtype.containedType(0).getRawClass());
 
         // and have correct parent too
-        assertEquals(DataList1604.class, subtype.getSuperClass().getRawClass());
+        assertEquals(Data1604.class, subtype.getSuperClass().getRawClass());
     }
 
     public void testTwoParamSneakyCustom()
     {
         TypeFactory tf = newTypeFactory();
-        JavaType type = tf.constructType(new TypeReference<TwoParam1604<String,Long>>() { });
+        JavaType type = tf.constructType(new TypeReference<TwoParam1604<String,List<Long>>>() { });
         assertEquals(TwoParam1604.class, type.getRawClass());
         assertEquals(String.class, type.containedType(0).getRawClass());
-        assertEquals(Long.class, type.containedType(1).getRawClass());
+        JavaType ct = type.containedType(1);
+        assertEquals(List.class, ct.getRawClass());
+        assertEquals(Long.class, ct.getContentType().getRawClass());
 
         JavaType subtype = tf.constructSpecializedType(type, SneakyTwoParam1604.class);
         assertEquals(SneakyTwoParam1604.class, subtype.getRawClass());
         assertEquals(TwoParam1604.class, subtype.getSuperClass().getRawClass());
         assertEquals(2, subtype.containedTypeCount());
 
-        // should properly resolve type parameters despite sneaky switching
+        // should properly resolve type parameters despite sneaky switching, including "unwounding"
+        // `List` wrapper
         JavaType first = subtype.containedType(0);
-        assertEquals(List.class, first.getRawClass());
-        assertEquals(1, first.containedTypeCount());
-        assertEquals(Long.class, first.containedType(0).getRawClass());
-
+        assertEquals(Long.class, first.getRawClass());
         JavaType second = subtype.containedType(1);
         assertEquals(String.class, second.getRawClass());
     }
+
+    // Also: let's not allow mismatching binding
+    public void testErrorForMismatch()
+    {
+        TypeFactory tf = newTypeFactory();
+        
+        // NOTE: plain `String` NOT `List<String>`
+        JavaType base = tf.constructType(new TypeReference<Data1604<String>>() { });
+
+        try {
+            tf.constructSpecializedType(base, DataList1604.class);
+            fail("Should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Failed to specialize");
+            verifyException(e, "Data1604");
+            verifyException(e, "DataList1604");
+        }
+    }
+    
+    /*
+    static class TwoParam1604<KEY,VALUE> { }
+
+    static class SneakyTwoParam1604<V,K> extends TwoParam1604<K,List<V>> { }
+     */
 }

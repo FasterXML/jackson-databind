@@ -399,102 +399,94 @@ public final class TypeFactory
                 newType = _fromClass(null, subclass, TypeBindings.emptyBindings());     
                 break;
             }
-            
-            // If not, we'll need to do more thorough forward+backwards resolution. Sigh.
-
-            // 20-Oct-2015, tatu: Container, Map-types somewhat special. There is
-            //    a way to fully resolve and merge hierarchies; but that gets expensive
-            //    so let's, for now, try to create close-enough approximation that
-            //    is not 100% same, structurally, but has equivalent information for
-            //    our specific neeeds.
-            // 29-Mar-2016, tatu: See [databind#1173]  (and test `TypeResolverTest`)
-            //  for a case where this code does get invoked: not ideal
-            // 29-Jun-2016, tatu: As to bindings, this works for [databind#1215], but
-            //  not certain it would reliably work... but let's hope for best for now
+            // (4) If all else fails, do the full traversal using placeholders
             TypeBindings tb = _bindingsForSubtype(baseType, typeParamCount, subclass);
-            if (baseType.isInterface()) {
-                newType = baseType.refine(subclass, tb, null, new JavaType[] { baseType });
-            } else {
-                newType = baseType.refine(subclass, tb, baseType, NO_TYPES);
-            }
-            // Only SimpleType returns null, but if so just resolve regularly
-            if (newType == null) {
-                newType = _fromClass(null, subclass, tb);
-            }
+            newType = _fromClass(null, subclass, tb);
+
         } while (false);
 
         // 25-Sep-2016, tatu: As per [databind#1384] also need to ensure handlers get
         //   copied as well
         newType = newType.withHandlersFrom(baseType);
         return newType;
-
-        // 20-Oct-2015, tatu: Old simplistic approach
-        
-        /*
-        // Currently mostly SimpleType instances can become something else
-        if (baseType instanceof SimpleType) {
-            // and only if subclass is an array, Collection or Map
-            if (subclass.isArray()
-                || Map.class.isAssignableFrom(subclass)
-                || Collection.class.isAssignableFrom(subclass)) {
-                // need to assert type compatibility...
-                if (!baseType.getRawClass().isAssignableFrom(subclass)) {
-                    throw new IllegalArgumentException("Class "+subclass.getClass().getName()+" not subtype of "+baseType);
-                }
-                // this _should_ work, right?
-                JavaType subtype = _fromClass(null, subclass, TypeBindings.emptyBindings());
-                // one more thing: handlers to copy?
-                Object h = baseType.getValueHandler();
-                if (h != null) {
-                    subtype = subtype.withValueHandler(h);
-                }
-                h = baseType.getTypeHandler();
-                if (h != null) {
-                    subtype = subtype.withTypeHandler(h);
-                }
-                return subtype;
-            }
-        }
-        // But there is the need for special case for arrays too, it seems
-        if (baseType instanceof ArrayType) {
-            if (subclass.isArray()) {
-                // actually see if it might be a no-op first:
-                ArrayType at = (ArrayType) baseType;
-                Class<?> rawComp = subclass.getComponentType();
-                if (at.getContentType().getRawClass() == rawComp) {
-                    return baseType;
-                }
-                JavaType componentType = _fromAny(null, rawComp, null);
-                return ((ArrayType) baseType).withComponentType(componentType);
-            }
-        }
-
-        // otherwise regular narrowing should work just fine
-        return baseType.narrowBy(subclass);
-        */
     }
 
     private TypeBindings _bindingsForSubtype(JavaType baseType, int typeParamCount, Class<?> subclass)
     {
-        // But otherwise gets bit tricky, as we need to partially resolve the type hierarchy
-        // (hopefully passing null Class for root is ok)
-        int baseCount = baseType.containedTypeCount();
-        if (baseCount == typeParamCount) {
-            if (typeParamCount == 1) {
-                return TypeBindings.create(subclass, baseType.containedType(0));
-            }
-            if (typeParamCount == 2) {
-                return TypeBindings.create(subclass, baseType.containedType(0),
-                        baseType.containedType(1));
-            }
-            List<JavaType> types = new ArrayList<JavaType>(baseCount);
-            for (int i = 0; i < baseCount; ++i) {
-                types.add(baseType.containedType(i));
-            }
-            return TypeBindings.create(subclass, types);
+        PlaceholderForType[] placeholders = new PlaceholderForType[typeParamCount];
+        for (int i = 0; i < typeParamCount; ++i) {
+            placeholders[i] = new PlaceholderForType(i);
         }
-        // Otherwise, two choices: match N first, or empty. Do latter, for now
-        return TypeBindings.emptyBindings();
+        TypeBindings b = TypeBindings.create(subclass, placeholders);
+        // First: pseudo-resolve to get placeholders in place:
+        JavaType tmpSub = _fromClass(null, subclass, b);
+        // Then find super-type
+        JavaType baseWithPlaceholders = tmpSub.findSuperType(baseType.getRawClass());
+        if (baseWithPlaceholders == null) { // should be found but...
+            throw new IllegalArgumentException(String.format(
+                    "Internal error: unable to locate supertype (%s) from resolved subtype %s", baseType.getRawClass().getName(),
+                    subclass.getName()));
+        }
+        // and traverse type hierarchies to both verify and to resolve placeholders
+        String error = _resolveTypePlaceholders(baseType, baseWithPlaceholders);
+        if (error != null) {
+            throw new IllegalArgumentException("Failed to specialize base type "+baseType.toCanonical()+" as "
+                    +subclass.getName()+", problem: "+error);
+        }
+
+        final JavaType[] typeParams = new JavaType[typeParamCount];
+        for (int i = 0; i < typeParamCount; ++i) {
+            JavaType t = placeholders[i].actualType();
+            // 18-Oct-2017, tatu: Looks like sometimes we have incomplete bindings (even if not
+            //     common, it is possible if subtype is type-erased class with added type
+            //     variable -- see test(s) with "bogus" type(s)).
+            if (t == null) {
+                t = unknownType();
+            }
+            typeParams[i] = t;
+        }
+        return TypeBindings.create(subclass, typeParams);
+    }
+
+    private String _resolveTypePlaceholders(JavaType sourceType, JavaType actualType)
+        throws IllegalArgumentException
+    {
+        List<JavaType> expectedTypes = sourceType.getBindings().getTypeParameters();
+        List<JavaType> actualTypes = actualType.getBindings().getTypeParameters();
+        for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
+            JavaType exp = expectedTypes.get(i);
+            JavaType act = actualTypes.get(i);
+            if (!_verifyAndResolvePlaceholders(exp, act)) {
+                return String.format("Type parameter #%d/%d differs; can not specialize %s with %s",
+                        (i+1), len, exp.toCanonical(), act.toCanonical());
+            }
+        }
+        return null;
+    }
+
+    private boolean _verifyAndResolvePlaceholders(JavaType exp, JavaType act)
+    {
+        // See if we have an actual type placeholder to resolve; if yes, replace
+        if (act instanceof PlaceholderForType) {
+            ((PlaceholderForType) act).actualType(exp);
+            return true;
+        }
+        // if not, try to verify compatibility. But note that we can not
+        // use simple equality as we need to resolve recursively
+        if (exp.getRawClass() != act.getRawClass()) {
+            return false;
+        }
+        // But we can check type parameters "blindly"
+        List<JavaType> expectedTypes = exp.getBindings().getTypeParameters();
+        List<JavaType> actualTypes = act.getBindings().getTypeParameters();
+        for (int i = 0, len = expectedTypes.size(); i < len; ++i) {
+            JavaType exp2 = expectedTypes.get(i);
+            JavaType act2 = actualTypes.get(i);
+            if (!_verifyAndResolvePlaceholders(exp2, act2)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1394,13 +1386,12 @@ public final class TypeFactory
         // always of type Class: if not, need to add more code to resolve it to Class.        
         Type[] args = ptype.getActualTypeArguments();
         int paramCount = (args == null) ? 0 : args.length;
-        JavaType[] pt;
         TypeBindings newBindings;        
 
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
         } else {
-            pt = new JavaType[paramCount];
+            JavaType[] pt = new JavaType[paramCount];
             for (int i = 0; i < paramCount; ++i) {
                 pt[i] = _fromAny(context, args[i], parentBindings);
             }

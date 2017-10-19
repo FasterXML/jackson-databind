@@ -157,7 +157,7 @@ public class SimpleType // note: until 2.6 was final
         // SimpleType means something not-specialized, so:
         return null;
     }
-    
+
     @Override
     protected String buildCanonicalName()
     {

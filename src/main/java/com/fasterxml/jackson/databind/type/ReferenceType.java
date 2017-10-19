@@ -21,7 +21,7 @@ public class ReferenceType extends SimpleType
      * if being sub-classed.
      */
     protected final JavaType _anchorType;
-    
+
     protected ReferenceType(Class<?> cls, TypeBindings bindings,
             JavaType superClass, JavaType[] superInts, JavaType refType,
             JavaType anchorType,

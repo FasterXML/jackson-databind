@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class BeanSerializer
     extends BeanSerializerBase
 {
-    private static final long serialVersionUID = 29; // as per jackson 2.9
+    private static final long serialVersionUID = 30; // as per jackson 3.0
 
     /*
     /**********************************************************
@@ -112,22 +112,13 @@ public class BeanSerializer
     @Override
     protected BeanSerializerBase asArraySerializer()
     {
-        /* Cannot:
-         * 
-         * - have Object Id (may be allowed in future)
-         * - have "any getter"
-         * - have per-property filters
-         */
-        if ((_objectIdWriter == null)
-                && (_anyGetterWriter == null)
-                && (_propertyFilterId == null)
-                ) {
+        if (canCreateArraySerializer()) {
             return new BeanAsArraySerializer(this);
         }
         // already is one, so:
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* JsonSerializer implementation that differs between impls

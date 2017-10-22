@@ -45,9 +45,6 @@ public abstract class BeanSerializerBase
     /**********************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     final protected JavaType _beanType;
 
     /**
@@ -146,10 +143,7 @@ public abstract class BeanSerializerBase
     {
         this(src, objectIdWriter, src._propertyFilterId);
     }
-    
-    /**
-     * @since 2.3
-     */
+
     protected BeanSerializerBase(BeanSerializerBase src,
             ObjectIdWriter objectIdWriter, Object filterId)
     {
@@ -201,8 +195,6 @@ public abstract class BeanSerializerBase
     /**
      * Mutant factory used for creating a new instance with different
      * {@link ObjectIdWriter}.
-     * 
-     * @since 2.0
      */
     public abstract BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter);
 
@@ -261,7 +253,7 @@ public abstract class BeanSerializerBase
 
     /*
     /**********************************************************
-    /* Post-constriction processing: resolvable, contextual
+    /* Post-construction processing: resolvable, contextual
     /**********************************************************
      */
 
@@ -353,8 +345,6 @@ public abstract class BeanSerializerBase
      * Helper method that can be used to see if specified property is annotated
      * to indicate use of a converter for property value (in case of container types,
      * it is container type itself, not key or content type).
-     * 
-     * @since 2.2
      */
     protected JsonSerializer<Object> findConvertingSerializer(SerializerProvider provider,
             BeanPropertyWriter prop)
@@ -532,13 +522,44 @@ public abstract class BeanSerializerBase
 
     /*
     /**********************************************************
-    /* Accessors
+    /* Public accessors
     /**********************************************************
      */
 
     @Override
     public Iterator<PropertyWriter> properties() {
         return Arrays.<PropertyWriter>asList(_props).iterator();
+    }
+
+    /**
+     * @since 3.0
+     */
+    public int propertyCount() {
+        return _props.length;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods for implementation classes
+    /**********************************************************
+     */
+
+    /**
+     * Helper method for sub-classes to check if it should be possible to
+     * construct an "as-array" serializer. Returns if all of following
+     * hold true:
+     *<ul>
+     * <li>have Object Id (may be allowed in future)</li>
+     * <li>have "any getter"</li>
+     * <li>have per-property filters</li>
+     * </ul>
+     *
+     * @since 3.0
+     */
+    public boolean canCreateArraySerializer() {
+        return (_objectIdWriter == null)
+                && (_anyGetterWriter == null)
+                && (_propertyFilterId == null);
     }
 
     /*
@@ -563,13 +584,11 @@ public abstract class BeanSerializerBase
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
+        gen.setCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
-            gen.setCurrentValue(bean); // [databind#631]
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-
-        gen.setCurrentValue(bean); // [databind#631]
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, typeIdDef);
         if (_propertyFilterId != null) {

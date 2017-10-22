@@ -584,11 +584,11 @@ public abstract class BeanSerializerBase
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        gen.setCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
+        gen.setCurrentValue(bean); // [databind#631]
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, typeIdDef);
         if (_propertyFilterId != null) {
@@ -599,9 +599,10 @@ public abstract class BeanSerializerBase
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
-            boolean startEndObject) throws IOException
+    protected final void _serializeWithObjectId(Object bean, JsonGenerator gen,
+            SerializerProvider provider, boolean startEndObject) throws IOException
     {
+        gen.setCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already
@@ -631,6 +632,7 @@ public abstract class BeanSerializerBase
     protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
+        gen.setCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already

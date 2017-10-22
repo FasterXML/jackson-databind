@@ -708,11 +708,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _tokenWriteContext.writeValue();
         _append(JsonToken.START_OBJECT);
-        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext();
+        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext(forValue);
         _tokenWriteContext = ctxt;
-        if (forValue != null) {
-            ctxt.setCurrentValue(forValue);
-        }
     }
 
     @Override

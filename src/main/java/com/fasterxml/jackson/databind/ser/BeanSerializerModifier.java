@@ -86,7 +86,7 @@ public abstract class BeanSerializerModifier
      * {@link BeanSerializer}, modifiers may return serializers of other types;
      * and this is why implementations must check for type before casting.
      *<p>
-     * NOTE: since 2.2, gets called for serializer of those non-POJO types that
+     * NOTE: this method gets called for serializer of those non-POJO types that
      * do not go through any of more specific <code>modifyXxxSerializer</code>
      * methods; mostly for JDK types like {@link java.util.Iterator} and such.
      */
@@ -97,7 +97,7 @@ public abstract class BeanSerializerModifier
 
     /*
     /**********************************************************
-    /* Callback methods for other types (since 2.2)
+    /* Callback methods for other types
     /**********************************************************
      */
 
@@ -115,49 +115,32 @@ public abstract class BeanSerializerModifier
      * 
      * @return Serializer to use; either <code>serializer</code> that was passed
      *   in, or an instance method constructed.
-     * 
-     * @since 2.2
      */
     public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
             ArrayType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 
-    /**
-     * @since 2.2
-     */
     public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
             CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 
-    /**
-     * @since 2.2
-     */
     public JsonSerializer<?> modifyCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
-    
-    /**
-     * @since 2.2
-     */
+
     public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
             MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 
-    /**
-     * @since 2.2
-     */
     public JsonSerializer<?> modifyMapLikeSerializer(SerializationConfig config,
             MapLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 
-    /**
-     * @since 2.2
-     */
     public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
             JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
@@ -177,8 +160,6 @@ public abstract class BeanSerializerModifier
      * 
      * @return Serializer to use; either <code>serializer</code> that was passed
      *   in, or an instance method constructed.
-     * 
-     * @since 2.2
      */
     public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,
             JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {

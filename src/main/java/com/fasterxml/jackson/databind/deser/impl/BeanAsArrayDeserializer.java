@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 /**
  * Variant of {@link BeanDeserializer} used for handling deserialization
  * of POJOs when serialized as JSON Arrays, instead of JSON Objects.
- * 
- * @since 2.1
  */
 public class BeanAsArrayDeserializer
     extends BeanDeserializerBase

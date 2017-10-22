@@ -123,6 +123,14 @@ public abstract class BeanSerializerBase
         }
     }
 
+    /**
+     * Copy-constructor that is useful for sub-classes that just want to
+     * copy all super-class properties without modifications.
+     */
+    protected BeanSerializerBase(BeanSerializerBase src) {
+        this(src, src._props, src._filteredProps);
+    }
+
     public BeanSerializerBase(BeanSerializerBase src,
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
     {
@@ -217,14 +225,13 @@ public abstract class BeanSerializerBase
      */
     @Override
     public abstract BeanSerializerBase withFilterId(Object filterId);
-    
+
     /**
-     * Copy-constructor that is useful for sub-classes that just want to
-     * copy all super-class properties without modifications.
+     * Lets force sub-classes to implement this, to avoid accidental missing
+     * of handling...
      */
-    protected BeanSerializerBase(BeanSerializerBase src) {
-        this(src, src._props, src._filteredProps);
-    }
+    @Override
+    public abstract JsonSerializer<Object> unwrappingSerializer(NameTransformer unwrapper);
 
     /**
      * Copy-constructor that will also rename properties with given prefix
@@ -233,7 +240,7 @@ public abstract class BeanSerializerBase
     protected BeanSerializerBase(BeanSerializerBase src, NameTransformer unwrapper) {
         this(src, rename(src._props, unwrapper), rename(src._filteredProps, unwrapper));
     }
-    
+
     private final static BeanPropertyWriter[] rename(BeanPropertyWriter[] props,
             NameTransformer transformer)
     {

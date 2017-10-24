@@ -3,6 +3,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.3 (not yet released)
+
+#1604: Nested type arguments doesn't work with polymorphic types
+#1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
+ (reported byb henryptung@github)
+
 2.9.2 (14-Oct-2017)
 
 (possibly) #1756: Deserialization error with custom `AnnotationIntrospector`
@@ -21,8 +27,6 @@ Project: jackson-databind
 #1793: `java.lang.NullPointerException` in `ObjectArraySerializer.acceptJsonFormatVisitor()`
   for array value with `@JsonValue`
  (reported by Vincent D)
-#1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
- (reported byb henryptung@github)
 
 2.9.1 (07-Sep-2017)
 

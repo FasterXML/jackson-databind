@@ -685,6 +685,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
+    public final void writeStartArray(Object forValue, int len) throws IOException
+    {
+        _tokenWriteContext.writeValue();
+        _append(JsonToken.START_ARRAY);
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
+    }
+
+    @Override
     public final void writeEndArray() throws IOException
     {
         _append(JsonToken.END_ARRAY);

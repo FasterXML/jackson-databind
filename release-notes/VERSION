@@ -21,6 +21,8 @@ Project: jackson-databind
 #1793: `java.lang.NullPointerException` in `ObjectArraySerializer.acceptJsonFormatVisitor()`
   for array value with `@JsonValue`
  (reported by Vincent D)
+#1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
+ (reported byb henryptung@github)
 
 2.9.1 (07-Sep-2017)
 
@@ -139,9 +141,6 @@ Project: jackson-databind
 #1690: Prevent use of quoted number (index) for Enum deserialization via
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
-
-2.8.11 (not yet released)
-
 
 2.8.10 (24-Aug-2017)
 

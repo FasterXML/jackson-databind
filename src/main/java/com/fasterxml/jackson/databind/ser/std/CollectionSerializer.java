@@ -90,7 +90,7 @@ public class CollectionSerializer
                 return;
             }
         }
-        g.writeStartArray(len);
+        g.writeStartArray(value, len);
         serializeContents(value, g, provider);
         g.writeEndArray();
     }
@@ -98,7 +98,6 @@ public class CollectionSerializer
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        g.setCurrentValue(value);
         if (_elementSerializer != null) {
             serializeContentsUsing(value, g, provider, _elementSerializer);
             return;

@@ -73,6 +73,7 @@ public abstract class ArraySerializerBase<T>
         return this;
     }
     
+    /*
     // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
     // at least if they can provide access to actual size of value and use `writeStartArray()`
     // variant that passes size of array to output, which is helpful with some data formats
@@ -91,6 +92,7 @@ public abstract class ArraySerializerBase<T>
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
+    */
 
     @Override
     public final void serializeWithType(T value, JsonGenerator g, SerializerProvider provider,
@@ -108,9 +110,6 @@ public abstract class ArraySerializerBase<T>
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException;
 
-    /**
-     * @since 2.9
-     */
     protected final boolean _shouldUnwrapSingle(SerializerProvider provider) {
         if (_unwrapSingle == null) {
             return provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);

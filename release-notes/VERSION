@@ -10,7 +10,8 @@ Project: jackson-databind
  (reported by nhtzr@github)
 #1768: Improve `TypeFactory.constructFromCanonical()` to work with
   `java.lang.reflect.Type.getTypeName()` format
-
+#1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
+ (reported byb henryptung@github)
 
 2.8.10 (24-Aug-2017)
 

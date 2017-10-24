@@ -281,9 +281,6 @@ public class BeanDeserializerFactory
         }
         JsonDeserializer<?> deserializer;
 
-        /* 19-Mar-2012, tatu: This check used to be done earlier; but we have to defer
-         *   it a bit to collect information on ObjectIdReader, for example.
-         */
         if (type.isAbstract() && !valueInstantiator.canInstantiate()) {
             deserializer = builder.buildAbstract();
         } else {

@@ -183,7 +183,7 @@ public class StdValueInstantiator
     public Class<?> getValueClass() {
         return _valueClass;
     }
-    
+
     @Override
     public boolean canCreateFromString() {
         return (_fromStringCreator != null);
@@ -208,7 +208,7 @@ public class StdValueInstantiator
     public boolean canCreateFromBoolean() {
         return (_fromBooleanCreator != null);
     }
-    
+
     @Override
     public boolean canCreateUsingDefault() {
         return (_defaultCreator != null);
@@ -216,17 +216,26 @@ public class StdValueInstantiator
 
     @Override
     public boolean canCreateUsingDelegate() {
-        return _delegateType != null;
+        return (_delegateType != null);
     }
 
     @Override
     public boolean canCreateUsingArrayDelegate() {
-        return _arrayDelegateType != null;
+        return (_arrayDelegateType != null);
     }
-    
+
     @Override
     public boolean canCreateFromObjectWith() {
         return (_withArgsCreator != null);
+    }
+
+    @Override
+    public boolean canInstantiate() {
+        return canCreateUsingDefault()
+                || canCreateUsingDelegate() || canCreateUsingArrayDelegate()
+                || canCreateFromObjectWith() || canCreateFromString()
+                || canCreateFromInt() || canCreateFromLong()
+                || canCreateFromDouble() || canCreateFromBoolean();
     }
 
     @Override
@@ -263,7 +272,7 @@ public class StdValueInstantiator
                     null, rewrapCtorProblem(ctxt, t));
         }
     }
-    
+
     @Override
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException
     {

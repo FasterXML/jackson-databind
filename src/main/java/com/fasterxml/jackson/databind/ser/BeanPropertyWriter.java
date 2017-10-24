@@ -278,16 +278,12 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
         this(base, base._name);
     }
 
-    /**
-     * @since 2.5
-     */
     protected BeanPropertyWriter(BeanPropertyWriter base, PropertyName name) {
         super(base);
         /*
          * 02-Dec-2014, tatu: This is a big mess, alas, what with dependency to
-         * MapperConfig to encode, and Afterburner having heartburn for
-         * SerializableString (vs SerializedString). Hope it can be
-         * resolved/reworked in 2.6 timeframe, if not for 2.5
+         * MapperConfig to encode, and Afterburner having heart-burn for
+         * SerializableString (vs SerializedString).
          */
         _name = new SerializedString(name.getSimpleName());
         _wrapperName = base._wrapperName;
@@ -350,18 +346,17 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Overridable factory method used by sub-classes
-     *
-     * @since 2.6
      */
     protected BeanPropertyWriter _new(PropertyName newName) {
+        if (getClass() != BeanPropertyWriter.class) {
+            throw new IllegalStateException("Method must be overridden by "+getClass());
+        }
         return new BeanPropertyWriter(this, newName);
     }
 
     /**
      * Method called to set, reset or clear the configured type serializer for
      * property.
-     *
-     * @since 2.6
      */
     public void assignTypeSerializer(TypeSerializer typeSer) {
         _typeSerializer = typeSer;
@@ -414,8 +409,6 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Method called to ensure that the mutator has proper access rights to
      * be called, as per configuration. Overridden by implementations that
      * have mutators that require access, fields and setters.
-     *
-     * @since 2.8.3
      */
     public void fixAccess(SerializationConfig config) {
         _member.fixAccess(config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));

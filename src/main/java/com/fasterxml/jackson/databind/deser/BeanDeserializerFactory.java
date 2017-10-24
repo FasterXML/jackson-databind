@@ -278,6 +278,7 @@ public class BeanDeserializerFactory
             }
         }
         JsonDeserializer<?> deserializer;
+
         if (type.isAbstract() && !valueInstantiator.canInstantiate()) {
             deserializer = builder.buildAbstract();
         } else {

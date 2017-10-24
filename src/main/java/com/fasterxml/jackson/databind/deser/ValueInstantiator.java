@@ -67,11 +67,12 @@ public abstract class ValueInstantiator
      * be created.
      */
     public boolean canInstantiate() {
-        return canCreateUsingDefault() || canCreateUsingDelegate()
-             || canCreateFromObjectWith() || canCreateFromString()
-             || canCreateFromInt() || canCreateFromLong()
-             || canCreateFromDouble() || canCreateFromBoolean();
-    }    
+        return canCreateUsingDefault()
+                || canCreateUsingDelegate() || canCreateUsingArrayDelegate()
+                || canCreateFromObjectWith() || canCreateFromString()
+                || canCreateFromInt() || canCreateFromLong()
+                || canCreateFromDouble() || canCreateFromBoolean();
+    }
 
     /**
      * Method that can be called to check whether a String-based creator

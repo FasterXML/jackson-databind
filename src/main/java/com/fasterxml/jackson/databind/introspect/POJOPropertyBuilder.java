@@ -866,8 +866,6 @@ public class POJOPropertyBuilder
      *<pre>
      * nodes[index].value.getAllAnnotations()
      *</pre>
-     * 
-     * @since 2.6
      */
     private <T extends AnnotatedMember> AnnotationMap _getAllAnnotations(Linked<T> node) {
         AnnotationMap ann = node.value.getAllAnnotations();

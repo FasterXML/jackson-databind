@@ -812,4 +812,9 @@ public abstract class BeanSerializerBase
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()+" for "+handledType().getName();
+    }
 }

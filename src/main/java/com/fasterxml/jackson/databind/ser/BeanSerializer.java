@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * done from {@link #resolve} method, and NOT from constructor;
  * otherwise we could end up with an infinite loop.
  */
+@JacksonStdImpl
 public class BeanSerializer
     extends BeanSerializerBase
 {
@@ -63,7 +65,7 @@ public class BeanSerializer
             ObjectIdWriter objectIdWriter, Object filterId) {
         super(src, objectIdWriter, filterId);
     }
-    
+
     protected BeanSerializer(BeanSerializerBase src, Set<String> toIgnore) {
         super(src, toIgnore);
     }
@@ -145,15 +147,5 @@ public class BeanSerializer
             serializeFields(bean, gen, provider);
         }
         gen.writeEndObject();
-    }
-
-    /*
-    /**********************************************************
-    /* Standard methods
-    /**********************************************************
-     */
-
-    @Override public String toString() {
-        return "BeanSerializer for "+handledType().getName();
     }
 }

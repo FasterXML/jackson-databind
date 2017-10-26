@@ -211,6 +211,12 @@ _properties.size(), _filteredProperties.length));
                 _typeId.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
         }
+        JsonSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(
+                    _beanDesc.getType(), this,
+                    properties, _filteredProperties);
+        if (ser != null) {
+            return ser;
+        }
         return new BeanSerializer(_beanDesc.getType(), this,
                 properties, _filteredProperties);
     }

@@ -13,35 +13,12 @@ import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
- * Specialized POJO serializer that differs from
- * {@link com.fasterxml.jackson.databind.ser.BeanSerializer}
- * in that instead of producing a JSON Object it will output
- * a JSON Array, omitting field names, and serializing values in
- * specified serialization order.
- * This behavior is usually triggered by using annotation
- * {@link com.fasterxml.jackson.annotation.JsonFormat} or its
- * equivalents.
- *<p>
- * This serializer can be used for "simple" instances; and will NOT
- * be used if one of following is true:
- *<ul>
- * <li>Unwrapping is used (no way to expand out array in JSON Object)
- *  </li>
- * <li>Type information ("type id") is to be used: while this could work
- *   for some embedding methods, it would likely cause conflicts.
- *  </li>
- * <li>Object Identity ("object id") is used: while references would work,
- *    the problem is inclusion of id itself.
- *  </li>
- *</ul>
- * Note that it is theoretically possible that last 2 issues could be addressed
- * (by reserving room in array, for example); and if so, support improved.
- *<p>
- * In cases where array-based output is not feasible, this serializer
- * can instead delegate to the original Object-based serializer; this
- * is why a reference is retained to the original serializer.
+ * Specialization of {@link BeanAsArraySerializer}, optimized for handling
+ * small number of properties where calls to property handlers can be
+ * "unrolled" by eliminated looping. This can help optimize execution
+ * significantly for some backends.
  */
-public class BeanAsArraySerializer
+public class UnrolledBeanAsArraySerializer
     extends BeanSerializerBase
 {
     private static final long serialVersionUID = 3L;
@@ -51,6 +28,20 @@ public class BeanAsArraySerializer
      * cases where array output cannot be used.
      */
     protected final BeanSerializerBase _defaultSerializer;
+
+    public static final int MAX_PROPS = 6;
+
+    protected final int _propCount;
+
+    // // // We store separate references in form more easily accessed
+    // // // from switch statement
+
+    protected BeanPropertyWriter _prop1;
+    protected BeanPropertyWriter _prop2;
+    protected BeanPropertyWriter _prop3;
+    protected BeanPropertyWriter _prop4;
+    protected BeanPropertyWriter _prop5;
+    protected BeanPropertyWriter _prop6;
     
     /*
     /**********************************************************
@@ -58,20 +49,45 @@ public class BeanAsArraySerializer
     /**********************************************************
      */
 
-    public BeanAsArraySerializer(BeanSerializerBase src) {    
+    public UnrolledBeanAsArraySerializer(BeanSerializerBase src) {    
         super(src, (ObjectIdWriter) null);
         _defaultSerializer = src;
+        _propCount = _props.length;
+        _calcUnrolled();
     }
 
-    protected BeanAsArraySerializer(BeanSerializerBase src, Set<String> toIgnore) {
+    protected UnrolledBeanAsArraySerializer(BeanSerializerBase src, Set<String> toIgnore) {
         super(src, toIgnore);
         _defaultSerializer = src;
+        _propCount = _props.length;
+        _calcUnrolled();
     }
 
-    protected BeanAsArraySerializer(BeanSerializerBase src,
-            ObjectIdWriter oiw, Object filterId) {
-        super(src, oiw, filterId);
-        _defaultSerializer = src;
+    private void _calcUnrolled() {
+        BeanPropertyWriter[] oProps = new BeanPropertyWriter[6];
+        int offset = 6 - _propCount;
+        System.arraycopy(_props, 0, oProps, offset, _propCount);
+        
+        _prop1 = oProps[0];
+        _prop2 = oProps[1];
+        _prop3 = oProps[2];
+        _prop4 = oProps[3];
+        _prop5 = oProps[4];
+        _prop6 = oProps[5];
+    }
+
+    /**
+     * Factory method that will construct optimized instance if all the constraints
+     * are obeyed; or, if not, return `null` to indicate that instance can not be
+     * created.
+     */
+    public static UnrolledBeanAsArraySerializer tryConstruct(BeanSerializerBase src)
+    {
+        if ((src.propertyCount() > MAX_PROPS)
+                || (src.getFilterId() != null)) {
+            return null;
+        }
+        return new UnrolledBeanAsArraySerializer(src);
     }
 
     /*
@@ -80,18 +96,6 @@ public class BeanAsArraySerializer
     /**********************************************************
      */
 
-    /**
-     * @since 3.0
-     */
-    public static BeanSerializerBase construct(BeanSerializerBase src)
-    {
-        BeanSerializerBase ser = UnrolledBeanAsArraySerializer.tryConstruct(src);
-        if (ser != null) {
-            return ser;
-        }
-        return new BeanAsArraySerializer(src);
-    }
-    
     @Override
     public JsonSerializer<Object> unwrappingSerializer(NameTransformer transformer) {
         // If this gets called, we will just need delegate to the default
@@ -112,20 +116,28 @@ public class BeanAsArraySerializer
 
     @Override
     public BeanSerializerBase withFilterId(Object filterId) {
-        return new BeanAsArraySerializer(this, _objectIdWriter, filterId);
+        // Revert to Vanilla variant, if so:
+        return new BeanAsArraySerializer(_defaultSerializer,
+                _objectIdWriter, filterId);
     }
 
     @Override
-    protected BeanAsArraySerializer withIgnorals(Set<String> toIgnore) {
-        return new BeanAsArraySerializer(this, toIgnore);
+    protected UnrolledBeanAsArraySerializer withIgnorals(Set<String> toIgnore) {
+        return new UnrolledBeanAsArraySerializer(this, toIgnore);
     }
 
     @Override
     protected BeanSerializerBase asArraySerializer() {
-        // already is one, so:
-        return this;
+        return this; // already is one...
     }
-    
+
+    @Override
+    public void resolve(SerializerProvider provider) throws JsonMappingException
+    {
+        super.resolve(provider);
+        _calcUnrolled();
+    }
+
     /*
     /**********************************************************
     /* JsonSerializer implementation that differs between impls
@@ -138,12 +150,6 @@ public class BeanAsArraySerializer
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        // 10-Dec-2014, tatu: Not sure if this can be made to work reliably;
-        //   but for sure delegating to default implementation will not work. So:
-        if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, gen, provider, typeSer);
-            return;
-        }
         gen.setCurrentValue(bean);
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, typeIdDef);
@@ -193,18 +199,32 @@ public class BeanAsArraySerializer
             SerializerProvider provider)
         throws IOException
     {
-        final BeanPropertyWriter[] props = _props;
         BeanPropertyWriter prop = null;
         try {
-            final int len = props.length;
-            for (int i = 0; i < len; ++i) {
-                prop = props[i];
+            switch (_propCount) {
+            default:
+            //case 6:
+                prop = _prop1;
                 prop.serializeAsElement(bean, gen, provider);
+                // fall through
+            case 5:
+                prop = _prop2;
+                prop.serializeAsElement(bean, gen, provider);
+            case 4:
+                prop = _prop3;
+                prop.serializeAsElement(bean, gen, provider);
+            case 3:
+                prop = _prop4;
+                prop.serializeAsElement(bean, gen, provider);
+            case 2:
+                prop = _prop5;
+                prop.serializeAsElement(bean, gen, provider);
+            case 1:
+                prop = _prop6;
+                prop.serializeAsElement(bean, gen, provider);
+            case 0:
             }
             // NOTE: any getters cannot be supported either
-            //if (_anyGetterWriter != null) {
-            //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
-            //}
         } catch (Exception e) {
             wrapAndThrow(provider, e, bean, prop.getName());
         } catch (StackOverflowError e) {
@@ -217,6 +237,9 @@ public class BeanAsArraySerializer
     protected final void serializeFiltered(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
+        // 26-Oct-2017, tatu: Could optimize slightly (see `UnrolledBeanSerializer`),
+        //   but let's not bother yet since can't use local vars.
+        
         final BeanPropertyWriter[] props = _filteredProps;
 
         BeanPropertyWriter prop = null;

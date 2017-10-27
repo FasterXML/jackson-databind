@@ -115,7 +115,7 @@ public class BeanSerializer
     protected BeanSerializerBase asArraySerializer()
     {
         if (canCreateArraySerializer()) {
-            return new BeanAsArraySerializer(this);
+            return BeanAsArraySerializer.construct(this);
         }
         // already is one, so:
         return this;

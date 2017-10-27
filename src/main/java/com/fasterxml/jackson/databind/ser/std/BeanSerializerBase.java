@@ -544,6 +544,13 @@ public abstract class BeanSerializerBase
         return _props.length;
     }
 
+    /**
+     * @since 3.0
+     */
+    public Object getFilterId() {
+        return _propertyFilterId;
+    }
+
     /*
     /**********************************************************
     /* Helper methods for implementation classes
@@ -557,15 +564,13 @@ public abstract class BeanSerializerBase
      *<ul>
      * <li>have Object Id (may be allowed in future)</li>
      * <li>have "any getter"</li>
-     * <li>have per-property filters</li>
      * </ul>
      *
      * @since 3.0
      */
     public boolean canCreateArraySerializer() {
         return (_objectIdWriter == null)
-                && (_anyGetterWriter == null)
-                && (_propertyFilterId == null);
+                && (_anyGetterWriter == null);
     }
 
     /*

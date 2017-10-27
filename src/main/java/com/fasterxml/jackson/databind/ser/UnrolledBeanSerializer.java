@@ -54,6 +54,24 @@ public class UnrolledBeanSerializer
         _calcUnrolled();
     }
 
+    protected UnrolledBeanSerializer(UnrolledBeanSerializer src, Set<String> toIgnore) {
+        super(src, toIgnore);
+        _propCount = _props.length;
+        _calcUnrolled();
+    }
+
+    private void _calcUnrolled() {
+        BeanPropertyWriter[] oProps = new BeanPropertyWriter[6];
+        int offset = 6 - _propCount;
+        System.arraycopy(_props, 0, oProps, offset, _propCount);
+        _prop1 = oProps[0];
+        _prop2 = oProps[1];
+        _prop3 = oProps[2];
+        _prop4 = oProps[3];
+        _prop5 = oProps[4];
+        _prop6 = oProps[5];
+    }
+
     /**
      * Factory method that will construct optimized instance if all the constraints
      * are obeyed; or, if not, return `null` to indicate that instance can not be
@@ -67,25 +85,6 @@ public class UnrolledBeanSerializer
             return null;
         }
         return new UnrolledBeanSerializer(type, builder, properties, filteredProperties);
-    }
-
-    protected UnrolledBeanSerializer(UnrolledBeanSerializer src, Set<String> toIgnore) {
-        super(src, toIgnore);
-        _propCount = _props.length;
-        _calcUnrolled();
-    }
-
-    private void _calcUnrolled() {
-        BeanPropertyWriter[] oProps = new BeanPropertyWriter[6];
-        int offset = 6 - _propCount;
-        System.arraycopy(_props, 0, oProps, offset, _propCount);
-        
-        _prop1 = oProps[0];
-        _prop2 = oProps[1];
-        _prop3 = oProps[2];
-        _prop4 = oProps[3];
-        _prop5 = oProps[4];
-        _prop6 = oProps[5];
     }
 
     /*
@@ -120,15 +119,14 @@ public class UnrolledBeanSerializer
     protected BeanSerializerBase asArraySerializer()
     {
         if (canCreateArraySerializer()) {
-            return new BeanAsArraySerializer(this);
+            return BeanAsArraySerializer.construct(this);
         }
         // Can't... so use this one
         return this;
     }
 
     @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
+    public void resolve(SerializerProvider provider) throws JsonMappingException
     {
         super.resolve(provider);
         _calcUnrolled();
@@ -158,8 +156,8 @@ public class UnrolledBeanSerializer
         throws IOException
     {
         gen.writeStartObject(bean);
-        BeanPropertyWriter prop = null;
 
+        BeanPropertyWriter prop = null;
         try {
             switch (_propCount) {
             default:

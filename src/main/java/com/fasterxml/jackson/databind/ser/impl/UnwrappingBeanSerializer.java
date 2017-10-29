@@ -117,12 +117,17 @@ public class UnwrappingBeanSerializer
         // (although... is that a problem, overwriting it now?)
         gen.setCurrentValue(bean); // [databind#631]
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, gen, provider);
-        } else {
-            serializeFields(bean, gen, provider);
+            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            return;
         }
+        BeanPropertyWriter[] fProps = _filteredProps;
+        if ((fProps != null) && (provider.getActiveView() != null)) {
+            _serializeFieldsWithView(bean, gen, provider, fProps);
+            return;
+        }
+        _serializeFieldsNoView(bean, gen, provider, _props);
     }
-    
+
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
     		TypeSerializer typeSer) throws IOException
@@ -135,12 +140,18 @@ public class UnwrappingBeanSerializer
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-        gen.setCurrentValue(bean); // [databind#631]
+        // Because we do not write start-object need to call this explicitly:
+        gen.setCurrentValue(bean);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, gen, provider);
-        } else {
-            serializeFields(bean, gen, provider);
+            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            return;
         }
+        BeanPropertyWriter[] fProps = _filteredProps;
+        if ((fProps != null) && (provider.getActiveView() != null)) {
+            _serializeFieldsWithView(bean, gen, provider, fProps);
+            return;
+        }
+        _serializeFieldsNoView(bean, gen, provider, _props);
     }
 
     /*

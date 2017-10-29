@@ -605,7 +605,7 @@ public abstract class BeanSerializerBase
         if (_propertyFilterId != null) {
             _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
         } else {
-            serializeFields(bean, gen, provider);
+            _serializeFields(bean, gen, provider);
         }
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
@@ -633,7 +633,7 @@ public abstract class BeanSerializerBase
         if (_propertyFilterId != null) {
             _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
         } else {
-            serializeFields(bean, gen, provider);
+            _serializeFields(bean, gen, provider);
         }
         if (startEndObject) {
             gen.writeEndObject();
@@ -671,7 +671,7 @@ public abstract class BeanSerializerBase
         if (_propertyFilterId != null) {
             _serializeFieldsFiltered(bean, g, provider, _propertyFilterId);
         } else {
-            serializeFields(bean, g, provider);
+            _serializeFields(bean, g, provider);
         }
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
@@ -757,7 +757,7 @@ public abstract class BeanSerializerBase
      *
      * @since 3.0
      */
-    protected void _serializeFieldsWithView(Object bean, JsonGenerator gen,
+    protected void _serializeFieldsMaybeView(Object bean, JsonGenerator gen,
             SerializerProvider provider, BeanPropertyWriter[] props)
         throws IOException
     {
@@ -826,6 +826,8 @@ public abstract class BeanSerializerBase
     /**********************************************************
      */
 
+    // 28-Oct-2017, tatu: Not yet optimized. Could be, if it seems
+    //    commonly useful wrt JsonView filtering
     /**
      * Alternative serialization method that gets called when there is a
      * {@link PropertyFilter} that needs to be called to determine
@@ -835,20 +837,23 @@ public abstract class BeanSerializerBase
             SerializerProvider provider, Object filterId)
         throws IOException
     {
-        // note: almost verbatim copy of "serializeFields"; copied (instead of merged)
-        // so that old method need not add check for existence of filter.
         final BeanPropertyWriter[] props;
+        final PropertyFilter filter = findPropertyFilter(provider, filterId, bean);
         if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;
+            // better also allow missing filter actually.. Falls down
+            if (filter == null) {
+                _serializeFieldsMaybeView(bean, gen, provider, props);
+                return;
+            }
         } else {
             props = _props;
+            if (filter == null) {
+                _serializeFieldsNoView(bean, gen, provider, props);
+                return;
+            }
         }
-        final PropertyFilter filter = findPropertyFilter(provider, filterId, bean);
-        // better also allow missing filter actually..
-        if (filter == null) {
-            serializeFields(bean, gen, provider);
-            return;
-        }
+
         int i = 0;
         try {
             for (final int len = props.length; i < len; ++i) {
@@ -873,39 +878,14 @@ public abstract class BeanSerializerBase
         }
     }
 
-    @Deprecated
-    private void serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
+    private void _serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        final BeanPropertyWriter[] props;
+        // NOTE: only called from places where FilterId (JsonView) already checked.
         if (_filteredProps != null && provider.getActiveView() != null) {
-            props = _filteredProps;
+            _serializeFieldsMaybeView(bean, gen, provider, _filteredProps);
         } else {
-            props = _props;
-        }
-        int i = 0;
-        try {
-            for (final int len = props.length; i < len; ++i) {
-                BeanPropertyWriter prop = props[i];
-                if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, gen, provider);
-                }
-            }
-            if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndSerialize(bean, gen, provider);
-            }
-        } catch (Exception e) {
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            wrapAndThrow(provider, e, bean, name);
-        } catch (StackOverflowError e) {
-            // Dealing with this is tricky, since we don't have many stack frames to spare
-            // So to avoid "from" method, call ctor directly:
-            //JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
-
-             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
-            throw mapE;
+            _serializeFieldsNoView(bean, gen, provider, _props);
         }
     }
 

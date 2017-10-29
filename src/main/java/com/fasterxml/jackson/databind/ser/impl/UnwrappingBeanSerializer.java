@@ -122,7 +122,7 @@ public class UnwrappingBeanSerializer
         }
         BeanPropertyWriter[] fProps = _filteredProps;
         if ((fProps != null) && (provider.getActiveView() != null)) {
-            _serializeFieldsWithView(bean, gen, provider, fProps);
+            _serializeFieldsMaybeView(bean, gen, provider, fProps);
             return;
         }
         _serializeFieldsNoView(bean, gen, provider, _props);
@@ -148,7 +148,7 @@ public class UnwrappingBeanSerializer
         }
         BeanPropertyWriter[] fProps = _filteredProps;
         if ((fProps != null) && (provider.getActiveView() != null)) {
-            _serializeFieldsWithView(bean, gen, provider, fProps);
+            _serializeFieldsMaybeView(bean, gen, provider, fProps);
             return;
         }
         _serializeFieldsNoView(bean, gen, provider, _props);

@@ -21,7 +21,13 @@ public class UnrolledBeanSerializer
 {
     private static final long serialVersionUID = 30; // as per jackson 3.0
 
-    public static final int MAX_PROPS = 6;
+    /* 28-Oct-2017, tatu: Exact choice for max number of properties to unroll
+     *    is difficult to pin down, but probably has to be at least 4, and
+     *    at most 8. Partly this is due to "blocks of 4" that default bean
+     *    serializer now uses, and partly guessing how aggressively JVM might
+     *    inline larger methods (more unroll, bigger method).
+     */
+    private static final int MAX_PROPS = 6;
 
     protected final int _propCount;
 
@@ -145,8 +151,11 @@ public class UnrolledBeanSerializer
         // NOTE! We have ensured that "JSON Filter" and "Object Id" cases
         // always use "vanilla" BeanSerializer, so no need to check here
 
-        if ((_filteredProps != null) && (provider.getActiveView() != null)) {
-            serializeWithView(bean, gen, provider, _filteredProps);
+        BeanPropertyWriter[] fProps = _filteredProps;        
+        if ((fProps != null) && (provider.getActiveView() != null)) {
+            gen.writeStartObject(bean);
+            _serializeFieldsWithView(bean, gen, provider, fProps);
+            gen.writeEndObject();
             return;
         }
         serializeNonFiltered(bean, gen, provider);
@@ -181,66 +190,6 @@ public class UnrolledBeanSerializer
                 prop = _prop6;
                 prop.serializeAsField(bean, gen, provider);
             case 0:
-            }
-            prop = null;
-            if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndSerialize(bean, gen, provider);
-            }
-        } catch (Exception e) {
-            String name = (prop == null) ? "[anySetter]" : prop.getName();
-            wrapAndThrow(provider, e, bean, name);
-        } catch (StackOverflowError e) {
-            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
-            String name = (prop == null) ? "[anySetter]" : prop.getName();
-            mapE.prependPath(new JsonMappingException.Reference(bean, name));
-            throw mapE;
-        }
-        gen.writeEndObject();
-    }
-
-    protected void serializeWithView(Object bean, JsonGenerator gen, SerializerProvider provider,
-            BeanPropertyWriter[] props)
-        throws IOException
-    {
-        gen.writeStartObject(bean);
-        BeanPropertyWriter prop = null;
-
-        try {
-            // NOTE: slightly less optimal as we do not use local variables, need offset
-            final int offset = props.length-1;
-            switch (_propCount) {
-            default:
-            //case 6:
-                prop = props[offset-5];
-                if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, gen, provider);
-                }
-                // fall through
-            case 5:
-                prop = props[offset-4];
-                if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, gen, provider);
-                }
-            case 4:
-                prop = props[offset-3];
-                if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, gen, provider);
-                }
-            case 3:
-                prop = props[offset-2];
-                if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, gen, provider);
-                }
-            case 2:
-                prop = props[offset-1];
-                if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, gen, provider);
-                }
-            case 1:
-                prop = props[offset];
-                if (prop != null) { // can have nulls in filtered list
-                    prop.serializeAsField(bean, gen, provider);
-                }
             }
             prop = null;
             if (_anyGetterWriter != null) {

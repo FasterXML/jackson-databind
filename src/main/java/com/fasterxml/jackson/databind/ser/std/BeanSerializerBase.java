@@ -603,7 +603,7 @@ public abstract class BeanSerializerBase
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, typeIdDef);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, gen, provider);
+            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
         } else {
             serializeFields(bean, gen, provider);
         }
@@ -631,7 +631,7 @@ public abstract class BeanSerializerBase
         }
         objectId.writeAsField(gen, provider, w);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, gen, provider);
+            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
         } else {
             serializeFields(bean, gen, provider);
         }
@@ -669,7 +669,7 @@ public abstract class BeanSerializerBase
         typeSer.writeTypePrefix(g, typeIdDef);
         objectId.writeAsField(g, provider, w);
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, g, provider);
+            _serializeFieldsFiltered(bean, g, provider, _propertyFilterId);
         } else {
             serializeFields(bean, g, provider);
         }
@@ -691,66 +691,159 @@ public abstract class BeanSerializerBase
 
     /*
     /**********************************************************
-    /* Field serialization methods
+    /* Field serialization methods, 3.0
     /**********************************************************
      */
 
-    protected void serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
+    /**
+     * Method called called when neither JSON Filter is to be applied, nor
+     * view-filtering. This means that all property writers are non null
+     * and can be called directly.
+     *
+     * @since 3.0
+     */
+    protected void _serializeFieldsNoView(Object bean, JsonGenerator gen,
+            SerializerProvider provider, BeanPropertyWriter[] props)
         throws IOException
     {
-        final BeanPropertyWriter[] props;
-        if (_filteredProps != null && provider.getActiveView() != null) {
-            props = _filteredProps;
-        } else {
-            props = _props;
-        }
         int i = 0;
+        int left = props.length;
+        BeanPropertyWriter prop = null;
+
         try {
-            for (final int len = props.length; i < len; ++i) {
-                BeanPropertyWriter prop = props[i];
-                if (prop != null) { // can have nulls in filtered list
+            if (left > 3) {
+                do {
+                    prop = props[i];
+                    prop.serializeAsField(bean, gen, provider);
+                    prop = props[i+1];
+                    prop.serializeAsField(bean, gen, provider);
+                    prop = props[i+2];
+                    prop.serializeAsField(bean, gen, provider);
+                    prop = props[i+3];
+                    prop.serializeAsField(bean, gen, provider);
+                    left -= 4;
+                    i += 4;
+                } while (left > 3);
+            }
+            switch (left) {
+            case 3:
+                prop = props[i++];
+                prop.serializeAsField(bean, gen, provider);
+            case 2:
+                prop = props[i++];
+                prop.serializeAsField(bean, gen, provider);
+            case 1:
+                prop = props[i++];
+                prop.serializeAsField(bean, gen, provider);
+            }
+            if (_anyGetterWriter != null) {
+                prop = null;
+                _anyGetterWriter.getAndSerialize(bean, gen, provider);
+            }
+        } catch (Exception e) {
+            String name = (prop == null) ? "[anySetter]" : prop.getName();
+            wrapAndThrow(provider, e, bean, name);
+        } catch (StackOverflowError e) {
+            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+            String name = (prop == null) ? "[anySetter]" : prop.getName();
+            mapE.prependPath(new JsonMappingException.Reference(bean, name));
+            throw mapE;
+        }
+    }    
+    /**
+     * Method called called when no JSON Filter is to be applied, but
+     * View filtering is in effect and so some of properties may be
+     * nulls to check.
+     *
+     * @since 3.0
+     */
+    protected void _serializeFieldsWithView(Object bean, JsonGenerator gen,
+            SerializerProvider provider, BeanPropertyWriter[] props)
+        throws IOException
+    {
+        int i = 0;
+        int left = props.length;
+        BeanPropertyWriter prop = null;
+
+        try {
+            if (left > 3) {
+                do {
+                    prop = props[i];
+                    if (prop != null) {
+                        prop.serializeAsField(bean, gen, provider);
+                    }
+                    prop = props[i+1];
+                    if (prop != null) {
+                        prop.serializeAsField(bean, gen, provider);
+                    }
+                    prop = props[i+2];
+                    if (prop != null) {
+                        prop.serializeAsField(bean, gen, provider);
+                    }
+                    prop = props[i+3];
+                    if (prop != null) {
+                        prop.serializeAsField(bean, gen, provider);
+                    }
+                    left -= 4;
+                    i += 4;
+                } while (left > 3);
+            }
+            switch (left) {
+            case 3:
+                prop = props[i++];
+                if (prop != null) {
+                    prop.serializeAsField(bean, gen, provider);
+                }
+            case 2:
+                prop = props[i++];
+                if (prop != null) {
+                    prop.serializeAsField(bean, gen, provider);
+                }
+            case 1:
+                prop = props[i++];
+                if (prop != null) {
                     prop.serializeAsField(bean, gen, provider);
                 }
             }
             if (_anyGetterWriter != null) {
+                prop = null;
                 _anyGetterWriter.getAndSerialize(bean, gen, provider);
             }
         } catch (Exception e) {
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
-            // 04-Sep-2009, tatu: Dealing with this is tricky, since we don't have many
-            //   stack frames to spare... just one or two; can't make many calls.
-
-            // 10-Dec-2015, tatu: and due to above, avoid "from" method, call ctor directly:
-            //JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
             JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
-
-             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            String name = (prop == null) ? "[anySetter]" : prop.getName();
             mapE.prependPath(new JsonMappingException.Reference(bean, name));
             throw mapE;
         }
     }
+
+    /*
+    /**********************************************************
+    /* Field serialization methods, 2.x
+    /**********************************************************
+     */
 
     /**
      * Alternative serialization method that gets called when there is a
      * {@link PropertyFilter} that needs to be called to determine
      * which properties are to be serialized (and possibly how)
      */
-    protected void serializeFieldsFiltered(Object bean, JsonGenerator gen,
-            SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    protected void _serializeFieldsFiltered(Object bean, JsonGenerator gen,
+            SerializerProvider provider, Object filterId)
+        throws IOException
     {
-        /* note: almost verbatim copy of "serializeFields"; copied (instead of merged)
-         * so that old method need not add check for existence of filter.
-         */
+        // note: almost verbatim copy of "serializeFields"; copied (instead of merged)
+        // so that old method need not add check for existence of filter.
         final BeanPropertyWriter[] props;
         if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;
         } else {
             props = _props;
         }
-        final PropertyFilter filter = findPropertyFilter(provider, _propertyFilterId, bean);
+        final PropertyFilter filter = findPropertyFilter(provider, filterId, bean);
         // better also allow missing filter actually..
         if (filter == null) {
             serializeFields(bean, gen, provider);
@@ -780,6 +873,48 @@ public abstract class BeanSerializerBase
         }
     }
 
+    @Deprecated
+    private void serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
+    {
+        final BeanPropertyWriter[] props;
+        if (_filteredProps != null && provider.getActiveView() != null) {
+            props = _filteredProps;
+        } else {
+            props = _props;
+        }
+        int i = 0;
+        try {
+            for (final int len = props.length; i < len; ++i) {
+                BeanPropertyWriter prop = props[i];
+                if (prop != null) { // can have nulls in filtered list
+                    prop.serializeAsField(bean, gen, provider);
+                }
+            }
+            if (_anyGetterWriter != null) {
+                _anyGetterWriter.getAndSerialize(bean, gen, provider);
+            }
+        } catch (Exception e) {
+            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            wrapAndThrow(provider, e, bean, name);
+        } catch (StackOverflowError e) {
+            // Dealing with this is tricky, since we don't have many stack frames to spare
+            // So to avoid "from" method, call ctor directly:
+            //JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
+            JsonMappingException mapE = new JsonMappingException(gen, "Infinite recursion (StackOverflowError)", e);
+
+             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            mapE.prependPath(new JsonMappingException.Reference(bean, name));
+            throw mapE;
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Introspection (for schema generation etc)
+    /**********************************************************
+     */
+    
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

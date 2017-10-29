@@ -154,7 +154,7 @@ public class UnrolledBeanSerializer
         BeanPropertyWriter[] fProps = _filteredProps;        
         if ((fProps != null) && (provider.getActiveView() != null)) {
             gen.writeStartObject(bean);
-            _serializeFieldsWithView(bean, gen, provider, fProps);
+            _serializeFieldsMaybeView(bean, gen, provider, fProps);
             gen.writeEndObject();
             return;
         }

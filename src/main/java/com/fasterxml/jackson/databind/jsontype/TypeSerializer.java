@@ -122,8 +122,6 @@ public abstract class TypeSerializer
      *
      * @param g Generator to use for outputting type id and possible wrapping
      * @param typeId Details of what type id is to be written, how.
-     * 
-     * @since 2.9
      */
     public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
             WritableTypeId typeId) throws IOException;

@@ -545,6 +545,16 @@ public abstract class BeanSerializerBase
     }
 
     /**
+     * Accessor for checking if view-processing is enabled for this bean,
+     * that is, if it has separate set of properties with view-checking
+     * added.
+     * 
+     * @since 3.0
+     */
+    public boolean hasViewProperties() {
+        return (_filteredProps != null);
+    }
+    /**
      * @since 3.0
      */
     public Object getFilterId() {
@@ -599,7 +609,6 @@ public abstract class BeanSerializerBase
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-        gen.setCurrentValue(bean); // [databind#631]
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, typeIdDef);
         if (_propertyFilterId != null) {

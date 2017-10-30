@@ -194,11 +194,34 @@ public class BeanAsArraySerializer
         throws IOException
     {
         final BeanPropertyWriter[] props = _props;
+        int i = 0;
+        int left = props.length;
         BeanPropertyWriter prop = null;
+
         try {
-            final int len = props.length;
-            for (int i = 0; i < len; ++i) {
-                prop = props[i];
+            if (left > 3) {
+                do {
+                    prop = props[i];
+                    prop.serializeAsElement(bean, gen, provider);
+                    prop = props[i+1];
+                    prop.serializeAsElement(bean, gen, provider);
+                    prop = props[i+2];
+                    prop.serializeAsElement(bean, gen, provider);
+                    prop = props[i+3];
+                    prop.serializeAsElement(bean, gen, provider);
+                    left -= 4;
+                    i += 4;
+                } while (left > 3);
+            }
+            switch (left) {
+            case 3:
+                prop = props[i++];
+                prop.serializeAsElement(bean, gen, provider);
+            case 2:
+                prop = props[i++];
+                prop.serializeAsElement(bean, gen, provider);
+            case 1:
+                prop = props[i++];
                 prop.serializeAsElement(bean, gen, provider);
             }
             // NOTE: any getters cannot be supported either
@@ -218,13 +241,63 @@ public class BeanAsArraySerializer
         throws IOException
     {
         final BeanPropertyWriter[] props = _filteredProps;
-
+        int i = 0;
+        int left = props.length;
         BeanPropertyWriter prop = null;
+
         try {
-            final int len = props.length;
-            for (int i = 0; i < len; ++i) {
-                prop = props[i];
-                if (prop == null) { // can have nulls in filtered list; but if so, MUST write placeholders
+            if (left > 3) {
+                do {
+                    prop = props[i];
+                    if (prop == null) { // can have nulls in filtered list; but if so, MUST write placeholders
+                        gen.writeNull();
+                    } else {
+                        prop.serializeAsElement(bean, gen, provider);
+                    }
+
+                    prop = props[i+1];
+                    if (prop == null) {
+                        gen.writeNull();
+                    } else {
+                        prop.serializeAsElement(bean, gen, provider);
+                    }
+
+                    prop = props[i+2];
+                    if (prop == null) {
+                        gen.writeNull();
+                    } else {
+                        prop.serializeAsElement(bean, gen, provider);
+                    }
+
+                    prop = props[i+3];
+                    if (prop == null) {
+                        gen.writeNull();
+                    } else {
+                        prop.serializeAsElement(bean, gen, provider);
+                    }
+
+                    left -= 4;
+                    i += 4;
+                } while (left > 3);
+            }
+            switch (left) {
+            case 3:
+                prop = props[i++];
+                if (prop == null) {
+                    gen.writeNull();
+                } else {
+                    prop.serializeAsElement(bean, gen, provider);
+                }
+            case 2:
+                prop = props[i++];
+                if (prop == null) {
+                    gen.writeNull();
+                } else {
+                    prop.serializeAsElement(bean, gen, provider);
+                }
+            case 1:
+                prop = props[i++];
+                if (prop == null) {
                     gen.writeNull();
                 } else {
                     prop.serializeAsElement(bean, gen, provider);

@@ -84,7 +84,8 @@ public class UnrolledBeanAsArraySerializer
     public static UnrolledBeanAsArraySerializer tryConstruct(BeanSerializerBase src)
     {
         if ((src.propertyCount() > MAX_PROPS)
-                || (src.getFilterId() != null)) {
+                || (src.getFilterId() != null)
+                || src.hasViewProperties()) {
             return null;
         }
         return new UnrolledBeanAsArraySerializer(src);
@@ -150,12 +151,10 @@ public class UnrolledBeanAsArraySerializer
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        gen.setCurrentValue(bean);
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, typeIdDef);
-        final boolean filtered = (_filteredProps != null && provider.getActiveView() != null);
-        if (filtered) serializeFiltered(bean, gen, provider);
-        else serializeNonFiltered(bean, gen, provider);
+        // NOTE: instances NOT constructed if view-processing available
+        serializeNonFiltered(bean, gen, provider);
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
@@ -168,11 +167,9 @@ public class UnrolledBeanAsArraySerializer
     public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        final boolean filtered = (_filteredProps != null && provider.getActiveView() != null);
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(provider)) {
-            if (filtered) serializeFiltered(bean, gen, provider);
-            else serializeNonFiltered(bean, gen, provider);
+            serializeNonFiltered(bean, gen, provider);
             return;
         }
         // note: it is assumed here that limitations (type id, object id,
@@ -180,8 +177,8 @@ public class UnrolledBeanAsArraySerializer
         // is trivial.
 
         gen.writeStartArray(bean, _props.length);
-        if (filtered) serializeFiltered(bean, gen, provider);
-        else serializeNonFiltered(bean, gen, provider);
+        // NOTE: instances NOT constructed if view-processing available
+        serializeNonFiltered(bean, gen, provider);
         gen.writeEndArray();
     }
 
@@ -225,38 +222,6 @@ public class UnrolledBeanAsArraySerializer
             case 0:
             }
             // NOTE: any getters cannot be supported either
-        } catch (Exception e) {
-            wrapAndThrow(provider, e, bean, prop.getName());
-        } catch (StackOverflowError e) {
-            JsonMappingException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            mapE.prependPath(new JsonMappingException.Reference(bean, prop.getName()));
-            throw mapE;
-        }
-    }
-
-    protected final void serializeFiltered(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
-    {
-        // 26-Oct-2017, tatu: Could optimize slightly (see `UnrolledBeanSerializer`),
-        //   but let's not bother yet since can't use local vars.
-        
-        final BeanPropertyWriter[] props = _filteredProps;
-
-        BeanPropertyWriter prop = null;
-        try {
-            final int len = props.length;
-            for (int i = 0; i < len; ++i) {
-                prop = props[i];
-                if (prop == null) { // can have nulls in filtered list; but if so, MUST write placeholders
-                    gen.writeNull();
-                } else {
-                    prop.serializeAsElement(bean, gen, provider);
-                }
-            }
-            // NOTE: any getters cannot be supported either
-            //if (_anyGetterWriter != null) {
-            //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
-            //}
         } catch (Exception e) {
             wrapAndThrow(provider, e, bean, prop.getName());
         } catch (StackOverflowError e) {

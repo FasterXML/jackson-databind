@@ -1149,10 +1149,8 @@ public abstract class BeanDeserializerBase
     }
 
     /**
-     * Offlined method called to handle "native" Object Id that has been read
+     * Off-lined method called to handle "native" Object Id that has been read
      * and known to be associated with given deserialized POJO.
-     *
-     * @since 2.3
      */
     protected Object _handleTypedObjectId(JsonParser p, DeserializationContext ctxt,
             Object pojo, Object rawId)

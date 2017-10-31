@@ -34,16 +34,12 @@ public class BeanDeserializer
     /**
      * Lazily constructed exception used as root cause if reporting problem
      * with creator method that returns <code>null</code> (which is not allowed)
-     *
-     * @since 2.8
      */
     protected transient Exception _nullFromCreator;
 
     /**
      * State marker we need in order to avoid infinite recursion for some cases
      * (not very clean, alas, but has to do for now)
-     *
-     * @since 2.9
      */
     private volatile transient NameTransformer _currentlyTransforming;
 
@@ -148,7 +144,7 @@ public class BeanDeserializer
         // common case first
         if (p.isExpectedStartObjectToken()) {
             if (_vanillaProcessing) {
-                return vanillaDeserialize(p, ctxt);
+                return _vanillaDeserialize(p, ctxt);
             }
             // 23-Sep-2015, tatu: This is wrong at some many levels, but for now... it is
             //    what it is, including "expected behavior".
@@ -186,7 +182,7 @@ public class BeanDeserializer
         case FIELD_NAME:
         case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
             if (_vanillaProcessing) {
-                return vanillaDeserialize(p, ctxt, t);
+                return _vanillaDeserialize(p, ctxt, t);
             }
             if (_objectIdReader != null) {
                 return deserializeWithObjectId(p, ctxt);
@@ -265,26 +261,60 @@ public class BeanDeserializer
      * features are enabled, and when current logical token
      * is {@link JsonToken#START_OBJECT} (or equivalent).
      */
-    private final Object vanillaDeserialize(JsonParser p,
+    private final Object _vanillaDeserialize(JsonParser p,
             DeserializationContext ctxt)
         throws IOException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
+
         String propName;
         while ((propName = p.nextFieldName()) != null) {
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop;
+
             p.nextToken();
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
-                }
-                continue;
+            if ((prop = _beanProperties.find(propName)) == null) {
+                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
             }
-            handleUnknownVanilla(p, ctxt, bean, propName);
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
+            }
+
+            if ((propName = p.nextFieldName()) == null) break; // element #2
+            p.nextToken();
+            if ((prop = _beanProperties.find(propName)) == null) {
+                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
+            }
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
+            }
+
+            if ((propName = p.nextFieldName()) == null) break; // element #3
+            p.nextToken();
+            if ((prop = _beanProperties.find(propName)) == null) {
+                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
+            }
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
+            }
+
+            if ((propName = p.nextFieldName()) == null) break; // element #4
+            p.nextToken();
+            if ((prop = _beanProperties.find(propName)) == null) {
+                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
+            }
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
+            }
         }
         return bean;
     }
@@ -293,7 +323,7 @@ public class BeanDeserializer
      * Streamlined version that is only used when no "special"
      * features are enabled.
      */
-    private final Object vanillaDeserialize(JsonParser p,
+    private final Object _vanillaDeserialize(JsonParser p,
     		DeserializationContext ctxt, JsonToken t)
         throws IOException
     {
@@ -302,23 +332,55 @@ public class BeanDeserializer
         p.setCurrentValue(bean);
         if (t == JsonToken.FIELD_NAME) {
             String propName = p.getCurrentName();
-            do {
+            do { // minor unrolling here (by-2), less likely on critical path
                 p.nextToken();
                 SettableBeanProperty prop = _beanProperties.find(propName);
-
-                if (prop != null) { // normal case
+                
+                if ((prop = _beanProperties.find(propName)) == null) {
+                    handleUnknownVanilla(p, ctxt, bean, propName);
+                } else {
                     try {
                         prop.deserializeAndSet(p, ctxt, bean);
                     } catch (Exception e) {
                         wrapAndThrow(e, bean, propName, ctxt);
                     }
-                    continue;
                 }
-                handleUnknownVanilla(p, ctxt, bean, propName);
+
+                if ((propName = p.nextFieldName()) == null) break;
+                p.nextToken();
+                if ((prop = _beanProperties.find(propName)) == null) {
+                    handleUnknownVanilla(p, ctxt, bean, propName);
+                } else {
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        wrapAndThrow(e, bean, propName, ctxt);
+                    }
+                }
             } while ((propName = p.nextFieldName()) != null);
         }
         return bean;
     }
+
+    private final Object _vanillaDeserializeWithUnknown(JsonParser p,
+            DeserializationContext ctxt, Object bean, String propName) throws IOException
+    {
+        handleUnknownVanilla(p, ctxt, bean, propName);
+        while ((propName = p.nextFieldName()) != null) {
+            p.nextToken();
+            SettableBeanProperty prop = _beanProperties.find(propName);
+            if (prop == null) {
+                handleUnknownVanilla(p, ctxt, bean, propName);
+                continue;
+            }
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
+            }
+        }
+        return bean;
+    }        
 
     /**
      * General version used when handling needs more advanced features.
@@ -561,15 +623,13 @@ public class BeanDeserializer
      * token. While this is most often an erroneous condition, there is one specific
      * case with XML handling where polymorphic type with no properties is exposed
      * as such, and should be handled same as empty Object.
-     *
-     * @since 2.7
      */
     protected Object deserializeFromNull(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // 17-Dec-2015, tatu: Highly specialized case, mainly to support polymorphic
         //   "empty" POJOs deserialized from XML, where empty XML tag synthesizes a
-        //   `VALUE_NULL` token.s
+        //   `VALUE_NULL` tokens
         if (p.canSynthesizeNulls()) {
             @SuppressWarnings("resource")
             TokenBuffer tb = new TokenBuffer(p, ctxt);
@@ -577,7 +637,7 @@ public class BeanDeserializer
             JsonParser p2 = tb.asParser(ctxt, p);
             p2.nextToken(); // to point to END_OBJECT
             // note: don't have ObjectId to consider at this point, so:
-            Object ob = _vanillaProcessing ? vanillaDeserialize(p2, ctxt, JsonToken.END_OBJECT)
+            Object ob = _vanillaProcessing ? _vanillaDeserialize(p2, ctxt, JsonToken.END_OBJECT)
                     : deserializeFromObject(p2, ctxt);
             p2.close();
             return ob;

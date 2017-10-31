@@ -109,8 +109,6 @@ public class JsonNodeDeserializer
 
         /**
          * Variant needed to support both root-level `updateValue()` and merging.
-         *
-         * @since 2.9
          */
         @Override
         public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt,
@@ -145,8 +143,6 @@ public class JsonNodeDeserializer
 
         /**
          * Variant needed to support both root-level `updateValue()` and merging.
-         *
-         * @since 2.9
          */
         @Override
         public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt,
@@ -290,8 +286,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**
      * Alternate deserialization method used when parser already points to first
      * FIELD_NAME and not START_OBJECT.
-     *
-     * @since 2.9
      */
     protected final ObjectNode deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
@@ -344,8 +338,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**
      * Alternate deserialization method that is to update existing {@link ObjectNode}
      * if possible.
-     *
-     * @since 2.9
      */
     protected final JsonNode updateObject(JsonParser p, DeserializationContext ctxt,
         final ObjectNode node) throws IOException

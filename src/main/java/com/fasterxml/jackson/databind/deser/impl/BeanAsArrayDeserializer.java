@@ -104,6 +104,100 @@ public class BeanAsArrayDeserializer
         final SettableBeanProperty[] props = _orderedProperties;
         int i = 0;
         final int propCount = props.length;
+
+        for (; (i + 3) < propCount; i += 4) {
+            SettableBeanProperty prop;
+            if (p.nextToken() == JsonToken.END_ARRAY) return bean;
+            if ((prop = props[i]) != null) {
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+            } else {
+                p.skipChildren();
+            }
+
+            if (p.nextToken() == JsonToken.END_ARRAY) return bean;
+            if ((prop = props[i+1]) != null) { // element #2
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+            } else {
+                p.skipChildren();
+            }
+
+            if (p.nextToken() == JsonToken.END_ARRAY) return bean;
+            if ((prop = props[i+2]) != null) { // element #3
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+            } else {
+                p.skipChildren();
+            }
+
+            if (p.nextToken() == JsonToken.END_ARRAY) return bean;
+            if ((prop = props[i+3]) != null) { // element #4
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+            } else {
+                p.skipChildren();
+            }
+        }
+
+        SettableBeanProperty prop;
+        switch (propCount - i) {
+        case 3:
+            if (p.nextToken() == JsonToken.END_ARRAY) {
+                return bean;
+            }
+            if ((prop = props[i++]) != null) {
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+            } else {
+                p.skipChildren();
+            }
+            // fall through
+        case 2:
+            if (p.nextToken() == JsonToken.END_ARRAY) {
+                return bean;
+            }
+            if ((prop = props[i++]) != null) {
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+            } else {
+                p.skipChildren();
+            }
+            // fall through
+        case 1:
+            if (p.nextToken() == JsonToken.END_ARRAY) {
+                return bean;
+            }
+            if ((prop = props[i]) != null) {
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
+                }
+            } else {
+                p.skipChildren();
+            }
+        }
+        
+        /*
         while (true) {
             if (p.nextToken() == JsonToken.END_ARRAY) {
                 return bean;
@@ -123,17 +217,20 @@ public class BeanAsArrayDeserializer
             }
             ++i;
         }
-        // Ok; extra fields? Let's fail, unless ignoring extra props is fine
-        if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
-                    "Unexpected JSON values; expected at most %d properties (in JSON Array)",
-                    propCount);
-            // never gets here
+        */
+        if (p.nextToken() != JsonToken.END_ARRAY) {
+            // Ok; extra fields? Let's fail, unless ignoring extra props is fine
+            if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+                ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
+                        "Unexpected JSON values; expected at most %d properties (in JSON Array)",
+                        propCount);
+                // never gets here
+            }
+            // otherwise, skip until end
+            do {
+                p.skipChildren();
+            } while (p.nextToken() != JsonToken.END_ARRAY);
         }
-        // otherwise, skip until end
-        do {
-            p.skipChildren();
-        } while (p.nextToken() != JsonToken.END_ARRAY);
         return bean;
     }
 

@@ -6,6 +6,8 @@ Project: jackson-databind
 2.9.3 (not yet released)
 
 #1604: Nested type arguments doesn't work with polymorphic types
+#1794: `StackTraceElementDeserializer` not working if field visibility changed
+ (reported by dsingley@github)
 #1799: Allow creation of custom sub-types of `NullNode`, `BooleanNode`, `MissingNode`
 #1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
  (reported byb henryptung@github)

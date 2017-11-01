@@ -81,6 +81,11 @@ public class ArrayNode
         return JsonNodeType.ARRAY;
     }
 
+    @Override
+    public boolean isArray() {
+        return true;
+    }
+
     @Override public JsonToken asToken() { return JsonToken.START_ARRAY; }
 
     @Override

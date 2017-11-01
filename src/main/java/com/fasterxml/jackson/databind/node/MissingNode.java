@@ -24,7 +24,11 @@ public final class MissingNode
 {
     private final static MissingNode instance = new MissingNode();
 
-    private MissingNode() { }
+    /**
+     *<p>
+     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
+     */
+    protected MissingNode() { }
 
     // Immutable: no need to copy
     @SuppressWarnings("unchecked")
@@ -34,8 +38,7 @@ public final class MissingNode
     public static MissingNode getInstance() { return instance; }
     
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.MISSING;
     }
 

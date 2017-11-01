@@ -50,9 +50,13 @@ public class StackTraceElementDeserializer
                     moduleName = p.getText();
                 } else if ("moduleVersion".equals(propName)) {
                     moduleVersion = p.getText();
+                } else if ("declaringClass".equals(propName)) {
+                    // 01-Nov-2017: [databind#1794] Not sure if we should but... let's prune it for now
+                    ;
                 } else {
                     handleUnknownProperty(p, ctxt, _valueClass, propName);
                 }
+                p.skipChildren(); // just in case we might get structured values
             }
             return constructValue(ctxt, className, methodName, fileName, lineNumber,
                     moduleName, moduleVersion, classLoaderName);

@@ -97,13 +97,18 @@ public abstract class JsonNode
     }
 
     @Override
-    public final boolean isArray() {
-        return getNodeType() == JsonNodeType.ARRAY;
+    public boolean isMissingNode() {
+        return false;
     }
 
     @Override
-    public final boolean isObject() {
-        return getNodeType() == JsonNodeType.OBJECT;
+    public boolean isArray() {
+        return false;
+    }
+
+    @Override
+    public boolean isObject() {
+        return false;
     }
 
     /**

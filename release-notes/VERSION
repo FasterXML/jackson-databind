@@ -11,7 +11,9 @@ Project: jackson-databind
 #1768: Improve `TypeFactory.constructFromCanonical()` to work with
   `java.lang.reflect.Type.getTypeName()` format
 #1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
- (reported byb henryptung@github)
+ (reported by henryptung@github)
+#1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
+ (reported by lexas2509@github)
 
 2.8.10 (24-Aug-2017)
 

@@ -204,7 +204,7 @@ public final class DeserializerCache
         if (type == null) {
             throw new IllegalArgumentException("Null JavaType passed");
         }
-        if (_hasCustomValueHandler(type)) {
+        if (_hasCustomHandlers(type)) {
             return null;
         }
         return _cachedDeserializers.get(type);
@@ -274,7 +274,7 @@ public final class DeserializerCache
          * (but can be re-defined for sub-classes by using @JsonCachable!)
          */
         // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
-        boolean addToCache = !_hasCustomValueHandler(type) && deser.isCachable();
+        boolean addToCache = !_hasCustomHandlers(type) && deser.isCachable();
 
         /* we will temporarily hold on to all created deserializers (to
          * handle cyclic references, and possibly reuse non-cached
@@ -539,13 +539,23 @@ public final class DeserializerCache
      * Helper method used to prevent both caching and cache lookups for structured
      * types that have custom value handlers
      *
-     * @since 2.4.6
+     * @since 2.8.11
      */
-    private boolean _hasCustomValueHandler(JavaType t) {
+    private boolean _hasCustomHandlers(JavaType t) {
         if (t.isContainerType()) {
+            // First: value types may have both value and type handlers
             JavaType ct = t.getContentType();
             if (ct != null) {
-                return (ct.getValueHandler() != null) || (ct.getTypeHandler() != null);
+                if ((ct.getValueHandler() != null) || (ct.getTypeHandler() != null)) {
+                    return true;
+                }
+            }
+            // Second: map(-like) types may have value handler for key (but not type; keys are untyped)
+            if (t.isMapLikeType()) {
+                JavaType kt = t.getKeyType();
+                if (kt.getValueHandler() != null) {
+                    return true;
+                }
             }
         }
         return false;

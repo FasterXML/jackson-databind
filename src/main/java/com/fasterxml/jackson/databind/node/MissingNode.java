@@ -24,7 +24,16 @@ public final class MissingNode
 {
     private final static MissingNode instance = new MissingNode();
 
-    private MissingNode() { }
+    /**
+     *<p>
+     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
+     */
+    protected MissingNode() { }
+
+    @Override
+    public boolean isMissingNode() {
+        return true;
+    }
 
     // Immutable: no need to copy
     @SuppressWarnings("unchecked")

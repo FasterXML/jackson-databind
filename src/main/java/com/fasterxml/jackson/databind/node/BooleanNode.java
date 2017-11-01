@@ -20,8 +20,12 @@ public class BooleanNode
     public final static BooleanNode FALSE = new BooleanNode(false);
 
     private final boolean _value;
-    
-    private BooleanNode(boolean v) { _value = v; }
+
+    /**
+     *<p>
+     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
+     */
+    protected BooleanNode(boolean v) { _value = v; }
 
     public static BooleanNode getTrue() { return TRUE; }
     public static BooleanNode getFalse() { return FALSE; }

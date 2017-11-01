@@ -17,7 +17,11 @@ public final class NullNode
 
     public final static NullNode instance = new NullNode();
 
-    private NullNode() { }
+    /**
+     *<p>
+     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
+     */
+    protected NullNode() { }
 
     public static NullNode getInstance() { return instance; }
 

@@ -887,7 +887,7 @@ public abstract class BeanSerializerBase
         }
     }
 
-    private void _serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
+    protected void _serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
         // NOTE: only called from places where FilterId (JsonView) already checked.

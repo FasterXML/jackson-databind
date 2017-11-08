@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.Named;
+import com.fasterxml.jackson.databind.util.FullyNamed;
 
 /**
  * Bean properties are logical entities that represent data
@@ -33,23 +33,15 @@ import com.fasterxml.jackson.databind.util.Named;
  * especially when further resolving dependent handlers like value
  * serializers/deserializers or structured types.
  */
-public interface BeanProperty extends Named
+public interface BeanProperty extends FullyNamed
 {
     public final static JsonFormat.Value EMPTY_FORMAT = new JsonFormat.Value();
     public final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
-    /**
-     * Method to get logical name of the property
-     */
-    @Override
-    public String getName();
-
-    /**
-     * Method for getting full name definition, including possible
-     * format-specific additional properties (such as namespace when
-     * using XML backend).
-     */
-    public PropertyName getFullName();
+    // // // From FullyNamed
+    
+    //public String getName();
+    //public PropertyName getFullName();
 
     /**
      * Method to get declared type of the property.
@@ -59,16 +51,12 @@ public interface BeanProperty extends Named
     /**
      * If property is indicated to be wrapped, name of
      * wrapper element to use.
-     * 
-     * @since 2.2
      */
     public PropertyName getWrapperName();
 
     /**
      * Accessor for additional optional information about property.
-     * 
-     * @since 2.3
-     * 
+     *
      * @return Metadata about property; never null.
      */
     public PropertyMetadata getMetadata();

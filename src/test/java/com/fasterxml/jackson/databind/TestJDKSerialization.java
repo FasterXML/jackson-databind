@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.LRUMap;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 /**
  * Tests to verify that most core Jackson components can be serialized
@@ -191,11 +191,11 @@ public class TestJDKSerialization extends BaseMapTest
 
     public void testLRUMap() throws Exception
     {
-        LRUMap<String,Integer> map = new LRUMap<String,Integer>(32, 32);
+        SimpleLookupCache<String,Integer> map = new SimpleLookupCache<String,Integer>(32, 32);
         map.put("a", 1);
 
         byte[] bytes = jdkSerialize(map);
-        LRUMap<String,Integer> result = jdkDeserialize(bytes);
+        SimpleLookupCache<String,Integer> result = jdkDeserialize(bytes);
         // transient implementation, will be read as empty
         assertEquals(0, result.size());
 

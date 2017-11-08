@@ -69,7 +69,7 @@ public class JacksonAnnotationIntrospector
      *<p>
      * Non-final only because it needs to be re-created after deserialization.
      */
-    protected transient LRUMap<Class<?>,Boolean> _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
+    protected transient SimpleLookupCache<Class<?>,Boolean> _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 48);
 
     /*
     /**********************************************************
@@ -100,7 +100,7 @@ public class JacksonAnnotationIntrospector
 
     protected Object readResolve() {
         if (_annotationsInside == null) {
-            _annotationsInside = new LRUMap<Class<?>,Boolean>(48, 48);
+            _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 48);
         }
         return this;
     }

@@ -7,6 +7,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -646,8 +647,6 @@ public final class ClassUtil
     /**
      * Returns either backtick-quoted `named.getName()` (if `named` not null),
      * or "[null]" if `named` is null.
-     *
-     * @since 2.9
      */
     public static String nameOf(Named named) {
         if (named == null) {
@@ -658,8 +657,6 @@ public final class ClassUtil
 
     /**
      * Returns either `text` or [null].
-     *
-     * @since 2.9
      */
     public static String backticked(String text) {
         if (text == null) {

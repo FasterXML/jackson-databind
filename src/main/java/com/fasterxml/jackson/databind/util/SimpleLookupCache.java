@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * on assumption that all use cases are for caching where persistence
  * does not make sense. The only thing serialized is the cache size of Map.
  *<p>
- * NOTE: since version 2.4.2, this is <b>NOT</b> an LRU-based at all; reason
+ * NOTE: this is <b>NOT</b> an LRU-based (in 2.x it was named <code>LRUMap</code>); reason
  * being that it is not possible to use JDK components that do LRU _AND_ perform
  * well wrt synchronization on multi-core systems. So we choose efficient synchronization
  * over potentially more efficient handling of entries.
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * but at this point we really try to keep external deps to minimum. But perhaps
  * a shaded variant may be used one day.
  */
-public class LRUMap<K,V>
+public class SimpleLookupCache<K,V>
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -29,7 +29,7 @@ public class LRUMap<K,V>
 
     protected final transient ConcurrentHashMap<K,V> _map;
     
-    public LRUMap(int initialEntries, int maxEntries)
+    public SimpleLookupCache(int initialEntries, int maxEntries)
     {
         // We'll use concurrency level of 4, seems reasonable
         _map = new ConcurrentHashMap<K,V>(initialEntries, 0.8f, 4);
@@ -93,6 +93,6 @@ public class LRUMap<K,V>
     }
 
     protected Object readResolve() {
-        return new LRUMap<Object,Object>(_jdkSerializeMaxEntries, _jdkSerializeMaxEntries);
+        return new SimpleLookupCache<Object,Object>(_jdkSerializeMaxEntries, _jdkSerializeMaxEntries);
     }
 }

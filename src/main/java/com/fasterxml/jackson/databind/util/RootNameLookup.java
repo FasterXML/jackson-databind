@@ -16,10 +16,10 @@ public class RootNameLookup implements java.io.Serializable
      * For efficient operation, let's try to minimize number of times we
      * need to introspect root element name to use.
      */
-    protected transient LRUMap<ClassKey,PropertyName> _rootNames;
+    protected transient SimpleLookupCache<ClassKey,PropertyName> _rootNames;
 
     public RootNameLookup() {
-        _rootNames = new LRUMap<ClassKey,PropertyName>(20, 200);
+        _rootNames = new SimpleLookupCache<ClassKey,PropertyName>(20, 200);
    }
 
     public PropertyName findRootName(JavaType rootType, MapperConfig<?> config) {

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Named;
+import com.fasterxml.jackson.databind.util.FullyNamed;
 
 /**
  * Simple value classes that contain definitions of properties,
@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.util.Named;
  * {@link BeanProperty} instances.
  */
 public abstract class BeanPropertyDefinition
-    implements Named
+    implements FullyNamed
 {
     protected final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
@@ -48,24 +48,19 @@ public abstract class BeanPropertyDefinition
 
     /*
     /**********************************************************
-    /* Property name information
+    /* Property name information, `FullyNamed`
     /**********************************************************
      */
 
-    /**
-     * Accessor for name used for external representation (in JSON).
-     */
-    @Override // from Named
-    public abstract String getName();
+//    public abstract String getName();
+//    public abstract PropertyName getFullName();
+//    public boolean hasName(PropertyName name);
 
-    public abstract PropertyName getFullName();
-
-    /**
-     * @since 2.6
+    /*
+    /**********************************************************
+    /* Property name information, other
+    /**********************************************************
      */
-    public boolean hasName(PropertyName name) {
-        return getFullName().equals(name);
-    }
     
     /**
      * Accessor that can be used to determine implicit name from underlying
@@ -77,8 +72,6 @@ public abstract class BeanPropertyDefinition
     
     /**
      * Accessor for finding wrapper name to use for property (if any).
-     * 
-     * @since 2.2
      */
     public abstract PropertyName getWrapperName();
 

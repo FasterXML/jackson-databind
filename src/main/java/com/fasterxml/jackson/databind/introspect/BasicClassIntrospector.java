@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.LRUMap;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 public class BasicClassIntrospector
     extends ClassIntrospector
@@ -60,11 +60,11 @@ public class BasicClassIntrospector
      * 
      * @since 2.5
      */
-    protected final LRUMap<JavaType,BasicBeanDescription> _cachedFCA;
+    protected final SimpleLookupCache<JavaType,BasicBeanDescription> _cachedFCA;
 
     public BasicClassIntrospector() {
         // a small cache should go a long way here
-        _cachedFCA = new LRUMap<JavaType,BasicBeanDescription>(16, 64);
+        _cachedFCA = new SimpleLookupCache<JavaType,BasicBeanDescription>(16, 64);
     }
     
     /*

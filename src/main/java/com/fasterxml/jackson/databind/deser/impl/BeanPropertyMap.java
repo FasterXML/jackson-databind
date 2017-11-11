@@ -389,7 +389,7 @@ public class BeanPropertyMap
         }
         return p;
     }
-    
+
     /**
      * Method that will re-create initial insertion-ordering of
      * properties contained in this map. Note that if properties
@@ -513,34 +513,6 @@ public class BeanPropertyMap
 
     /*
     /**********************************************************
-    /* Public API, deserialization support
-    /**********************************************************
-     */
-
-    /**
-     * Convenience method that tries to find property with given name, and
-     * if it is found, call {@link SettableBeanProperty#deserializeAndSet}
-     * on it, and return true; or, if not found, return false.
-     * Note, too, that if deserialization is attempted, possible exceptions
-     * are wrapped if and as necessary, so caller need not handle those.
-     */
-    public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object bean, String key) throws IOException
-    {
-        final SettableBeanProperty prop = find(key);
-        if (prop == null) {
-            return false;
-        }
-        try {
-            prop.deserializeAndSet(p, ctxt, bean);
-        } catch (Exception e) {
-            wrapAndThrow(e, bean, key, ctxt);
-        }
-        return true;
-    }
-
-    /*
-    /**********************************************************
     /* Std method overrides
     /**********************************************************
      */
@@ -597,35 +569,11 @@ public class BeanPropertyMap
         return prop;
     }
 
-    protected void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
-        throws IOException
-    {
-        // inlined 'throwOrReturnThrowable'
-        while (t instanceof InvocationTargetException && t.getCause() != null) {
-            t = t.getCause();
-        }
-        // Errors to be passed as is
-        ClassUtil.throwIfError(t);
-        // StackOverflowErrors are tricky ones; need to be careful...
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        // Ditto for IOExceptions; except we may want to wrap JSON exceptions
-        if (t instanceof IOException) {
-            if (!wrap || !(t instanceof JsonProcessingException)) {
-                throw (IOException) t;
-            }
-        } else if (!wrap) { // allow disabling wrapping for unchecked exceptions
-            ClassUtil.throwIfRTE(t);
-        }
-        throw JsonMappingException.wrapWithPath(t, bean, fieldName);
-    }
-
     /**
      * Helper method used to find exact location of a property with name
      * given exactly, not subject to case changes, within hash area.
      * Expectation is that such property SHOULD exist, although no
      * exception is thrown.
-     *
-     * @since 2.7
      */
     private final int _findIndexInHash(String key)
     {

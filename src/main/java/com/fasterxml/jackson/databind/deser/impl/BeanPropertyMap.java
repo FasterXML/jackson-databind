@@ -61,15 +61,11 @@ public class BeanPropertyMap
      * This is is used for constructing actual reverse lookup mapping, if
      * needed, taking into account possible case-insensitivity, as well
      * as possibility of name prefixes.
-     *
-     * @since 2.9
      */
     private final Map<String,List<PropertyName>> _aliasDefs;
 
     /**
      * Mapping from secondary names (aliases) to primary names.
-     *
-     * @since 2.9
      */
     private final Map<String,String> _aliasMapping;
 
@@ -284,8 +280,6 @@ public class BeanPropertyMap
      * Mutant factory method that will use this instance as the base, and
      * construct an instance that is otherwise same except for excluding
      * properties with specified names.
-     *
-     * @since 2.8
      */
     public BeanPropertyMap withoutProperties(Collection<String> toExclude)
     {
@@ -369,16 +363,10 @@ public class BeanPropertyMap
 
     public int size() { return _size; }
 
-    /**
-     * @since 2.9
-     */
     public boolean isCaseInsensitive() {
         return _caseInsensitive;
     }
 
-    /**
-     * @since 2.9
-     */
     public boolean hasAliases() {
         return !_aliasDefs.isEmpty();
     }
@@ -407,8 +395,6 @@ public class BeanPropertyMap
      * properties contained in this map. Note that if properties
      * have been removed, array may contain nulls; otherwise
      * it should be consecutive.
-     * 
-     * @since 2.1
      */
     public SettableBeanProperty[] getPropertiesInInsertionOrder() {
         return _propsInOrder;
@@ -425,10 +411,7 @@ public class BeanPropertyMap
     /* Public API, property lookup
     /**********************************************************
      */
-    
-    /**
-     * @since 2.3
-     */
+
     public SettableBeanProperty find(int index)
     {
         // note: will scan the whole area, including primary, secondary and
@@ -467,7 +450,6 @@ public class BeanPropertyMap
     private final SettableBeanProperty _find2(String key, int slot, Object match)
     {
         if (match == null) {
-            // 26-Feb-2017, tatu: Need to consider aliases
             return _findWithAlias(_aliasMapping.get(key));
         }
         // no? secondary?
@@ -486,7 +468,6 @@ public class BeanPropertyMap
                 }
             }
         }
-        // 26-Feb-2017, tatu: Need to consider aliases
         return _findWithAlias(_aliasMapping.get(key));
     }
 
@@ -542,8 +523,6 @@ public class BeanPropertyMap
      * on it, and return true; or, if not found, return false.
      * Note, too, that if deserialization is attempted, possible exceptions
      * are wrapped if and as necessary, so caller need not handle those.
-     * 
-     * @since 2.5
      */
     public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object bean, String key) throws IOException

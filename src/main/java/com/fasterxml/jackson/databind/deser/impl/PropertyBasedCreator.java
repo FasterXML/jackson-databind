@@ -89,8 +89,6 @@ public final class PropertyBasedCreator
     /**
      * Factory method used for building actual instances to be used with POJOS:
      * resolves deserializers, checks for "null values".
-     *
-     * @since 2.9
      */
     public static PropertyBasedCreator construct(DeserializationContext ctxt,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps,
@@ -115,8 +113,6 @@ public final class PropertyBasedCreator
      * Factory method used for building actual instances to be used with types
      * OTHER than POJOs.
      * resolves deserializers and checks for "null values".
-     *
-     * @since 2.9
      */
     public static PropertyBasedCreator construct(DeserializationContext ctxt,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] srcCreatorProps,

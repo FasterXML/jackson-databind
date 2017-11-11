@@ -365,9 +365,6 @@ public abstract class BeanDeserializerBase
         _beanProperties = src._beanProperties.withoutProperties(ignorableProps);
     }
 
-    /**
-     * @since 2.8
-     */
     protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)
     {
         super(src._beanType);
@@ -403,8 +400,6 @@ public abstract class BeanDeserializerBase
     /**
      * Mutant factory method that custom sub-classes must override; not left as
      * abstract to prevent more drastic backwards compatibility problems.
-     *
-     * @since 2.8
      */
     public BeanDeserializerBase withBeanProperties(BeanPropertyMap props) {
         throw new UnsupportedOperationException("Class "+getClass().getName()
@@ -415,8 +410,6 @@ public abstract class BeanDeserializerBase
      * Fluent factory for creating a variant that can handle
      * POJO output as a JSON Array. Implementations may ignore this request
      * if no such input is possible.
-     * 
-     * @since 2.1
      */
     protected abstract BeanDeserializerBase asArrayDeserializer();
 
@@ -574,9 +567,6 @@ public abstract class BeanDeserializerBase
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
 
-    /**
-     * @since 2.8.8
-     */
     protected void _replaceProperty(BeanPropertyMap props, SettableBeanProperty[] creatorProps,
             SettableBeanProperty origProp, SettableBeanProperty newProp)
     {
@@ -629,8 +619,6 @@ public abstract class BeanDeserializerBase
      *<p>
      * NOTE: returned deserializer is NOT yet contextualized, caller needs to take
      * care to do that.
-     * 
-     * @since 2.2
      */
     protected JsonDeserializer<Object> findConvertingDeserializer(DeserializationContext ctxt,
             SettableBeanProperty prop)
@@ -1024,8 +1012,6 @@ public abstract class BeanDeserializerBase
      * Accessor for finding the property with given name, if POJO
      * has one. Name used is the external name, i.e. name used
      * in external data representation (JSON).
-     * 
-     * @since 2.0
      */
     public SettableBeanProperty findProperty(String propertyName)
     {
@@ -1044,8 +1030,6 @@ public abstract class BeanDeserializerBase
      * since properties are not directly indexable; however, for most
      * instances difference is not significant as number of properties
      * is low.
-     * 
-     * @since 2.3
      */
     public SettableBeanProperty findProperty(int propertyIndex)
     {
@@ -1090,8 +1074,6 @@ public abstract class BeanDeserializerBase
      *
      * @param original Property to replace
      * @param replacement Property to replace it with
-     * 
-     * @since 2.1
      */
     public void replaceProperty(SettableBeanProperty original,
             SettableBeanProperty replacement)
@@ -1185,8 +1167,6 @@ public abstract class BeanDeserializerBase
      * simple cast (for String ids), or something more complicated; in latter
      * case we may need to create bogus content buffer to allow use of
      * id deserializer.
-     *
-     * @since 2.3
      */
     @SuppressWarnings("resource") // TokenBuffers don't need close, nor parser thereof
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
@@ -1464,9 +1444,6 @@ public abstract class BeanDeserializerBase
         return value;
     }
 
-    /**
-     * @since 2.9
-     */
     private final JsonDeserializer<Object> _delegateDeserializer() {
         JsonDeserializer<Object> deser = _delegateDeserializer;
         if (deser == null) {
@@ -1560,8 +1537,6 @@ public abstract class BeanDeserializerBase
     /**
      * Method called when an explicitly ignored property (one specified with a
      * name to match, either by property annotation or class annotation) is encountered.
-     * 
-     * @since 2.3
      */
     protected void handleIgnoredProperty(JsonParser p, DeserializationContext ctxt,
             Object beanOrClass, String propName)

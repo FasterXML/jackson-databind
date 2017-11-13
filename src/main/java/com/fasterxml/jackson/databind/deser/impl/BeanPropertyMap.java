@@ -1,18 +1,12 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.core.TokenStreamFactory;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -353,6 +347,19 @@ public class BeanPropertyMap
             throw new NoSuchElementException("No entry '"+propToRm.getName()+"' found, can't remove");
         }
         init(props);
+    }
+
+    /*
+    /**********************************************************
+    /* Factory method(s) for helpers
+    /**********************************************************
+     */
+
+    public FieldNameMatcher constructMatcher(TokenStreamFactory tsf)
+    {
+        // !!! 11-Nov-2017, tatu: Add aliases
+        return tsf.constructFieldNameMatcher(Arrays.asList(_propsInOrder),
+                _propsInOrder.length, _caseInsensitive);
     }
 
     /*

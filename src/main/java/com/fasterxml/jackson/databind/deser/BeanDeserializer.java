@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -269,52 +270,48 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
 
-        String propName;
-        while ((propName = p.nextFieldName()) != null) {
-            SettableBeanProperty prop;
-
-            p.nextToken();
-            if ((prop = _beanProperties.find(propName)) == null) {
-                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
+        while (true) {
+            int ix = p.nextFieldName(_fieldMatcher);
+            if (ix < 0) {
+                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                    return bean;
+                }
+                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                    p.nextToken();
+                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                            p.getCurrentName());
+                }
+                break;
             }
+            p.nextToken();
+            SettableBeanProperty prop = _fieldsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-
-            if ((propName = p.nextFieldName()) == null) break; // element #2
+/*
+            // Elem #2
+            ix = p.nextFieldName(_fieldMatcher);
+            if (ix < 0) {
+                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                    return bean;
+                }
+                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                    p.nextToken();
+                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                            p.getCurrentName());
+                }
+                break;
+            }
             p.nextToken();
-            if ((prop = _beanProperties.find(propName)) == null) {
-                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
-            }
+            prop = _fieldsByIndex[ix];
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-
-            if ((propName = p.nextFieldName()) == null) break; // element #3
-            p.nextToken();
-            if ((prop = _beanProperties.find(propName)) == null) {
-                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
-            }
-            try {
-                prop.deserializeAndSet(p, ctxt, bean);
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
-            }
-
-            if ((propName = p.nextFieldName()) == null) break; // element #4
-            p.nextToken();
-            if ((prop = _beanProperties.find(propName)) == null) {
-                return _vanillaDeserializeWithUnknown(p, ctxt, bean, propName);
-            }
-            try {
-                prop.deserializeAndSet(p, ctxt, bean);
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
-            }
+*/
         }
         return bean;
     }

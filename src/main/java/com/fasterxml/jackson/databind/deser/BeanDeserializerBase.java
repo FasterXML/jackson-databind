@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
-
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
@@ -638,6 +638,12 @@ public abstract class BeanDeserializerBase
         }
         return null;
     }
+
+    // @since 3.0
+    protected FieldNameMatcher _fieldMatcher;
+
+    // @since 3.0
+    protected SettableBeanProperty[] _fieldsByIndex;
     
     /**
      * Although most of post-processing is done in resolve(), we only get
@@ -733,7 +739,14 @@ public abstract class BeanDeserializerBase
         if (shape == JsonFormat.Shape.ARRAY) {
             contextual = contextual.asArrayDeserializer();
         }
+        contextual.initFieldMatcher(ctxt);
         return contextual;
+    }
+
+    // @since 3.0
+    protected void initFieldMatcher(DeserializationContext ctxt) {
+        _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
+        _fieldsByIndex = _beanProperties.getPropertiesInInsertionOrder();
     }
 
     /**

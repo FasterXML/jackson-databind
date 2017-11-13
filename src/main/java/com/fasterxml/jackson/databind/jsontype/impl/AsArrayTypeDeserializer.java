@@ -23,9 +23,6 @@ public class AsArrayTypeDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @since 2.8
-     */
     public AsArrayTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
@@ -107,7 +104,7 @@ public class AsArrayTypeDeserializer
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);
             tb.writeString(typeId);
-            // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
+            // 02-Jul-2016, tatu: Depending on how JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one
             p.clearCurrentToken();
             p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);

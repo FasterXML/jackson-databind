@@ -1352,11 +1352,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public String nextFieldName() throws IOException
         {
             // inlined common case from nextToken()
-            if (_closed || (_segment == null)) return null;
+            if (_closed || (_segment == null)) {
+                return null;
+            }
 
             int ptr = _segmentPtr+1;
-            if (ptr < Segment.TOKENS_PER_SEGMENT && _segment.type(ptr) == JsonToken.FIELD_NAME) {
+            if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)) {
                 _segmentPtr = ptr;
+                _currToken = JsonToken.FIELD_NAME;
                 Object ob = _segment.get(ptr); // inlined _currentObject();
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
                 _parsingContext.setCurrentName(name);

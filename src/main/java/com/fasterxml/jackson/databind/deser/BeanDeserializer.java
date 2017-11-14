@@ -290,7 +290,6 @@ public class BeanDeserializer
             } catch (Exception e) {
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-/*
             // Elem #2
             ix = p.nextFieldName(_fieldMatcher);
             if (ix < 0) {
@@ -311,7 +310,46 @@ public class BeanDeserializer
             } catch (Exception e) {
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-*/
+            // Elem #3
+            ix = p.nextFieldName(_fieldMatcher);
+            if (ix < 0) {
+                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                    return bean;
+                }
+                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                    p.nextToken();
+                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                            p.getCurrentName());
+                }
+                break;
+            }
+            p.nextToken();
+            prop = _fieldsByIndex[ix];
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
+            }
+            // Elem #4
+            ix = p.nextFieldName(_fieldMatcher);
+            if (ix < 0) {
+                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                    return bean;
+                }
+                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                    p.nextToken();
+                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                            p.getCurrentName());
+                }
+                break;
+            }
+            p.nextToken();
+            prop = _fieldsByIndex[ix];
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
+            }
         }
         return bean;
     }

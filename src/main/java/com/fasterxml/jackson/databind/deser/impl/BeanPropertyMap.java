@@ -104,7 +104,7 @@ public class BeanPropertyMap
         final int hashSize = findSize(_size);
         _hashMask = hashSize-1;
 
-        // and allocate enough to contain primary/secondary, expand for spillovers as need be
+        // and allocate enough to contain primary/secondary, expand for spill-overs as need be
         int alloc = (hashSize + (hashSize>>1)) * 2;
         Object[] hashed = new Object[alloc];
         int spillCount = 0;

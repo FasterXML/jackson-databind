@@ -269,7 +269,7 @@ _containerType,
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         CollectionReferringAccumulator referringAccumulator =
-            (valueDes.getObjectIdReader() == null) ? null :
+            (valueDes.getObjectIdReader(ctxt) == null) ? null :
                 new CollectionReferringAccumulator(_containerType.getContentType().getRawClass(), result);
 
         JsonToken t;

@@ -122,7 +122,7 @@ public class SettableAnyProperty
                     : _keyDeserializer.deserializeKey(propName, ctxt);
             set(instance, key, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
-            if (!(_valueDeserializer.getObjectIdReader() != null)) {
+            if (!(_valueDeserializer.getObjectIdReader(ctxt) != null)) {
                 throw JsonMappingException.from(p, "Unresolved forward reference but no identity info.", reference);
             }
             AnySetterReferring referring = new AnySetterReferring(this, reference,

@@ -156,5 +156,5 @@ public abstract class DelegatingDeserializer
     public Collection<Object> getKnownPropertyNames() { return _delegatee.getKnownPropertyNames(); }
 
     @Override
-    public ObjectIdReader getObjectIdReader() { return _delegatee.getObjectIdReader(); }
+    public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) { return _delegatee.getObjectIdReader(ctxt); }
 }

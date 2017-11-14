@@ -38,33 +38,33 @@ public class ClassNameIdResolverTest {
     
     @Test
     public void testIdFromValue_shouldUseJavaUtilHashMapForSingletonMap(){
-        Map<String, String> utilMap = Collections.singletonMap("ANY_KEY", "ANY_VALUE");
+        Map<String, String> singletonMap = Collections.singletonMap("ANY_KEY", "ANY_VALUE");
         
-        String clazz = classNameIdResolver.idFromValue( utilMap );
+        String clazz = classNameIdResolver.idFromValue( singletonMap );
         
         assertEquals(clazz, "java.util.HashMap");
     }
     
     @Test
     public void testIdFromValue_shouldUseJavaUtilHashSetForSingletonSet(){
-        Set<String> utilSet = Collections.singleton("ANY_VALUE");
+        Set<String> singletonSet = Collections.singleton("ANY_VALUE");
         
-        String clazz = classNameIdResolver.idFromValue( utilSet );
+        String clazz = classNameIdResolver.idFromValue( singletonSet );
         
         assertEquals(clazz, "java.util.HashSet");
     }
     
     @Test
-    public void testIdFromValue_shouldUseJavaUtilArrayListSetForSingletonSet(){
-        List<String> utilList = Collections.singletonList("ANY_VALUE");
+    public void testIdFromValue_shouldUseJavaUtilArrayListForSingletonList(){
+        List<String> singletonList = Collections.singletonList("ANY_VALUE");
         
-        String clazz = classNameIdResolver.idFromValue( utilList );
+        String clazz = classNameIdResolver.idFromValue( singletonList );
         
         assertEquals(clazz, "java.util.ArrayList");
     }
     
     @Test
-    public void testIdFromValue_shouldUseJavaUtilArrayListSetForArraysList(){
+    public void testIdFromValue_shouldUseJavaUtilArrayListForArrays$List(){
         List<String> utilList = Arrays.asList("ANY_VALUE");
         
         String clazz = classNameIdResolver.idFromValue( utilList );

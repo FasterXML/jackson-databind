@@ -61,7 +61,7 @@ public class ClassNameIdResolver
     /**********************************************************
      */
 
-    protected final String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
+    protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
         // Need to ensure that "enum subtypes" work too
         if (Enum.class.isAssignableFrom(cls)) {
@@ -87,16 +87,18 @@ public class ClassNameIdResolver
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
                 str = typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
             } else {
-                String end = str.substring(9);
-                if ((end.startsWith(".Arrays$") || end.startsWith(".Collections$"))
-                       && str.indexOf("List") >= 0) {
-                    /* 17-Feb-2010, tatus: Another such case: result of
-                     *    Arrays.asList() is named like so in Sun JDK...
-                     *   Let's just plain old ArrayList in its place
-                     * NOTE: chances are there are plenty of similar cases
-                     * for other wrappers... (immutable, singleton, synced etc)
-                     */
+                /* 17-Feb-2010, tatus: Another such case: result of
+                 *    Arrays.asList() is named like so in Sun JDK...
+                 *   Let's just plain old ArrayList in its place
+                 * NOTE: chances are there are plenty of similar cases
+                 * for other wrappers... (immutable, singleton, synced etc)
+                 */
+                if (isJavaUtilCollectionClass(str, "List")) {
                     str = "java.util.ArrayList";
+                }else if(isJavaUtilCollectionClass(str, "Map")){
+                    str = "java.util.HashMap";
+                }else if(isJavaUtilCollectionClass(str, "Set")){
+                    str = "java.util.HashSet";
                 }
             }
         } else if (str.indexOf('$') >= 0) {
@@ -127,5 +129,10 @@ public class ClassNameIdResolver
     @Override
     public String getDescForKnownTypeIds() {
         return "class name used as type id";
+    }
+    
+    private static boolean isJavaUtilCollectionClass(String clazzName, String type){
+        String end = clazzName.substring(9);
+        return (end.startsWith(".Collections$") || end.startsWith(".Arrays$")) && clazzName.indexOf(type) > 0;
     }
 }

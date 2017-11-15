@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -358,8 +359,13 @@ public class BeanPropertyMap
     public FieldNameMatcher constructMatcher(TokenStreamFactory tsf)
     {
         // !!! 11-Nov-2017, tatu: Add aliases
-        return tsf.constructFieldNameMatcher(Arrays.asList(_propsInOrder),
-                _propsInOrder.length, _caseInsensitive);
+
+        List<Named> names = Arrays.asList(_propsInOrder);
+        // `true` -> yes, they are intern()ed alright
+        if (_caseInsensitive) {
+            return tsf.constructCIFieldNameMatcher(names, true);
+        }
+        return tsf.constructFieldNameMatcher(names, true);
     }
 
     /*

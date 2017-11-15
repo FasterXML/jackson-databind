@@ -1378,7 +1378,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public int nextFieldName(FieldNameMatcher matcher) throws IOException {
             String str = nextFieldName();
             if (str != null) {
-                return matcher.matchName(str);
+                // 15-Nov-2017, tatu: Can not assume name given is intern()ed
+                return matcher.matchAnyName(str);
             }
             if (hasToken(JsonToken.END_OBJECT)) {
                 return FieldNameMatcher.MATCH_END_OBJECT;

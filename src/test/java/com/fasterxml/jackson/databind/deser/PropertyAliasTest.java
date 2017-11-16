@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,6 +28,18 @@ public class PropertyAliasTest extends BaseMapTest
         public void setXyz(int x) {
             _xyz = x;
         }
+    }
+
+    static class PolyWrapperForAlias {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.WRAPPER_ARRAY)
+        @JsonSubTypes({
+            @JsonSubTypes.Type(value = AliasBean.class,name = "ab"),
+        })
+        public Object value;
+
+        protected PolyWrapperForAlias() { }
+        public PolyWrapperForAlias(Object v) { value = v; }
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -55,5 +69,16 @@ public class PropertyAliasTest extends BaseMapTest
         assertEquals("Foobar", bean.name);
         assertEquals(3, bean._a);
         assertEquals(37, bean._xyz);
+    }
+
+    public void testAliasWithPolymorphic() throws Exception
+    {
+        PolyWrapperForAlias value = MAPPER.readValue(aposToQuotes(
+                "{'value': ['ab', {'nm' : 'Bob', 'A' : 17} ] }"
+                ), PolyWrapperForAlias.class);
+        assertNotNull(value.value);
+        AliasBean bean = (AliasBean) value.value;
+        assertEquals("Bob", bean.name);
+        assertEquals(17, bean._a);
     }
 }

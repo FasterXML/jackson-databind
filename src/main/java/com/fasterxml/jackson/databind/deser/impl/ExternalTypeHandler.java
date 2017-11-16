@@ -430,9 +430,6 @@ public class ExternalTypeHandler
         private final TypeDeserializer _typeDeserializer;
         private final String _typePropertyName;
 
-        /**
-         * @since 2.8
-         */
         private SettableBeanProperty _typeProperty;
 
         public ExtTypedProperty(SettableBeanProperty property, TypeDeserializer typeDeser)
@@ -476,9 +473,6 @@ public class ExternalTypeHandler
             return _property;
         }
 
-        /**
-         * @since 2.8
-         */
         public SettableBeanProperty getTypeProperty() {
             return _typeProperty;
         }

@@ -236,7 +236,7 @@ public class BeanDeserializer
         }
         do {
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
 
             if (prop != null) { // normal case
                 try {
@@ -369,9 +369,9 @@ public class BeanDeserializer
             String propName = p.getCurrentName();
             do { // minor unrolling here (by-2), less likely on critical path
                 p.nextToken();
-                SettableBeanProperty prop = _beanProperties.find(propName);
+                SettableBeanProperty prop;
                 
-                if ((prop = _beanProperties.find(propName)) == null) {
+                if ((prop = _findProperty(propName)) == null) {
                     handleUnknownVanilla(p, ctxt, bean, propName);
                 } else {
                     try {
@@ -383,7 +383,7 @@ public class BeanDeserializer
 
                 if ((propName = p.nextFieldName()) == null) break;
                 p.nextToken();
-                if ((prop = _beanProperties.find(propName)) == null) {
+                if ((prop = _findProperty(propName)) == null) {
                     handleUnknownVanilla(p, ctxt, bean, propName);
                 } else {
                     try {
@@ -403,7 +403,7 @@ public class BeanDeserializer
         handleUnknownVanilla(p, ctxt, bean, propName);
         while ((propName = p.nextFieldName()) != null) {
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop == null) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
                 continue;
@@ -482,7 +482,7 @@ public class BeanDeserializer
             String propName = p.getCurrentName();
             do {
                 p.nextToken();
-                SettableBeanProperty prop = _beanProperties.find(propName);
+                SettableBeanProperty prop = _findProperty(propName);
                 if (prop != null) { // normal case
                     try {
                         prop.deserializeAndSet(p, ctxt, bean);
@@ -562,7 +562,7 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) {
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
@@ -694,7 +694,7 @@ public class BeanDeserializer
             do {
                 p.nextToken();
                 // TODO: 06-Jan-2015, tatu: try streamlining call sequences here as well
-                SettableBeanProperty prop = _beanProperties.find(propName);
+                SettableBeanProperty prop = _findProperty(propName);
                 if (prop != null) {
                     if (!prop.visibleInView(activeView)) {
                         p.skipChildren();
@@ -748,7 +748,7 @@ public class BeanDeserializer
 
         for (; propName != null; propName = p.nextFieldName()) {
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) { // normal case
                 if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
@@ -805,7 +805,7 @@ public class BeanDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             p.nextToken();
             if (prop != null) { // normal case
                 if (activeView != null && !prop.visibleInView(activeView)) {
@@ -905,7 +905,7 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) {
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
@@ -985,7 +985,7 @@ public class BeanDeserializer
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             t = p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) { // normal case
                 // [JACKSON-831]: may have property AND be used as external type id:
                 if (t.isScalarValue()) {
@@ -1083,7 +1083,7 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) {
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
@@ -1112,11 +1112,14 @@ public class BeanDeserializer
         }
     }
 
+    // @since 3.0
+    protected final SettableBeanProperty _findProperty(String propName) {
+        return _beanProperties.find(propName);
+    }
+    
     /**
      * Helper method for getting a lazily construct exception to be reported
      * to {@link DeserializationContext#handleInstantiationProblem(Class, Object, Throwable)}.
-     *
-     * @since 2.8
      */
     protected Exception _creatorReturnedNullException() {
         if (_nullFromCreator == null) {
@@ -1125,9 +1128,6 @@ public class BeanDeserializer
         return _nullFromCreator;
     }
 
-    /**
-     * @since 2.8
-     */
     static class BeanReferring extends Referring
     {
         private final DeserializationContext _context;

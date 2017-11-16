@@ -1026,7 +1026,7 @@ public abstract class BeanDeserializerBase
      * has one. Name used is the external name, i.e. name used
      * in external data representation (JSON).
      */
-    public SettableBeanProperty findProperty(String propertyName)
+    protected SettableBeanProperty findProperty(String propertyName)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
                 null : _beanProperties.find(propertyName);

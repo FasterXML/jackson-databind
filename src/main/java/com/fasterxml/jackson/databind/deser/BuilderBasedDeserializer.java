@@ -246,7 +246,7 @@ public class BuilderBasedDeserializer
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) { // normal case
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
@@ -291,7 +291,7 @@ public class BuilderBasedDeserializer
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) { // normal case
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
@@ -366,7 +366,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) {
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
@@ -441,7 +441,7 @@ public class BuilderBasedDeserializer
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             
             if (prop != null) { // normal case
                 try {
@@ -471,7 +471,7 @@ public class BuilderBasedDeserializer
             String propName = p.getCurrentName();
             // Skip field name:
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) {
                 if (!prop.visibleInView(activeView)) {
                     p.skipChildren();
@@ -522,7 +522,7 @@ public class BuilderBasedDeserializer
         for (; p.currentToken() != JsonToken.END_OBJECT; p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) { // normal case
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     p.skipChildren();
@@ -597,7 +597,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) {
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
@@ -631,7 +631,7 @@ public class BuilderBasedDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             p.nextToken();
             if (prop != null) { // normal case
                 if (activeView != null && !prop.visibleInView(activeView)) {
@@ -687,7 +687,7 @@ public class BuilderBasedDeserializer
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             t = p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) { // normal case
                 // May have property AND be used as external type id:
                 if (t.isScalarValue()) {
@@ -739,5 +739,10 @@ public class BuilderBasedDeserializer
         return ctxt.reportBadDefinition(t, String.format(
                 "Deserialization (of %s) with Builder, External type id, @JsonCreator not yet implemented",
                 t));
+    }
+
+    // @since 3.0
+    private final SettableBeanProperty _findProperty(String propName) {
+        return _beanProperties.find(propName);
     }
 }

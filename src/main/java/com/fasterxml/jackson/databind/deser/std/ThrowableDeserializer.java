@@ -86,7 +86,7 @@ public class ThrowableDeserializer
 
         for (; p.currentToken() != JsonToken.END_OBJECT; p.nextToken()) {
             String propName = p.getCurrentName();
-            SettableBeanProperty prop = _beanProperties.find(propName);
+            SettableBeanProperty prop = _findProperty(propName);
             p.nextToken(); // to point to field value
 
             if (prop != null) { // normal case

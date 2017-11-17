@@ -234,6 +234,7 @@ public class BeanDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
+/*
         do {
             p.nextToken();
             SettableBeanProperty prop = _findProperty(propName);
@@ -248,6 +249,29 @@ public class BeanDeserializer
             }
             handleUnknownVanilla(p, ctxt, bean, propName);
         } while ((propName = p.nextFieldName()) != null);
+        */
+
+        // May or may not be interned...
+        int ix = _fieldMatcher.matchAnyName(propName);
+        while (true) {
+            if (ix < 0) {
+                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                    p.nextToken();
+                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                            p.getCurrentName());
+                }
+                break;
+            }
+            p.nextToken();
+            SettableBeanProperty prop = _fieldsByIndex[ix];
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, prop.getName(), ctxt);
+            }
+            ix = p.nextFieldName(_fieldMatcher);
+        }
+        // Should we verify there's END_OBJECT there?
         return bean;
     }
 
@@ -1116,7 +1140,7 @@ public class BeanDeserializer
     protected final SettableBeanProperty _findProperty(String propName) {
         return _beanProperties.find(propName);
     }
-    
+
     /**
      * Helper method for getting a lazily construct exception to be reported
      * to {@link DeserializationContext#handleInstantiationProblem(Class, Object, Throwable)}.

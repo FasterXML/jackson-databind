@@ -34,7 +34,9 @@ public class PropertyName
      * commonly this value disables behavior for which name would be needed.
      */
     public final static PropertyName NO_NAME = new PropertyName(new String(_NO_NAME), null);
-    
+
+    private final static InternCache INTERNER = InternCache.instance;
+
     /**
      * Basic name of the property.
      */
@@ -87,7 +89,7 @@ public class PropertyName
         if (simpleName == null || simpleName.length() == 0) {
             return USE_DEFAULT;
         }
-        return new PropertyName(InternCache.instance.intern(simpleName), null);
+        return new PropertyName(INTERNER.intern(simpleName), null);
     }
 
     public static PropertyName construct(String simpleName, String ns)
@@ -98,7 +100,7 @@ public class PropertyName
         if (ns == null && simpleName.length() == 0) {
             return USE_DEFAULT;
         }
-        return new PropertyName(InternCache.instance.intern(simpleName), ns);
+        return new PropertyName(INTERNER.intern(simpleName), ns);
     }
 
     public PropertyName internSimpleName()

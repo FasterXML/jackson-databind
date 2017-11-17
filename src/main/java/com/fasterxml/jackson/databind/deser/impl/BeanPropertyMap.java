@@ -85,6 +85,12 @@ public class BeanPropertyMap
         init(Arrays.asList(_propsInOrder));
     }
 
+    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
+            boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping)
+    {
+        return new BeanPropertyMap(caseInsensitive, props, aliasMapping);
+    }
+
     /**
      * Mutant factory method that constructs a new instance if desired case-insensitivity
      * state differs from the state of this instance; if states are the same, returns
@@ -117,7 +123,7 @@ public class BeanPropertyMap
             }
 
             String key = getPropertyName(prop);
-            int slot = _hashCode(key);
+            int slot = key.hashCode() & _hashMask;
             int ix = (slot<<1);
 
             // primary slot not free?
@@ -133,15 +139,9 @@ public class BeanPropertyMap
                     }
                 }
             }
-//System.err.println(" add '"+key+" at #"+(ix>>1)+"/"+size+" (hashed at "+slot+")");             
             hashed[ix] = key;
             hashed[ix+1] = prop;
-
-            // and aliases
         }
-//for (int i = 0; i < hashed.length; i += 2) {
-//System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
-//}
         _hashArea = hashed;
         _spillCount = spillCount;
     }
@@ -160,11 +160,6 @@ public class BeanPropertyMap
             result += result;
         }
         return result;
-    }
-
-    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
-            boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping) {
-        return new BeanPropertyMap(caseInsensitive, props, aliasMapping);
     }
 
     /**
@@ -188,7 +183,7 @@ public class BeanPropertyMap
             }
         }
         // If not, append
-        final int slot = _hashCode(key);
+        final int slot = key.hashCode() & _hashMask;
         final int hashSize = _hashMask+1;
         int ix = (slot<<1);
         
@@ -202,13 +197,6 @@ public class BeanPropertyMap
                 _spillCount += 2;
                 if (ix >= _hashArea.length) {
                     _hashArea = Arrays.copyOf(_hashArea, _hashArea.length + 4);
-// Uncomment for debugging only
-//for (int i = 0; i < _hashArea.length; i += 2) {
-//    if (_hashArea[i] != null) {
-//        System.err.println("Property #"+(i/2)+" '"+_hashArea[i]+"'...");
-//    }
-//}
-//System.err.println("And new propr #"+slot+" '"+key+"'");
                 }
             }
         }
@@ -491,7 +479,7 @@ public class BeanPropertyMap
         }
         // NOTE: need to inline much of handling do avoid cyclic calls via alias
         // first, inlined main `find(String)`
-        int slot = _hashCode(keyFromAlias);
+        int slot = keyFromAlias.hashCode() & _hashMask;
         int ix = (slot<<1);
         Object match = _hashArea[ix];
         if (keyFromAlias.equals(match)) {
@@ -590,7 +578,8 @@ public class BeanPropertyMap
      */
     private final int _findIndexInHash(String key)
     {
-        final int slot = _hashCode(key);
+        final int slot = key.hashCode() & _hashMask;     
+        
         int ix = (slot<<1);
         
         // primary match?
@@ -622,21 +611,12 @@ public class BeanPropertyMap
         throw new IllegalStateException("Illegal state: property '"+prop.getName()+"' missing from _propsInOrder");
     }
 
-    // Offlined version for convenience if we want to change hashing scheme
+    /*
     private final int _hashCode(String key) {
-        // This method produces better hash, fewer collisions... yet for some
-        // reason produces slightly worse performance. Very strange.
-
-        // 05-Aug-2015, tatu: ... still true?
-
-        /*
-        int h = key.hashCode();
-        return (h + (h >> 13)) & _hashMask;
-        */
         return key.hashCode() & _hashMask;
     }
+    */
 
-    // @since 2.9
     private Map<String,String> _buildAliasMapping(Map<String,List<PropertyName>> defs)
     {
         if ((defs == null) || defs.isEmpty()) {

@@ -273,12 +273,15 @@ public abstract class SettableBeanProperty
      */
     public abstract SettableBeanProperty withName(PropertyName newName);
 
-    /**
-     * @since 2.3
-     */
     public SettableBeanProperty withSimpleName(String simpleName) {
-        PropertyName n = (_propName == null)
-                ? new PropertyName(simpleName) : _propName.withSimpleName(simpleName);
+        PropertyName n;
+
+        if (_propName == null) {
+            n = new PropertyName(simpleName);
+        } else {
+            n = _propName.withSimpleName(simpleName);
+        }
+        n = n.internSimpleName();
         return (n == _propName) ? this : withName(n);
     }
 

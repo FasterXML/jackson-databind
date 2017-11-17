@@ -39,10 +39,9 @@ public final class PropertyBasedCreator
     protected final HashMap<String, SettableBeanProperty> _propertyLookup;
 
     /**
-     * Array that contains properties that expect value to inject, if any;
-     * null if no injectable values are expected.
+     * Array that contains properties that match creator properties
      */
-    protected final SettableBeanProperty[] _allProperties;
+    protected final SettableBeanProperty[] _propertiesInOrder;
 
     /*
     /**********************************************************
@@ -64,7 +63,6 @@ public final class PropertyBasedCreator
         }
         final int len = creatorProps.length;
         _propertyCount = len;
-        _allProperties = new SettableBeanProperty[len];
 
         // 26-Feb-2017, tatu: Let's start by aliases, so that there is no
         //    possibility of accidental override of primary names
@@ -79,9 +77,10 @@ public final class PropertyBasedCreator
                 }
             }
         }
+        _propertiesInOrder = new SettableBeanProperty[len];
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
-            _allProperties[i] = prop;
+            _propertiesInOrder[i] = prop;
             _propertyLookup.put(prop.getName(), prop);
         }
     }
@@ -163,8 +162,6 @@ public final class PropertyBasedCreator
 
     /**
      * Method called when starting to build a bean instance.
-     * 
-     * @since 2.1 (added ObjectIdReader parameter -- existed in previous versions without)
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
@@ -174,7 +171,7 @@ public final class PropertyBasedCreator
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt,
-                _allProperties, buffer);
+                _propertiesInOrder, buffer);
         // returning null isn't quite legal, but let's let caller deal with that
         if (bean != null) {
             // Object Id to handle?

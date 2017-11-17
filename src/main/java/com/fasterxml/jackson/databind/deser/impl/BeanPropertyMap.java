@@ -248,11 +248,10 @@ public class BeanPropertyMap
             SettableBeanProperty prop = _propsInOrder[i];
             
             // What to do with holes? For now, retain
-            if (prop == null) {
-                newProps.add(prop);
-                continue;
+            if (prop != null) {
+                prop = _rename(prop, transformer);
             }
-            newProps.add(_rename(prop, transformer));
+            newProps.add(prop);
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change

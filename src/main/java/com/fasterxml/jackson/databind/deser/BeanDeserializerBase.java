@@ -300,7 +300,7 @@ public abstract class BeanDeserializerBase
         _vanillaProcessing = false;
     }
 
-    public BeanDeserializerBase(BeanDeserializerBase src, ObjectIdReader oir)
+    protected BeanDeserializerBase(BeanDeserializerBase src, ObjectIdReader oir)
     {
         super(src._beanType);
         _beanType = src._beanType;
@@ -327,10 +327,9 @@ public abstract class BeanDeserializerBase
             _beanProperties = src._beanProperties;
             _vanillaProcessing = src._vanillaProcessing;
         } else {
-            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
-             *   but no easy access. But hard to see id property being optional,
-             *   so let's consider required at this point.
-             */
+            // 18-Nov-2012, tatu: May or may not have annotations for id property;
+            //   but no easy access. But hard to see id property being optional,
+            //   so let's consider required at this point.
             ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, PropertyMetadata.STD_REQUIRED);
             _beanProperties = src._beanProperties.withProperty(idProp);
             _vanillaProcessing = false;
@@ -453,7 +452,9 @@ public abstract class BeanDeserializerBase
                     deser = ctxt.findNonContextualValueDeserializer(prop.getType());
                 }
                 SettableBeanProperty newProp = prop.withValueDeserializer(deser);
-                _replaceProperty(_beanProperties, creatorProps, prop, newProp);
+                if (prop != newProp) {
+                    _replaceProperty(_beanProperties, creatorProps, prop, newProp);
+                }
             }
         }
 
@@ -1088,11 +1089,13 @@ public abstract class BeanDeserializerBase
      * @param original Property to replace
      * @param replacement Property to replace it with
      */
+    /*
     public void replaceProperty(SettableBeanProperty original,
             SettableBeanProperty replacement)
     {
         _beanProperties.replace(replacement);
     }
+    */
 
     /*
     /**********************************************************

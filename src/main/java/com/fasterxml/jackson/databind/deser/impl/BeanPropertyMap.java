@@ -64,14 +64,33 @@ public class BeanPropertyMap
      */
     private final Map<String,String> _aliasMapping;
 
-    public BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
-            Map<String,List<PropertyName>> aliasDefs)
+    /**
+     * @param caseInsensitive Whether property name matching should case-insensitive or not
+     * @param props Sequence of primary properties to index
+     * @param aliasDefs Mapping of optional aliases
+     * @param assignIndexes Whether to index properties or not
+     */
+    protected BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
+            Map<String,List<PropertyName>> aliasDefs,
+            boolean assignIndexes)
     {
         _caseInsensitive = caseInsensitive;
         _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
         _aliasDefs = aliasDefs;
         _aliasMapping = _buildAliasMapping(aliasDefs);
         init(props);
+
+        // Former `assignIndexes`
+        // order is arbitrary, but stable:
+        if (assignIndexes) {
+            int index = 0;
+    
+            for (SettableBeanProperty prop : _propsInOrder) {
+                if (prop != null) {
+                    prop.assignIndex(index++);
+                }
+            }
+        }
     }
 
     protected BeanPropertyMap(BeanPropertyMap base, boolean caseInsensitive)
@@ -88,7 +107,7 @@ public class BeanPropertyMap
     public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
             boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping)
     {
-        return new BeanPropertyMap(caseInsensitive, props, aliasMapping);
+        return new BeanPropertyMap(caseInsensitive, props, aliasMapping, true);
     }
 
     /**
@@ -212,19 +231,6 @@ public class BeanPropertyMap
         return this;
     }
 
-    public BeanPropertyMap assignIndexes()
-    {
-        // order is arbitrary, but stable:
-        int index = 0;
-        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
-            if (prop != null) {
-                prop.assignIndex(index++);
-            }
-        }
-        return this;
-    }
-
     /**
      * Mutant factory method for constructing a map where all entries use given
      * prefix
@@ -248,9 +254,9 @@ public class BeanPropertyMap
             }
             newProps.add(_rename(prop, transformer));
         }
-        // should we try to re-index? Ordering probably changed but caller probably doesn't want changes...
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs);
+        // NOTE: do NOT try reassigning indexes of properties; number doesn't change
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false);
     }
 
     /*
@@ -284,7 +290,9 @@ public class BeanPropertyMap
             }
         }
         // should we try to re-index? Apparently no need
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs);
+        // 17-Nov-2017, tatu: do NOT try to change indexes since this could lead to discrepancies
+        //    (unless we actually copy property instances)
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false);
     }
 
     /**

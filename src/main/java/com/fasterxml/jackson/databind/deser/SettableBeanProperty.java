@@ -311,7 +311,9 @@ public abstract class SettableBeanProperty
      */
     public void assignIndex(int index) {
         if (_propertyIndex != -1) {
-            throw new IllegalStateException("Property '"+getName()+"' already had index ("+_propertyIndex+"), trying to assign "+index);
+            if (_propertyIndex != index) {
+                throw new IllegalStateException("Property '"+getName()+"' already had index ("+_propertyIndex+"), trying to assign "+index);
+            }
         }
         _propertyIndex = index;
     }

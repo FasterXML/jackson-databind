@@ -348,7 +348,6 @@ public class BeanDeserializerBuilder
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
                 _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
                 _collectAliases(props));
-        propertyMap.assignIndexes();
 
         // view processing must be enabled if:
         // (a) fields are not included by default (when deserializing with view), OR
@@ -421,7 +420,6 @@ public class BeanDeserializerBuilder
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props,
                 _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES),
                 _collectAliases(props));
-        propertyMap.assignIndexes();
 
         boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
 

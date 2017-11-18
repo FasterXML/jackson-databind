@@ -126,8 +126,7 @@ public class BeanDeserializer
 
     @Override
     protected BeanDeserializerBase asArrayDeserializer() {
-        SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
-        return new BeanAsArrayDeserializer(this, props);
+        return new BeanAsArrayDeserializer(this, _beanProperties.getPrimaryProperties());
     }
 
     /*

@@ -485,7 +485,7 @@ public abstract class BeanDeserializerBase
                     // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
                     //    the original property is left in place. So let's remove it now.
                     // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
-                    //    (that is, should be remove it from creator too)
+                    //    (that is, should we remove it from creator too)
                     _beanProperties.remove(prop);
                     continue;
                 }
@@ -746,8 +746,9 @@ public abstract class BeanDeserializerBase
 
     // @since 3.0
     protected void initFieldMatcher(DeserializationContext ctxt) {
+        _beanProperties.init();
         _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
-        _fieldsByIndex = _beanProperties.getPropertiesInInsertionOrder();
+        _fieldsByIndex = _beanProperties.getPropertiesWithAliases();
     }
 
     /**
@@ -962,7 +963,7 @@ public abstract class BeanDeserializerBase
     }
     
     public boolean hasProperty(String propertyName) {
-        return _beanProperties.find(propertyName) != null;
+        return _beanProperties.findPrimaryDefinition(propertyName) != null;
     }
 
     public boolean hasViews() {
@@ -1030,7 +1031,7 @@ public abstract class BeanDeserializerBase
     protected SettableBeanProperty findProperty(String propertyName)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
-                null : _beanProperties.find(propertyName);
+                null : _beanProperties.findPrimaryDefinition(propertyName);
         if (_neitherNull(prop, _propertyBasedCreator)) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyName);
         }
@@ -1048,7 +1049,7 @@ public abstract class BeanDeserializerBase
     public SettableBeanProperty findProperty(int propertyIndex)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
-                null : _beanProperties.find(propertyIndex);
+                null : _beanProperties.findDefinition(propertyIndex);
         if (_neitherNull(prop, _propertyBasedCreator)) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyIndex);
         }

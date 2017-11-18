@@ -126,8 +126,9 @@ public class BuilderBasedDeserializer
 
     @Override
     protected BeanDeserializerBase asArrayDeserializer() {
-        SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
-        return new BeanAsArrayBuilderDeserializer(this, _targetType, props, _buildMethod);
+        return new BeanAsArrayBuilderDeserializer(this, _targetType,
+                _beanProperties.getPrimaryProperties(), 
+                _buildMethod);
     }
 
     /*

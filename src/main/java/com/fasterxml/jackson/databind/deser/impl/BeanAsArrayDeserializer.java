@@ -50,10 +50,8 @@ public class BeanAsArrayDeserializer
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
-        /* We can't do much about this; could either replace _delegate
-         * with unwrapping instance, or just replace this one. Latter seems
-         * more sensible.
-         */
+        // We can't do much about this; could either replace _delegate with unwrapping
+        // instance, or just replace this one. Latter seems more sensible.
         return _delegate.unwrappingDeserializer(unwrapper);
     }
 

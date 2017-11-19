@@ -276,19 +276,8 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
 
-        while (true) {
-            int ix = p.nextFieldName(_fieldMatcher);
-            if (ix < 0) {
-                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
-                    return bean;
-                }
-                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                    p.nextToken();
-                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                            p.getCurrentName());
-                }
-                break;
-            }
+        int ix = p.nextFieldName(_fieldMatcher);
+        while (ix >= 0) {
             p.nextToken();
             SettableBeanProperty prop = _fieldsByIndex[ix];
             try {
@@ -299,14 +288,6 @@ public class BeanDeserializer
             // Elem #2
             ix = p.nextFieldName(_fieldMatcher);
             if (ix < 0) {
-                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
-                    return bean;
-                }
-                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                    p.nextToken();
-                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                            p.getCurrentName());
-                }
                 break;
             }
             p.nextToken();
@@ -319,14 +300,6 @@ public class BeanDeserializer
             // Elem #3
             ix = p.nextFieldName(_fieldMatcher);
             if (ix < 0) {
-                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
-                    return bean;
-                }
-                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                    p.nextToken();
-                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                            p.getCurrentName());
-                }
                 break;
             }
             p.nextToken();
@@ -339,14 +312,6 @@ public class BeanDeserializer
             // Elem #4
             ix = p.nextFieldName(_fieldMatcher);
             if (ix < 0) {
-                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
-                    return bean;
-                }
-                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                    p.nextToken();
-                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                            p.getCurrentName());
-                }
                 break;
             }
             p.nextToken();
@@ -356,6 +321,15 @@ public class BeanDeserializer
             } catch (Exception e) {
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
+            ix = p.nextFieldName(_fieldMatcher);
+        }
+        if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                p.nextToken();
+                return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                        p.getCurrentName());
+            }
+            return ctxt.handleUnexpectedToken(handledType(), p);
         }
         return bean;
     }

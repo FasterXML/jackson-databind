@@ -503,12 +503,14 @@ public class BeanDeserializerBuilder
         return result;
     }
     
-    protected Map<String,List<PropertyName>> _collectAliases(Collection<SettableBeanProperty> props)
+    protected PropertyName[][] _collectAliases(Collection<SettableBeanProperty> props)
     {
-        Map<String,List<PropertyName>> mapping = null;
+        PropertyName[][] result = null;
         AnnotationIntrospector intr = _config.getAnnotationIntrospector();
         if (intr != null) {
+            int i = -1;
             for (SettableBeanProperty prop : props) {
+                ++i;
                 AnnotatedMember member = prop.getMember();
                 if (member == null) {
                     continue;
@@ -517,15 +519,12 @@ public class BeanDeserializerBuilder
                 if ((aliases == null) || aliases.isEmpty()) {
                     continue;
                 }
-                if (mapping == null) {
-                    mapping = new HashMap<>();
+                if (result == null) {
+                    result = new PropertyName[props.size()][];
                 }
-                mapping.put(prop.getName(), aliases);
+                result[i] = aliases.toArray(new PropertyName[aliases.size()]);
             }
         }
-        if (mapping == null) {
-            return Collections.emptyMap();
-        }
-        return mapping;
+        return result;
     }
 }

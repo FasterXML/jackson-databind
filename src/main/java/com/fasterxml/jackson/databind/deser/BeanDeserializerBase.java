@@ -571,7 +571,7 @@ public abstract class BeanDeserializerBase
     protected void _replaceProperty(BeanPropertyMap props, SettableBeanProperty[] creatorProps,
             SettableBeanProperty origProp, SettableBeanProperty newProp)
     {
-        props.replace(newProp);
+        props.replace(origProp, newProp);
         // [databind#795]: Make sure PropertyBasedCreator's properties stay in sync
         if (creatorProps != null) {
             // 18-May-2015, tatu: _Should_ start with consistent set. But can we really

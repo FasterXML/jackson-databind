@@ -70,8 +70,6 @@ public abstract class SettableBeanProperty
      * Entity used for possible translation from `null` into non-null
      * value of type of this property.
      * Often same as <code>_valueDeserializer</code>, but not always.
-     *
-     * @since 2.9
      */
     protected final NullValueProvider _nullProvider;
 
@@ -161,8 +159,6 @@ public abstract class SettableBeanProperty
 
     /**
      * Constructor only used by {@link com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty}.
-     * 
-     * @since 2.3
      */
     protected SettableBeanProperty(PropertyName propName, JavaType type, 
             PropertyMetadata metadata, JsonDeserializer<Object> valueDeser)

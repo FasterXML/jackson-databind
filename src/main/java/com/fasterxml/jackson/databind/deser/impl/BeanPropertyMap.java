@@ -36,14 +36,10 @@ public class BeanPropertyMap
     protected final boolean _caseInsensitive;
 
     /**
-     * Configuration of alias mappings, indexed by unmodified property name
-     * to unmodified aliases, if any; entries only included for properties
-     * that do have aliases.
-     * This is is used for constructing actual reverse lookup mapping, if
-     * needed, taking into account possible case-insensitivity, as well
-     * as possibility of name prefixes.
+     * Configuration of alias mappings, if any (`null` if none),
+     * aligned with properties in <code>_propsInOrder</code>
      */
-    private final Map<String,List<PropertyName>> _aliasDefs;
+    private final PropertyName[][] _aliasDefs;
 
     /**
      * Mapping from secondary names (aliases) to primary names.
@@ -57,11 +53,6 @@ public class BeanPropertyMap
      */
 
     /**
-     * Number of primary properties within <code>_propsInOrder</code>
-     */
-    private int _primaryCount;
-
-    /**
      * Array of properties in the exact order they were handed in. This is
      * used by as-array serialization, deserialization.
      * Contains both primary properties (first <code>_primaryCount</code>
@@ -70,9 +61,11 @@ public class BeanPropertyMap
     private SettableBeanProperty[] _propsInOrder;
 
     /**
-     * Array of names mapping to properties in <code>_propsInOrder</code>
+     * Lazily instantiated array of properties mapped from lookup index, in which
+     * first entries are ame as in <code>_propsInOrder</code> followed by alias
+     * mappings.
      */
-    private Named[] _namesInOrder;
+    private SettableBeanProperty[] _propsWithAliases;
 
     /*
     /**********************************************************
@@ -103,30 +96,30 @@ public class BeanPropertyMap
     /**
      * @param caseInsensitive Whether property name matching should case-insensitive or not
      * @param props Sequence of primary properties to index
-     * @param aliasDefs Mapping of optional aliases
-     * @param assignIndexes Whether to index properties or not
+     * @param aliasDefs Alias mappings, if any (null if none)
+     * @param assignIndexes Whether to assign indices to property entities or not
      */
     protected BeanPropertyMap(boolean caseInsensitive, Collection<SettableBeanProperty> props,
-            Map<String,List<PropertyName>> aliasDefs,
+            PropertyName[][] aliasDefs,
             boolean assignIndexes)
     {
         _caseInsensitive = caseInsensitive;
-        _primaryCount = props.size();
-
-//        int aliasCount = aliasaD
-        _propsInOrder = props.toArray(new SettableBeanProperty[_primaryCount]);
-        
         _aliasDefs = aliasDefs;
-        _aliasMapping = _buildAliasMapping(aliasDefs);
+        _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
+
+        if (aliasDefs == null) {
+            _aliasMapping = Collections.emptyMap();
+        } else {
+            _aliasMapping = _buildAliasMapping(props, aliasDefs);
+        }
 //        init(props);
 
         // Former `assignIndexes`
         // order is arbitrary, but stable:
         if (assignIndexes) {
-            int index = 0;
-    
-            for (SettableBeanProperty prop : _propsInOrder) {
-                prop.assignIndex(index++);
+            // note: only assign to primary entries, not to aliased (since they are dups)
+            for (int i = 0, end = props.size(); i < end; ++i) {
+                _propsInOrder[i].assignIndex(i);
             }
         }
     }
@@ -139,14 +132,38 @@ public class BeanPropertyMap
 
         // 16-May-2016, tatu: Alas, not enough to just change flag, need to re-init as well.
         _propsInOrder = Arrays.copyOf(base._propsInOrder, base._propsInOrder.length);
-        _primaryCount = base._primaryCount;
 //        init(Arrays.asList(_propsInOrder));
     }
 
-    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
-            boolean caseInsensitive, Map<String,List<PropertyName>> aliasMapping)
+    private Map<String,String> _buildAliasMapping(Collection<SettableBeanProperty> props,
+            PropertyName[][] aliasDefs)
     {
-        return new BeanPropertyMap(caseInsensitive, props, aliasMapping, true);
+        // Ok, first, we need an actual index, so traverse over primary properties first
+        Map<String,String> mapping = new HashMap<>();
+        for (int i = 0, end = aliasDefs.length; i < end; ++i) {
+            PropertyName[] aliases = aliasDefs[i];
+            if (aliases != null) {
+                SettableBeanProperty prop = _propsInOrder[i];
+                String propId = prop.getName();
+                if (_caseInsensitive) {
+                    propId = propId.toLowerCase();
+                }
+                for (PropertyName alias : aliases) {
+                    String aliasId = alias.getSimpleName();
+                    if (_caseInsensitive) {
+                        aliasId = aliasId.toLowerCase();
+                    }
+                    mapping.put(alias.getName(), propId);
+                }
+            }
+        }
+        return mapping;
+    }
+
+    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
+            boolean caseInsensitive, PropertyName[][] aliases)
+    {
+        return new BeanPropertyMap(caseInsensitive, props, aliases, true);
     }
 
     public void init() {
@@ -234,49 +251,9 @@ public class BeanPropertyMap
      */
     public BeanPropertyMap withProperty(SettableBeanProperty newProp)
     {
-        // First: may be able to just replace?
-        /*
-        String key = getPropertyName(newProp);
-
-        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
-            if ((prop != null) && prop.getName().equals(key)) {
-                _hashArea[i] = newProp;
-                _propsInOrder[_findFromOrdered(prop)] = newProp;
-                return this;
-            }
-        }
-        // If not, append
-        final int slot = key.hashCode() & _hashMask;
-        final int hashSize = _hashMask+1;
-        int ix = (slot<<1);
-        
-        // primary slot not free?
-        if (_hashArea[ix] != null) {
-            // secondary?
-            ix = (hashSize + (slot >> 1)) << 1;
-            if (_hashArea[ix] != null) {
-                // ok, spill over.
-                ix = ((hashSize + (hashSize >> 1) ) << 1) + _spillCount;
-                _spillCount += 2;
-                if (ix >= _hashArea.length) {
-                    _hashArea = Arrays.copyOf(_hashArea, _hashArea.length + 4);
-                }
-            }
-        }
-        _hashArea[ix] = key;
-        _hashArea[ix+1] = newProp;
-
-        int last = _propsInOrder.length;
-        _propsInOrder = Arrays.copyOf(_propsInOrder, last+1);
-        _propsInOrder[last] = newProp;
-
-        // should we just create a new one? Or is resetting ok?
-       */
-
         // First: maybe just replace in place?
         final String key = newProp.getName();
-        for (int i = 0; i < _primaryCount; ++i) {
+        for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i].getName().equals(key)) {
                 _propsInOrder[i] = newProp;
                 return this;
@@ -315,6 +292,24 @@ public class BeanPropertyMap
         return map;
     }
 
+    private SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf)
+    {
+        if (prop != null) {
+            String newName = xf.transform(prop.getName());
+            prop = prop.withSimpleName(newName);
+            JsonDeserializer<?> deser = prop.getValueDeserializer();
+            if (deser != null) {
+                @SuppressWarnings("unchecked")
+                JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
+                    deser.unwrappingDeserializer(xf);
+                if (newDeser != deser) {
+                    prop = prop.withValueDeserializer(newDeser);
+                }
+            }
+        }
+        return prop;
+    }
+    
     /**
      * Mutant factory method that will use this instance as the base, and
      * construct an instance that is otherwise same except for excluding
@@ -345,28 +340,15 @@ public class BeanPropertyMap
      * (note: entry MUST exist; otherwise exception is thrown) with
      * specified replacement.
      */
-    public void replace(SettableBeanProperty newProp)
+    public void replace(SettableBeanProperty oldProp, SettableBeanProperty newProp)
     {
-        /*
-        final String key = getPropertyName(newProp);
-        int ix = _findIndexInHash(key);
-        if (ix < 0) {
-            throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
-        }
-        SettableBeanProperty prop = (SettableBeanProperty) _hashArea[ix];
-        _hashArea[ix] = newProp;
-        // also, replace in in-order
-        _propsInOrder[_findFromOrdered(newProp)] = newProp;
-        */
-
-        final String key = newProp.getName();
-        for (int i = 0; i < _primaryCount; ++i) {
-            if (_propsInOrder[i].getName().equals(key)) {
+        for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
+            if (_propsInOrder[i] == oldProp) {
                 _propsInOrder[i] = newProp;
                 return;
             }
         }
-        throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
+        throw new NoSuchElementException("No entry '"+oldProp.getName()+"' found, can't replace");
     }
 
     /**
@@ -375,33 +357,6 @@ public class BeanPropertyMap
      */
     public void remove(SettableBeanProperty propToRm)
     {
-        /*
-        ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
-        final String key = getPropertyName(propToRm);
-        boolean found = false;
-
-        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
-            if (prop == null) {
-                continue;
-            }
-            if (!found) {
-                // 09-Jan-2017, tatu: Important: must check name slot and NOT property name,
-                //   as only former is lower-case in case-insensitive case
-                found = key.equals(_hashArea[i-1]);
-                if (found) {
-                    // 17-Nov-2017, tatu: We used to leave a "hole" here but seems unnecessary
-//                    _propsInOrder[_findFromOrdered(prop)] = null;
-                    continue;
-                }
-            }
-            props.add(prop);
-        }
-        if (!found) {
-            throw new NoSuchElementException("No entry '"+propToRm.getName()+"' found, can't remove");
-        }
-        init(props);
-        */
         final String key = getPropertyName(propToRm);
         ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
         boolean found = false;
@@ -419,7 +374,6 @@ public class BeanPropertyMap
             throw new NoSuchElementException("No entry '"+propToRm.getName()+"' found, can't remove");
         }
         _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
-        _primaryCount = _propsInOrder.length;
     }
 
     /*
@@ -430,14 +384,41 @@ public class BeanPropertyMap
 
     public FieldNameMatcher constructMatcher(TokenStreamFactory tsf)
     {
-        // !!! 11-Nov-2017, tatu: Add aliases
+        List<Named> names;
+        if (_aliasDefs == null) { // simple case, no aliases
+            _propsWithAliases = _propsInOrder;
+            names = Arrays.asList(_propsInOrder);
+        } else {
+            // must make an actual copy (not just array-backed) as we'll append entries:
+            List<SettableBeanProperty> allProps = new ArrayList<>(Arrays.asList(_propsInOrder));
+            names = new ArrayList<>(allProps);
 
-        List<Named> names = Arrays.asList(_propsInOrder);
+            // map aliases
+            for (int i = 0, end = _aliasDefs.length; i < end; ++i) {
+                PropertyName[] aliases = _aliasDefs[i];
+                if (aliases != null) {
+                    SettableBeanProperty primary = _propsInOrder[i];
+                    for (PropertyName alias : aliases) {
+                        names.add(alias);
+                        allProps.add(primary);
+                    }
+                }
+            }
+            _propsWithAliases = allProps.toArray(new SettableBeanProperty[allProps.size()]);
+        }
         // `true` -> yes, they are intern()ed alright
         if (_caseInsensitive) {
             return tsf.constructCIFieldNameMatcher(names, true);
         }
         return tsf.constructFieldNameMatcher(names, true);
+    }
+
+    /**
+     * Method similar to {@link #getPrimaryProperties()} but will append aliased
+     * properties after primary ones
+     */
+    public SettableBeanProperty[] getPropertiesWithAliases() {
+        return _propsWithAliases;
     }
 
     /*
@@ -453,7 +434,7 @@ public class BeanPropertyMap
     }
 
     public boolean hasAliases() {
-        return !_aliasDefs.isEmpty();
+        return _aliasDefs != null;
     }
 
     /**
@@ -465,11 +446,7 @@ public class BeanPropertyMap
     }
 
     private List<SettableBeanProperty> _properties() {
-        List<SettableBeanProperty> result = new ArrayList<>(_primaryCount);
-        for (int i = 0; i < _primaryCount; ++i) {
-            result.add(_propsInOrder[i]);
-        }
-        return result;
+        return Arrays.asList(_propsInOrder);
     }
 
     /**
@@ -479,15 +456,6 @@ public class BeanPropertyMap
      * it should be consecutive.
      */
     public SettableBeanProperty[] getPrimaryProperties() {
-        return _propsInOrder;
-    }
-
-    /**
-     * Method similar to {@link #getPrimaryProperties()} but will append aliased
-     * properties after primary ones
-     */
-    public SettableBeanProperty[] getPropertiesWithAliases() {
-        // !!! TODO:
         return _propsInOrder;
     }
 
@@ -508,18 +476,6 @@ public class BeanPropertyMap
 
     public SettableBeanProperty findDefinition(int index)
     {
-        // note: will scan the whole area, including primary, secondary and
-        // possible spill-area
-        /*
-        for (int i = 1, end = _hashArea.length; i < end; i += 2) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
-            if ((prop != null) && (index == prop.getPropertyIndex())) {
-                return prop;
-            }
-        }
-        return null;
-        */
-        // 17-Nov-2017, tatu: No need to traverse through index is there?
         for (int i = 0 ,end = _propsInOrder.length; i < end; ++i) {
             SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
             if ((prop != null) && (index == prop.getPropertyIndex())) {
@@ -539,9 +495,9 @@ public class BeanPropertyMap
         if (key == null) {
             throw new IllegalArgumentException("Cannot pass null property name");
         }
-        for (int i = 0; i < _primaryCount; ++i) {
-            if (key.equals(_propsInOrder[i].getName())) {
-                return _propsInOrder[i];
+        for (SettableBeanProperty prop : _propsInOrder) {
+            if (key.equals(prop.getName())) {
+                return prop;
             }
         }
         return null;
@@ -659,94 +615,9 @@ public class BeanPropertyMap
             sb.append(String.format("%s(%s)", prop.getName(), prop.getType()));
         }
         sb.append(']');
-        if (!_aliasDefs.isEmpty()) {
-            sb.append(String.format("(aliases: %s)", _aliasDefs));
+        if (_aliasDefs != null) {
+            sb.append(String.format("(aliases: %s)", _aliasMapping));
         }
         return sb.toString();
     }
-    
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    private SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf)
-    {
-        if (prop != null) {
-            String newName = xf.transform(prop.getName());
-            prop = prop.withSimpleName(newName);
-            JsonDeserializer<?> deser = prop.getValueDeserializer();
-            if (deser != null) {
-                @SuppressWarnings("unchecked")
-                JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
-                    deser.unwrappingDeserializer(xf);
-                if (newDeser != deser) {
-                    prop = prop.withValueDeserializer(newDeser);
-                }
-            }
-        }
-        return prop;
-    }
-
-    private Map<String,String> _buildAliasMapping(Map<String,List<PropertyName>> defs)
-    {
-        if ((defs == null) || defs.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        Map<String,String> aliases = new HashMap<>();
-        for (Map.Entry<String,List<PropertyName>> entry : defs.entrySet()) {
-            String key = entry.getKey();
-            if (_caseInsensitive) {
-                key = key.toLowerCase();
-            }
-            for (PropertyName pn : entry.getValue()) {
-                String mapped = pn.getSimpleName();
-                if (_caseInsensitive) {
-                    mapped = mapped.toLowerCase();
-                }
-                aliases.put(mapped, key);
-            }
-        }
-        return aliases;
-    }
-
-    /*
-    private final int _findIndexInHash(String key)
-    {
-        final int slot = key.hashCode() & _hashMask;     
-        
-        int ix = (slot<<1);
-        
-        // primary match?
-        if (key.equals(_hashArea[ix])) {
-            return ix+1;
-        }
-        // no? secondary?
-        int hashSize = _hashMask+1;
-        ix = hashSize + (slot>>1) << 1;
-        if (key.equals(_hashArea[ix])) {
-            return ix+1;
-        }
-        // perhaps spill then
-        int i = (hashSize + (hashSize>>1)) << 1;
-        for (int end = i + _spillCount; i < end; i += 2) {
-            if (key.equals(_hashArea[i])) {
-                return i+1;
-            }
-        }
-        return -1;
-    }
-    */
-
-    /*
-    private final int _findFromOrdered(SettableBeanProperty prop) {
-        for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
-            if (_propsInOrder[i] == prop) {
-                return i;
-            }
-        }
-        throw new IllegalStateException("Illegal state: property '"+prop.getName()+"' missing from _propsInOrder");
-    }
-*/
 }

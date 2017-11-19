@@ -184,7 +184,7 @@ public class BeanPropertyMap
         int spillCount = 0;
 
         for (SettableBeanProperty prop : props) {
-            String key = getPropertyName(prop);
+            String key = _propertyName(prop);
             int slot = key.hashCode() & _hashMask;
             int ix = (slot<<1);
 
@@ -357,13 +357,13 @@ public class BeanPropertyMap
      */
     public void remove(SettableBeanProperty propToRm)
     {
-        final String key = getPropertyName(propToRm);
+        final String key = _propertyName(propToRm);
         ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
         boolean found = false;
         for (SettableBeanProperty prop : _propsInOrder) {
             if (!found) {
                 // Important: make sure to lower-case name to match as necessary
-                String match = getPropertyName(prop);
+                String match = _propertyName(prop);
                 if (found = match.equals(key)) {
                     continue;
                 }
@@ -442,11 +442,7 @@ public class BeanPropertyMap
      */
     @Override
     public Iterator<SettableBeanProperty> iterator() {
-        return _properties().iterator();
-    }
-
-    private List<SettableBeanProperty> _properties() {
-        return Arrays.asList(_propsInOrder);
+        return Arrays.asList(_propsInOrder).iterator();
     }
 
     /**
@@ -457,15 +453,6 @@ public class BeanPropertyMap
      */
     public SettableBeanProperty[] getPrimaryProperties() {
         return _propsInOrder;
-    }
-
-    // Confining this case insensitivity to this function (and the find method) in case we want to
-    // apply a particular locale to the lower case function.  For now, using the default.
-    protected final String getPropertyName(SettableBeanProperty prop) {
-        if (_caseInsensitive) {
-            return prop.getName().toLowerCase();
-        }
-        return prop.getName();
     }
 
     /*
@@ -591,6 +578,15 @@ public class BeanPropertyMap
             }
         }
         return null;
+    }
+
+    // Confining this case insensitivity to this function (and the find method) in case we want to
+    // apply a particular locale to the lower case function.  For now, using the default.
+    protected final String _propertyName(SettableBeanProperty prop) {
+        if (_caseInsensitive) {
+            return prop.getName().toLowerCase();
+        }
+        return prop.getName();
     }
 
     /*

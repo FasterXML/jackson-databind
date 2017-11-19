@@ -233,34 +233,9 @@ public class BeanDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-/*
-        do {
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
-                }
-                continue;
-            }
-            handleUnknownVanilla(p, ctxt, bean, propName);
-        } while ((propName = p.nextFieldName()) != null);
-        */
-
         // May or may not be interned...
         int ix = _fieldMatcher.matchAnyName(propName);
-        while (true) {
-            if (ix < 0) {
-                if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                    p.nextToken();
-                    return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                            p.getCurrentName());
-                }
-                break;
-            }
+        while (ix >= 0) {
             p.nextToken();
             SettableBeanProperty prop = _fieldsByIndex[ix];
             try {
@@ -271,6 +246,14 @@ public class BeanDeserializer
             ix = p.nextFieldName(_fieldMatcher);
         }
         // Should we verify there's END_OBJECT there?
+        if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                p.nextToken();
+                return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                        p.getCurrentName());
+            }
+            return ctxt.handleUnexpectedToken(handledType(), p);
+        }
         return bean;
     }
 
@@ -388,34 +371,41 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
-        if (t == JsonToken.FIELD_NAME) {
-            String propName = p.getCurrentName();
-            do { // minor unrolling here (by-2), less likely on critical path
-                p.nextToken();
-                SettableBeanProperty prop;
-                
-                if ((prop = _findProperty(propName)) == null) {
-                    handleUnknownVanilla(p, ctxt, bean, propName);
-                } else {
-                    try {
-                        prop.deserializeAndSet(p, ctxt, bean);
-                    } catch (Exception e) {
-                        wrapAndThrow(e, bean, propName, ctxt);
-                    }
-                }
 
-                if ((propName = p.nextFieldName()) == null) break;
+        if (t != JsonToken.FIELD_NAME) {
+            return bean;
+        }
+        int ix = _fieldMatcher.matchAnyName(p.getCurrentName());
+        while (ix >= 0) { // minor unrolling here (by-2), less likely on critical path
+            SettableBeanProperty prop = _fieldsByIndex[ix];
+            p.nextToken();
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
+            }
+
+            // Elem #2
+            ix = p.nextFieldName(_fieldMatcher);
+            if (ix < 0) {
+                break;
+            }
+            prop = _fieldsByIndex[ix];
+            p.nextToken();
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
+            }
+            ix = p.nextFieldName(_fieldMatcher);
+        }
+        if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
                 p.nextToken();
-                if ((prop = _findProperty(propName)) == null) {
-                    handleUnknownVanilla(p, ctxt, bean, propName);
-                } else {
-                    try {
-                        prop.deserializeAndSet(p, ctxt, bean);
-                    } catch (Exception e) {
-                        wrapAndThrow(e, bean, propName, ctxt);
-                    }
-                }
-            } while ((propName = p.nextFieldName()) != null);
+                return _vanillaDeserializeWithUnknown(p, ctxt, bean,
+                        p.getCurrentName());
+            }
+            return ctxt.handleUnexpectedToken(handledType(), p);
         }
         return bean;
     }

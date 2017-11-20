@@ -78,6 +78,9 @@ public class BeanAsArrayDeserializer
         return this;
     }
 
+    @Override
+    protected void initFieldMatcher(DeserializationContext ctxt) { }
+    
     /*
     /**********************************************************
     /* JsonDeserializer implementation

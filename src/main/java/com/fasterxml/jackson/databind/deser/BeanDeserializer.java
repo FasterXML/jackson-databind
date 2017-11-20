@@ -46,7 +46,7 @@ public class BeanDeserializer
 
     /*
     /**********************************************************
-    /* Life-cycle, construction, initialization
+    /* Life-cycle, constructors
     /**********************************************************
      */
 
@@ -66,30 +66,48 @@ public class BeanDeserializer
      * Copy-constructor that can be used by sub-classes to allow
      * copy-on-write style copying of settings of an existing instance.
      */
-    protected BeanDeserializer(BeanDeserializerBase src) {
+    protected BeanDeserializer(BeanDeserializer src) {
         super(src, src._ignoreAllUnknown);
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
-    protected BeanDeserializer(BeanDeserializerBase src, boolean ignoreAllUnknown) {
+    protected BeanDeserializer(BeanDeserializer src, boolean ignoreAllUnknown) {
         super(src, ignoreAllUnknown);
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
-    protected BeanDeserializer(BeanDeserializerBase src, NameTransformer unwrapper) {
+    protected BeanDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
         super(src, unwrapper);
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
-    public BeanDeserializer(BeanDeserializerBase src, ObjectIdReader oir) {
+    public BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {
         super(src, oir);
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
-    public BeanDeserializer(BeanDeserializerBase src, Set<String> ignorableProps) {
+    public BeanDeserializer(BeanDeserializer src, Set<String> ignorableProps) {
         super(src, ignorableProps);
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
-    public BeanDeserializer(BeanDeserializerBase src, BeanPropertyMap props) {
+    public BeanDeserializer(BeanDeserializer src, BeanPropertyMap props) {
         super(src, props);
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
+    /*
+    /**********************************************************
+    /* Life-cycle, mutant factories
+    /**********************************************************
+     */
+    
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer transformer)
     {
@@ -129,6 +147,25 @@ public class BeanDeserializer
         return new BeanAsArrayDeserializer(this, _beanProperties.getPrimaryProperties());
     }
 
+    /*
+    /**********************************************************
+    /* Life-cycle, initialization
+    /**********************************************************
+     */
+
+    @Override
+    protected void initFieldMatcher(DeserializationContext ctxt) {
+        _beanProperties.init();
+        _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
+        _fieldsByIndex = _beanProperties.getPropertiesWithAliases();
+    }
+
+    // @since 3.0
+    protected FieldNameMatcher _fieldMatcher;
+
+    // @since 3.0
+    protected SettableBeanProperty[] _fieldsByIndex;
+    
     /*
     /**********************************************************
     /* JsonDeserializer implementation
@@ -394,7 +431,7 @@ public class BeanDeserializer
                 try {
                     _fieldsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
                 }
                 continue;
             }
@@ -470,23 +507,30 @@ public class BeanDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-            String propName = p.getCurrentName();
-            do {
-                p.nextToken();
-                SettableBeanProperty prop = _findProperty(propName);
-                if (prop != null) { // normal case
-                    try {
-                        prop.deserializeAndSet(p, ctxt, bean);
-                    } catch (Exception e) {
-                        wrapAndThrow(e, bean, propName, ctxt);
-                    }
-                    continue;
-                }
-                handleUnknownVanilla(p, ctxt, bean, propName);
-            } while ((propName = p.nextFieldName()) != null);
+        if (!p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            // should we check what exactly it is... ?
+            return bean;
         }
-        return bean;
+        for (int ix = _fieldMatcher.matchAnyName(p.getCurrentName()); ;
+                ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // normal case
+                p.nextToken();
+                try {
+                    _fieldsByIndex[ix].deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
+                }
+                continue;
+            }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                return bean;
+            }
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
+            p.nextToken();
+            handleUnknownVanilla(p, ctxt, bean, p.getCurrentName());
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -130,6 +131,19 @@ public class BuilderBasedDeserializer
                 _beanProperties.getPrimaryProperties(), 
                 _buildMethod);
     }
+
+    @Override
+    protected void initFieldMatcher(DeserializationContext ctxt) {
+        _beanProperties.init();
+        _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
+        _fieldsByIndex = _beanProperties.getPropertiesWithAliases();
+    }
+
+    // @since 3.0
+    protected FieldNameMatcher _fieldMatcher;
+
+    // @since 3.0
+    protected SettableBeanProperty[] _fieldsByIndex;
 
     /*
     /**********************************************************

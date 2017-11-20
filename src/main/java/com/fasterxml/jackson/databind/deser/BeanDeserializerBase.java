@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
@@ -447,7 +447,7 @@ public abstract class BeanDeserializerBase
         for (SettableBeanProperty prop : _beanProperties) {
             if (!prop.hasValueDeserializer()) {
                 // [databind#125]: allow use of converters
-                JsonDeserializer<?> deser = findConvertingDeserializer(ctxt, prop);
+                JsonDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
                 if (deser == null) {
                     deser = ctxt.findNonContextualValueDeserializer(prop.getType());
                 }
@@ -476,7 +476,8 @@ public abstract class BeanDeserializerBase
             if (xform != null) {
                 JsonDeserializer<Object> orig = prop.getValueDeserializer();
                 JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(xform);
-                if (unwrapping != orig && unwrapping != null) {
+
+                if ((unwrapping != orig) && (unwrapping != null)) {
                     prop = prop.withValueDeserializer(unwrapping);
                     if (unwrapped == null) {
                         unwrapped = new UnwrappedPropertyHandler();
@@ -613,7 +614,7 @@ public abstract class BeanDeserializerBase
     }
 
 
-    /**
+    /*
      * Helper method that can be used to see if specified property is annotated
      * to indicate use of a converter for property value (in case of container types,
      * it is container type itself, not key or content type).
@@ -621,7 +622,7 @@ public abstract class BeanDeserializerBase
      * NOTE: returned deserializer is NOT yet contextualized, caller needs to take
      * care to do that.
      */
-    protected JsonDeserializer<Object> findConvertingDeserializer(DeserializationContext ctxt,
+    protected JsonDeserializer<Object> _findConvertingDeserializer(DeserializationContext ctxt,
             SettableBeanProperty prop)
         throws JsonMappingException
     {
@@ -640,12 +641,6 @@ public abstract class BeanDeserializerBase
         return null;
     }
 
-    // @since 3.0
-    protected FieldNameMatcher _fieldMatcher;
-
-    // @since 3.0
-    protected SettableBeanProperty[] _fieldsByIndex;
-    
     /**
      * Although most of post-processing is done in resolve(), we only get
      * access to referring property's annotations here; and this is needed
@@ -733,23 +728,18 @@ public abstract class BeanDeserializerBase
                 }
             }
         }
-
+        contextual.initFieldMatcher(ctxt);
         if (shape == null) {
             shape = _serializationShape;
         }
         if (shape == JsonFormat.Shape.ARRAY) {
             contextual = contextual.asArrayDeserializer();
         }
-        contextual.initFieldMatcher(ctxt);
         return contextual;
     }
 
     // @since 3.0
-    protected void initFieldMatcher(DeserializationContext ctxt) {
-        _beanProperties.init();
-        _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
-        _fieldsByIndex = _beanProperties.getPropertiesWithAliases();
-    }
+    protected abstract void initFieldMatcher(DeserializationContext ctxt);
 
     /**
      * Helper method called to see if given property is part of 'managed' property

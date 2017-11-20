@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -21,7 +22,7 @@ public class UnwrappedPropertyHandler
 
     public UnwrappedPropertyHandler()  {
         _properties = new ArrayList<SettableBeanProperty>();
-   }
+    }
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> props)  {
         _properties = props;
     }

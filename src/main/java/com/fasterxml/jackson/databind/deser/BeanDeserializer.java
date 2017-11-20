@@ -248,11 +248,10 @@ public class BeanDeserializer
         // Should we verify there's END_OBJECT there?
         if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
             if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                p.nextToken();
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
                         p.getCurrentName());
             }
-            return ctxt.handleUnexpectedToken(handledType(), p);
+            return _handleUnexpectedWithin(p, ctxt, bean);
         }
         return bean;
     }
@@ -325,11 +324,10 @@ public class BeanDeserializer
         }
         if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
             if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                p.nextToken();
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
                         p.getCurrentName());
             }
-            return ctxt.handleUnexpectedToken(handledType(), p);
+            return _handleUnexpectedWithin(p, ctxt, bean);
         }
         return bean;
     }
@@ -375,11 +373,10 @@ public class BeanDeserializer
         }
         if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
             if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                p.nextToken();
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
                         p.getCurrentName());
             }
-            return ctxt.handleUnexpectedToken(handledType(), p);
+            return _handleUnexpectedWithin(p, ctxt, bean);
         }
         return bean;
     }
@@ -387,21 +384,29 @@ public class BeanDeserializer
     private final Object _vanillaDeserializeWithUnknown(JsonParser p,
             DeserializationContext ctxt, Object bean, String propName) throws IOException
     {
+        p.nextToken();
         handleUnknownVanilla(p, ctxt, bean, propName);
-        while ((propName = p.nextFieldName()) != null) {
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop == null) {
-                handleUnknownVanilla(p, ctxt, bean, propName);
+
+        while (true) {
+            int ix = p.nextFieldName(_fieldMatcher);
+            if (ix >= 0) { // normal case
+                p.nextToken();
+                try {
+                    _fieldsByIndex[ix].deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, propName, ctxt);
+                }
                 continue;
             }
-            try {
-                prop.deserializeAndSet(p, ctxt, bean);
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                return bean;
             }
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
+            p.nextToken();
+            handleUnknownVanilla(p, ctxt, bean, p.getCurrentName());
         }
-        return bean;
     }        
 
     /**
@@ -1113,6 +1118,18 @@ public class BeanDeserializer
             _nullFromCreator = new NullPointerException("JSON Creator returned null");
         }
         return _nullFromCreator;
+    }
+
+    /**
+     * Method called if an unexpected token (other then <code>FIELD_NAME</code>)
+     * is found after POJO has been instantiated and partially bound.
+     *
+     * @since 3.0
+     */
+    protected Object _handleUnexpectedWithin(JsonParser p,
+            DeserializationContext ctxt, Object bean) throws IOException
+    {
+        return ctxt.handleUnexpectedToken(handledType(), p);
     }
 
     static class BeanReferring extends Referring

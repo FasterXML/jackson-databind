@@ -1515,7 +1515,7 @@ public abstract class BeanDeserializerBase
             Object bean, String propName)
         throws IOException
     {
-        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+        if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
             handleIgnoredProperty(p, ctxt, bean, propName);
         } else if (_anySetter != null) {
             try {

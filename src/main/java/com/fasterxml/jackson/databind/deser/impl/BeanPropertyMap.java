@@ -475,7 +475,6 @@ public class BeanPropertyMap
     /**
      * NOTE: does NOT do case-insensitive matching -- only to be used during construction
      * and never during deserialization process -- nor alias expansion.
-     * 
      */
     public SettableBeanProperty findPrimaryDefinition(String key)
     {

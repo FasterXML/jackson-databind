@@ -406,6 +406,12 @@ public class BeanPropertyMap
         return _caseInsensitive ? prop.getName().toLowerCase() : prop.getName();
     }
 
+    public SettableBeanProperty findPrimaryDefinition(String key)
+    {
+        // 19-Nov-2017, tatu: temporarily add for backwards compatibility
+        return find(key);
+    }
+
     /*
     /**********************************************************
     /* Public API, property lookup

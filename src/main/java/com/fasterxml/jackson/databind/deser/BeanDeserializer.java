@@ -1018,14 +1018,13 @@ public class BeanDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
-        for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.currentName();
-            t = p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) { // normal case
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // normal case
+                SettableBeanProperty prop = _fieldsByIndex[ix];
+                JsonToken t = p.nextToken();
                 // [JACKSON-831]: may have property AND be used as external type id:
                 if (t.isScalarValue()) {
-                    ext.handleTypePropertyValue(p, ctxt, propName, bean);
+                    ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     p.skipChildren();
@@ -1034,12 +1033,20 @@ public class BeanDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, p.currentName(), ctxt);
                 }
                 continue;
             }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                break;
+            }
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
             // ignorable things should be ignored
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            final String propName = p.currentName();
+            p.nextToken();
+            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -1057,7 +1064,7 @@ public class BeanDeserializer
                 continue;
             }
             // Unknown: let's call handler method
-            handleUnknownProperty(p, ctxt, bean, propName);
+            handleUnknownProperty(p, ctxt, bean, p.currentName());
         }
         // and when we get this far, let's try finalizing the deal:
         return ext.complete(p, ctxt, bean);

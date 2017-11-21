@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -84,12 +84,15 @@ public class ThrowableDeserializer
         Object[] pending = null;
         int pendingIx = 0;
 
-        for (; p.currentToken() != JsonToken.END_OBJECT; p.nextToken()) {
-            String propName = p.getCurrentName();
-            SettableBeanProperty prop = _findProperty(propName);
-            p.nextToken(); // to point to field value
+        if (!p.hasToken(JsonToken.FIELD_NAME)) {
+            return ctxt.handleUnexpectedToken(handledType(), p);
+        }
 
-            if (prop != null) { // normal case
+        int ix = _fieldMatcher.matchAnyName(p.getCurrentName());
+        for (; ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) {
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 if (throwable != null) {
                     prop.deserializeAndSet(p, ctxt, throwable);
                     continue;
@@ -103,15 +106,22 @@ public class ThrowableDeserializer
                 pending[pendingIx++] = prop.deserialize(p, ctxt);
                 continue;
             }
-
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                    break;
+                }
+                return _handleUnexpectedWithin(p, ctxt, throwable);
+            }
             // Maybe it's "message"?
+            String propName = p.getCurrentName();
+            p.nextToken();
             if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {
                     throwable = _valueInstantiator.createFromString(ctxt, p.getText());
                     // any pending values?
                     if (pending != null) {
                         for (int i = 0, len = pendingIx; i < len; i += 2) {
-                            prop = (SettableBeanProperty)pending[i];
+                            SettableBeanProperty prop = (SettableBeanProperty)pending[i];
                             prop.set(throwable, pending[i+1]);
                         }
                         pending = null;
@@ -133,11 +143,11 @@ public class ThrowableDeserializer
         }
         // Sanity check: did we find "message"?
         if (throwable == null) {
-            /* 15-Oct-2010, tatu: Can't assume missing message is an error, since it may be
-             *   suppressed during serialization, as per [JACKSON-388].
-             *   
-             *   Should probably allow use of default constructor, too...
-             */
+            // 15-Oct-2010, tatu: Can't assume missing message is an error, since it may be
+            //   suppressed during serialization, as per [JACKSON-388].
+            //
+            //   Should probably allow use of default constructor, too...
+
             //throw new JsonMappingException("No 'message' property found: could not deserialize "+_beanType);
             if (hasStringCreator) {
                 throwable = _valueInstantiator.createFromString(ctxt, null);

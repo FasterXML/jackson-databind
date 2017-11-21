@@ -421,10 +421,8 @@ public class BeanDeserializerFactory
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getParameterType(0));
             if (prop != null) {
-                /* 21-Aug-2011, tatus: We may actually have found 'cause' property
-                 *   to set... but let's replace it just in case,
-                 *   otherwise can end up with odd errors.
-                 */
+                // 21-Aug-2011, tatus: We may actually have found 'cause' property to set...
+                //    but let's replace it just in case, otherwise can end up with odd errors.
                 builder.addOrReplaceProperty(prop, true);
             }
         }
@@ -433,9 +431,7 @@ public class BeanDeserializerFactory
         builder.addIgnorable("localizedMessage");
         // Java 7 also added "getSuppressed", skip if we have such data:
         builder.addIgnorable("suppressed");
-        /* As well as "message": it will be passed via constructor,
-         * as there's no 'setMessage()' method
-        */
+        // As well as "message": it will be passed via constructor as there's no 'setMessage()' method
         builder.addIgnorable("message");
 
         // update builder now that all information is in?

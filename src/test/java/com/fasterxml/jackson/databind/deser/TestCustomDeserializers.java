@@ -77,7 +77,7 @@ public class TestCustomDeserializers
                 throw new Error();
             }
             while(t == JsonToken.FIELD_NAME) {
-                final String fieldName = p.getCurrentName();
+                final String fieldName = p.currentName();
                 t = p.nextToken();
                 if (t != JsonToken.VALUE_NUMBER_INT) {
                     throw new JsonParseException(p, "expecting number got "+ t);

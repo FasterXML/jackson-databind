@@ -129,7 +129,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeStartObject();
         buf.writeFieldName("c");
         //This assertion succeeds as expected
-        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
+        assertEquals("b", buf.getOutputContext().getParent().currentName());
         buf.writeString("cval");
         buf.writeEndObject();
         buf.writeEndObject();
@@ -228,20 +228,20 @@ public class TestTokenBuffer extends BaseMapTest
         p = buf.asParser();
         assertNull(p.currentToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("num", p.getCurrentName());
+        assertEquals("num", p.currentName());
         // and override should also work:
         p.overrideCurrentName("bah");
-        assertEquals("bah", p.getCurrentName());
+        assertEquals("bah", p.currentName());
         
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(1.25, p.getDoubleValue());
         // should still have access to (overridden) name
-        assertEquals("bah", p.getCurrentName());
+        assertEquals("bah", p.currentName());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         // but not any more
-        assertNull(p.getCurrentName());
+        assertNull(p.currentName());
         assertNull(p.nextToken());
         p.close();
         buf.close();
@@ -292,10 +292,10 @@ public class TestTokenBuffer extends BaseMapTest
         JsonParser p = buf1.asParser();
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("b", p.getCurrentName());
+        assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(13, p.getIntValue());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -418,8 +418,8 @@ public class TestTokenBuffer extends BaseMapTest
 
         if (ctxt1.inObject()) {
             assertTrue(ctxt2.inObject());
-            String str1 = ctxt1.getCurrentName();
-            String str2 = ctxt2.getCurrentName();
+            String str1 = ctxt1.currentName();
+            String str2 = ctxt2.currentName();
 
             if ((str1 != str2) && !str1.equals(str2)) {
                 fail("Expected name '"+str2+"' (JsonParser), TokenBuffer had '"+str1+"'");
@@ -447,7 +447,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeStartObject();
         buf.writeFieldName("c");
         //This assertion fails (because of 'a')
-        assertEquals("b", buf.getOutputContext().getParent().getCurrentName());
+        assertEquals("b", buf.getOutputContext().getParent().currentName());
         buf.writeString("cval");
         buf.writeEndObject();
         buf.writeEndObject();
@@ -508,7 +508,7 @@ public class TestTokenBuffer extends BaseMapTest
         
         assertFalse(seq.hasCurrentToken());
         assertNull(seq.currentToken());
-        assertNull(seq.getCurrentName());
+        assertNull(seq.currentName());
 
         assertToken(JsonToken.START_ARRAY, seq.nextToken());
         assertToken(JsonToken.VALUE_STRING, seq.nextToken());

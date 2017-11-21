@@ -325,7 +325,7 @@ public class EnumMapDeserializer
         if (p.isExpectedStartObjectToken()) {
             keyName = p.nextFieldName();
         } else if (p.hasToken(JsonToken.FIELD_NAME)) {
-            keyName = p.getCurrentName();
+            keyName = p.currentName();
         } else {
             keyName = null;
         }

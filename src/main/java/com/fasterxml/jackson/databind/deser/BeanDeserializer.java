@@ -222,7 +222,7 @@ public class BeanDeserializer
             }
         } else {
             if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-                propName = p.getCurrentName();
+                propName = p.currentName();
             } else {
                 return bean;
             }
@@ -331,7 +331,7 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
         if (t == JsonToken.FIELD_NAME) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             do { // minor unrolling here (by-2), less likely on critical path
                 p.nextToken();
                 SettableBeanProperty prop = _beanProperties.find(propName);
@@ -397,7 +397,7 @@ public class BeanDeserializer
          */
         if (_objectIdReader != null && _objectIdReader.maySerializeAsObject()) {
             if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)
-                    && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                    && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                 return deserializeFromObjectId(p, ctxt);
             }
         }
@@ -444,7 +444,7 @@ public class BeanDeserializer
             }
         }
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             do {
                 p.nextToken();
                 SettableBeanProperty prop = _beanProperties.find(propName);
@@ -483,7 +483,7 @@ public class BeanDeserializer
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // Object Id property?
             if (buffer.readIdProperty(propName)) {
@@ -655,7 +655,7 @@ public class BeanDeserializer
         throws IOException
     {
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             do {
                 p.nextToken();
                 // TODO: 06-Jan-2015, tatu: try streamlining call sequences here as well
@@ -709,7 +709,7 @@ public class BeanDeserializer
             injectValues(ctxt, bean);
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        String propName = p.hasTokenId(JsonTokenId.ID_FIELD_NAME) ? p.getCurrentName() : null;
+        String propName = p.hasTokenId(JsonTokenId.ID_FIELD_NAME) ? p.currentName() : null;
 
         for (; propName != null; propName = p.nextFieldName()) {
             p.nextToken();
@@ -769,7 +769,7 @@ public class BeanDeserializer
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             SettableBeanProperty prop = _beanProperties.find(propName);
             p.nextToken();
             if (prop != null) { // normal case
@@ -830,7 +830,7 @@ public class BeanDeserializer
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
@@ -948,7 +948,7 @@ public class BeanDeserializer
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             t = p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case
@@ -1004,7 +1004,7 @@ public class BeanDeserializer
         tokens.writeStartObject();
 
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);

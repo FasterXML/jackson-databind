@@ -91,7 +91,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         TokenBuffer tb = null;
 
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String name = p.getCurrentName();
+            String name = p.currentName();
             p.nextToken(); // to point to the value
             if (name.equals(_typePropertyName)) { // gotcha!
                 return _deserializeTypedForId(p, ctxt, tb);
@@ -115,7 +115,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             if (tb == null) {
                 tb = new TokenBuffer(p, ctxt);
             }
-            tb.writeFieldName(p.getCurrentName());
+            tb.writeFieldName(p.currentName());
             tb.writeString(typeId);
         }
         if (tb != null) { // need to put back skipped properties?

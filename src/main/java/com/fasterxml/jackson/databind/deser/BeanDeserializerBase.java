@@ -1121,7 +1121,7 @@ public abstract class BeanDeserializerBase
                     t = p.nextToken();
                 }
                 if ((t == JsonToken.FIELD_NAME) && _objectIdReader.maySerializeAsObject()
-                        && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                        && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                     return deserializeFromObjectId(p, ctxt);
                 }
             }
@@ -1482,7 +1482,7 @@ public abstract class BeanDeserializerBase
         // note: buffer does NOT have starting START_OBJECT
         JsonParser bufferParser = unknownTokens.asParser();
         while (bufferParser.nextToken() != JsonToken.END_OBJECT) {
-            String propName = bufferParser.getCurrentName();
+            String propName = bufferParser.currentName();
             // Unknown: let's call handler method
             bufferParser.nextToken();
             handleUnknownProperty(bufferParser, ctxt, bean, propName);

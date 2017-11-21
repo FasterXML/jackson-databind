@@ -68,8 +68,8 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
         }
 
         private void addParent(final TokenStreamContext streamContext, final List<String> pathList) {
-            if (streamContext != null && streamContext.getCurrentName() != null) {
-                pathList.add(streamContext.getCurrentName());
+            if (streamContext != null && streamContext.currentName() != null) {
+                pathList.add(streamContext.currentName());
                 addParent(streamContext.getParent(), pathList);
             }
         }

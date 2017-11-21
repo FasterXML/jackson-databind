@@ -107,7 +107,7 @@ public class BeanDeserializer
     /* Life-cycle, mutant factories
     /**********************************************************
      */
-    
+
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer transformer)
     {
@@ -257,12 +257,10 @@ public class BeanDeserializer
             if (propName == null) {
                 return bean;
             }
+        } else if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            propName = p.currentName();
         } else {
-            if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-                propName = p.currentName();
-            } else {
-                return bean;
-            }
+            return bean;
         }
         if (_needViewProcesing) {
             Class<?> view = ctxt.getActiveView();
@@ -501,18 +499,17 @@ public class BeanDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
+        if (!p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            // should we check what exactly it is... ?
+            return bean;
+        }
         if (_needViewProcesing) {
             Class<?> view = ctxt.getActiveView();
             if (view != null) {
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        if (!p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-            // should we check what exactly it is... ?
-            return bean;
-        }
-        for (int ix = _fieldMatcher.matchAnyName(p.currentName()); ;
-                ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
                 try {
@@ -725,30 +722,33 @@ public class BeanDeserializer
             Object bean, Class<?> activeView)
         throws IOException
     {
-        if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-            String propName = p.currentName();
-            do {
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) {
                 p.nextToken();
-                // TODO: 06-Jan-2015, tatu: try streamlining call sequences here as well
-                SettableBeanProperty prop = _findProperty(propName);
-                if (prop != null) {
-                    if (!prop.visibleInView(activeView)) {
-                        p.skipChildren();
-                        continue;
-                    }
-                    try {
-                        prop.deserializeAndSet(p, ctxt, bean);
-                    } catch (Exception e) {
-                        wrapAndThrow(e, bean, propName, ctxt);
-                    }
+                SettableBeanProperty prop = _fieldsByIndex[ix];
+                if (!prop.visibleInView(activeView)) {
+                    p.skipChildren();
                     continue;
                 }
-                handleUnknownVanilla(p, ctxt, bean, propName);
-            } while ((propName = p.nextFieldName()) != null);
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, p.currentName(), ctxt);
+                }
+                continue;
+            }
+            if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
+                if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                    return _handleUnexpectedWithin(p, ctxt, bean);
+                }
+                p.nextToken();
+                handleUnknownVanilla(p, ctxt, bean, p.currentName());
+                continue;
+            }
+            return bean;
         }
-        return bean;
     }
-    
+
     /*
     /**********************************************************
     /* Handling for cases where we have "unwrapped" values

@@ -185,11 +185,11 @@ public class BuilderBasedDeserializer
         throws IOException
     {
         // common case first:
-        if (p.isExpectedStartObjectToken()) {
-            JsonToken t = p.nextToken();
+        if (p.isExpectedStartObjectToken()) { 
             if (_vanillaProcessing) {
-                return finishBuild(ctxt, vanillaDeserialize(p, ctxt, t));
+                return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
+            p.nextToken();
             Object builder = deserializeFromObject(p, ctxt);
             return finishBuild(ctxt, builder);
         }
@@ -252,27 +252,32 @@ public class BuilderBasedDeserializer
      * Streamlined version that is only used when no "special"
      * features are enabled.
      */
-    private final Object vanillaDeserialize(JsonParser p,
-    		DeserializationContext ctxt, JsonToken t)
+    private final Object _vanillaDeserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        for (; p.currentToken() != JsonToken.END_OBJECT; p.nextToken()) {
-            String propName = p.currentName();
-            // Skip field name:
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) { // normal case
+        Object builder = _valueInstantiator.createUsingDefault(ctxt);
+        while (true) {
+            int ix = p.nextFieldName(_fieldMatcher);
+            if (ix >= 0) {
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 try {
-                    bean = prop.deserializeSetAndReturn(p, ctxt, bean);
+                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
-            } else {
-                handleUnknownVanilla(p, ctxt, bean, propName);
+                continue;
             }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                return builder;
+            }
+            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                p.nextToken();
+                handleUnknownVanilla(p, ctxt, builder, p.currentName());
+                continue;
+            }
+            return _handleUnexpectedWithin(p, ctxt, builder);
         }
-        return bean;
     }
 
     /**
@@ -381,8 +386,10 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) {
+            int ix = _fieldMatcher.matchAnyName(propName);
+            if (ix >= 0) {
+                SettableBeanProperty prop = _fieldsByIndex[ix];
+                // !!! 21-Nov-2017, tatu: Regular deserializer handles references here...
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }

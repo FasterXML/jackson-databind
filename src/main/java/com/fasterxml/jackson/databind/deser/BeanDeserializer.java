@@ -301,8 +301,7 @@ public class BeanDeserializer
      * features are enabled, and when current logical token
      * is {@link JsonToken#START_OBJECT} (or equivalent).
      */
-    private final Object _vanillaDeserialize(JsonParser p,
-            DeserializationContext ctxt)
+    private final Object _vanillaDeserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);

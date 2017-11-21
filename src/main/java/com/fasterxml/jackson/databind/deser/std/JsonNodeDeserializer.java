@@ -291,7 +291,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             final JsonNodeFactory nodeFactory) throws IOException
     {
         final ObjectNode node = nodeFactory.objectNode();
-        String key = p.getCurrentName();
+        String key = p.currentName();
         for (; key != null; key = p.nextFieldName()) {
             JsonNode value;
             JsonToken t = p.nextToken();
@@ -349,7 +349,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             if (!p.hasToken(JsonToken.FIELD_NAME)) {
                 return deserialize(p, ctxt);
             }
-            key = p.getCurrentName();
+            key = p.currentName();
         }
         for (; key != null; key = p.nextFieldName()) {
             // If not, fall through to regular handling

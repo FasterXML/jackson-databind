@@ -47,13 +47,10 @@ abstract class NodeCursor
     public final NodeCursor getParent() { return _parent; }
 
     @Override
-    public final String getCurrentName() {
+    public final String currentName() {
         return _currentName;
     }
 
-    /**
-     * @since 2.0
-     */
     public void overrideCurrentName(String name) {
         _currentName = name;
     }

@@ -159,7 +159,7 @@ public class TestTypeModifiers extends BaseMapTest
         public MapMarker<?,?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             if (p.currentToken() != JsonToken.START_OBJECT) throw new IOException("Wrong token: "+p.currentToken());
             if (p.nextToken() != JsonToken.FIELD_NAME) throw new IOException("Wrong token: "+p.currentToken());
-            String key = p.getCurrentName();
+            String key = p.currentName();
             if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new IOException("Wrong token: "+p.currentToken());
             int value = p.getIntValue();
             if (p.nextToken() != JsonToken.END_OBJECT) throw new IOException("Wrong token: "+p.currentToken());

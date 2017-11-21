@@ -159,7 +159,7 @@ class FactoryBasedEnumDeserializer
     
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
     
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);

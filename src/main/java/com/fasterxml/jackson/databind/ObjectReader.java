@@ -1587,7 +1587,7 @@ public class ObjectReader
                     "Current token not FIELD_NAME (to contain expected root name '%s'), but %s", 
                     expSimpleName, p.currentToken());
         }
-        String actualName = p.getCurrentName();
+        String actualName = p.currentName();
         if (!expSimpleName.equals(actualName)) {
             ctxt.reportInputMismatch(rootType,
                     "Root name '%s' does not match expected ('%s') for type %s",

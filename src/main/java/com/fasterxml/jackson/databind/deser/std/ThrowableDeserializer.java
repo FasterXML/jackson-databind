@@ -84,11 +84,7 @@ public class ThrowableDeserializer
         Object[] pending = null;
         int pendingIx = 0;
 
-        if (!p.hasToken(JsonToken.FIELD_NAME)) {
-            return ctxt.handleUnexpectedToken(handledType(), p);
-        }
-
-        int ix = _fieldMatcher.matchAnyName(p.getCurrentName());
+        int ix = p.currentFieldName(_fieldMatcher);
         for (; ; ix = p.nextFieldName(_fieldMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
@@ -113,7 +109,7 @@ public class ThrowableDeserializer
                 return _handleUnexpectedWithin(p, ctxt, throwable);
             }
             // Maybe it's "message"?
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken();
             if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {

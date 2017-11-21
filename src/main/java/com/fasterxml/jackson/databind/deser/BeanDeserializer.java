@@ -259,7 +259,7 @@ public class BeanDeserializer
             }
         } else {
             if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-                propName = p.getCurrentName();
+                propName = p.currentName();
             } else {
                 return bean;
             }
@@ -286,7 +286,7 @@ public class BeanDeserializer
         if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
             if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                        p.getCurrentName());
+                        p.currentName());
             }
             return _handleUnexpectedWithin(p, ctxt, bean);
         }
@@ -362,7 +362,7 @@ public class BeanDeserializer
         if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
             if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                        p.getCurrentName());
+                        p.currentName());
             }
             return _handleUnexpectedWithin(p, ctxt, bean);
         }
@@ -384,14 +384,14 @@ public class BeanDeserializer
         if (t != JsonToken.FIELD_NAME) {
             return bean;
         }
-        int ix = _fieldMatcher.matchAnyName(p.getCurrentName());
+        int ix = p.currentFieldName(_fieldMatcher);
         while (ix >= 0) { // minor unrolling here (by-2), less likely on critical path
             SettableBeanProperty prop = _fieldsByIndex[ix];
             p.nextToken();
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
+                wrapAndThrow(e, bean, p.currentName(), ctxt);
             }
 
             // Elem #2
@@ -404,14 +404,14 @@ public class BeanDeserializer
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
             } catch (Exception e) {
-                wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
+                wrapAndThrow(e, bean, p.currentName(), ctxt);
             }
             ix = p.nextFieldName(_fieldMatcher);
         }
         if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
             if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
-                        p.getCurrentName());
+                        p.currentName());
             }
             return _handleUnexpectedWithin(p, ctxt, bean);
         }
@@ -431,7 +431,7 @@ public class BeanDeserializer
                 try {
                     _fieldsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
+                    wrapAndThrow(e, bean, p.currentName(), ctxt);
                 }
                 continue;
             }
@@ -442,7 +442,7 @@ public class BeanDeserializer
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             p.nextToken();
-            handleUnknownVanilla(p, ctxt, bean, p.getCurrentName());
+            handleUnknownVanilla(p, ctxt, bean, p.currentName());
         }
     }        
 
@@ -461,7 +461,7 @@ public class BeanDeserializer
          */
         if (_objectIdReader != null && _objectIdReader.maySerializeAsObject()) {
             if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)
-                    && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                    && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                 return deserializeFromObjectId(p, ctxt);
             }
         }
@@ -511,14 +511,14 @@ public class BeanDeserializer
             // should we check what exactly it is... ?
             return bean;
         }
-        for (int ix = _fieldMatcher.matchAnyName(p.getCurrentName()); ;
+        for (int ix = _fieldMatcher.matchAnyName(p.currentName()); ;
                 ix = p.nextFieldName(_fieldMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
                 try {
                     _fieldsByIndex[ix].deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, p.getCurrentName(), ctxt);
+                    wrapAndThrow(e, bean, p.currentName(), ctxt);
                 }
                 continue;
             }
@@ -529,7 +529,7 @@ public class BeanDeserializer
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             p.nextToken();
-            handleUnknownVanilla(p, ctxt, bean, p.getCurrentName());
+            handleUnknownVanilla(p, ctxt, bean, p.currentName());
         }
     }
 
@@ -554,7 +554,7 @@ public class BeanDeserializer
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // Object Id property?
             if (buffer.readIdProperty(propName)) {
@@ -726,7 +726,7 @@ public class BeanDeserializer
         throws IOException
     {
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             do {
                 p.nextToken();
                 // TODO: 06-Jan-2015, tatu: try streamlining call sequences here as well
@@ -780,7 +780,7 @@ public class BeanDeserializer
             injectValues(ctxt, bean);
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        String propName = p.hasTokenId(JsonTokenId.ID_FIELD_NAME) ? p.getCurrentName() : null;
+        String propName = p.hasTokenId(JsonTokenId.ID_FIELD_NAME) ? p.currentName() : null;
 
         for (; propName != null; propName = p.nextFieldName()) {
             p.nextToken();
@@ -840,7 +840,7 @@ public class BeanDeserializer
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             SettableBeanProperty prop = _findProperty(propName);
             p.nextToken();
             if (prop != null) { // normal case
@@ -901,7 +901,7 @@ public class BeanDeserializer
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
@@ -1019,7 +1019,7 @@ public class BeanDeserializer
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             t = p.nextToken();
             SettableBeanProperty prop = _findProperty(propName);
             if (prop != null) { // normal case
@@ -1075,7 +1075,7 @@ public class BeanDeserializer
         tokens.writeStartObject();
 
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+            String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);

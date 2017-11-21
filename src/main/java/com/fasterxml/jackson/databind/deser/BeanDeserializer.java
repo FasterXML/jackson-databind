@@ -595,8 +595,9 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) {
+            int ix = _fieldMatcher.matchAnyName(propName);
+            if (ix >= 0) {
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 } catch (UnresolvedForwardReference reference) {
@@ -941,8 +942,9 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) {
+            int ix = _fieldMatcher.matchAnyName(propName);
+            if (ix >= 0) {
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 continue;
             }
@@ -1126,8 +1128,9 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) {
+            int ix = _fieldMatcher.matchAnyName(propName);
+            if (ix >= 0) {
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }

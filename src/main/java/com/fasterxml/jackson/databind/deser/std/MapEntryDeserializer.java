@@ -188,7 +188,7 @@ public class MapEntryDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        final String keyStr = p.getCurrentName();
+        final String keyStr = p.currentName();
         Object key = keyDes.deserializeKey(keyStr, ctxt);
         Object value = null;
         // And then the value...
@@ -212,7 +212,7 @@ public class MapEntryDeserializer
             if (t == JsonToken.FIELD_NAME) { // most likely
                 ctxt.reportInputMismatch(this,
                         "Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '%s')",
-                        p.getCurrentName());
+                        p.currentName());
             } else {
                 // how would this occur?
                 ctxt.reportInputMismatch(this,

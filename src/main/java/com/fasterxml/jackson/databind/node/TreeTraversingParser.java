@@ -174,8 +174,8 @@ public class TreeTraversingParser extends ParserMinimalBase
      */
 
     @Override
-    public String getCurrentName() {
-        return (_nodeCursor == null) ? null : _nodeCursor.getCurrentName();
+    public String currentName() {
+        return (_nodeCursor == null) ? null : _nodeCursor.currentName();
     }
 
     @Override
@@ -216,7 +216,7 @@ public class TreeTraversingParser extends ParserMinimalBase
         // need to separate handling a bit...
         switch (_currToken) {
         case FIELD_NAME:
-            return _nodeCursor.getCurrentName();
+            return _nodeCursor.currentName();
         case VALUE_STRING:
             return currentNode().textValue();
         case VALUE_NUMBER_INT:

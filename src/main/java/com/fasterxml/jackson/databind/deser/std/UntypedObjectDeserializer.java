@@ -482,7 +482,7 @@ public class UntypedObjectDeserializer
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextFieldName();
         } else if (t == JsonToken.FIELD_NAME) {
-            key1 = p.getCurrentName();
+            key1 = p.currentName();
         } else {
             if (t != JsonToken.END_OBJECT) {
                 return ctxt.handleUnexpectedToken(handledType(), p);
@@ -563,7 +563,7 @@ public class UntypedObjectDeserializer
             return m;
         }
         // NOTE: we are guaranteed to point to FIELD_NAME
-        String key = p.getCurrentName();
+        String key = p.currentName();
         do {
             p.nextToken();
             // and possibly recursive merge here
@@ -748,7 +748,7 @@ public class UntypedObjectDeserializer
                 if (intoValue instanceof Map<?,?>) {
                     Map<Object,Object> m = (Map<Object,Object>) intoValue;
                     // NOTE: we are guaranteed to point to FIELD_NAME
-                    String key = p.getCurrentName();
+                    String key = p.currentName();
                     do {
                         p.nextToken();
                         // and possibly recursive merge here

@@ -47,7 +47,7 @@ public class TestJsonFilter extends BaseMapTest
             if (writer.getName() != null && writer.getName().equals("c")) {
                 //This assertion is failing as sc.getParent() incorrectly returns 'a'. If you comment out the member 'a'
                 // in the CheckSiblingContextBean, you'll see that the sc.getParent() correctly returns 'b'
-                assertEquals("b", sc.getParent().getCurrentName());
+                assertEquals("b", sc.getParent().currentName());
             }
             writer.serializeAsField(bean, jgen, prov);
         }

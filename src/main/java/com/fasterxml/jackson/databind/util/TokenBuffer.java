@@ -563,7 +563,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     sb.append(t.toString());
                     if (t == JsonToken.FIELD_NAME) {
                         sb.append('(');
-                        sb.append(jp.getCurrentName());
+                        sb.append(jp.currentName());
                         sb.append(')');
                     }
                 }
@@ -1025,7 +1025,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeEndArray();
             break;
         case FIELD_NAME:
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             break;
         case VALUE_STRING:
             if (p.hasTextCharacters()) {
@@ -1094,7 +1094,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_mayHaveNativeIds) {
                 _checkNativeIds(p);
             }
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             t = p.nextToken();
             // fall-through to copy the associated value
         }
@@ -1370,7 +1370,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 _parsingContext.setCurrentName(name);
                 return name;
             }
-            return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+            return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
         }
 
         // NOTE: since we know there's no native matching just use simpler way:
@@ -1407,13 +1407,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public String getCurrentName() {
+        public String currentName() {
             // 25-Jun-2015, tatu: as per [databind#838], needs to be same as ParserBase
             if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
                 TokenStreamContext parent = _parsingContext.getParent();
-                return parent.getCurrentName();
+                return parent.currentName();
             }
-            return _parsingContext.getCurrentName();
+            return _parsingContext.currentName();
         }
 
         @Override

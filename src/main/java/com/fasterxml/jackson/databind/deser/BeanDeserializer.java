@@ -781,12 +781,11 @@ public class BeanDeserializer
             injectValues(ctxt, bean);
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        String propName = p.hasTokenId(JsonTokenId.ID_FIELD_NAME) ? p.currentName() : null;
 
-        for (; propName != null; propName = p.nextFieldName()) {
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) { // normal case
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // common case
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -794,10 +793,18 @@ public class BeanDeserializer
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                break;
+            }
+            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
+            final String propName = p.currentName();
+            p.nextToken();
             // Things marked as ignorable should not be passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
@@ -840,22 +847,29 @@ public class BeanDeserializer
         TokenBuffer tokens = new TokenBuffer(p, ctxt);
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.currentName();
-            SettableBeanProperty prop = _findProperty(propName);
-            p.nextToken();
-            if (prop != null) { // normal case
-                if (activeView != null && !prop.visibleInView(activeView)) {
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // common case
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }
                 try {
                     prop.deserializeAndSet(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                break;
+            }
+            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
+            final String propName = p.currentName();
+            p.nextToken();
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
@@ -1156,11 +1170,6 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
-    }
-
-    // @since 3.0
-    protected final SettableBeanProperty _findProperty(String propName) {
-        return _beanProperties.find(propName);
     }
 
     /**

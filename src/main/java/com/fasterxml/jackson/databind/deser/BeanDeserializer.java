@@ -280,7 +280,6 @@ public class BeanDeserializer
             }
             ix = p.nextFieldName(_fieldMatcher);
         }
-        // Should we verify there's END_OBJECT there?
         if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
             if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,

@@ -447,28 +447,28 @@ public class BuilderBasedDeserializer
                 return deserializeWithView(p, ctxt, builder, view);
             }
         }
-        JsonToken t = p.currentToken();
-        // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
-        if (t == JsonToken.START_OBJECT) {
-            t = p.nextToken();
-        }
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.currentName();
-            // Skip field name:
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            
-            if (prop != null) { // normal case
+        int ix = p.isExpectedStartObjectToken() ?
+                p.nextFieldName(_fieldMatcher) : p.currentFieldName(_fieldMatcher);
+        for (; ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) {
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
-                    wrapAndThrow(e, builder, propName, ctxt);
+                    wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
                 continue;
             }
-            handleUnknownVanilla(p, ctxt, handledType(), propName);
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                return builder;
+            }
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                return _handleUnexpectedWithin(p, ctxt, builder);
+            }
+            p.nextToken();
+            handleUnknownVanilla(p, ctxt, handledType(), p.currentName());
         }
-        return builder;
     }
 
     /*
@@ -754,6 +754,24 @@ public class BuilderBasedDeserializer
         return ctxt.reportBadDefinition(t, String.format(
                 "Deserialization (of %s) with Builder, External type id, @JsonCreator not yet implemented",
                 t));
+    }
+
+    /*
+    /**********************************************************
+    /* Error handling
+    /**********************************************************
+     */
+
+    /**
+     * Method called if an unexpected token (other then <code>FIELD_NAME</code>)
+     * is found after POJO has been instantiated and partially bound.
+     *
+     * @since 3.0
+     */
+    protected Object _handleUnexpectedWithin(JsonParser p,
+            DeserializationContext ctxt, Object beanOrBuilder) throws IOException
+    {
+        return ctxt.handleUnexpectedToken(handledType(), p);
     }
 
     // @since 3.0

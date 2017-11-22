@@ -41,11 +41,6 @@ public class BeanPropertyMap
      */
     private final PropertyName[][] _aliasDefs;
 
-    /**
-     * Mapping from secondary names (aliases) to primary names.
-     */
-    private final Map<String,String> _aliasMapping;
-
     /*
     /**********************************************************
     /* Lookup information
@@ -65,7 +60,7 @@ public class BeanPropertyMap
      * first entries are ame as in <code>_propsInOrder</code> followed by alias
      * mappings.
      */
-    private SettableBeanProperty[] _propsWithAliases;
+    private transient SettableBeanProperty[] _propsWithAliases;
 
     /*
     /**********************************************************
@@ -86,14 +81,6 @@ public class BeanPropertyMap
         _caseInsensitive = caseInsensitive;
         _aliasDefs = aliasDefs;
         _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
-
-        if (aliasDefs == null) {
-            _aliasMapping = Collections.emptyMap();
-        } else {
-            _aliasMapping = _buildAliasMapping(props, aliasDefs);
-        }
-//        init(props);
-
         // Former `assignIndexes`
         // order is arbitrary, but stable:
         if (assignIndexes) {
@@ -108,50 +95,16 @@ public class BeanPropertyMap
     {
         _caseInsensitive = caseInsensitive;
         _aliasDefs = base._aliasDefs;
-        _aliasMapping = base._aliasMapping;
 
         // 16-May-2016, tatu: Alas, not enough to just change flag, need to re-init as well.
         _propsInOrder = Arrays.copyOf(base._propsInOrder, base._propsInOrder.length);
 //        init(Arrays.asList(_propsInOrder));
     }
 
-    private Map<String,String> _buildAliasMapping(Collection<SettableBeanProperty> props,
-            PropertyName[][] aliasDefs)
-    {
-        // Ok, first, we need an actual index, so traverse over primary properties first
-        Map<String,String> mapping = new HashMap<>();
-        for (int i = 0, end = aliasDefs.length; i < end; ++i) {
-            PropertyName[] aliases = aliasDefs[i];
-            if (aliases != null) {
-                SettableBeanProperty prop = _propsInOrder[i];
-                String propId = prop.getName();
-                if (_caseInsensitive) {
-                    propId = propId.toLowerCase();
-                }
-                for (PropertyName alias : aliases) {
-                    String aliasId = alias.getSimpleName();
-                    if (_caseInsensitive) {
-                        aliasId = aliasId.toLowerCase();
-                    }
-                    mapping.put(alias.getName(), propId);
-                }
-            }
-        }
-        return mapping;
-    }
-
     public static BeanPropertyMap construct(Collection<SettableBeanProperty> props,
             boolean caseInsensitive, PropertyName[][] aliases)
     {
         return new BeanPropertyMap(caseInsensitive, props, aliases, true);
-    }
-
-    public void init() {
-        init(Arrays.asList(_propsInOrder));
-    }
-
-    protected void init(Collection<SettableBeanProperty> props)
-    {
     }
 
     /*
@@ -215,11 +168,8 @@ public class BeanPropertyMap
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change
 
-        // !!! 18-Nov-2017, tatu: For some reason we DO have to force init here -- should investigate why,
-        //    try to remove need
-        BeanPropertyMap map = new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false);
-        map.init(newProps);
-        return map;
+        // !!! 18-Nov-2017, tatu: Should try recreating FieldNameMatcher here but...
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false);
     }
 
     private SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf)
@@ -440,7 +390,7 @@ public class BeanPropertyMap
         }
         sb.append(']');
         if (_aliasDefs != null) {
-            sb.append(String.format("(aliases: %s)", _aliasMapping));
+            sb.append(String.format("(aliases: %s)", _aliasDefs.length));
         }
         return sb.toString();
     }

@@ -134,7 +134,6 @@ public class BuilderBasedDeserializer
 
     @Override
     protected void initFieldMatcher(DeserializationContext ctxt) {
-        _beanProperties.init();
         _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
         _fieldsByIndex = _beanProperties.getPropertiesWithAliases();
     }

@@ -48,7 +48,7 @@ public class BeanDeserializer
      * State marker we need in order to avoid infinite recursion for some cases
      * (not very clean, alas, but has to do for now)
      */
-    private volatile transient NameTransformer _currentlyTransforming;
+    protected volatile transient NameTransformer _currentlyTransforming;
 
     /*
     /**********************************************************
@@ -133,8 +133,7 @@ public class BeanDeserializer
         _currentlyTransforming = transformer;
         try {
             UnwrappedPropertyHandler uwHandler = _unwrappedPropertyHandler;
-            // delegate further unwraps, if any
-            if (uwHandler != null) {
+            if (uwHandler != null) { // delegate further unwraps, if any
                 uwHandler = uwHandler.renameAll(ctxt, transformer);
             }
             // and handle direct unwrapping as well:

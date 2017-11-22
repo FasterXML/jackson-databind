@@ -307,22 +307,25 @@ public class BuilderBasedDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        for (; p.currentToken() != JsonToken.END_OBJECT; p.nextToken()) {
-            String propName = p.currentName();
-            // Skip field name:
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) { // normal case
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // normal case
+                p.nextToken();
                 try {
-                    bean = prop.deserializeSetAndReturn(p, ctxt, bean);
+                    bean = _fieldsByIndex[ix].deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, p.currentName(), ctxt);
                 }
                 continue;
             }
-            handleUnknownVanilla(p, ctxt, bean, propName);
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                return bean;
+            }
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
+            p.nextToken();
+            handleUnknownVanilla(p, ctxt, bean, p.currentName());
         }
-        return bean;
     }
 
     /**
@@ -488,13 +491,10 @@ public class BuilderBasedDeserializer
             Object bean, Class<?> activeView)
         throws IOException
     {
-        JsonToken t = p.currentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.currentName();
-            // Skip field name:
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) {
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) {
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -502,13 +502,20 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
-            handleUnknownVanilla(p, ctxt, bean, propName);
+            if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
+                if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                    return _handleUnexpectedWithin(p, ctxt, bean);
+                }
+                p.nextToken();
+                handleUnknownVanilla(p, ctxt, bean, p.currentName());
+                continue;
+            }
+            return bean;
         }
-        return bean;
     }
 
     /*
@@ -706,14 +713,13 @@ public class BuilderBasedDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
-        for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.currentName();
-            t = p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) { // normal case
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // normal case
+                SettableBeanProperty prop = _fieldsByIndex[ix];
+                JsonToken t = p.nextToken();
                 // May have property AND be used as external type id:
                 if (t.isScalarValue()) {
-                    ext.handleTypePropertyValue(p, ctxt, propName, bean);
+                    ext.handleTypePropertyValue(p, ctxt, p.currentName(), bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     p.skipChildren();
@@ -722,12 +728,19 @@ public class BuilderBasedDeserializer
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                break;
+            }
+            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
             // ignorable things should be ignored
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            final String propName = p.currentName();
+            if ((_ignorableProps != null) && (_ignorableProps.contains(propName))) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }

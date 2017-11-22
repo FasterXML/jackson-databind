@@ -261,8 +261,14 @@ public abstract class BeanDeserializerBase
 
         _vanillaProcessing = src._vanillaProcessing;
     }
- 
-    protected BeanDeserializerBase(BeanDeserializerBase src, NameTransformer unwrapper)
+
+    /**
+     * Constructor used in cases where unwrapping-with-name-change has been 
+     * invoked and lookup indices need to be updated.
+     */
+    protected BeanDeserializerBase(BeanDeserializerBase src,
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
+            boolean ignoreAllUnknown)
     {
         super(src._beanType);
 
@@ -274,25 +280,15 @@ public abstract class BeanDeserializerBase
 
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
-        _ignoreAllUnknown = (unwrapper != null) || src._ignoreAllUnknown;
+        _ignoreAllUnknown = ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
 
         _nonStandardCreation = src._nonStandardCreation;
-        UnwrappedPropertyHandler uph = src._unwrappedPropertyHandler;
 
-        if (unwrapper != null) {
-            // delegate further unwraps, if any
-            if (uph != null) { // got handler, delegate
-                uph = uph.renameAll(unwrapper);
-            }
-            // and handle direct unwrapping as well:
-            _beanProperties = src._beanProperties.renameAll(unwrapper);
-        } else {
-            _beanProperties = src._beanProperties;
-        }
-        _unwrappedPropertyHandler = uph;
+        _unwrappedPropertyHandler = unwrapHandler;
+        _beanProperties = renamedProperties;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -300,7 +296,7 @@ public abstract class BeanDeserializerBase
         _vanillaProcessing = false;
     }
 
-    public BeanDeserializerBase(BeanDeserializerBase src, ObjectIdReader oir)
+    protected BeanDeserializerBase(BeanDeserializerBase src, ObjectIdReader oir)
     {
         super(src._beanType);
         _beanType = src._beanType;
@@ -327,10 +323,9 @@ public abstract class BeanDeserializerBase
             _beanProperties = src._beanProperties;
             _vanillaProcessing = src._vanillaProcessing;
         } else {
-            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
-             *   but no easy access. But hard to see id property being optional,
-             *   so let's consider required at this point.
-             */
+            // 18-Nov-2012, tatu: May or may not have annotations for id property;
+            //   but no easy access. But hard to see id property being optional,
+            //   so let's consider required at this point.
             ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, PropertyMetadata.STD_REQUIRED);
             _beanProperties = src._beanProperties.withProperty(idProp);
             _vanillaProcessing = false;
@@ -391,7 +386,8 @@ public abstract class BeanDeserializerBase
     }
     
     @Override
-    public abstract JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper);
+    public abstract JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper);
 
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);
 
@@ -448,12 +444,14 @@ public abstract class BeanDeserializerBase
         for (SettableBeanProperty prop : _beanProperties) {
             if (!prop.hasValueDeserializer()) {
                 // [databind#125]: allow use of converters
-                JsonDeserializer<?> deser = findConvertingDeserializer(ctxt, prop);
+                JsonDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
                 if (deser == null) {
                     deser = ctxt.findNonContextualValueDeserializer(prop.getType());
                 }
                 SettableBeanProperty newProp = prop.withValueDeserializer(deser);
-                _replaceProperty(_beanProperties, creatorProps, prop, newProp);
+                if (prop != newProp) {
+                    _replaceProperty(_beanProperties, creatorProps, prop, newProp);
+                }
             }
         }
 
@@ -474,8 +472,9 @@ public abstract class BeanDeserializerBase
             NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
             if (xform != null) {
                 JsonDeserializer<Object> orig = prop.getValueDeserializer();
-                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(xform);
-                if (unwrapping != orig && unwrapping != null) {
+                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
+
+                if ((unwrapping != orig) && (unwrapping != null)) {
                     prop = prop.withValueDeserializer(unwrapping);
                     if (unwrapped == null) {
                         unwrapped = new UnwrappedPropertyHandler();
@@ -484,7 +483,7 @@ public abstract class BeanDeserializerBase
                     // 12-Dec-2014, tatu: As per [databind#647], we will have problems if
                     //    the original property is left in place. So let's remove it now.
                     // 25-Mar-2017, tatu: Wonder if this could be problematic wrt creators?
-                    //    (that is, should be remove it from creator too)
+                    //    (that is, should we remove it from creator too)
                     _beanProperties.remove(prop);
                     continue;
                 }
@@ -570,7 +569,7 @@ public abstract class BeanDeserializerBase
     protected void _replaceProperty(BeanPropertyMap props, SettableBeanProperty[] creatorProps,
             SettableBeanProperty origProp, SettableBeanProperty newProp)
     {
-        props.replace(newProp);
+        props.replace(origProp, newProp);
         // [databind#795]: Make sure PropertyBasedCreator's properties stay in sync
         if (creatorProps != null) {
             // 18-May-2015, tatu: _Should_ start with consistent set. But can we really
@@ -612,7 +611,7 @@ public abstract class BeanDeserializerBase
     }
 
 
-    /**
+    /*
      * Helper method that can be used to see if specified property is annotated
      * to indicate use of a converter for property value (in case of container types,
      * it is container type itself, not key or content type).
@@ -620,7 +619,7 @@ public abstract class BeanDeserializerBase
      * NOTE: returned deserializer is NOT yet contextualized, caller needs to take
      * care to do that.
      */
-    protected JsonDeserializer<Object> findConvertingDeserializer(DeserializationContext ctxt,
+    protected JsonDeserializer<Object> _findConvertingDeserializer(DeserializationContext ctxt,
             SettableBeanProperty prop)
         throws JsonMappingException
     {
@@ -638,7 +637,7 @@ public abstract class BeanDeserializerBase
         }
         return null;
     }
-    
+
     /**
      * Although most of post-processing is done in resolve(), we only get
      * access to referring property's annotations here; and this is needed
@@ -726,7 +725,7 @@ public abstract class BeanDeserializerBase
                 }
             }
         }
-
+        contextual.initFieldMatcher(ctxt);
         if (shape == null) {
             shape = _serializationShape;
         }
@@ -735,6 +734,9 @@ public abstract class BeanDeserializerBase
         }
         return contextual;
     }
+
+    // @since 3.0
+    protected abstract void initFieldMatcher(DeserializationContext ctxt);
 
     /**
      * Helper method called to see if given property is part of 'managed' property
@@ -948,7 +950,7 @@ public abstract class BeanDeserializerBase
     }
     
     public boolean hasProperty(String propertyName) {
-        return _beanProperties.find(propertyName) != null;
+        return _beanProperties.findDefinition(propertyName) != null;
     }
 
     public boolean hasViews() {
@@ -968,6 +970,14 @@ public abstract class BeanDeserializerBase
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
+        // 22-Nov-2017, tatu: Won't quite work yet...
+        /*
+        if (_unwrappedPropertyHandler != null) {
+            for (SettableBeanProperty prop : _unwrappedPropertyHandler.getHandledProperties()) {
+                names.add(prop.getName());
+            }
+        }
+        */
         return names;
     }
 
@@ -1013,10 +1023,10 @@ public abstract class BeanDeserializerBase
      * has one. Name used is the external name, i.e. name used
      * in external data representation (JSON).
      */
-    public SettableBeanProperty findProperty(String propertyName)
+    protected SettableBeanProperty findProperty(String propertyName)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
-                null : _beanProperties.find(propertyName);
+                null : _beanProperties.findDefinition(propertyName);
         if (_neitherNull(prop, _propertyBasedCreator)) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyName);
         }
@@ -1034,7 +1044,7 @@ public abstract class BeanDeserializerBase
     public SettableBeanProperty findProperty(int propertyIndex)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
-                null : _beanProperties.find(propertyIndex);
+                null : _beanProperties.findDefinition(propertyIndex);
         if (_neitherNull(prop, _propertyBasedCreator)) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyIndex);
         }
@@ -1075,11 +1085,13 @@ public abstract class BeanDeserializerBase
      * @param original Property to replace
      * @param replacement Property to replace it with
      */
+    /*
     public void replaceProperty(SettableBeanProperty original,
             SettableBeanProperty replacement)
     {
         _beanProperties.replace(replacement);
     }
+    */
 
     /*
     /**********************************************************
@@ -1498,7 +1510,7 @@ public abstract class BeanDeserializerBase
             Object bean, String propName)
         throws IOException
     {
-        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+        if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
             handleIgnoredProperty(p, ctxt, bean, propName);
         } else if (_anySetter != null) {
             try {

@@ -170,7 +170,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     /**********************************************************
      */
 
-    public void testPrefixedUnwrapping() throws Exception
+    public void testPrefixedUnwrapDeserialize() throws Exception
     {
         PrefixUnwrap bean = MAPPER.readValue("{\"name\":\"Axel\",\"_x\":4,\"_y\":7}", PrefixUnwrap.class);
         assertNotNull(bean);
@@ -180,7 +180,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         assertEquals(7, bean.location.y);
     }
     
-    public void testDeepPrefixedUnwrappingDeserialize() throws Exception
+    public void testDeepPrefixedUnwrapDeserialize() throws Exception
     {
         DeepPrefixUnwrap bean = MAPPER.readValue("{\"u.name\":\"Bubba\",\"u._x\":2,\"u._y\":3}",
                 DeepPrefixUnwrap.class);

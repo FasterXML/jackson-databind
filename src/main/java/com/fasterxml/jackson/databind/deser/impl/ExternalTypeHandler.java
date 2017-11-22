@@ -403,8 +403,6 @@ public class ExternalTypeHandler
          * Method called after all external properties have been assigned, to further
          * link property with polymorphic value with possible property for type id
          * itself. This is needed to support type ids as Creator properties.
-         *
-         * @since 2.8
          */
         public ExternalTypeHandler build(BeanPropertyMap otherProps) {
             // 21-Jun-2016, tatu: as per [databind#999], may need to link type id property also
@@ -413,7 +411,7 @@ public class ExternalTypeHandler
             for (int i = 0; i < len; ++i) {
                 ExtTypedProperty extProp = _properties.get(i);
                 String typePropId = extProp.getTypePropertyName();
-                SettableBeanProperty typeProp = otherProps.find(typePropId);
+                SettableBeanProperty typeProp = otherProps.findDefinition(typePropId);
                 if (typeProp != null) {
                     extProp.linkTypeProperty(typeProp);
                 }
@@ -430,9 +428,6 @@ public class ExternalTypeHandler
         private final TypeDeserializer _typeDeserializer;
         private final String _typePropertyName;
 
-        /**
-         * @since 2.8
-         */
         private SettableBeanProperty _typeProperty;
 
         public ExtTypedProperty(SettableBeanProperty property, TypeDeserializer typeDeser)
@@ -476,9 +471,6 @@ public class ExternalTypeHandler
             return _property;
         }
 
-        /**
-         * @since 2.8
-         */
         public SettableBeanProperty getTypeProperty() {
             return _typeProperty;
         }

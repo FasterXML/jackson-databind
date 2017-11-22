@@ -218,8 +218,6 @@ public abstract class ValueInstantiator
      * {@link PropertyValueBuffer#getParameter(SettableBeanProperty)} to safely
      * read the present properties only, and to have some other behavior for the
      * missing properties.
-     * 
-     * @since 2.8
      */
     public Object createFromObjectWith(DeserializationContext ctxt,
             SettableBeanProperty[] props, PropertyValueBuffer buffer)

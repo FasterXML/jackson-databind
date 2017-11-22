@@ -29,8 +29,6 @@ public class BeanAsArrayBuilderDeserializer
     /**
      * Type that the builder will produce, target type; as opposed to
      * `handledType()` which refers to Builder class.
-     *
-     * @since 2.9
      */
     protected final JavaType _targetType;
 
@@ -44,8 +42,6 @@ public class BeanAsArrayBuilderDeserializer
      * Main constructor used both for creating new instances (by
      * {@link BeanDeserializer#asArrayDeserializer}) and for
      * creating copies with different delegate.
-     *
-     * @since 2.9
      */
     public BeanAsArrayBuilderDeserializer(BeanDeserializerBase delegate,
             JavaType targetType,
@@ -60,13 +56,12 @@ public class BeanAsArrayBuilderDeserializer
     }
     
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
+    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper)
     {
-        /* We can't do much about this; could either replace _delegate
-         * with unwrapping instance, or just replace this one. Latter seems
-         * more sensible.
-         */
-        return _delegate.unwrappingDeserializer(unwrapper);
+        // We can't do much about this; could either replace _delegate with unwrapping instance,
+        // or just replace this one. Latter seems more sensible.
+        return _delegate.unwrappingDeserializer(ctxt, unwrapper);
     }
 
     @Override
@@ -91,6 +86,9 @@ public class BeanAsArrayBuilderDeserializer
     protected BeanDeserializerBase asArrayDeserializer() {
         return this;
     }
+
+    @Override
+    protected void initFieldMatcher(DeserializationContext ctxt) { }
 
     /*
     /**********************************************************

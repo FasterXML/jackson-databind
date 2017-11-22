@@ -548,24 +548,31 @@ public class BuilderBasedDeserializer
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
-        for (; p.currentToken() != JsonToken.END_OBJECT; p.nextToken()) {
-            String propName = p.currentName();
-            p.nextToken();
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) { // normal case
-                if (activeView != null && !prop.visibleInView(activeView)) {
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // common case
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
                 }
                 try {
                     bean = prop.deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+                    wrapAndThrow(e, bean, prop.getName(), ctxt);
                 }
                 continue;
             }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                break;
+            }
+            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+                return _handleUnexpectedWithin(p, ctxt, bean);
+            }
+            final String propName = p.currentName();
+            p.nextToken();
             // ignorable things should be ignored
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }
@@ -584,6 +591,50 @@ public class BuilderBasedDeserializer
         }
         tokens.writeEndObject();
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
+    }
+
+    protected Object deserializeWithUnwrapped(JsonParser p,
+            DeserializationContext ctxt, Object builder, TokenBuffer tokens)
+        throws IOException
+    {
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
+        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+            if (ix >= 0) { // common case
+                p.nextToken();
+                SettableBeanProperty prop = _fieldsByIndex[ix];
+                if ((activeView != null) && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                    continue;
+                }
+                try {
+                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
+                } catch (Exception e) {
+                    wrapAndThrow(e, builder, prop.getName(), ctxt);
+                }
+                continue;
+            }
+            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+                break;
+            }
+            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+                return _handleUnexpectedWithin(p, ctxt, builder);
+            }
+            final String propName = p.currentName();
+            p.nextToken();
+            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
+                handleIgnoredProperty(p, ctxt, builder, propName);
+                continue;
+            }
+            // but... others should be passed to unwrapped property deserializers
+            tokens.writeFieldName(propName);
+            tokens.copyCurrentStructure(p);
+            // how about any setter? We'll get copies but...
+            if (_anySetter != null) {
+                _anySetter.deserializeAndSet(p, ctxt, builder, propName);
+            }
+        }
+        tokens.writeEndObject();
+        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
     }
 
     @SuppressWarnings("resource")
@@ -626,8 +677,9 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            SettableBeanProperty prop = _findProperty(propName);
-            if (prop != null) {
+            int ix = _fieldMatcher.matchAnyName(propName);
+            if (ix >= 0) {
+                SettableBeanProperty prop = _fieldsByIndex[ix];
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
@@ -650,43 +702,6 @@ public class BuilderBasedDeserializer
                 return wrapInstantiationProblem(e, ctxt);
             }
         }
-        return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
-    }
-
-    protected Object deserializeWithUnwrapped(JsonParser p,
-            DeserializationContext ctxt, Object builder, TokenBuffer tokens)
-        throws IOException
-    {
-        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.currentName();
-            SettableBeanProperty prop = _findProperty(propName);
-            p.nextToken();
-            if (prop != null) { // normal case
-                if (activeView != null && !prop.visibleInView(activeView)) {
-                    p.skipChildren();
-                    continue;
-                }
-                try {
-                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
-                } catch (Exception e) {
-                    wrapAndThrow(e, builder, propName, ctxt);
-                }
-                continue;
-            }
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                handleIgnoredProperty(p, ctxt, builder, propName);
-                continue;
-            }
-            // but... others should be passed to unwrapped property deserializers
-            tokens.writeFieldName(propName);
-            tokens.copyCurrentStructure(p);
-            // how about any setter? We'll get copies but...
-            if (_anySetter != null) {
-                _anySetter.deserializeAndSet(p, ctxt, builder, propName);
-            }
-        }
-        tokens.writeEndObject();
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, builder, tokens);
     }
 
@@ -792,10 +807,5 @@ public class BuilderBasedDeserializer
             DeserializationContext ctxt, Object beanOrBuilder) throws IOException
     {
         return ctxt.handleUnexpectedToken(handledType(), p);
-    }
-
-    // @since 3.0
-    private final SettableBeanProperty _findProperty(String propName) {
-        return _beanProperties.find(propName);
     }
 }

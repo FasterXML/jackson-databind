@@ -868,7 +868,7 @@ public class BeanDeserializer
             }
             final String propName = p.currentName();
             p.nextToken();
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
                 handleIgnoredProperty(p, ctxt, bean, propName);
                 continue;
             }

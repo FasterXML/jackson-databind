@@ -7,6 +7,8 @@ import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -35,20 +37,28 @@ public class ThrowableDeserializer
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
      */
-    protected ThrowableDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
-        super(src, unwrapper);
+    protected ThrowableDeserializer(BeanDeserializer src,
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties) {
+        super(src, unwrapHandler, renamedProperties);
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper) {
+    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer transformer)
+    {
         if (getClass() != ThrowableDeserializer.class) {
             return this;
         }
-        /* main thing really is to just enforce ignoring of unknown
-         * properties; since there may be multiple unwrapped values
-         * and properties for all may be interleaved...
-         */
-        return new ThrowableDeserializer(this, unwrapper);
+        // main thing really is to just enforce ignoring of unknown properties; since
+        // there may be multiple unwrapped values and properties for all may be interleaved...
+        UnwrappedPropertyHandler uwHandler = _unwrappedPropertyHandler;
+        // delegate further unwraps, if any
+        if (uwHandler != null) {
+            uwHandler = uwHandler.renameAll(ctxt, transformer);
+        }
+        // and handle direct unwrapping as well:
+        return new ThrowableDeserializer(this, uwHandler,
+                _beanProperties.renameAll(ctxt, transformer));
     }
 
     /*

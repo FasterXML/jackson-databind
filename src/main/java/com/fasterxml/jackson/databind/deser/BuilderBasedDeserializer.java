@@ -34,6 +34,18 @@ public class BuilderBasedDeserializer
      */
     protected final JavaType _targetType;
 
+    // @since 3.0
+    protected FieldNameMatcher _fieldMatcher;
+
+    // @since 3.0
+    protected SettableBeanProperty[] _fieldsByIndex;
+    
+    /**
+     * State marker we need in order to avoid infinite recursion for some cases
+     * (not very clean, alas, but has to do for now)
+     */
+    private volatile transient NameTransformer _currentlyTransforming;
+
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization
@@ -74,40 +86,70 @@ public class BuilderBasedDeserializer
         super(src, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
-    protected BuilderBasedDeserializer(BuilderBasedDeserializer src, NameTransformer unwrapper) {
-        super(src, unwrapper);
+    protected BuilderBasedDeserializer(BuilderBasedDeserializer src,
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties) {
+        super(src, unwrapHandler, renamedProperties);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _fieldMatcher = _beanProperties.getFieldMatcher();
+        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, ObjectIdReader oir) {
         super(src, oir);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, Set<String> ignorableProps) {
         super(src, ignorableProps);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _fieldMatcher = src._fieldMatcher;
+        _fieldsByIndex = src._fieldsByIndex;
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, BeanPropertyMap props) {
         super(src, props);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
+        _fieldMatcher = _beanProperties.getFieldMatcher();
+        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
+    protected void initFieldMatcher(DeserializationContext ctxt) {
+        _beanProperties.initMatcher(ctxt.getParserFactory());
+        _fieldMatcher = _beanProperties.getFieldMatcher();
+        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
+    }
+
+    @Override
+    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer transformer)
     {
-        /* main thing really is to just enforce ignoring of unknown
-         * properties; since there may be multiple unwrapped values
-         * and properties for all may be interleaved...
-         */
-        return new BuilderBasedDeserializer(this, unwrapper);
+        // main thing really is to just enforce ignoring of unknown properties; since
+        // there may be multiple unwrapped values and properties for all may be interleaved...
+        if (_currentlyTransforming == transformer) {
+            return this;
+        }
+        _currentlyTransforming = transformer;
+        try {
+            UnwrappedPropertyHandler uwHandler = _unwrappedPropertyHandler;
+            // delegate further unwraps, if any
+            if (uwHandler != null) {
+                uwHandler = uwHandler.renameAll(ctxt, transformer);
+            }
+            // and handle direct unwrapping as well:
+            BeanPropertyMap props = _beanProperties.renameAll(ctxt, transformer);
+            return new BuilderBasedDeserializer(this, uwHandler, props);
+        } finally { _currentlyTransforming = null; }
     }
 
     @Override
@@ -131,18 +173,6 @@ public class BuilderBasedDeserializer
                 _beanProperties.getPrimaryProperties(), 
                 _buildMethod);
     }
-
-    @Override
-    protected void initFieldMatcher(DeserializationContext ctxt) {
-        _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
-        _fieldsByIndex = _beanProperties.getPropertiesWithAliases();
-    }
-
-    // @since 3.0
-    protected FieldNameMatcher _fieldMatcher;
-
-    // @since 3.0
-    protected SettableBeanProperty[] _fieldsByIndex;
 
     /*
     /**********************************************************

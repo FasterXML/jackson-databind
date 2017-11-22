@@ -261,8 +261,13 @@ public abstract class BeanDeserializerBase
 
         _vanillaProcessing = src._vanillaProcessing;
     }
- 
-    protected BeanDeserializerBase(BeanDeserializerBase src, NameTransformer unwrapper)
+
+    /**
+     * Constructor used in cases where unwrapping-with-name-change has been 
+     * invoked and lookup indices need to be updated.
+     */
+    protected BeanDeserializerBase(BeanDeserializerBase src,
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties)
     {
         super(src._beanType);
 
@@ -274,25 +279,15 @@ public abstract class BeanDeserializerBase
 
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
-        _ignoreAllUnknown = (unwrapper != null) || src._ignoreAllUnknown;
+        _ignoreAllUnknown = (unwrapHandler != null) || src._ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
 
         _nonStandardCreation = src._nonStandardCreation;
-        UnwrappedPropertyHandler uph = src._unwrappedPropertyHandler;
 
-        if (unwrapper != null) {
-            // delegate further unwraps, if any
-            if (uph != null) { // got handler, delegate
-                uph = uph.renameAll(unwrapper);
-            }
-            // and handle direct unwrapping as well:
-            _beanProperties = src._beanProperties.renameAll(unwrapper);
-        } else {
-            _beanProperties = src._beanProperties;
-        }
-        _unwrappedPropertyHandler = uph;
+        _unwrappedPropertyHandler = unwrapHandler;
+        _beanProperties = renamedProperties;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
@@ -390,7 +385,8 @@ public abstract class BeanDeserializerBase
     }
     
     @Override
-    public abstract JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper);
+    public abstract JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper);
 
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);
 
@@ -475,7 +471,7 @@ public abstract class BeanDeserializerBase
             NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
             if (xform != null) {
                 JsonDeserializer<Object> orig = prop.getValueDeserializer();
-                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(xform);
+                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
 
                 if ((unwrapping != orig) && (unwrapping != null)) {
                     prop = prop.withValueDeserializer(unwrapping);

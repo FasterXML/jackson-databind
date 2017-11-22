@@ -56,13 +56,12 @@ public class BeanAsArrayBuilderDeserializer
     }
     
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
+    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper)
     {
-        /* We can't do much about this; could either replace _delegate
-         * with unwrapping instance, or just replace this one. Latter seems
-         * more sensible.
-         */
-        return _delegate.unwrappingDeserializer(unwrapper);
+        // We can't do much about this; could either replace _delegate with unwrapping instance,
+        // or just replace this one. Latter seems more sensible.
+        return _delegate.unwrappingDeserializer(ctxt, unwrapper);
     }
 
     @Override

@@ -4,7 +4,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -41,12 +43,6 @@ public class BeanPropertyMap
      */
     private final PropertyName[][] _aliasDefs;
 
-    /*
-    /**********************************************************
-    /* Lookup information
-    /**********************************************************
-     */
-
     /**
      * Array of properties in the exact order they were handed in. This is
      * used by as-array serialization, deserialization.
@@ -55,6 +51,14 @@ public class BeanPropertyMap
      */
     private SettableBeanProperty[] _propsInOrder;
 
+    /*
+    /**********************************************************
+    /* Lookup index information constructed
+    /**********************************************************
+     */
+
+    private transient FieldNameMatcher _fieldMatcher;
+    
     /**
      * Lazily instantiated array of properties mapped from lookup index, in which
      * first entries are ame as in <code>_propsInOrder</code> followed by alias
@@ -154,7 +158,8 @@ public class BeanPropertyMap
      * Mutant factory method for constructing a map where all entries use given
      * prefix
      */
-    public BeanPropertyMap renameAll(NameTransformer transformer)
+    public BeanPropertyMap renameAll(DeserializationContext ctxt,
+            NameTransformer transformer)
     {
         if (transformer == null || (transformer == NameTransformer.NOP)) {
             return this;
@@ -163,25 +168,30 @@ public class BeanPropertyMap
         final int len = _propsInOrder.length;
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
         for (int i = 0; i < len; ++i) {
-            newProps.add(_rename(_propsInOrder[i], transformer));
+            SettableBeanProperty orig = _propsInOrder[i];
+            SettableBeanProperty prop = _rename(ctxt, orig, transformer);
+            newProps.add(prop);
         }
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change
 
         // !!! 18-Nov-2017, tatu: Should try recreating FieldNameMatcher here but...
-        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false);
+        return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs, false)
+                .initMatcher(ctxt.getParserFactory());
     }
 
-    private SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf)
+    private SettableBeanProperty _rename(DeserializationContext ctxt,
+            SettableBeanProperty prop, NameTransformer xf)
     {
         if (prop != null) {
             String newName = xf.transform(prop.getName());
+            newName = InternCache.instance.intern(newName);
             prop = prop.withSimpleName(newName);
             JsonDeserializer<?> deser = prop.getValueDeserializer();
             if (deser != null) {
                 @SuppressWarnings("unchecked")
                 JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
-                    deser.unwrappingDeserializer(xf);
+                    deser.unwrappingDeserializer(ctxt, xf);
                 if (newDeser != deser) {
                     prop = prop.withValueDeserializer(newDeser);
                 }
@@ -261,7 +271,7 @@ public class BeanPropertyMap
     /**********************************************************
      */
 
-    public FieldNameMatcher constructMatcher(TokenStreamFactory tsf)
+    public BeanPropertyMap initMatcher(TokenStreamFactory tsf)
     {
         List<Named> names;
         if (_aliasDefs == null) { // simple case, no aliases
@@ -287,18 +297,15 @@ public class BeanPropertyMap
         }
         // `true` -> yes, they are intern()ed alright
         if (_caseInsensitive) {
-            return tsf.constructCIFieldNameMatcher(names, true);
+            _fieldMatcher = tsf.constructCIFieldNameMatcher(names, true);
+        } else {
+            _fieldMatcher = tsf.constructFieldNameMatcher(names, true);
         }
-        return tsf.constructFieldNameMatcher(names, true);
+        return this;
     }
 
-    /**
-     * Method similar to {@link #getPrimaryProperties()} but will append aliased
-     * properties after primary ones
-     */
-    public SettableBeanProperty[] getPropertiesWithAliases() {
-        return _propsWithAliases;
-    }
+    public FieldNameMatcher getFieldMatcher() { return _fieldMatcher; }
+    public SettableBeanProperty[] getFieldMatcherProperties() { return _propsWithAliases; }
 
     /*
     /**********************************************************

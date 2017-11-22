@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -23,6 +23,7 @@ public class UnwrappedPropertyHandler
     public UnwrappedPropertyHandler()  {
         _properties = new ArrayList<SettableBeanProperty>();
     }
+
     protected UnwrappedPropertyHandler(List<SettableBeanProperty> props)  {
         _properties = props;
     }
@@ -31,17 +32,19 @@ public class UnwrappedPropertyHandler
         _properties.add(property);
     }
 
-    public UnwrappedPropertyHandler renameAll(NameTransformer transformer)
+    public UnwrappedPropertyHandler renameAll(DeserializationContext ctxt,
+            NameTransformer transformer)
     {
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_properties.size());
         for (SettableBeanProperty prop : _properties) {
             String newName = transformer.transform(prop.getName());
+            newName = InternCache.instance.intern(newName);
             prop = prop.withSimpleName(newName);
             JsonDeserializer<?> deser = prop.getValueDeserializer();
             if (deser != null) {
                 @SuppressWarnings("unchecked")
                 JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
-                    deser.unwrappingDeserializer(transformer);
+                    deser.unwrappingDeserializer(ctxt, transformer);
                 if (newDeser != deser) {
                     prop = prop.withValueDeserializer(newDeser);
                 }
@@ -50,7 +53,7 @@ public class UnwrappedPropertyHandler
         }
         return new UnwrappedPropertyHandler(newProps);
     }
-    
+
     @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered)

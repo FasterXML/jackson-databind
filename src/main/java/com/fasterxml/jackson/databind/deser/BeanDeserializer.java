@@ -38,6 +38,12 @@ public class BeanDeserializer
      */
     protected transient Exception _nullFromCreator;
 
+    // @since 3.0
+    protected FieldNameMatcher _fieldMatcher;
+
+    // @since 3.0
+    protected SettableBeanProperty[] _fieldsByIndex;
+
     /**
      * State marker we need in order to avoid infinite recursion for some cases
      * (not very clean, alas, but has to do for now)
@@ -78,10 +84,11 @@ public class BeanDeserializer
         _fieldsByIndex = src._fieldsByIndex;
     }
 
-    protected BeanDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
-        super(src, unwrapper);
-        _fieldMatcher = src._fieldMatcher;
-        _fieldsByIndex = src._fieldsByIndex;
+    protected BeanDeserializer(BeanDeserializer src,
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties) {
+        super(src, unwrapHandler, renamedProperties);
+        _fieldMatcher = _beanProperties.getFieldMatcher();
+        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
     }
 
     public BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {
@@ -98,8 +105,8 @@ public class BeanDeserializer
 
     public BeanDeserializer(BeanDeserializer src, BeanPropertyMap props) {
         super(src, props);
-        _fieldMatcher = src._fieldMatcher;
-        _fieldsByIndex = src._fieldsByIndex;
+        _fieldMatcher = _beanProperties.getFieldMatcher();
+        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
     }
 
     /*
@@ -109,7 +116,8 @@ public class BeanDeserializer
      */
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer transformer)
+    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer transformer)
     {
         // bit kludgy but we don't want to accidentally change type; sub-classes
         // MUST override this method to support unwrapped properties...
@@ -123,7 +131,14 @@ public class BeanDeserializer
         }
         _currentlyTransforming = transformer;
         try {
-            return new BeanDeserializer(this, transformer);
+            UnwrappedPropertyHandler uwHandler = _unwrappedPropertyHandler;
+            // delegate further unwraps, if any
+            if (uwHandler != null) {
+                uwHandler = uwHandler.renameAll(ctxt, transformer);
+            }
+            // and handle direct unwrapping as well:
+            return new BeanDeserializer(this, uwHandler,
+                    _beanProperties.renameAll(ctxt, transformer));
         } finally { _currentlyTransforming = null; }
     }
 
@@ -155,16 +170,11 @@ public class BeanDeserializer
 
     @Override
     protected void initFieldMatcher(DeserializationContext ctxt) {
-        _fieldMatcher = _beanProperties.constructMatcher(ctxt.getParserFactory());
-        _fieldsByIndex = _beanProperties.getPropertiesWithAliases();
+        _beanProperties.initMatcher(ctxt.getParserFactory());
+        _fieldMatcher = _beanProperties.getFieldMatcher();
+        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
     }
 
-    // @since 3.0
-    protected FieldNameMatcher _fieldMatcher;
-
-    // @since 3.0
-    protected SettableBeanProperty[] _fieldsByIndex;
-    
     /*
     /**********************************************************
     /* JsonDeserializer implementation

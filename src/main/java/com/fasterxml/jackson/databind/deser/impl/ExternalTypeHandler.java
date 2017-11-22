@@ -411,7 +411,7 @@ public class ExternalTypeHandler
             for (int i = 0; i < len; ++i) {
                 ExtTypedProperty extProp = _properties.get(i);
                 String typePropId = extProp.getTypePropertyName();
-                SettableBeanProperty typeProp = otherProps.findPrimaryDefinition(typePropId);
+                SettableBeanProperty typeProp = otherProps.findDefinition(typePropId);
                 if (typeProp != null) {
                     extProp.linkTypeProperty(typeProp);
                 }

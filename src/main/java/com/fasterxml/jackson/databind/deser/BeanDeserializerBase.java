@@ -953,7 +953,7 @@ public abstract class BeanDeserializerBase
     }
     
     public boolean hasProperty(String propertyName) {
-        return _beanProperties.findPrimaryDefinition(propertyName) != null;
+        return _beanProperties.findDefinition(propertyName) != null;
     }
 
     public boolean hasViews() {
@@ -1021,7 +1021,7 @@ public abstract class BeanDeserializerBase
     protected SettableBeanProperty findProperty(String propertyName)
     {
         SettableBeanProperty prop = (_beanProperties == null) ?
-                null : _beanProperties.findPrimaryDefinition(propertyName);
+                null : _beanProperties.findDefinition(propertyName);
         if (_neitherNull(prop, _propertyBasedCreator)) {
             prop = _propertyBasedCreator.findCreatorProperty(propertyName);
         }

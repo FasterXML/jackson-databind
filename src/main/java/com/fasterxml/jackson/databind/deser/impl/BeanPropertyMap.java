@@ -69,26 +69,6 @@ public class BeanPropertyMap
 
     /*
     /**********************************************************
-    /* Local hash area, settings
-    /**********************************************************
-     */
-
-    private int _hashMask;
-
-    /**
-     * Number of entries stored in the hash area.
-     */
-    private int _size;
-    
-    private int _spillCount;
-
-    /**
-     * Hash area that contains key/property pairs in adjacent elements.
-     */
-    private Object[] _hashArea;
-
-    /*
-    /**********************************************************
     /* Construction
     /**********************************************************
      */
@@ -172,56 +152,6 @@ public class BeanPropertyMap
 
     protected void init(Collection<SettableBeanProperty> props)
     {
-        _size = props.size();
-
-        // First: calculate size of primary hash area
-        final int hashSize = findSize(_size);
-        _hashMask = hashSize-1;
-
-        // and allocate enough to contain primary/secondary, expand for spill-overs as need be
-        int alloc = (hashSize + (hashSize>>1)) * 2;
-        Object[] hashed = new Object[alloc];
-        int spillCount = 0;
-
-        for (SettableBeanProperty prop : props) {
-            String key = _propertyName(prop);
-            int slot = key.hashCode() & _hashMask;
-            int ix = (slot<<1);
-
-            // primary slot not free?
-            if (hashed[ix] != null) {
-                // secondary?
-                ix = (hashSize + (slot >> 1)) << 1;
-                if (hashed[ix] != null) {
-                    // ok, spill over.
-                    ix = ((hashSize + (hashSize >> 1) ) << 1) + spillCount;
-                    spillCount += 2;
-                    if (ix >= hashed.length) {
-                        hashed = Arrays.copyOf(hashed, hashed.length + 4);
-                    }
-                }
-            }
-            hashed[ix] = key;
-            hashed[ix+1] = prop;
-        }
-        _hashArea = hashed;
-        _spillCount = spillCount;
-    }
-
-    private final static int findSize(int size)
-    {
-        if (size <= 5) {
-            return 8;
-        }
-        if (size <= 12) {
-            return 16;
-        }
-        int needed = size + (size >> 2); // at most 80% full
-        int result = 32;
-        while (result < needed) {
-            result += result;
-        }
-        return result;
     }
 
     /*
@@ -357,13 +287,12 @@ public class BeanPropertyMap
      */
     public void remove(SettableBeanProperty propToRm)
     {
-        final String key = _propertyName(propToRm);
-        ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
+        final String key = propToRm.getName();
+        ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_propsInOrder.length);
         boolean found = false;
         for (SettableBeanProperty prop : _propsInOrder) {
             if (!found) {
-                // Important: make sure to lower-case name to match as necessary
-                String match = _propertyName(prop);
+                String match = prop.getName();
                 if (found = match.equals(key)) {
                     continue;
                 }
@@ -427,7 +356,7 @@ public class BeanPropertyMap
     /**********************************************************
      */
 
-    public int size() { return _size; }
+    public int size() { return _propsInOrder.length; }
 
     public boolean isCaseInsensitive() {
         return _caseInsensitive;
@@ -463,8 +392,7 @@ public class BeanPropertyMap
 
     public SettableBeanProperty findDefinition(int index)
     {
-        for (int i = 0 ,end = _propsInOrder.length; i < end; ++i) {
-            SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
+        for (SettableBeanProperty prop : _propsInOrder) {
             if ((prop != null) && (index == prop.getPropertyIndex())) {
                 return prop;
             }
@@ -476,7 +404,7 @@ public class BeanPropertyMap
      * NOTE: does NOT do case-insensitive matching -- only to be used during construction
      * and never during deserialization process -- nor alias expansion.
      */
-    public SettableBeanProperty findPrimaryDefinition(String key)
+    public SettableBeanProperty findDefinition(String key)
     {
         if (key == null) {
             throw new IllegalArgumentException("Cannot pass null property name");
@@ -487,105 +415,6 @@ public class BeanPropertyMap
             }
         }
         return null;
-    }
-
-    /*
-    /**********************************************************
-    /* Public API, property lookup
-    /**********************************************************
-     */
-
-    public SettableBeanProperty find(String key)
-    {
-        if (key == null) {
-            throw new IllegalArgumentException("Cannot pass null property name");
-        }
-        if (_caseInsensitive) {
-            key = key.toLowerCase();
-        }
-
-        // inlined `_hashCode(key)`
-        int slot = key.hashCode() & _hashMask;
-
-        int ix = (slot<<1);
-        Object match = _hashArea[ix];
-        if ((match == key) || key.equals(match)) {
-            return (SettableBeanProperty) _hashArea[ix+1];
-        }
-        return _find2(key, slot, match);
-    }
-
-    private final SettableBeanProperty _find2(String key, int slot, Object match)
-    {
-        if (match == null) {
-            return _findWithAlias(_aliasMapping.get(key));
-        }
-        // no? secondary?
-        int hashSize = _hashMask+1;
-        int ix = hashSize + (slot>>1) << 1;
-        match = _hashArea[ix];
-        if (key.equals(match)) {
-            return (SettableBeanProperty) _hashArea[ix+1];
-        }
-        if (match != null) { // _findFromSpill(...)
-            int i = (hashSize + (hashSize>>1)) << 1;
-            for (int end = i + _spillCount; i < end; i += 2) {
-                match = _hashArea[i];
-                if ((match == key) || key.equals(match)) {
-                    return (SettableBeanProperty) _hashArea[i+1];
-                }
-            }
-        }
-        return _findWithAlias(_aliasMapping.get(key));
-    }
-
-    private SettableBeanProperty _findWithAlias(String keyFromAlias)
-    {
-        if (keyFromAlias == null) {
-            return null;
-        }
-        // NOTE: need to inline much of handling do avoid cyclic calls via alias
-        // first, inlined main `find(String)`
-        int slot = keyFromAlias.hashCode() & _hashMask;
-        int ix = (slot<<1);
-        Object match = _hashArea[ix];
-        if (keyFromAlias.equals(match)) {
-            return (SettableBeanProperty) _hashArea[ix+1];
-        }
-        if (match == null) {
-            return null;
-        }
-        return _find2ViaAlias(keyFromAlias, slot, match);
-    }
-
-    private SettableBeanProperty _find2ViaAlias(String key, int slot, Object match)
-    {
-        // no? secondary?
-        int hashSize = _hashMask+1;
-        int ix = hashSize + (slot>>1) << 1;
-        match = _hashArea[ix];
-        if (key.equals(match)) {
-            return (SettableBeanProperty) _hashArea[ix+1];
-        }
-        if (match != null) { // _findFromSpill(...)
-            int i = (hashSize + (hashSize>>1)) << 1;
-            for (int end = i + _spillCount; i < end; i += 2) {
-                match = _hashArea[i];
-                if ((match == key) || key.equals(match)) {
-                    return (SettableBeanProperty) _hashArea[i+1];
-                }
-            }
-        }
-        return null;
-    }
-
-    // Confining this case insensitivity to this function (and the find method) in case we want to
-    // apply a particular locale to the lower case function.  For now, using the default.
-    protected final String _propertyName(SettableBeanProperty prop) {
-        if (_caseInsensitive) {
-            return prop.getName().toLowerCase();
-        }
-        return prop.getName();
     }
 
     /*

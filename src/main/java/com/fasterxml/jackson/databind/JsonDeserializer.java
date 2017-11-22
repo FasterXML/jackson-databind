@@ -169,7 +169,8 @@ public abstract class JsonDeserializer<T>
      * Default implementation just returns 'this'
      * indicating that no unwrapped variant exists
      */
-    public JsonDeserializer<T> unwrappingDeserializer(NameTransformer unwrapper) {
+    public JsonDeserializer<T> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper) {
         return this;
     }
 
@@ -259,9 +260,8 @@ public abstract class JsonDeserializer<T>
      * Java null, but for some types (especially primitives) it may be
      * necessary to use non-null values.
      *<p>
-     * Since version 2.6 (in which the context argument was added), call is
-     * expected to be made each and every time a null token needs to
-     * be handled.
+     * Call is expected to be made each and every time a null token
+     * needs to be handled.
      *<p>
      * Default implementation simply returns null.
      */

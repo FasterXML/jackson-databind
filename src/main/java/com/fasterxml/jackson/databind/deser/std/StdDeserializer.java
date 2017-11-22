@@ -1137,9 +1137,8 @@ public abstract class StdDeserializer<T>
         if (ctxt.handleUnknownProperty(p, this, instanceOrClass, propName)) {
             return;
         }
-        /* But if we do get this far, need to skip whatever value we
-         * are pointing to now (although handler is likely to have done that already)
-         */
+        // But if we do get this far, need to skip whatever value we
+        // are pointing to now (although handler is likely to have done that already)
         p.skipChildren();
     }
 

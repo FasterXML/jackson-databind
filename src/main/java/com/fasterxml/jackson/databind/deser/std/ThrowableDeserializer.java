@@ -38,8 +38,9 @@ public class ThrowableDeserializer
      * Alternative constructor used when creating "unwrapping" deserializers
      */
     protected ThrowableDeserializer(BeanDeserializer src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties) {
-        super(src, unwrapHandler, renamedProperties);
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
+            boolean ignoreAllUnknown) {
+        super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ThrowableDeserializer
         }
         // and handle direct unwrapping as well:
         return new ThrowableDeserializer(this, uwHandler,
-                _beanProperties.renameAll(ctxt, transformer));
+                _beanProperties.renameAll(ctxt, transformer), true);
     }
 
     /*

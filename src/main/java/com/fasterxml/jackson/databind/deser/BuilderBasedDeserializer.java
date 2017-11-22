@@ -91,8 +91,9 @@ public class BuilderBasedDeserializer
     }
 
     protected BuilderBasedDeserializer(BuilderBasedDeserializer src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties) {
-        super(src, unwrapHandler, renamedProperties);
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
+            boolean ignoreAllUnknown) {
+        super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
         _fieldMatcher = _beanProperties.getFieldMatcher();
@@ -148,7 +149,7 @@ public class BuilderBasedDeserializer
             }
             // and handle direct unwrapping as well:
             BeanPropertyMap props = _beanProperties.renameAll(ctxt, transformer);
-            return new BuilderBasedDeserializer(this, uwHandler, props);
+            return new BuilderBasedDeserializer(this, uwHandler, props, true);
         } finally { _currentlyTransforming = null; }
     }
 

@@ -54,6 +54,12 @@ public class UnwrappedPropertyHandler
         return new UnwrappedPropertyHandler(newProps);
     }
 
+    /*
+    public List<SettableBeanProperty> getHandledProperties() {
+        return Collections.unmodifiableList(_properties);
+    }
+    */
+
     @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt,
             Object bean, TokenBuffer buffered)

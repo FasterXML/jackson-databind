@@ -267,7 +267,8 @@ public abstract class BeanDeserializerBase
      * invoked and lookup indices need to be updated.
      */
     protected BeanDeserializerBase(BeanDeserializerBase src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties)
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
+            boolean ignoreAllUnknown)
     {
         super(src._beanType);
 
@@ -279,7 +280,7 @@ public abstract class BeanDeserializerBase
 
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
-        _ignoreAllUnknown = (unwrapHandler != null) || src._ignoreAllUnknown;
+        _ignoreAllUnknown = ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
@@ -969,6 +970,14 @@ public abstract class BeanDeserializerBase
         for (SettableBeanProperty prop : _beanProperties) {
             names.add(prop.getName());
         }
+        // 22-Nov-2017, tatu: Won't quite work yet...
+        /*
+        if (_unwrappedPropertyHandler != null) {
+            for (SettableBeanProperty prop : _unwrappedPropertyHandler.getHandledProperties()) {
+                names.add(prop.getName());
+            }
+        }
+        */
         return names;
     }
 

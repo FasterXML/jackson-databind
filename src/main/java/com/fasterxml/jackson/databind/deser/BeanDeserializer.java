@@ -85,8 +85,9 @@ public class BeanDeserializer
     }
 
     protected BeanDeserializer(BeanDeserializer src,
-            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties) {
-        super(src, unwrapHandler, renamedProperties);
+            UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
+            boolean ignoreAllUnknown) {
+        super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
         _fieldMatcher = _beanProperties.getFieldMatcher();
         _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
     }
@@ -138,7 +139,7 @@ public class BeanDeserializer
             }
             // and handle direct unwrapping as well:
             return new BeanDeserializer(this, uwHandler,
-                    _beanProperties.renameAll(ctxt, transformer));
+                    _beanProperties.renameAll(ctxt, transformer), true);
         } finally { _currentlyTransforming = null; }
     }
 

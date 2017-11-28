@@ -140,10 +140,10 @@ public final class SetterlessProperty
         deserializeAndSet(p, ctxt, instance);
         return instance;
     }
-    
+
     @Override
     public final void set(Object instance, Object value) throws IOException {
-        throw new UnsupportedOperationException("Should never call 'set' on setterless property");
+        throw new UnsupportedOperationException("Should never call `set()` on setterless property ('"+getName()+"')");
     }
 
     @Override

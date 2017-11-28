@@ -42,7 +42,7 @@ public class PropertyAliasTest extends BaseMapTest
         public PolyWrapperForAlias(Object v) { value = v; }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newObjectMapper();
 
     // [databind#1029]
     public void testSimpleAliases() throws Exception

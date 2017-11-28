@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 /**
  * Unit tests for checking handling of unknown properties
  */
-public class TestUnknownPropertyDeserialization
+public class UnknownPropertyDeserTest
     extends BaseMapTest
 {
     final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
@@ -203,12 +203,11 @@ public class TestUnknownPropertyDeserialization
         assertNull(result.c());
     }
 
-    /// @since 1.4
     public void testClassIgnoreWithMap() throws Exception
     {
         // Let's actually use incompatible types for "a" and "d"; should not matter when ignored
-        IgnoreMap result = MAPPER.readValue
-            ("{ \"a\":[ 1],\n"
+        IgnoreMap result = MAPPER.readValue(
+        		 "{ \"a\":[ 1],\n"
                 +"\"b\":2,\n"
                 +"\"c\": \"x\",\n"
                 +"\"d\":false }", IgnoreMap.class);

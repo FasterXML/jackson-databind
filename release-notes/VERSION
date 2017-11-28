@@ -13,6 +13,8 @@ Project: jackson-databind
  (reported byb henryptung@github)
 #1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
  (reported by lexas2509@github)
+#1843: Include name of unsettable property in exception from `SetterlessProperty.set()`
+ (suggested by andreh7@github)
 
 2.9.2 (14-Oct-2017)
 

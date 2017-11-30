@@ -170,4 +170,15 @@ public class ExceptionDeserializationTest
         ), IOException.class);
         assertNotNull(exc);
     }
+
+    // [databind#1842]:
+    public void testNullAsMessage() throws IOException
+    {
+        Exception exc = MAPPER.readValue(aposToQuotes(
+                "{'message':null, 'localizedMessage':null }"
+        ), IOException.class);
+        assertNotNull(exc);
+        assertNull(exc.getMessage());
+        assertNull(exc.getLocalizedMessage());
+    }
 }

@@ -437,7 +437,7 @@ public class BeanDeserializerFactory
         builder.addIgnorable("suppressed");
         /* As well as "message": it will be passed via constructor,
          * as there's no 'setMessage()' method
-        */
+         */
         builder.addIgnorable("message");
 
         // update builder now that all information is in?

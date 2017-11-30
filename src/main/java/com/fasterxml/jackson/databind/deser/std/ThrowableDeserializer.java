@@ -107,7 +107,7 @@ public class ThrowableDeserializer
             // Maybe it's "message"?
             if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {
-                    throwable = _valueInstantiator.createFromString(ctxt, p.getText());
+                    throwable = _valueInstantiator.createFromString(ctxt, p.getValueAsString());
                     // any pending values?
                     if (pending != null) {
                         for (int i = 0, len = pendingIx; i < len; i += 2) {

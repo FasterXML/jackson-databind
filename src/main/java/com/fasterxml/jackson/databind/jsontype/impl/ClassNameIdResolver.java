@@ -61,7 +61,7 @@ public class ClassNameIdResolver
     /**********************************************************
      */
 
-    protected final String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
+    protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
     {
         // Need to ensure that "enum subtypes" work too
         if (Enum.class.isAssignableFrom(cls)) {
@@ -70,7 +70,7 @@ public class ClassNameIdResolver
             }
         }
         String str = cls.getName();
-        if (str.startsWith("java.util")) {
+        if (str.startsWith("java.util.")) {
             // 25-Jan-2009, tatu: There are some internal classes that we cannot access as is.
             //     We need better mechanism; for now this has to do...
 
@@ -87,20 +87,20 @@ public class ClassNameIdResolver
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
                 str = typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
             } else {
-                String end = str.substring(9);
-                if ((end.startsWith(".Arrays$") || end.startsWith(".Collections$"))
-                       && str.indexOf("List") >= 0) {
-                    /* 17-Feb-2010, tatus: Another such case: result of
-                     *    Arrays.asList() is named like so in Sun JDK...
-                     *   Let's just plain old ArrayList in its place
-                     * NOTE: chances are there are plenty of similar cases
-                     * for other wrappers... (immutable, singleton, synced etc)
-                     */
-                    str = "java.util.ArrayList";
+                // 17-Feb-2010, tatus: Another such case: result of Arrays.asList() is
+                // named like so in Sun JDK... Let's just plain old ArrayList in its place.
+                // ... also, other similar cases exist...
+                String suffix = str.substring(10);
+                if (isJavaUtilCollectionClass(suffix, "List")) {
+                    str = ArrayList.class.getName();
+                } else if(isJavaUtilCollectionClass(suffix, "Map")){
+                    str = HashMap.class.getName();
+                } else if(isJavaUtilCollectionClass(suffix, "Set")){
+                    str = HashSet.class.getName();
                 }
             }
         } else if (str.indexOf('$') >= 0) {
-            /* Other special handling may be needed for inner classes, [JACKSON-584].
+            /* Other special handling may be needed for inner classes,
              * The best way to handle would be to find 'hidden' constructor; pass parent
              * value etc (which is actually done for non-anonymous static classes!),
              * but that is just not possible due to various things. So, we will instead
@@ -127,5 +127,10 @@ public class ClassNameIdResolver
     @Override
     public String getDescForKnownTypeIds() {
         return "class name used as type id";
+    }
+    
+    private static boolean isJavaUtilCollectionClass(String clz, String type){
+        return (clz.startsWith("Collections$") || clz.startsWith("Arrays$"))
+                && clz.indexOf(type) > 0;
     }
 }

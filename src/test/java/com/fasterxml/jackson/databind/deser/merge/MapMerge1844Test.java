@@ -28,9 +28,9 @@ public class MapMerge1844Test extends BaseMapTest
             this.mapIntegerInteger = mapIntegerInteger;
         }
 
-        private Map<String, Integer> mapStringInteger = new HashMap<>();
+        private Map<String, Integer> mapStringInteger = new LinkedHashMap<>();
 
-        private Map<Integer, Integer> mapIntegerInteger = new HashMap<>();
+        private Map<Integer, Integer> mapIntegerInteger = new LinkedHashMap<>();
     }
 
     // for [databind#1844]
@@ -38,9 +38,6 @@ public class MapMerge1844Test extends BaseMapTest
     {
         final ObjectMapper mapper = newObjectMapper();
         mapper.setDefaultMergeable(true);
-
-        TestMap1844 testMap = new TestMap1844();
-        TestMap1844 testMap1 = new TestMap1844();
 
         final String f1 = aposToQuotes(
 "{ 'key1' : {\n"
@@ -51,19 +48,22 @@ public class MapMerge1844Test extends BaseMapTest
 );
         final String f2 = aposToQuotes(
 "{ 'key1' : {\n"
-+"  '1': 2, '2': 3, '3': 5\n"
++"  '1': 2, '2': 3, '4': 5\n"
 +"}, 'key2': {\n"
-+"  '1': 2, '2': 3, '3': 5\n"
++"  '1': 2, '2': 3, '4': 5\n"
 +"} }"
 );
-        
-        testMap = mapper.readerForUpdating(testMap).readValue(f1);
-        testMap1 = mapper.readerForUpdating(testMap1).readValue(f1);
+        TestMap1844 testMap = mapper.readerFor(TestMap1844.class).readValue(f1);
         testMap = mapper.readerForUpdating(testMap).readValue(f2);
-        testMap1 = mapper.readerForUpdating(testMap1).readValue(f2);
-//        System.out.println(testMap.getMapIntegerInteger().get(1));
-//        System.out.println(testMap.getMapStringInteger().get("1"));
-        assertEquals(testMap.getMapIntegerInteger().get(1), testMap1.getMapIntegerInteger().get(1));
-        assertEquals(testMap.getMapStringInteger().get("1"), testMap1.getMapStringInteger().get("1"));
+
+        assertEquals(Integer.valueOf(2), testMap.getMapStringInteger().get("1"));
+        assertEquals(Integer.valueOf(3), testMap.getMapStringInteger().get("2"));
+        assertEquals(Integer.valueOf(3), testMap.getMapStringInteger().get("3"));
+        assertEquals(Integer.valueOf(5), testMap.getMapStringInteger().get("4"));
+
+        assertEquals(Integer.valueOf(2), testMap.getMapIntegerInteger().get(1));
+        assertEquals(Integer.valueOf(3), testMap.getMapIntegerInteger().get(2));
+        assertEquals(Integer.valueOf(3), testMap.getMapIntegerInteger().get(3));
+        assertEquals(Integer.valueOf(5), testMap.getMapIntegerInteger().get(4));
     }
 }

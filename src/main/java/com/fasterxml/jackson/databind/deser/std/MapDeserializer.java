@@ -665,17 +665,18 @@ public class MapDeserializer
                     result.put(key, _nullProvider.getNullValue(ctxt));
                     continue;
                 }
-                Object value = result.get(key);
-                if (value != null) {
-                    valueDes.deserialize(p, ctxt, value);
-                    continue;
-                }
-                if (typeDeser == null) {
+                Object old = result.get(key);
+                Object value;
+                if (old != null) {
+                    value = valueDes.deserialize(p, ctxt, old);
+                } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
-                result.put(key, value);
+                if (value != old) {
+                    result.put(key, value);
+                }
             } catch (Exception e) {
                 wrapAndThrow(e, result, keyStr);
             }

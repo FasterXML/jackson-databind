@@ -1,21 +1,48 @@
 Project: jackson-databind
-
 ------------------------------------------------------------------------
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.2 (not yet released)
+2.9.3 (not yet released)
 
+#1604: Nested type arguments doesn't work with polymorphic types
+#1794: `StackTraceElementDeserializer` not working if field visibility changed
+ (reported by dsingley@github)
+#1799: Allow creation of custom sub-types of `NullNode`, `BooleanNode`, `MissingNode`
+#1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
+ (reported byb henryptung@github)
+#1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
+ (reported by lexas2509@github)
+#1823: ClassNameIdResolver doesn't handle resolve Collections$SingletonMap & Collections$SingletonSet
+ (reported by Peter J)
+#1842: `null` String for `Exception`s deserialized as String "null" instead of `null`
+ (reported by ZeleniJure@github)
+#1843: Include name of unsettable property in exception from `SetterlessProperty.set()`
+ (suggested by andreh7@github)
+#1844: Map "deep" merge only adds new items, but not override existing values
+ (reported by alinakovalenko@github)
+
+2.9.2 (14-Oct-2017)
+
+(possibly) #1756: Deserialization error with custom `AnnotationIntrospector`
+ (reported by Daniel N)
+#1705: Non-generic interface method hides type resolution info from generic base class
+  (reported by Tim B)
+ NOTE: was originally reported fixed in 2.9.1 -- turns out it wasn't.
 #1767: Allow `DeserializationProblemHandler` to respond to primitive types
  (reported by nhtzr@github)
 #1768: Improve `TypeFactory.constructFromCanonical()` to work with
   `java.lang.reflect.Type.getTypeName()' format
  (suggested by Luís C)
+#1771: Pass missing argument for string formatting in `ObjectMapper`
+ (reported by Nils B)
+#1788: `StdDateFormat._parseAsISO8601()` does not parse "fractional" timezone correctly
+#1793: `java.lang.NullPointerException` in `ObjectArraySerializer.acceptJsonFormatVisitor()`
+  for array value with `@JsonValue`
+ (reported by Vincent D)
 
 2.9.1 (07-Sep-2017)
 
-#1705: Non-generic interface method hides type resolution info from generic base class
- (reported by Tim B)
 #1725: `NPE` In `TypeFactory. constructParametricType(...)`
  (reported by ctytgat@github)
 #1730: InvalidFormatException` for `JsonToken.VALUE_EMBEDDED_OBJECT`

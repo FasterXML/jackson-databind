@@ -20,15 +20,14 @@ import com.fasterxml.jackson.databind.JavaType;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(TypeFactory.class)
-public class ClassNameIdResolverTest {
-
+public class ClassNameIdResolverTest
+{
     @Mock
     private JavaType javaType;
     
     @Mock
     private TypeFactory typeFactory;
-    
-    
+
     private ClassNameIdResolver classNameIdResolver;
     
     @Before

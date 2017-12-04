@@ -717,3 +717,8 @@ Vincent Demay (vdemay@github)
   * Reported #1793: `java.lang.NullPointerException` in `ObjectArraySerializer.acceptJsonFormatVisitor()`
     for array value with `@JsonValue`
    (2.9.2)
+
+Peter Jurkovic (peterjurkovic@github)
+  * Reported #1823: ClassNameIdResolver doesn't handle resolve Collections$SingletonMap,
+    Collections$SingletonSet
+   (2.9.3)

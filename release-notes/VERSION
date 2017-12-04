@@ -19,6 +19,8 @@ Project: jackson-databind
  (reported by ZeleniJure@github)
 #1843: Include name of unsettable property in exception from `SetterlessProperty.set()`
  (suggested by andreh7@github)
+#1844: Map "deep" merge only adds new items, but not override existing values
+ (reported by alinakovalenko@github)
 
 2.9.2 (14-Oct-2017)
 

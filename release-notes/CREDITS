@@ -722,3 +722,7 @@ Peter Jurkovic (peterjurkovic@github)
   * Reported #1823: ClassNameIdResolver doesn't handle resolve Collections$SingletonMap,
     Collections$SingletonSet
    (2.9.3)
+
+alinakovalenko@github:
+  * Reported #1844: Map "deep" merge only adds new items, but not override existing values
+   (2.9.3)

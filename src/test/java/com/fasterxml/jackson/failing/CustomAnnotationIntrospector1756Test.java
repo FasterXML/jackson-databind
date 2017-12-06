@@ -89,6 +89,7 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
         return null;
       }
 
+      @SuppressWarnings("deprecation")
       @Override
       public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
           final AnnotatedConstructor ctor = (AnnotatedConstructor) a;

@@ -1107,7 +1107,11 @@ public class ObjectReader
      */
 
     public JsonParser treeAsTokens(TreeNode n) {
-        return new TreeTraversingParser((JsonNode) n, createDeserializationContext());
+        return treeAsTokens((JsonNode) n, createDeserializationContext());
+    }
+
+    protected JsonParser treeAsTokens(JsonNode n, DeserializationContext ctxt) {
+        return new TreeTraversingParser(n, ctxt);
     }
 
     /**
@@ -1123,8 +1127,7 @@ public class ObjectReader
      */
     @SuppressWarnings("unchecked")
     public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
-        DefaultDeserializationContext ctxt = createDeserializationContext(p);
-        return (T) _bindAsTree(ctxt, p);
+        return (T) _bindAsTree(createDeserializationContext(p), p);
     }
 
     /*
@@ -1132,7 +1135,7 @@ public class ObjectReader
     /* Deserialization methods; others similar to what ObjectMapper has
     /**********************************************************
      */
-    
+
     /**
      * Method that binds content read from given input source,
      * using configuration of this reader.
@@ -1237,7 +1240,7 @@ public class ObjectReader
     {
         DefaultDeserializationContext ctxt = createDeserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(treeAsTokens(src), false));
+                _considerFilter(treeAsTokens(src, ctxt), false));
     }
 
     @SuppressWarnings("unchecked")

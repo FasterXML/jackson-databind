@@ -25,6 +25,16 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * override {@link #setupModule(SetupContext)} method, if they choose
  * to do so they MUST call <code>super.setupModule(context);</code>
  * to ensure that registration works as expected.
+ *<p>
+ * WARNING: when registering {@link JsonSerializer}s and {@link JsonDeserializer}s,
+ * only type erased {@code Class} is compared: this means that usually you should
+ * NOT use this implementation for registering structured types such as
+ * {@link java.util.Collection}s or {@link java.util.Map}s: this because parametric
+ * type information will not be considered and you may end up having "wrong" handler
+ * for your type.
+ * What you need to do, instead, is to implement {@link com.fasterxml.jackson.databind.deser.Deserializers} 
+ * and/or {@link com.fasterxml.jackson.databind.ser.Serializers} callbacks to match full type
+ * signatures (with {@link JavaType}).
  */
 public class SimpleModule
     extends com.fasterxml.jackson.databind.Module
@@ -255,7 +265,15 @@ public class SimpleModule
     /* Configuration methods, adding serializers
     /**********************************************************
      */
-    
+
+    /**
+     * Method for adding serializer to handle type that the serializer claims to handle
+     * (see {@link JsonSerializer#handledType()}).
+     *<p>
+     * WARNING! Type matching only uses type-erased {@code Class} and should NOT
+     * be used when registering serializers for generic types like
+     * {@link java.util.Collection} and {@link java.util.Map}.
+     */
     public SimpleModule addSerializer(JsonSerializer<?> ser)
     {
         _checkNotNull(ser, "serializer");
@@ -265,7 +283,14 @@ public class SimpleModule
         _serializers.addSerializer(ser);
         return this;
     }
-    
+
+    /**
+     * Method for adding serializer to handle values of specific type.
+     *<p>
+     * WARNING! Type matching only uses type-erased {@code Class} and should NOT
+     * be used when registering serializers for generic types like
+     * {@link java.util.Collection} and {@link java.util.Map}.
+     */
     public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
         _checkNotNull(type, "type to register serializer for");
@@ -294,6 +319,13 @@ public class SimpleModule
     /**********************************************************
      */
     
+    /**
+     * Method for adding deserializer to handle specified type.
+     *<p>
+     * WARNING! Type matching only uses type-erased {@code Class} and should NOT
+     * be used when registering serializers for generic types like
+     * {@link java.util.Collection} and {@link java.util.Map}.
+     */
     public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
     {
         _checkNotNull(type, "type to register deserializer for");

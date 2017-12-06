@@ -15,6 +15,9 @@ Project: jackson-databind
  (reported by lexas2509@github)
 #1823: ClassNameIdResolver doesn't handle resolve Collections$SingletonMap & Collections$SingletonSet
  (reported by Peter J)
+#1831: `ObjectReader.readValue(JsonNode)` does not work correctly with polymorphic types,
+  value to update
+ (reported by basmastr@github)
 #1835: ValueInjector break from 2.8.x to 2.9.x
  (repoted by kinigitbyday@github)
 #1842: `null` String for `Exception`s deserialized as String "null" instead of `null`

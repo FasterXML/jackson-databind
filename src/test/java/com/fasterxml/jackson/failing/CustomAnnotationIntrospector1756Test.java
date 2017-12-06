@@ -88,6 +88,7 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
         return null;
       }
 
+      @SuppressWarnings("deprecation")
       @Override
       public boolean hasCreatorAnnotation(Annotated a) {
         final AnnotatedConstructor ctor = (AnnotatedConstructor) a;

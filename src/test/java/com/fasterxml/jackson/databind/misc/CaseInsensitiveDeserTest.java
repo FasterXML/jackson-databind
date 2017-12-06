@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.misc;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
@@ -20,6 +21,18 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         public String name, value;
     }
 
+    // [databind#1232]: allow per-property case-insensitivity
+    static class Role {
+        public String ID;
+        public String Name;
+    }
+
+    static class CaseInsensitiveRoleWrapper
+    {
+        @JsonFormat(with={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES })
+        public Role role;
+    }
+    
     // [databind#1438]
     static class InsensitiveCreator
     {
@@ -37,6 +50,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     /********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
     private final ObjectMapper INSENSITIVE_MAPPER = new ObjectMapper();
     {
         INSENSITIVE_MAPPER.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
@@ -78,6 +92,16 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         assertEquals("Signature not valid!", response.debugMessage);
     }
 
+    // [databind#1232]: allow per-property case-insensitivity
+    public void testCaseInsensitiveWithFormat() throws Exception {
+        CaseInsensitiveRoleWrapper w = MAPPER.readValue
+                (aposToQuotes("{'role':{'id':'12','name':'Foo'}}"),
+                        CaseInsensitiveRoleWrapper.class);
+        assertNotNull(w);
+        assertEquals("12", w.role.ID);
+        assertEquals("Foo", w.role.Name);
+    }
+    
     // [databind#1438]
     public void testCreatorWithInsensitive() throws Exception
     {

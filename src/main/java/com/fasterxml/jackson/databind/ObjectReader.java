@@ -1139,7 +1139,10 @@ public class ObjectReader
 
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
-        return new TreeTraversingParser((JsonNode) n, this);
+        // 05-Dec-2017, tatu: Important! Must clear "valueToUpdate" since we do not
+        //    want update to be applied here, as a side effect
+        ObjectReader codec = withValueToUpdate(null);
+        return new TreeTraversingParser((JsonNode) n, codec);
     }
 
     /**
@@ -1282,7 +1285,7 @@ public class ObjectReader
      *   objectReader.readValue(src.traverse())
      *</pre>
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "resource" })
     public <T> T readValue(JsonNode src)
         throws IOException
     {

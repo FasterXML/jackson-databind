@@ -15,6 +15,8 @@ Project: jackson-databind
  (reported by lexas2509@github)
 #1823: ClassNameIdResolver doesn't handle resolve Collections$SingletonMap & Collections$SingletonSet
  (reported by Peter J)
+#1835: ValueInjector break from 2.8.x to 2.9.x
+ (repoted by kinigitbyday@github)
 #1842: `null` String for `Exception`s deserialized as String "null" instead of `null`
  (reported by ZeleniJure@github)
 #1843: Include name of unsettable property in exception from `SetterlessProperty.set()`

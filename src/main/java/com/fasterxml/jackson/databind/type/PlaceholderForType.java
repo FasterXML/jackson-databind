@@ -83,6 +83,7 @@ public class PlaceholderForType extends TypeBase
         return _unsupported();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean isContainerType() {
         return false;

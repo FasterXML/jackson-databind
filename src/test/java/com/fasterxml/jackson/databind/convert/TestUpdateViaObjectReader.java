@@ -3,9 +3,11 @@ package com.fasterxml.jackson.databind.convert;
 import java.io.IOException;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * Unit tests for verifying that "updating reader" works as
  * expected.
  */
+@SuppressWarnings("serial")
 public class TestUpdateViaObjectReader extends BaseMapTest
 {
     static class Bean {
@@ -73,7 +76,43 @@ public class TestUpdateViaObjectReader extends BaseMapTest
             return da;
         }
     }
-    
+
+    // [databind#1831]
+    @JsonTypeInfo(use = Id.NAME)
+    @JsonSubTypes({  @JsonSubTypes.Type(value = Cat.class) })
+    static abstract public class AbstractAnimal { }
+
+    @JsonDeserialize(using = AnimalWrapperDeserializer.class)
+    static class AnimalWrapper {
+        @JsonUnwrapped
+        protected AbstractAnimal animal;
+
+        public void setAnimal(AbstractAnimal animal) {
+            this.animal = animal;
+        }
+    }
+
+    static class Cat extends AbstractAnimal { }
+
+    static class AnimalWrapperDeserializer extends StdDeserializer<AnimalWrapper> {
+        public AnimalWrapperDeserializer() {
+            super(AnimalWrapper.class);
+        }
+
+        @Override
+        public AnimalWrapper deserialize(JsonParser json, DeserializationContext context) throws IOException {
+            AnimalWrapper msg = new AnimalWrapper();
+            msg.setAnimal(json.readValueAs(AbstractAnimal.class));
+            return msg;
+        }
+
+        @Override
+        public AnimalWrapper deserialize(JsonParser json, DeserializationContext context, AnimalWrapper intoValue) throws IOException {
+            intoValue.setAnimal(json.readValueAs(AbstractAnimal.class));
+            return intoValue;
+        }
+    }
+
     /*
     /********************************************************
     /* Test methods
@@ -215,5 +254,22 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         mapper.readerForUpdating(dbUpdViaNode).readValue(jsonBNode);
         assertEquals(5, dbUpdViaNode.da.i);
         assertEquals(13, dbUpdViaNode.k);
+    }
+
+    // [databind#1831]
+    public void test1831UsingNode() throws IOException {
+        String catJson = MAPPER.writeValueAsString(new Cat());
+        JsonNode jsonNode = MAPPER.readTree(catJson);
+        AnimalWrapper optionalCat = new AnimalWrapper();
+        ObjectReader r = MAPPER.readerForUpdating(optionalCat);
+        AnimalWrapper result = r.readValue(jsonNode);
+        assertSame(optionalCat, result);
+    }
+
+    public void test1831UsingString() throws IOException {
+        String catJson = MAPPER.writeValueAsString(new Cat());
+        AnimalWrapper optionalCat = new AnimalWrapper();
+        AnimalWrapper result = MAPPER.readerForUpdating(optionalCat).readValue(catJson);
+        assertSame(optionalCat, result);
     }
 }

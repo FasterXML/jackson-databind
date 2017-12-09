@@ -50,11 +50,10 @@ public class TestTreeMapperSerializer extends NodeTestBase
         }
             
         // And then convenient but less efficient alternative:
-        verifyFromArray(root.toString());
+        verifyFromArray(mapper.writeValueAsString(root));
     }
 
-    public void testFromMap()
-        throws Exception
+    public void testFromMap() throws Exception
     {
         ObjectNode root = mapper.createObjectNode();
         root.put(FIELD4, TEXT2);
@@ -79,7 +78,7 @@ public class TestTreeMapperSerializer extends NodeTestBase
         }
 
         // And then convenient but less efficient alternative:
-        verifyFromMap(root.toString());
+        verifyFromMap(mapper.writeValueAsString(root));
     }
 
     /**

@@ -270,31 +270,21 @@ public class TestNamingStrategyStd extends BaseMapTest
      */
     public void testPascalCaseStandAlone()
     {
-        String translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
-    	        (null, null, "userName");
-        assertEquals("UserName", translatedJavaName);
+        assertEquals("UserName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "userName"));
+        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "User"));
+        assertEquals("User", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "user"));
+        assertEquals("X", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "x"));
 
-        translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
-                (null, null, "User");
-        assertEquals("User", translatedJavaName);
-
-        translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
-                (null, null, "user");
-        assertEquals("User", translatedJavaName);
-        translatedJavaName = PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField
-                (null, null, "x");
-        assertEquals("X", translatedJavaName);
+        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForField(null, null, "bADPublicName"));
+        assertEquals("BADPublicName", PropertyNamingStrategy.UPPER_CAMEL_CASE.nameForGetterMethod(null, null, "bADPublicName"));
     }
 
-    /**
-     * For [databind#428]
-     */
-    public void testIssue428PascalWithOverrides() throws Exception {
-
+    // [databind#428]
+    public void testIssue428PascalWithOverrides() throws Exception
+    {
         String json = new ObjectMapper()
-                            .setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
-                            .writeValueAsString(new Bean428());
-        
+                .setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE)
+                .writeValueAsString(new Bean428());
         if (!json.contains(quote("fooBar"))) {
             fail("Should use name 'fooBar', does not: "+json);
         }
@@ -305,10 +295,8 @@ public class TestNamingStrategyStd extends BaseMapTest
     /* Test methods for LOWER_CASE
     /**********************************************************
      */
-    
-    /**
-     * For [databind#461]
-     */
+
+    // For [databind#461]
     public void testSimpleLowerCase() throws Exception
     {
         final BoringBean input = new BoringBean();

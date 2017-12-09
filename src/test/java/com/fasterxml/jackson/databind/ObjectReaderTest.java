@@ -162,7 +162,10 @@ public class ObjectReaderTest extends BaseMapTest
 
         JsonNode node = reader.readTree(source);
         assertTrue(node.has("name"));
-        assertEquals("{\"value\":1234}", node.get("name").toString());
+        JsonNode entry = node.get("name");
+        assertNotNull(entry);
+        assertTrue(entry.isObject());
+        assertEquals(1234, entry.get("value").asInt());
     }
 
     public void testPointerLoadingMappingIteratorOne() throws Exception {

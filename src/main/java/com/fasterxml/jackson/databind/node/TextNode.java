@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
@@ -172,15 +171,11 @@ e.getMessage()),
     {
         int len = _value.length();
         len = len + 2 + (len >> 4);
-        StringBuilder sb = new StringBuilder(len);
-        appendQuoted(sb, _value);
-        return sb.toString();
-    }
-
-    protected static void appendQuoted(StringBuilder sb, String content)
-    {
-        sb.append('"');
-        CharTypes.appendQuoted(sb, content);
-        sb.append('"');
+        return new StringBuilder(len)
+                // 09-Dec-2017, tatu: Use apostrophes on purpose to prevent use as JSON producer:
+                .append('\'')
+                .append(_value)
+                .append('\'')
+                .toString();
     }
 }

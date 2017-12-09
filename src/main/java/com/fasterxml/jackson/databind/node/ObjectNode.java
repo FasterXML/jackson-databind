@@ -764,9 +764,6 @@ public class ObjectNode
         return false;
     }
 
-    /**
-     * @since 2.3
-     */
     protected boolean _childrenEqual(ObjectNode other)
     {
         return _children.equals(other._children);
@@ -789,9 +786,13 @@ public class ObjectNode
                 sb.append(",");
             }
             ++count;
-            TextNode.appendQuoted(sb, en.getKey());
-            sb.append(':');
-            sb.append(en.getValue().toString());
+            // 09-Dec-2017, tatu: Use apostrophes on purpose to prevent use as JSON producer:
+            sb.append('\'')
+//          CharTypes.appendQuoted(sb, content);
+                .append(en.getKey())
+                .append('\'')
+                .append(':')
+                .append(en.getValue().toString());
         }
         sb.append("}");
         return sb.toString();

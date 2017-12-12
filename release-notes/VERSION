@@ -169,6 +169,7 @@ Project: jackson-databind
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of
   configured timezone
  (reported by Bertrand R)
+#1680: Blacklist couple more types for deserialization
 #1658: Infinite recursion when deserializing a class extending a Map,
   with a recursive value type
  (reported by Kevin G)

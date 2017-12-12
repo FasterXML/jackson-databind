@@ -48,7 +48,7 @@ public class BeanDeserializerFactory
     static {
         Set<String> s = new HashSet<String>();
         // Courtesy of [https://github.com/kantega/notsoserial]:
-        // (and wrt [databind#1599]
+        // (and wrt [databind#1599])
         s.add("org.apache.commons.collections.functors.InvokerTransformer");
         s.add("org.apache.commons.collections.functors.InstantiateTransformer");
         s.add("org.apache.commons.collections4.functors.InvokerTransformer");
@@ -60,6 +60,15 @@ public class BeanDeserializerFactory
         s.add("org.apache.xalan.xsltc.trax.TemplatesImpl");
         // [databind#1680]: may or may not be problem, take no chance
         s.add("com.sun.rowset.JdbcRowSetImpl");
+        // [databind#1737]; JDK provided
+        s.add("java.util.logging.FileHandler");
+        s.add("java.rmi.server.UnicastRemoteObject");
+        // [databind#1737]; 3rd party
+        s.add("org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor");
+        s.add("org.springframework.beans.factory.config.PropertyPathFactoryBean");
+        s.add("com.mchange.v2.c3p0.JndiRefForwardingDataSource");
+        s.add("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

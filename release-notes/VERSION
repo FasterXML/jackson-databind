@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.10 (not yet released)
+2.7.9.2 (not yet released)
 
 #1607: @JsonIdentityReference not used when setup on class only
  (reported by vboulaye@github)

@@ -3,6 +3,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.9.4 (not yet released)
+
+#1855: More blacklisting of serialization gadgets
+
 2.9.3 (09-Dec-2017)
 
 #1604: Nested type arguments doesn't work with polymorphic types

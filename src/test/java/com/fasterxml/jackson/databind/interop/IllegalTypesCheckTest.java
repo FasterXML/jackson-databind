@@ -58,8 +58,15 @@ public class IllegalTypesCheckTest extends BaseMapTest
 
     public void testJDKTypes1737() throws Exception
     {
-        _testTypes1737(java.util.logging.FileHandler.class);
-        _testTypes1737(java.rmi.server.UnicastRemoteObject.class);
+        _testIllegalType(java.util.logging.FileHandler.class);
+        _testIllegalType(java.rmi.server.UnicastRemoteObject.class);
+    }
+
+    // // // Tests for [databind#1855]
+    public void testJDKTypes1855() throws Exception
+    {
+        // apparently included by JDK?
+        _testIllegalType("com.sun.org.apache.bcel.internal.util.ClassLoader");
     }
 
     // 17-Aug-2017, tatu: Ideally would test handling of 3rd party types, too,
@@ -69,8 +76,8 @@ public class IllegalTypesCheckTest extends BaseMapTest
     /*
     public void testSpringTypes1737() throws Exception
     {
-        _testTypes1737("org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor");
-        _testTypes1737("org.springframework.beans.factory.config.PropertyPathFactoryBean");
+        _testIllegalType("org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor");
+        _testIllegalType("org.springframework.beans.factory.config.PropertyPathFactoryBean");
     }
 
     public void testC3P0Types1737() throws Exception
@@ -80,11 +87,11 @@ public class IllegalTypesCheckTest extends BaseMapTest
     }
     */
 
-    private void _testTypes1737(Class<?> nasty) throws Exception {
-        _testTypes1737(nasty.getName());
+    private void _testIllegalType(Class<?> nasty) throws Exception {
+        _testIllegalType(nasty.getName());
     }
 
-    private void _testTypes1737(String clsName) throws Exception
+    private void _testIllegalType(String clsName) throws Exception
     {
         // While usually exploited via default typing let's not require
         // it here; mechanism still the same

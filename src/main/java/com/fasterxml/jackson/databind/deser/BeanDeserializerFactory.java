@@ -69,6 +69,9 @@ public class BeanDeserializerFactory
         s.add("com.mchange.v2.c3p0.JndiRefForwardingDataSource");
         s.add("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
 
+        // [databind#1855]: more 3rd party
+        s.add("org.apache.tomcat.dbcp.dbcp2.BasicDataSource");
+        s.add("com.sun.org.apache.bcel.internal.util.ClassLoader");
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 

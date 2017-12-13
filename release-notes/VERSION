@@ -12,6 +12,7 @@ Project: jackson-databind
  (reported by Villane@github)
 #1680: Blacklist couple more types for deserialization
 #1737: Block more JDK types from polymorphic deserialization
+#1855: (partial) Blacklist for more serialization gadgets (dbcp/tomcat)
 
 2.7.9.1 (18-Apr-2017)
 

@@ -3,7 +3,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.9.3 (not yet released)
+2.9.4 (not yet released)
+
+#1855: More blacklisting of serialization gadgets
+
+2.9.3 (09-Dec-2017)
 
 #1604: Nested type arguments doesn't work with polymorphic types
 #1794: `StackTraceElementDeserializer` not working if field visibility changed
@@ -15,6 +19,11 @@ Project: jackson-databind
  (reported by lexas2509@github)
 #1823: ClassNameIdResolver doesn't handle resolve Collections$SingletonMap & Collections$SingletonSet
  (reported by Peter J)
+#1831: `ObjectReader.readValue(JsonNode)` does not work correctly with polymorphic types,
+  value to update
+ (reported by basmastr@github)
+#1835: ValueInjector break from 2.8.x to 2.9.x
+ (repoted by kinigitbyday@github)
 #1842: `null` String for `Exception`s deserialized as String "null" instead of `null`
  (reported by ZeleniJure@github)
 #1843: Include name of unsettable property in exception from `SetterlessProperty.set()`
@@ -164,6 +173,7 @@ Project: jackson-databind
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of
   configured timezone
  (reported by Bertrand R)
+#1680: Blacklist couple more types for deserialization
 #1658: Infinite recursion when deserializing a class extending a Map,
   with a recursive value type
  (reported by Kevin G)

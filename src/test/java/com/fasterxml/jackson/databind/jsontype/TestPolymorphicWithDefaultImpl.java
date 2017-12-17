@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
@@ -42,6 +43,26 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         }
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true, defaultImpl = BaseWithDefaultOthers.class)
+    @JsonSubTypes(value = {@JsonSubTypes.Type(name = "impl", value = BaseWithDefaultImpl.class)})
+    public static abstract class BaseWithDefault {
+        public String base;
+    }
+
+    public static class BaseWithDefaultImpl extends BaseWithDefault {
+        public String impl;
+    }
+
+    public static class BaseWithDefaultOthers extends BaseWithDefault {
+        public String type;
+        public Map<String, Object> fields = new HashMap<>();
+        @JsonAnySetter
+        public void set(String name, Object value) {
+            fields.put(name, value);
+        }
+    }
+
     /**
      * Also another variant to verify that from 2.5 on, can use non-deprecated
      * value for the same.
@@ -72,7 +93,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     public static class Bad {
         public List<BadItem> many;
     }
- 
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
             include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({@JsonSubTypes.Type(name="sub1", value = GoodSub1.class),
@@ -115,7 +136,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
             property = "clazz")
-    abstract static class BaseClass { }    
+    abstract static class BaseClass { }
 
     static class BaseWrapper {
         public BaseClass value;
@@ -138,6 +159,83 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
+
+    public void testBaseWithDefaultAsBase() throws Exception {
+        BaseWithDefault value = MAPPER.readerFor(BaseWithDefault.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(value instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) value).base);
+        assertEquals("i", ((BaseWithDefaultImpl) value).impl);
+    }
+
+    public void testBaseWithDefaultAsImpl() throws Exception {
+        // Same test as previous but exact class is specified.
+        BaseWithDefaultImpl value = MAPPER.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(value instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) value).base);
+        assertEquals("i", ((BaseWithDefaultImpl) value).impl);
+    }
+
+    public void testBaseWithDefaultOtherAsBase() throws Exception {
+        BaseWithDefault value = MAPPER.readerFor(BaseWithDefault.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(value instanceof BaseWithDefaultOthers);
+        assertEquals("b", ((BaseWithDefaultOthers) value).base);
+        assertEquals("other", ((BaseWithDefaultOthers) value).type);
+        assertEquals(1, ((BaseWithDefaultOthers) value).fields.size());
+        assertEquals("i", ((BaseWithDefaultOthers) value).fields.get("impl"));
+    }
+
+    public void testBaseWithDefaultOtherAsImpl() throws Exception {
+        BaseWithDefaultOthers value = MAPPER.readerFor(BaseWithDefaultOthers.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
+        assertTrue(value instanceof BaseWithDefaultOthers);
+        assertEquals("b", ((BaseWithDefaultOthers) value).base);
+        assertEquals("other", ((BaseWithDefaultOthers) value).type);
+        assertEquals(1, ((BaseWithDefaultOthers) value).fields.size());
+        assertEquals("i", ((BaseWithDefaultOthers) value).fields.get("impl"));
+    }
+
+    public void testBaseWithDefaultAsImplIncorrect() throws Exception {
+        try {
+            MAPPER.readerFor(BaseWithDefaultImpl.class).readValue("{\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}");
+            fail("Should not parse class with incorrect type");
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Could not resolve type id 'other' as a subtype");
+        }
+    }
+
+    public void testDeserializationListOfBase() throws Exception {
+        List<BaseWithDefault> value = MAPPER.readerFor(new TypeReference<List<BaseWithDefault>>() {})
+                .readValue("[{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}, {\"type\": \"other\", \"base\": \"b\", \"impl\": \"i\"}]");
+        assertEquals(2, value.size());
+        assertTrue(value.get(0) instanceof BaseWithDefaultImpl);
+        assertEquals("b", ((BaseWithDefaultImpl) value.get(0)).base);
+        assertEquals("i", ((BaseWithDefaultImpl) value.get(0)).impl);
+        assertTrue(value.get(1) instanceof BaseWithDefaultOthers);
+        assertEquals("b", ((BaseWithDefaultOthers) value.get(1)).base);
+        assertEquals("other", ((BaseWithDefaultOthers) value.get(1)).type);
+        assertEquals(1, ((BaseWithDefaultOthers) value.get(1)).fields.size());
+        assertEquals("i", ((BaseWithDefaultOthers) value.get(1)).fields.get("impl"));
+    }
+
+    public void testDeserializationListOfImpl() throws Exception {
+        // Test similar to testBaseWithDefaultAsImpl, but for list.
+        List<BaseWithDefaultImpl> value = MAPPER.readerFor(new TypeReference<List<BaseWithDefaultImpl>>() {})
+                .readValue("[{\"type\": \"impl\", \"base\": \"b\", \"impl\": \"i\"}, {\"type\": \"impl\", \"base\": \"bb\", \"impl\": \"ii\"}]");
+        assertEquals(2, value.size());
+        assertTrue(value.get(0) instanceof BaseWithDefaultImpl);
+        assertEquals("b", value.get(0).base);
+        assertEquals("i", value.get(0).impl);
+        assertTrue(value.get(1) instanceof BaseWithDefaultImpl);
+        assertEquals("bb", value.get(1).base);
+        assertEquals("ii", value.get(1).impl);
+    }
+
+//    // Seems not to be a bug, however it might be a useful feature to strictly specify deserializing type.
+//    public void testBaseWithDefaultAsImplNoTypeInJson() throws Exception {
+//        // Class is specified, there is only one implementation.
+//        BaseWithDefaultImpl value = MAPPER.readerFor(BaseWithDefaultImpl.class).readValue("{\"base\": \"b\", \"impl\": \"i\"}");
+//        assertEquals("b", value.base);
+//        assertEquals("i", value.impl);
+//    }
 
     public void testDeserializationWithObject() throws Exception
     {
@@ -234,7 +332,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
         BaseWrapper w = mapper.readValue(aposToQuotes
-                ("{'value':{'clazz':'com.foobar.Nothing'}}'"),
+                        ("{'value':{'clazz':'com.foobar.Nothing'}}'"),
                 BaseWrapper.class);
         assertNotNull(w);
         assertNull(w.value);

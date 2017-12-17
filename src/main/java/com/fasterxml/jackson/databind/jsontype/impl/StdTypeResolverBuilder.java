@@ -129,6 +129,8 @@ public class StdTypeResolverBuilder
             //   seems like a reasonable compromise.
             if (_defaultImpl == Void.class) {
                 defaultImpl = config.getTypeFactory().constructType(_defaultImpl);
+            } else if (!baseType.getRawClass().isAssignableFrom(_defaultImpl)) {
+                defaultImpl = null;
             } else {
                 defaultImpl = config.getTypeFactory()
                     .constructSpecializedType(baseType, _defaultImpl);

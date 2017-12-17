@@ -335,7 +335,9 @@ public abstract class JsonDeserializer<T>
      *    value, instead of full value serialization, if deserializer can do that;
      *    null if no Object Id is expected.
      */
-    public ObjectIdReader getObjectIdReader() { return null; }
+    public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) {
+        return getObjectIdReader();
+    }
 
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
@@ -367,6 +369,18 @@ public abstract class JsonDeserializer<T>
     public Boolean supportsUpdate(DeserializationConfig config) {
         return null;
     }
+
+    /*
+    /**********************************************************
+    /* Deprecated methods
+    /**********************************************************
+     */
+
+    /**
+     * @deprecated Since 3.0 Use overloaded variant that takes context argument
+     */
+    @Deprecated
+    public ObjectIdReader getObjectIdReader() { return null; }
 
     /*
     /**********************************************************

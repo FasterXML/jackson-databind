@@ -779,7 +779,7 @@ public abstract class BeanDeserializerBase
     {
         ObjectIdInfo objectIdInfo = prop.getObjectIdInfo();
         JsonDeserializer<Object> valueDeser = prop.getValueDeserializer();
-        ObjectIdReader objectIdReader = (valueDeser == null) ? null : valueDeser.getObjectIdReader();
+        ObjectIdReader objectIdReader = (valueDeser == null) ? null : valueDeser.getObjectIdReader(ctxt);
         if (objectIdInfo == null && objectIdReader == null) {
             return prop;
         }
@@ -945,7 +945,7 @@ public abstract class BeanDeserializerBase
      * (either via value type or referring property).
      */
     @Override
-    public ObjectIdReader getObjectIdReader() {
+    public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) {
         return _objectIdReader;
     }
     

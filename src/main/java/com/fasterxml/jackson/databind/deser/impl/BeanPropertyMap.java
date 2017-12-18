@@ -336,11 +336,7 @@ public class BeanPropertyMap
         return new BeanPropertyMap(_caseInsensitive, newProps, _aliasDefs);
     }
 
-    /**
-     * Specialized method that can be used to replace an existing entry
-     * (note: entry MUST exist; otherwise exception is thrown) with
-     * specified replacement.
-     */
+    @Deprecated // in 2.9.4 -- must call method that takes old and new property to avoid mismatch
     public void replace(SettableBeanProperty newProp)
     {
         String key = getPropertyName(newProp);
@@ -352,6 +348,30 @@ public class BeanPropertyMap
         _hashArea[ix] = newProp;
         // also, replace in in-order
         _propsInOrder[_findFromOrdered(prop)] = newProp;
+    }
+
+    /**
+     * Specialized method that can be used to replace an existing entry
+     * (note: entry MUST exist; otherwise exception is thrown) with
+     * specified replacement.
+     *
+     * @since 2.9.4
+     */
+    public void replace(SettableBeanProperty origProp, SettableBeanProperty newProp)
+    {
+        int i = 1;
+        int end = _hashArea.length;
+
+        for (;; i += 2) {
+            if (i > end) {
+                throw new NoSuchElementException("No entry '"+origProp.getName()+"' found, can't replace");
+            }
+            if (_hashArea[i] == origProp) {
+                _hashArea[i] = newProp;
+                break;
+            }
+        }
+        _propsInOrder[_findFromOrdered(origProp)] = newProp;
     }
 
     /**

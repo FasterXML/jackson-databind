@@ -267,11 +267,11 @@ _containerType,
         p.setCurrentValue(result);
 
         JsonDeserializer<Object> valueDes = _valueDeserializer;
+        // Let's offline handling of values with Object Ids (simplifies code here)
+        if (valueDes.getObjectIdReader() != null) {
+            return _deserializeWithObjectId(p, ctxt, result);
+        }
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        CollectionReferringAccumulator referringAccumulator =
-            (valueDes.getObjectIdReader() == null) ? null :
-                new CollectionReferringAccumulator(_containerType.getContentType().getRawClass(), result);
-
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
@@ -286,18 +286,13 @@ _containerType,
                 } else {
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
-                if (referringAccumulator != null) {
-                    referringAccumulator.add(value);
-                } else {
-                    result.add(value);
-                }
+                result.add(value);
+
+                /* 17-Dec-2017, tatu: should not occur at this level...
             } catch (UnresolvedForwardReference reference) {
-                if (referringAccumulator == null) {
-                    throw JsonMappingException
-                            .from(p, "Unresolved forward reference but no identity info", reference);
-                }
-                Referring ref = referringAccumulator.handleUnresolvedReference(reference);
-                reference.getRoid().appendReferring(ref);
+                throw JsonMappingException
+                    .from(p, "Unresolved forward reference but no identity info", reference);
+                */
             } catch (Exception e) {
                 boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
                 if (!wrap) {
@@ -361,7 +356,56 @@ _containerType,
         return result;
     }
 
-    public final static class CollectionReferringAccumulator {
+    protected Collection<Object> _deserializeWithObjectId(JsonParser p, DeserializationContext ctxt,
+            Collection<Object> result)
+        throws IOException
+    {
+        // Ok: must point to START_ARRAY (or equivalent)
+        if (!p.isExpectedStartArrayToken()) {
+            return handleNonArray(p, ctxt, result);
+        }
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        p.setCurrentValue(result);
+
+        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
+        CollectionReferringAccumulator referringAccumulator =
+                new CollectionReferringAccumulator(_containerType.getContentType().getRawClass(), result);
+
+        JsonToken t;
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            try {
+                Object value;
+                if (t == JsonToken.VALUE_NULL) {
+                    if (_skipNullValues) {
+                        continue;
+                    }
+                    value = _nullProvider.getNullValue(ctxt);
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(p, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                }
+                referringAccumulator.add(value);
+            } catch (UnresolvedForwardReference reference) {
+                Referring ref = referringAccumulator.handleUnresolvedReference(reference);
+                reference.getRoid().appendReferring(ref);
+            } catch (Exception e) {
+                boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+                if (!wrap) {
+                    ClassUtil.throwIfRTE(e);
+                }
+                throw JsonMappingException.wrapWithPath(e, result, result.size());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Helper class for dealing with Object Id references for values contained in
+     * collections being deserialized.
+     */
+    public static class CollectionReferringAccumulator {
         private final Class<?> _elementType;
         private final Collection<Object> _result;
 

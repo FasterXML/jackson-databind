@@ -75,8 +75,6 @@ public class CollectionDeserializer
 
     /**
      * Constructor used when creating contextualized instances.
-     *
-     * @since 2.9
      */
     protected CollectionDeserializer(JavaType collectionType,
             JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
@@ -105,8 +103,6 @@ public class CollectionDeserializer
 
     /**
      * Fluent-factory method call to construct contextual instance.
-     *
-     * @since 2.9
      */
     @SuppressWarnings("unchecked")
     protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
@@ -120,7 +116,7 @@ public class CollectionDeserializer
     }
 
     // Important: do NOT cache if polymorphic values
-    @Override // since 2.5
+    @Override
     public boolean isCachable() {
         // 26-Mar-2015, tatu: As per [databind#735], need to be careful
         return (_valueDeserializer == null)

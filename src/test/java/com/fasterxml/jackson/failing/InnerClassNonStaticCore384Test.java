@@ -11,46 +11,11 @@ import static org.junit.Assert.assertThat;
 
 import com.fasterxml.jackson.databind.*;
 
-public class Core384Test extends BaseMapTest
+// see [https://github.com/FasterXML/jackson-core/issues/384]: most likely
+// can not be fixed, but could we improve error message to indicate issue
+// with non-static type of `Car` and `Truck`, which prevent instantiation?
+public class InnerClassNonStaticCore384Test extends BaseMapTest
 {
-    public void testHierarchy() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enableDefaultTyping();
-
-        Fleet fleet = initVehicle();
-
-        /*
-for (Vehicle v : fleet.vehicles) {
-    System.out.println("Vehicle, type: "+v.getClass());
-}
-*/
-        String serializedFleet = mapper
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(fleet);
-
-//System.out.println(serializedFleet);
-
-        Fleet deserializedFleet = mapper.readValue(serializedFleet, Fleet.class);
-
-        assertThat(deserializedFleet.getVehicles().get(0), instanceOf(Car.class));
-        assertThat(deserializedFleet.getVehicles().get(1), instanceOf(Truck.class));
-
-        assertEquals(fleet, deserializedFleet);
-    }
-
-    private Fleet initVehicle() {
-        Car car = new Car("Mercedes-Benz", "S500", 5, 250.0);
-        Truck truck = new Truck("Isuzu", "NQR", 7500.0);
-
-        List<Vehicle> vehicles = new ArrayList<>();
-        vehicles.add(car);
-        vehicles.add(truck);
-
-        Fleet serializedFleet = new Fleet();
-        serializedFleet.setVehicles(vehicles);
-        return serializedFleet;
-    }
-
     static class Fleet {
         private List<Vehicle> vehicles;
 
@@ -196,5 +161,49 @@ for (Vehicle v : fleet.vehicles) {
         public int hashCode() {
             return Objects.hash(super.hashCode(), payloadCapacity);
         }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
+    public void testHierarchy() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTyping();
+
+        Fleet fleet = initVehicle();
+
+        /*
+for (Vehicle v : fleet.vehicles) {
+    System.out.println("Vehicle, type: "+v.getClass());
+}
+*/
+        String serializedFleet = mapper
+                .writerWithDefaultPrettyPrinter()
+                .writeValueAsString(fleet);
+
+//System.out.println(serializedFleet);
+
+        Fleet deserializedFleet = mapper.readValue(serializedFleet, Fleet.class);
+
+        assertThat(deserializedFleet.getVehicles().get(0), instanceOf(Car.class));
+        assertThat(deserializedFleet.getVehicles().get(1), instanceOf(Truck.class));
+
+        assertEquals(fleet, deserializedFleet);
+    }
+
+    private Fleet initVehicle() {
+        Car car = new Car("Mercedes-Benz", "S500", 5, 250.0);
+        Truck truck = new Truck("Isuzu", "NQR", 7500.0);
+
+        List<Vehicle> vehicles = new ArrayList<>();
+        vehicles.add(car);
+        vehicles.add(truck);
+
+        Fleet serializedFleet = new Fleet();
+        serializedFleet.setVehicles(vehicles);
+        return serializedFleet;
     }
 }

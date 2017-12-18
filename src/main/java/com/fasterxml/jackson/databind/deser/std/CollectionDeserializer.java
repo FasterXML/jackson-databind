@@ -113,6 +113,7 @@ public class CollectionDeserializer
             JsonDeserializer<?> vd, TypeDeserializer vtd,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
+//if (true) throw new Error();
         return new CollectionDeserializer(_containerType,
                 (JsonDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (JsonDeserializer<Object>) dd,

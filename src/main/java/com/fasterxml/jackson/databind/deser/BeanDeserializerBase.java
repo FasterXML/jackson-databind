@@ -449,9 +449,9 @@ public abstract class BeanDeserializerBase
         // 24-Mar-2017, tatu: Looks like we may have to iterate over
         //   properties twice, to handle potential issues with recursive
         //   types (see [databind#1575] f.ex).
-
         // First loop: find deserializer if not yet known, but do not yet
         // contextualize (since that can lead to problems with self-references)
+
         for (SettableBeanProperty prop : _beanProperties) {
             if (!prop.hasValueDeserializer()) {
                 // [databind#125]: allow use of converters
@@ -580,7 +580,7 @@ public abstract class BeanDeserializerBase
     protected void _replaceProperty(BeanPropertyMap props, SettableBeanProperty[] creatorProps,
             SettableBeanProperty origProp, SettableBeanProperty newProp)
     {
-        props.replace(newProp);
+        props.replace(origProp, newProp);
         // [databind#795]: Make sure PropertyBasedCreator's properties stay in sync
         if (creatorProps != null) {
             // 18-May-2015, tatu: _Should_ start with consistent set. But can we really
@@ -591,12 +591,14 @@ public abstract class BeanDeserializerBase
                     return;
                 }
             }
+            /*
             // ... as per above, it is possible we'd need to add this as fallback
             // if (but only if) identity check fails?
-            /*
-            if (creatorProps[i].getName().equals(prop.getName())) {
-                creatorProps[i] = prop;
-                break;
+            for (int i = 0, len = creatorProps.length; i < len; ++i) {
+                if (creatorProps[i].getName().equals(origProp.getName())) {
+                    creatorProps[i] = newProp;
+                    return;
+                }
             }
             */
         }
@@ -1104,7 +1106,7 @@ public abstract class BeanDeserializerBase
     public void replaceProperty(SettableBeanProperty original,
             SettableBeanProperty replacement)
     {
-        _beanProperties.replace(replacement);
+        _beanProperties.replace(original, replacement);
     }
 
     /*

@@ -2,15 +2,17 @@ package com.fasterxml.jackson.failing;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 public class CaseInsensitive1854Test extends BaseMapTest
 {
     static class Obj1854 {
-
         private final int id;
+
+// 17-Dec-2017, tatu: One of following would work around the bug [databind#1854]        
+//        @JsonProperty("Items")
+//        @JsonIgnore
         private final List<ChildObj> items;
 
         public Obj1854(int id, List<ChildObj> items) {
@@ -35,28 +37,27 @@ public class CaseInsensitive1854Test extends BaseMapTest
     }
 
     static class ChildObj {
-        private final String id;
+        private final String childId;
 
-        public ChildObj(String id) {
-            this.id = id;
+        private ChildObj(String id) {
+            this.childId = id;
         }
 
         @JsonCreator
-        public static ChildObj fromJson(@JsonProperty("ID") String id) {
-            return new ChildObj(id);
+        public static ChildObj fromJson(@JsonProperty("ChildID") String cid) {
+            return new ChildObj(cid);
         }
 
         public String getId() {
-            return id;
+            return childId;
         }
-
     }
-    
+
     public void testIssue1854() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
-        final String DOC = aposToQuotes("{'ID': 1, 'Items': [ { 'ID': 10 } ]}");
+        final String DOC = aposToQuotes("{'ID': 1, 'Items': [ { 'ChildID': 10 } ]}");
         Obj1854 result = mapper.readValue(DOC, Obj1854.class);
         assertNotNull(result);
         assertEquals(1, result.getId());

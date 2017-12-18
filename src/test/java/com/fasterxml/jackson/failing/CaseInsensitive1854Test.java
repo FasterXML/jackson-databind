@@ -37,21 +37,20 @@ public class CaseInsensitive1854Test extends BaseMapTest
     }
 
     static class ChildObj {
-        private final String id;
+        private final String childId;
 
         private ChildObj(String id) {
-            this.id = id;
+            this.childId = id;
         }
 
         @JsonCreator
-        public static ChildObj fromJson(@JsonProperty("ID") String id) {
-            return new ChildObj(id);
+        public static ChildObj fromJson(@JsonProperty("ChildID") String cid) {
+            return new ChildObj(cid);
         }
 
         public String getId() {
-            return id;
+            return childId;
         }
-
     }
 
     public void testIssue1854() throws Exception

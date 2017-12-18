@@ -2,15 +2,17 @@ package com.fasterxml.jackson.failing;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 public class CaseInsensitive1854Test extends BaseMapTest
 {
     static class Obj1854 {
-
         private final int id;
+
+// 17-Dec-2017, tatu: One of following would work around the bug [databind#1854]        
+//        @JsonProperty("Items")
+//        @JsonIgnore
         private final List<ChildObj> items;
 
         public Obj1854(int id, List<ChildObj> items) {
@@ -37,7 +39,7 @@ public class CaseInsensitive1854Test extends BaseMapTest
     static class ChildObj {
         private final String id;
 
-        public ChildObj(String id) {
+        private ChildObj(String id) {
             this.id = id;
         }
 
@@ -51,7 +53,7 @@ public class CaseInsensitive1854Test extends BaseMapTest
         }
 
     }
-    
+
     public void testIssue1854() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

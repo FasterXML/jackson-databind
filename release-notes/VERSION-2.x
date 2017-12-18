@@ -5,7 +5,7 @@ Project: jackson-databind
 
 2.9.4 (not yet released)
 
-#1845: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
+#1854: NPE deserializing collection with `@JsonCreator` and `ACCEPT_CASE_INSENSITIVE_PROPERTIES`
  (reported by rue-jw@github)
 #1855: More blacklisting of serialization gadgets
 

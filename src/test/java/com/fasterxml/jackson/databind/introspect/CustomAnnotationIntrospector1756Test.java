@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.introspect;
 
 import java.io.IOException;
 import java.lang.annotation.*;
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -89,7 +88,6 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
         return null;
       }
 
-      @SuppressWarnings("deprecation")
       @Override
       public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
           final AnnotatedConstructor ctor = (AnnotatedConstructor) a;

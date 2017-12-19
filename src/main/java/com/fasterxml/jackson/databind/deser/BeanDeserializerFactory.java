@@ -903,6 +903,6 @@ name, ((AnnotatedParameter) m).getIndex());
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        SubTypeValidator.instance().validateSubType(ctxt, type);
+        SubTypeValidator.instance().validateSubType(ctxt, type, beanDesc);
     }
 }

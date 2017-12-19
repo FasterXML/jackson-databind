@@ -170,6 +170,20 @@ Project: jackson-databind
   `MapperFeature.ALLOW_COERCION_OF_SCALARS`
  (requested by magdel@github)
 
+2.8.11 (not yet released)
+
+#1604: Nested type arguments doesn't work with polymorphic types
+#1680: Blacklist couple more types for deserialization
+#1767: Allow `DeserializationProblemHandler` to respond to primitive types
+ (reported by nhtzr@github)
+#1768: Improve `TypeFactory.constructFromCanonical()` to work with
+  `java.lang.reflect.Type.getTypeName()` format
+#1804: `ValueInstantiator.canInstantiate()` ignores `canCreateUsingArrayDelegate()`
+ (reported by henryptung@github)
+#1807: Jackson-databind caches plain map deserializer and use it even map has `@JsonDeserializer`
+ (reported by lexas2509@github)
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+
 2.8.10 (24-Aug-2017)
 
 #1657: `StdDateFormat` deserializes dates with no tz/offset as UTC instead of

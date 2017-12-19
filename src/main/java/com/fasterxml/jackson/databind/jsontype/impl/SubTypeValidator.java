@@ -71,6 +71,7 @@ public class SubTypeValidator
         final Class<?> raw = type.getRawClass();
         String full = raw.getName();
 
+        main_check:
         do {
             if (_cfgIllegalClassNames.contains(full)) {
                 break;
@@ -84,8 +85,8 @@ public class SubTypeValidator
                     // looking for "AbstractBeanFactoryPointcutAdvisor" but no point to allow any is there?
                     if ("AbstractPointcutAdvisor".equals(name)
                             // ditto  for "FileSystemXmlApplicationContext": block all ApplicationContexts
-                            || "AbstractApplicationContext.equals".equals(name)) {
-                        break;
+                            || "AbstractApplicationContext".equals(name)) {
+                        break main_check;
                     }
                 }
             }

@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.interop;
 
+import org.springframework.jacksontest.BogusApplicationContext;
+import org.springframework.jacksontest.BogusPointcutAdvisor;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 
@@ -67,6 +70,10 @@ public class IllegalTypesCheckTest extends BaseMapTest
     {
         // apparently included by JDK?
         _testIllegalType("com.sun.org.apache.bcel.internal.util.ClassLoader");
+
+        // also: we can try some form of testing, even if bit contrived...
+        _testIllegalType(BogusPointcutAdvisor.class);
+        _testIllegalType(BogusApplicationContext.class);
     }
 
     // 17-Aug-2017, tatu: Ideally would test handling of 3rd party types, too,

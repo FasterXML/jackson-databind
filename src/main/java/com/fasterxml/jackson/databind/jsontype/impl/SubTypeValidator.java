@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -64,7 +65,8 @@ public class SubTypeValidator
 
     public static SubTypeValidator instance() { return instance; }
 
-    public void validateSubType(DeserializationContext ctxt, JavaType type) throws JsonMappingException
+    public void validateSubType(DeserializationContext ctxt, JavaType type,
+            BeanDescription beanDesc) throws JsonMappingException
     {
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.
@@ -92,7 +94,7 @@ public class SubTypeValidator
             return;
         } while (false);
 
-        throw JsonMappingException.from(ctxt,
-                String.format("Illegal type (%s) to deserialize: prevented for security reasons", full));
+        ctxt.reportBadTypeDefinition(beanDesc,
+                "Illegal type (%s) to deserialize: prevented for security reasons", full);
     }
 }

@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
 
@@ -38,50 +40,6 @@ public class BeanDeserializerFactory
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
     private final static Class<?>[] NO_VIEWS = new Class<?>[0];
-
-    /**
-     * Set of well-known "nasty classes", deserialization of which is considered dangerous
-     * and should (and is) prevented by default.
-     *
-     * @since 2.8.9
-     */
-    protected final static Set<String> DEFAULT_NO_DESER_CLASS_NAMES;
-    static {
-        Set<String> s = new HashSet<>();
-        // Courtesy of [https://github.com/kantega/notsoserial]:
-        // (and wrt [databind#1599])
-        s.add("org.apache.commons.collections.functors.InvokerTransformer");
-        s.add("org.apache.commons.collections.functors.InstantiateTransformer");
-        s.add("org.apache.commons.collections4.functors.InvokerTransformer");
-        s.add("org.apache.commons.collections4.functors.InstantiateTransformer");
-        s.add("org.codehaus.groovy.runtime.ConvertedClosure");
-        s.add("org.codehaus.groovy.runtime.MethodClosure");
-        s.add("org.springframework.beans.factory.ObjectFactory");
-        s.add("com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl");
-        s.add("org.apache.xalan.xsltc.trax.TemplatesImpl");
-        // [databind#1680]: may or may not be problem, take no chance
-        s.add("com.sun.rowset.JdbcRowSetImpl");
-        // [databind#1737]; JDK provided
-        s.add("java.util.logging.FileHandler");
-        s.add("java.rmi.server.UnicastRemoteObject");
-        // [databind#1737]; 3rd party
-        s.add("org.springframework.aop.support.AbstractBeanFactoryPointcutAdvisor");
-        s.add("org.springframework.beans.factory.config.PropertyPathFactoryBean");
-        s.add("com.mchange.v2.c3p0.JndiRefForwardingDataSource");
-        s.add("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
-
-        // [databind#1855]: more 3rd party
-        s.add("org.apache.tomcat.dbcp.dbcp2.BasicDataSource");
-        s.add("com.sun.org.apache.bcel.internal.util.ClassLoader");
-        DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
-    }
-
-    /**
-     * Set of class names of types that are never to be deserialized.
-     *
-     * @since 2.8.9
-     */
-    protected Set<String> _cfgIllegalClassNames = DEFAULT_NO_DESER_CLASS_NAMES;
 
     /*
     /**********************************************************
@@ -182,7 +140,7 @@ public class BeanDeserializerFactory
             return null;
         }
         // For checks like [databind#1599]
-        checkIllegalTypes(ctxt, type, beanDesc);
+        _validateSubType(ctxt, type, beanDesc);
         // Use generic bean introspection to build deserializer
         return buildBeanDeserializer(ctxt, type, beanDesc);
     }
@@ -900,19 +858,12 @@ beanDesc.getBeanClass().getName(), name, ((AnnotatedParameter) m).getIndex());
     }
 
     /**
-     * @since 2.8.9
+     * @since 2.8.11
      */
-    protected void checkIllegalTypes(DeserializationContext ctxt, JavaType type,
+    protected void _validateSubType(DeserializationContext ctxt, JavaType type,
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        // There are certain nasty classes that could cause problems, mostly
-        // via default typing -- catch them here.
-        String full = type.getRawClass().getName();
-
-        if (_cfgIllegalClassNames.contains(full)) {
-            ctxt.reportBadTypeDefinition(beanDesc,
-                    "Illegal type (%s) to deserialize: prevented for security reasons", full);
-        }
+        SubTypeValidator.instance().validateSubType(ctxt, type);
     }
 }

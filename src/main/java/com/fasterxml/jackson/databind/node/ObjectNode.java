@@ -1,20 +1,32 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.util.RawValue;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Node that maps to JSON Object structures in JSON content.
- *<p>
- * Note: class was <code>final</code> temporarily for Jackson 2.2.
+ * <p>
+ * Note: class was <code>final</code> temporarily for Jackson 2.2
  */
 public class ObjectNode
     extends ContainerNode<ObjectNode>
@@ -882,4 +894,105 @@ public class ObjectNode
         _children.put(fieldName, value);
         return this;
     }
+
+  /**
+   * This method takes a JSON Tree and a list of all the Objects/Fields to keep from the Tree. The
+   * output is a {@link BaseJsonNode} Which is a reduced JSON Tree.
+   * 
+   * Input: <br>
+   * .....[A] <br>
+   * ...../.\ <br>
+   * ...[B].[C] <br>
+   * .../.\...\ <br>
+   * .[D].[E].[F] <br>
+   * ........./ <br>
+   * .......[G] <br>
+   * 
+   * Input JSON : { "A": { "B": { "D": "value", "E": "value" }, "C": { "F": { "G": "value" } } } }
+   * 
+   * Let's say We only need [E,C] from the above Tree, Then the resulting output will be following
+   *
+   * Output: <br>
+   * ....[A] <br>
+   * ..../.\ <br>
+   * ..[B].[C]<br>
+   * ....\ <br>
+   * ....[E] <br>
+   * 
+   * Output JSON : { "A": { "B": { "E": "value" }, "C": { } } } }
+   * 
+   * @param root : The root {@link JsonNode} object for the Tree to be reduced
+   * 
+   * @param objectsToKeep : A list of fields that the returning Tree should keep
+   * 
+   * @return
+   */
+  public BaseJsonNode reduceTree(JsonNode root, Set<String> objectsToKeep) {
+    return reduceTree("root", root, objectsToKeep);
+  }
+
+  private BaseJsonNode reduceTree(String nodeName, JsonNode node, Set<String> objectsToKeep) {
+    if (node == null) {
+      return null;
+    }
+    JsonNodeType type = node.getNodeType();
+    switch (type) {
+      case OBJECT:
+
+        if (objectsToKeep.contains(nodeName)) {
+          return (ObjectNode) node;
+        } else {
+          BaseJsonNode result = null;
+          String childNodeName = null;
+          JsonNode childNode = null;
+          Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+          ObjectNode parentObject = new ObjectNode(_nodeFactory);
+          while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> eachChild = fields.next();
+
+            childNodeName = eachChild.getKey();
+            childNode = eachChild.getValue();
+            result = (BaseJsonNode) reduceTree(childNodeName, childNode, objectsToKeep);
+            if (null != result) {
+              parentObject.put(childNodeName, result);
+            }
+          }
+          if (parentObject.elements().hasNext()) {
+            return parentObject;
+          } else {
+            return null;
+          }
+        }
+      case ARRAY:
+        if (objectsToKeep.contains(nodeName)) {
+          return (BaseJsonNode) node;
+        } else {
+          ArrayNode parentArrayNode = new ArrayNode(_nodeFactory);
+          int sz = node.size();
+          if (sz == 0) {
+            return null;
+          }
+          for (int i = 0; i < sz; i++) {
+            BaseJsonNode result = null;
+            JsonNode eachChild = node.get(i);
+
+            result = (BaseJsonNode) reduceTree("ArrayNode", eachChild, objectsToKeep);
+            if (null != result) {
+              parentArrayNode.add(result);
+            }
+          }
+          if (parentArrayNode.size() > 0) {
+            return parentArrayNode;
+          } else {
+            return null;
+          }
+        }
+      default:
+        if (objectsToKeep.contains(nodeName)) {
+          return (BaseJsonNode) node;
+        }
+        break;
+    }
+    return null;
+  }
 }

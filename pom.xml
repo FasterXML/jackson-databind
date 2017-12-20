@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -25,12 +26,10 @@
   </scm>
 
   <properties>
-    <!-- With Jackson 2.9 we will require JDK 7 (except for annotations/streaming),
-         and new language features (diamond pattern) may be used.
-         JDK classes are still loaded dynamically since there isn't much downside
-         (small number of types); this allows use on JDK 6 platforms still (including
-         Android)
-      -->
+    <!-- With Jackson 2.9 we will require JDK 7 (except for annotations/streaming), 
+      and new language features (diamond pattern) may be used. JDK classes are 
+      still loaded dynamically since there isn't much downside (small number of 
+      types); this allows use on JDK 6 platforms still (including Android) -->
     <javac.src.version>1.7</javac.src.version>
     <javac.target.version>1.7</javac.target.version>
 
@@ -51,10 +50,9 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <!-- 06-Mar-2017, tatu: Although bom provides for dependencies, some legacy
-             usage seems to benefit from actually specifying version here in case
-             it is dependent on transitively
-        -->
+      <!-- 06-Mar-2017, tatu: Although bom provides for dependencies, some legacy 
+        usage seems to benefit from actually specifying version here in case it is 
+        dependent on transitively -->
       <version>${jackson.version.annotations}</version>
     </dependency>
     <dependency>
@@ -63,9 +61,8 @@
       <version>${jackson.version.core}</version>
     </dependency>
 
-    <!-- and for testing we need a few libraries
-         libs for which we use reflection for code, but direct dep for testing
-      -->
+    <!-- and for testing we need a few libraries libs for which we use reflection 
+      for code, but direct dep for testing -->
 
     <dependency>
       <groupId>org.powermock</groupId>
@@ -89,15 +86,17 @@
   </dependencies>
 
   <build>
-     <plugins>
+    <plugins>
       <!-- Important: enable enforcer plug-in: -->
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <executions> <!-- or?  combine.children="merge"> -->
+        <executions> <!-- or? combine.children="merge"> -->
           <execution>
             <id>enforce-properties</id>
-	    <phase>validate</phase>
-            <goals><goal>enforce</goal></goals>
+            <phase>validate</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
@@ -161,5 +160,4 @@
       </properties>
     </profile>
   </profiles>
-
 </project>
